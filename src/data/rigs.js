@@ -546,6 +546,54 @@ RIGS.wyrm = {
   },
 };
 
+RIGS.draconic = {
+  id: 'draconic', name: 'Draconic', prefix: 'd.',
+  slots: ['body', 'head', 'eyes', 'jaw', 'horns', 'wings', 'legsFront', 'legsBack', 'tail', 'spines', 'chest', 'breath'],
+  names: {
+    body: 'Body', head: 'Head', eyes: 'Eyes', jaw: 'Jaw', horns: 'Horns', wings: 'Wings', legsFront: 'Forelegs',
+    legsBack: 'Hind legs', tail: 'Tail', spines: 'Spines', chest: 'Chest', breath: 'Breath',
+  },
+  paint: ['body', 'head', 'horns', 'wings', 'legsFront', 'legsBack', 'tail', 'spines', 'chest', 'breath'],
+  swappable: ['horns', 'spines', 'chest', 'breath'],
+  required: ['body', 'head', 'eyes', 'jaw', 'wings', 'legsFront', 'legsBack', 'tail'],
+  linked: [['legsFront', 'legsBack'], ['head', 'jaw']],
+  ground: ['body', 'legsFront', 'legsBack'],
+  clipped: ['chest'],
+  tree: {
+    slot: 'body', anim: 'body',
+    behind: [
+      { slot: 'wings', socket: 'wingFar', far: true, scale: 'wing', anim: 'flap' },
+      { slot: 'wings', socket: 'wing', scale: 'wing', anim: 'flap' },
+      { slot: 'spines', socket: 'spines' },
+      { slot: 'tail', socket: 'tail', scale: 'tail', anim: 'tail' },
+      { slot: 'legsBack', socket: 'hipFar', far: true, scale: 'leg' },
+      { slot: 'legsFront', socket: 'shoulderFar', far: true, scale: 'leg' },
+    ],
+    front: [
+      { slot: 'legsBack', socket: 'hip', scale: 'leg' },
+      { slot: 'legsFront', socket: 'shoulder', scale: 'leg' },
+      {
+        slot: 'head', socket: 'head', scale: 'head', anim: 'head',
+        behind: [{ slot: 'horns', socket: 'horns' }],
+        front: [
+          { slot: 'eyes', socket: 'eyeFar', far: true, scale: 'eye', small: true },
+          { slot: 'eyes', socket: 'eye', scale: 'eye', small: true },
+          { slot: 'jaw', socket: 'jaw', small: true },
+          { slot: 'breath', socket: 'breath', small: true },
+        ],
+      },
+    ],
+  },
+  mannequin: {
+    parts: {
+      body: 'd.body.drake', head: 'd.head.classic', eyes: 'd.eyes.slit', jaw: 'd.jaw.grin', horns: 'd.horns.none', wings: 'd.wings.bat',
+      legsFront: 'd.legsFront.claw', legsBack: 'd.legsBack.haunch', tail: 'd.tail.spade', spines: 'd.spines.none', chest: 'd.chest.none', breath: 'd.breath.none',
+    },
+    forSlot: {},
+    accentSlots: ['horns', 'wings', 'tail', 'spines', 'chest', 'breath'],
+  },
+};
+
 export const RIG_IDS = Object.keys(RIGS);
 
 /** Rig used when a genome names none or an unknown one (old saves): the first class. */

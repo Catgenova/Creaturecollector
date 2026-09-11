@@ -126,6 +126,14 @@ POSES.wyrm = {
   hurt: { body: { da: -8, dx: -4 }, head: { da: -14, dx: -3 }, legs: { da: 12, far: { da: 8 } }, tail: { da: -10 }, whiskers: { da: -18 }, horns: { da: -8 } },
 };
 
+POSES.draconic = mergePose(quadCore, {
+  brace: { jaw: { da: 4 }, wings: { da: -4 } },
+  crouch: { wings: { da: -8 }, spines: { ds: 0.96 } },
+  poise: { wings: { da: 8 }, spines: { ds: 1.05 }, horns: { ds: 1.03 } },
+  attack: { jaw: { da: 12 }, wings: { da: 20, far: { da: 12 } }, breath: { ds: 1.25, dx: 2 }, spines: { ds: 1.05 } },
+  hurt: { jaw: { da: 14 }, wings: { da: 26, far: { da: 16 } }, horns: { da: -6 } },
+});
+
 /** The slot deltas of a pose on a rig ({} for an unknown pose or 'stand'). */
 export function poseTable(rig, pose) { return (POSES[rig] && POSES[rig][pose]) || {}; }
 

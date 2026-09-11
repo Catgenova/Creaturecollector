@@ -50,5 +50,7 @@ export const SLOT_FAMILY = {
   spores: 'fur', ring: 'face', shelves: 'fur', veil: 'fur',
   // wyrm
   maw: 'face', whiskers: 'crown', plates: 'fur', bands: 'flat',
+  // draconic
+  breath: 'face',
 };
 export function growthFor(slot) { return SLOT_GROWTH[SLOT_FAMILY[slot] || 'face']; }
