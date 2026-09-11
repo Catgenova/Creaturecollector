@@ -10,7 +10,7 @@ import { stageOf } from '../data/evolution.js';
 
 export const PARTY = { max: MAX_PARTY, maxLevel: 100, starterLevel: 5 };
 /** Experience follows Pokémon Red: a foe's base yield (from its stat total and evolution stage) times its level, over seven. */
-export const XP = { yieldPerBst: 0.15, stageYield: { 1: 1, 2: 1.6, 3: 2.4 }, trainerBonus: 1.5 };
+export const XP = { yieldPerBst: 0.15, stageYield: { 1: 1, 2: 1.6, 3: 2.4 }, trainerBonus: 1.5, benchShare: 0.5 };
 
 /** Medium-fast growth: level L needs L cubed experience. */
 export function xpForLevel(L) { return L * L * L; }

@@ -7,7 +7,7 @@ import { WILD_SPECIES, TIER_WEIGHT } from '../data/species.js';
 import { speciesGenome } from '../creature/genome.js';
 import { fuse, canFuse } from '../creature/fusion.js';
 import { createBattle, makeBattler } from '../battle/engine.js';
-import { PARTY, makeMember, gainXp, healParty, xpProgress, xpReward, memberMaxHp, canFight } from './party.js';
+import { PARTY, XP, makeMember, gainXp, healParty, xpProgress, xpReward, memberMaxHp, canFight } from './party.js';
 import { WORLD, TILE, REGIONS, BIOME_ORDER, worldFor, tileAt, biomeAt, trainerAt, isWalkable, inBounds, wildSpawn, levelAt } from './world.js';
 import { goldReward, battleItems, syncBagFromBattle } from './market.js';
 
@@ -217,19 +217,23 @@ export function applyJourneyBattle(j, state) {
   }
   let xp = 0;
   for (const f of foes) if (f.fainted || (capturedBattler && f.uid === capturedBattler.uid)) xp += xpReward(f.level, f.genome.bst, enc.kind === 'boss' || enc.kind === 'council' || enc.alpha ? 'boss' : 'wild');
-  // Red's rule: the experience is shared equally by the party members that fought and are still standing
+  // Red's rule: the experience is shared equally by the party members that fought and are still standing;
+  // the rest of the party, if still standing, is granted half of a fighter's share
   let took = j.party.map((m, i) => i).filter((i) => mine[i] && mine[i].fought && j.party[i].hp > 0);
   if (!took.length) took = j.party.map((m, i) => i).filter((i) => mine[i] && mine[i].fought);
   if (!took.length) took = [0];
   const share = Math.max(1, Math.floor(xp / took.length));
-  report.xp = share; report.shared = took.length;
+  const benchShare = Math.floor(share * XP.benchShare);
+  report.xp = share; report.shared = took.length; report.benchXp = benchShare; report.bench = 0;
   j.pendingLearns = j.pendingLearns || [];
   j.party.forEach((m, index) => {
-    if (!took.includes(index)) return;
+    const bench = !took.includes(index);
+    if (bench && (m.hp <= 0 || benchShare <= 0)) return;
+    if (bench) report.bench++;
     const before = xpProgress(m);
-    const r = gainXp(m, share);
+    const r = gainXp(m, bench ? benchShare : share);
     const after = xpProgress(m);
-    report.xpGains.push({ uid: m.uid, index, from: { level: r.from, frac: before.frac }, to: { level: r.to, frac: after.frac }, after });
+    report.xpGains.push({ uid: m.uid, index, bench, from: { level: r.from, frac: before.frac }, to: { level: r.to, frac: after.frac }, after });
     if (r.to > r.from) report.levelUps.push({ name: m.genome.name, from: r.from, to: r.to });
     for (const id of r.learned) report.learned.push({ name: m.genome.name, move: id });
     for (const id of r.pending) j.pendingLearns.push({ uid: m.uid, moveId: id });

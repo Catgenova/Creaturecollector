@@ -3,7 +3,7 @@
 // Wardens in their lairs, the Council Spire, camps that heal and a shrine that fuses.
 // Fights hand off to the shared fight view and come back to the same spot.
 import { h, clear, toast, copyText, appendChildren } from './dom.js';
-import { creatureEl, typeChips, section, stageBadge } from './common.js';
+import { creatureEl, typeChips, section, stageBadge, moveInfoEl } from './common.js';
 import { freshSeed } from '../core/rng.js';
 import { openSheet } from './sheet.js';
 import { mountFight, xpRow } from './fight.js';
@@ -111,7 +111,7 @@ function owReportCard(j) {
   if (r.wiped) lines.push(`Your party was overwhelmed by ${r.foe}. You come to at the last camp, rested.`);
   else if (!r.won) lines.push(`${r.foe} got away.`);
   else {
-    lines.push(`Beat ${r.foe}. +${r.xp} XP${r.shared > 1 ? ` each to the ${r.shared} that fought` : ''}${r.gold ? `, +${r.gold.toLocaleString()} gold` : ''}.`);
+    lines.push(`Beat ${r.foe}. +${r.xp} XP${r.shared > 1 ? ` each to the ${r.shared} that fought` : ''}${r.bench ? `, +${r.benchXp} to ${r.bench === 1 ? 'the one' : `each of the ${r.bench}`} that sat out` : ''}${r.gold ? `, +${r.gold.toLocaleString()} gold` : ''}.`);
     for (const l of r.levelUps) { lines.push(`${l.name} grew to Lv ${l.to}!`); if (stageOf(l.to) > stageOf(l.from)) lines.push(`${l.name} evolved! ${stageName(stageOf(l.to))}.`); }
     for (const l of r.learned || []) { const mv = getMove(l.move); lines.push(`${l.name} learned ${mv ? mv.name : l.move}!`); }
     if (r.captured) lines.push(`${r.captured.genome.name} joined ${r.toBox ? 'the box' : 'the party'}.`);
@@ -430,7 +430,7 @@ function owPartySheet(j) {
     const partyList = h('div', { class: 'party-list' });
     j.party.forEach((m, i) => partyList.append(owMemberRow(j, m, [
       btn('Lead', () => { setLead(j, m.uid); owSave(); render(); }, i === 0),
-      btn('Info', () => openSheet(m.genome, { level: m.level })),
+      btn('Info', () => openSheet(m.genome, { level: m.level, moves: m.moves })),
     ])));
     appendChildren(body, [
       ...section(`Party · ${j.party.length}/${JOURNEY.partyMax}`, h('p', { class: 'hint' }, `The lead goes out first. Camps heal everyone; a wipe sends you back to the last one you rested at. ${j.box.length ? `${j.box.length} in storage` : 'Storage is empty'}; deposit and withdraw at the Creature Storage in the Crossroads.`), partyList),
@@ -485,17 +485,6 @@ function owMenuSheet(j) {
   const sheetRef = owSheet('Menu', body);
 }
 
-/** A move's name with its type, damage type and power, accuracy and PP, plus an optional tag. */
-function owMoveInfo(move, tag) {
-  const dt = DAMAGE_TYPES[move.cat];
-  return h('div', { class: 'shop-info' }, h('b', {}, move.name),
-    h('div', { class: 'shop-meta' },
-      h('span', { class: 'chip', style: { '--chip': TYPE_INFO[move.type].color } }, move.type),
-      h('span', { class: 'chip dt-chip', style: { '--chip': dt ? dt.color : '#9aa0b4' } }, dt ? `${dt.name}${move.power ? ` ${move.power}` : ''}` : 'Status'),
-      h('span', {}, `${move.acc == null ? 'never misses' : `${move.acc}% acc`} · ${move.pp} PP`),
-      tag ? h('span', { class: 'shop-tag' }, tag) : null));
-}
-
 /** A potion's name, effect and price or quantity. */
 function owItemInfo(item, tag) {
   return h('div', { class: 'shop-info item-info' }, h('div', { class: 'item-icon small', style: { '--chip': item.color } }, '+'),
@@ -520,7 +509,7 @@ function owBagSheet(j) {
     }
     if (scrolls.length) {
       const list = h('div', { class: 'shop-list' });
-      for (const { move, qty } of scrolls) list.append(h('div', { class: 'shop-row' }, owMoveInfo(move, `×${qty}`), h('button', { class: 'btn small primary', type: 'button', onclick: () => { teaching = { moveId: move.id, uid: null }; render(); } }, 'Teach')));
+      for (const { move, qty } of scrolls) list.append(h('div', { class: 'shop-row' }, moveInfoEl(move, `×${qty}`), h('button', { class: 'btn small primary', type: 'button', onclick: () => { teaching = { moveId: move.id, uid: null }; render(); } }, 'Teach')));
       body.append(...section('Move scrolls', h('p', { class: 'hint' }, 'A scroll teaches its move to one creature and is used up. Any creature can learn any move.'), list));
     }
   };
@@ -606,7 +595,7 @@ function owMarketSheet(j) {
     for (const { move, cost } of catalogue) {
       if (filter !== 'All' && move.type !== filter) continue;
       const owned = bagCount(j, move.id);
-      list.append(h('div', { class: 'shop-row' }, owMoveInfo(move, owned ? `in bag ×${owned}` : ''),
+      list.append(h('div', { class: 'shop-row' }, moveInfoEl(move, owned ? `in bag ×${owned}` : ''),
         h('button', { class: `btn small${(j.gold || 0) >= cost ? ' primary' : ''}`, type: 'button', disabled: (j.gold || 0) < cost, onclick: () => {
           const r = buyMove(j, move.id);
           if (!r.ok) { toast(r.reason); return; }
@@ -633,12 +622,12 @@ function owStorageSheet(j) {
     j.party.forEach((m, i) => partyList.append(owMemberRow(j, m, [
       btn('Lead', () => { setLead(j, m.uid); owSave(); render(); }, i === 0),
       btn('Deposit', () => { moveMember(j, m.uid, 'box'); owSave(); render(); }, j.party.length <= 1),
-      btn('Info', () => openSheet(m.genome, { level: m.level })),
+      btn('Info', () => openSheet(m.genome, { level: m.level, moves: m.moves })),
     ])));
     const boxList = h('div', { class: 'party-list' });
     for (const m of j.box) boxList.append(owMemberRow(j, m, [
       btn('Withdraw', () => { moveMember(j, m.uid, 'party'); owSave(); render(); }, j.party.length >= JOURNEY.partyMax),
-      btn('Info', () => openSheet(m.genome, { level: m.level })),
+      btn('Info', () => openSheet(m.genome, { level: m.level, moves: m.moves })),
     ]));
     appendChildren(body, [
       h('p', { class: 'hint' }, `Up to ${JOURNEY.partyMax} travel with you; the rest wait here. Creatures caught with a full party come straight to storage.`),

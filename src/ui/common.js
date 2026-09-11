@@ -5,6 +5,7 @@ import { DAMAGE_TYPES } from '../data/damage.js';
 import { stageOf, STAGE_MARK, stageName } from '../data/evolution.js';
 import { TYPE_INFO } from '../data/types.js';
 import { renderCreatureSvg } from '../creature/render.js';
+import { accuracyText, moveEffects } from '../data/moves.js';
 
 export function typeChip(type) {
   const info = TYPE_INFO[type] || { color: '#999', glyph: '?' };
@@ -42,4 +43,17 @@ export function creatureEl(genome, opts) {
 
 export function section(title, ...children) {
   return [h('h3', { class: 'sec' }, title), ...children];
+}
+
+/** A move's name with its type, damage type and power, accuracy and PP, its side effects with their odds, and an optional tag. */
+export function moveInfoEl(move, tag) {
+  const dt = DAMAGE_TYPES[move.cat];
+  const fx = moveEffects(move);
+  return h('div', { class: 'shop-info' }, h('b', {}, move.name),
+    h('div', { class: 'shop-meta' },
+      h('span', { class: 'chip', style: { '--chip': TYPE_INFO[move.type].color } }, move.type),
+      h('span', { class: 'chip dt-chip', style: { '--chip': dt ? dt.color : '#9aa0b4' } }, dt ? `${dt.name}${move.power ? ` ${move.power}` : ''}` : 'Status'),
+      h('span', {}, `${accuracyText(move)} · ${move.pp} PP`),
+      tag ? h('span', { class: 'shop-tag' }, tag) : null),
+    fx.length ? h('div', { class: 'shop-fx' }, fx.map((t) => h('em', {}, t))) : null);
 }

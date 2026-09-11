@@ -51,6 +51,11 @@ if (state.encounter) {
   await page.screenshot({ path: path.join(out, 'world-fight-items.png'), fullPage: true });
   console.log('fight items:', JSON.stringify(await page.evaluate(() => [...document.querySelectorAll('.sheet .party-row')].map((r) => ({ text: r.textContent.trim().slice(0, 40), disabled: r.disabled })))));
   await page.click('.sheet .close');
+  await page.click('text=Info');
+  await page.waitForSelector('.sheet .shop-row', { timeout: 5000 });
+  await page.screenshot({ path: path.join(out, 'world-fight-info.png'), fullPage: true });
+  console.log('info moves:', JSON.stringify(await page.evaluate(() => [...document.querySelectorAll('.sheet .shop-row')].slice(0, 3).map((r) => r.textContent.trim().replace(/\s+/g, ' ').slice(0, 70)))));
+  await page.click('.sheet .close');
   await page.click('text=Fast');
   await page.click('text=Auto');
   await page.waitForSelector('.result-card', { timeout: 90000 });

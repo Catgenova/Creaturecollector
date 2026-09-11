@@ -6,7 +6,7 @@ import { chooseAction } from '../src/battle/ai.js';
 import { cladeOf } from '../src/creature/genome.js';
 import { BIOME_ORDER, TILE, tileAt, worldFor, trainerAt } from '../src/game/world.js';
 import { JOURNEY, DIRS, newJourney, chooseJourneyStarter, tryMove, facing, talkTo, acceptChallenge, challengeWarden, enterSpire, fleeEncounter, buildJourneyBattle, applyJourneyBattle, journeyPlace, badgeList, canFuseJourney, previewShrineFusion, shrineFuse, respawnJourney, partyHealth } from '../src/game/journey.js';
-import { memberMaxHp } from '../src/game/party.js';
+import { memberMaxHp, XP } from '../src/game/party.js';
 import { emptySave, normalizeSave, exportSave, importSave, normalizeJourney } from '../src/game/save.js';
 import { findPath } from '../src/game/world.js';
 import { WILD_SPECIES } from '../src/data/species.js';
@@ -264,37 +264,49 @@ test('the save survives garbage, retires journeys and folds old arena runs into 
   assert.equal(migrated.journey, null);
 });
 
-test('experience is shared by the party members that fought, as in Red', () => {
+test('experience is shared by the party members that fought, as in Red; the bench gets half a share', () => {
   const j = fresh('share');
   j.party.push(makeMember(speciesGenome(WILD_SPECIES.find((sp) => sp.id !== j.party[0].genome.species), makeRng('second')), 5, 'j2'));
   const world = worldFor(j.seed);
   acceptChallenge(j, world.trainers[0].id);
   const beforeA = j.party[0].xp, beforeB = j.party[1].xp;
-  // only the lead fought
+  // only the lead fought: it takes the whole reward, the benched creature half of that
   const solo = decided(j, 0);
   const rSolo = applyJourneyBattle(j, solo).report;
   assert.equal(rSolo.shared, 1);
-  assert.ok(j.party[0].xp > beforeA && j.party[1].xp === beforeB, 'the benched creature gains nothing');
-  assert.equal(rSolo.xpGains.length, 1);
-  // both fought: the reward splits in two
+  assert.equal(rSolo.bench, 1);
+  assert.equal(rSolo.benchXp, Math.floor(rSolo.xp * XP.benchShare));
+  assert.equal(j.party[0].xp - beforeA, rSolo.xp);
+  assert.equal(j.party[1].xp - beforeB, rSolo.benchXp, 'the benched creature gets half a share');
+  assert.ok(rSolo.benchXp > 0 && rSolo.benchXp < rSolo.xp);
+  assert.equal(rSolo.xpGains.length, 2);
+  assert.deepEqual(rSolo.xpGains.map((g) => g.bench), [false, true]);
+  // both fought: the reward splits in two and nobody sat out
   j.beaten = {};
   acceptChallenge(j, world.trainers[0].id);
   const both = decided(j, 0);
   both.sides[0].party[1].fought = true;
   const a0 = j.party[0].xp, b0 = j.party[1].xp;
   const rBoth = applyJourneyBattle(j, both).report;
-  assert.equal(rBoth.shared, 2);
+  assert.equal(rBoth.shared, 2); assert.equal(rBoth.bench, 0);
   assert.equal(j.party[0].xp - a0, rBoth.xp); assert.equal(j.party[1].xp - b0, rBoth.xp);
   assert.ok(rBoth.xp <= Math.ceil(rSolo.xp / 2) + 1, `${rBoth.xp} is about half of ${rSolo.xp}`);
-  // a fainted participant gets nothing
+  // a fainted participant gets nothing, and neither does a fainted bench
   j.beaten = {};
   acceptChallenge(j, world.trainers[0].id);
   const down = decided(j, 0);
   down.sides[0].party[1].fought = true; down.sides[0].party[1].hp = 0; down.sides[0].party[1].fainted = true;
   const b1 = j.party[1].xp;
   const rDown = applyJourneyBattle(j, down).report;
-  assert.equal(rDown.shared, 1); assert.equal(j.party[1].xp, b1);
+  assert.equal(rDown.shared, 1); assert.equal(rDown.bench, 0); assert.equal(j.party[1].xp, b1);
   assert.equal(j.party[1].hp, 0);
+  j.beaten = {};
+  acceptChallenge(j, world.trainers[0].id);
+  const sat = decided(j, 0);
+  sat.sides[0].party[1].hp = 0; sat.sides[0].party[1].fainted = true;
+  const rSat = applyJourneyBattle(j, sat).report;
+  assert.equal(rSat.bench, 0, 'a fainted creature on the bench gets nothing');
+  assert.equal(j.party[1].xp, b1);
 });
 
 test('Creature Storage stands at the crossroads and opens when you step on its door', () => {

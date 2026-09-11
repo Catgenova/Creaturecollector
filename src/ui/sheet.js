@@ -2,8 +2,9 @@
 // base stats, parts, palette and traits. Opened from party rows, the collection, fusion previews
 // and the fight view.
 import { h, clear } from './dom.js';
-import { typeChips, creatureEl, section, elementalBadge, styleChip } from './common.js';
-import { baseStats, resolveParts, TRAIT_KEYS, speciesOf, rigOf, makeElemental, elementalOf, cladeOf } from '../creature/genome.js';
+import { typeChips, creatureEl, section, elementalBadge, styleChip, moveInfoEl } from './common.js';
+import { baseStats, resolveParts, TRAIT_KEYS, speciesOf, rigOf, makeElemental, elementalOf, cladeOf, learnsetOf } from '../creature/genome.js';
+import { getMove } from '../data/moves.js';
 import { STAT_KEYS, STAT_NAMES } from '../data/damage.js';
 import { ELEMENT_IDS, ELEMENTS } from '../data/elements.js';
 import { stageOf, stageName } from '../data/evolution.js';
@@ -45,6 +46,18 @@ function traitRows(g) {
   return h('div', { class: 'stats' }, rows);
 }
 
+/** The moves a creature knows (ids) as detail rows, or nothing when none are given. */
+function moveRows(ids) {
+  const rows = (ids || []).map((id) => getMove(id)).filter(Boolean).map((mv) => h('div', { class: 'shop-row' }, moveInfoEl(mv)));
+  return rows.length ? h('div', { class: 'shop-list' }, rows) : null;
+}
+
+/** Every move the creature learns by level, lowest first, with the level as the tag; ones still to come are dimmed. */
+function learnsetRows(g, level) {
+  const rows = [...learnsetOf(g)].sort((a, b) => a[0] - b[0]).map(([lv, id]) => (getMove(id) ? h('div', { class: `shop-row${level != null && lv > level ? ' later' : ''}` }, moveInfoEl(getMove(id), `Lv ${lv}`)) : null)).filter(Boolean);
+  return rows.length ? h('div', { class: 'shop-list' }, rows) : h('p', { class: 'hint' }, 'Nothing to learn.');
+}
+
 let activeSheet = null;
 export function closeSheet() { if (activeSheet) { activeSheet(); activeSheet = null; } }
 
@@ -81,6 +94,8 @@ export function openSheet(g, sheetOpts = {}) {
       } }, h('option', { value: '' }, 'Elemental preview'), ...ELEMENT_IDS.map((id) => h('option', { value: id }, `${ELEMENTS[id].name} Elemental`)))),
     sp ? h('p', { class: 'desc' }, sp.desc) : null,
     ...section('Base stats', statRows(g)),
+    ...(moveRows(sheetOpts.moves) ? section('Moves', moveRows(sheetOpts.moves)) : []),
+    ...section('Learnset', learnsetRows(g, sheetOpts.level)),
     ...section('Parts', partRows(g)),
     ...section('Palette', h('div', { class: 'swatches' }, ['c1', 'c2', 'c3', 'eye'].map((k) => h('span', { class: 'sw', title: k, style: { background: swatchCss(g.palette[k]) } })))),
     ...section('Traits', traitRows(g)),

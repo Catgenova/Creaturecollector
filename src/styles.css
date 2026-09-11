@@ -177,6 +177,13 @@ h3.sec { font-size: 12px; text-transform: uppercase; letter-spacing: .1em; color
 .chips { display: flex; flex-wrap: wrap; gap: 4px; justify-content: center; }
 .fighter-style { margin-left: 6px; }
 .mv-meta { display: flex; justify-content: space-between; width: 100%; font-size: 12px; color: var(--fg2); }
+.mv-fx { display: flex; flex-wrap: wrap; gap: 2px 8px; font-size: 11px; color: var(--fg2); line-height: 1.3; }
+.mv-fx em { font-style: normal; }
+.mv-fx .acc { color: var(--fg); opacity: .8; }
+.mv-fx .st { color: #c9b8ff; }
+.shop-fx { display: flex; flex-wrap: wrap; gap: 2px 8px; font-size: 11px; color: #c9b8ff; margin-top: 2px; }
+.shop-fx em { font-style: normal; }
+.shop-row.later { opacity: .55; }
 .util-row { display: flex; gap: 8px; justify-content: flex-end; }
 .waiting { color: var(--fg2); text-align: center; padding: 10px; }
 .party-list { display: flex; flex-direction: column; gap: 8px; }

@@ -258,7 +258,14 @@ events back, so a battle is replayable from its start state and action log.
   move (`src/data/moves.js`, 157 moves, original names).
 - **Status:** burn, poison, paralysis, sleep, freeze with the usual type
   immunities; status-inflicting moves also respect the move type's immunity.
-  Stat stages ±6. Struggle when all PP is gone.
+  Stat stages ±6. Struggle when all PP is gone. PP is not authored but derived
+  (`ppFor`, `PP_RULE` in `src/data/moves.js`): damaging moves start from a band
+  by power (35 up to 40, 30 to 50, 25 to 60, 20 to 70, 15 to 90, 10 to 100, 5
+  above; multi-hit moves count three hits) and drop one band per strong extra
+  (a status at 30%+, two bands when guaranteed; a flinch at 30%+; a likely foe
+  debuff or self buff; draining; each point of positive priority). Status
+  moves: sleep or freeze 10, other major statuses 15, heals 10, sharp stat
+  changes (±2, three stats, accuracy or evasion) 20, ordinary ones 30.
 - **Abilities** (`src/data/abilities.js`, 30): entry (Menace), end of turn
   (Momentum), damage modifiers (Purebred, Finesse, Grit, Blubber…), immunities
   (Hover, Sponge, Capacitor, status guards), contact effects (Thorn Hide, Live
@@ -280,7 +287,10 @@ events back, so a battle is replayable from its start state and action log.
 
 The fight view (`ui/fight.js`) is portrait: foe panel and creature on top,
 yours below, a four-line log, then move cards with type, damage type, power,
-PP and effectiveness words, plus Party, Info, capture, Fast and Auto. It plays
+PP, accuracy, every side effect with its odds (`moveEffects`: "30% burn", "+1
+own Speed", "hits 2–5×", "priority +1") and effectiveness words, plus Party,
+Info, Items, capture, Fast and Auto. Info opens the creature sheet with a
+Moves section (the same details) and its learnset by level. It plays
 the engine's events back with sprite poses and sound, and is mounted by the
 overworld for every wild, trainer, Warden and Council fight.
 
@@ -301,8 +311,9 @@ through `src/game/party.js` and `src/game/save.js`.
   400-total creature yields about 60 like an early-route wild), half again
   when it belonged to a trainer, a Warden, the Council or was an alpha. The
   reward is shared equally by the party members that fought and are still
-  standing (the engine flags `fought` on every creature sent out); benched
-  and fainted creatures get nothing. Levelling raises current HP by the
+  standing (the engine flags `fought` on every creature sent out); each
+  standing creature that sat out is granted half of a fighter's share
+  (`XP.benchShare`); fainted creatures get nothing. Levelling raises current HP by the
   max-HP gain. Members keep their own four moves: levelling into a new one
   fills an empty slot or queues a prompt asking which move to replace, with a
   skip.

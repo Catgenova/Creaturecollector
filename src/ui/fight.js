@@ -6,7 +6,7 @@ import { typeChips, creatureEl, styleChip, stageBadge } from './common.js';
 import { makeRng } from '../core/rng.js';
 import { step, legalActions, activeOf, describeEvent, moveEffectiveness, aliveCount, captureChance, STATUS_INFO } from '../battle/engine.js';
 import { chooseAction } from '../battle/ai.js';
-import { getMove } from '../data/moves.js';
+import { getMove, accuracyText, moveEffects } from '../data/moves.js';
 import { ITEM_IDS, getItem } from '../data/items.js';
 import { TYPE_INFO } from '../data/types.js';
 import { abilityName } from '../data/abilities.js';
@@ -299,6 +299,7 @@ function renderFightControls(f) {
       h('span', { class: 'mv-meta' },
         h('span', { class: 'chip' }, h('b', {}, info.glyph), mv.type),
         h('span', { class: `chip dt-chip dt-${mv.cat}`, style: dt ? { '--chip': dt.color } : null }, dt ? h('b', {}, dt.icon) : null, dt ? `${dt.name}${mv.power ? ` ${mv.power}` : ''}` : 'Status')),
+      h('span', { class: 'mv-fx' }, h('em', { class: 'acc' }, accuracyText(mv)), ...moveEffects(mv).map((t) => h('em', { class: /burn|poison|paralys|sleep|freeze|flinch/.test(t) ? 'st' : '' }, t))),
       eff || tri || bonus ? h('span', { class: 'mv-tags' },
         eff ? h('em', { class: `eff ${eff === 'Super effective' ? 'good' : 'bad'}` }, eff) : null,
         tri ? h('em', { class: `tri ${tri.startsWith('Strong') ? 'good' : 'bad'}` }, tri) : null,
@@ -308,7 +309,7 @@ function renderFightControls(f) {
   if (struggle) grid.append(h('button', { class: 'move-btn cat-melee', type: 'button', onclick: () => doFightStep(f, struggle) }, h('span', { class: 'mv-name' }, 'Struggle'), h('span', { class: 'mv-meta' }, 'No PP left')));
   const row = h('div', { class: 'row wrap' },
     h('button', { class: 'btn', type: 'button', onclick: () => openFightParty(f, false) }, `Party (${aliveCount(st.sides[0])})`),
-    h('button', { class: 'btn', type: 'button', onclick: () => openSheet(me.genome) }, 'Info'));
+    h('button', { class: 'btn', type: 'button', onclick: () => openSheet(me.genome, { level: me.level, moves: me.moves.map((x) => x.id) }) }, 'Info'));
   const stock = itemStock(st);
   if (stock > 0) row.append(h('button', { class: 'btn', type: 'button', onclick: () => openFightItems(f) }, `Items (${stock})`));
   if (legal.some((a) => a.type === 'capture')) {
