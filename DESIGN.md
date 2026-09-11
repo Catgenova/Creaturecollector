@@ -13,7 +13,7 @@ fusion as the core progression system. Zero dependencies. Ships as one `index.ht
 | View | Side view, facing right. The enemy is mirrored. One part set serves both sides of a battle. |
 | Types | The classic 18-type chart. |
 | Battles | Turn-based, parties of up to 5, switching allowed. |
-| Game frame | The overworld: a seeded map with seven class biomes, trainers, Wardens and the Council. It started as an endless arena, which was removed once the overworld shipped; the capture, XP, party and collection systems carried over. |
+| Game frame | The overworld: a seeded map with twelve class biomes, trainers, Wardens and the Council. It started as an endless arena, which was removed once the overworld shipped; the capture, XP, party and collection systems carried over. |
 | Platform | Mobile-first portrait layout, touch targets ≥ 44px, works on desktop too. |
 
 ## Repository layout
@@ -497,9 +497,9 @@ stub, leaf, flame; patterns seven. Eight species: Sprigget and Mossbrute
 rebuilt, plus Axolune (Water/Fairy), Newtorch (Fire), Toadstool (Poison),
 Mudpup (Ground/Water), Wigglet (Water) and Leapfern (Grass/Water).
 
-All seven classes are now on rigs, so the legacy skeleton and its parts are
+All classes are on rigs, so the legacy skeleton and its parts are
 retired: every species carries a `rig`, and the part registry, renderer and
-mannequins only know the seven class rigs.
+mannequins only know the class rigs.
 
 ## Damage types and the triangle
 
@@ -630,7 +630,7 @@ already carries the power.
   claws, a darker ruff layered behind the mane). Stage 3 is "exaggerated":
   the feature dominates (a forked tail, the class's head signature, a sunburst mane,
   gems and glows, armour bands, a second wing membrane). Every part of
-  all seven classes has hand-authored stages (590 parts).
+  all twelve classes has hand-authored stages (1,010 drawn parts).
 - **UI.** Cards and sheets show a II / III chip (`stageBadge`), sprites in the
   overworld, fights and battle setup draw at their level, level-up reports and the
   fight log announce evolutions, and the creature sheet has Stage 1 / 2 / 3
@@ -653,9 +653,11 @@ into the collection on load.
   disc of paving with a camp, the fusion shrine, the Market, the Storage and
   the Council Spire's door). Biome centres sit on a ring of radius 58 around
   it with lairs at 84, clockwise from the south, one per class in difficulty
-  order (`BIOME_ORDER`, with `REGIONS` giving the wild level at the lair: the
-  ladder runs 5 to the mid-fifties with rungs left for classes to come). Six
-  trainers stand on each biome's roads. Tiles take the nearest centre through jittered
+  order (`BIOME_ORDER`, with `REGIONS` giving the wild level at the lair:
+  Heather Downs 5, Sodden Fen 10, Bramble Wilds 14, Hum Meadow 18, Sporewood
+  23, Windward Crags 27, Slurry Sump 32, Glass Lagoon 36, Coiling Gorge 41,
+  Murk Hollow 45, Ember Scar 50, Drakefell Peaks 55). Six trainers stand on
+  each biome's roads. Tiles take the nearest centre through jittered
   coordinates so borders wander. Terrain is value noise per biome: water
   (more in the fen and lagoon), walls drawn as that region's trees, reeds,
   hedges, pines, palms or rocks, and habitat patches. Roads are carved in two
@@ -665,8 +667,11 @@ into the collection on load.
 - **Habitats and spawns.** A habitat patch carries one element type, chosen
   per 6 × 6 cell from the types of the biome's class weighted by how many of
   its species have them. `wildSpawn` weights every wild species by affinity
-  (3 for the home class, +2 for the patch's type; strangers 0.03) times tier
-  rarity (common 1, uncommon 0.45, rare 0.12), so stronger species are rarer.
+  (3 for the home class, 4 for the patch's type, 10 for both; strangers 0.03)
+  times tier rarity (common 1, uncommon 0.45, rare 0.12), so stronger species
+  are rarer; `spawnTable` then scales the visitors so the home class always
+  holds 72% of the table (`WORLD.homeSpawnShare`) however many same-element
+  species the other classes add.
   Level: the local level ±2, where `levelAt` starts every biome at level 1
   to 4 at the hub's edge (a tenth of the region's level, clamped) and deepens
   to the full level at its lair, so the first steps out of town meet level 1 to
@@ -675,8 +680,8 @@ into the collection on load.
   +6 and +14). The 1/1000 Elemental roll applies. Each
   habitat step has a 12% encounter chance, with a four-step cooldown after a
   fight; rolls are seeded by the step count so a replayed save spawns the same.
-- **Trainers.** Four per biome, standing on the road (three on the way in,
-  one before the lair). Talking to one shows their line and a Fight / Not now
+- **Trainers.** Six per biome (`WORLD.trainersPerBiome`), standing on the
+  roads between the camp and the lair. Talking to one shows their line and a Fight / Not now
   choice; a beaten trainer only chats. Teams of 2–4 led by the home class
   (others 75% home), at the local level where they stand. Trainers block their tile; roads are
   two wide.
@@ -684,7 +689,7 @@ into the collection on load.
   a gen-2 fusion leader at area level +6 and four more at +3/+4. Winning earns
   the region's badge (once); rematches are free. Camps (the biome centre and
   the hub) heal fully and set the respawn point.
-- **Council.** The spire opens with seven badges: four fights back to back
+- **Council.** The spire opens with every badge (`JOURNEY.badgesForSpire`, one per biome): four fights back to back
   (`COUNCIL_LEVELS` 58, 62, 66, 70): Marshal Kord (melee species), Ranger
   Selene (ranged), Oracle Vesh (magic) and Champion Aurel (two gen-2 fusions
   and three rares). Only a 35% heal between fights; a loss ends the run and
@@ -743,7 +748,7 @@ into the collection on load.
   "!" when adjacent; the player walks with a bob. Controls: arrows/WASD, an
   on-screen pad (hold to keep walking), tap the ground to path there (BFS,
   stops on any event) and A / Space to talk. HUD shows the place, its wild
-  level, seven badge dots, gold and Party / Bag / Map / Menu sheets (party order
+  level, a badge dot per biome, gold and Party / Bag / Map / Menu sheets (party order
   and the learn-move prompt, a minimap with camps, lairs, trainers
   and the spire, fast battles, return to camp, export/import, abandon). An
   encounter shows a card with the foes and Fight / Run before the fight view.
@@ -767,6 +772,51 @@ Keen Edge) so the new creatures do not all share the old thirty. The data
 test pins the shape: stat weights sum to one, eleven learnset entries, two
 distinct passives, unique names, at least fifteen species and ten types per
 class.
+
+## Five new classes and the wider world (implemented)
+
+The map grew fourfold (224 × 192) and the ring took five more classes, each
+built the same way as the first seven: a rig with twelve slots, seven
+hand-drawn parts per slot with stage art, poses, a clade, fourteen species and
+a biome of its own. The roster stands at 181 species on twelve rigs.
+
+- **Flora** (`p.`, the Bramble Wilds, level 14): walking plants. A stem
+  carries a bloom for a head, leaves reach out like arms and roots stand like
+  legs; vines trail, pods hang, thorns crown the bloom, a canopy rises
+  behind, bark is clipped to the stem and fruit hangs from the bloom. Grass
+  with thirteen partners.
+- **Oozes** (`o.`, the Slurry Sump, level 32): living slime, headless. The
+  face and a core sit straight in the body, pseudopods reach from the sides,
+  a puddle spreads under the bottom edge; drips, a crown, tendrils,
+  swallowed inclusions, surface sheen and bumps dress it. Poison with twelve
+  partners and a Normal gelatin cube.
+- **Fungi** (`g.`, the Sporewood, level 23): walking mushrooms. The rig is
+  rooted at the cap: the stalk hangs from it as the head slot and carries the
+  face, the roots reach the ground, gills and a veil hang under the rim,
+  spores drift above, a ring and shelves dress the stalk, a glow sits behind
+  the cap and spots are clipped to it.
+- **Wyrms** (`w.`, the Coiling Gorge, level 41): serpentine dragons. A long
+  coil with a head reaching forward, one leg part standing at four belly
+  sockets, a long tail, whiskers, a mane along the spine, back plates, horns,
+  a glow and bands clipped to the coil. Dragon with thirteen partners.
+- **Draconic** (`d.`, Drakefell Peaks, level 55): true dragons. A winged
+  quadruped on the shared four-legged pose core: horned head, jaw and a
+  breath effect at the snout, wings rising from the back, fore and hind legs,
+  tail, spines and chest markings.
+
+Two rules changed underneath. Habitat spawns give the home class a fixed
+share of the table (`spawnTable`, `WORLD.homeSpawnShare` 0.72) so the growing
+roster of same-element visitors cannot crowd the locals out, and a fused base
+colour reported as the dominant parent's stays on that parent's side of the
+lightness midpoint after its random nudge. Saves carry `WORLD.version`; a
+journey from an older layout keeps its party and badges but restarts at the
+Crossroads.
+
+Balance: a 2,000-game tournament (`node scripts/sim.mjs 2000 50 3`) puts the
+seventy new species between roughly 30% and 69%, the same band as the older
+roster once sampling noise at seventy games a species is allowed for; a light
+pass on the first outliers (three attacks in every level-50 move set, a few
+base stat totals) closed the gap at both ends.
 
 ## Polish and balance (Phase 5 — implemented)
 

@@ -5,6 +5,8 @@ import { RIGS, slotsFor, rigNodes } from '../src/data/rigs.js';
 import { speciesRig } from '../src/creature/genome.js';
 import { SPECIES } from '../src/data/species.js';
 import { CLADE_IDS } from '../src/data/clades.js';
+import { RIG_IDS } from '../src/data/rigs.js';
+import { BIOME_ORDER } from '../src/game/world.js';
 import { TYPE_LIST, typeMultiplier, typeEffectiveness } from '../src/data/types.js';
 
 test('every part has the fields the renderer needs', () => {
@@ -111,4 +113,11 @@ test('type chart matches the classic rules', () => {
   assert.equal(typeEffectiveness('Fighting', ['Normal', 'Ghost']), 0);
   assert.equal(typeEffectiveness('Grass', ['Water', 'Flying']), 1);
   assert.equal(TYPE_LIST.length, 18);
+});
+
+test('twelve classes, each on its own rig and with a biome of its own', () => {
+  assert.equal(CLADE_IDS.length, 12);
+  assert.deepEqual([...RIG_IDS].sort(), [...CLADE_IDS].sort());
+  assert.deepEqual([...BIOME_ORDER].sort(), [...CLADE_IDS].sort());
+  assert.ok(SPECIES.length >= 181, `${SPECIES.length} species`);
 });

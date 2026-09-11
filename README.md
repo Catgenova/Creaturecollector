@@ -38,11 +38,17 @@ raptor; 85 parts, sixteen species), fish (round, betta, shark, angler, puffer,
 seahorse, eel; 84 parts, fifteen species), birds (songbird, owl, hawk, penguin,
 duck, parrot, peacock; 84 parts, fifteen species), insects (beetle, bee, mantis,
 dragonfly, ladybug, ant, moth; 84 parts, sixteen species), invertebrates (slug,
-crab, jelly, octopus, wisp, scorpion, spider; 84 parts, fifteen species) and
+crab, jelly, octopus, wisp, scorpion, spider; 84 parts, fifteen species),
 amphibians (frog, toad, tree frog, axolotl, newt, salamander, polliwog; 84
-parts, fifteen species): 111 species in all, every class covering fourteen
-or more of the eighteen types. Classes lock fusion to the same anatomy. All seven
-classes are on rigs and the old shared skeleton is gone. A fantasy pass then
+parts, fifteen species), flora (sprout, bulb, creeper, trunk, lilypad, barrel,
+gourd stems; 84 parts, fourteen species), oozes (blob, column, slab, droplet,
+cube, whirl, amoeba; 84 parts, fourteen species), fungi (button, parasol, cone,
+morel, puffball, bell, funnel caps; 84 parts, fourteen species), wyrms (serpent,
+rearing, arch, coil, knot, cloud rider, lindworm coils; 84 parts, fourteen
+species) and draconic (drake, brute, wyvern, longback, pudgy, armoured,
+serpentine; 84 parts, fourteen species): 181 species in all, every class
+covering fourteen or more of the eighteen types. Classes lock fusion to the
+same anatomy. All twelve classes are on rigs and the old shared skeleton is gone. A fantasy pass then
 pushed every slot away from field-guide realism: forehead sigils, tufted and
 leaf ears, orb and flame tails, glowing tips and bold markings. See `DESIGN.md`.
 
