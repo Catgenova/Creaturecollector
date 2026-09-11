@@ -26,9 +26,9 @@ button, input, select, textarea { font: inherit; }
   min-height: 100dvh; display: flex; flex-direction: column;
   padding: env(safe-area-inset-top) env(safe-area-inset-right) 0 env(safe-area-inset-left);
 }
-.topbar { display: flex; align-items: baseline; gap: 10px; padding: 12px 16px 6px; }
-.topbar h1 { font-size: 18px; margin: 0; letter-spacing: .2px; }
-.ver { color: var(--fg2); font-size: 12px; margin-left: auto; white-space: nowrap; }
+.topbar { display: flex; align-items: center; gap: 10px; padding: 10px 16px 6px; flex-wrap: nowrap; }
+.topbar h1 { font-size: 17px; margin: 0; letter-spacing: .2px; white-space: nowrap; }
+.ver { color: var(--fg2); font-size: 11px; margin-left: auto; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
 .tabs { display: flex; gap: 6px; padding: 6px 12px; border-bottom: 1px solid var(--line); position: sticky; top: 0; background: var(--bg); z-index: 5; }
 .tab { flex: 1; min-height: var(--tap); border: 0; border-radius: 10px; background: transparent; color: var(--fg2); font-weight: 600; cursor: pointer; }
 .tab[aria-selected="true"] { background: var(--bg3); color: var(--fg); }
@@ -235,6 +235,12 @@ h3.sec { font-size: 12px; text-transform: uppercase; letter-spacing: .1em; color
 @keyframes captured { 0% { transform: scale(1); opacity: 1; } 60% { transform: scale(.4) translateY(-30px); opacity: .9; } 100% { transform: scale(0); opacity: 0; } }
 @keyframes wobble { 0%, 100% { transform: rotate(0); } 25% { transform: rotate(-8deg) scale(.95); } 50% { transform: rotate(8deg) scale(.95); } 75% { transform: rotate(-4deg); } }
 @media (max-width: 380px) { .starters { grid-template-columns: 1fr; } .tiles { grid-template-columns: repeat(2, 1fr); } }
+.move-chips { display: flex; gap: 4px; flex-wrap: wrap; margin-top: 4px; }
+.move-chips .chip { font-size: 10px; padding: 1px 6px; }
+.result-card.learn { border-color: var(--acc2); }
+.result-card.learn .moves { margin: 8px 0; }
+.topbar .sound { min-width: 36px; padding: 0 6px; font-size: 16px; }
+.topbar .ver { margin-left: auto; }
 </style>
 </head>
 <body>
@@ -649,6 +655,28 @@ const BODIES = [
       arm: { x: 31, y: -2 }, wing: { x: -18, y: -16 }, tail: { x: -30, y: 0, a: -15 }, back: { x: -6, y: -26, a: 0 },
     },
   },
+  {
+    id: 'body.tall', slot: 'body', name: 'Long-necked', kind: 'quad', tags: ['hoofed'], dom: 0.5, w: 2,
+    bottom: 22, clip: ['M36,-30 C50,-24 50,6 36,14 C18,20 -26,20 -40,12 C-52,4 -50,-22 -38,-30 C-24,-38 18,-40 36,-30 Z', 'M24,-28 C30,-44 36,-56 46,-64 L58,-58 C50,-46 46,-34 44,-22 Z'],
+    prims: [P('M24,-28 C30,-44 36,-56 46,-64 L58,-58 C50,-46 46,-34 44,-22 Z', 'p'), P('M36,-30 C50,-24 50,6 36,14 C18,20 -26,20 -40,12 C-52,4 -50,-22 -38,-30 C-24,-38 18,-40 36,-30 Z', 'p')],
+    sockets: {
+      head: { x: 53, y: -62, a: -10, s: 0.9 },
+      face: { eye: { x: 28, y: -16, s: 1 }, eye2: { x: 10, y: -18, s: 0.85 }, mouth: { x: 40, y: -2, s: 1 }, crown: { x: 22, y: -36, a: 0, s: 0.9 } },
+      legs: [{ x: 26, y: 10 }, { x: -30, y: 10 }],
+      arm: null, wing: { x: -10, y: -34 }, tail: { x: -46, y: -8, a: 0 }, back: { x: -6, y: -37, a: 0 },
+    },
+  },
+  {
+    id: 'body.slug', slot: 'body', name: 'Grub', kind: 'serpent', tags: ['bug', 'slime'], dom: 0.45, w: 2,
+    bottom: 24, clip: ['M44,10 C50,-4 40,-20 20,-22 C0,-24 -30,-22 -46,-10 C-56,0 -52,14 -40,18 C-20,24 20,24 44,10 Z'],
+    prims: [P('M44,10 C50,-4 40,-20 20,-22 C0,-24 -30,-22 -46,-10 C-56,0 -52,14 -40,18 C-20,24 20,24 44,10 Z', 'p'), L('M-30,-8 C-28,4 -26,10 -24,16 M-14,-16 C-12,0 -10,8 -8,18 M2,-20 C4,-4 6,6 8,18 M18,-20 C20,-6 22,4 24,14', 'k', 1.3, { op: 0.25 })],
+    sockets: {
+      head: { x: 34, y: -16, a: 0, s: 0.9 },
+      face: { eye: { x: 30, y: -8, s: 1 }, eye2: { x: 14, y: -10, s: 0.85 }, mouth: { x: 42, y: 2, s: 0.9 }, crown: { x: 20, y: -22, a: 0, s: 0.9 } },
+      legs: [],
+      arm: null, wing: { x: -4, y: -20 }, tail: { x: -50, y: 4, a: 0 }, back: { x: -10, y: -23, a: 0 },
+    },
+  },
 ];
 
 // ---- src/data/parts/heads.js ----
@@ -708,6 +736,21 @@ const HEADS = [
     prims: [P('M-22,-14 C-22,-30 -6,-34 6,-34 C22,-34 34,-26 34,-14 C36,-4 30,2 18,2 L-10,2 C-20,2 -24,-4 -22,-14 Z', 'p')],
     sockets: { eye: { x: 14, y: -28, s: 1.1 }, eye2: { x: -6, y: -30, s: 0.9 }, mouth: { x: 16, y: -8, s: 1.3 }, crown: { x: 4, y: -34, a: 0, s: 0.9 } },
   },
+  {
+    id: 'head.owl', slot: 'head', name: 'Owlish', tags: ['bird'], dom: 0.5, w: 2,
+    prims: [C(0, -18, 20, 'p'), P('M-20,-30 L-12,-42 L-4,-32 Z', 'p'), P('M4,-32 L12,-42 L20,-30 Z', 'p'), P('M10,-12 L24,-8 L10,-2 Z', 'a')],
+    sockets: { eye: { x: 6, y: -20, s: 1.15 }, eye2: { x: -9, y: -20, s: 0.9 }, mouth: null, crown: { x: 0, y: -38, a: 0, s: 1 } },
+  },
+  {
+    id: 'head.rodent', slot: 'head', name: 'Rodent', tags: ['mammal'], dom: 0.5, w: 2,
+    prims: [P('M-20,-16 C-22,-36 0,-42 10,-36 C22,-30 30,-18 26,-8 C24,0 14,4 4,4 C-6,4 -18,0 -20,-16 Z', 'p'), P('M14,-2 L14,4 L20,4 L20,-3 Z', 'w', { sw: 1 }), E(24, -14, 2.4, 2, 'k', { ns: true })],
+    sockets: { eye: { x: 8, y: -24, s: 1 }, eye2: { x: -6, y: -25, s: 0.85 }, mouth: { x: 17, y: -8, s: 0.9 }, crown: { x: 0, y: -40, a: 0, s: 1 } },
+  },
+  {
+    id: 'head.helm', slot: 'head', name: 'Helmed', tags: ['steel'], dom: 0.55, w: 1,
+    prims: [P('M-18,-30 L26,-34 L36,-22 L36,-6 L28,2 L-12,2 L-18,-8 Z', 'p'), L('M-12,-20 L30,-22', 'k', 2), P('M-6,-34 L0,-44 L10,-36 Z', 'a')],
+    sockets: { eye: { x: 12, y: -14, s: 0.9 }, eye2: { x: -4, y: -15, s: 0.75 }, mouth: { x: 26, y: -4, s: 0.9 }, crown: { x: 4, y: -34, a: 0, s: 0.9 } },
+  },
 ];
 
 // ---- src/data/parts/faces.js ----
@@ -731,6 +774,8 @@ const EYES = [
     prims: [C(0, 0, 7, 'w'), C(1, 0.6, 4, 'k', { ns: true }), C(2.4, -1.6, 1.4, 'w', { ns: true }), P('M-9,-4 L9,-9 L9,-11 L-9,-11 Z', 'p', { ns: true }), L('M-9,-4 L9,-9', 'k', 2.2)] },
   { id: 'eye.spiral', slot: 'eyes', name: 'Spiral', dom: 0.4, w: 1,
     prims: [C(0, 0, 7, 'w'), L('M0,0 C2,-1 3,1 1,2 C-2,3 -4,0 -2,-3 C1,-5 5,-3 5,1', 'k', 1.6)] },
+  { id: 'eye.happy', slot: 'eyes', name: 'Happy', dom: 0.45, w: 2, prims: [L('M-7,1 Q0,-7 7,1', 'k', 2.6)] },
+  { id: 'eye.void', slot: 'eyes', name: 'Void', dom: 0.45, w: 1, prims: [C(0, 0, 7, 'k'), C(1, 0, 2.6, 'e', { ns: true })] },
 ];
 
 // Mouths: origin at the mouth centre.
@@ -750,6 +795,10 @@ const MOUTHS = [
   { id: 'mouth.teeth', slot: 'mouth', name: 'Teeth', dom: 0.5, w: 1,
     prims: [P('M-9,-3 L9,-3 L9,3 L-9,3 Z', 'w', { sw: 1.8 }), L('M-6,-3 L-6,3 M-2,-3 L-2,3 M2,-3 L2,3 M6,-3 L6,3', 'k', 1.4)] },
   { id: 'mouth.smirk', slot: 'mouth', name: 'Smirk', dom: 0.45, w: 2, prims: [L('M-6,1 Q2,4 7,-3', 'k', 2.4)] },
+  { id: 'mouth.whiskers', slot: 'mouth', name: 'Whiskers', dom: 0.45, w: 2,
+    prims: [L('M-5,0 Q0,3 5,0', 'k', 2.2), L('M-14,-3 L-7,-1 M-14,3 L-7,1 M7,-1 L14,-3 M7,1 L14,3', 'k', 1.2, { op: 0.6 })] },
+  { id: 'mouth.tusks', slot: 'mouth', name: 'Tusks', dom: 0.5, w: 1,
+    prims: [L('M-8,-1 Q0,3 8,-1', 'k', 2.2), P('M-8,0 L-11,-9 L-4,0 Z', 'w', { sw: 1.2 }), P('M4,0 L11,-9 L8,0 Z', 'w', { sw: 1.2 })] },
 ];
 
 // ---- src/data/parts/crowns.js ----
@@ -780,6 +829,12 @@ const CROWNS = [
     prims: [P('M-18,10 C-14,-4 -12,-14 -10,-22 C-6,-12 -4,-10 -2,-18 C2,-10 4,-12 6,-24 C10,-12 12,-8 16,-2 C20,4 18,10 14,10 Z', 'a')] },
   { id: 'crown.bolts', slot: 'crown', name: 'Static tufts', tags: ['electric'], dom: 0.5, w: 1,
     prims: [P('M-12,10 L-20,-10 L-14,-8 L-18,-22 L-8,-6 L-13,-6 L-6,10 Z', 'a'), P('M6,10 L16,-12 L10,-10 L18,-24 L4,-8 L10,-8 L2,10 Z', 'a')] },
+  { id: 'crown.leafhat', slot: 'crown', name: 'Leaf cap', tags: ['plant'], dom: 0.45, w: 2,
+    prims: [P('M-22,10 C-18,-12 18,-12 22,10 Z', 'a'), L('M0,8 C0,-2 2,-6 6,-10', 'k', 1.2, { op: 0.45 })] },
+  { id: 'crown.flame', slot: 'crown', name: 'Flame tuft', tags: ['fire'], dom: 0.5, w: 1,
+    prims: [P('M-10,10 C-14,-6 -6,-12 -4,-20 C0,-10 6,-14 4,-24 C12,-14 14,-4 10,10 Z', 'a'), P('M-4,10 C-6,0 -2,-4 0,-10 C2,-4 6,-2 4,10 Z', 'al', { ns: true })] },
+  { id: 'crown.gem', slot: 'crown', name: 'Gem', tags: ['rock', 'fairy'], dom: 0.45, w: 1,
+    prims: [P('M-8,10 L-6,-14 L0,-24 L6,-14 L8,10 Z', 'al'), L('M-6,-14 L6,-14 M0,-24 L0,8', 'k', 1, { op: 0.35 })] },
 ];
 
 // ---- src/data/parts/limbs.js ----
@@ -804,6 +859,10 @@ const LEGS = [
     prims: [L('M0,-2 C-10,4 -14,16 -10,30', 'k', 3.4), L('M-10,30 L-8,40', 'k', 3), C(-10, 30, 3, 'p')] },
   { id: 'legs.peg', slot: 'legs', name: 'Pegs', tags: ['steel'], dom: 0.4, w: 1, len: 40,
     prims: [P('M-5,-4 L5,-4 L4,40 L-4,40 Z', 'a')] },
+  { id: 'legs.flipper', slot: 'legs', name: 'Flippers', tags: ['aquatic'], dom: 0.45, w: 1, len: 40,
+    prims: [P('M-8,-2 C-12,10 -10,26 -4,34 C4,40 14,40 16,36 C10,30 6,20 6,8 C6,2 4,-2 0,-4 Z', 'a')] },
+  { id: 'legs.stilts', slot: 'legs', name: 'Stilts', tags: ['bird', 'hoofed'], dom: 0.45, w: 1, len: 40,
+    prims: [L('M0,-2 L0,34', 'k', 3.5), P('M-7,33 L7,33 L8,40 L-8,40 Z', 'p')] },
 ];
 
 // Arms: origin at the shoulder, near arm reaching forward and down.
@@ -820,6 +879,10 @@ const ARMS = [
     prims: [P('M0,-6 C10,-4 18,4 16,14 C14,22 6,24 2,20 C6,18 10,14 8,8 C6,2 2,0 0,2 Z', 'p')] },
   { id: 'arms.blade', slot: 'arms', name: 'Blades', tags: ['steel', 'bug'], dom: 0.5, w: 1,
     prims: [P('M0,-6 C6,-8 12,-4 12,2 L30,14 L12,10 C8,10 2,8 0,2 Z', 'a')] },
+  { id: 'arms.pincer', slot: 'arms', name: 'Pincers', tags: ['bug', 'aquatic'], dom: 0.55, w: 1,
+    prims: [P('M0,-6 C10,-8 18,-2 20,6 L27,0 L25,10 L27,18 L18,12 C12,14 4,12 0,6 Z', 'p')] },
+  { id: 'arms.scythe', slot: 'arms', name: 'Scythes', tags: ['bug', 'dark'], dom: 0.5, w: 1,
+    prims: [P('M0,-6 C8,-8 14,-2 12,4 C22,4 30,12 32,22 C26,14 18,12 12,12 C6,12 0,8 0,2 Z', 'a')] },
 ];
 
 // Wings: origin at the wing root, extending up and back (left). A far copy is drawn behind the body.
@@ -837,6 +900,10 @@ const WINGS = [
     prims: [P('M0,0 C-8,-10 -18,-14 -30,-14 C-26,-22 -34,-30 -46,-34 C-42,-24 -48,-20 -54,-20 C-46,-12 -40,-4 -30,0 C-20,4 -8,4 0,0 Z', 'a'), P('M-6,-2 C-14,-8 -22,-10 -30,-10 C-26,-16 -30,-22 -38,-26 C-36,-18 -40,-14 -44,-14 C-38,-8 -30,-4 -22,-2 Z', 'al', { ns: true })] },
   { id: 'wings.fin', slot: 'wings', name: 'Fin wings', tags: ['aquatic'], dom: 0.45, w: 1,
     prims: [P('M0,0 C-8,-12 -26,-22 -44,-16 C-40,-8 -30,-2 -20,2 C-12,4 -6,4 0,0 Z', 'a'), L('M-6,-2 C-16,-8 -26,-12 -36,-12 M-8,0 C-18,-4 -26,-4 -34,-4', 'k', 1.1, { op: 0.4 })] },
+  { id: 'wings.crystal', slot: 'wings', name: 'Crystal wings', tags: ['rock', 'ice'], dom: 0.5, w: 1,
+    prims: [P('M0,0 L-14,-24 L-30,-36 L-34,-18 L-52,-22 L-40,-6 L-30,4 L-14,6 Z', 'al'), L('M-4,-2 L-30,-36 M-4,-2 L-34,-18 M-4,-2 L-40,-6', 'k', 1, { op: 0.35 })] },
+  { id: 'wings.ghost', slot: 'wings', name: 'Wisp wings', tags: ['spirit'], dom: 0.45, w: 1,
+    prims: [P('M0,0 C-10,-14 -30,-26 -50,-22 C-44,-12 -40,-6 -46,0 C-34,2 -20,4 -12,6 C-6,6 -2,4 0,0 Z', 'w', { op: 0.6 })] },
 ];
 
 // ---- src/data/parts/tails.js ----
@@ -867,6 +934,12 @@ const TAILS = [
     prims: [P('M0,-3 C-16,-4 -30,-4 -40,-6 L-40,4 C-30,2 -16,3 0,3 Z', 'p'), P('M-38,-1 L-52,-14 L-58,2 L-44,7 Z', 'a')] },
   { id: 'tails.feathers', slot: 'tail', name: 'Tail fan', tags: ['bird'], dom: 0.5, w: 1,
     prims: [P('M0,-4 L-30,-20 L-26,-6 L-40,-8 L-28,0 L-40,8 L-26,6 L-30,20 L0,4 Z', 'p'), L('M-4,0 L-28,-12 M-4,0 L-34,0 M-4,0 L-28,12', 'k', 1.1, { op: 0.4 })] },
+  { id: 'tails.scorpion', slot: 'tail', name: 'Stinger', tags: ['bug', 'poison'], dom: 0.55, w: 1,
+    prims: [P('M0,-4 C-16,-8 -32,-12 -36,-28 C-38,-40 -26,-44 -20,-36 C-18,-30 -24,-28 -26,-32 L-24,-24 C-30,-20 -30,-8 0,4 Z', 'p'), P('M-20,-36 L-12,-48 L-15,-31 Z', 'a')] },
+  { id: 'tails.paddle', slot: 'tail', name: 'Paddle', tags: ['aquatic', 'mammal'], dom: 0.5, w: 1,
+    prims: [P('M0,-4 C-10,-6 -18,-6 -26,-8 C-44,-10 -56,0 -54,10 C-50,18 -34,18 -24,10 C-16,6 -8,6 0,4 Z', 'a'), L('M-30,-4 L-46,8 M-36,-6 L-50,4 M-28,2 L-40,12', 'k', 1, { op: 0.35 })] },
+  { id: 'tails.bolt', slot: 'tail', name: 'Bolt tail', tags: ['electric'], dom: 0.5, w: 1,
+    prims: [P('M0,-4 L-18,-10 L-14,-2 L-34,-12 L-28,-2 L-48,-8 L-30,6 L-36,10 L-16,6 L-20,12 Z', 'a')] },
 ];
 
 // ---- src/data/parts/backs.js ----
@@ -891,6 +964,10 @@ const BACKS = [
     prims: [P('M-2,6 L4,-8 L0,-8 L8,-22 L-2,-8 L2,-8 L-4,6 Z', 'a'), P('M-22,8 L-16,-4 L-20,-4 L-12,-16 L-22,-4 L-18,-4 L-24,8 Z', 'a')] },
   { id: 'back.leaf', slot: 'back', name: 'Foliage', tags: ['plant'], dom: 0.5, w: 1,
     prims: [P('M0,6 C-4,-10 8,-26 24,-26 C22,-10 12,2 0,6 Z', 'a'), P('M-4,8 C-10,-6 -22,-14 -34,-10 C-26,0 -14,6 -4,8 Z', 'a'), L('M2,4 C6,-6 12,-14 20,-20', 'k', 1.1, { op: 0.4 })] },
+  { id: 'back.sail', slot: 'back', name: 'Sail', tags: ['reptile', 'aquatic'], dom: 0.55, w: 1,
+    prims: [P('M-36,10 C-30,-14 -14,-34 4,-34 C18,-34 22,-14 24,8 Z', 'a'), L('M-24,6 C-16,-12 -4,-24 4,-28 M-8,8 C-2,-8 6,-18 12,-22 M8,8 C12,-4 16,-10 20,-12', 'k', 1.1, { op: 0.4 })] },
+  { id: 'back.mushrooms', slot: 'back', name: 'Mushrooms', tags: ['plant', 'poison'], dom: 0.45, w: 1,
+    prims: [P('M-18,4 L-18,-4 L-14,-4 L-14,4 Z', 'pl'), E(-16, -4, 8, 5, 'a'), P('M6,6 L6,-8 L10,-8 L10,6 Z', 'pl'), E(8, -8, 6, 4, 'a'), C(-16, -5, 1.5, 'w', { ns: true }), C(9, -9, 1.2, 'w', { ns: true })] },
 ];
 
 // ---- src/data/parts/patterns.js ----
@@ -917,6 +994,10 @@ const PATTERNS = [
     prims: [P('M-60,-14 L60,-14 L60,-6 L-60,-6 Z', 'pd', { ns: true, op: 0.8 }), P('M-60,6 L60,6 L60,14 L-60,14 Z', 'pd', { ns: true, op: 0.8 })] },
   { id: 'pat.diamonds', slot: 'pattern', name: 'Diamonds', dom: 0.45, w: 1,
     prims: [P('M-20,-8 L-12,-20 L-4,-8 L-12,4 Z', 's', { ns: true }), P('M6,-4 L14,-16 L22,-4 L14,8 Z', 's', { ns: true }), P('M-40,4 L-34,-6 L-28,4 L-34,14 Z', 's', { ns: true })] },
+  { id: 'pat.tiger', slot: 'pattern', name: 'Tiger stripes', dom: 0.55, w: 1,
+    prims: [P('M-30,-40 L-16,-40 L-34,12 L-46,12 Z', 'pd', { ns: true, op: 0.9 }), P('M-6,-40 L8,-40 L-10,14 L-22,14 Z', 'pd', { ns: true, op: 0.9 }), P('M18,-40 L32,-40 L14,14 L2,14 Z', 'pd', { ns: true, op: 0.9 }), P('M42,-40 L56,-40 L38,14 L26,14 Z', 'pd', { ns: true, op: 0.9 })] },
+  { id: 'pat.hex', slot: 'pattern', name: 'Hex plates', dom: 0.45, w: 1,
+    prims: [[-30, -10], [-10, -22], [10, -10], [30, -22], [-20, 12], [0, 2], [20, 14]].map(([x, y]) => L(`M${x - 7},${y - 4} L${x},${y - 8} L${x + 7},${y - 4} L${x + 7},${y + 4} L${x},${y + 8} L${x - 7},${y + 4} Z`, 'k', 1.1, { op: 0.28 })) },
 ];
 
 // ---- src/data/parts/index.js ----
@@ -978,12 +1059,12 @@ const MID = [0.35, 0.65];
 
 const SPECIES = [
   {
-    id: 'pufflet', name: 'Pufflet', nameParts: ['Puff', 'let'], types: ['Normal'], tier: 'common', bst: 385,
-    stats: { hp: 0.2, atk: 0.16, def: 0.16, spa: 0.14, spd: 0.16, spe: 0.18 },
+    id: 'pufflet', name: 'Pufflet', nameParts: ['Puff', 'let'], types: ['Normal'], tier: 'common', bst: 420,
+    stats: { hp: 0.24, atk: 0.18, def: 0.16, spa: 0.12, spd: 0.16, spe: 0.14 },
     recipe: { body: 'body.round', head: 'head.round', eyes: 'eye.round', mouth: 'mouth.smile', crown: ['crown.catears', 'crown.bunny'], legs: 'legs.stub', arms: 'arms.none', wings: 'wings.none', tail: 'tails.stubby', back: 'back.none', pattern: 'pat.belly' },
     palette: { c1: [38, 45, 72], c2: [36, 40, 88], c3: [350, 60, 72], eye: [205, 35, 28] }, vary: { h: 10, s: 8, l: 6 },
     traits: T([0.3, 0.55], MID, [0.3, 0.5], MID, MID, [0.5, 0.8]),
-    learnset: [[1,'bump'],[1,'yowl'],[8,'dash'],[14,'headbonk'],[20,'brace'],[27,'belly_flop'],[34,'rake'],[41,'mend'],[50,'reckless_charge']],
+    learnset: [[1,'bump'],[1,'yowl'],[6,'flurry'],[11,'headbonk'],[16,'brace'],[22,'belly_flop'],[28,'siphon_fist'],[34,'rake'],[40,'mend'],[46,'dazzle'],[52,'reckless_charge']],
     abilities: ['lucky_streak','second_wind'],
     desc: 'A soft, round creature that puffs up when startled. Happiest in a warm pocket.',
   },
@@ -993,27 +1074,27 @@ const SPECIES = [
     recipe: { body: 'body.quad', head: 'head.snout', eyes: 'eye.angry', mouth: 'mouth.fangs', crown: ['crown.catears', 'crown.horns'], legs: 'legs.canine', arms: 'arms.none', wings: ['wings.none', 'wings.fire'], tail: 'tails.flame', back: 'back.none', pattern: 'pat.saddle' },
     palette: { c1: [22, 88, 52], c2: [40, 95, 58], c3: [8, 88, 52], eye: [48, 95, 55] }, vary: { h: 8, s: 6, l: 6 },
     traits: T([0.4, 0.7], MID, [0.45, 0.7], [0.6, 0.9], MID, MID),
-    learnset: [[1,'swipe'],[1,'yowl'],[6,'cinder'],[12,'dash'],[18,'ember_bite'],[24,'kindle_rush'],[32,'fire_stream'],[40,'whetting'],[48,'blaze_tackle']],
+    learnset: [[1,'cinder'],[1,'yowl'],[6,'kindle_rush'],[11,'ember_bite'],[16,'dash'],[22,'scorch_fist'],[28,'whetting'],[34,'fire_stream'],[40,'crush_bite'],[46,'blaze_tackle'],[52,'meltdown']],
     abilities: ['ember_heart','grit'],
     desc: 'Its tail flame burns hotter the more it wants to impress. Kicks up sparks when it runs.',
   },
   {
-    id: 'finnip', name: 'Finnip', nameParts: ['Fin', 'nip'], types: ['Water'], tier: 'common', bst: 395,
-    stats: { hp: 0.16, atk: 0.14, def: 0.17, spa: 0.19, spd: 0.18, spe: 0.16 },
+    id: 'finnip', name: 'Finnip', nameParts: ['Fin', 'nip'], types: ['Water'], tier: 'common', bst: 405,
+    stats: { hp: 0.16, atk: 0.12, def: 0.17, spa: 0.21, spd: 0.18, spe: 0.16 },
     recipe: { body: 'body.fish', head: 'head.none', eyes: 'eye.big', mouth: 'mouth.open', crown: 'crown.fin', legs: 'legs.none', arms: 'arms.fin', wings: 'wings.none', tail: 'tails.fish', back: 'back.fin', pattern: 'pat.stripes' },
     palette: { c1: [205, 80, 54], c2: [190, 70, 72], c3: [28, 90, 62], eye: [42, 90, 50] }, vary: { h: 10, s: 6, l: 6 },
     traits: T([0.35, 0.6], MID, MID, [0.5, 0.8], MID, [0.5, 0.8]),
-    learnset: [[1,'bump'],[4,'squirt'],[10,'ripple'],[16,'jetstream'],[22,'cascade'],[28,'chill_gust'],[35,'tidal_wave'],[42,'meditate'],[50,'geyser']],
+    learnset: [[1,'squirt'],[1,'bump'],[6,'ripple'],[11,'jetstream'],[16,'chill_gust'],[22,'cascade'],[28,'meditate'],[34,'tidal_wave'],[40,'glacier_ray'],[46,'boiling_jet'],[52,'geyser']],
     abilities: ['tide_heart','sponge'],
     desc: 'Swims through air as easily as water by beating its fins very fast. Curious about shiny things.',
   },
   {
-    id: 'sprigget', name: 'Sprigget', nameParts: ['Sprig', 'get'], types: ['Grass'], tier: 'common', bst: 395,
-    stats: { hp: 0.18, atk: 0.15, def: 0.18, spa: 0.17, spd: 0.18, spe: 0.14 },
+    id: 'sprigget', name: 'Sprigget', nameParts: ['Sprig', 'get'], types: ['Grass'], tier: 'common', bst: 430,
+    stats: { hp: 0.19, atk: 0.13, def: 0.16, spa: 0.2, spd: 0.19, spe: 0.13 },
     recipe: { body: 'body.biped', head: 'head.bulb', eyes: 'eye.round', mouth: 'mouth.smile', crown: 'crown.sprout', legs: 'legs.stub', arms: 'arms.stub', wings: ['wings.none', 'wings.leaf'], tail: 'tails.leaf', back: 'back.none', pattern: 'pat.spots' },
     palette: { c1: [110, 45, 48], c2: [95, 55, 66], c3: [98, 55, 40], eye: [22, 60, 30] }, vary: { h: 12, s: 8, l: 6 },
     traits: T([0.3, 0.6], [0.5, 0.75], [0.3, 0.55], MID, MID, [0.5, 0.75]),
-    learnset: [[1,'bump'],[5,'vine_lash'],[10,'drowse_dust'],[15,'leaf_razor'],[22,'sap_drain'],[28,'photosynth'],[35,'spore_burst'],[42,'blade_leaf'],[50,'sunlance']],
+    learnset: [[1,'vine_lash'],[1,'drowse_dust'],[6,'leaf_razor'],[11,'seed_volley'],[16,'sap_drain'],[22,'photosynth'],[28,'spore_burst'],[34,'spirit_crack'],[40,'blade_leaf'],[46,'dazzle'],[52,'sunlance']],
     abilities: ['bloom_heart','antitoxin'],
     desc: 'The sprout on its head leans toward sunlight. It naps in flowerbeds and wakes covered in pollen.',
   },
@@ -1023,37 +1104,37 @@ const SPECIES = [
     recipe: { body: 'body.round', head: 'head.none', eyes: 'eye.big', mouth: 'mouth.grin', crown: 'crown.bolts', legs: 'legs.stub', arms: 'arms.stub', wings: 'wings.none', tail: 'tails.whip', back: ['back.none', 'back.bolts'], pattern: 'pat.stripes' },
     palette: { c1: [50, 95, 58], c2: [222, 15, 22], c3: [30, 95, 55], eye: [222, 40, 22] }, vary: { h: 6, s: 5, l: 6 },
     traits: T([0.25, 0.5], MID, [0.3, 0.5], [0.5, 0.8], MID, [0.6, 0.9]),
-    learnset: [[1,'bump'],[4,'zap'],[9,'numb_pulse'],[14,'dash'],[20,'arc_beam'],[26,'static_net'],[33,'voltage'],[40,'quicken'],[48,'skyfall_bolt']],
+    learnset: [[1,'zap'],[1,'numb_pulse'],[6,'static_net'],[11,'dash'],[16,'arc_beam'],[22,'shock_fist'],[28,'quicken'],[34,'voltage'],[40,'live_wire'],[46,'wind_cutter'],[52,'skyfall_bolt']],
     abilities: ['live_fur','momentum'],
     desc: 'Static crackles in its fur. It clings to power lines and hums along with them.',
   },
   {
-    id: 'glacub', name: 'Glacub', nameParts: ['Gla', 'cub'], types: ['Ice'], tier: 'uncommon', bst: 420,
-    stats: { hp: 0.2, atk: 0.18, def: 0.17, spa: 0.14, spd: 0.17, spe: 0.14 },
+    id: 'glacub', name: 'Glacub', nameParts: ['Gla', 'cub'], types: ['Ice'], tier: 'uncommon', bst: 440,
+    stats: { hp: 0.22, atk: 0.19, def: 0.17, spa: 0.12, spd: 0.17, spe: 0.13 },
     recipe: { body: 'body.biped', head: 'head.round', eyes: 'eye.sleepy', mouth: 'mouth.flat', crown: 'crown.catears', legs: 'legs.chunky', arms: 'arms.paw', wings: 'wings.none', tail: 'tails.stubby', back: ['back.none', 'back.crystal'], pattern: 'pat.belly' },
     palette: { c1: [196, 55, 80], c2: [200, 30, 95], c3: [210, 60, 62], eye: [222, 50, 35] }, vary: { h: 8, s: 8, l: 5 },
     traits: T([0.5, 0.8], [0.45, 0.65], [0.4, 0.6], [0.3, 0.5], MID, [0.4, 0.6]),
-    learnset: [[1,'swipe'],[5,'sleet'],[9,'glare'],[15,'frost_fist'],[21,'chill_gust'],[27,'brace'],[34,'glacier_ray'],[41,'snowslide'],[50,'whiteout']],
+    learnset: [[1,'sleet'],[1,'glare'],[6,'chill_gust'],[11,'icicle_dart'],[16,'frost_fist'],[22,'brace'],[28,'siphon_fist'],[34,'glacier_ray'],[40,'belly_flop'],[46,'snowslide'],[52,'whiteout']],
     abilities: ['blubber','warm_core'],
     desc: 'Sleeps through blizzards. Its breath leaves frost on anything it sniffs.',
   },
   {
-    id: 'bruxor', name: 'Bruxor', nameParts: ['Brux', 'or'], types: ['Fighting'], tier: 'uncommon', bst: 430,
+    id: 'bruxor', name: 'Bruxor', nameParts: ['Brux', 'or'], types: ['Fighting'], tier: 'uncommon', bst: 420,
     stats: { hp: 0.17, atk: 0.25, def: 0.18, spa: 0.08, spd: 0.14, spe: 0.18 },
     recipe: { body: 'body.biped', head: 'head.block', eyes: 'eye.angry', mouth: 'mouth.frown', crown: ['crown.horns', 'crown.mohawk'], legs: 'legs.chunky', arms: 'arms.claw', wings: 'wings.none', tail: 'tail.none', back: 'back.none', pattern: 'pat.chest' },
     palette: { c1: [15, 55, 46], c2: [30, 45, 70], c3: [40, 30, 88], eye: [10, 80, 40] }, vary: { h: 8, s: 8, l: 6 },
     traits: T([0.55, 0.85], [0.4, 0.6], [0.5, 0.75], MID, MID, [0.3, 0.5]),
-    learnset: [[1,'bump'],[1,'glare'],[7,'chop'],[13,'blitz_punch'],[19,'leg_sweep'],[25,'muscle_up'],[31,'slab_break'],[38,'siphon_fist'],[47,'all_out_brawl']],
+    learnset: [[1,'chop'],[1,'glare'],[6,'blitz_punch'],[11,'leg_sweep'],[16,'muscle_up'],[22,'slab_break'],[28,'siphon_fist'],[34,'boulder_fall'],[40,'overpower'],[46,'steel_ram'],[52,'all_out_brawl']],
     abilities: ['grit','menace'],
     desc: 'Headbutts boulders to keep its horns sharp. Loyal to whoever beats it fairly.',
   },
   {
-    id: 'slugmire', name: 'Slugmire', nameParts: ['Slug', 'mire'], types: ['Poison'], tier: 'common', bst: 390,
+    id: 'slugmire', name: 'Slugmire', nameParts: ['Slug', 'mire'], types: ['Poison'], tier: 'common', bst: 405,
     stats: { hp: 0.19, atk: 0.14, def: 0.15, spa: 0.18, spd: 0.2, spe: 0.14 },
     recipe: { body: 'body.serpent', head: 'head.bulb', eyes: 'eye.slit', mouth: 'mouth.tongue', crown: 'crown.antennae', legs: 'legs.none', arms: 'arms.none', wings: 'wings.none', tail: 'tails.whip', back: ['back.none', 'back.spikes'], pattern: 'pat.spots' },
     palette: { c1: [280, 50, 46], c2: [95, 60, 52], c3: [305, 70, 66], eye: [95, 90, 55] }, vary: { h: 12, s: 8, l: 6 },
     traits: T([0.35, 0.65], [0.4, 0.6], MID, [0.5, 0.8], MID, [0.5, 0.75]),
-    learnset: [[1,'venom_prick'],[1,'yowl'],[8,'acid_spit'],[15,'venom_stab'],[21,'slime_coat'],[27,'blight'],[34,'sludge_blast'],[41,'venom_slash'],[49,'sludge_hurl']],
+    learnset: [[1,'venom_prick'],[1,'yowl'],[6,'acid_spit'],[11,'venom_slash'],[16,'slime_coat'],[22,'venom_stab'],[28,'blight'],[34,'sludge_blast'],[40,'sap_drain'],[46,'fissure_burst'],[52,'sludge_hurl']],
     abilities: ['venom_barbs','antitoxin'],
     desc: 'Leaves a faintly glowing trail. Gardeners both dread and admire it.',
   },
@@ -1063,7 +1144,7 @@ const SPECIES = [
     recipe: { body: 'body.quad', head: 'head.snout', eyes: 'eye.dot', mouth: 'mouth.flat', crown: ['crown.none', 'crown.horns'], legs: 'legs.hoof', arms: 'arms.none', wings: 'wings.none', tail: 'tails.whip', back: 'back.none', pattern: 'pat.saddle' },
     palette: { c1: [32, 45, 50], c2: [40, 50, 76], c3: [25, 35, 30], eye: [30, 60, 25] }, vary: { h: 8, s: 8, l: 6 },
     traits: T([0.45, 0.75], MID, [0.4, 0.6], [0.3, 0.5], MID, [0.3, 0.5]),
-    learnset: [[1,'bump'],[4,'dust_kick'],[9,'mud_fling'],[15,'stampede'],[21,'silt_jet'],[27,'brace'],[33,'bull_rush'],[40,'fissure_burst'],[48,'tremor']],
+    learnset: [[1,'bump'],[1,'dust_kick'],[6,'stampede'],[11,'stone_toss'],[16,'silt_jet'],[22,'headbonk'],[28,'brace'],[34,'bull_rush'],[40,'boulder_fall'],[46,'fissure_burst'],[52,'tremor']],
     abilities: ['stonewall','thick_skull'],
     desc: 'Digs shallow burrows and forgets where they are. Its hooves never seem to get dirty.',
   },
@@ -1073,37 +1154,37 @@ const SPECIES = [
     recipe: { body: 'body.bird', head: 'head.beak', eyes: 'eye.round', mouth: 'mouth.none', crown: 'crown.crest', legs: 'legs.bird', arms: 'arms.none', wings: 'wings.feather', tail: 'tails.feathers', back: 'back.none', pattern: 'pat.belly' },
     palette: { c1: [210, 70, 72], c2: [200, 20, 96], c3: [40, 90, 58], eye: [222, 60, 25] }, vary: { h: 12, s: 8, l: 6 },
     traits: T([0.3, 0.6], MID, [0.4, 0.6], MID, [0.55, 0.85], MID),
-    learnset: [[1,'gale'],[6,'dash'],[12,'wing_strike'],[18,'slipstream'],[24,'sky_strike'],[30,'preen'],[36,'wind_cutter'],[43,'quicken'],[50,'dive_bomb']],
+    learnset: [[1,'gale'],[1,'dash'],[6,'wing_strike'],[11,'slipstream'],[16,'sky_strike'],[22,'preen'],[28,'wind_cutter'],[34,'quicken'],[40,'dive_bomb'],[46,'cyclone'],[52,'blur']],
     abilities: ['hawkeye','hover'],
     desc: 'Rides thermals for hours without a single flap. Whistles at travellers to show them the way.',
   },
   {
-    id: 'mystril', name: 'Mystril', nameParts: ['Mys', 'tril'], types: ['Psychic'], tier: 'uncommon', bst: 440,
+    id: 'mystril', name: 'Mystril', nameParts: ['Mys', 'tril'], types: ['Psychic'], tier: 'uncommon', bst: 430,
     stats: { hp: 0.14, atk: 0.08, def: 0.13, spa: 0.26, spd: 0.21, spe: 0.18 },
     recipe: { body: 'body.float', head: 'head.none', eyes: 'eye.big', mouth: 'mouth.smile', crown: ['crown.antennae', 'crown.halo'], legs: 'legs.none', arms: 'arms.none', wings: 'wings.none', tail: 'tails.curl', back: 'back.wisps', pattern: 'pat.spots' },
     palette: { c1: [320, 60, 68], c2: [270, 50, 62], c3: [48, 90, 62], eye: [200, 70, 50] }, vary: { h: 14, s: 8, l: 6 },
     traits: T([0.35, 0.6], MID, MID, [0.5, 0.8], MID, [0.6, 0.9]),
-    learnset: [[1,'mind_jolt'],[7,'lull'],[13,'thought_beam'],[19,'meditate'],[25,'quicken'],[31,'psi_shock'],[38,'mind_crush'],[44,'blank_mind'],[50,'mind_ram']],
+    learnset: [[1,'mind_jolt'],[1,'lull'],[6,'thought_beam'],[11,'glitter_gust'],[16,'meditate'],[22,'psi_shock'],[28,'quicken'],[34,'mind_crush'],[40,'dazzle'],[46,'blank_mind'],[52,'aura_cannon']],
     abilities: ['hover','restless'],
     desc: 'Hovers a hand-width above the ground and always seems to be listening to something far away.',
   },
   {
-    id: 'chitterbug', name: 'Chitterbug', nameParts: ['Chitter', 'bug'], types: ['Bug'], tier: 'common', bst: 380,
+    id: 'chitterbug', name: 'Chitterbug', nameParts: ['Chitter', 'bug'], types: ['Bug'], tier: 'common', bst: 410,
     stats: { hp: 0.16, atk: 0.18, def: 0.17, spa: 0.12, spd: 0.15, spe: 0.22 },
     recipe: { body: 'body.round', head: 'head.round', eyes: 'eye.bug', mouth: 'mouth.fangs', crown: 'crown.antennae', legs: 'legs.insect', arms: 'arms.none', wings: 'wings.bug', tail: 'tail.none', back: 'back.plates', pattern: 'pat.stripes' },
     palette: { c1: [95, 50, 42], c2: [222, 10, 18], c3: [50, 90, 55], eye: [0, 0, 12] }, vary: { h: 14, s: 8, l: 6 },
     traits: T([0.25, 0.5], [0.4, 0.6], [0.4, 0.7], MID, [0.4, 0.7], [0.5, 0.8]),
-    learnset: [[1,'nibble'],[5,'web_shot'],[11,'needle_volley'],[17,'swarm_buzz'],[24,'scissor_slash'],[30,'blood_sip'],[37,'drone'],[40,'quicken'],[48,'great_horn']],
+    learnset: [[1,'nibble'],[1,'web_shot'],[6,'needle_volley'],[11,'swarm_buzz'],[16,'sky_strike'],[22,'scissor_slash'],[28,'blood_sip'],[34,'drone'],[40,'quicken'],[46,'great_horn'],[52,'wind_cutter']],
     abilities: ['finesse','lucky_streak'],
     desc: 'Chatters constantly by rubbing its plates together. Swarms are loud enough to hear from the next valley.',
   },
   {
-    id: 'craggon', name: 'Craggon', nameParts: ['Crag', 'gon'], types: ['Rock'], tier: 'uncommon', bst: 430,
+    id: 'craggon', name: 'Craggon', nameParts: ['Crag', 'gon'], types: ['Rock'], tier: 'uncommon', bst: 445,
     stats: { hp: 0.17, atk: 0.21, def: 0.27, spa: 0.08, spd: 0.15, spe: 0.12 },
     recipe: { body: 'body.biped', head: 'head.block', eyes: 'eye.dot', mouth: 'mouth.flat', crown: 'crown.spikes', legs: 'legs.chunky', arms: 'arms.claw', wings: 'wings.none', tail: 'tails.club', back: ['back.plates', 'back.crystal'], pattern: 'pat.scales' },
     palette: { c1: [30, 15, 50], c2: [30, 12, 36], c3: [32, 22, 68], eye: [45, 80, 50] }, vary: { h: 10, s: 6, l: 6 },
     traits: T([0.5, 0.85], [0.4, 0.6], [0.4, 0.6], [0.5, 0.75], MID, [0.3, 0.5]),
-    learnset: [[1,'stone_toss'],[1,'brace'],[8,'stone_trap'],[15,'primal_surge'],[22,'gem_gleam'],[29,'boulder_fall'],[36,'smooth_stone'],[44,'shard_spire'],[50,'tremor']],
+    learnset: [[1,'stone_toss'],[1,'brace'],[6,'stone_trap'],[11,'stampede'],[16,'primal_surge'],[22,'gem_gleam'],[28,'boulder_fall'],[34,'smooth_stone'],[40,'bull_rush'],[46,'shard_spire'],[52,'tremor']],
     abilities: ['stonewall','thorn_hide'],
     desc: 'Mistaken for a boulder until it yawns. Lichen grows on the ones that sit still longest.',
   },
@@ -1113,17 +1194,17 @@ const SPECIES = [
     recipe: { body: 'body.float', head: 'head.none', eyes: 'eye.sleepy', mouth: 'mouth.grin', crown: ['crown.none', 'crown.halo'], legs: 'legs.none', arms: 'arms.stub', wings: 'wings.none', tail: 'tail.none', back: 'back.wisps', pattern: 'pattern.none' },
     palette: { c1: [255, 40, 42], c2: [250, 30, 72], c3: [180, 60, 70], eye: [180, 80, 60] }, vary: { h: 12, s: 8, l: 6 },
     traits: T([0.35, 0.65], MID, MID, MID, MID, [0.5, 0.8]),
-    learnset: [[1,'cold_lick'],[6,'wraith_touch'],[12,'shade_step'],[18,'haunt'],[24,'curse_bolt'],[31,'phantom_claw'],[38,'umbral_orb'],[44,'scheme'],[50,'dread_pulse']],
+    learnset: [[1,'cold_lick'],[1,'wraith_touch'],[6,'shade_step'],[11,'curse_bolt'],[16,'haunt'],[22,'sneer'],[28,'umbral_orb'],[34,'scheme'],[40,'dread_pulse'],[46,'mind_crush'],[52,'lunar_burst']],
     abilities: ['hover','restless'],
     desc: 'Drifts through walls when it forgets they are there. Giggles in empty rooms.',
   },
   {
-    id: 'drakelet', name: 'Drakelet', nameParts: ['Drake', 'let'], types: ['Dragon'], tier: 'rare', bst: 480,
+    id: 'drakelet', name: 'Drakelet', nameParts: ['Drake', 'let'], types: ['Dragon'], tier: 'rare', bst: 465,
     stats: { hp: 0.17, atk: 0.21, def: 0.16, spa: 0.18, spd: 0.14, spe: 0.14 },
     recipe: { body: 'body.quad', head: 'head.long', eyes: 'eye.slit', mouth: 'mouth.fangs', crown: 'crown.horns', legs: 'legs.chunky', arms: 'arms.none', wings: 'wings.bat', tail: ['tails.whip', 'tails.club'], back: 'back.spikes', pattern: 'pat.gradient' },
     palette: { c1: [175, 55, 40], c2: [25, 80, 58], c3: [45, 70, 76], eye: [40, 90, 50] }, vary: { h: 12, s: 8, l: 6 },
     traits: T([0.5, 0.8], MID, [0.45, 0.7], [0.5, 0.8], [0.5, 0.8], [0.3, 0.5]),
-    learnset: [[1,'swipe'],[6,'wyrm_breath'],[10,'glare'],[17,'wyrm_claw'],[24,'wyrm_dance'],[31,'wyrm_pulse'],[38,'wyrm_rush'],[45,'rampage'],[52,'comet_roar']],
+    learnset: [[1,'swipe'],[1,'glare'],[6,'wyrm_breath'],[11,'ember_bite'],[16,'wyrm_claw'],[22,'wyrm_dance'],[28,'wyrm_pulse'],[34,'fire_stream'],[40,'wyrm_rush'],[46,'rampage'],[52,'comet_roar']],
     abilities: ['menace','vice_jaw'],
     desc: 'A young dragon that hoards pebbles and sleeps on them. Its wings are still too small to carry it far.',
   },
@@ -1133,17 +1214,17 @@ const SPECIES = [
     recipe: { body: 'body.quad', head: 'head.cat', eyes: 'eye.slit', mouth: 'mouth.smirk', crown: 'crown.catears', legs: 'legs.canine', arms: 'arms.none', wings: 'wings.none', tail: ['tails.curl', 'tails.spade'], back: 'back.none', pattern: 'pattern.none' },
     palette: { c1: [262, 22, 22], c2: [270, 30, 45], c3: [45, 90, 60], eye: [50, 95, 55] }, vary: { h: 12, s: 8, l: 5 },
     traits: T([0.35, 0.6], MID, [0.5, 0.75], [0.6, 0.9], MID, [0.5, 0.8]),
-    learnset: [[1,'swipe'],[6,'chomp'],[11,'dash'],[16,'blindside'],[22,'dusk_slash'],[28,'cheap_shot'],[34,'crush_bite'],[40,'scheme'],[47,'dread_pulse']],
+    learnset: [[1,'swipe'],[1,'yowl'],[6,'chomp'],[11,'dash'],[16,'blindside'],[22,'dusk_slash'],[28,'cheap_shot'],[34,'crush_bite'],[40,'scheme'],[46,'dread_pulse'],[52,'roughhouse']],
     abilities: ['loose_joints','swagger'],
     desc: 'Only ever seen out of the corner of the eye. Steals one sock, never the pair.',
   },
   {
     id: 'boltmaw', name: 'Boltmaw', nameParts: ['Bolt', 'maw'], types: ['Steel'], tier: 'rare', bst: 470,
-    stats: { hp: 0.16, atk: 0.22, def: 0.26, spa: 0.1, spd: 0.16, spe: 0.1 },
+    stats: { hp: 0.17, atk: 0.22, def: 0.24, spa: 0.1, spd: 0.15, spe: 0.12 },
     recipe: { body: 'body.biped', head: 'head.skull', eyes: 'eye.dot', mouth: 'mouth.teeth', crown: 'crown.spikes', legs: 'legs.peg', arms: ['arms.claw', 'arms.blade'], wings: 'wings.none', tail: 'tails.club', back: 'back.plates', pattern: 'pat.bands' },
     palette: { c1: [220, 12, 62], c2: [220, 15, 40], c3: [200, 60, 55], eye: [0, 90, 52] }, vary: { h: 8, s: 5, l: 6 },
     traits: T([0.5, 0.8], MID, [0.4, 0.6], [0.4, 0.6], MID, [0.3, 0.5]),
-    learnset: [[1,'iron_claw'],[1,'glare'],[8,'bolt_jab'],[14,'steel_fin'],[20,'plate_up'],[26,'grind_screech'],[33,'steel_ram'],[40,'chrome_beam'],[48,'comet_fist']],
+    learnset: [[1,'iron_claw'],[1,'glare'],[6,'bolt_jab'],[11,'steel_fin'],[16,'plate_up'],[22,'steel_ram'],[28,'grind_screech'],[34,'chrome_beam'],[40,'tremor'],[46,'comet_fist'],[52,'overpower']],
     abilities: ['heavy_hands','stonewall'],
     desc: 'Nobody knows whether it was built or born. It sharpens its teeth on rusty nails.',
   },
@@ -1153,50 +1234,111 @@ const SPECIES = [
     recipe: { body: 'body.round', head: 'head.bulb', eyes: 'eye.big', mouth: 'mouth.smile', crown: 'crown.bunny', legs: 'legs.stub', arms: 'arms.stub', wings: 'wings.bug', tail: 'tails.fluffy', back: 'back.none', pattern: 'pat.speckle' },
     palette: { c1: [335, 75, 78], c2: [330, 30, 97], c3: [48, 90, 66], eye: [200, 70, 55] }, vary: { h: 12, s: 8, l: 5 },
     traits: T([0.25, 0.5], [0.5, 0.75], [0.3, 0.5], MID, [0.4, 0.7], [0.6, 0.9]),
-    learnset: [[1,'glitter_gust'],[5,'doe_eyes'],[10,'sweet_sip'],[17,'dazzle'],[24,'moonbathe'],[30,'spirit_crack'],[37,'lunar_burst'],[43,'meditate'],[50,'roughhouse']],
+    learnset: [[1,'glitter_gust'],[1,'doe_eyes'],[6,'sweet_sip'],[11,'mind_jolt'],[16,'moonbathe'],[22,'dazzle'],[28,'spirit_crack'],[34,'lunar_burst'],[40,'meditate'],[46,'psi_shock'],[52,'roughhouse']],
     abilities: ['lucky_streak','sponge'],
     desc: 'Sheds glitter when happy, which is nearly always. Impossible to stay angry at.',
   },
   // Dual-typed species
   {
-    id: 'moltrix', name: 'Moltrix', nameParts: ['Mol', 'trix'], types: ['Fire', 'Flying'], tier: 'uncommon', bst: 445,
+    id: 'moltrix', name: 'Moltrix', nameParts: ['Mol', 'trix'], types: ['Fire', 'Flying'], tier: 'uncommon', bst: 435,
     stats: { hp: 0.14, atk: 0.18, def: 0.12, spa: 0.22, spd: 0.12, spe: 0.22 },
     recipe: { body: 'body.bird', head: 'head.beak', eyes: 'eye.angry', mouth: 'mouth.none', crown: 'crown.crest', legs: 'legs.bird', arms: 'arms.none', wings: 'wings.fire', tail: 'tails.feathers', back: 'back.none', pattern: 'pat.gradient' },
     palette: { c1: [18, 85, 50], c2: [40, 95, 60], c3: [48, 95, 58], eye: [48, 95, 55] }, vary: { h: 8, s: 6, l: 6 },
     traits: T([0.4, 0.7], MID, [0.4, 0.6], [0.5, 0.8], [0.6, 0.9], MID),
-    learnset: [[1,'gale'],[5,'cinder'],[10,'dash'],[15,'wing_strike'],[21,'kindle_rush'],[27,'wind_cutter'],[33,'fire_stream'],[39,'preen'],[46,'dive_bomb'],[52,'meltdown']],
+    learnset: [[1,'gale'],[1,'cinder'],[6,'wing_strike'],[11,'kindle_rush'],[16,'ember_bite'],[22,'wind_cutter'],[28,'preen'],[34,'fire_stream'],[40,'quicken'],[46,'dive_bomb'],[52,'meltdown']],
     abilities: ['ember_heart','hawkeye'],
     desc: 'Its wingbeats leave trails of embers. Nests on chimney tops in winter.',
   },
   {
-    id: 'tidalisk', name: 'Tidalisk', nameParts: ['Tida', 'lisk'], types: ['Water', 'Dragon'], tier: 'rare', bst: 490,
+    id: 'tidalisk', name: 'Tidalisk', nameParts: ['Tida', 'lisk'], types: ['Water', 'Dragon'], tier: 'rare', bst: 475,
     stats: { hp: 0.18, atk: 0.17, def: 0.17, spa: 0.2, spd: 0.15, spe: 0.13 },
     recipe: { body: 'body.serpent', head: 'head.long', eyes: 'eye.slit', mouth: 'mouth.fangs', crown: 'crown.fin', legs: 'legs.none', arms: 'arms.none', wings: 'wings.fin', tail: 'tails.fish', back: 'back.fin', pattern: 'pat.scales' },
     palette: { c1: [200, 65, 42], c2: [185, 60, 68], c3: [165, 70, 60], eye: [45, 90, 55] }, vary: { h: 10, s: 6, l: 6 },
     traits: T([0.55, 0.85], MID, MID, [0.5, 0.8], [0.4, 0.7], [0.3, 0.5]),
-    learnset: [[1,'squirt'],[7,'wyrm_breath'],[13,'ripple'],[19,'wyrm_claw'],[26,'tidal_wave'],[32,'riptide'],[38,'wyrm_pulse'],[44,'wyrm_dance'],[50,'geyser'],[56,'comet_roar']],
+    learnset: [[1,'squirt'],[1,'glare'],[6,'ripple'],[11,'wyrm_breath'],[16,'wyrm_claw'],[22,'tidal_wave'],[28,'wyrm_dance'],[34,'riptide'],[40,'wyrm_pulse'],[46,'geyser'],[52,'comet_roar']],
     abilities: ['tide_heart','purebred'],
     desc: 'Coils around harbour posts during storms. Sailors leave it fish and it leaves them alone.',
   },
   {
-    id: 'mossbrute', name: 'Mossbrute', nameParts: ['Moss', 'brute'], types: ['Grass', 'Fighting'], tier: 'uncommon', bst: 440,
+    id: 'mossbrute', name: 'Mossbrute', nameParts: ['Moss', 'brute'], types: ['Grass', 'Fighting'], tier: 'uncommon', bst: 455,
     stats: { hp: 0.19, atk: 0.23, def: 0.2, spa: 0.1, spd: 0.16, spe: 0.12 },
     recipe: { body: 'body.biped', head: 'head.block', eyes: 'eye.angry', mouth: 'mouth.frown', crown: 'crown.sprout', legs: 'legs.chunky', arms: 'arms.claw', wings: 'wings.none', tail: 'tails.stubby', back: 'back.leaf', pattern: 'pat.spots' },
     palette: { c1: [100, 35, 40], c2: [80, 45, 55], c3: [95, 55, 62], eye: [40, 80, 50] }, vary: { h: 10, s: 8, l: 6 },
     traits: T([0.55, 0.85], [0.4, 0.6], [0.5, 0.75], [0.3, 0.5], MID, [0.3, 0.5]),
-    learnset: [[1,'bump'],[5,'vine_lash'],[10,'chop'],[16,'leg_sweep'],[22,'muscle_up'],[28,'leaf_razor'],[34,'slab_break'],[41,'blade_leaf'],[48,'overpower'],[54,'sunlance']],
+    learnset: [[1,'vine_lash'],[1,'glare'],[6,'chop'],[11,'leaf_razor'],[16,'leg_sweep'],[22,'muscle_up'],[28,'slab_break'],[34,'blade_leaf'],[40,'siphon_fist'],[46,'overpower'],[52,'sunlance']],
     abilities: ['bloom_heart','grit'],
     desc: 'Moss grows thick on its shoulders. It uproots trees to practise its throws, then replants them.',
   },
   {
-    id: 'gloamoth', name: 'Gloamoth', nameParts: ['Gloa', 'moth'], types: ['Bug', 'Ghost'], tier: 'uncommon', bst: 430,
-    stats: { hp: 0.14, atk: 0.12, def: 0.12, spa: 0.22, spd: 0.18, spe: 0.22 },
+    id: 'gloamoth', name: 'Gloamoth', nameParts: ['Gloa', 'moth'], types: ['Bug', 'Ghost'], tier: 'uncommon', bst: 415,
+    stats: { hp: 0.15, atk: 0.12, def: 0.13, spa: 0.21, spd: 0.19, spe: 0.2 },
     recipe: { body: 'body.float', head: 'head.none', eyes: 'eye.bug', mouth: 'mouth.flat', crown: 'crown.antennae', legs: 'legs.none', arms: 'arms.none', wings: 'wings.bug', tail: 'tail.none', back: 'back.wisps', pattern: 'pat.speckle' },
     palette: { c1: [250, 30, 38], c2: [260, 25, 60], c3: [170, 60, 68], eye: [170, 80, 65] }, vary: { h: 12, s: 8, l: 6 },
     traits: T([0.3, 0.6], MID, MID, MID, [0.6, 0.9], [0.5, 0.8]),
-    learnset: [[1,'nibble'],[5,'cold_lick'],[10,'web_shot'],[15,'wraith_touch'],[21,'swarm_buzz'],[27,'curse_bolt'],[34,'drone'],[41,'umbral_orb'],[46,'lull'],[50,'quicken']],
+    learnset: [[1,'nibble'],[1,'cold_lick'],[6,'web_shot'],[11,'wraith_touch'],[16,'swarm_buzz'],[22,'curse_bolt'],[28,'umbral_orb'],[34,'drone'],[40,'lull'],[46,'dread_pulse'],[52,'quicken']],
     abilities: ['hover','finesse'],
     desc: 'Drawn to lanterns, but the light passes straight through it. Dust from its wings causes vivid dreams.',
+  },
+  // Batch two
+  {
+    id: 'bramblit', name: 'Bramblit', nameParts: ['Bram', 'blit'], types: ['Grass', 'Bug'], tier: 'common', bst: 425,
+    stats: { hp: 0.16, atk: 0.21, def: 0.15, spa: 0.12, spd: 0.16, spe: 0.2 },
+    recipe: { body: 'body.round', head: 'head.rodent', eyes: 'eye.round', mouth: 'mouth.smile', crown: 'crown.leafhat', legs: 'legs.insect', arms: 'arms.none', wings: ['wings.leaf', 'wings.bug'], tail: 'tail.none', back: 'back.leaf', pattern: 'pat.spots' },
+    palette: { c1: [85, 45, 42], c2: [40, 50, 62], c3: [110, 55, 55], eye: [30, 60, 25] }, vary: { h: 10, s: 8, l: 6 },
+    traits: T([0.3, 0.55], [0.45, 0.65], [0.4, 0.6], MID, [0.4, 0.6], [0.5, 0.75]),
+    learnset: [[1,'nibble'],[1,'vine_lash'],[6,'needle_volley'],[11,'leaf_razor'],[16,'web_shot'],[22,'sap_drain'],[28,'scissor_slash'],[34,'spore_burst'],[40,'photosynth'],[46,'blade_leaf'],[52,'great_horn']],
+    abilities: ['bloom_heart', 'finesse'],
+    desc: 'Wears a leaf as a hat and takes it very seriously. Chews through fences to reach berry bushes.',
+  },
+  {
+    id: 'cinderhoof', name: 'Cinderhoof', nameParts: ['Cinder', 'hoof'], types: ['Fire', 'Ground'], tier: 'uncommon', bst: 435,
+    stats: { hp: 0.17, atk: 0.22, def: 0.15, spa: 0.14, spd: 0.13, spe: 0.19 },
+    recipe: { body: 'body.tall', head: 'head.long', eyes: 'eye.angry', mouth: 'mouth.flat', crown: 'crown.flame', legs: 'legs.hoof', arms: 'arms.none', wings: 'wings.none', tail: 'tails.flame', back: 'back.mane', pattern: 'pat.gradient' },
+    palette: { c1: [18, 60, 40], c2: [35, 70, 50], c3: [8, 90, 55], eye: [45, 90, 55] }, vary: { h: 8, s: 6, l: 6 },
+    traits: T([0.55, 0.85], MID, [0.55, 0.8], [0.5, 0.8], MID, [0.3, 0.5]),
+    learnset: [[1,'bump'],[1,'cinder'],[6,'stampede'],[11,'kindle_rush'],[16,'dust_kick'],[22,'ember_bite'],[28,'bull_rush'],[34,'fire_stream'],[40,'whetting'],[46,'fissure_burst'],[52,'blaze_tackle']],
+    abilities: ['ember_heart', 'thick_skull'],
+    desc: 'Its hooves glow after a long run. Herds of them leave scorched trails across the plains.',
+  },
+  {
+    id: 'glimmerfin', name: 'Glimmerfin', nameParts: ['Glimmer', 'fin'], types: ['Water', 'Fairy'], tier: 'uncommon', bst: 415,
+    stats: { hp: 0.16, atk: 0.1, def: 0.16, spa: 0.22, spd: 0.21, spe: 0.15 },
+    recipe: { body: 'body.fish', head: 'head.none', eyes: 'eye.big', mouth: 'mouth.smile', crown: 'crown.gem', legs: 'legs.none', arms: 'arms.fin', wings: 'wings.none', tail: 'tails.fish', back: 'back.sail', pattern: 'pat.speckle' },
+    palette: { c1: [190, 60, 70], c2: [320, 60, 86], c3: [50, 80, 75], eye: [320, 70, 55] }, vary: { h: 10, s: 8, l: 5 },
+    traits: T([0.35, 0.6], MID, MID, [0.5, 0.8], MID, [0.6, 0.9]),
+    learnset: [[1,'squirt'],[1,'glitter_gust'],[6,'ripple'],[11,'sweet_sip'],[16,'chill_gust'],[22,'dazzle'],[28,'meditate'],[34,'tidal_wave'],[40,'lunar_burst'],[46,'moonbathe'],[52,'geyser']],
+    abilities: ['sponge', 'lucky_streak'],
+    desc: 'The gem on its brow stores moonlight. Fishers who see one are said to have a lucky season.',
+  },
+  {
+    id: 'voltcrab', name: 'Voltcrab', nameParts: ['Volt', 'crab'], types: ['Electric', 'Steel'], tier: 'uncommon', bst: 440,
+    stats: { hp: 0.16, atk: 0.2, def: 0.24, spa: 0.14, spd: 0.15, spe: 0.11 },
+    recipe: { body: 'body.bulk', head: 'head.helm', eyes: 'eye.dot', mouth: 'mouth.teeth', crown: 'crown.bolts', legs: 'legs.insect', arms: 'arms.pincer', wings: 'wings.none', tail: 'tails.bolt', back: 'back.plates', pattern: 'pat.hex' },
+    palette: { c1: [210, 15, 55], c2: [50, 95, 55], c3: [200, 60, 60], eye: [50, 95, 60] }, vary: { h: 8, s: 6, l: 6 },
+    traits: T([0.45, 0.75], [0.4, 0.6], [0.4, 0.6], [0.4, 0.7], MID, [0.3, 0.5]),
+    learnset: [[1,'iron_claw'],[1,'zap'],[6,'static_net'],[11,'bolt_jab'],[16,'plate_up'],[22,'shock_fist'],[28,'steel_ram'],[34,'voltage'],[40,'chrome_beam'],[46,'live_wire'],[52,'comet_fist']],
+    abilities: ['capacitor', 'stonewall'],
+    desc: 'Clamps onto power lines to charge overnight. Its pincers weld shut anything they grab.',
+  },
+  {
+    id: 'nightstalk', name: 'Nightstalk', nameParts: ['Night', 'stalk'], types: ['Poison', 'Dark'], tier: 'uncommon', bst: 415,
+    stats: { hp: 0.15, atk: 0.22, def: 0.15, spa: 0.12, spd: 0.14, spe: 0.22 },
+    recipe: { body: 'body.quad', head: 'head.skull', eyes: 'eye.slit', mouth: 'mouth.fangs', crown: 'crown.spikes', legs: 'legs.chunky', arms: 'arms.none', wings: 'wings.none', tail: 'tails.scorpion', back: 'back.spikes', pattern: 'pat.tiger' },
+    palette: { c1: [265, 20, 20], c2: [290, 50, 45], c3: [120, 70, 55], eye: [120, 90, 60] }, vary: { h: 10, s: 8, l: 5 },
+    traits: T([0.4, 0.7], MID, [0.5, 0.75], [0.6, 0.9], MID, [0.4, 0.6]),
+    learnset: [[1,'venom_prick'],[1,'swipe'],[6,'chomp'],[11,'venom_slash'],[16,'blindside'],[22,'venom_stab'],[28,'dusk_slash'],[34,'crush_bite'],[40,'blight'],[46,'sludge_hurl'],[52,'dread_pulse']],
+    abilities: ['venom_barbs', 'swagger'],
+    desc: 'Hunts by moonless nights. The glow of its stinger is the last thing many beetles see.',
+  },
+  {
+    id: 'halowl', name: 'Halowl', nameParts: ['Hal', 'owl'], types: ['Psychic', 'Flying'], tier: 'rare', bst: 470,
+    stats: { hp: 0.15, atk: 0.1, def: 0.14, spa: 0.24, spd: 0.17, spe: 0.2 },
+    recipe: { body: 'body.bird', head: 'head.owl', eyes: 'eye.void', mouth: 'mouth.none', crown: 'crown.halo', legs: 'legs.bird', arms: 'arms.none', wings: 'wings.feather', tail: 'tails.feathers', back: 'back.wisps', pattern: 'pat.chest' },
+    palette: { c1: [45, 30, 86], c2: [260, 40, 62], c3: [48, 90, 60], eye: [48, 100, 65] }, vary: { h: 10, s: 6, l: 5 },
+    traits: T([0.45, 0.7], [0.5, 0.7], [0.4, 0.6], [0.5, 0.75], [0.6, 0.9], [0.6, 0.9]),
+    learnset: [[1,'gale'],[1,'mind_jolt'],[6,'wing_strike'],[11,'thought_beam'],[16,'lull'],[22,'wind_cutter'],[28,'meditate'],[34,'psi_shock'],[40,'quicken'],[46,'mind_crush'],[52,'cyclone']],
+    abilities: ['hawkeye', 'restless'],
+    desc: 'Seen only at dusk, circling old towers. It answers questions nobody asked aloud.',
   },
 ];
 
@@ -2652,12 +2794,15 @@ function resultPanel(child, report, a, b, actions) {
 
 
 
+/** HP gets a global lift so battles last a hit or two longer than the raw formula gives. */
+const HP_SCALE = 1.15;
+
 /** Classic level formula. Vigor genes play the role of IVs (0..31). */
 function statsAtLevel(genome, level) {
   const base = baseStats(genome);
   const L = Math.max(1, Math.min(100, Math.round(level)));
   const iv = (k) => Math.round((genome.vigor && genome.vigor[k] != null ? genome.vigor[k] : 0.5) * 31);
-  const out = { hp: Math.floor(((2 * base.hp + iv('hp')) * L) / 100) + L + 10 };
+  const out = { hp: Math.floor((Math.floor(((2 * base.hp + iv('hp')) * L) / 100) + L + 10) * HP_SCALE) };
   for (const k of STAT_KEYS) if (k !== 'hp') out[k] = Math.floor(((2 * base[k] + iv(k)) * L) / 100) + 5;
   return out;
 }
@@ -3304,10 +3449,92 @@ function chooseAction(state, side, rng) {
   return best;
 }
 
+// ---- src/core/sfx.js ----
+// Procedural sound effects on WebAudio. No assets. Everything is a few tones or
+// a burst of noise, so it costs nothing to ship and never needs loading.
+let ctx = null;
+let enabled = true;
+
+function setSfxEnabled(v) { enabled = Boolean(v); if (enabled) audioCtx(); }
+function sfxEnabled() { return enabled; }
+
+function audioCtx() {
+  if (!enabled || typeof window === 'undefined') return null;
+  try {
+    const AC = window.AudioContext || window.webkitAudioContext;
+    if (!AC) return null;
+    ctx = ctx || new AC();
+    if (ctx.state === 'suspended') ctx.resume().catch(() => {});
+    return ctx;
+  } catch { return null; }
+}
+
+function tone({ freq = 440, to = null, type = 'square', dur = 0.12, gain = 0.07, delay = 0 }) {
+  const c = audioCtx();
+  if (!c) return;
+  const t0 = c.currentTime + delay;
+  const o = c.createOscillator();
+  const g = c.createGain();
+  o.type = type;
+  o.frequency.setValueAtTime(Math.max(20, freq), t0);
+  if (to) o.frequency.exponentialRampToValueAtTime(Math.max(20, to), t0 + dur);
+  g.gain.setValueAtTime(gain, t0);
+  g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+  o.connect(g).connect(c.destination);
+  o.start(t0);
+  o.stop(t0 + dur + 0.02);
+}
+
+function noise({ dur = 0.15, gain = 0.1, delay = 0, cutoff = 1200 }) {
+  const c = audioCtx();
+  if (!c) return;
+  const len = Math.floor(c.sampleRate * dur);
+  const buf = c.createBuffer(1, len, c.sampleRate);
+  const d = buf.getChannelData(0);
+  for (let i = 0; i < len; i++) d[i] = (Math.random() * 2 - 1) * (1 - i / len);
+  const src = c.createBufferSource();
+  src.buffer = buf;
+  const f = c.createBiquadFilter();
+  f.type = 'lowpass';
+  f.frequency.value = cutoff;
+  const g = c.createGain();
+  g.gain.value = gain;
+  src.connect(f).connect(g).connect(c.destination);
+  src.start(c.currentTime + delay);
+}
+
+const arp = (freqs, type, dur, gap, gain = 0.06) => freqs.forEach((f, i) => tone({ freq: f, type, dur, gain, delay: i * gap }));
+
+const sfx = {
+  tap: () => tone({ freq: 660, type: 'triangle', dur: 0.05, gain: 0.035 }),
+  hit: (eff = 1) => { noise({ dur: 0.12, gain: eff >= 2 ? 0.18 : 0.1, cutoff: eff >= 2 ? 2400 : 1200 }); tone({ freq: eff >= 2 ? 240 : 160, to: 55, type: 'square', dur: 0.16, gain: 0.07 }); },
+  miss: () => tone({ freq: 520, to: 300, type: 'sine', dur: 0.16, gain: 0.04 }),
+  heal: () => arp([523, 784], 'sine', 0.14, 0.09),
+  status: () => tone({ freq: 320, to: 190, type: 'sawtooth', dur: 0.22, gain: 0.045 }),
+  stat: (up) => (up ? arp([440, 660], 'triangle', 0.08, 0.06, 0.04) : arp([660, 440], 'triangle', 0.08, 0.06, 0.04)),
+  faint: () => tone({ freq: 420, to: 50, type: 'sawtooth', dur: 0.55, gain: 0.07 }),
+  wobble: () => tone({ freq: 330, to: 270, type: 'triangle', dur: 0.14, gain: 0.05 }),
+  capture: (ok) => (ok ? arp([523, 659, 784, 1047], 'square', 0.13, 0.1) : tone({ freq: 220, to: 110, type: 'square', dur: 0.28, gain: 0.06 })),
+  levelUp: () => arp([659, 784, 988, 1319], 'triangle', 0.15, 0.08),
+  win: () => arp([523, 659, 784, 1047, 1319], 'square', 0.16, 0.11, 0.05),
+  lose: () => arp([392, 349, 311, 196], 'sawtooth', 0.28, 0.2, 0.05),
+  fuse: () => { arp([262, 330, 392, 523, 659, 784], 'sine', 0.2, 0.07, 0.05); noise({ dur: 0.5, gain: 0.05, cutoff: 600, delay: 0.3 }); },
+  /** A short cry shaped by the genome: bigger creatures are lower, type picks the timbre. */
+  cry: (genome) => {
+    const size = genome && genome.traits && genome.traits.size != null ? genome.traits.size : 0.5;
+    const base = 720 - size * 420;
+    const t = genome && genome.types ? genome.types[0] : 'Normal';
+    const type = ['Electric', 'Steel', 'Rock', 'Bug'].includes(t) ? 'square' : ['Ghost', 'Psychic', 'Fairy', 'Ice', 'Water'].includes(t) ? 'sine' : ['Dragon', 'Fire', 'Fighting', 'Dark'].includes(t) ? 'sawtooth' : 'triangle';
+    tone({ freq: base, to: base * 1.45, type, dur: 0.13, gain: 0.06 });
+    tone({ freq: base * 1.3, to: base * 0.75, type, dur: 0.22, gain: 0.055, delay: 0.13 });
+  },
+};
+
 // ---- src/ui/fight.js ----
 // Reusable interactive battle view. Mount it with an engine state and it plays
 // events, takes the player's choices, asks the AI for the foe's, and reports
 // the final state. Used by the sandbox Battle tab and by the Arena.
+
 
 
 
@@ -3412,15 +3639,18 @@ function applyFightEvent(f, e) {
   const text = describeEvent(e, f.names, { wild: f.wild });
   switch (e.t) {
     case 'turn': logLine(f, text); return 250;
-    case 'switch': renderStage(f, e.side); renderPanel(f, e.side); logLine(f, text); return 650;
+    case 'switch': renderStage(f, e.side); renderPanel(f, e.side); logLine(f, text); sfx.cry(activeOf(f.state, e.side).genome); return 650;
     case 'move': logLine(f, text); animateStage(f, e.side, e.side === 0 ? 'lunge-r' : 'lunge-l', 450); return 550;
-    case 'damage': animateStage(f, e.side, 'hit', 450); setHp(f, e.side, e.hp, e.maxHp); logLine(f, text); return e.eff !== 1 || e.crit ? 750 : 550;
-    case 'hurt': animateStage(f, e.side, 'hit', 350); setHp(f, e.side, e.hp, e.maxHp); logLine(f, text); return 550;
-    case 'heal': setHp(f, e.side, e.hp, e.maxHp); logLine(f, text); return 550;
-    case 'faint': animateStage(f, e.side, 'faint', 900); logLine(f, text); renderPanel(f, e.side); return 900;
-    case 'status': case 'cure': renderPanel(f, e.side); logLine(f, text); return 550;
-    case 'capture': animateStage(f, 1, e.ok ? 'captured' : 'wobble', e.ok ? 900 : 700); logLine(f, text); return e.ok ? 900 : 800;
-    case 'end': logLine(f, text); return 600;
+    case 'damage': animateStage(f, e.side, 'hit', 450); setHp(f, e.side, e.hp, e.maxHp); logLine(f, text); sfx.hit(e.eff); return e.eff !== 1 || e.crit ? 750 : 550;
+    case 'hurt': animateStage(f, e.side, 'hit', 350); setHp(f, e.side, e.hp, e.maxHp); logLine(f, text); sfx.hit(1); return 550;
+    case 'heal': setHp(f, e.side, e.hp, e.maxHp); logLine(f, text); sfx.heal(); return 550;
+    case 'faint': animateStage(f, e.side, 'faint', 900); logLine(f, text); renderPanel(f, e.side); sfx.faint(); return 900;
+    case 'status': renderPanel(f, e.side); logLine(f, text); sfx.status(); return 550;
+    case 'cure': renderPanel(f, e.side); logLine(f, text); return 550;
+    case 'stat': logLine(f, text); if (e.stages) sfx.stat(e.stages > 0); return 450;
+    case 'miss': logLine(f, text); sfx.miss(); return 450;
+    case 'capture': animateStage(f, 1, e.ok ? 'captured' : 'wobble', e.ok ? 900 : 700); logLine(f, text); sfx.capture(e.ok); return e.ok ? 900 : 800;
+    case 'end': logLine(f, text); if (e.winner === 0) sfx.win(); else if (e.winner === 1) sfx.lose(); return 600;
     default: logLine(f, text); return text ? 450 : 0;
   }
 }
@@ -3663,6 +3893,8 @@ function startSandboxBattle(partyGenomes, opts = {}) {
 
 
 
+
+
 const SAVE_KEY = 'creaturecollector.save';
 const SAVE_VERSION = 1;
 const SAVE_PREFIX = 'CCSAVE1.';
@@ -3683,7 +3915,10 @@ function cleanMember(m) {
   if (!m || typeof m !== 'object') return null;
   try { validateGenome(m.genome); } catch { return null; }
   if (!Number.isFinite(m.level)) return null;
-  return { uid: String(m.uid || ''), genome: m.genome, level: Math.max(1, Math.min(100, Math.round(m.level))), xp: Number.isFinite(m.xp) ? m.xp : 0, hp: Number.isFinite(m.hp) ? Math.max(0, m.hp) : 1, status: m.status || null };
+  const level = Math.max(1, Math.min(100, Math.round(m.level)));
+  let moves = Array.isArray(m.moves) ? m.moves.filter((id) => typeof id === 'string' && getMove(id)).slice(0, 4) : [];
+  if (!moves.length) moves = movesAtLevel(learnsetOf(m.genome), level);
+  return { uid: String(m.uid || ''), genome: m.genome, level, xp: Number.isFinite(m.xp) ? m.xp : 0, hp: Number.isFinite(m.hp) ? Math.max(0, m.hp) : 1, status: m.status || null, moves };
 }
 
 /** Coerce any parsed object into a valid save, dropping anything broken. */
@@ -3707,6 +3942,7 @@ function normalizeSave(raw) {
       box: (Array.isArray(r.box) ? r.box : []).map(cleanMember).filter(Boolean),
       starters: null, altar: Boolean(r.altar), encounter: r.encounter && r.encounter.foes ? r.encounter : null,
       nextId: Number(r.nextId) || 1, stats: { battles: 0, captures: 0, fusions: 0, bosses: 0, ...(r.stats || {}) }, lastReport: r.lastReport || null,
+      pendingLearns: (Array.isArray(r.pendingLearns) ? r.pendingLearns : []).filter((q) => q && typeof q.uid === 'string' && getMove(q.moveId)),
     };
     if (Array.isArray(r.starters)) {
       run.starters = r.starters.filter((g) => { try { validateGenome(g); return true; } catch { return false; } });
@@ -3784,17 +4020,19 @@ function endRun(save) {
 
 
 
+
 const ARENA = {
   partyMax: MAX_PARTY,
-  starterLevel: 5,
-  baseLevel: 4,
+  starterLevel: 8,
+  baseLevel: 3,
   levelPerFloor: 2,
   maxLevel: 100,
   bossEvery: 5,
   trainerEvery: 3,
-  healBetweenFloors: 0.4,
-  xpK: 5.5,
-  wildFusionFrom: 6,
+  healBetweenFloors: 0.5,
+  xpK: 7,
+  wildFusionFrom: 8,
+  rareFrom: 4,
 };
 
 const TRAINER_NAMES = ['Ranger Ivy', 'Scout Bram', 'Herder Tobin', 'Keeper Sable', 'Drifter Wren', 'Tamer Oakes', 'Courier Pim', 'Warden’s Aide Lise'];
@@ -3810,9 +4048,26 @@ function xpReward(level, bst, kind) {
 function memberMaxHp(m) { return statsAtLevel(m.genome, m.level).hp; }
 
 function makeMember(genome, level, uid) {
-  const m = { uid, genome, level, xp: xpForLevel(level), hp: 0, status: null };
+  const m = { uid, genome, level, xp: xpForLevel(level), hp: 0, status: null, moves: movesAtLevel(learnsetOf(genome), level) };
   m.hp = memberMaxHp(m);
   return m;
+}
+
+/** Moves a member could pick up between two levels (exclusive of `from`, inclusive of `to`). */
+function movesLearnedBetween(m, from, to) {
+  const out = [];
+  for (const [lvl, id] of learnsetOf(m.genome)) if (lvl > from && lvl <= to && getMove(id) && !m.moves.includes(id) && !out.includes(id)) out.push(id);
+  return out;
+}
+
+/** Resolve a pending learn: replace the move at `replaceIndex`, or skip when it is null. */
+function learnMove(run, uid, moveId, replaceIndex) {
+  const m = [...run.party, ...run.box].find((x) => x.uid === uid);
+  run.pendingLearns = (run.pendingLearns || []).filter((p) => !(p.uid === uid && p.moveId === moveId));
+  if (!m || replaceIndex == null || !getMove(moveId)) return run;
+  if (replaceIndex >= 0 && replaceIndex < m.moves.length) m.moves[replaceIndex] = moveId;
+  else if (m.moves.length < 4) m.moves.push(moveId);
+  return run;
 }
 
 function nextUid(run) { return `m${run.nextId++}`; }
@@ -3830,7 +4085,7 @@ function newRun(seed) {
   }
   return {
     seed: String(seed), floor: 1, phase: 'starter', party: [], box: [], starters, altar: false, encounter: null,
-    nextId: 1, stats: { battles: 0, captures: 0, fusions: 0, bosses: 0 }, lastReport: null,
+    nextId: 1, stats: { battles: 0, captures: 0, fusions: 0, bosses: 0 }, lastReport: null, pendingLearns: [],
   };
 }
 
@@ -3845,7 +4100,7 @@ function chooseStarter(run, index) {
 }
 
 function wildGenome(rng, floor) {
-  const sp = rng.weighted(SPECIES, (s) => (s.tier === 'rare' ? Math.min(0.9, 0.2 + floor * 0.02) : s.tier === 'uncommon' ? Math.min(1, 0.55 + floor * 0.01) : 1));
+  const sp = rng.weighted(SPECIES, (s) => (s.tier === 'rare' ? (floor < ARENA.rareFrom ? 0 : Math.min(0.9, 0.15 + floor * 0.02)) : s.tier === 'uncommon' ? Math.min(1, 0.5 + floor * 0.01) : 1));
   return speciesGenome(sp, rng.fork(`w${sp.id}`));
 }
 
@@ -3863,17 +4118,17 @@ function encounterFor(run, floor) {
   const L = floorLevel(floor);
   const cap = (x) => Math.max(2, Math.min(ARENA.maxLevel, x));
   if (floor % ARENA.bossEvery === 0) {
-    const count = Math.min(ARENA.partyMax, 2 + Math.floor(floor / ARENA.bossEvery));
+    const count = Math.min(ARENA.partyMax, 1 + Math.floor(floor / ARENA.bossEvery));
     const a = wildGenome(rng.fork('b1'), floor), b = wildGenome(rng.fork('b2'), floor), c = wildGenome(rng.fork('b3'), floor);
     const leader = fuse(fuse(a, b, rng.fork('f1')).child, c, rng.fork('f2')).child;
-    const foes = [{ genome: leader, level: cap(L + 3) }];
-    for (let i = 1; i < count; i++) foes.push({ genome: wildOrFusion(rng.fork(`m${i}`), floor), level: cap(L + 1) });
+    const foes = [{ genome: leader, level: cap(L) }];
+    for (let i = 1; i < count; i++) foes.push({ genome: wildOrFusion(rng.fork(`m${i}`), floor), level: cap(L - 1) });
     return { kind: 'boss', name: `Warden ${rng.pick(WARDEN_NAMES)}`, foes, capturable: false };
   }
   if (floor % ARENA.trainerEvery === 0) {
-    const count = Math.min(ARENA.partyMax, 1 + Math.floor(floor / ARENA.trainerEvery));
+    const count = Math.max(1, Math.min(ARENA.partyMax, Math.floor(floor / ARENA.trainerEvery)));
     const foes = [];
-    for (let i = 0; i < count; i++) foes.push({ genome: wildOrFusion(rng.fork(`t${i}`), floor), level: cap(L - rng.int(2)) });
+    for (let i = 0; i < count; i++) foes.push({ genome: wildOrFusion(rng.fork(`t${i}`), floor), level: cap(L - 1 - rng.int(2)) });
     return { kind: 'trainer', name: rng.pick(TRAINER_NAMES), foes, capturable: false };
   }
   const g = wildOrFusion(rng.fork('wild'), floor);
@@ -3890,7 +4145,7 @@ function buildBattle(run) {
     run.party.unshift(...run.party.splice(k, 1));
   }
   const mine = run.party.map((m) => {
-    const b = makeBattler(m.genome, m.level);
+    const b = makeBattler(m.genome, m.level, { moves: m.moves });
     b.hp = Math.max(0, Math.min(m.hp, b.maxHp));
     b.status = m.status;
     b.fainted = b.hp <= 0;
@@ -3912,7 +4167,11 @@ function gainXp(m, xp) {
     m.level++;
     if (m.hp > 0) m.hp += memberMaxHp(m) - oldMax;
   }
-  return { from, to: m.level };
+  const learned = [], pending = [];
+  for (const id of movesLearnedBetween(m, from, m.level)) {
+    if (m.moves.length < 4) { m.moves.push(id); learned.push(id); } else pending.push(id);
+  }
+  return { from, to: m.level, learned, pending };
 }
 
 function healParty(run, fraction, full) {
@@ -3920,7 +4179,7 @@ function healParty(run, fraction, full) {
     const max = memberMaxHp(m);
     if (full) { m.hp = max; m.status = null; continue; }
     m.hp = Math.min(max, m.hp + Math.round(max * fraction));
-    if (m.status === 'slp' || m.status === 'frz') m.status = null;
+    m.status = null;
   }
   return run;
 }
@@ -3939,9 +4198,13 @@ function applyBattle(run, state) {
   const report = { won, kind: enc.kind, foe: enc.name, xp: 0, levelUps: [], captured: null, floor: run.floor };
   if (!won) { run.phase = 'gameover'; run.lastReport = report; return { run, report }; }
   report.xp = xp;
+  report.learned = [];
+  run.pendingLearns = run.pendingLearns || [];
   for (const m of run.party) {
     const r = gainXp(m, xp);
     if (r.to > r.from) report.levelUps.push({ name: m.genome.name, from: r.from, to: r.to });
+    for (const id of r.learned) report.learned.push({ name: m.genome.name, move: getMove(id).name });
+    for (const id of r.pending) run.pendingLearns.push({ uid: m.uid, moveId: id });
   }
   if (capturedBattler) {
     const nm = makeMember(capturedBattler.genome, capturedBattler.level, nextUid(run));
@@ -3955,7 +4218,8 @@ function applyBattle(run, state) {
   if (enc.kind === 'boss') { run.stats.bosses++; run.altar = true; }
   run.floor++;
   run.encounter = encounterFor(run, run.floor);
-  healParty(run, ARENA.healBetweenFloors, false);
+  // Wardens are fought rested: a full heal on the way in, and the altar heals again after.
+  healParty(run, ARENA.healBetweenFloors, run.encounter.kind === 'boss');
   run.phase = 'floor';
   run.lastReport = report;
   return { run, report };
@@ -4013,6 +4277,8 @@ function canFight(run) { return run.party.some((m) => m.hp > 0); }
 // ---- src/ui/arena.js ----
 // Endless Arena: the game loop. Starter -> floors of wild, trainer and boss
 // encounters -> capture, level up, fuse at altars -> run ends on a wipe.
+
+
 
 
 
@@ -4116,7 +4382,26 @@ function memberRow(run, m, actions) {
         m.hp <= 0 ? h('span', { class: 'status' }, 'FAINTED') : null),
       h('div', { class: 'hpbar' }, h('i', { class: frac > 0.5 ? 'ok' : frac > 0.2 ? 'warn' : 'low', style: { width: `${Math.max(0, frac * 100)}%` } })),
       h('div', { class: 'xpbar' }, h('i', { style: { width: `${xpFrac * 100}%` } })),
+      h('div', { class: 'move-chips' }, (m.moves || []).map((id) => { const mv = getMove(id); return mv ? h('span', { class: 'chip', style: { '--chip': TYPE_INFO[mv.type].color } }, mv.name) : null; })),
       h('div', { class: 'row-actions' }, h('span', { class: 'hint', style: { margin: 0 } }, `${m.hp} / ${max}`), ...actions)));
+}
+
+function moveLabel(id) {
+  const mv = getMove(id);
+  return mv ? `${mv.name} · ${mv.type}${mv.power ? ` ${mv.power}` : ''}` : id;
+}
+
+function learnCard(run) {
+  const q = (run.pendingLearns || [])[0];
+  if (!q) return null;
+  const m = [...run.party, ...run.box].find((x) => x.uid === q.uid);
+  if (!m) { learnMove(run, q.uid, q.moveId, null); save(); return null; }
+  const mv = getMove(q.moveId);
+  const done = () => { save(); renderArenaScreen(ar.root); };
+  return h('div', { class: 'result-card slim learn' },
+    h('div', {}, h('b', {}, m.genome.name), ` wants to learn `, h('b', {}, mv.name), ` (${mv.type}${mv.power ? `, ${mv.power} power` : ''}). Replace which move?`),
+    h('div', { class: 'moves' }, m.moves.map((id, i) => h('button', { class: 'move-btn', type: 'button', style: { '--chip': TYPE_INFO[getMove(id).type].color }, onclick: () => { learnMove(run, q.uid, q.moveId, i); done(); } }, h('span', { class: 'mv-name' }, getMove(id).name), h('span', { class: 'mv-meta' }, moveLabel(id))))),
+    h('div', { class: 'row' }, h('button', { class: 'btn small', type: 'button', onclick: () => { learnMove(run, q.uid, q.moveId, null); done(); } }, `Don't learn ${mv.name}`)));
 }
 
 function smallBtn(label, onclick, disabled) { return h('button', { class: 'btn small', type: 'button', disabled, onclick }, label); }
@@ -4126,6 +4411,7 @@ function reportCard(report) {
   const lines = [];
   lines.push(`Beat ${report.foe} on floor ${report.floor}. +${report.xp} XP each.`);
   for (const l of report.levelUps) lines.push(`${l.name} grew to Lv ${l.to}!`);
+  for (const l of report.learned || []) lines.push(`${l.name} learned ${l.move}!`);
   if (report.captured) lines.push(`${report.captured.genome.name} joined ${report.toBox ? 'the box' : 'the party'}.`);
   return h('div', { class: 'result-card slim' }, lines.map((t) => h('div', {}, t)),
     h('button', { class: 'btn small', type: 'button', onclick: () => { ar.showReport = false; renderArenaScreen(ar.root); } }, 'Dismiss'));
@@ -4144,6 +4430,7 @@ function floorView(root, run) {
       h('div', {}, h('h2', { class: 'screen-title' }, `Floor ${run.floor}`), h('span', { class: 'hint' }, `wild level ${L} · ${run.stats.captures} caught · ${run.stats.fusions} fused`)),
       h('button', { class: 'btn small', type: 'button', onclick: () => { if (confirm('Abandon this run? Your party retires to the collection.')) { run.phase = 'gameover'; endRun(ar.save); save(); rerender(); } } }, 'Abandon')),
     ar.showReport ? reportCard(run.lastReport) : null,
+    learnCard(run),
     h('div', { class: `encounter ${enc.kind}` },
       h('div', { class: 'enc-head' }, h('span', { class: `kind-badge ${enc.kind}` }, kindLabel), h('b', {}, enc.name)),
       foesRow,
@@ -4158,7 +4445,7 @@ function floorView(root, run) {
     smallBtn('Box', () => { moveMember(run, m.uid, 'box'); save(); rerender(); }, run.party.length <= 1),
     smallBtn('Info', () => openSheet(m.genome)),
   ])));
-  root.append(...section(`Party · ${run.party.length}/${ARENA.partyMax}`, h('p', { class: 'hint' }, 'The lead goes out first. Everyone recovers 40% HP between floors; the altar heals fully.'), partyList));
+  root.append(...section(`Party · ${run.party.length}/${ARENA.partyMax}`, h('p', { class: 'hint' }, `The lead goes out first. Everyone recovers ${Math.round(ARENA.healBetweenFloors * 100)}% HP between floors, fully before a Warden, and the altar heals everyone.`), partyList));
   if (run.box.length) {
     const boxList = h('div', { class: 'party-list' });
     for (const m of run.box) boxList.append(memberRow(run, m, [
@@ -4249,6 +4536,7 @@ function gameOverView(root, run) {
 
 
 
+
 const SCREENS = [
   { id: 'arena', title: 'Arena', render: renderArenaScreen },
   { id: 'battle', title: 'Battle', render: renderBattleScreen },
@@ -4262,10 +4550,18 @@ function bootApp() {
   clear(app);
   const nav = h('nav', { class: 'tabs', role: 'tablist' });
   const main = h('main', { class: 'screen' });
+  try { setSfxEnabled(localStorage.getItem('creaturecollector.sfx') !== 'off'); } catch { /* default on */ }
+  const soundBtn = h('button', { class: 'btn small sound', type: 'button', 'aria-label': 'Toggle sound', onclick: () => {
+    setSfxEnabled(!sfxEnabled());
+    try { localStorage.setItem('creaturecollector.sfx', sfxEnabled() ? 'on' : 'off'); } catch { /* ignore */ }
+    soundBtn.textContent = sfxEnabled() ? '🔊' : '🔇';
+    if (sfxEnabled()) sfx.tap();
+  } }, sfxEnabled() ? '🔊' : '🔇');
   app.append(
-    h('header', { class: 'topbar' }, h('h1', {}, 'Creature Collector'), h('span', { class: 'ver' }, `${SPECIES.length} species · ${partCount()} parts`)),
+    h('header', { class: 'topbar' }, h('h1', {}, 'Creature Collector'), h('span', { class: 'ver' }, `${SPECIES.length} species · ${partCount()} parts`), soundBtn),
     nav, main,
   );
+  document.addEventListener('click', (e) => { if (e.target.closest('button') && !e.target.closest('.sound')) sfx.tap(); }, { capture: true });
 
   function go(id) {
     const screen = SCREENS.find((s) => s.id === id && !s.soon) || SCREENS[0];

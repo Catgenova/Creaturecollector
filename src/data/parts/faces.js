@@ -20,6 +20,8 @@ export const EYES = [
     prims: [C(0, 0, 7, 'w'), C(1, 0.6, 4, 'k', { ns: true }), C(2.4, -1.6, 1.4, 'w', { ns: true }), P('M-9,-4 L9,-9 L9,-11 L-9,-11 Z', 'p', { ns: true }), L('M-9,-4 L9,-9', 'k', 2.2)] },
   { id: 'eye.spiral', slot: 'eyes', name: 'Spiral', dom: 0.4, w: 1,
     prims: [C(0, 0, 7, 'w'), L('M0,0 C2,-1 3,1 1,2 C-2,3 -4,0 -2,-3 C1,-5 5,-3 5,1', 'k', 1.6)] },
+  { id: 'eye.happy', slot: 'eyes', name: 'Happy', dom: 0.45, w: 2, prims: [L('M-7,1 Q0,-7 7,1', 'k', 2.6)] },
+  { id: 'eye.void', slot: 'eyes', name: 'Void', dom: 0.45, w: 1, prims: [C(0, 0, 7, 'k'), C(1, 0, 2.6, 'e', { ns: true })] },
 ];
 
 // Mouths: origin at the mouth centre.
@@ -39,4 +41,8 @@ export const MOUTHS = [
   { id: 'mouth.teeth', slot: 'mouth', name: 'Teeth', dom: 0.5, w: 1,
     prims: [P('M-9,-3 L9,-3 L9,3 L-9,3 Z', 'w', { sw: 1.8 }), L('M-6,-3 L-6,3 M-2,-3 L-2,3 M2,-3 L2,3 M6,-3 L6,3', 'k', 1.4)] },
   { id: 'mouth.smirk', slot: 'mouth', name: 'Smirk', dom: 0.45, w: 2, prims: [L('M-6,1 Q2,4 7,-3', 'k', 2.4)] },
+  { id: 'mouth.whiskers', slot: 'mouth', name: 'Whiskers', dom: 0.45, w: 2,
+    prims: [L('M-5,0 Q0,3 5,0', 'k', 2.2), L('M-14,-3 L-7,-1 M-14,3 L-7,1 M7,-1 L14,-3 M7,1 L14,3', 'k', 1.2, { op: 0.6 })] },
+  { id: 'mouth.tusks', slot: 'mouth', name: 'Tusks', dom: 0.5, w: 1,
+    prims: [L('M-8,-1 Q0,3 8,-1', 'k', 2.2), P('M-8,0 L-11,-9 L-4,0 Z', 'w', { sw: 1.2 }), P('M4,0 L11,-9 L8,0 Z', 'w', { sw: 1.2 })] },
 ];

@@ -1,4 +1,4 @@
-import { P, E } from './_dsl.js';
+import { P, E, L } from './_dsl.js';
 
 // Body sockets (all in body coordinates, body centre = 0,0):
 //   head  {x,y,a,s}  neck point where a head's bottom-centre attaches
@@ -96,6 +96,28 @@ export const BODIES = [
       face: { eye: { x: 12, y: -8, s: 1.1 }, eye2: { x: -8, y: -9, s: 0.95 }, mouth: { x: 4, y: 6, s: 1 }, crown: { x: 0, y: -26, a: 0, s: 1 } },
       legs: [],
       arm: { x: 31, y: -2 }, wing: { x: -18, y: -16 }, tail: { x: -30, y: 0, a: -15 }, back: { x: -6, y: -26, a: 0 },
+    },
+  },
+  {
+    id: 'body.tall', slot: 'body', name: 'Long-necked', kind: 'quad', tags: ['hoofed'], dom: 0.5, w: 2,
+    bottom: 22, clip: ['M36,-30 C50,-24 50,6 36,14 C18,20 -26,20 -40,12 C-52,4 -50,-22 -38,-30 C-24,-38 18,-40 36,-30 Z', 'M24,-28 C30,-44 36,-56 46,-64 L58,-58 C50,-46 46,-34 44,-22 Z'],
+    prims: [P('M24,-28 C30,-44 36,-56 46,-64 L58,-58 C50,-46 46,-34 44,-22 Z', 'p'), P('M36,-30 C50,-24 50,6 36,14 C18,20 -26,20 -40,12 C-52,4 -50,-22 -38,-30 C-24,-38 18,-40 36,-30 Z', 'p')],
+    sockets: {
+      head: { x: 53, y: -62, a: -10, s: 0.9 },
+      face: { eye: { x: 28, y: -16, s: 1 }, eye2: { x: 10, y: -18, s: 0.85 }, mouth: { x: 40, y: -2, s: 1 }, crown: { x: 22, y: -36, a: 0, s: 0.9 } },
+      legs: [{ x: 26, y: 10 }, { x: -30, y: 10 }],
+      arm: null, wing: { x: -10, y: -34 }, tail: { x: -46, y: -8, a: 0 }, back: { x: -6, y: -37, a: 0 },
+    },
+  },
+  {
+    id: 'body.slug', slot: 'body', name: 'Grub', kind: 'serpent', tags: ['bug', 'slime'], dom: 0.45, w: 2,
+    bottom: 24, clip: ['M44,10 C50,-4 40,-20 20,-22 C0,-24 -30,-22 -46,-10 C-56,0 -52,14 -40,18 C-20,24 20,24 44,10 Z'],
+    prims: [P('M44,10 C50,-4 40,-20 20,-22 C0,-24 -30,-22 -46,-10 C-56,0 -52,14 -40,18 C-20,24 20,24 44,10 Z', 'p'), L('M-30,-8 C-28,4 -26,10 -24,16 M-14,-16 C-12,0 -10,8 -8,18 M2,-20 C4,-4 6,6 8,18 M18,-20 C20,-6 22,4 24,14', 'k', 1.3, { op: 0.25 })],
+    sockets: {
+      head: { x: 34, y: -16, a: 0, s: 0.9 },
+      face: { eye: { x: 30, y: -8, s: 1 }, eye2: { x: 14, y: -10, s: 0.85 }, mouth: { x: 42, y: 2, s: 0.9 }, crown: { x: 20, y: -22, a: 0, s: 0.9 } },
+      legs: [],
+      arm: null, wing: { x: -4, y: -20 }, tail: { x: -50, y: 4, a: 0 }, back: { x: -10, y: -23, a: 0 },
     },
   },
 ];

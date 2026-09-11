@@ -27,4 +27,10 @@ export const CROWNS = [
     prims: [P('M-18,10 C-14,-4 -12,-14 -10,-22 C-6,-12 -4,-10 -2,-18 C2,-10 4,-12 6,-24 C10,-12 12,-8 16,-2 C20,4 18,10 14,10 Z', 'a')] },
   { id: 'crown.bolts', slot: 'crown', name: 'Static tufts', tags: ['electric'], dom: 0.5, w: 1,
     prims: [P('M-12,10 L-20,-10 L-14,-8 L-18,-22 L-8,-6 L-13,-6 L-6,10 Z', 'a'), P('M6,10 L16,-12 L10,-10 L18,-24 L4,-8 L10,-8 L2,10 Z', 'a')] },
+  { id: 'crown.leafhat', slot: 'crown', name: 'Leaf cap', tags: ['plant'], dom: 0.45, w: 2,
+    prims: [P('M-22,10 C-18,-12 18,-12 22,10 Z', 'a'), L('M0,8 C0,-2 2,-6 6,-10', 'k', 1.2, { op: 0.45 })] },
+  { id: 'crown.flame', slot: 'crown', name: 'Flame tuft', tags: ['fire'], dom: 0.5, w: 1,
+    prims: [P('M-10,10 C-14,-6 -6,-12 -4,-20 C0,-10 6,-14 4,-24 C12,-14 14,-4 10,10 Z', 'a'), P('M-4,10 C-6,0 -2,-4 0,-10 C2,-4 6,-2 4,10 Z', 'al', { ns: true })] },
+  { id: 'crown.gem', slot: 'crown', name: 'Gem', tags: ['rock', 'fairy'], dom: 0.45, w: 1,
+    prims: [P('M-8,10 L-6,-14 L0,-24 L6,-14 L8,10 Z', 'al'), L('M-6,-14 L6,-14 M0,-24 L0,8', 'k', 1, { op: 0.35 })] },
 ];

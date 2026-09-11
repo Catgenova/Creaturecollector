@@ -7,7 +7,9 @@ import { openSheet } from './lab.js';
 import { mountFight } from './fight.js';
 import { STATUS_INFO } from '../battle/engine.js';
 import { loadSave, persistSave, exportSave, importSave, emptySave, clearSave, recordCollection, endRun } from '../game/save.js';
-import { ARENA, floorLevel, newRun, chooseStarter, buildBattle, applyBattle, previewFusion, fuseMembers, skipAltar, moveMember, setLead, memberMaxHp, xpForLevel, canFight } from '../game/run.js';
+import { ARENA, floorLevel, newRun, chooseStarter, buildBattle, applyBattle, previewFusion, fuseMembers, skipAltar, moveMember, setLead, memberMaxHp, xpForLevel, canFight, learnMove } from '../game/run.js';
+import { getMove } from '../data/moves.js';
+import { TYPE_INFO } from '../data/types.js';
 import { addToPool } from './state.js';
 
 const ar = { save: null, root: null, fight: null, altar: null, starterPick: -1, confirmReset: false, showReport: true };
@@ -103,7 +105,26 @@ function memberRow(run, m, actions) {
         m.hp <= 0 ? h('span', { class: 'status' }, 'FAINTED') : null),
       h('div', { class: 'hpbar' }, h('i', { class: frac > 0.5 ? 'ok' : frac > 0.2 ? 'warn' : 'low', style: { width: `${Math.max(0, frac * 100)}%` } })),
       h('div', { class: 'xpbar' }, h('i', { style: { width: `${xpFrac * 100}%` } })),
+      h('div', { class: 'move-chips' }, (m.moves || []).map((id) => { const mv = getMove(id); return mv ? h('span', { class: 'chip', style: { '--chip': TYPE_INFO[mv.type].color } }, mv.name) : null; })),
       h('div', { class: 'row-actions' }, h('span', { class: 'hint', style: { margin: 0 } }, `${m.hp} / ${max}`), ...actions)));
+}
+
+function moveLabel(id) {
+  const mv = getMove(id);
+  return mv ? `${mv.name} · ${mv.type}${mv.power ? ` ${mv.power}` : ''}` : id;
+}
+
+function learnCard(run) {
+  const q = (run.pendingLearns || [])[0];
+  if (!q) return null;
+  const m = [...run.party, ...run.box].find((x) => x.uid === q.uid);
+  if (!m) { learnMove(run, q.uid, q.moveId, null); save(); return null; }
+  const mv = getMove(q.moveId);
+  const done = () => { save(); renderArenaScreen(ar.root); };
+  return h('div', { class: 'result-card slim learn' },
+    h('div', {}, h('b', {}, m.genome.name), ` wants to learn `, h('b', {}, mv.name), ` (${mv.type}${mv.power ? `, ${mv.power} power` : ''}). Replace which move?`),
+    h('div', { class: 'moves' }, m.moves.map((id, i) => h('button', { class: 'move-btn', type: 'button', style: { '--chip': TYPE_INFO[getMove(id).type].color }, onclick: () => { learnMove(run, q.uid, q.moveId, i); done(); } }, h('span', { class: 'mv-name' }, getMove(id).name), h('span', { class: 'mv-meta' }, moveLabel(id))))),
+    h('div', { class: 'row' }, h('button', { class: 'btn small', type: 'button', onclick: () => { learnMove(run, q.uid, q.moveId, null); done(); } }, `Don't learn ${mv.name}`)));
 }
 
 function smallBtn(label, onclick, disabled) { return h('button', { class: 'btn small', type: 'button', disabled, onclick }, label); }
@@ -113,6 +134,7 @@ function reportCard(report) {
   const lines = [];
   lines.push(`Beat ${report.foe} on floor ${report.floor}. +${report.xp} XP each.`);
   for (const l of report.levelUps) lines.push(`${l.name} grew to Lv ${l.to}!`);
+  for (const l of report.learned || []) lines.push(`${l.name} learned ${l.move}!`);
   if (report.captured) lines.push(`${report.captured.genome.name} joined ${report.toBox ? 'the box' : 'the party'}.`);
   return h('div', { class: 'result-card slim' }, lines.map((t) => h('div', {}, t)),
     h('button', { class: 'btn small', type: 'button', onclick: () => { ar.showReport = false; renderArenaScreen(ar.root); } }, 'Dismiss'));
@@ -131,6 +153,7 @@ function floorView(root, run) {
       h('div', {}, h('h2', { class: 'screen-title' }, `Floor ${run.floor}`), h('span', { class: 'hint' }, `wild level ${L} · ${run.stats.captures} caught · ${run.stats.fusions} fused`)),
       h('button', { class: 'btn small', type: 'button', onclick: () => { if (confirm('Abandon this run? Your party retires to the collection.')) { run.phase = 'gameover'; endRun(ar.save); save(); rerender(); } } }, 'Abandon')),
     ar.showReport ? reportCard(run.lastReport) : null,
+    learnCard(run),
     h('div', { class: `encounter ${enc.kind}` },
       h('div', { class: 'enc-head' }, h('span', { class: `kind-badge ${enc.kind}` }, kindLabel), h('b', {}, enc.name)),
       foesRow,
@@ -145,7 +168,7 @@ function floorView(root, run) {
     smallBtn('Box', () => { moveMember(run, m.uid, 'box'); save(); rerender(); }, run.party.length <= 1),
     smallBtn('Info', () => openSheet(m.genome)),
   ])));
-  root.append(...section(`Party · ${run.party.length}/${ARENA.partyMax}`, h('p', { class: 'hint' }, 'The lead goes out first. Everyone recovers 40% HP between floors; the altar heals fully.'), partyList));
+  root.append(...section(`Party · ${run.party.length}/${ARENA.partyMax}`, h('p', { class: 'hint' }, `The lead goes out first. Everyone recovers ${Math.round(ARENA.healBetweenFloors * 100)}% HP between floors, fully before a Warden, and the altar heals everyone.`), partyList));
   if (run.box.length) {
     const boxList = h('div', { class: 'party-list' });
     for (const m of run.box) boxList.append(memberRow(run, m, [

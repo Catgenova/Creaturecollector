@@ -23,4 +23,8 @@ export const PATTERNS = [
     prims: [P('M-60,-14 L60,-14 L60,-6 L-60,-6 Z', 'pd', { ns: true, op: 0.8 }), P('M-60,6 L60,6 L60,14 L-60,14 Z', 'pd', { ns: true, op: 0.8 })] },
   { id: 'pat.diamonds', slot: 'pattern', name: 'Diamonds', dom: 0.45, w: 1,
     prims: [P('M-20,-8 L-12,-20 L-4,-8 L-12,4 Z', 's', { ns: true }), P('M6,-4 L14,-16 L22,-4 L14,8 Z', 's', { ns: true }), P('M-40,4 L-34,-6 L-28,4 L-34,14 Z', 's', { ns: true })] },
+  { id: 'pat.tiger', slot: 'pattern', name: 'Tiger stripes', dom: 0.55, w: 1,
+    prims: [P('M-30,-40 L-16,-40 L-34,12 L-46,12 Z', 'pd', { ns: true, op: 0.9 }), P('M-6,-40 L8,-40 L-10,14 L-22,14 Z', 'pd', { ns: true, op: 0.9 }), P('M18,-40 L32,-40 L14,14 L2,14 Z', 'pd', { ns: true, op: 0.9 }), P('M42,-40 L56,-40 L38,14 L26,14 Z', 'pd', { ns: true, op: 0.9 })] },
+  { id: 'pat.hex', slot: 'pattern', name: 'Hex plates', dom: 0.45, w: 1,
+    prims: [[-30, -10], [-10, -22], [10, -10], [30, -22], [-20, 12], [0, 2], [20, 14]].map(([x, y]) => L(`M${x - 7},${y - 4} L${x},${y - 8} L${x + 7},${y - 4} L${x + 7},${y + 4} L${x},${y + 8} L${x - 7},${y + 4} Z`, 'k', 1.1, { op: 0.28 })) },
 ];

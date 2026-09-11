@@ -20,8 +20,8 @@ function playOut(state, seed) {
 }
 
 test('floor curve and xp thresholds', () => {
-  assert.equal(floorLevel(1), 6);
-  assert.ok(floorLevel(48) === 100 && floorLevel(200) === 100);
+  assert.equal(floorLevel(1), ARENA.baseLevel + ARENA.levelPerFloor);
+  assert.ok(floorLevel(49) === 100 && floorLevel(200) === 100);
   for (let f = 1; f < 60; f++) assert.ok(floorLevel(f + 1) >= floorLevel(f));
   assert.equal(xpForLevel(10), 1000);
 });
@@ -48,11 +48,12 @@ test('encounters follow the floor rules and are valid', () => {
     if (f % 5 === 0) {
       assert.equal(e.kind, 'boss', `floor ${f}`);
       assert.equal(e.foes[0].genome.gen, 2, 'boss leader is a gen-2 fusion');
-      assert.equal(e.foes[0].level, Math.min(100, L + 3));
-      assert.ok(e.foes.length >= 2 && !e.capturable);
+      assert.equal(e.foes[0].level, Math.min(100, L));
+      assert.equal(e.foes.length, Math.min(5, 1 + Math.floor(f / 5)));
+      assert.ok(!e.capturable);
     } else if (f % 3 === 0) {
       assert.equal(e.kind, 'trainer', `floor ${f}`);
-      assert.equal(e.foes.length, Math.min(5, 1 + Math.floor(f / 3)));
+      assert.equal(e.foes.length, Math.max(1, Math.min(5, Math.floor(f / 3))));
       assert.ok(!e.capturable);
     } else {
       assert.equal(e.kind, 'wild', `floor ${f}`);

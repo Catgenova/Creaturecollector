@@ -7,6 +7,7 @@ import { renderBattleScreen } from './battle.js';
 import { renderArenaScreen } from './arena.js';
 import { partCount } from '../data/parts/index.js';
 import { SPECIES } from '../data/species.js';
+import { sfx, setSfxEnabled, sfxEnabled } from '../core/sfx.js';
 
 const SCREENS = [
   { id: 'arena', title: 'Arena', render: renderArenaScreen },
@@ -21,10 +22,18 @@ function bootApp() {
   clear(app);
   const nav = h('nav', { class: 'tabs', role: 'tablist' });
   const main = h('main', { class: 'screen' });
+  try { setSfxEnabled(localStorage.getItem('creaturecollector.sfx') !== 'off'); } catch { /* default on */ }
+  const soundBtn = h('button', { class: 'btn small sound', type: 'button', 'aria-label': 'Toggle sound', onclick: () => {
+    setSfxEnabled(!sfxEnabled());
+    try { localStorage.setItem('creaturecollector.sfx', sfxEnabled() ? 'on' : 'off'); } catch { /* ignore */ }
+    soundBtn.textContent = sfxEnabled() ? '🔊' : '🔇';
+    if (sfxEnabled()) sfx.tap();
+  } }, sfxEnabled() ? '🔊' : '🔇');
   app.append(
-    h('header', { class: 'topbar' }, h('h1', {}, 'Creature Collector'), h('span', { class: 'ver' }, `${SPECIES.length} species · ${partCount()} parts`)),
+    h('header', { class: 'topbar' }, h('h1', {}, 'Creature Collector'), h('span', { class: 'ver' }, `${SPECIES.length} species · ${partCount()} parts`), soundBtn),
     nav, main,
   );
+  document.addEventListener('click', (e) => { if (e.target.closest('button') && !e.target.closest('.sound')) sfx.tap(); }, { capture: true });
 
   function go(id) {
     const screen = SCREENS.find((s) => s.id === id && !s.soon) || SCREENS[0];

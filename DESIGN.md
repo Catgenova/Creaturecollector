@@ -229,16 +229,39 @@ and faint animations.
 The fight view is a reusable component (`ui/fight.js`) shared by the Arena and
 the sandbox Battle tab.
 
+## Polish and balance (Phase 5 — implemented)
+
+Balance was done with the two simulators, not by feel:
+
+- `node scripts/sim-run.mjs` plays whole arena runs with the AI on the
+  player's side (capturing at decent odds, fusing the two weakest at altars).
+  The first study had a median run of floor 2 and a third of runs dying on the
+  first Warden. The causes were early learnsets full of 40-power moves against
+  fused bosses that inherit the best early moves of two parents, plus a party
+  arriving at the Warden half-healed. Fixes: every species learnset now follows
+  one curve (a real STAB move by level 6, four moves by 11, coverage in the
+  20s and 30s, nukes in the 50s); starters at level 8 with wild level
+  3 + 2 × floor; trainers and Wardens grow one floor later and Wardens fight
+  at floor level with a full rest before them; 50% recovery and a status cure
+  between floors; no rares before floor 4; XP constant raised so low levels
+  keep pace. Result: median run floor 8, a quarter past floor 39, Warden win
+  rate above 90%.
+- `node scripts/sim.mjs` tournaments (800–1200 games, level 50, 3v3) gave a
+  species spread of roughly 36%–67%. Extremes were compressed with base stat
+  totals and a few stat weights; Grass and Bug species remain at the bottom
+  because the type chart resists them widely, which is faithful to the source
+  material. HP gets a global 1.15× lift so battles last about eight turns.
+- Move learning: members keep their own four moves. Levelling into a new move
+  fills an empty slot or queues a prompt on the floor screen asking which move
+  to replace, with a skip.
+- Sound: procedural WebAudio effects for hits (louder when super effective),
+  misses, heals, statuses, stat changes, faints, captures, wins and losses, and
+  a per-creature cry shaped by size and primary type. Toggle in the header,
+  remembered per browser.
+- Library growth: 28 species (six new dual types) and 130 parts.
+
 ## Later
 
-Balance pass with the simulator, more parts and species, sound (WebAudio),
-move-learning choices, trainer personalities, and then the overworld: tile map,
-movement, encounters, NPC dialogue, story beats. Single-file distribution stays.
-
-## Limitations to keep in mind
-
-- Art ceiling is set by the part library; iterate with the Parts tab.
-- Balance is formulaic (budgets + chart), verified by simulation, not hand-tuned.
-- No backend: no accounts, no online play. Sharing is via codes.
-- Determinism depends on every roll going through `makeRng`; never use
-  `Math.random` in game logic.
+More parts and species, trainer personalities, items, weather, a Fusiondex
+with discovery tracking, and then the overworld: tile map, movement,
+encounters, NPC dialogue, story beats. Single-file distribution stays.

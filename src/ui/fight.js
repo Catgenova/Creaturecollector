@@ -10,6 +10,7 @@ import { getMove } from '../data/moves.js';
 import { TYPE_INFO } from '../data/types.js';
 import { abilityName } from '../data/abilities.js';
 import { openSheet } from './lab.js';
+import { sfx } from '../core/sfx.js';
 
 const wait = (ms) => new Promise((r) => setTimeout(r, ms));
 const hpClass = (frac) => (frac > 0.5 ? 'ok' : frac > 0.2 ? 'warn' : 'low');
@@ -105,15 +106,18 @@ function applyFightEvent(f, e) {
   const text = describeEvent(e, f.names, { wild: f.wild });
   switch (e.t) {
     case 'turn': logLine(f, text); return 250;
-    case 'switch': renderStage(f, e.side); renderPanel(f, e.side); logLine(f, text); return 650;
+    case 'switch': renderStage(f, e.side); renderPanel(f, e.side); logLine(f, text); sfx.cry(activeOf(f.state, e.side).genome); return 650;
     case 'move': logLine(f, text); animateStage(f, e.side, e.side === 0 ? 'lunge-r' : 'lunge-l', 450); return 550;
-    case 'damage': animateStage(f, e.side, 'hit', 450); setHp(f, e.side, e.hp, e.maxHp); logLine(f, text); return e.eff !== 1 || e.crit ? 750 : 550;
-    case 'hurt': animateStage(f, e.side, 'hit', 350); setHp(f, e.side, e.hp, e.maxHp); logLine(f, text); return 550;
-    case 'heal': setHp(f, e.side, e.hp, e.maxHp); logLine(f, text); return 550;
-    case 'faint': animateStage(f, e.side, 'faint', 900); logLine(f, text); renderPanel(f, e.side); return 900;
-    case 'status': case 'cure': renderPanel(f, e.side); logLine(f, text); return 550;
-    case 'capture': animateStage(f, 1, e.ok ? 'captured' : 'wobble', e.ok ? 900 : 700); logLine(f, text); return e.ok ? 900 : 800;
-    case 'end': logLine(f, text); return 600;
+    case 'damage': animateStage(f, e.side, 'hit', 450); setHp(f, e.side, e.hp, e.maxHp); logLine(f, text); sfx.hit(e.eff); return e.eff !== 1 || e.crit ? 750 : 550;
+    case 'hurt': animateStage(f, e.side, 'hit', 350); setHp(f, e.side, e.hp, e.maxHp); logLine(f, text); sfx.hit(1); return 550;
+    case 'heal': setHp(f, e.side, e.hp, e.maxHp); logLine(f, text); sfx.heal(); return 550;
+    case 'faint': animateStage(f, e.side, 'faint', 900); logLine(f, text); renderPanel(f, e.side); sfx.faint(); return 900;
+    case 'status': renderPanel(f, e.side); logLine(f, text); sfx.status(); return 550;
+    case 'cure': renderPanel(f, e.side); logLine(f, text); return 550;
+    case 'stat': logLine(f, text); if (e.stages) sfx.stat(e.stages > 0); return 450;
+    case 'miss': logLine(f, text); sfx.miss(); return 450;
+    case 'capture': animateStage(f, 1, e.ok ? 'captured' : 'wobble', e.ok ? 900 : 700); logLine(f, text); sfx.capture(e.ok); return e.ok ? 900 : 800;
+    case 'end': logLine(f, text); if (e.winner === 0) sfx.win(); else if (e.winner === 1) sfx.lose(); return 600;
     default: logLine(f, text); return text ? 450 : 0;
   }
 }

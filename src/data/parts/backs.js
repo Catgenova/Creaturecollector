@@ -1,4 +1,4 @@
-import { P, C, L, NONE } from './_dsl.js';
+import { P, E, C, L, NONE } from './_dsl.js';
 
 // Back features: origin on the spine near its highest point; bases are sunk a few units into the body.
 export const BACKS = [
@@ -21,4 +21,8 @@ export const BACKS = [
     prims: [P('M-2,6 L4,-8 L0,-8 L8,-22 L-2,-8 L2,-8 L-4,6 Z', 'a'), P('M-22,8 L-16,-4 L-20,-4 L-12,-16 L-22,-4 L-18,-4 L-24,8 Z', 'a')] },
   { id: 'back.leaf', slot: 'back', name: 'Foliage', tags: ['plant'], dom: 0.5, w: 1,
     prims: [P('M0,6 C-4,-10 8,-26 24,-26 C22,-10 12,2 0,6 Z', 'a'), P('M-4,8 C-10,-6 -22,-14 -34,-10 C-26,0 -14,6 -4,8 Z', 'a'), L('M2,4 C6,-6 12,-14 20,-20', 'k', 1.1, { op: 0.4 })] },
+  { id: 'back.sail', slot: 'back', name: 'Sail', tags: ['reptile', 'aquatic'], dom: 0.55, w: 1,
+    prims: [P('M-36,10 C-30,-14 -14,-34 4,-34 C18,-34 22,-14 24,8 Z', 'a'), L('M-24,6 C-16,-12 -4,-24 4,-28 M-8,8 C-2,-8 6,-18 12,-22 M8,8 C12,-4 16,-10 20,-12', 'k', 1.1, { op: 0.4 })] },
+  { id: 'back.mushrooms', slot: 'back', name: 'Mushrooms', tags: ['plant', 'poison'], dom: 0.45, w: 1,
+    prims: [P('M-18,4 L-18,-4 L-14,-4 L-14,4 Z', 'pl'), E(-16, -4, 8, 5, 'a'), P('M6,6 L6,-8 L10,-8 L10,6 Z', 'pl'), E(8, -8, 6, 4, 'a'), C(-16, -5, 1.5, 'w', { ns: true }), C(9, -9, 1.2, 'w', { ns: true })] },
 ];

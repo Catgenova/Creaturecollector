@@ -21,6 +21,10 @@ export const LEGS = [
     prims: [L('M0,-2 C-10,4 -14,16 -10,30', 'k', 3.4), L('M-10,30 L-8,40', 'k', 3), C(-10, 30, 3, 'p')] },
   { id: 'legs.peg', slot: 'legs', name: 'Pegs', tags: ['steel'], dom: 0.4, w: 1, len: 40,
     prims: [P('M-5,-4 L5,-4 L4,40 L-4,40 Z', 'a')] },
+  { id: 'legs.flipper', slot: 'legs', name: 'Flippers', tags: ['aquatic'], dom: 0.45, w: 1, len: 40,
+    prims: [P('M-8,-2 C-12,10 -10,26 -4,34 C4,40 14,40 16,36 C10,30 6,20 6,8 C6,2 4,-2 0,-4 Z', 'a')] },
+  { id: 'legs.stilts', slot: 'legs', name: 'Stilts', tags: ['bird', 'hoofed'], dom: 0.45, w: 1, len: 40,
+    prims: [L('M0,-2 L0,34', 'k', 3.5), P('M-7,33 L7,33 L8,40 L-8,40 Z', 'p')] },
 ];
 
 // Arms: origin at the shoulder, near arm reaching forward and down.
@@ -37,6 +41,10 @@ export const ARMS = [
     prims: [P('M0,-6 C10,-4 18,4 16,14 C14,22 6,24 2,20 C6,18 10,14 8,8 C6,2 2,0 0,2 Z', 'p')] },
   { id: 'arms.blade', slot: 'arms', name: 'Blades', tags: ['steel', 'bug'], dom: 0.5, w: 1,
     prims: [P('M0,-6 C6,-8 12,-4 12,2 L30,14 L12,10 C8,10 2,8 0,2 Z', 'a')] },
+  { id: 'arms.pincer', slot: 'arms', name: 'Pincers', tags: ['bug', 'aquatic'], dom: 0.55, w: 1,
+    prims: [P('M0,-6 C10,-8 18,-2 20,6 L27,0 L25,10 L27,18 L18,12 C12,14 4,12 0,6 Z', 'p')] },
+  { id: 'arms.scythe', slot: 'arms', name: 'Scythes', tags: ['bug', 'dark'], dom: 0.5, w: 1,
+    prims: [P('M0,-6 C8,-8 14,-2 12,4 C22,4 30,12 32,22 C26,14 18,12 12,12 C6,12 0,8 0,2 Z', 'a')] },
 ];
 
 // Wings: origin at the wing root, extending up and back (left). A far copy is drawn behind the body.
@@ -54,4 +62,8 @@ export const WINGS = [
     prims: [P('M0,0 C-8,-10 -18,-14 -30,-14 C-26,-22 -34,-30 -46,-34 C-42,-24 -48,-20 -54,-20 C-46,-12 -40,-4 -30,0 C-20,4 -8,4 0,0 Z', 'a'), P('M-6,-2 C-14,-8 -22,-10 -30,-10 C-26,-16 -30,-22 -38,-26 C-36,-18 -40,-14 -44,-14 C-38,-8 -30,-4 -22,-2 Z', 'al', { ns: true })] },
   { id: 'wings.fin', slot: 'wings', name: 'Fin wings', tags: ['aquatic'], dom: 0.45, w: 1,
     prims: [P('M0,0 C-8,-12 -26,-22 -44,-16 C-40,-8 -30,-2 -20,2 C-12,4 -6,4 0,0 Z', 'a'), L('M-6,-2 C-16,-8 -26,-12 -36,-12 M-8,0 C-18,-4 -26,-4 -34,-4', 'k', 1.1, { op: 0.4 })] },
+  { id: 'wings.crystal', slot: 'wings', name: 'Crystal wings', tags: ['rock', 'ice'], dom: 0.5, w: 1,
+    prims: [P('M0,0 L-14,-24 L-30,-36 L-34,-18 L-52,-22 L-40,-6 L-30,4 L-14,6 Z', 'al'), L('M-4,-2 L-30,-36 M-4,-2 L-34,-18 M-4,-2 L-40,-6', 'k', 1, { op: 0.35 })] },
+  { id: 'wings.ghost', slot: 'wings', name: 'Wisp wings', tags: ['spirit'], dom: 0.45, w: 1,
+    prims: [P('M0,0 C-10,-14 -30,-26 -50,-22 C-44,-12 -40,-6 -46,0 C-34,2 -20,4 -12,6 C-6,6 -2,4 0,0 Z', 'w', { op: 0.6 })] },
 ];

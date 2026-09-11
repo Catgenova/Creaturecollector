@@ -1,6 +1,8 @@
 // Persistent save: best results, the creature collection, and the run in progress.
 import { b64uEncode, b64uDecode } from '../core/util.js';
-import { validateGenome } from '../creature/genome.js';
+import { validateGenome, learnsetOf } from '../creature/genome.js';
+import { getMove } from '../data/moves.js';
+import { movesAtLevel } from '../battle/stats.js';
 
 export const SAVE_KEY = 'creaturecollector.save';
 export const SAVE_VERSION = 1;
@@ -22,7 +24,10 @@ function cleanMember(m) {
   if (!m || typeof m !== 'object') return null;
   try { validateGenome(m.genome); } catch { return null; }
   if (!Number.isFinite(m.level)) return null;
-  return { uid: String(m.uid || ''), genome: m.genome, level: Math.max(1, Math.min(100, Math.round(m.level))), xp: Number.isFinite(m.xp) ? m.xp : 0, hp: Number.isFinite(m.hp) ? Math.max(0, m.hp) : 1, status: m.status || null };
+  const level = Math.max(1, Math.min(100, Math.round(m.level)));
+  let moves = Array.isArray(m.moves) ? m.moves.filter((id) => typeof id === 'string' && getMove(id)).slice(0, 4) : [];
+  if (!moves.length) moves = movesAtLevel(learnsetOf(m.genome), level);
+  return { uid: String(m.uid || ''), genome: m.genome, level, xp: Number.isFinite(m.xp) ? m.xp : 0, hp: Number.isFinite(m.hp) ? Math.max(0, m.hp) : 1, status: m.status || null, moves };
 }
 
 /** Coerce any parsed object into a valid save, dropping anything broken. */
@@ -46,6 +51,7 @@ export function normalizeSave(raw) {
       box: (Array.isArray(r.box) ? r.box : []).map(cleanMember).filter(Boolean),
       starters: null, altar: Boolean(r.altar), encounter: r.encounter && r.encounter.foes ? r.encounter : null,
       nextId: Number(r.nextId) || 1, stats: { battles: 0, captures: 0, fusions: 0, bosses: 0, ...(r.stats || {}) }, lastReport: r.lastReport || null,
+      pendingLearns: (Array.isArray(r.pendingLearns) ? r.pendingLearns : []).filter((q) => q && typeof q.uid === 'string' && getMove(q.moveId)),
     };
     if (Array.isArray(r.starters)) {
       run.starters = r.starters.filter((g) => { try { validateGenome(g); return true; } catch { return false; } });

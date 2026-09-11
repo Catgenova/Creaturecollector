@@ -27,4 +27,10 @@ export const TAILS = [
     prims: [P('M0,-3 C-16,-4 -30,-4 -40,-6 L-40,4 C-30,2 -16,3 0,3 Z', 'p'), P('M-38,-1 L-52,-14 L-58,2 L-44,7 Z', 'a')] },
   { id: 'tails.feathers', slot: 'tail', name: 'Tail fan', tags: ['bird'], dom: 0.5, w: 1,
     prims: [P('M0,-4 L-30,-20 L-26,-6 L-40,-8 L-28,0 L-40,8 L-26,6 L-30,20 L0,4 Z', 'p'), L('M-4,0 L-28,-12 M-4,0 L-34,0 M-4,0 L-28,12', 'k', 1.1, { op: 0.4 })] },
+  { id: 'tails.scorpion', slot: 'tail', name: 'Stinger', tags: ['bug', 'poison'], dom: 0.55, w: 1,
+    prims: [P('M0,-4 C-16,-8 -32,-12 -36,-28 C-38,-40 -26,-44 -20,-36 C-18,-30 -24,-28 -26,-32 L-24,-24 C-30,-20 -30,-8 0,4 Z', 'p'), P('M-20,-36 L-12,-48 L-15,-31 Z', 'a')] },
+  { id: 'tails.paddle', slot: 'tail', name: 'Paddle', tags: ['aquatic', 'mammal'], dom: 0.5, w: 1,
+    prims: [P('M0,-4 C-10,-6 -18,-6 -26,-8 C-44,-10 -56,0 -54,10 C-50,18 -34,18 -24,10 C-16,6 -8,6 0,4 Z', 'a'), L('M-30,-4 L-46,8 M-36,-6 L-50,4 M-28,2 L-40,12', 'k', 1, { op: 0.35 })] },
+  { id: 'tails.bolt', slot: 'tail', name: 'Bolt tail', tags: ['electric'], dom: 0.5, w: 1,
+    prims: [P('M0,-4 L-18,-10 L-14,-2 L-34,-12 L-28,-2 L-48,-8 L-30,6 L-36,10 L-16,6 L-20,12 Z', 'a')] },
 ];

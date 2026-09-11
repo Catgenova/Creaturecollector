@@ -2,22 +2,24 @@
 // these and persists the result. Every roll is seeded by the run seed and floor.
 import { makeRng } from '../core/rng.js';
 import { SPECIES, TIER_WEIGHT } from '../data/species.js';
-import { speciesGenome } from '../creature/genome.js';
+import { speciesGenome, learnsetOf } from '../creature/genome.js';
+import { getMove } from '../data/moves.js';
 import { fuse } from '../creature/fusion.js';
-import { statsAtLevel } from '../battle/stats.js';
+import { statsAtLevel, movesAtLevel } from '../battle/stats.js';
 import { createBattle, makeBattler, MAX_PARTY } from '../battle/engine.js';
 
 export const ARENA = {
   partyMax: MAX_PARTY,
-  starterLevel: 5,
-  baseLevel: 4,
+  starterLevel: 8,
+  baseLevel: 3,
   levelPerFloor: 2,
   maxLevel: 100,
   bossEvery: 5,
   trainerEvery: 3,
-  healBetweenFloors: 0.4,
-  xpK: 5.5,
-  wildFusionFrom: 6,
+  healBetweenFloors: 0.5,
+  xpK: 7,
+  wildFusionFrom: 8,
+  rareFrom: 4,
 };
 
 const TRAINER_NAMES = ['Ranger Ivy', 'Scout Bram', 'Herder Tobin', 'Keeper Sable', 'Drifter Wren', 'Tamer Oakes', 'Courier Pim', 'Warden’s Aide Lise'];
@@ -33,9 +35,26 @@ export function xpReward(level, bst, kind) {
 export function memberMaxHp(m) { return statsAtLevel(m.genome, m.level).hp; }
 
 export function makeMember(genome, level, uid) {
-  const m = { uid, genome, level, xp: xpForLevel(level), hp: 0, status: null };
+  const m = { uid, genome, level, xp: xpForLevel(level), hp: 0, status: null, moves: movesAtLevel(learnsetOf(genome), level) };
   m.hp = memberMaxHp(m);
   return m;
+}
+
+/** Moves a member could pick up between two levels (exclusive of `from`, inclusive of `to`). */
+export function movesLearnedBetween(m, from, to) {
+  const out = [];
+  for (const [lvl, id] of learnsetOf(m.genome)) if (lvl > from && lvl <= to && getMove(id) && !m.moves.includes(id) && !out.includes(id)) out.push(id);
+  return out;
+}
+
+/** Resolve a pending learn: replace the move at `replaceIndex`, or skip when it is null. */
+export function learnMove(run, uid, moveId, replaceIndex) {
+  const m = [...run.party, ...run.box].find((x) => x.uid === uid);
+  run.pendingLearns = (run.pendingLearns || []).filter((p) => !(p.uid === uid && p.moveId === moveId));
+  if (!m || replaceIndex == null || !getMove(moveId)) return run;
+  if (replaceIndex >= 0 && replaceIndex < m.moves.length) m.moves[replaceIndex] = moveId;
+  else if (m.moves.length < 4) m.moves.push(moveId);
+  return run;
 }
 
 function nextUid(run) { return `m${run.nextId++}`; }
@@ -53,7 +72,7 @@ export function newRun(seed) {
   }
   return {
     seed: String(seed), floor: 1, phase: 'starter', party: [], box: [], starters, altar: false, encounter: null,
-    nextId: 1, stats: { battles: 0, captures: 0, fusions: 0, bosses: 0 }, lastReport: null,
+    nextId: 1, stats: { battles: 0, captures: 0, fusions: 0, bosses: 0 }, lastReport: null, pendingLearns: [],
   };
 }
 
@@ -68,7 +87,7 @@ export function chooseStarter(run, index) {
 }
 
 function wildGenome(rng, floor) {
-  const sp = rng.weighted(SPECIES, (s) => (s.tier === 'rare' ? Math.min(0.9, 0.2 + floor * 0.02) : s.tier === 'uncommon' ? Math.min(1, 0.55 + floor * 0.01) : 1));
+  const sp = rng.weighted(SPECIES, (s) => (s.tier === 'rare' ? (floor < ARENA.rareFrom ? 0 : Math.min(0.9, 0.15 + floor * 0.02)) : s.tier === 'uncommon' ? Math.min(1, 0.5 + floor * 0.01) : 1));
   return speciesGenome(sp, rng.fork(`w${sp.id}`));
 }
 
@@ -86,17 +105,17 @@ export function encounterFor(run, floor) {
   const L = floorLevel(floor);
   const cap = (x) => Math.max(2, Math.min(ARENA.maxLevel, x));
   if (floor % ARENA.bossEvery === 0) {
-    const count = Math.min(ARENA.partyMax, 2 + Math.floor(floor / ARENA.bossEvery));
+    const count = Math.min(ARENA.partyMax, 1 + Math.floor(floor / ARENA.bossEvery));
     const a = wildGenome(rng.fork('b1'), floor), b = wildGenome(rng.fork('b2'), floor), c = wildGenome(rng.fork('b3'), floor);
     const leader = fuse(fuse(a, b, rng.fork('f1')).child, c, rng.fork('f2')).child;
-    const foes = [{ genome: leader, level: cap(L + 3) }];
-    for (let i = 1; i < count; i++) foes.push({ genome: wildOrFusion(rng.fork(`m${i}`), floor), level: cap(L + 1) });
+    const foes = [{ genome: leader, level: cap(L) }];
+    for (let i = 1; i < count; i++) foes.push({ genome: wildOrFusion(rng.fork(`m${i}`), floor), level: cap(L - 1) });
     return { kind: 'boss', name: `Warden ${rng.pick(WARDEN_NAMES)}`, foes, capturable: false };
   }
   if (floor % ARENA.trainerEvery === 0) {
-    const count = Math.min(ARENA.partyMax, 1 + Math.floor(floor / ARENA.trainerEvery));
+    const count = Math.max(1, Math.min(ARENA.partyMax, Math.floor(floor / ARENA.trainerEvery)));
     const foes = [];
-    for (let i = 0; i < count; i++) foes.push({ genome: wildOrFusion(rng.fork(`t${i}`), floor), level: cap(L - rng.int(2)) });
+    for (let i = 0; i < count; i++) foes.push({ genome: wildOrFusion(rng.fork(`t${i}`), floor), level: cap(L - 1 - rng.int(2)) });
     return { kind: 'trainer', name: rng.pick(TRAINER_NAMES), foes, capturable: false };
   }
   const g = wildOrFusion(rng.fork('wild'), floor);
@@ -113,7 +132,7 @@ export function buildBattle(run) {
     run.party.unshift(...run.party.splice(k, 1));
   }
   const mine = run.party.map((m) => {
-    const b = makeBattler(m.genome, m.level);
+    const b = makeBattler(m.genome, m.level, { moves: m.moves });
     b.hp = Math.max(0, Math.min(m.hp, b.maxHp));
     b.status = m.status;
     b.fainted = b.hp <= 0;
@@ -135,7 +154,11 @@ export function gainXp(m, xp) {
     m.level++;
     if (m.hp > 0) m.hp += memberMaxHp(m) - oldMax;
   }
-  return { from, to: m.level };
+  const learned = [], pending = [];
+  for (const id of movesLearnedBetween(m, from, m.level)) {
+    if (m.moves.length < 4) { m.moves.push(id); learned.push(id); } else pending.push(id);
+  }
+  return { from, to: m.level, learned, pending };
 }
 
 export function healParty(run, fraction, full) {
@@ -143,7 +166,7 @@ export function healParty(run, fraction, full) {
     const max = memberMaxHp(m);
     if (full) { m.hp = max; m.status = null; continue; }
     m.hp = Math.min(max, m.hp + Math.round(max * fraction));
-    if (m.status === 'slp' || m.status === 'frz') m.status = null;
+    m.status = null;
   }
   return run;
 }
@@ -162,9 +185,13 @@ export function applyBattle(run, state) {
   const report = { won, kind: enc.kind, foe: enc.name, xp: 0, levelUps: [], captured: null, floor: run.floor };
   if (!won) { run.phase = 'gameover'; run.lastReport = report; return { run, report }; }
   report.xp = xp;
+  report.learned = [];
+  run.pendingLearns = run.pendingLearns || [];
   for (const m of run.party) {
     const r = gainXp(m, xp);
     if (r.to > r.from) report.levelUps.push({ name: m.genome.name, from: r.from, to: r.to });
+    for (const id of r.learned) report.learned.push({ name: m.genome.name, move: getMove(id).name });
+    for (const id of r.pending) run.pendingLearns.push({ uid: m.uid, moveId: id });
   }
   if (capturedBattler) {
     const nm = makeMember(capturedBattler.genome, capturedBattler.level, nextUid(run));
@@ -178,7 +205,8 @@ export function applyBattle(run, state) {
   if (enc.kind === 'boss') { run.stats.bosses++; run.altar = true; }
   run.floor++;
   run.encounter = encounterFor(run, run.floor);
-  healParty(run, ARENA.healBetweenFloors, false);
+  // Wardens are fought rested: a full heal on the way in, and the altar heals again after.
+  healParty(run, ARENA.healBetweenFloors, run.encounter.kind === 'boss');
   run.phase = 'floor';
   run.lastReport = report;
   return { run, report };

@@ -24,8 +24,11 @@ creatures, trainers and wardens, in-battle capture, XP and levels, party and
 box, fusion altars after bosses, autosave with export and import, and a
 persistent collection.
 
-Next: a balance and polish pass, then the overworld. See `DESIGN.md` for the
-plan and the decisions behind it.
+Phase 5 — Polish and balance: learnsets rebuilt on one curve, arena curve tuned
+with a whole-run simulator, move-learning prompts, procedural sound, 28 species
+and 130 parts.
+
+Next: the overworld. See `DESIGN.md` for the plan and the decisions behind it.
 
 ## Develop
 
@@ -40,8 +43,10 @@ Edit files in `src/`, never `index.html`. Every part of the game logic is a
 plain ES module that Node can import, so the renderer and (soon) the battle
 engine are testable headlessly.
 
-Balance report: `node scripts/sim.mjs [games] [level] [partySize] [seed]` runs
-AI-vs-AI tournaments and prints win rates by species and type.
+Balance reports: `node scripts/sim.mjs [games] [level] [partySize] [seed]` runs
+AI-vs-AI tournaments and prints win rates by species and type;
+`node scripts/sim-run.mjs [runs] [seed] [maxFloors]` plays whole arena runs and
+reports how far they get and where they die.
 
 Visual review: `node scripts/shot.mjs [seed]` screenshots the Lab, a detail
 sheet and the Parts tab at phone size into `shots/` (needs Playwright installed
