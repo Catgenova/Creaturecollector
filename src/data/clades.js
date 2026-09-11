@@ -16,6 +16,7 @@ export const CLADES = {
   fungus: { name: 'Fungus', plural: 'Fungi', linked: [['head', 'roots']], desc: 'Walking mushrooms. A cap for a hat, a face on the stalk, roots for feet.' },
   wyrm: { name: 'Wyrm', plural: 'Wyrms', linked: [['mane', 'tail']], desc: 'Serpentine dragons. Long coils, whiskers, small legs and long tails.' },
   draconic: { name: 'Draconic', plural: 'Draconic', linked: [['legsFront', 'legsBack']], desc: 'True dragons. Four legs, two wings, horns and a breath.' },
+  skeletal: { name: 'Skeletal', plural: 'Skeletals', linked: [['legsFront', 'legsBack']], desc: 'Walking bone. Skulls, ribcages and a light where the heart was.' },
 };
 
 export const CLADE_IDS = Object.keys(CLADES);

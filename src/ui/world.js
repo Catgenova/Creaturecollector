@@ -905,6 +905,26 @@ function owDrawWall(ctx, kind, color, x, y, T, hsh) {
   } else if (kind === 'reed') {
     ctx.strokeStyle = color; ctx.lineWidth = 2 * s;
     for (let i = 0; i < 3; i++) { const rx = x + T * (0.25 + i * 0.25) + (hsh - 0.5) * 3 * s; ctx.beginPath(); ctx.moveTo(rx, y + T * 0.95); ctx.lineTo(rx + 2 * s, y + T * (0.15 + i * 0.08)); ctx.stroke(); ctx.fillStyle = '#7a5a3a'; ctx.fillRect(rx + 0.5 * s, y + T * (0.12 + i * 0.08), 3 * s, 7 * s); }
+  } else if (kind === 'bone') {
+    // a rib arch: two curved bones meeting at the top, a smaller one inside
+    ctx.strokeStyle = color; ctx.lineWidth = 3 * s; ctx.lineCap = 'round';
+    ctx.beginPath(); ctx.moveTo(x + T * 0.2, y + T * 0.9); ctx.quadraticCurveTo(x + T * 0.15, y + T * 0.3, x + T * 0.5, y + T * 0.15); ctx.quadraticCurveTo(x + T * 0.85, y + T * 0.3, x + T * 0.8, y + T * 0.9); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(x + T * 0.36, y + T * 0.9); ctx.quadraticCurveTo(x + T * 0.36, y + T * 0.55, x + T * 0.5, y + T * 0.45); ctx.quadraticCurveTo(x + T * 0.64, y + T * 0.55, x + T * 0.64, y + T * 0.9); ctx.stroke();
+    ctx.lineCap = 'butt';
+  } else if (kind === 'crystal') {
+    ctx.fillStyle = color; ctx.beginPath(); ctx.moveTo(x + T * 0.2, y + T * 0.9); ctx.lineTo(x + T * 0.3, y + T * 0.35); ctx.lineTo(x + T * 0.45, y + T * 0.08); ctx.lineTo(x + T * 0.6, y + T * 0.4); ctx.lineTo(x + T * 0.85, y + T * 0.25); ctx.lineTo(x + T * 0.8, y + T * 0.9); ctx.closePath(); ctx.fill();
+    ctx.fillStyle = 'rgba(255,255,255,.3)'; ctx.beginPath(); ctx.moveTo(x + T * 0.3, y + T * 0.35); ctx.lineTo(x + T * 0.45, y + T * 0.08); ctx.lineTo(x + T * 0.47, y + T * 0.6); ctx.closePath(); ctx.fill();
+  } else if (kind === 'root') {
+    ctx.strokeStyle = color; ctx.lineWidth = 3.5 * s; ctx.lineCap = 'round';
+    ctx.beginPath(); ctx.moveTo(x + T * 0.1, y + T * 0.2); ctx.bezierCurveTo(x + T * 0.5, y + T * 0.1, x + T * 0.4, y + T * 0.8, x + T * 0.9, y + T * 0.7); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(x + T * 0.2, y + T * 0.9); ctx.bezierCurveTo(x + T * 0.3, y + T * 0.5, x + T * 0.7, y + T * 0.6, x + T * 0.8, y + T * 0.15); ctx.stroke();
+    ctx.lineCap = 'butt';
+  } else if (kind === 'ember') {
+    ctx.fillStyle = color; ctx.beginPath(); ctx.moveTo(x + T * 0.12, y + T * 0.88); ctx.lineTo(x + T * 0.2, y + T * 0.4); ctx.lineTo(x + T * 0.45, y + T * 0.12); ctx.lineTo(x + T * 0.7, y + T * 0.3); ctx.lineTo(x + T * 0.9, y + T * 0.55); ctx.lineTo(x + T * 0.86, y + T * 0.88); ctx.closePath(); ctx.fill();
+    ctx.strokeStyle = 'rgba(255,122,26,.9)'; ctx.lineWidth = 1.6 * s; ctx.beginPath(); ctx.moveTo(x + T * 0.3, y + T * 0.85); ctx.lineTo(x + T * 0.42, y + T * 0.6); ctx.lineTo(x + T * 0.36, y + T * 0.45); ctx.lineTo(x + T * 0.5, y + T * 0.25); ctx.stroke();
+  } else if (kind === 'grave') {
+    ctx.fillStyle = color; ctx.beginPath(); ctx.moveTo(x + T * 0.25, y + T * 0.9); ctx.lineTo(x + T * 0.25, y + T * 0.38); ctx.arc(x + T * 0.5, y + T * 0.38, T * 0.25, Math.PI, 0); ctx.lineTo(x + T * 0.75, y + T * 0.9); ctx.closePath(); ctx.fill();
+    ctx.fillStyle = 'rgba(0,0,0,.25)'; ctx.fillRect(x + T * 0.37, y + T * 0.45, T * 0.26, 2 * s); ctx.fillRect(x + T * 0.4, y + T * 0.58, T * 0.2, 2 * s);
   } else {
     ctx.fillStyle = color; ctx.beginPath(); ctx.moveTo(x + T * 0.15, y + T * 0.85); ctx.lineTo(x + T * 0.25, y + T * 0.35); ctx.lineTo(x + T * 0.55, y + T * 0.15); ctx.lineTo(x + T * 0.88, y + T * 0.45); ctx.lineTo(x + T * 0.85, y + T * 0.85); ctx.closePath(); ctx.fill();
     ctx.fillStyle = 'rgba(255,255,255,.16)'; ctx.beginPath(); ctx.moveTo(x + T * 0.25, y + T * 0.35); ctx.lineTo(x + T * 0.55, y + T * 0.15); ctx.lineTo(x + T * 0.62, y + T * 0.4); ctx.closePath(); ctx.fill();

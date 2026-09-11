@@ -594,6 +594,54 @@ RIGS.draconic = {
   },
 };
 
+RIGS.skeletal = {
+  id: 'skeletal', name: 'Skeletal', prefix: 'k.',
+  slots: ['body', 'head', 'eyes', 'jaw', 'legsFront', 'legsBack', 'tail', 'horns', 'wings', 'light', 'shroud', 'cracks'],
+  names: {
+    body: 'Ribcage', head: 'Skull', eyes: 'Grave lights', jaw: 'Jaw', legsFront: 'Forelegs', legsBack: 'Hind legs',
+    tail: 'Tail', horns: 'Horns', wings: 'Wings', light: 'Heart light', shroud: 'Shroud', cracks: 'Cracks',
+  },
+  paint: ['body', 'head', 'legsFront', 'legsBack', 'tail', 'horns', 'wings', 'light', 'shroud', 'cracks'],
+  swappable: ['horns', 'wings', 'light', 'shroud', 'cracks'],
+  required: ['body', 'head', 'eyes', 'jaw', 'legsFront', 'legsBack', 'tail'],
+  linked: [['legsFront', 'legsBack'], ['head', 'jaw']],
+  ground: ['body', 'legsFront', 'legsBack'],
+  clipped: ['cracks'],
+  tree: {
+    slot: 'body', anim: 'body',
+    behind: [
+      { slot: 'wings', socket: 'wingFar', far: true, scale: 'wing', anim: 'flap' },
+      { slot: 'wings', socket: 'wing', scale: 'wing', anim: 'flap' },
+      { slot: 'shroud', socket: 'back', anim: 'sway' },
+      { slot: 'tail', socket: 'tail', scale: 'tail', anim: 'tail' },
+      { slot: 'legsBack', socket: 'hipFar', far: true, scale: 'leg' },
+      { slot: 'legsFront', socket: 'shoulderFar', far: true, scale: 'leg' },
+    ],
+    front: [
+      { slot: 'light', socket: 'light', small: true },
+      { slot: 'legsBack', socket: 'hip', scale: 'leg' },
+      { slot: 'legsFront', socket: 'shoulder', scale: 'leg' },
+      {
+        slot: 'head', socket: 'head', scale: 'head', anim: 'head',
+        behind: [{ slot: 'horns', socket: 'horns' }],
+        front: [
+          { slot: 'eyes', socket: 'eyeFar', far: true, scale: 'eye', small: true },
+          { slot: 'eyes', socket: 'eye', scale: 'eye', small: true },
+          { slot: 'jaw', socket: 'jaw', small: true },
+        ],
+      },
+    ],
+  },
+  mannequin: {
+    parts: {
+      body: 'k.body.ribcage', head: 'k.head.canine', eyes: 'k.eyes.ember', jaw: 'k.jaw.fangs', legsFront: 'k.legsFront.hound', legsBack: 'k.legsBack.hound',
+      tail: 'k.tail.spine', horns: 'k.horns.none', wings: 'k.wings.none', light: 'k.light.none', shroud: 'k.shroud.none', cracks: 'k.cracks.none',
+    },
+    forSlot: {},
+    accentSlots: ['horns', 'wings', 'light', 'shroud', 'cracks', 'tail'],
+  },
+};
+
 export const RIG_IDS = Object.keys(RIGS);
 
 /** Rig used when a genome names none or an unknown one (old saves): the first class. */

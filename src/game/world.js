@@ -19,14 +19,14 @@ import { speciesGenome, rollElemental } from '../creature/genome.js';
 import { fuse, canFuse } from '../creature/fusion.js';
 
 /** Map size and ring geometry. `version` bumps whenever the layout changes, so saved positions from an older map reset to the Crossroads. */
-export const WORLD = { version: 3, w: 224, h: 192, hubR: 6, ringR: 58, lairR: 84, trainersPerBiome: 6, encounterChance: 0.12, encounterCooldown: 4, homeSpawnShare: 0.72 };
+export const WORLD = { version: 4, w: 224, h: 192, hubR: 6, ringR: 58, lairR: 84, trainersPerBiome: 6, encounterChance: 0.12, encounterCooldown: 4, homeSpawnShare: 0.72 };
 
 /** Tile kinds. */
 export const TILE = { grass: 0, habitat: 1, path: 2, wall: 3, water: 4, hub: 5, lair: 6, door: 7, camp: 8, spire: 9, spireDoor: 10, shrine: 11, market: 12, marketDoor: 13, storage: 14, storageDoor: 15, tower: 16, towerDoor: 17 };
 export const WALKABLE_TILES = new Set([TILE.grass, TILE.habitat, TILE.path, TILE.hub, TILE.door, TILE.camp, TILE.spireDoor, TILE.shrine, TILE.marketDoor, TILE.storageDoor, TILE.towerDoor]);
 
 /** Biomes in difficulty order, clockwise from the south of the hub. Levels climb 5 to the fifties; the gaps in the ladder are for classes still to come. */
-export const BIOME_ORDER = ['mammal', 'amphibian', 'flora', 'insect', 'fungus', 'bird', 'ooze', 'fish', 'wyrm', 'invertebrate', 'reptile', 'draconic'];
+export const BIOME_ORDER = ['mammal', 'amphibian', 'flora', 'insect', 'fungus', 'bird', 'ooze', 'fish', 'wyrm', 'invertebrate', 'skeletal', 'reptile', 'draconic'];
 
 /** Per-class region: name, wild level, palette and the look of its walls. */
 export const REGIONS = {
@@ -40,6 +40,7 @@ export const REGIONS = {
   fungus:       { name: 'Sporewood',      level: 23, ground: '#7a7f5c', ground2: '#70754f', habitat: '#5b5f47', path: '#c7b48a', water: '#4e7aa0', wall: 'tree',     wallColor: '#5a4a6a', accent: '#d9a3ff', waterT: 0.6,  warden: 'Warden Morel',  badge: 'Spore Badge' },
   wyrm:         { name: 'Coiling Gorge',  level: 41, ground: '#8a8570', ground2: '#807b66', habitat: '#6b6a52', path: '#d2c39a', water: '#4f8fb8', wall: 'rock',     wallColor: '#5c5548', accent: '#8fd3ff', waterT: 0.62, warden: 'Warden Tempest', badge: 'Gorge Badge' },
   ooze:         { name: 'Slurry Sump',    level: 32, ground: '#7a8a4c', ground2: '#707f45', habitat: '#55703a', path: '#c0b27e', water: '#7fb84f', wall: 'rock',     wallColor: '#4c4a3e', accent: '#b6f06a', waterT: 0.6,  warden: 'Warden Dreg',   badge: 'Sump Badge' },
+  skeletal:     { name: 'Barrow Downs',   level: 47, ground: '#6f7466', ground2: '#666b5e', habitat: '#535a4c', path: '#bfb59a', water: '#4a6f88', wall: 'bone',     wallColor: '#e6dfc8', accent: '#9fe8b0', waterT: 0.6,  warden: 'Warden Ossa',   badge: 'Marrow Badge' },
   reptile:      { name: 'Ember Scar',     level: 50, ground: '#9c6b4a', ground2: '#906244', habitat: '#7a4d38', path: '#d0a878', water: '#e0562a', wall: 'rock',     wallColor: '#5a3a2c', accent: '#ff9a4a', waterT: 0.7,  warden: 'Warden Cinder', badge: 'Scar Badge' },
   draconic:     { name: 'Drakefell Peaks', level: 55, ground: '#7d7269', ground2: '#736960', habitat: '#5f5450', path: '#c9b79c', water: '#5a8fc0', wall: 'rock',     wallColor: '#4a3f3c', accent: '#ffb347', waterT: 0.6,  warden: 'Warden Ashfall', badge: 'Peak Badge' },
 };
@@ -140,7 +141,8 @@ export function habitatTypesFor(clade) {
     if (s.types[0]) w.set(s.types[0], (w.get(s.types[0]) || 0) + 2);
     if (s.types[1]) w.set(s.types[1], (w.get(s.types[1]) || 0) + 1);
   }
-  return [...w.entries()].sort((a, b) => b[1] - a[1] || (a[0] < b[0] ? -1 : 1));
+  // squared so a class's signature elements own most of its patches and a lone oddball species makes a rare pocket, not a third of the region
+  return [...w.entries()].map(([t, n]) => [t, n * n]).sort((a, b) => b[1] - a[1] || (a[0] < b[0] ? -1 : 1));
 }
 
 /** Weight of a species in a habitat: its class at home (3), its type in its element (4), both together (10), rare visitors otherwise; scaled by tier rarity. */
@@ -191,6 +193,7 @@ const TRAINER_TITLES = {
   fungus: ['Forager', 'Spore Sweeper', 'Cellar Keeper'],
   wyrm: ['Storm Chaser', 'Ridge Runner', 'Kite Flyer'],
   draconic: ['Dragon Tamer', 'Egg Warmer', 'Sky Knight'],
+  skeletal: ['Gravedigger', 'Bone Setter', 'Mourner'],
 };
 const TRAINER_LINES = {
   mammal: ['My team was raised on these downs. Care for a bout?', 'Fur and fang against whatever you have. Fight?'],
@@ -205,6 +208,7 @@ const TRAINER_LINES = {
   fungus: ['Everything down here is quietly eating something. Fight?', 'Breathe shallow and battle quick. Ready?'],
   wyrm: ['Feel that wind? That is my team breathing. Fight?', 'Up here the sky bites back. Battle?'],
   draconic: ['My team was hatched on this mountain. Yours was not. Fight?', 'Every dragon here answers to me. Let us see if yours answers to you.'],
+  skeletal: ['Nothing down here stays buried for long. Fight?', 'My team has been dead for years and still beats most of the living.'],
 };
 const TRAINER_AFTER = ['Good match. Come back stronger.', 'Well fought. The Warden is another matter.', 'You earned that one.', 'My team will remember you.'];
 

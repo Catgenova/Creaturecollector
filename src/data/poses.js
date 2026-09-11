@@ -134,6 +134,14 @@ POSES.draconic = mergePose(quadCore, {
   hurt: { jaw: { da: 14 }, wings: { da: 26, far: { da: 16 } }, horns: { da: -6 } },
 });
 
+POSES.skeletal = mergePose(quadCore, {
+  brace: { jaw: { da: 4 }, wings: { da: -4 } },
+  crouch: { wings: { da: -8 }, shroud: { ds: 1.04 } },
+  poise: { wings: { da: 8 }, light: { ds: 1.15 }, horns: { ds: 1.03 } },
+  attack: { jaw: { da: 14 }, wings: { da: 20, far: { da: 12 } }, light: { ds: 1.2 } },
+  hurt: { jaw: { da: 16 }, wings: { da: 26, far: { da: 16 } }, shroud: { da: 6 } },
+});
+
 /** The slot deltas of a pose on a rig ({} for an unknown pose or 'stand'). */
 export function poseTable(rig, pose) { return (POSES[rig] && POSES[rig][pose]) || {}; }
 

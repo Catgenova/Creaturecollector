@@ -16,6 +16,7 @@ import { OOZE_PARTS } from './ooze/index.js';
 import { FUNGUS_PARTS } from './fungus/index.js';
 import { WYRM_PARTS } from './wyrm/index.js';
 import { DRACONIC_PARTS } from './draconic/index.js';
+import { SKELETAL_PARTS } from './skeletal/index.js';
 
 export const RIG_PARTS = {
   mammal: MAMMAL_PARTS,
@@ -30,6 +31,7 @@ export const RIG_PARTS = {
   fungus: FUNGUS_PARTS,
   wyrm: WYRM_PARTS,
   draconic: DRACONIC_PARTS,
+  skeletal: SKELETAL_PARTS,
 };
 
 export const PARTS = new Map();

@@ -1051,6 +1051,54 @@ RIGS.draconic = {
   },
 };
 
+RIGS.skeletal = {
+  id: 'skeletal', name: 'Skeletal', prefix: 'k.',
+  slots: ['body', 'head', 'eyes', 'jaw', 'legsFront', 'legsBack', 'tail', 'horns', 'wings', 'light', 'shroud', 'cracks'],
+  names: {
+    body: 'Ribcage', head: 'Skull', eyes: 'Grave lights', jaw: 'Jaw', legsFront: 'Forelegs', legsBack: 'Hind legs',
+    tail: 'Tail', horns: 'Horns', wings: 'Wings', light: 'Heart light', shroud: 'Shroud', cracks: 'Cracks',
+  },
+  paint: ['body', 'head', 'legsFront', 'legsBack', 'tail', 'horns', 'wings', 'light', 'shroud', 'cracks'],
+  swappable: ['horns', 'wings', 'light', 'shroud', 'cracks'],
+  required: ['body', 'head', 'eyes', 'jaw', 'legsFront', 'legsBack', 'tail'],
+  linked: [['legsFront', 'legsBack'], ['head', 'jaw']],
+  ground: ['body', 'legsFront', 'legsBack'],
+  clipped: ['cracks'],
+  tree: {
+    slot: 'body', anim: 'body',
+    behind: [
+      { slot: 'wings', socket: 'wingFar', far: true, scale: 'wing', anim: 'flap' },
+      { slot: 'wings', socket: 'wing', scale: 'wing', anim: 'flap' },
+      { slot: 'shroud', socket: 'back', anim: 'sway' },
+      { slot: 'tail', socket: 'tail', scale: 'tail', anim: 'tail' },
+      { slot: 'legsBack', socket: 'hipFar', far: true, scale: 'leg' },
+      { slot: 'legsFront', socket: 'shoulderFar', far: true, scale: 'leg' },
+    ],
+    front: [
+      { slot: 'light', socket: 'light', small: true },
+      { slot: 'legsBack', socket: 'hip', scale: 'leg' },
+      { slot: 'legsFront', socket: 'shoulder', scale: 'leg' },
+      {
+        slot: 'head', socket: 'head', scale: 'head', anim: 'head',
+        behind: [{ slot: 'horns', socket: 'horns' }],
+        front: [
+          { slot: 'eyes', socket: 'eyeFar', far: true, scale: 'eye', small: true },
+          { slot: 'eyes', socket: 'eye', scale: 'eye', small: true },
+          { slot: 'jaw', socket: 'jaw', small: true },
+        ],
+      },
+    ],
+  },
+  mannequin: {
+    parts: {
+      body: 'k.body.ribcage', head: 'k.head.canine', eyes: 'k.eyes.ember', jaw: 'k.jaw.fangs', legsFront: 'k.legsFront.hound', legsBack: 'k.legsBack.hound',
+      tail: 'k.tail.spine', horns: 'k.horns.none', wings: 'k.wings.none', light: 'k.light.none', shroud: 'k.shroud.none', cracks: 'k.cracks.none',
+    },
+    forSlot: {},
+    accentSlots: ['horns', 'wings', 'light', 'shroud', 'cracks', 'tail'],
+  },
+};
+
 const RIG_IDS = Object.keys(RIGS);
 
 /** Rig used when a genome names none or an unknown one (old saves): the first class. */
@@ -8110,12 +8158,297 @@ const DRACONIC_PARTS = {
   legsFront: DR_LEGS_FRONT, legsBack: DR_LEGS_BACK, tail: DR_TAILS, spines: DR_SPINES, chest: DR_CHEST, breath: DR_BREATH,
 };
 
+// ---- src/data/parts/skeletal/_shared.js ----
+// Skeletal builders: the shared constructors namespaced with "k." (bone).
+// Ribcage torsos about 60 wide and 34 tall on four bone legs, a skull reaching forward, a spine for a tail,
+// and a light where the heart was.
+
+
+const skeletalBuilders = partBuilders('k.');
+const skBody = skeletalBuilders.body;
+const skLeg = skeletalBuilders.leg;
+const skPart = skeletalBuilders.part;
+
+// ---- src/data/parts/skeletal/bodies.js ----
+// Skeletal bodies (ribcages). Origin = centre. Sockets: head (front, up), tail (back), shoulder / shoulderFar and
+// hip / hipFar on the belly line, wing / wingFar on the spine, back (the shroud), light (inside the ribs).
+// kinds: 'bone.hound' (lean), 'bone.heavy' (barrel), 'bone.coil' (a serpent spine), 'bone.keel' (a bird's chest),
+// 'bone.fish' (a fish spine), 'bone.wrapped' (a mummy), 'bone.giant'.
+// Evolutions: stage 2 thickens and grows spine spurs; stage 3 grows more and rings the heart.
+
+
+
+
+const skBodyStages = (x2, y2, x3, y3) => ({
+  2: { grow: [1.06, 1.06], addBehind: [evoFan(x2, y2, -125, -55, 3, 5, 13, { tip: 'c' })] },
+  3: { grow: [1.06, 1.07], addBehind: [evoFan(x3, y3, -125, -55, 4, 5, 14, { tip: 'c' })], add: [evoRing(-2, 2, 7, 'a', 1.2, { op: 0.5 })] },
+});
+const skSockets = (o) => ({ head: { x: 26, y: -12, a: -12, s: 1 }, tail: { x: -30, y: 0, a: 0, s: 1 }, shoulder: { x: 18, y: 8, a: 0 }, shoulderFar: { x: 10, y: 6, a: 0 }, hip: { x: -18, y: 8, a: 0 }, hipFar: { x: -24, y: 6, a: 0 }, wing: { x: -2, y: -14, a: 0 }, wingFar: { x: -8, y: -14, a: 0 }, back: { x: -4, y: -12, a: 0 }, light: { x: 2, y: 1, a: 0, s: 1 }, ...o });
+/** Rib gaps: dark lines curving from the spine down through the torso. */
+const skRibs = (xs, y0, y1) => L(xs.map((x) => `M${x},${y0} C${x - 2},${(y0 + y1) / 2} ${x - 1},${y1 - 4} ${x + 2},${y1}`).join(' '), 'k', 1.4, { op: 0.35 });
+
+const SK_BODIES = [
+  skBody({
+    id: 'ribcage', name: 'Ribcage', kind: 'bone.hound', tags: ['lean'], dom: 0.5, w: 3,
+    pts: [[-28, -4], [-20, -14], [-4, -18], [14, -16], [26, -10], [30, -2], [26, 8], [14, 14], [-2, 16], [-18, 12], [-30, 4]],
+    shade: torsoShade(-30, 30, -18, 16, { shadeFrac: 0.3 }),
+    extra: [skRibs([-18, -8, 2, 12], -10, 12), L('M-26,-6 C-14,-14 6,-18 26,-10', 'k', 1.2, { op: 0.25 }), HL('M-22,-8 C-16,-14 -6,-16 2,-16 C-6,-13 -14,-10 -18,-4 Z', 0.2)],
+    sockets: skSockets({}), stages: skBodyStages(12, -16, -18, -14),
+  }),
+  skBody({
+    id: 'barrel', name: 'Barrel', kind: 'bone.heavy', tags: ['heavy'], dom: 0.55, w: 2,
+    pts: [[-30, -2], [-24, -16], [-8, -24], [14, -22], [30, -12], [34, 0], [30, 12], [14, 18], [-8, 18], [-26, 12], [-34, 4]],
+    shade: torsoShade(-34, 34, -24, 18, { shadeFrac: 0.3 }),
+    extra: [skRibs([-22, -12, -2, 8, 18], -16, 14), L('M-28,-4 C-14,-18 8,-24 28,-12', 'k', 1.2, { op: 0.25 }), HL('M-24,-10 C-18,-18 -8,-22 2,-22 C-6,-18 -14,-14 -20,-6 Z', 0.2)],
+    sockets: skSockets({ head: { x: 26, y: -16, a: -8, s: 1 }, tail: { x: -32, y: 2, a: 0, s: 1 }, shoulder: { x: 20, y: 12, a: 0 }, shoulderFar: { x: 12, y: 10, a: 0 }, hip: { x: -18, y: 12, a: 0 }, hipFar: { x: -24, y: 10, a: 0 }, wing: { x: -2, y: -20, a: 0 }, wingFar: { x: -8, y: -20, a: 0 }, back: { x: -4, y: -18, a: 0 }, light: { x: 2, y: 0, a: 0, s: 1.1 } }),
+    stages: skBodyStages(14, -22, -20, -18),
+  }),
+  skBody({
+    id: 'coil', name: 'Serpent spine', kind: 'bone.coil', tags: ['long', 'low'], dom: 0.5, w: 2,
+    pts: [[-34, 8], [-26, -2], [-12, -8], [4, -10], [18, -8], [28, -4], [32, 4], [26, 12], [10, 14], [-8, 12], [-22, 14], [-34, 14]],
+    shade: torsoShade(-34, 32, -10, 14, { shadeFrac: 0.3 }),
+    extra: [L('M-30,10 L-30,2 M-22,8 L-22,-2 M-14,6 L-14,-6 M-6,6 L-6,-8 M2,6 L2,-8 M10,6 L10,-6 M18,6 L18,-4 M26,8 L26,0', 'k', 1.4, { op: 0.35 }), HL('M-28,0 C-20,-6 -8,-8 2,-8 C-8,-6 -18,-2 -24,4 Z', 0.2)],
+    sockets: skSockets({ head: { x: 30, y: -4, a: -18, s: 1 }, tail: { x: -34, y: 10, a: 0, s: 1 }, shoulder: { x: 20, y: 10, a: 0 }, shoulderFar: { x: 12, y: 10, a: 0 }, hip: { x: -16, y: 12, a: 0 }, hipFar: { x: -24, y: 12, a: 0 }, wing: { x: -4, y: -8, a: 0 }, wingFar: { x: -10, y: -8, a: 0 }, back: { x: -6, y: -8, a: 0 }, light: { x: 6, y: 2, a: 0, s: 0.9 } }),
+    stages: skBodyStages(10, -10, -20, -6),
+  }),
+  skBody({
+    id: 'keel', name: 'Keel', kind: 'bone.keel', tags: ['bird', 'upright'], dom: 0.5, w: 2,
+    pts: [[-24, -4], [-16, -16], [-2, -22], [12, -18], [22, -8], [24, 6], [18, 18], [4, 22], [-12, 16], [-24, 8]],
+    shade: torsoShade(-24, 24, -22, 22, { shadeFrac: 0.3 }),
+    extra: [L('M-16,-4 C-16,4 -12,10 -6,16 M-8,-10 C-8,0 -4,8 2,16 M2,-14 C2,-4 6,6 10,14 M12,-12 C12,-4 14,2 16,10', 'k', 1.4, { op: 0.35 }), L('M4,-18 L2,20', 'k', 1.6, { op: 0.3 }), HL('M-16,-8 C-12,-15 -6,-19 2,-19 C-6,-16 -12,-12 -14,-4 Z', 0.2)],
+    sockets: skSockets({ head: { x: 16, y: -16, a: -20, s: 1 }, tail: { x: -22, y: 6, a: 0, s: 1 }, shoulder: { x: 12, y: 16, a: 0 }, shoulderFar: { x: 4, y: 16, a: 0 }, hip: { x: -10, y: 14, a: 0 }, hipFar: { x: -18, y: 10, a: 0 }, wing: { x: -4, y: -18, a: 0 }, wingFar: { x: -10, y: -16, a: 0 }, back: { x: -8, y: -14, a: 0 }, light: { x: 4, y: -2, a: 0, s: 1 } }),
+    stages: skBodyStages(8, -20, -14, -14),
+  }),
+  skBody({
+    id: 'fishbone', name: 'Fish spine', kind: 'bone.fish', tags: ['fish', 'flat'], dom: 0.5, w: 2,
+    pts: [[-32, 2], [-22, -10], [-6, -16], [12, -14], [26, -8], [32, 0], [26, 8], [12, 14], [-6, 16], [-22, 12]],
+    shade: torsoShade(-32, 32, -16, 16, { shadeFrac: 0.3 }),
+    extra: [L('M-30,2 L30,0', 'k', 1.8, { op: 0.35 }), L('M-24,-2 L-20,-10 M-24,4 L-20,12 M-14,-2 L-12,-14 M-14,4 L-12,14 M-4,-2 L-2,-16 M-4,4 L-2,16 M6,-2 L8,-14 M6,4 L8,14 M16,-2 L18,-10 M16,4 L18,12', 'k', 1.3, { op: 0.32 }), HL('M-24,-4 C-18,-10 -8,-14 2,-14 C-8,-11 -16,-8 -20,-2 Z', 0.2)],
+    sockets: skSockets({ head: { x: 28, y: -6, a: -10, s: 1 }, tail: { x: -32, y: 2, a: 0, s: 1 }, shoulder: { x: 16, y: 12, a: 0 }, shoulderFar: { x: 8, y: 12, a: 0 }, hip: { x: -16, y: 10, a: 0 }, hipFar: { x: -24, y: 8, a: 0 }, wing: { x: -2, y: -14, a: 0 }, wingFar: { x: -8, y: -14, a: 0 }, back: { x: -6, y: -12, a: 0 }, light: { x: 2, y: 1, a: 0, s: 0.9 } }),
+    stages: skBodyStages(12, -14, -18, -10),
+  }),
+  skBody({
+    id: 'wrapped', name: 'Wrapped', kind: 'bone.wrapped', tags: ['mummy'], dom: 0.5, w: 2,
+    pts: [[-28, -4], [-20, -14], [-4, -18], [14, -16], [26, -10], [30, -2], [26, 8], [14, 14], [-2, 16], [-18, 12], [-30, 4]],
+    shade: torsoShade(-30, 30, -18, 16, { shadeFrac: 0.3 }),
+    extra: [PATCH('M-30,-2 C-10,-8 10,-6 30,-4 L30,2 C10,0 -10,-2 -30,4 Z', 's'), PATCH('M-28,8 C-8,4 12,6 28,4 L26,8 C12,10 -8,8 -26,12 Z', 's'), L('M-22,-10 L-16,10 M-6,-16 L-2,14 M12,-14 L14,12', 'k', 1.2, { op: 0.22 }), HL('M-22,-8 C-16,-14 -6,-16 2,-16 C-6,-13 -14,-10 -18,-4 Z', 0.18)],
+    sockets: skSockets({}), stages: skBodyStages(12, -16, -18, -14),
+  }),
+  skBody({
+    id: 'giant', name: 'Giant', kind: 'bone.giant', tags: ['huge'], dom: 0.6, w: 2,
+    pts: [[-34, -6], [-26, -20], [-8, -28], [16, -26], [32, -14], [38, 0], [34, 14], [16, 22], [-8, 22], [-28, 16], [-38, 4]],
+    shade: torsoShade(-38, 38, -28, 22, { shadeFrac: 0.3 }),
+    extra: [skRibs([-26, -14, -2, 10, 22], -20, 18), L('M-32,-6 C-16,-22 8,-28 32,-14', 'k', 1.3, { op: 0.25 }), HL('M-28,-12 C-22,-20 -10,-26 2,-26 C-8,-22 -18,-16 -24,-6 Z', 0.2)],
+    sockets: skSockets({ head: { x: 30, y: -20, a: -10, s: 1 }, tail: { x: -36, y: 2, a: 0, s: 1 }, shoulder: { x: 22, y: 16, a: 0 }, shoulderFar: { x: 14, y: 14, a: 0 }, hip: { x: -20, y: 16, a: 0 }, hipFar: { x: -28, y: 12, a: 0 }, wing: { x: -4, y: -24, a: 0 }, wingFar: { x: -10, y: -24, a: 0 }, back: { x: -6, y: -22, a: 0 }, light: { x: 2, y: -2, a: 0, s: 1.2 } }),
+    stages: skBodyStages(16, -26, -24, -22),
+  }),
+];
+
+// ---- src/data/parts/skeletal/heads.js ----
+// Skeletal heads (skulls). Origin = the neck point at the back; the snout reaches right. Dark sockets are drawn
+// on the skull and the grave lights sit in them. Sockets: eye / eyeFar, jaw (under the snout), horns (the brow).
+// Evolutions: stage 2 raises a brow ridge; stage 3 adds cheek spurs.
+
+
+
+
+const skHeadStages = {
+  2: { grow: [1.05, 1.05], add: [...evoBrowPlate(6, -13, 4)] },
+  3: { grow: [1.05, 1.06], addShapes: [{ pts: evoSpike(-2, -3, 178, 8, 4), f: 'p' }, { pts: evoSpike(0, 3, 190, 7, 4), f: 'p' }], add: [...evoBrowPlate(6, -13, 4.6)] },
+};
+const skHeadSockets = (o = {}) => ({ eye: { x: 8, y: -7, s: 1 }, eyeFar: { x: 0, y: -8, s: 0.9 }, jaw: { x: 16, y: 3, a: 0, s: 1 }, horns: { x: 2, y: -14, a: 0, s: 1 }, ...o });
+const skEyeSockets = (x, y, rx = 4.4, ry = 3.8) => [E(x, y, rx, ry, 'k', { ns: true, op: 0.85 }), E(x - 8, y - 1, rx * 0.8, ry * 0.8, 'k', { ns: true, op: 0.7 })];
+const skNose = (x, y) => C(x, y, 1.6, 'k', { ns: true, op: 0.7 });
+
+const SK_HEADS = [
+  skPart({ id: 'canine', slot: 'head', name: 'Canine', tags: ['long'], dom: 0.5, w: 3, shapes: [[[-4, -12], [8, -16], [18, -13], [28, -6], [30, 0], [22, 4], [12, 7], [4, 8], [-4, 6]]], extra: [...skEyeSockets(8, -7), skNose(26, -3), L('M12,2 L20,3', 'k', 1, { op: 0.35 }), HL('M-2,-11 C2,-14 8,-15 12,-13 C8,-12 2,-10 -2,-8 Z', 0.2)], sockets: skHeadSockets(), stages: skHeadStages }),
+  skPart({ id: 'feline', slot: 'head', name: 'Feline', tags: ['round'], dom: 0.5, w: 2, shapes: [[[-4, -13], [6, -17], [16, -15], [23, -7], [23, 2], [16, 8], [6, 10], [-4, 7]]], extra: [...skEyeSockets(7, -7, 4.8, 4.2), skNose(20, -2), HL('M-2,-12 C2,-15 8,-15 12,-14 C8,-12 2,-10 -2,-8 Z', 0.2)], sockets: skHeadSockets({ jaw: { x: 14, y: 4, a: 0, s: 1 } }), stages: skHeadStages }),
+  skPart({ id: 'beaked', slot: 'head', name: 'Beaked', tags: ['bird'], dom: 0.5, w: 2, shapes: [[[-4, -12], [6, -16], [16, -13], [24, -8], [34, -3], [24, 1], [14, 6], [4, 8], [-4, 6]]], extra: [...skEyeSockets(7, -7), L('M18,-5 L30,-3', 'k', 1, { op: 0.35 }), HL('M-2,-11 C2,-14 8,-15 12,-13 C8,-12 2,-10 -2,-8 Z', 0.2)], sockets: skHeadSockets({ jaw: { x: 18, y: 1, a: 0, s: 1 } }), stages: skHeadStages }),
+  skPart({ id: 'serpent', slot: 'head', name: 'Serpent', tags: ['flat'], dom: 0.5, w: 2, shapes: [[[-4, -9], [6, -12], [18, -11], [28, -6], [30, 0], [24, 4], [12, 6], [2, 7], [-4, 5]]], extra: [...skEyeSockets(8, -5, 4, 3.4), skNose(26, -3), HL('M-2,-8 C2,-11 8,-11 12,-10 C8,-9 2,-7 -2,-5 Z', 0.2)], sockets: skHeadSockets({ eye: { x: 8, y: -5, s: 1 }, eyeFar: { x: 0, y: -6, s: 0.9 }, jaw: { x: 18, y: 3, a: 0, s: 1 }, horns: { x: 2, y: -11, a: 0, s: 1 } }), stages: skHeadStages }),
+  skPart({ id: 'ram', slot: 'head', name: 'Ram', tags: ['broad'], dom: 0.5, w: 2, shapes: [[[-4, -14], [8, -18], [20, -14], [26, -6], [26, 2], [20, 8], [8, 10], [-4, 8]]], extra: [...skEyeSockets(8, -8, 4.6, 4), skNose(23, -1), L('M-2,-14 C4,-20 14,-20 20,-14', 'k', 1.2, { op: 0.3 }), HL('M-2,-13 C2,-16 8,-17 12,-15 C8,-13 2,-11 -2,-9 Z', 0.2)], sockets: skHeadSockets({ jaw: { x: 16, y: 4, a: 0, s: 1 }, horns: { x: 4, y: -17, a: 0, s: 1 } }), stages: skHeadStages }),
+  skPart({ id: 'fish', slot: 'head', name: 'Fish', tags: ['fish'], dom: 0.5, w: 2, shapes: [[[-4, -10], [6, -14], [18, -13], [28, -8], [32, -2], [26, 4], [14, 7], [2, 8], [-4, 6]]], extra: [...skEyeSockets(10, -7, 5, 4.4), L('M14,-1 L26,0 M4,-12 L2,6', 'k', 1, { op: 0.3 }), HL('M-2,-9 C2,-12 8,-13 12,-12 C8,-10 2,-8 -2,-6 Z', 0.2)], sockets: skHeadSockets({ eye: { x: 10, y: -7, s: 1.05 }, eyeFar: { x: 2, y: -8, s: 0.95 }, jaw: { x: 18, y: 3, a: 0, s: 1 } }), stages: skHeadStages }),
+  skPart({ id: 'brute', slot: 'head', name: 'Brute', tags: ['heavy'], dom: 0.55, w: 2, shapes: [[[-4, -14], [8, -18], [22, -16], [30, -8], [30, 2], [24, 8], [10, 11], [-4, 8]]], extra: [...skEyeSockets(9, -8, 5, 4.4), skNose(27, -3), L('M12,3 L24,4', 'k', 1, { op: 0.35 }), L('M4,-16 L6,-8 M18,-16 L18,-9', 'k', 1, { op: 0.25 }), HL('M-2,-13 C2,-16 8,-17 12,-15 C8,-13 2,-11 -2,-9 Z', 0.2)], sockets: skHeadSockets({ eye: { x: 9, y: -8, s: 1.05 }, eyeFar: { x: 1, y: -9, s: 0.95 }, jaw: { x: 18, y: 5, a: 0, s: 1 }, horns: { x: 4, y: -17, a: 0, s: 1 } }), stages: skHeadStages }),
+];
+
+// ---- src/data/parts/skeletal/face.js ----
+// Skeletal grave lights (what burns in the eye sockets) and jaws (the lower jaw under the snout).
+// Evolutions: lights ring then glow; jaws grow with the face family.
+
+
+
+
+
+const skEyeStages = (r) => ({ 2: { grow: [1.08, 1.08], add: [evoRing(0, 0, r * 1.4, 'a', 1, { op: 0.6 })] }, 3: { grow: [1.1, 1.1], add: [C(0, 0, r * 2.2, 'a', { ns: true, op: 0.18 })] } });
+const skGlow = (r) => C(0, 0, r * 1.7, 'a', { ns: true, op: 0.2 });
+
+const SK_EYES = [
+  skPart({ id: 'ember', slot: 'eyes', name: 'Ember', tags: ['dot'], dom: 0.5, w: 3, extra: [skGlow(2.4), C(0, 0, 2.4, 'a', { ns: true }), C(-0.6, -0.6, 0.9, 'w', { ns: true, op: 0.8 })], stages: skEyeStages(2.4) }),
+  skPart({ id: 'ghostlight', slot: 'eyes', name: 'Ghost light', tags: ['flame'], dom: 0.5, w: 2, extra: [skGlow(3), P(flamePath(0, 0, 4.2), 'a', { ns: true }), P(flamePath(0, 0.8, 2.2), 'w', { ns: true, op: 0.7 })], stages: skEyeStages(3) }),
+  skPart({ id: 'hollow', slot: 'eyes', name: 'Hollow', tags: ['dark'], dom: 0.45, w: 2, extra: [E(0, 0, 3.2, 2.8, 'k', { ns: true, op: 0.9 }), C(0.6, 0.2, 0.7, 'a', { ns: true, op: 0.8 })], stages: skEyeStages(2) }),
+  skPart({ id: 'pinprick', slot: 'eyes', name: 'Pinprick', tags: ['tiny'], dom: 0.5, w: 2, extra: [skGlow(1.6), C(0, 0, 1.3, 'w', { ns: true }), C(0, 0, 0.6, 'a', { ns: true })], stages: skEyeStages(1.6) }),
+  skPart({ id: 'twin', slot: 'eyes', name: 'Twin sparks', tags: ['two'], dom: 0.5, w: 2, extra: [skGlow(2.6), C(-1.4, 0.4, 1.4, 'a', { ns: true }), C(1.6, -0.6, 1.1, 'a', { ns: true }), C(-1.8, 0, 0.5, 'w', { ns: true, op: 0.8 })], stages: skEyeStages(2.6) }),
+  skPart({ id: 'blaze', slot: 'eyes', name: 'Blaze', tags: ['flame', 'big'], dom: 0.55, w: 2, extra: [skGlow(3.6), P(flamePath(0, -1, 5.5), 'a', { ns: true }), P(flamePath(0.4, 0.6, 3), 'w', { ns: true, op: 0.6 })], stages: skEyeStages(3.6) }),
+  skPart({ id: 'gem', slot: 'eyes', name: 'Set gem', tags: ['gem'], dom: 0.5, w: 2, extra: [skGlow(2.6), P(diamondPath(0, 0, 4.4, 5.6), 'a', { ns: true }), P('M-1.2,-1.6 L0.2,-2.6 L0,-0.4 Z', 'w', { ns: true, op: 0.8 })], stages: skEyeStages(2.6) }),
+];
+
+const SK_JAWS = [
+  skPart({ id: 'fangs', slot: 'jaw', name: 'Fangs', tags: ['teeth'], dom: 0.5, w: 3, extra: [P('M4,-1 C1,3 -6,4 -14,2 C-9,0 -3,-1 4,-1 Z', 'k', { ns: true, op: 0.8 }), P('M2,0 L1,3.4 L-1,0.4 L-3,3.6 L-5,0.8 L-7,3.2 L-9,1 L-11,2.8 L-12,1.4 C-8,0.4 -3,-0.2 2,0 Z', 'p', { ns: true })] }),
+  skPart({ id: 'tusked', slot: 'jaw', name: 'Tusked', tags: ['tusk'], dom: 0.5, w: 2, extra: [L('M4,-1 C0,2 -6,3 -13,1', 'k', 2), P('M2,1 C3,-3 4,-6 3,-9 C5,-5 5,-1 3,2 Z', 'p', { sw: 1 }), P('M-8,2.4 C-7,-1 -6,-4 -7,-7 C-5,-3 -5,0 -6,3 Z', 'p', { sw: 1 })] }),
+  skPart({ id: 'beak', slot: 'jaw', name: 'Beak', tags: ['bird'], dom: 0.5, w: 2, extra: [P('M6,-2 C2,3 -6,4 -12,1 C-6,3 0,4 5,3 Z', 'pd', { sw: 1.2 }), L('M5,-1 C1,3 -6,4 -12,1', 'k', 1.4)] }),
+  skPart({ id: 'needle', slot: 'jaw', name: 'Needle teeth', tags: ['sharp'], dom: 0.5, w: 2, extra: [L('M5,-1 C1,3 -6,4 -13,1', 'k', 2), P('M3,0 L2.4,5 L1.2,0.6 Z', 'p', { ns: true }), P('M-1,1.4 L-1.4,6 L-2.8,1.6 Z', 'p', { ns: true }), P('M-5,2.4 L-5.6,6.8 L-6.8,2.4 Z', 'p', { ns: true }), P('M-9,2.4 L-9.8,6 L-10.8,2.2 Z', 'p', { ns: true })] }),
+  skPart({ id: 'grin', slot: 'jaw', name: 'Wide grin', tags: ['happy'], dom: 0.5, w: 2, extra: [P('M6,-2 C2,4 -6,6 -15,2 C-8,0 -1,-1 6,-2 Z', 'k', { ns: true, op: 0.85 }), L('M3,-1 L2,2.6 M-1,-0.4 L-1.6,3.4 M-5,0 L-5.6,3.8 M-9,0.6 L-9.6,3.6 M-12,1.4 L-12.6,3.2', 'p', 1.4)] }),
+  skPart({ id: 'slack', slot: 'jaw', name: 'Slack jaw', tags: ['open'], dom: 0.5, w: 2, extra: [P('M5,-2 C4,4 -4,8 -12,5 C-8,2 -2,-1 5,-2 Z', 'k', { ns: true, op: 0.85 }), P('M-11,5 C-6,6 0,6 4,4 L5,7 C0,9 -6,9 -12,7 Z', 'p', { sw: 1.2 }), L('M-8,6 L-8,8 M-4,6.5 L-4,8.5 M0,6 L0,8', 'k', 1, { op: 0.6 })] }),
+  skPart({ id: 'split', slot: 'jaw', name: 'Split jaw', tags: ['fierce'], dom: 0.5, w: 2, extra: [P('M5,-2 C1,3 -5,4 -13,2 C-8,0 -2,-1 5,-2 Z', 'k', { ns: true, op: 0.8 }), P('M-3,1 L-4,7 L-1,2 Z', 'p', { ns: true }), P('M-5,1.6 L-7,7 L-6,1.8 Z', 'p', { ns: true }), L('M-4,1 L-4,7', 'k', 0.8, { op: 0.6 })] }),
+];
+
+// ---- src/data/parts/skeletal/limbs.js ----
+// Skeletal forelegs (origin = the shoulder), hind legs (origin = the hip) and tails (origin = the tail socket,
+// trailing behind): bone shafts with knobbed joints and phalanges.
+// Evolutions: legs grow and gain joint rings; tails grow and spike.
+
+
+
+
+
+const skLegStages = { 2: { grow: [1.06, 1.08] }, 3: { grow: [1.1, 1.14], add: [evoRing(0, 8, 3.4, 'a', 1, { op: 0.6 })] } };
+const skTailStages = (x, y) => ({ 2: { grow: [1.1, 1.06] }, 3: { grow: [1.15, 1.1], addShapes: [{ pts: evoSpike(x, y, -100, 8, 3), f: 'a' }, { pts: evoSpike(x + 10, y + 1, -100, 7, 3), f: 'a' }] } });
+/** A bone: a shaft with a knob at each end. */
+const skBone = (x0, y0, x1, y1, w = 4) => [tube([[x0, y0], [x1, y1]], w, w * 0.8, { tipK: 1 }), { pts: [[x0 - w * 0.8, y0 - w * 0.4], [x0, y0 - w * 0.9], [x0 + w * 0.8, y0 - w * 0.4], [x0 + w * 0.7, y0 + w * 0.6], [x0 - w * 0.7, y0 + w * 0.6]], f: 'p' }];
+const skJoint = (x, y, r = 2.2) => C(x, y, r, 'pd', { sw: 1 });
+
+const SK_LEGS_FRONT = [
+  skLeg({ id: 'hound', slot: 'legsFront', name: 'Hound', tags: ['lean'], dom: 0.5, w: 3, shapes: [...skBone(0, 0, 1, 8), ...skBone(1, 8, 0, 16, 3.4)], extra: [skJoint(1, 8), ...claws(-3, 3, 16, 3, 4)], stages: skLegStages }),
+  skLeg({ id: 'heavy', slot: 'legsFront', name: 'Heavy', tags: ['thick'], dom: 0.55, w: 2, shapes: [...skBone(0, 0, 1, 9, 6), ...skBone(1, 9, 0, 17, 5)], extra: [skJoint(1, 9, 3), L('M-4,17 L-5,20 M0,17 L0,20 M4,17 L5,20', 'k', 1.4)], stages: skLegStages }),
+  skLeg({ id: 'bird', slot: 'legsFront', name: 'Bird', tags: ['thin'], dom: 0.45, w: 2, shapes: [...skBone(0, 0, 3, 8, 3), ...skBone(3, 8, 0, 15, 2.6)], extra: [skJoint(3, 8, 1.8), ...claws(-4, 4, 15, 3, 5)], stages: skLegStages }),
+  skLeg({ id: 'stubby', slot: 'legsFront', name: 'Stubby', tags: ['short'], dom: 0.5, w: 2, shapes: [...skBone(0, 0, 0, 10, 5)], extra: [L('M-3,10 L-4,13 M0,10 L0,13 M3,10 L4,13', 'k', 1.3)], stages: skLegStages }),
+  skLeg({ id: 'long', slot: 'legsFront', name: 'Long', tags: ['tall'], dom: 0.5, w: 2, shapes: [...skBone(0, 0, 2, 10, 3.6), ...skBone(2, 10, -1, 21, 3)], extra: [skJoint(2, 10), ...claws(-3, 3, 21, 3, 4)], stages: skLegStages }),
+  skLeg({ id: 'hoof', slot: 'legsFront', name: 'Hoof', tags: ['hoof'], dom: 0.5, w: 2, shapes: [...skBone(0, 0, 1, 8, 4), ...skBone(1, 8, 0, 15, 3.4), [[-4, 14], [4, 14], [5, 19], [-5, 19]]], extra: [skJoint(1, 8)], stages: skLegStages }),
+  skLeg({ id: 'claw', slot: 'legsFront', name: 'Clawed', tags: ['claw'], dom: 0.5, w: 2, shapes: [...skBone(0, 0, 1, 8, 4), ...skBone(1, 8, 2, 14, 3.4)], extra: [skJoint(1, 8), P('M-2,14 L-4,21 L1,15 Z', 'p', { sw: 1 }), P('M2,15 L3,22 L6,15 Z', 'p', { sw: 1 }), P('M6,13 L10,19 L9,13 Z', 'p', { sw: 1 })], stages: skLegStages }),
+];
+
+const SK_LEGS_BACK = [
+  skLeg({ id: 'hound', slot: 'legsBack', name: 'Hound', tags: ['lean'], dom: 0.5, w: 3, shapes: [...skBone(0, 0, -4, 7, 4.4), ...skBone(-4, 7, 1, 16, 3.4)], extra: [skJoint(-4, 7), ...claws(-2, 4, 16, 3, 4)], stages: skLegStages }),
+  skLeg({ id: 'heavy', slot: 'legsBack', name: 'Heavy', tags: ['thick'], dom: 0.55, w: 2, shapes: [...skBone(0, 0, -3, 9, 6), ...skBone(-3, 9, 0, 17, 5)], extra: [skJoint(-3, 9, 3), L('M-4,17 L-5,20 M0,17 L0,20 M4,17 L5,20', 'k', 1.4)], stages: skLegStages }),
+  skLeg({ id: 'bird', slot: 'legsBack', name: 'Bird', tags: ['thin'], dom: 0.45, w: 2, shapes: [...skBone(0, 0, -4, 7, 3), ...skBone(-4, 7, 0, 15, 2.6)], extra: [skJoint(-4, 7, 1.8), ...claws(-4, 4, 15, 3, 5)], stages: skLegStages }),
+  skLeg({ id: 'stubby', slot: 'legsBack', name: 'Stubby', tags: ['short'], dom: 0.5, w: 2, shapes: [...skBone(0, 0, 0, 10, 5)], extra: [L('M-3,10 L-4,13 M0,10 L0,13 M3,10 L4,13', 'k', 1.3)], stages: skLegStages }),
+  skLeg({ id: 'long', slot: 'legsBack', name: 'Long', tags: ['tall'], dom: 0.5, w: 2, shapes: [...skBone(0, 0, -4, 9, 3.6), ...skBone(-4, 9, 1, 21, 3)], extra: [skJoint(-4, 9), ...claws(-3, 3, 21, 3, 4)], stages: skLegStages }),
+  skLeg({ id: 'hoof', slot: 'legsBack', name: 'Hoof', tags: ['hoof'], dom: 0.5, w: 2, shapes: [...skBone(0, 0, -3, 8, 4), ...skBone(-3, 8, 0, 15, 3.4), [[-4, 14], [4, 14], [5, 19], [-5, 19]]], extra: [skJoint(-3, 8)], stages: skLegStages }),
+  skLeg({ id: 'spring', slot: 'legsBack', name: 'Sprung', tags: ['bent'], dom: 0.5, w: 2, shapes: [...skBone(0, 0, -8, 6, 4), ...skBone(-8, 6, -4, 13, 3.4), ...skBone(-4, 13, 3, 16, 3)], extra: [skJoint(-8, 6), skJoint(-4, 13, 1.8), ...claws(0, 6, 16, 3, 4)], stages: skLegStages }),
+];
+
+/** A spine: vertebrae along a centre line, tapering. */
+const skSpine = (pts, w0, w1) => [tube(pts, w0, w1, { tipK: 'c' })];
+const skVerts = (xs, y = 0) => L(xs.map((x) => `M${x},${y - 4} L${x},${y + 4}`).join(' '), 'k', 1.2, { op: 0.35 });
+
+const SK_TAILS = [
+  skPart({ id: 'spine', slot: 'tail', name: 'Spine', tags: ['plain'], dom: 0.5, w: 3, shapes: skSpine([[0, 0], [-12, 3], [-24, 2], [-34, -2]], 9, 2), extra: [skVerts([-6, -12, -18, -24], 1)], stages: skTailStages(-14, -2) }),
+  skPart({ id: 'club', slot: 'tail', name: 'Vertebra club', tags: ['heavy'], dom: 0.5, w: 2, shapes: [...skSpine([[0, 0], [-12, 3], [-22, 2]], 9, 5), { pts: [[-22, -6], [-30, -8], [-34, -2], [-32, 6], [-24, 8], [-20, 3]], f: 'p' }], extra: [skVerts([-6, -12, -18], 1), L('M-30,-4 L-33,-7 M-33,2 L-36,3', 'k', 1.3, { op: 0.6 })], stages: skTailStages(-12, -2) }),
+  skPart({ id: 'whip', slot: 'tail', name: 'Whip', tags: ['long'], dom: 0.5, w: 2, shapes: skSpine([[0, 0], [-14, 5], [-28, -2], [-42, -12]], 8, 1.5), extra: [skVerts([-7, -14, -21, -28, -35], 0)], stages: skTailStages(-14, -2) }),
+  skPart({ id: 'stub', slot: 'tail', name: 'Stub', tags: ['short'], dom: 0.45, w: 2, shapes: skSpine([[0, 0], [-8, 2], [-14, 2]], 8, 3), extra: [skVerts([-5, -10], 1)], stages: skTailStages(-8, -2) }),
+  skPart({ id: 'fishtail', slot: 'tail', name: 'Fin rays', tags: ['fish'], dom: 0.5, w: 2, shapes: [...skSpine([[0, 0], [-12, 2], [-24, 0]], 8, 3), [[-24, 0], [-38, -14], [-34, 0], [-38, 14]]], extra: [skVerts([-6, -12, -18], 0), L('M-24,0 L-36,-10 M-24,0 L-34,-2 M-24,0 L-36,10', 'k', 1, { op: 0.3 })], stages: skTailStages(-12, -2) }),
+  skPart({ id: 'rattle', slot: 'tail', name: 'Rattle', tags: ['rattle'], dom: 0.5, w: 2, shapes: [...skSpine([[0, 0], [-12, 3], [-24, 0]], 8, 4), { pts: [[-24, -4], [-30, -5], [-30, 5], [-24, 4]], f: 'p' }, { pts: [[-30, -4], [-35, -4], [-35, 4], [-30, 4]], f: 'p' }, { pts: [[-35, -3], [-39, -3], [-39, 3], [-35, 3]], f: 'p' }], extra: [skVerts([-6, -12, -18], 1)], stages: skTailStages(-12, -2) }),
+  skPart({ id: 'arrow', slot: 'tail', name: 'Arrow', tags: ['spade'], dom: 0.5, w: 2, shapes: [...skSpine([[0, 0], [-12, 3], [-26, -2]], 8, 2), [[-26, -2], [-38, -10], [-34, -2], [-38, 6]]], extra: [skVerts([-6, -12, -18], 1)], stages: skTailStages(-12, -2) }),
+];
+
+// ---- src/data/parts/skeletal/crest.js ----
+// Skeletal horns (on the brow, behind the skull), wings (bone wings from the spine, drawn behind the body) and the
+// heart light (a small glow set among the ribs, in front).
+// Evolutions: horns grow with the crown family; wings grow; lights ring then glow.
+
+
+
+
+
+const skGrow = { 2: { grow: [1.1, 1.1] }, 3: { grow: [1.12, 1.15] } };
+const skLightStages = (r) => ({ 2: { grow: [1.08, 1.08], add: [evoRing(0, 0, r * 1.5, 'a', 1, { op: 0.6 })] }, 3: { grow: [1.1, 1.1], add: [C(0, 0, r * 2.4, 'a', { ns: true, op: 0.16 })] } });
+const skFingers = (d) => L(d, 'p', 2.6);
+
+const SK_HORNS = [
+  NONE('horns', 0.3, 'k.'),
+  skPart({ id: 'antler', slot: 'horns', name: 'Antlers', tags: ['branch'], dom: 0.5, w: 3, extra: [L('M-3,0 L-9,-14 M-9,-14 L-16,-18 M-9,-14 L-8,-24 M-6,-7 L-12,-9 M3,0 L9,-14 M9,-14 L16,-18 M9,-14 L8,-24 M6,-7 L12,-9', 'p', 3.2), L('M-3,0 L-9,-14 M3,0 L9,-14', 'k', 0.9, { op: 0.25 })], stages: skGrow }),
+  skPart({ id: 'ram', slot: 'horns', name: 'Ram', tags: ['spiral'], dom: 0.5, w: 2, extra: [L(spiralPath(-8, -5, 8, 1.6, 180), 'p', 4.5), L(spiralPath(8, -5, 8, 1.6, 0), 'p', 4.5), L(spiralPath(-8, -5, 8, 1.6, 180), 'k', 0.9, { op: 0.25 }), L(spiralPath(8, -5, 8, 1.6, 0), 'k', 0.9, { op: 0.25 })], stages: skGrow }),
+  skPart({ id: 'straight', slot: 'horns', name: 'Straight', tags: ['horn'], dom: 0.5, w: 2, shapes: [[[-7, 1], [-14, -18, 'c'], [-2, 0]], [[2, 0], [6, -20, 'c'], [7, 1]]], extra: [HL('M-8,-3 L-12,-12 L-8,-6 Z', 0.25)], stages: skGrow }),
+  skPart({ id: 'crown', slot: 'horns', name: 'Bone crown', tags: ['royal'], dom: 0.5, w: 2, shapes: [{ pts: [[-12, 2], ...fur([-12, 2], [12, 2], 5, 10, { tip: 'c' }), [12, 5], [-12, 5]], f: 'p' }], extra: [C(-6, 0, 1, 'a', { ns: true, op: 0.7 }), C(6, 0, 1, 'a', { ns: true, op: 0.7 })], stages: skGrow }),
+  skPart({ id: 'single', slot: 'horns', name: 'Single horn', tags: ['unicorn'], dom: 0.5, w: 2, shapes: [[[-4, 1], [1, -24, 'c'], [5, 1]]], extra: [L('M-2,-3 L3,-5 M-1,-8 L3,-10 M0,-13 L3,-15', 'k', 0.9, { op: 0.3 })], stages: skGrow }),
+  skPart({ id: 'curved', slot: 'horns', name: 'Curved', tags: ['horn'], dom: 0.5, w: 2, shapes: [tube([[-4, 0], [-12, -8], [-18, -20]], 6, 1.5, { tipK: 'c' }), tube([[4, 0], [0, -10], [-4, -22]], 6, 1.5, { tipK: 'c' })], extra: [L('M-7,-3 L-12,-9 M2,-4 L-1,-11', 'k', 0.9, { op: 0.3 })], stages: skGrow }),
+  skPart({ id: 'nubs', slot: 'horns', name: 'Nubs', tags: ['small'], dom: 0.5, w: 2, extra: [C(-6, -2, 3.2, 'pd', { sw: 1.2 }), C(6, -2, 3.2, 'pd', { sw: 1.2 }), C(-7, -3, 0.9, 'w', { ns: true, op: 0.6 }), C(5, -3, 0.9, 'w', { ns: true, op: 0.6 })], stages: skGrow }),
+];
+
+const SK_WINGS = [
+  NONE('wings', 0.3, 'k.'),
+  skPart({ id: 'bare', slot: 'wings', name: 'Bare bones', tags: ['bone'], dom: 0.5, w: 3, extra: [skFingers('M0,0 L-10,-22 M-10,-22 L-30,-38 M-10,-22 L-36,-16 M-10,-22 L-34,4'), C(-10, -22, 2.4, 'pd', { sw: 1 })], stages: skGrow }),
+  skPart({ id: 'tattered', slot: 'wings', name: 'Tattered', tags: ['membrane'], dom: 0.5, w: 2, shapes: [{ pts: [[0, 0], [-6, -16], [-16, -30], [-30, -36, 'c'], [-26, -26], [-34, -20, 'c'], [-26, -16], [-36, -10, 'c'], [-28, -6], [-34, 4, 'c'], [-24, 0], [-10, 4]], f: 'sd' }], extra: [skFingers('M0,0 L-10,-22 M-10,-22 L-30,-36 M-10,-22 L-36,-10 M-10,-22 L-34,4'), C(-20, -14, 2, 'k', { ns: true, op: 0.4 })], stages: skGrow }),
+  skPart({ id: 'ribbed', slot: 'wings', name: 'Ribbed', tags: ['bone'], dom: 0.5, w: 2, extra: [skFingers('M0,0 C-8,-10 -14,-20 -16,-30 M-4,-4 C-14,-10 -22,-14 -32,-14 M-4,-2 C-14,-2 -24,0 -34,4'), L('M-16,-30 L-14,-24 M-32,-14 L-28,-10 M-34,4 L-30,2', 'p', 2)], stages: skGrow }),
+  skPart({ id: 'feather', slot: 'wings', name: 'Feather bones', tags: ['bird'], dom: 0.5, w: 2, extra: [skFingers('M0,0 L-8,-14 M-8,-14 L-36,-30 M-8,-14 L-38,-16 M-8,-14 L-36,-2 M-8,-14 L-30,10'), L('M-30,-30 L-36,-30 M-32,-16 L-38,-16 M-30,-2 L-36,-2', 'p', 1.6)], stages: skGrow }),
+  skPart({ id: 'stub', slot: 'wings', name: 'Stub', tags: ['small'], dom: 0.5, w: 2, extra: [skFingers('M0,0 L-6,-12 M-6,-12 L-18,-20 M-6,-12 L-22,-8'), C(-6, -12, 2, 'pd', { sw: 1 })], stages: skGrow }),
+  skPart({ id: 'wide', slot: 'wings', name: 'Wide', tags: ['big'], dom: 0.55, w: 2, extra: [skFingers('M0,0 L-12,-24 M-12,-24 L-40,-44 M-12,-24 L-46,-24 M-12,-24 L-44,0 M-12,-24 L-34,12'), C(-12, -24, 2.6, 'pd', { sw: 1 })], stages: skGrow }),
+  skPart({ id: 'fan', slot: 'wings', name: 'Fan', tags: ['fan'], dom: 0.5, w: 2, extra: [skFingers('M0,0 L-20,-30 M0,0 L-30,-22 M0,0 L-36,-8 M0,0 L-34,6 M0,0 L-26,16'), L('M-20,-30 C-28,-28 -34,-18 -36,-8 C-36,-2 -32,10 -26,16', 'p', 1.6, { op: 0.6 })], stages: skGrow }),
+];
+
+const SK_LIGHTS = [
+  NONE('light', 0.3, 'k.'),
+  skPart({ id: 'ember', slot: 'light', name: 'Ember', tags: ['fire'], dom: 0.5, w: 3, extra: [C(0, 0, 7, 'a', { ns: true, op: 0.2 }), C(0, 0, 3.6, 'a', { ns: true }), C(-1, -1, 1.2, 'w', { ns: true, op: 0.8 })], stages: skLightStages(3.6) }),
+  skPart({ id: 'flame', slot: 'light', name: 'Heart flame', tags: ['fire'], dom: 0.5, w: 2, extra: [C(0, -1, 8, 'a', { ns: true, op: 0.18 }), P(flamePath(0, -1, 7), 'a', { ns: true }), P(flamePath(0, 1, 3.6), 'w', { ns: true, op: 0.7 })], stages: skLightStages(4) }),
+  skPart({ id: 'orb', slot: 'light', name: 'Orb', tags: ['orb'], dom: 0.5, w: 2, extra: [C(0, 0, 8, 'a', { ns: true, op: 0.16 }), C(0, 0, 4.4, 'a', { sw: 1.2 }), C(-1.4, -1.4, 1.4, 'w', { ns: true, op: 0.85 })], stages: skLightStages(4.4) }),
+  skPart({ id: 'star', slot: 'light', name: 'Star', tags: ['star'], dom: 0.5, w: 2, extra: [C(0, 0, 8, 'a', { ns: true, op: 0.16 }), P(starPath(0, 0, 5.5, 5, 0.45), 'a', { ns: true }), C(0, 0, 1.2, 'w', { ns: true, op: 0.85 })], stages: skLightStages(4) }),
+  skPart({ id: 'moth', slot: 'light', name: 'Light moth', tags: ['moth'], dom: 0.5, w: 2, extra: [C(0, 0, 7, 'a', { ns: true, op: 0.16 }), P('M0,0 C-3,-5 -8,-5 -8,-1 C-8,2 -4,3 0,1 C4,3 8,2 8,-1 C8,-5 3,-5 0,0 Z', 'a', { ns: true }), L('M0,-1 L0,3', 'w', 1, { op: 0.7 })], stages: skLightStages(4) }),
+  skPart({ id: 'coal', slot: 'light', name: 'Coal', tags: ['dark'], dom: 0.5, w: 2, extra: [C(0, 0, 6, 'a', { ns: true, op: 0.14 }), P('M-4,-2 L-1,-4 L3,-3 L4,1 L1,4 L-3,3 Z', 'k', { ns: true, op: 0.9 }), L('M-2,-1 L2,1', 'a', 1.2, { op: 0.9 })], stages: skLightStages(3.4) }),
+  skPart({ id: 'gem', slot: 'light', name: 'Heart gem', tags: ['gem'], dom: 0.5, w: 2, extra: [C(0, 0, 8, 'a', { ns: true, op: 0.16 }), P(diamondPath(0, 0, 7, 9), 'a', { ns: true }), P('M-2,-2.6 L0.4,-4.2 L0,-0.6 Z', 'w', { ns: true, op: 0.8 })], stages: skLightStages(4.2) }),
+];
+
+// ---- src/data/parts/skeletal/dress.js ----
+// Skeletal shrouds (what hangs from the spine, drawn behind at the back socket) and cracks (a pattern clipped to
+// the ribcage, 100 x 60 frame).
+// Evolutions: shrouds grow; cracks are flat.
+
+
+
+const skGrowDress = { 2: { grow: [1.1, 1.1] }, 3: { grow: [1.12, 1.15] } };
+const skStrand = (x0, y0, x1, y1) => `M${x0},${y0} C${x0},${(y0 + y1) / 2} ${x1},${(y0 + y1) / 2} ${x1},${y1} `;
+
+const SK_SHROUDS = [
+  NONE('shroud', 0.3, 'k.'),
+  skPart({ id: 'tatters', slot: 'shroud', name: 'Tatters', tags: ['cloth'], dom: 0.5, w: 3, shapes: [{ pts: [[-18, -2], [18, -2], [16, 14], [12, 22, 'c'], [8, 12], [2, 26, 'c'], [-2, 14], [-8, 24, 'c'], [-12, 12], [-18, 18, 'c']], f: 's' }], extra: [L('M-8,2 L-10,14 M4,2 L4,12', 'k', 0.9, { op: 0.25 })], stages: skGrowDress }),
+  skPart({ id: 'moss', slot: 'shroud', name: 'Moss', tags: ['green'], dom: 0.5, w: 2, shapes: [{ pts: puff(0, -2, 18, 10, 4), f: 'a' }], extra: [L(skStrand(-12, 6, -14, 22) + skStrand(2, 8, 4, 24) + skStrand(12, 6, 16, 20), 'a', 2.2)], stages: skGrowDress }),
+  skPart({ id: 'cobwebs', slot: 'shroud', name: 'Cobwebs', tags: ['thread'], dom: 0.45, w: 2, extra: [L('M-16,-4 L-20,20 M-8,-6 L-8,24 M2,-6 L4,22 M12,-4 L18,18 M-18,6 C-8,10 6,10 16,6 M-19,14 C-8,18 6,18 17,12', 'sl', 1.1, { op: 0.85 })], stages: skGrowDress }),
+  skPart({ id: 'cape', slot: 'shroud', name: 'Cape', tags: ['cloth'], dom: 0.5, w: 2, shapes: [{ pts: [[-16, -4], [16, -4], [22, 24], [0, 30], [-22, 24]], f: 's' }], extra: [L('M-6,0 C-8,12 -8,20 -6,28 M6,0 C8,12 8,20 6,28', 'k', 1, { op: 0.2 })], stages: skGrowDress }),
+  skPart({ id: 'bandages', slot: 'shroud', name: 'Bandages', tags: ['wrapped'], dom: 0.5, w: 2, extra: [L(skStrand(-14, -2, -18, 26) + skStrand(-4, 0, -2, 28) + skStrand(8, -2, 14, 24), 's', 3.4), L(skStrand(-14, -2, -18, 26) + skStrand(8, -2, 14, 24), 'k', 0.8, { op: 0.25 })], stages: skGrowDress }),
+  skPart({ id: 'roots', slot: 'shroud', name: 'Roots', tags: ['root'], dom: 0.5, w: 2, extra: [L('M-12,-2 C-16,8 -12,16 -18,26 M-12,10 L-20,14 M2,-2 C4,8 0,16 4,26 M2,12 L8,16 M12,-2 C16,6 12,14 18,22', 'pd', 2.6), L('M-12,-2 C-16,8 -12,16 -18,26 M2,-2 C4,8 0,16 4,26', 'k', 0.8, { op: 0.25 })], stages: skGrowDress }),
+  skPart({ id: 'mist', slot: 'shroud', name: 'Grave mist', tags: ['soft'], dom: 0.45, w: 2, extra: [P(spline(puff(-8, 10, 12, 8, 3)), 'w', { ns: true, op: 0.14 }), P(spline(puff(10, 14, 11, 8, 3)), 'w', { ns: true, op: 0.14 }), P(spline(puff(0, 22, 16, 9, 3)), 'w', { ns: true, op: 0.1 })], stages: skGrowDress }),
+];
+
+const SK_CRACKS = [
+  NONE('cracks', 0.3, 'k.'),
+  skPart({ id: 'cracks', slot: 'cracks', name: 'Cracks', tags: ['crack'], dom: 0.5, w: 3, extra: [L('M-30,-14 L-22,-4 L-26,10 M-6,-24 L0,-10 L-8,4 L-2,18 M18,-18 L14,-4 L24,8', 'k', 1.5, { op: 0.45 })] }),
+  skPart({ id: 'runes', slot: 'cracks', name: 'Runes', tags: ['glyph'], dom: 0.5, w: 2, extra: [L('M-30,-10 L-30,6 M-34,-6 L-26,-6 M-14,-12 L-8,-2 L-14,8 M4,-12 L4,8 M0,-4 L8,-4 M20,-12 L26,-2 L20,8 M16,-2 L30,-2', 'a', 1.6, { op: 0.9 })] }),
+  skPart({ id: 'moss', slot: 'cracks', name: 'Moss patches', tags: ['moss'], dom: 0.5, w: 2, extra: [PATCH(spline(puff(-20, 6, 9, 7, 3)), 'a'), PATCH(spline(puff(16, -10, 8, 7, 3)), 'a'), PATCH(spline(puff(28, 12, 6, 6, 2)), 'a')] }),
+  skPart({ id: 'bands', slot: 'cracks', name: 'Bandage bands', tags: ['wrapped'], dom: 0.5, w: 2, extra: [P('M-50,-14 C-25,-8 25,-18 50,-12 L50,-6 C25,-12 -25,-2 -50,-8 Z', 's', { ns: true, op: 0.9 }), P('M-50,8 C-25,14 25,4 50,10 L50,16 C25,10 -25,20 -50,14 Z', 's', { ns: true, op: 0.9 })] }),
+  skPart({ id: 'scorch', slot: 'cracks', name: 'Scorch', tags: ['burnt'], dom: 0.5, w: 2, extra: [P('M-50,30 C-30,18 -10,26 10,14 C26,6 40,18 50,10 L50,30 Z', 'k', { ns: true, op: 0.32 }), L('M-26,20 L-20,10 M4,16 L8,6 M30,14 L36,4', 'a', 1.2, { op: 0.8 })] }),
+  skPart({ id: 'frost', slot: 'cracks', name: 'Frost', tags: ['ice'], dom: 0.5, w: 2, extra: [L('M-34,-6 L-24,-14 L-20,-4 M-24,-14 L-26,-24 M2,-20 L6,-8 L-2,0 M6,-8 L16,-10 M22,10 L30,0 L36,8 M30,0 L28,-10', 'w', 1.3, { ns: true, op: 0.55 })] }),
+  skPart({ id: 'gilt', slot: 'cracks', name: 'Gilt veins', tags: ['gold'], dom: 0.5, w: 2, extra: [L('M-40,10 C-28,-2 -14,14 0,0 C12,-12 26,10 40,-4', 'a', 1.6, { op: 0.9 }), L('M-20,-16 C-12,-8 -6,-14 2,-6 M10,16 C18,8 26,18 34,10', 'a', 1.2, { op: 0.8 })] }),
+];
+
+// ---- src/data/parts/skeletal/index.js ----
+// The skeletal library, one list per rig slot.
+
+
+
+
+
+
+
+const SKELETAL_PARTS = {
+  body: SK_BODIES, head: SK_HEADS, eyes: SK_EYES, jaw: SK_JAWS, legsFront: SK_LEGS_FRONT, legsBack: SK_LEGS_BACK,
+  tail: SK_TAILS, horns: SK_HORNS, wings: SK_WINGS, light: SK_LIGHTS, shroud: SK_SHROUDS, cracks: SK_CRACKS,
+};
+
 // ---- src/data/parts/index.js ----
 // Part registry. Part ids are stable forever: a saved creature must decode the
 // same way after the library grows, so never rename or reuse an id.
 //
 // Parts are grouped by rig, then slot. A part fits any body of its own rig
 // unless it lists the body kinds it accepts in `fit`.
+
 
 
 
@@ -8143,6 +8476,7 @@ const RIG_PARTS = {
   fungus: FUNGUS_PARTS,
   wyrm: WYRM_PARTS,
   draconic: DRACONIC_PARTS,
+  skeletal: SKELETAL_PARTS,
 };
 
 const PARTS = new Map();
@@ -10285,6 +10619,147 @@ const SPECIES = [
     abilities: ['purebred','steady'],
     desc: 'The eldest thing on the mountain and it will tell you so. Speaks in your head and does not wait for answers.',
   },
+  // ---- Roster expansion: skeletals ----
+  {
+    id: 'bonepup', name: 'Bonepup', nameParts: ['Bone', 'pup'], clade: 'skeletal', rig: 'skeletal', types: ['Ghost'], tier: 'common', bst: 400,
+    stats: { hp: 0.14, melee: 0.21, ranged: 0.08, magic: 0.08, meleeDef: 0.12, rangedDef: 0.1, magicDef: 0.1, spe: 0.17 },
+    recipe: { body: 'k.body.ribcage', head: 'k.head.canine', eyes: 'k.eyes.ember', jaw: 'k.jaw.fangs', legsFront: 'k.legsFront.hound', legsBack: 'k.legsBack.hound', tail: 'k.tail.spine', horns: ['k.horns.nubs', 'k.horns.none'], wings: 'k.wings.none', light: ['k.light.ember', 'k.light.none'], shroud: 'k.shroud.none', cracks: ['k.cracks.cracks', 'k.cracks.none'] },
+    palette: { c1: [42, 25, 84], c2: [40, 20, 62], c3: [140, 70, 60], eye: [140, 85, 62] }, vary: { h: 6, s: 6, l: 5 },
+    traits: T([0.25, 0.5], [0.5, 0.75], [0.3, 0.5], MID, MID, [0.5, 0.8]),
+    learnset: [[1,'cold_lick'],[1,'glare'],[6,'bump'],[11,'shade_step'],[16,'haunt'],[22,'headbonk'],[28,'phantom_claw'],[34,'brace'],[40,'rake'],[46,'ram'],[52,'reckless_charge']],
+    abilities: ['grit','loose_joints'],
+    desc: 'A dog that forgot to stop. Buries bones it already owns, then digs them up and wags at nothing.',
+  },
+  {
+    id: 'marrowhound', name: 'Marrowhound', nameParts: ['Marrow', 'hound'], clade: 'skeletal', rig: 'skeletal', types: ['Ghost', 'Dark'], tier: 'uncommon', bst: 440,
+    stats: { hp: 0.12, melee: 0.22, ranged: 0.09, magic: 0.07, meleeDef: 0.1, rangedDef: 0.1, magicDef: 0.09, spe: 0.21 },
+    recipe: { body: 'k.body.ribcage', head: 'k.head.canine', eyes: 'k.eyes.pinprick', jaw: 'k.jaw.grin', legsFront: 'k.legsFront.long', legsBack: 'k.legsBack.long', tail: 'k.tail.whip', horns: 'k.horns.none', wings: 'k.wings.none', light: ['k.light.coal', 'k.light.none'], shroud: ['k.shroud.tatters', 'k.shroud.none'], cracks: ['k.cracks.scorch', 'k.cracks.none'] },
+    palette: { c1: [35, 15, 70], c2: [30, 15, 45], c3: [10, 80, 55], eye: [8, 90, 58] }, vary: { h: 6, s: 6, l: 5 },
+    traits: T([0.4, 0.65], [0.4, 0.6], [0.55, 0.8], [0.55, 0.85], MID, [0.3, 0.55]),
+    learnset: [[1,'cold_lick'],[1,'glare'],[6,'cheap_shot'],[11,'shade_step'],[16,'chomp'],[22,'scheme'],[28,'phantom_claw'],[34,'dusk_slash'],[40,'haunt'],[46,'crush_bite'],[52,'blur']],
+    abilities: ['umbral_core','restless'],
+    desc: 'Runs the barrow paths at night and never tires, because there is nothing left in it to tire.',
+  },
+  {
+    id: 'cragskull', name: 'Cragskull', nameParts: ['Crag', 'skull'], clade: 'skeletal', rig: 'skeletal', types: ['Ghost', 'Rock'], tier: 'uncommon', bst: 445,
+    stats: { hp: 0.16, melee: 0.2, ranged: 0.07, magic: 0.06, meleeDef: 0.17, rangedDef: 0.13, magicDef: 0.12, spe: 0.09 },
+    recipe: { body: 'k.body.barrel', head: 'k.head.ram', eyes: 'k.eyes.hollow', jaw: 'k.jaw.tusked', legsFront: 'k.legsFront.heavy', legsBack: 'k.legsBack.heavy', tail: 'k.tail.club', horns: ['k.horns.ram', 'k.horns.none'], wings: 'k.wings.none', light: 'k.light.none', shroud: ['k.shroud.moss', 'k.shroud.none'], cracks: ['k.cracks.bands', 'k.cracks.none'] },
+    palette: { c1: [38, 18, 72], c2: [35, 12, 50], c3: [95, 30, 55], eye: [50, 30, 85] }, vary: { h: 6, s: 5, l: 5 },
+    traits: T([0.5, 0.8], [0.5, 0.75], [0.3, 0.5], [0.3, 0.5], MID, [0.3, 0.5]),
+    learnset: [[1,'cold_lick'],[1,'brace'],[6,'bump'],[11,'rock_smash'],[16,'shade_step'],[22,'smooth_stone'],[28,'phantom_claw'],[34,'headbonk'],[40,'haunt'],[46,'boulder_bash'],[52,'ram']],
+    abilities: ['stone_heart','thick_skull'],
+    desc: 'Half fossil, half grudge. It stood in the same spot so long the hill grew over it, and it is still annoyed.',
+  },
+  {
+    id: 'tombwing', name: 'Tombwing', nameParts: ['Tomb', 'wing'], clade: 'skeletal', rig: 'skeletal', types: ['Ghost', 'Flying'], tier: 'uncommon', bst: 435,
+    stats: { hp: 0.12, melee: 0.08, ranged: 0.22, magic: 0.09, meleeDef: 0.09, rangedDef: 0.11, magicDef: 0.1, spe: 0.19 },
+    recipe: { body: 'k.body.keel', head: 'k.head.beaked', eyes: 'k.eyes.ghostlight', jaw: 'k.jaw.beak', legsFront: 'k.legsFront.bird', legsBack: 'k.legsBack.bird', tail: 'k.tail.arrow', horns: 'k.horns.none', wings: ['k.wings.tattered', 'k.wings.none'], light: ['k.light.orb', 'k.light.none'], shroud: 'k.shroud.none', cracks: 'k.cracks.none' },
+    palette: { c1: [45, 20, 86], c2: [220, 15, 60], c3: [190, 70, 68], eye: [190, 85, 70] }, vary: { h: 6, s: 6, l: 5 },
+    traits: T([0.3, 0.55], [0.4, 0.6], [0.35, 0.55], [0.5, 0.75], [0.6, 0.9], [0.5, 0.8]),
+    learnset: [[1,'gale'],[1,'glare'],[6,'soul_dart'],[11,'slipstream'],[16,'haunt'],[22,'wind_cutter'],[28,'shout'],[34,'grave_volley'],[40,'preen'],[46,'tempest_shot'],[52,'night_volley']],
+    abilities: ['gale_heart','hover'],
+    desc: 'Flies on wings with no skin left between the fingers. Whatever is holding it up, it is not the air.',
+  },
+  {
+    id: 'rattleworm', name: 'Rattleworm', nameParts: ['Rattle', 'worm'], clade: 'skeletal', rig: 'skeletal', types: ['Ghost', 'Poison'], tier: 'common', bst: 405,
+    stats: { hp: 0.14, melee: 0.08, ranged: 0.21, magic: 0.08, meleeDef: 0.11, rangedDef: 0.12, magicDef: 0.11, spe: 0.15 },
+    recipe: { body: 'k.body.coil', head: 'k.head.serpent', eyes: 'k.eyes.twin', jaw: 'k.jaw.needle', legsFront: 'k.legsFront.stubby', legsBack: 'k.legsBack.stubby', tail: 'k.tail.rattle', horns: 'k.horns.none', wings: 'k.wings.none', light: 'k.light.none', shroud: ['k.shroud.cobwebs', 'k.shroud.none'], cracks: ['k.cracks.runes', 'k.cracks.none'] },
+    palette: { c1: [50, 25, 80], c2: [80, 25, 55], c3: [90, 80, 55], eye: [90, 90, 60] }, vary: { h: 8, s: 6, l: 5 },
+    traits: T([0.3, 0.55], [0.4, 0.6], [0.2, 0.4], [0.6, 0.9], MID, [0.4, 0.65]),
+    learnset: [[1,'acid_spit'],[1,'glare'],[6,'soul_dart'],[11,'venom_prick'],[16,'blight'],[22,'bone_rattle'],[28,'haunt'],[34,'grave_volley'],[40,'sludge_blast'],[46,'slime_coat'],[52,'sludge_hurl']],
+    abilities: ['venom_heart','loose_joints'],
+    desc: 'A spine that kept going after the rest gave up. The rattle at the end is a warning it never bothers to give in time.',
+  },
+  {
+    id: 'frostbones', name: 'Frostbones', nameParts: ['Frost', 'bones'], clade: 'skeletal', rig: 'skeletal', types: ['Ghost', 'Ice'], tier: 'uncommon', bst: 430,
+    stats: { hp: 0.15, melee: 0.07, ranged: 0.08, magic: 0.22, meleeDef: 0.12, rangedDef: 0.11, magicDef: 0.14, spe: 0.11 },
+    recipe: { body: 'k.body.ribcage', head: 'k.head.feline', eyes: 'k.eyes.gem', jaw: 'k.jaw.fangs', legsFront: 'k.legsFront.long', legsBack: 'k.legsBack.spring', tail: 'k.tail.spine', horns: ['k.horns.antler', 'k.horns.none'], wings: 'k.wings.none', light: ['k.light.star', 'k.light.none'], shroud: ['k.shroud.mist', 'k.shroud.none'], cracks: ['k.cracks.frost', 'k.cracks.none'] },
+    palette: { c1: [200, 20, 88], c2: [205, 25, 65], c3: [195, 85, 72], eye: [200, 90, 72] }, vary: { h: 6, s: 6, l: 4 },
+    traits: T([0.35, 0.6], MID, [0.5, 0.75], [0.5, 0.75], MID, [0.4, 0.65]),
+    learnset: [[1,'chill_gust'],[1,'glare'],[6,'cold_lick'],[11,'haunt'],[16,'sleet'],[22,'brace'],[28,'curse_bolt'],[34,'glacier_ray'],[40,'mend'],[46,'umbral_orb'],[52,'whiteout']],
+    abilities: ['frost_heart','steady'],
+    desc: 'Found under the snowline with frost still growing on it. The cold did not kill it. The cold is what it is.',
+  },
+  {
+    id: 'pyreskull', name: 'Pyreskull', nameParts: ['Pyre', 'skull'], clade: 'skeletal', rig: 'skeletal', types: ['Ghost', 'Fire'], tier: 'uncommon', bst: 440,
+    stats: { hp: 0.13, melee: 0.08, ranged: 0.09, magic: 0.23, meleeDef: 0.1, rangedDef: 0.1, magicDef: 0.12, spe: 0.15 },
+    recipe: { body: 'k.body.barrel', head: 'k.head.brute', eyes: 'k.eyes.blaze', jaw: 'k.jaw.split', legsFront: 'k.legsFront.claw', legsBack: 'k.legsBack.hound', tail: 'k.tail.whip', horns: ['k.horns.curved', 'k.horns.none'], wings: 'k.wings.none', light: ['k.light.flame', 'k.light.none'], shroud: 'k.shroud.none', cracks: ['k.cracks.scorch', 'k.cracks.none'] },
+    palette: { c1: [35, 20, 70], c2: [20, 25, 40], c3: [30, 100, 58], eye: [30, 100, 60] }, vary: { h: 6, s: 5, l: 5 },
+    traits: T([0.4, 0.65], [0.55, 0.8], [0.35, 0.55], [0.5, 0.75], MID, [0.5, 0.8]),
+    learnset: [[1,'flare'],[1,'glare'],[6,'cold_lick'],[11,'haunt'],[16,'cinder'],[22,'ghostflame'],[28,'curse_bolt'],[34,'heat_wave'],[40,'mend'],[46,'umbral_orb'],[52,'meltdown']],
+    abilities: ['ember_heart','umbral_core'],
+    desc: 'Walked out of its own funeral pyre still burning and has not been put out since. Smells of old smoke.',
+  },
+  {
+    id: 'fossilfin', name: 'Fossilfin', nameParts: ['Fossil', 'fin'], clade: 'skeletal', rig: 'skeletal', types: ['Ghost', 'Water'], tier: 'common', bst: 410,
+    stats: { hp: 0.14, melee: 0.08, ranged: 0.21, magic: 0.09, meleeDef: 0.12, rangedDef: 0.13, magicDef: 0.1, spe: 0.13 },
+    recipe: { body: 'k.body.fishbone', head: 'k.head.fish', eyes: 'k.eyes.hollow', jaw: 'k.jaw.needle', legsFront: 'k.legsFront.stubby', legsBack: 'k.legsBack.stubby', tail: 'k.tail.fishtail', horns: 'k.horns.none', wings: ['k.wings.fan', 'k.wings.none'], light: ['k.light.orb', 'k.light.none'], shroud: 'k.shroud.none', cracks: ['k.cracks.bands', 'k.cracks.none'] },
+    palette: { c1: [45, 25, 78], c2: [30, 25, 55], c3: [180, 60, 60], eye: [180, 70, 65] }, vary: { h: 8, s: 6, l: 5 },
+    traits: T([0.3, 0.55], [0.5, 0.75], [0.2, 0.4], [0.55, 0.85], [0.4, 0.65], [0.5, 0.8]),
+    learnset: [[1,'squirt'],[1,'glare'],[6,'soul_dart'],[11,'jetstream'],[16,'water_jet'],[22,'haunt'],[28,'boiling_jet'],[34,'grave_volley'],[40,'brace'],[46,'geyser'],[52,'bellow']],
+    abilities: ['tide_heart','hawkeye'],
+    desc: 'A fish skeleton that swims through dry ground as if it were still the seabed it remembers. It is, geologically.',
+  },
+  {
+    id: 'ironrib', name: 'Ironrib', nameParts: ['Iron', 'rib'], clade: 'skeletal', rig: 'skeletal', types: ['Ghost', 'Steel'], tier: 'uncommon', bst: 450,
+    stats: { hp: 0.15, melee: 0.2, ranged: 0.07, magic: 0.06, meleeDef: 0.18, rangedDef: 0.14, magicDef: 0.11, spe: 0.09 },
+    recipe: { body: 'k.body.barrel', head: 'k.head.brute', eyes: 'k.eyes.pinprick', jaw: 'k.jaw.slack', legsFront: 'k.legsFront.heavy', legsBack: 'k.legsBack.heavy', tail: 'k.tail.club', horns: ['k.horns.straight', 'k.horns.none'], wings: 'k.wings.none', light: ['k.light.gem', 'k.light.none'], shroud: ['k.shroud.bandages', 'k.shroud.none'], cracks: ['k.cracks.gilt', 'k.cracks.none'] },
+    palette: { c1: [40, 12, 78], c2: [210, 8, 55], c3: [45, 80, 62], eye: [45, 90, 65] }, vary: { h: 5, s: 5, l: 5 },
+    traits: T([0.5, 0.8], [0.5, 0.75], [0.35, 0.55], [0.3, 0.5], MID, [0.25, 0.45]),
+    learnset: [[1,'cold_lick'],[1,'plate_up'],[6,'bolt_jab'],[11,'iron_claw'],[16,'shade_step'],[22,'brace'],[28,'steel_fin'],[34,'phantom_claw'],[40,'steel_ram'],[46,'comet_fist'],[52,'chrome_slam']],
+    abilities: ['iron_hide','bulwark'],
+    desc: 'Somebody riveted plates over the worst of the breaks. It does not remember who, but it keeps the bolts polished.',
+  },
+  {
+    id: 'gravemaw', name: 'Gravemaw', nameParts: ['Grave', 'maw'], clade: 'skeletal', rig: 'skeletal', types: ['Ghost', 'Ground'], tier: 'common', bst: 415,
+    stats: { hp: 0.17, melee: 0.21, ranged: 0.07, magic: 0.07, meleeDef: 0.14, rangedDef: 0.12, magicDef: 0.1, spe: 0.12 },
+    recipe: { body: 'k.body.giant', head: 'k.head.brute', eyes: 'k.eyes.ember', jaw: 'k.jaw.tusked', legsFront: 'k.legsFront.claw', legsBack: 'k.legsBack.heavy', tail: 'k.tail.stub', horns: ['k.horns.single', 'k.horns.none'], wings: 'k.wings.none', light: 'k.light.none', shroud: ['k.shroud.roots', 'k.shroud.none'], cracks: ['k.cracks.moss', 'k.cracks.none'] },
+    palette: { c1: [40, 20, 74], c2: [30, 25, 40], c3: [110, 55, 50], eye: [20, 90, 55] }, vary: { h: 6, s: 6, l: 5 },
+    traits: T([0.55, 0.85], [0.55, 0.8], [0.4, 0.6], [0.2, 0.4], MID, [0.4, 0.65]),
+    learnset: [[1,'cold_lick'],[1,'glare'],[6,'stampede'],[11,'shade_step'],[16,'dust_kick'],[22,'headbonk'],[28,'phantom_claw'],[34,'bull_rush'],[40,'haunt'],[46,'quake_stomp'],[52,'reckless_charge']],
+    abilities: ['quake_core','vice_jaw'],
+    desc: 'Digs its way up through the barrow floor whenever something walks over it. Roots come up with it.',
+  },
+  {
+    id: 'wispbone', name: 'Wispbone', nameParts: ['Wisp', 'bone'], clade: 'skeletal', rig: 'skeletal', types: ['Ghost', 'Psychic'], tier: 'rare', bst: 465,
+    stats: { hp: 0.12, melee: 0.06, ranged: 0.09, magic: 0.23, meleeDef: 0.1, rangedDef: 0.11, magicDef: 0.14, spe: 0.15 },
+    recipe: { body: 'k.body.keel', head: 'k.head.feline', eyes: 'k.eyes.ghostlight', jaw: 'k.jaw.grin', legsFront: 'k.legsFront.long', legsBack: 'k.legsBack.spring', tail: 'k.tail.arrow', horns: ['k.horns.crown', 'k.horns.none'], wings: ['k.wings.ribbed', 'k.wings.none'], light: ['k.light.moth', 'k.light.none'], shroud: ['k.shroud.mist', 'k.shroud.none'], cracks: ['k.cracks.runes', 'k.cracks.none'] },
+    palette: { c1: [260, 20, 88], c2: [265, 25, 65], c3: [280, 80, 72], eye: [285, 90, 72] }, vary: { h: 8, s: 6, l: 4 },
+    traits: T([0.35, 0.6], [0.45, 0.7], [0.5, 0.75], [0.55, 0.85], [0.35, 0.6], [0.55, 0.85]),
+    learnset: [[1,'mind_jolt'],[1,'glare'],[6,'cold_lick'],[11,'meditate'],[16,'curse_bolt'],[22,'haunt'],[28,'thought_beam'],[34,'umbral_orb'],[40,'lull'],[46,'mind_crush'],[52,'psystorm']],
+    abilities: ['umbral_core','finesse'],
+    desc: 'The bones are only half there and the rest is a thought it keeps having. Reads yours before you finish them.',
+  },
+  {
+    id: 'mosstomb', name: 'Mosstomb', nameParts: ['Moss', 'tomb'], clade: 'skeletal', rig: 'skeletal', types: ['Ghost', 'Grass'], tier: 'common', bst: 405,
+    stats: { hp: 0.17, melee: 0.08, ranged: 0.08, magic: 0.2, meleeDef: 0.13, rangedDef: 0.12, magicDef: 0.13, spe: 0.09 },
+    recipe: { body: 'k.body.wrapped', head: 'k.head.ram', eyes: 'k.eyes.hollow', jaw: 'k.jaw.slack', legsFront: 'k.legsFront.hoof', legsBack: 'k.legsBack.hoof', tail: 'k.tail.stub', horns: ['k.horns.antler', 'k.horns.none'], wings: 'k.wings.none', light: ['k.light.orb', 'k.light.none'], shroud: ['k.shroud.roots', 'k.shroud.none'], cracks: ['k.cracks.moss', 'k.cracks.none'] },
+    palette: { c1: [55, 25, 78], c2: [100, 30, 42], c3: [130, 60, 55], eye: [140, 70, 60] }, vary: { h: 8, s: 6, l: 5 },
+    traits: T([0.4, 0.7], [0.5, 0.75], [0.3, 0.5], [0.2, 0.4], MID, [0.35, 0.6]),
+    learnset: [[1,'vine_lash'],[1,'glare'],[6,'cold_lick'],[11,'drowse_dust'],[16,'curse_bolt'],[22,'sap_drain'],[28,'haunt'],[34,'umbral_orb'],[40,'photosynth'],[46,'sunlance'],[52,'echo_burst']],
+    abilities: ['regrowth','bloom_heart'],
+    desc: 'A stag that lay down in the moss and let the forest have it. The forest gave it back, mostly.',
+  },
+  {
+    id: 'voltskull', name: 'Voltskull', nameParts: ['Volt', 'skull'], clade: 'skeletal', rig: 'skeletal', types: ['Ghost', 'Electric'], tier: 'uncommon', bst: 435,
+    stats: { hp: 0.12, melee: 0.08, ranged: 0.22, magic: 0.1, meleeDef: 0.09, rangedDef: 0.1, magicDef: 0.09, spe: 0.2 },
+    recipe: { body: 'k.body.keel', head: 'k.head.beaked', eyes: 'k.eyes.twin', jaw: 'k.jaw.beak', legsFront: 'k.legsFront.bird', legsBack: 'k.legsBack.bird', tail: 'k.tail.spine', horns: ['k.horns.crown', 'k.horns.none'], wings: ['k.wings.feather', 'k.wings.none'], light: ['k.light.star', 'k.light.none'], shroud: 'k.shroud.none', cracks: ['k.cracks.runes', 'k.cracks.none'] },
+    palette: { c1: [50, 20, 85], c2: [225, 20, 60], c3: [55, 100, 62], eye: [55, 100, 65] }, vary: { h: 6, s: 5, l: 5 },
+    traits: T([0.3, 0.55], [0.45, 0.7], [0.4, 0.6], [0.5, 0.75], [0.45, 0.7], [0.5, 0.8]),
+    learnset: [[1,'zap'],[1,'glare'],[6,'soul_dart'],[11,'static_net'],[16,'haunt'],[22,'numb_pulse'],[28,'shout'],[34,'grave_volley'],[40,'brace'],[46,'skyfall_bolt'],[52,'bellow']],
+    abilities: ['capacitor','quick_start'],
+    desc: 'Struck by lightning after it was already dead, which seems unfair. The charge never left the bones.',
+  },
+  {
+    id: 'dreadrake', name: 'Dreadrake', nameParts: ['Dread', 'rake'], clade: 'skeletal', rig: 'skeletal', types: ['Ghost', 'Dragon'], tier: 'rare', bst: 470,
+    stats: { hp: 0.15, melee: 0.09, ranged: 0.08, magic: 0.22, meleeDef: 0.12, rangedDef: 0.11, magicDef: 0.12, spe: 0.11 },
+    recipe: { body: 'k.body.giant', head: 'k.head.serpent', eyes: 'k.eyes.blaze', jaw: 'k.jaw.fangs', legsFront: 'k.legsFront.claw', legsBack: 'k.legsBack.hound', tail: 'k.tail.arrow', horns: ['k.horns.curved', 'k.horns.none'], wings: ['k.wings.wide', 'k.wings.none'], light: ['k.light.flame', 'k.light.none'], shroud: ['k.shroud.cape', 'k.shroud.none'], cracks: ['k.cracks.gilt', 'k.cracks.none'] },
+    palette: { c1: [30, 15, 66], c2: [280, 20, 35], c3: [275, 85, 60], eye: [275, 95, 65] }, vary: { h: 6, s: 6, l: 5 },
+    traits: T([0.55, 0.85], [0.5, 0.75], [0.4, 0.6], [0.55, 0.85], [0.55, 0.85], [0.5, 0.8]),
+    learnset: [[1,'cold_lick'],[1,'glare'],[6,'wyrm_breath'],[11,'haunt'],[16,'curse_bolt'],[22,'wyrm_claw'],[28,'umbral_orb'],[34,'wyrm_pulse'],[40,'wyrm_dance'],[46,'dread_pulse'],[52,'comet_roar']],
+    abilities: ['purebred','menace'],
+    desc: 'The dragon that the barrows were dug around. It does not sleep so much as wait, and it has been very patient.',
+  },
 ];
 
 const SPECIES_BY_ID = Object.fromEntries(SPECIES.map((s) => [s.id, s]));
@@ -10953,6 +11428,7 @@ const CLADES = {
   fungus: { name: 'Fungus', plural: 'Fungi', linked: [['head', 'roots']], desc: 'Walking mushrooms. A cap for a hat, a face on the stalk, roots for feet.' },
   wyrm: { name: 'Wyrm', plural: 'Wyrms', linked: [['mane', 'tail']], desc: 'Serpentine dragons. Long coils, whiskers, small legs and long tails.' },
   draconic: { name: 'Draconic', plural: 'Draconic', linked: [['legsFront', 'legsBack']], desc: 'True dragons. Four legs, two wings, horns and a breath.' },
+  skeletal: { name: 'Skeletal', plural: 'Skeletals', linked: [['legsFront', 'legsBack']], desc: 'Walking bone. Skulls, ribcages and a light where the heart was.' },
 };
 
 const CLADE_IDS = Object.keys(CLADES);
@@ -11454,6 +11930,8 @@ const SLOT_FAMILY = {
   maw: 'face', whiskers: 'crown', plates: 'fur', bands: 'flat',
   // draconic
   breath: 'face',
+  // skeletal
+  light: 'face', shroud: 'fur', cracks: 'flat',
 };
 function growthFor(slot) { return SLOT_GROWTH[SLOT_FAMILY[slot] || 'face']; }
 
@@ -11790,6 +12268,14 @@ POSES.draconic = mergePose(quadCore, {
   poise: { wings: { da: 8 }, spines: { ds: 1.05 }, horns: { ds: 1.03 } },
   attack: { jaw: { da: 12 }, wings: { da: 20, far: { da: 12 } }, breath: { ds: 1.25, dx: 2 }, spines: { ds: 1.05 } },
   hurt: { jaw: { da: 14 }, wings: { da: 26, far: { da: 16 } }, horns: { da: -6 } },
+});
+
+POSES.skeletal = mergePose(quadCore, {
+  brace: { jaw: { da: 4 }, wings: { da: -4 } },
+  crouch: { wings: { da: -8 }, shroud: { ds: 1.04 } },
+  poise: { wings: { da: 8 }, light: { ds: 1.15 }, horns: { ds: 1.03 } },
+  attack: { jaw: { da: 14 }, wings: { da: 20, far: { da: 12 } }, light: { ds: 1.2 } },
+  hurt: { jaw: { da: 16 }, wings: { da: 26, far: { da: 16 } }, shroud: { da: 6 } },
 });
 
 /** The slot deltas of a pose on a rig ({} for an unknown pose or 'stand'). */
@@ -14593,14 +15079,14 @@ function challengeTower(j, k, level) {
 
 
 /** Map size and ring geometry. `version` bumps whenever the layout changes, so saved positions from an older map reset to the Crossroads. */
-const WORLD = { version: 3, w: 224, h: 192, hubR: 6, ringR: 58, lairR: 84, trainersPerBiome: 6, encounterChance: 0.12, encounterCooldown: 4, homeSpawnShare: 0.72 };
+const WORLD = { version: 4, w: 224, h: 192, hubR: 6, ringR: 58, lairR: 84, trainersPerBiome: 6, encounterChance: 0.12, encounterCooldown: 4, homeSpawnShare: 0.72 };
 
 /** Tile kinds. */
 const TILE = { grass: 0, habitat: 1, path: 2, wall: 3, water: 4, hub: 5, lair: 6, door: 7, camp: 8, spire: 9, spireDoor: 10, shrine: 11, market: 12, marketDoor: 13, storage: 14, storageDoor: 15, tower: 16, towerDoor: 17 };
 const WALKABLE_TILES = new Set([TILE.grass, TILE.habitat, TILE.path, TILE.hub, TILE.door, TILE.camp, TILE.spireDoor, TILE.shrine, TILE.marketDoor, TILE.storageDoor, TILE.towerDoor]);
 
 /** Biomes in difficulty order, clockwise from the south of the hub. Levels climb 5 to the fifties; the gaps in the ladder are for classes still to come. */
-const BIOME_ORDER = ['mammal', 'amphibian', 'flora', 'insect', 'fungus', 'bird', 'ooze', 'fish', 'wyrm', 'invertebrate', 'reptile', 'draconic'];
+const BIOME_ORDER = ['mammal', 'amphibian', 'flora', 'insect', 'fungus', 'bird', 'ooze', 'fish', 'wyrm', 'invertebrate', 'skeletal', 'reptile', 'draconic'];
 
 /** Per-class region: name, wild level, palette and the look of its walls. */
 const REGIONS = {
@@ -14614,6 +15100,7 @@ const REGIONS = {
   fungus:       { name: 'Sporewood',      level: 23, ground: '#7a7f5c', ground2: '#70754f', habitat: '#5b5f47', path: '#c7b48a', water: '#4e7aa0', wall: 'tree',     wallColor: '#5a4a6a', accent: '#d9a3ff', waterT: 0.6,  warden: 'Warden Morel',  badge: 'Spore Badge' },
   wyrm:         { name: 'Coiling Gorge',  level: 41, ground: '#8a8570', ground2: '#807b66', habitat: '#6b6a52', path: '#d2c39a', water: '#4f8fb8', wall: 'rock',     wallColor: '#5c5548', accent: '#8fd3ff', waterT: 0.62, warden: 'Warden Tempest', badge: 'Gorge Badge' },
   ooze:         { name: 'Slurry Sump',    level: 32, ground: '#7a8a4c', ground2: '#707f45', habitat: '#55703a', path: '#c0b27e', water: '#7fb84f', wall: 'rock',     wallColor: '#4c4a3e', accent: '#b6f06a', waterT: 0.6,  warden: 'Warden Dreg',   badge: 'Sump Badge' },
+  skeletal:     { name: 'Barrow Downs',   level: 47, ground: '#6f7466', ground2: '#666b5e', habitat: '#535a4c', path: '#bfb59a', water: '#4a6f88', wall: 'bone',     wallColor: '#e6dfc8', accent: '#9fe8b0', waterT: 0.6,  warden: 'Warden Ossa',   badge: 'Marrow Badge' },
   reptile:      { name: 'Ember Scar',     level: 50, ground: '#9c6b4a', ground2: '#906244', habitat: '#7a4d38', path: '#d0a878', water: '#e0562a', wall: 'rock',     wallColor: '#5a3a2c', accent: '#ff9a4a', waterT: 0.7,  warden: 'Warden Cinder', badge: 'Scar Badge' },
   draconic:     { name: 'Drakefell Peaks', level: 55, ground: '#7d7269', ground2: '#736960', habitat: '#5f5450', path: '#c9b79c', water: '#5a8fc0', wall: 'rock',     wallColor: '#4a3f3c', accent: '#ffb347', waterT: 0.6,  warden: 'Warden Ashfall', badge: 'Peak Badge' },
 };
@@ -14714,7 +15201,8 @@ function habitatTypesFor(clade) {
     if (s.types[0]) w.set(s.types[0], (w.get(s.types[0]) || 0) + 2);
     if (s.types[1]) w.set(s.types[1], (w.get(s.types[1]) || 0) + 1);
   }
-  return [...w.entries()].sort((a, b) => b[1] - a[1] || (a[0] < b[0] ? -1 : 1));
+  // squared so a class's signature elements own most of its patches and a lone oddball species makes a rare pocket, not a third of the region
+  return [...w.entries()].map(([t, n]) => [t, n * n]).sort((a, b) => b[1] - a[1] || (a[0] < b[0] ? -1 : 1));
 }
 
 /** Weight of a species in a habitat: its class at home (3), its type in its element (4), both together (10), rare visitors otherwise; scaled by tier rarity. */
@@ -14765,6 +15253,7 @@ const TRAINER_TITLES = {
   fungus: ['Forager', 'Spore Sweeper', 'Cellar Keeper'],
   wyrm: ['Storm Chaser', 'Ridge Runner', 'Kite Flyer'],
   draconic: ['Dragon Tamer', 'Egg Warmer', 'Sky Knight'],
+  skeletal: ['Gravedigger', 'Bone Setter', 'Mourner'],
 };
 const TRAINER_LINES = {
   mammal: ['My team was raised on these downs. Care for a bout?', 'Fur and fang against whatever you have. Fight?'],
@@ -14779,6 +15268,7 @@ const TRAINER_LINES = {
   fungus: ['Everything down here is quietly eating something. Fight?', 'Breathe shallow and battle quick. Ready?'],
   wyrm: ['Feel that wind? That is my team breathing. Fight?', 'Up here the sky bites back. Battle?'],
   draconic: ['My team was hatched on this mountain. Yours was not. Fight?', 'Every dragon here answers to me. Let us see if yours answers to you.'],
+  skeletal: ['Nothing down here stays buried for long. Fight?', 'My team has been dead for years and still beats most of the living.'],
 };
 const TRAINER_AFTER = ['Good match. Come back stronger.', 'Well fought. The Warden is another matter.', 'You earned that one.', 'My team will remember you.'];
 
@@ -16588,6 +17078,26 @@ function owDrawWall(ctx, kind, color, x, y, T, hsh) {
   } else if (kind === 'reed') {
     ctx.strokeStyle = color; ctx.lineWidth = 2 * s;
     for (let i = 0; i < 3; i++) { const rx = x + T * (0.25 + i * 0.25) + (hsh - 0.5) * 3 * s; ctx.beginPath(); ctx.moveTo(rx, y + T * 0.95); ctx.lineTo(rx + 2 * s, y + T * (0.15 + i * 0.08)); ctx.stroke(); ctx.fillStyle = '#7a5a3a'; ctx.fillRect(rx + 0.5 * s, y + T * (0.12 + i * 0.08), 3 * s, 7 * s); }
+  } else if (kind === 'bone') {
+    // a rib arch: two curved bones meeting at the top, a smaller one inside
+    ctx.strokeStyle = color; ctx.lineWidth = 3 * s; ctx.lineCap = 'round';
+    ctx.beginPath(); ctx.moveTo(x + T * 0.2, y + T * 0.9); ctx.quadraticCurveTo(x + T * 0.15, y + T * 0.3, x + T * 0.5, y + T * 0.15); ctx.quadraticCurveTo(x + T * 0.85, y + T * 0.3, x + T * 0.8, y + T * 0.9); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(x + T * 0.36, y + T * 0.9); ctx.quadraticCurveTo(x + T * 0.36, y + T * 0.55, x + T * 0.5, y + T * 0.45); ctx.quadraticCurveTo(x + T * 0.64, y + T * 0.55, x + T * 0.64, y + T * 0.9); ctx.stroke();
+    ctx.lineCap = 'butt';
+  } else if (kind === 'crystal') {
+    ctx.fillStyle = color; ctx.beginPath(); ctx.moveTo(x + T * 0.2, y + T * 0.9); ctx.lineTo(x + T * 0.3, y + T * 0.35); ctx.lineTo(x + T * 0.45, y + T * 0.08); ctx.lineTo(x + T * 0.6, y + T * 0.4); ctx.lineTo(x + T * 0.85, y + T * 0.25); ctx.lineTo(x + T * 0.8, y + T * 0.9); ctx.closePath(); ctx.fill();
+    ctx.fillStyle = 'rgba(255,255,255,.3)'; ctx.beginPath(); ctx.moveTo(x + T * 0.3, y + T * 0.35); ctx.lineTo(x + T * 0.45, y + T * 0.08); ctx.lineTo(x + T * 0.47, y + T * 0.6); ctx.closePath(); ctx.fill();
+  } else if (kind === 'root') {
+    ctx.strokeStyle = color; ctx.lineWidth = 3.5 * s; ctx.lineCap = 'round';
+    ctx.beginPath(); ctx.moveTo(x + T * 0.1, y + T * 0.2); ctx.bezierCurveTo(x + T * 0.5, y + T * 0.1, x + T * 0.4, y + T * 0.8, x + T * 0.9, y + T * 0.7); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(x + T * 0.2, y + T * 0.9); ctx.bezierCurveTo(x + T * 0.3, y + T * 0.5, x + T * 0.7, y + T * 0.6, x + T * 0.8, y + T * 0.15); ctx.stroke();
+    ctx.lineCap = 'butt';
+  } else if (kind === 'ember') {
+    ctx.fillStyle = color; ctx.beginPath(); ctx.moveTo(x + T * 0.12, y + T * 0.88); ctx.lineTo(x + T * 0.2, y + T * 0.4); ctx.lineTo(x + T * 0.45, y + T * 0.12); ctx.lineTo(x + T * 0.7, y + T * 0.3); ctx.lineTo(x + T * 0.9, y + T * 0.55); ctx.lineTo(x + T * 0.86, y + T * 0.88); ctx.closePath(); ctx.fill();
+    ctx.strokeStyle = 'rgba(255,122,26,.9)'; ctx.lineWidth = 1.6 * s; ctx.beginPath(); ctx.moveTo(x + T * 0.3, y + T * 0.85); ctx.lineTo(x + T * 0.42, y + T * 0.6); ctx.lineTo(x + T * 0.36, y + T * 0.45); ctx.lineTo(x + T * 0.5, y + T * 0.25); ctx.stroke();
+  } else if (kind === 'grave') {
+    ctx.fillStyle = color; ctx.beginPath(); ctx.moveTo(x + T * 0.25, y + T * 0.9); ctx.lineTo(x + T * 0.25, y + T * 0.38); ctx.arc(x + T * 0.5, y + T * 0.38, T * 0.25, Math.PI, 0); ctx.lineTo(x + T * 0.75, y + T * 0.9); ctx.closePath(); ctx.fill();
+    ctx.fillStyle = 'rgba(0,0,0,.25)'; ctx.fillRect(x + T * 0.37, y + T * 0.45, T * 0.26, 2 * s); ctx.fillRect(x + T * 0.4, y + T * 0.58, T * 0.2, 2 * s);
   } else {
     ctx.fillStyle = color; ctx.beginPath(); ctx.moveTo(x + T * 0.15, y + T * 0.85); ctx.lineTo(x + T * 0.25, y + T * 0.35); ctx.lineTo(x + T * 0.55, y + T * 0.15); ctx.lineTo(x + T * 0.88, y + T * 0.45); ctx.lineTo(x + T * 0.85, y + T * 0.85); ctx.closePath(); ctx.fill();
     ctx.fillStyle = 'rgba(255,255,255,.16)'; ctx.beginPath(); ctx.moveTo(x + T * 0.25, y + T * 0.35); ctx.lineTo(x + T * 0.55, y + T * 0.15); ctx.lineTo(x + T * 0.62, y + T * 0.4); ctx.closePath(); ctx.fill();
