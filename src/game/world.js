@@ -5,7 +5,7 @@
 // around the ring, so the recommended order is a lap. Every biome has a camp that heals,
 // a lair where its Warden waits with a badge, and a few trainers on the paths who fight
 // when asked. The hub also has a fusion
-// shrine and a Market selling moves for the gold trainers pay. The Council Spire in the hub opens with seven badges: four fights in a row.
+// shrine, a Market selling moves for the gold trainers pay, and a Creature Storage holding the box. The Council Spire in the hub opens with seven badges: four fights in a row.
 //
 // Everything here is pure data derived from the seed. The map is three Uint8Arrays
 // (tile kind, biome index, habitat type) plus placed content.
@@ -20,8 +20,8 @@ import { fuse, canFuse } from '../creature/fusion.js';
 export const WORLD = { w: 112, h: 96, hubR: 6, ringR: 30, lairR: 43, trainersPerBiome: 4, encounterChance: 0.12, encounterCooldown: 4 };
 
 /** Tile kinds. */
-export const TILE = { grass: 0, habitat: 1, path: 2, wall: 3, water: 4, hub: 5, lair: 6, door: 7, camp: 8, spire: 9, spireDoor: 10, shrine: 11, market: 12, marketDoor: 13 };
-export const WALKABLE_TILES = new Set([TILE.grass, TILE.habitat, TILE.path, TILE.hub, TILE.door, TILE.camp, TILE.spireDoor, TILE.shrine, TILE.marketDoor]);
+export const TILE = { grass: 0, habitat: 1, path: 2, wall: 3, water: 4, hub: 5, lair: 6, door: 7, camp: 8, spire: 9, spireDoor: 10, shrine: 11, market: 12, marketDoor: 13, storage: 14, storageDoor: 15 };
+export const WALKABLE_TILES = new Set([TILE.grass, TILE.habitat, TILE.path, TILE.hub, TILE.door, TILE.camp, TILE.spireDoor, TILE.shrine, TILE.marketDoor, TILE.storageDoor]);
 
 /** Biomes in difficulty order, clockwise from the south of the hub. */
 export const BIOME_ORDER = ['mammal', 'amphibian', 'insect', 'bird', 'fish', 'invertebrate', 'reptile'];
@@ -312,7 +312,7 @@ export function generateWorld(seed) {
       }
     }
   }
-  const world = { seed: String(seed), w, h, tiles, bio, hab, hub, biomes, trainers: [], trainerAt: new Map(), wardens: {}, council: [], start: { x: hub.x, y: hub.y + 1 }, spireDoor: { x: hub.x, y: hub.y - 5 }, shrine: { x: hub.x + 3, y: hub.y }, hubCamp: { x: hub.x - 3, y: hub.y }, market: { x: hub.x + 4, y: hub.y - 4 }, marketDoor: { x: hub.x + 4, y: hub.y - 2 } };
+  const world = { seed: String(seed), w, h, tiles, bio, hab, hub, biomes, trainers: [], trainerAt: new Map(), wardens: {}, council: [], start: { x: hub.x, y: hub.y + 1 }, spireDoor: { x: hub.x, y: hub.y - 5 }, shrine: { x: hub.x + 3, y: hub.y }, hubCamp: { x: hub.x - 3, y: hub.y }, market: { x: hub.x + 4, y: hub.y - 4 }, marketDoor: { x: hub.x + 4, y: hub.y - 2 }, storage: { x: hub.x - 4, y: hub.y - 4 }, storageDoor: { x: hub.x - 4, y: hub.y - 2 } };
 
   // the hub disc, its spire, shrine and camp
   for (let y = hub.y - WORLD.hubR; y <= hub.y + WORLD.hubR; y++) for (let x = hub.x - WORLD.hubR; x <= hub.x + WORLD.hubR; x++) if (isHubTile(world, x, y)) tiles[idx(x, y)] = TILE.hub;
@@ -323,6 +323,9 @@ export function generateWorld(seed) {
   // the Market: a 3 x 2 shop on the hub's north-east edge, door facing the square
   for (let y = world.market.y; y <= world.market.y + 1; y++) for (let x = world.market.x - 1; x <= world.market.x + 1; x++) tiles[idx(x, y)] = TILE.market;
   tiles[idx(world.marketDoor.x, world.marketDoor.y)] = TILE.marketDoor;
+  // Creature Storage: its twin on the north-west edge, where the box lives
+  for (let y = world.storage.y; y <= world.storage.y + 1; y++) for (let x = world.storage.x - 1; x <= world.storage.x + 1; x++) tiles[idx(x, y)] = TILE.storage;
+  tiles[idx(world.storageDoor.x, world.storageDoor.y)] = TILE.storageDoor;
 
   const carvable = (t) => t === TILE.grass || t === TILE.habitat || t === TILE.wall || t === TILE.water;
   const carve = (ax, ay, bx, by) => {
@@ -376,7 +379,7 @@ export function generateWorld(seed) {
   world.council = councilFor(rng.fork('council'));
 
   // guarantee: every camp, lair front, the spire door and the shrine are reachable from the start
-  const targets = [world.spireDoor, world.shrine, world.hubCamp, world.marketDoor, ...biomes.map((b) => b.camp), ...biomes.map((b) => b.lair.front)];
+  const targets = [world.spireDoor, world.shrine, world.hubCamp, world.marketDoor, world.storageDoor, ...biomes.map((b) => b.camp), ...biomes.map((b) => b.lair.front)];
   for (let round = 0; round < 3; round++) {
     const reach = reachableFrom(world, world.start);
     const missing = targets.filter((t) => !reach.has(idx(t.x, t.y)));

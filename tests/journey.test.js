@@ -263,3 +263,47 @@ test('the save survives garbage, retires journeys and folds old arena runs into 
   assert.equal(migrated.totals.battles, 10); assert.equal(migrated.totals.captures, 3); assert.equal(migrated.totals.fusions, 1);
   assert.equal(migrated.journey, null);
 });
+
+test('experience is shared by the party members that fought, as in Red', () => {
+  const j = fresh('share');
+  j.party.push(makeMember(speciesGenome(WILD_SPECIES.find((sp) => sp.id !== j.party[0].genome.species), makeRng('second')), 5, 'j2'));
+  const world = worldFor(j.seed);
+  acceptChallenge(j, world.trainers[0].id);
+  const beforeA = j.party[0].xp, beforeB = j.party[1].xp;
+  // only the lead fought
+  const solo = decided(j, 0);
+  const rSolo = applyJourneyBattle(j, solo).report;
+  assert.equal(rSolo.shared, 1);
+  assert.ok(j.party[0].xp > beforeA && j.party[1].xp === beforeB, 'the benched creature gains nothing');
+  assert.equal(rSolo.xpGains.length, 1);
+  // both fought: the reward splits in two
+  j.beaten = {};
+  acceptChallenge(j, world.trainers[0].id);
+  const both = decided(j, 0);
+  both.sides[0].party[1].fought = true;
+  const a0 = j.party[0].xp, b0 = j.party[1].xp;
+  const rBoth = applyJourneyBattle(j, both).report;
+  assert.equal(rBoth.shared, 2);
+  assert.equal(j.party[0].xp - a0, rBoth.xp); assert.equal(j.party[1].xp - b0, rBoth.xp);
+  assert.ok(rBoth.xp <= Math.ceil(rSolo.xp / 2) + 1, `${rBoth.xp} is about half of ${rSolo.xp}`);
+  // a fainted participant gets nothing
+  j.beaten = {};
+  acceptChallenge(j, world.trainers[0].id);
+  const down = decided(j, 0);
+  down.sides[0].party[1].fought = true; down.sides[0].party[1].hp = 0; down.sides[0].party[1].fainted = true;
+  const b1 = j.party[1].xp;
+  const rDown = applyJourneyBattle(j, down).report;
+  assert.equal(rDown.shared, 1); assert.equal(j.party[1].xp, b1);
+  assert.equal(j.party[1].hp, 0);
+});
+
+test('Creature Storage stands at the crossroads and opens when you step on its door', () => {
+  const j = fresh('storage');
+  const world = worldFor(j.seed);
+  const d = world.storageDoor;
+  assert.equal(tileAt(world, d.x, d.y), TILE.storageDoor);
+  assert.ok(findPath(world, j.player, d, 60));
+  j.player.x = d.x; j.player.y = d.y + 1; j.player.dir = 'up';
+  const r = tryMove(j, 'up');
+  assert.ok(r.moved); assert.deepEqual(r.event, { kind: 'storage' });
+});

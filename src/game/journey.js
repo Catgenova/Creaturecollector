@@ -60,7 +60,7 @@ export function journeyPlace(j) {
  * Take one step. Always turns the player; moves when the tile is free. Returns
  * { moved, blocked?: 'wall'|'trainer', trainer?, event? } where event is one of
  * camp (healed), lair (a Warden's door), spire (the Council), shrine (fusion), market
- * (the shop) or encounter (a wild creature is waiting in j.encounter).
+ * (the shop), storage (the box) or encounter (a wild creature is waiting in j.encounter).
  */
 export function tryMove(j, dir) {
   const world = worldFor(j.seed);
@@ -90,6 +90,7 @@ export function tryMove(j, dir) {
   if (tile === TILE.spireDoor) return { moved: true, event: { kind: 'spire', open: j.badges.length >= JOURNEY.badgesForSpire, champion: j.champion } };
   if (tile === TILE.shrine) return { moved: true, event: { kind: 'shrine' } };
   if (tile === TILE.marketDoor) return { moved: true, event: { kind: 'market' } };
+  if (tile === TILE.storageDoor) return { moved: true, event: { kind: 'storage' } };
   if (tile === TILE.habitat && j.cooldown <= 0) {
     const rng = makeRng(`${j.seed}:step:${j.stats.steps}`);
     if (rng.chance(WORLD.encounterChance)) {
@@ -210,11 +211,17 @@ export function applyJourneyBattle(j, state) {
   }
   let xp = 0;
   for (const f of foes) if (f.fainted || (capturedBattler && f.uid === capturedBattler.uid)) xp += xpReward(f.level, f.genome.bst, enc.kind === 'boss' || enc.kind === 'council' || enc.alpha ? 'boss' : 'wild');
-  report.xp = xp;
+  // Red's rule: the experience is shared equally by the party members that fought and are still standing
+  let took = j.party.map((m, i) => i).filter((i) => mine[i] && mine[i].fought && j.party[i].hp > 0);
+  if (!took.length) took = j.party.map((m, i) => i).filter((i) => mine[i] && mine[i].fought);
+  if (!took.length) took = [0];
+  const share = Math.max(1, Math.floor(xp / took.length));
+  report.xp = share; report.shared = took.length;
   j.pendingLearns = j.pendingLearns || [];
   j.party.forEach((m, index) => {
+    if (!took.includes(index)) return;
     const before = xpProgress(m);
-    const r = gainXp(m, xp);
+    const r = gainXp(m, share);
     const after = xpProgress(m);
     report.xpGains.push({ uid: m.uid, index, from: { level: r.from, frac: before.frac }, to: { level: r.to, frac: after.frac }, after });
     if (r.to > r.from) report.levelUps.push({ name: m.genome.name, from: r.from, to: r.to });

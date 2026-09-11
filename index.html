@@ -9417,6 +9417,7 @@ function createBattle({ sides, seed = 'battle', capturable = false }) {
       };
     }),
   };
+  for (const s of state.sides) s.party[s.active].fought = true; // participants share the experience
   const events = [];
   const rng = makeRng(`${state.seed}:start`);
   for (const i of [0, 1]) events.push({ t: 'switch', side: i, name: activeOf(state, i).name, uid: activeOf(state, i).uid, initial: true });
@@ -9538,6 +9539,7 @@ function doSwitch(state, i, index, events, forced) {
   out.stages = freshStages();
   out.flinch = false;
   side.active = index;
+  side.party[index].fought = true;
   const inn = side.party[index];
   inn.justEntered = true;
   events.push({ t: 'switch', side: i, name: inn.name, uid: inn.uid, from: out.name, forced });
@@ -10699,7 +10701,7 @@ function fuseChain(first, partners, rng) {
 // around the ring, so the recommended order is a lap. Every biome has a camp that heals,
 // a lair where its Warden waits with a badge, and a few trainers on the paths who fight
 // when asked. The hub also has a fusion
-// shrine and a Market selling moves for the gold trainers pay. The Council Spire in the hub opens with seven badges: four fights in a row.
+// shrine, a Market selling moves for the gold trainers pay, and a Creature Storage holding the box. The Council Spire in the hub opens with seven badges: four fights in a row.
 //
 // Everything here is pure data derived from the seed. The map is three Uint8Arrays
 // (tile kind, biome index, habitat type) plus placed content.
@@ -10714,8 +10716,8 @@ function fuseChain(first, partners, rng) {
 const WORLD = { w: 112, h: 96, hubR: 6, ringR: 30, lairR: 43, trainersPerBiome: 4, encounterChance: 0.12, encounterCooldown: 4 };
 
 /** Tile kinds. */
-const TILE = { grass: 0, habitat: 1, path: 2, wall: 3, water: 4, hub: 5, lair: 6, door: 7, camp: 8, spire: 9, spireDoor: 10, shrine: 11, market: 12, marketDoor: 13 };
-const WALKABLE_TILES = new Set([TILE.grass, TILE.habitat, TILE.path, TILE.hub, TILE.door, TILE.camp, TILE.spireDoor, TILE.shrine, TILE.marketDoor]);
+const TILE = { grass: 0, habitat: 1, path: 2, wall: 3, water: 4, hub: 5, lair: 6, door: 7, camp: 8, spire: 9, spireDoor: 10, shrine: 11, market: 12, marketDoor: 13, storage: 14, storageDoor: 15 };
+const WALKABLE_TILES = new Set([TILE.grass, TILE.habitat, TILE.path, TILE.hub, TILE.door, TILE.camp, TILE.spireDoor, TILE.shrine, TILE.marketDoor, TILE.storageDoor]);
 
 /** Biomes in difficulty order, clockwise from the south of the hub. */
 const BIOME_ORDER = ['mammal', 'amphibian', 'insect', 'bird', 'fish', 'invertebrate', 'reptile'];
@@ -11006,7 +11008,7 @@ function generateWorld(seed) {
       }
     }
   }
-  const world = { seed: String(seed), w, h, tiles, bio, hab, hub, biomes, trainers: [], trainerAt: new Map(), wardens: {}, council: [], start: { x: hub.x, y: hub.y + 1 }, spireDoor: { x: hub.x, y: hub.y - 5 }, shrine: { x: hub.x + 3, y: hub.y }, hubCamp: { x: hub.x - 3, y: hub.y }, market: { x: hub.x + 4, y: hub.y - 4 }, marketDoor: { x: hub.x + 4, y: hub.y - 2 } };
+  const world = { seed: String(seed), w, h, tiles, bio, hab, hub, biomes, trainers: [], trainerAt: new Map(), wardens: {}, council: [], start: { x: hub.x, y: hub.y + 1 }, spireDoor: { x: hub.x, y: hub.y - 5 }, shrine: { x: hub.x + 3, y: hub.y }, hubCamp: { x: hub.x - 3, y: hub.y }, market: { x: hub.x + 4, y: hub.y - 4 }, marketDoor: { x: hub.x + 4, y: hub.y - 2 }, storage: { x: hub.x - 4, y: hub.y - 4 }, storageDoor: { x: hub.x - 4, y: hub.y - 2 } };
 
   // the hub disc, its spire, shrine and camp
   for (let y = hub.y - WORLD.hubR; y <= hub.y + WORLD.hubR; y++) for (let x = hub.x - WORLD.hubR; x <= hub.x + WORLD.hubR; x++) if (isHubTile(world, x, y)) tiles[idx(x, y)] = TILE.hub;
@@ -11017,6 +11019,9 @@ function generateWorld(seed) {
   // the Market: a 3 x 2 shop on the hub's north-east edge, door facing the square
   for (let y = world.market.y; y <= world.market.y + 1; y++) for (let x = world.market.x - 1; x <= world.market.x + 1; x++) tiles[idx(x, y)] = TILE.market;
   tiles[idx(world.marketDoor.x, world.marketDoor.y)] = TILE.marketDoor;
+  // Creature Storage: its twin on the north-west edge, where the box lives
+  for (let y = world.storage.y; y <= world.storage.y + 1; y++) for (let x = world.storage.x - 1; x <= world.storage.x + 1; x++) tiles[idx(x, y)] = TILE.storage;
+  tiles[idx(world.storageDoor.x, world.storageDoor.y)] = TILE.storageDoor;
 
   const carvable = (t) => t === TILE.grass || t === TILE.habitat || t === TILE.wall || t === TILE.water;
   const carve = (ax, ay, bx, by) => {
@@ -11070,7 +11075,7 @@ function generateWorld(seed) {
   world.council = councilFor(rng.fork('council'));
 
   // guarantee: every camp, lair front, the spire door and the shrine are reachable from the start
-  const targets = [world.spireDoor, world.shrine, world.hubCamp, world.marketDoor, ...biomes.map((b) => b.camp), ...biomes.map((b) => b.lair.front)];
+  const targets = [world.spireDoor, world.shrine, world.hubCamp, world.marketDoor, world.storageDoor, ...biomes.map((b) => b.camp), ...biomes.map((b) => b.lair.front)];
   for (let round = 0; round < 3; round++) {
     const reach = reachableFrom(world, world.start);
     const missing = targets.filter((t) => !reach.has(idx(t.x, t.y)));
@@ -11265,12 +11270,17 @@ function retireJourney(save) {
 
 
 
-const PARTY = { max: MAX_PARTY, maxLevel: 100, xpK: 7, starterLevel: 5 };
 
+const PARTY = { max: MAX_PARTY, maxLevel: 100, starterLevel: 5 };
+/** Experience follows Pokémon Red: a foe's base yield (from its stat total and evolution stage) times its level, over seven. */
+const XP = { yieldPerBst: 0.15, stageYield: { 1: 1, 2: 1.6, 3: 2.4 }, trainerBonus: 1.5 };
+
+/** Medium-fast growth: level L needs L cubed experience. */
 function xpForLevel(L) { return L * L * L; }
-/** XP for defeating (or catching) one foe; Wardens, the Council and alphas pay half again. */
+/** XP for defeating (or catching) one foe: yield × level / 7, half again for a trainer's, a Warden's or an alpha's creature. Shared by the party members that fought. */
 function xpReward(level, bst, kind) {
-  return Math.round(PARTY.xpK * level * level * ((bst || 400) / 400) * (kind === 'boss' ? 1.5 : 1));
+  const base = (bst || 400) * XP.yieldPerBst * (XP.stageYield[stageOf(level)] || 1);
+  return Math.max(1, Math.round(((base * level) / 7) * (kind === 'wild' ? 1 : XP.trainerBonus)));
 }
 
 function memberMaxHp(m) { return statsAtLevel(m.genome, m.level).hp; }
@@ -11500,7 +11510,7 @@ function journeyPlace(j) {
  * Take one step. Always turns the player; moves when the tile is free. Returns
  * { moved, blocked?: 'wall'|'trainer', trainer?, event? } where event is one of
  * camp (healed), lair (a Warden's door), spire (the Council), shrine (fusion), market
- * (the shop) or encounter (a wild creature is waiting in j.encounter).
+ * (the shop), storage (the box) or encounter (a wild creature is waiting in j.encounter).
  */
 function tryMove(j, dir) {
   const world = worldFor(j.seed);
@@ -11530,6 +11540,7 @@ function tryMove(j, dir) {
   if (tile === TILE.spireDoor) return { moved: true, event: { kind: 'spire', open: j.badges.length >= JOURNEY.badgesForSpire, champion: j.champion } };
   if (tile === TILE.shrine) return { moved: true, event: { kind: 'shrine' } };
   if (tile === TILE.marketDoor) return { moved: true, event: { kind: 'market' } };
+  if (tile === TILE.storageDoor) return { moved: true, event: { kind: 'storage' } };
   if (tile === TILE.habitat && j.cooldown <= 0) {
     const rng = makeRng(`${j.seed}:step:${j.stats.steps}`);
     if (rng.chance(WORLD.encounterChance)) {
@@ -11650,11 +11661,17 @@ function applyJourneyBattle(j, state) {
   }
   let xp = 0;
   for (const f of foes) if (f.fainted || (capturedBattler && f.uid === capturedBattler.uid)) xp += xpReward(f.level, f.genome.bst, enc.kind === 'boss' || enc.kind === 'council' || enc.alpha ? 'boss' : 'wild');
-  report.xp = xp;
+  // Red's rule: the experience is shared equally by the party members that fought and are still standing
+  let took = j.party.map((m, i) => i).filter((i) => mine[i] && mine[i].fought && j.party[i].hp > 0);
+  if (!took.length) took = j.party.map((m, i) => i).filter((i) => mine[i] && mine[i].fought);
+  if (!took.length) took = [0];
+  const share = Math.max(1, Math.floor(xp / took.length));
+  report.xp = share; report.shared = took.length;
   j.pendingLearns = j.pendingLearns || [];
   j.party.forEach((m, index) => {
+    if (!took.includes(index)) return;
     const before = xpProgress(m);
-    const r = gainXp(m, xp);
+    const r = gainXp(m, share);
     const after = xpProgress(m);
     report.xpGains.push({ uid: m.uid, index, from: { level: r.from, frac: before.frac }, to: { level: r.to, frac: after.frac }, after });
     if (r.to > r.from) report.levelUps.push({ name: m.genome.name, from: r.from, to: r.to });
@@ -11852,7 +11869,7 @@ function owReportCard(j) {
   if (r.wiped) lines.push(`Your party was overwhelmed by ${r.foe}. You come to at the last camp, rested.`);
   else if (!r.won) lines.push(`${r.foe} got away.`);
   else {
-    lines.push(`Beat ${r.foe}. +${r.xp} XP each${r.gold ? `, +${r.gold.toLocaleString()} gold` : ''}.`);
+    lines.push(`Beat ${r.foe}. +${r.xp} XP${r.shared > 1 ? ` each to the ${r.shared} that fought` : ''}${r.gold ? `, +${r.gold.toLocaleString()} gold` : ''}.`);
     for (const l of r.levelUps) { lines.push(`${l.name} grew to Lv ${l.to}!`); if (stageOf(l.to) > stageOf(l.from)) lines.push(`${l.name} evolved! ${stageName(stageOf(l.to))}.`); }
     for (const l of r.learned || []) { const mv = getMove(l.move); lines.push(`${l.name} learned ${mv ? mv.name : l.move}!`); }
     if (r.captured) lines.push(`${r.captured.genome.name} joined ${r.toBox ? 'the box' : 'the party'}.`);
@@ -12005,6 +12022,7 @@ function owAfterStep(event) {
   if (event.kind === 'spire') { owSpireDialog(event); return; }
   if (event.kind === 'shrine') { owShrineSheet(j); return; }
   if (event.kind === 'market') { owMarketSheet(j); return; }
+  if (event.kind === 'storage') { owStorageSheet(j); return; }
 }
 
 function owRefreshHud() {
@@ -12025,6 +12043,7 @@ function owInteract() {
   if (here === TILE.spireDoor) { owSpireDialog({ open: j.badges.length >= JOURNEY.badgesForSpire, champion: j.champion }); return; }
   if (here === TILE.shrine) { owShrineSheet(j); return; }
   if (here === TILE.marketDoor) { owMarketSheet(j); return; }
+  if (here === TILE.storageDoor) { owStorageSheet(j); return; }
   if (here === TILE.camp) { toast('The fire is warm. Your party is rested.'); return; }
   const ht = habitatTypeAt(world, f.x, f.y);
   if (tileAt(world, f.x, f.y) === TILE.habitat && ht) { toast(`${ht}-type creatures live in this ${biomeAt(world, f.x, f.y).name.toLowerCase()} patch.`); return; }
@@ -12169,17 +12188,11 @@ function owPartySheet(j) {
     const partyList = h('div', { class: 'party-list' });
     j.party.forEach((m, i) => partyList.append(owMemberRow(j, m, [
       btn('Lead', () => { setLead(j, m.uid); owSave(); render(); }, i === 0),
-      btn('Box', () => { moveMember(j, m.uid, 'box'); owSave(); render(); }, j.party.length <= 1),
       btn('Info', () => openSheet(m.genome, { level: m.level })),
     ])));
     appendChildren(body, [
-      ...section(`Party · ${j.party.length}/${JOURNEY.partyMax}`, h('p', { class: 'hint' }, 'The lead goes out first. Camps heal everyone; a wipe sends you back to the last one you rested at.'), partyList),
+      ...section(`Party · ${j.party.length}/${JOURNEY.partyMax}`, h('p', { class: 'hint' }, `The lead goes out first. Camps heal everyone; a wipe sends you back to the last one you rested at. ${j.box.length ? `${j.box.length} in storage` : 'Storage is empty'}; deposit and withdraw at the Creature Storage in the Crossroads.`), partyList),
     ]);
-    if (j.box.length) {
-      const boxList = h('div', { class: 'party-list' });
-      for (const m of j.box) boxList.append(owMemberRow(j, m, [btn('To party', () => { moveMember(j, m.uid, 'party'); owSave(); render(); }, j.party.length >= JOURNEY.partyMax), btn('Info', () => openSheet(m.genome, { level: m.level }))]));
-      body.append(...section(`Box · ${j.box.length}`, boxList));
-    }
     body.append(h('p', { class: 'hint' }, `${j.stats.steps} steps · ${j.stats.battles} battles · ${j.stats.captures} caught · ${j.stats.trainers} trainers · ${j.stats.bosses} wardens · ${j.stats.fusions} fusions`));
   };
   render();
@@ -12199,10 +12212,11 @@ function owMapSheet(j) {
   for (const b of world.biomes) { dot(b.camp, '#ffffff', 4); dot(b.lair, j.badges.includes(b.id) ? '#ffd166' : '#ff5a5a', 5); }
   dot(world.spireDoor, '#b98cff', 5);
   dot(world.marketDoor, '#7fe38a', 5);
+  dot(world.storageDoor, '#4fc0a0', 5);
   for (const t of world.trainers) dot({ x: t.x, y: t.y }, j.beaten[t.id] ? '#8f96a8' : '#4f8ef7', 2.5);
   dot(j.player, '#f5c518', 6); ctx.strokeStyle = '#000'; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.arc(j.player.x * S + S / 2, j.player.y * S + S / 2, 6, 0, Math.PI * 2); ctx.stroke();
   const legend = h('div', { class: 'ow-legend' }, world.biomes.map((b) => h('div', {}, h('i', { style: { background: REGIONS[b.clade].ground } }), `${b.name} · to Lv ${b.level}${j.badges.includes(b.id) ? ' · badge ✓' : ''}`)));
-  owSheet('World map', h('div', {}, c, legend, h('p', { class: 'hint', style: { marginTop: '8px' } }, 'You are the gold dot. White: camps. Red: Wardens (gold once beaten). Blue: trainers. Purple: the Council Spire. Green: the Market.')));
+  owSheet('World map', h('div', {}, c, legend, h('p', { class: 'hint', style: { marginTop: '8px' } }, 'You are the gold dot. White: camps. Red: Wardens (gold once beaten). Blue: trainers. Purple: the Council Spire. Green: the Market. Teal: Creature Storage.')));
 }
 
 function owMenuSheet(j) {
@@ -12263,7 +12277,7 @@ function owTeachPanel(j, teaching, back) {
   const panel = h('div');
   const render = () => {
     clear(panel);
-    panel.append(h('div', { class: 'row', style: { justifyContent: 'flex-start' } }, h('button', { class: 'btn small', type: 'button', onclick: back }, '‹ Bag'), h('span', { class: 'hint', style: { margin: 0 } }, `Teach ${move.name} to…`)));
+    panel.append(h('div', { class: 'row', style: { justifyContent: 'flex-start' } }, h('button', { class: 'btn small', type: 'button', onclick: back }, '‹ Bag'), h('span', { class: 'hint', style: { margin: 0 } }, `Teach ${move.name} to… (party only; withdraw stored creatures first)`)));
     const done = (uid, index) => {
       const m = [...j.party, ...j.box].find((x) => x.uid === uid);
       const r = teachMove(j, uid, move.id, index);
@@ -12272,7 +12286,7 @@ function owTeachPanel(j, teaching, back) {
       toast(`${m.genome.name} learned ${move.name}!${r.replaced ? ` (forgot ${getMove(r.replaced).name})` : ''}`);
       back();
     };
-    for (const m of [...j.party, ...j.box]) {
+    for (const m of j.party) {
       const c = canTeach(j, m.uid, move.id);
       const picked = teaching.uid === m.uid;
       panel.append(h('div', { class: 'teach-row' }, creatureEl(m.genome, { size: 44, animate: false, level: m.level }),
@@ -12314,6 +12328,33 @@ function owMarketSheet(j) {
   };
   render();
   owSheet('Market', body, () => owRefreshHud());
+}
+
+/** Creature Storage: the only place the box opens. Deposit from the party, withdraw into it. */
+function owStorageSheet(j) {
+  const body = h('div');
+  const render = () => {
+    clear(body);
+    const btn = (label, onclick, disabled) => h('button', { class: 'btn small', type: 'button', disabled, onclick }, label);
+    const partyList = h('div', { class: 'party-list' });
+    j.party.forEach((m, i) => partyList.append(owMemberRow(j, m, [
+      btn('Lead', () => { setLead(j, m.uid); owSave(); render(); }, i === 0),
+      btn('Deposit', () => { moveMember(j, m.uid, 'box'); owSave(); render(); }, j.party.length <= 1),
+      btn('Info', () => openSheet(m.genome, { level: m.level })),
+    ])));
+    const boxList = h('div', { class: 'party-list' });
+    for (const m of j.box) boxList.append(owMemberRow(j, m, [
+      btn('Withdraw', () => { moveMember(j, m.uid, 'party'); owSave(); render(); }, j.party.length >= JOURNEY.partyMax),
+      btn('Info', () => openSheet(m.genome, { level: m.level })),
+    ]));
+    appendChildren(body, [
+      h('p', { class: 'hint' }, `Up to ${JOURNEY.partyMax} travel with you; the rest wait here. Creatures caught with a full party come straight to storage.`),
+      ...section(`Party · ${j.party.length}/${JOURNEY.partyMax}`, partyList),
+      ...section(`Stored · ${j.box.length}`, j.box.length ? boxList : h('p', { class: 'hint' }, 'Nothing stored yet.')),
+    ]);
+  };
+  render();
+  owSheet('Creature Storage', body, () => owRefreshHud());
 }
 
 /** Grid of everything caught, chosen or fused, newest first. */
@@ -12462,7 +12503,7 @@ function owDraw(ts) {
       else if (t === TILE.path || t === TILE.door) ground = region.path;
       else if (t === TILE.water) ground = region.water;
       else if (t === TILE.habitat) ground = region.habitat;
-      else if (t === TILE.lair || t === TILE.spire || t === TILE.market) ground = '#2a2731';
+      else if (t === TILE.lair || t === TILE.spire || t === TILE.market || t === TILE.storage) ground = '#2a2731';
       ctx.fillStyle = ground; ctx.fillRect(px, py, T + 0.5, T + 0.5);
       if (t === TILE.grass && hsh > 0.6) { ctx.strokeStyle = 'rgba(0,0,0,.12)'; ctx.lineWidth = 1.5 * s; ctx.beginPath(); ctx.moveTo(px + T * 0.3, py + T * 0.7); ctx.lineTo(px + T * 0.35, py + T * 0.5); ctx.moveTo(px + T * 0.62, py + T * 0.6); ctx.lineTo(px + T * 0.66, py + T * 0.42); ctx.stroke(); }
       else if (t === TILE.habitat) {
@@ -12482,7 +12523,7 @@ function owDraw(ts) {
       } else if (t === TILE.shrine) {
         ctx.fillStyle = '#f5c518'; ctx.beginPath(); ctx.moveTo(px + T / 2, py + T * 0.12); ctx.lineTo(px + T * 0.78, py + T / 2); ctx.lineTo(px + T / 2, py + T * 0.88); ctx.lineTo(px + T * 0.22, py + T / 2); ctx.closePath(); ctx.fill();
         ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(px + T / 2, py + T / 2, T * 0.1, 0, Math.PI * 2); ctx.fill();
-      } else if (t === TILE.door || t === TILE.spireDoor || t === TILE.marketDoor) { ctx.fillStyle = 'rgba(0,0,0,.25)'; ctx.fillRect(px + T * 0.2, py + T * 0.3, T * 0.6, T * 0.4); }
+      } else if (t === TILE.door || t === TILE.spireDoor || t === TILE.marketDoor || t === TILE.storageDoor) { ctx.fillStyle = 'rgba(0,0,0,.25)'; ctx.fillRect(px + T * 0.2, py + T * 0.3, T * 0.6, T * 0.4); }
       if (t === TILE.lair || t === TILE.spire) deferred.push({ x, y, t, region, px, py });
     }
   }
@@ -12525,6 +12566,19 @@ function owDraw(ts) {
       ctx.fillStyle = '#ffe9a8'; ctx.fillRect(mx + T * 0.45, my + T * 0.75, 7 * s, 8 * s); ctx.fillRect(mx + W - T * 0.45 - 7 * s, my + T * 0.75, 7 * s, 8 * s);
       ctx.fillStyle = '#f5c518'; ctx.beginPath(); ctx.arc(mx + W / 2, my + T * 0.3, T * 0.22, 0, Math.PI * 2); ctx.fill();
       ctx.fillStyle = '#7a5230'; ctx.font = `bold ${Math.round(T * 0.3)}px system-ui, sans-serif`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText('◆', mx + W / 2, my + T * 0.31);
+    }
+  }
+  {
+    // Creature Storage: a stone house with a teal roof, shuttered windows and a crate sign
+    const st = world.storage, sx2 = (st.x - 1) * T - cam.x, sy2 = st.y * T - cam.y, W = 3 * T, H = 2 * T;
+    if (sx2 + W > 0 && sx2 < ow.cssW && sy2 + H + T > 0 && sy2 < ow.cssH) {
+      ctx.fillStyle = '#5c6b7a'; ctx.fillRect(sx2 + 2 * s, sy2 + 2 * s, W - 4 * s, H - 2 * s);
+      ctx.fillStyle = '#2f7f74'; ctx.fillRect(sx2, sy2, W, T * 0.7);
+      ctx.fillStyle = 'rgba(0,0,0,.2)'; ctx.fillRect(sx2, sy2 + T * 0.7, W, 3 * s);
+      ctx.fillStyle = '#243a44'; ctx.fillRect(sx2 + T * 0.4, sy2 + T * 0.95, 8 * s, 9 * s); ctx.fillRect(sx2 + W - T * 0.4 - 8 * s, sy2 + T * 0.95, 8 * s, 9 * s);
+      ctx.fillStyle = '#9fe8d8'; ctx.fillRect(sx2 + W / 2 - 7 * s, sy2 + T * 0.9, 14 * s, 11 * s);
+      ctx.fillStyle = '#2f7f74'; ctx.fillRect(sx2 + W / 2 - 5 * s, sy2 + T * 0.9 + 2 * s, 10 * s, 7 * s);
+      ctx.fillStyle = '#9fe8d8'; ctx.fillRect(sx2 + W / 2 - 1 * s, sy2 + T * 0.9 + 2 * s, 2 * s, 7 * s); ctx.fillRect(sx2 + W / 2 - 5 * s, sy2 + T * 0.9 + 4.5 * s, 10 * s, 2 * s);
     }
   }
   // tap target

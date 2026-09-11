@@ -99,6 +99,7 @@ export function createBattle({ sides, seed = 'battle', capturable = false }) {
       };
     }),
   };
+  for (const s of state.sides) s.party[s.active].fought = true; // participants share the experience
   const events = [];
   const rng = makeRng(`${state.seed}:start`);
   for (const i of [0, 1]) events.push({ t: 'switch', side: i, name: activeOf(state, i).name, uid: activeOf(state, i).uid, initial: true });
@@ -220,6 +221,7 @@ function doSwitch(state, i, index, events, forced) {
   out.stages = freshStages();
   out.flinch = false;
   side.active = index;
+  side.party[index].fought = true;
   const inn = side.party[index];
   inn.justEntered = true;
   events.push({ t: 'switch', side: i, name: inn.name, uid: inn.uid, from: out.name, forced });

@@ -6,13 +6,18 @@ import { learnsetOf } from '../creature/genome.js';
 import { getMove } from '../data/moves.js';
 import { statsAtLevel, movesAtLevel } from '../battle/stats.js';
 import { MAX_PARTY } from '../battle/engine.js';
+import { stageOf } from '../data/evolution.js';
 
-export const PARTY = { max: MAX_PARTY, maxLevel: 100, xpK: 7, starterLevel: 5 };
+export const PARTY = { max: MAX_PARTY, maxLevel: 100, starterLevel: 5 };
+/** Experience follows Pokémon Red: a foe's base yield (from its stat total and evolution stage) times its level, over seven. */
+export const XP = { yieldPerBst: 0.15, stageYield: { 1: 1, 2: 1.6, 3: 2.4 }, trainerBonus: 1.5 };
 
+/** Medium-fast growth: level L needs L cubed experience. */
 export function xpForLevel(L) { return L * L * L; }
-/** XP for defeating (or catching) one foe; Wardens, the Council and alphas pay half again. */
+/** XP for defeating (or catching) one foe: yield × level / 7, half again for a trainer's, a Warden's or an alpha's creature. Shared by the party members that fought. */
 export function xpReward(level, bst, kind) {
-  return Math.round(PARTY.xpK * level * level * ((bst || 400) / 400) * (kind === 'boss' ? 1.5 : 1));
+  const base = (bst || 400) * XP.yieldPerBst * (XP.stageYield[stageOf(level)] || 1);
+  return Math.max(1, Math.round(((base * level) / 7) * (kind === 'wild' ? 1 : XP.trainerBonus)));
 }
 
 export function memberMaxHp(m) { return statsAtLevel(m.genome, m.level).hp; }

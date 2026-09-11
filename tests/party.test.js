@@ -5,14 +5,20 @@ import { SPECIES_BY_ID } from '../src/data/species.js';
 import { getMove } from '../src/data/moves.js';
 import { speciesGenome, learnsetOf } from '../src/creature/genome.js';
 import { createBattle, makeBattler, captureChance, legalActions, step } from '../src/battle/engine.js';
-import { PARTY, xpForLevel, xpReward, makeMember, memberMaxHp, xpProgress, gainXp, movesLearnedBetween, learnMove, healParty, moveMember, setLead, canFight, memberById } from '../src/game/party.js';
+import { PARTY, XP, xpForLevel, xpReward, makeMember, memberMaxHp, xpProgress, gainXp, movesLearnedBetween, learnMove, healParty, moveMember, setLead, canFight, memberById } from '../src/game/party.js';
 
 const ember = (seed, level = 8) => makeMember(speciesGenome(SPECIES_BY_ID.emberox, makeRng(seed)), level, `u-${seed}`);
 
 test('xp thresholds, rewards and progress', () => {
   assert.equal(xpForLevel(10), 1000);
+  // Red's formula: yield x level / 7, with yields around 60 for a 400 stat total
+  assert.equal(xpReward(10, 400, 'wild'), Math.round((400 * XP.yieldPerBst * 10) / 7));
+  assert.equal(xpReward(10, 400, 'wild'), 86);
+  assert.equal(xpReward(40, 430, 'wild'), Math.round((430 * XP.yieldPerBst * XP.stageYield[2] * 40) / 7), 'evolved foes yield more');
   assert.ok(xpReward(20, 400, 'wild') > xpReward(10, 400, 'wild'));
-  assert.equal(xpReward(20, 400, 'boss'), Math.round(xpReward(20, 400, 'wild') * 1.5));
+  assert.equal(xpReward(20, 400, 'boss'), Math.round(xpReward(20, 400, 'wild') * XP.trainerBonus));
+  assert.equal(xpReward(20, 400, 'trainer'), xpReward(20, 400, 'boss'));
+  assert.ok(xpReward(1, 400, 'wild') >= 1);
   const m = ember('p');
   assert.equal(m.xp, xpForLevel(8));
   assert.equal(m.hp, memberMaxHp(m));

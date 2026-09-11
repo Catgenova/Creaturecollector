@@ -66,8 +66,10 @@ a hub town, one per class in rising difficulty. Habitat patches spawn the
 class's species by element type, with stronger and rarer creatures turning up
 less often; trainers on the roads fight when asked; each biome's Warden holds
 a badge; camps heal and set the respawn point; a shrine fuses; trainers pay
-gold that the Market turns into single-use move scrolls for your Bag; and with
-seven badges the Council Spire opens to four fights back to back. Walk with the
+gold that the Market turns into single-use move scrolls for your Bag; the
+Creature Storage holds the box; experience follows Pokémon Red's formula and
+is shared by the creatures that fought; and with seven badges the Council
+Spire opens to four fights back to back. Walk with the
 keyboard, the on-screen pad or a tap on the ground. The endless arena is gone;
 its capture, XP, party and collection systems live on here, and an old save's
 arena creatures join the collection.

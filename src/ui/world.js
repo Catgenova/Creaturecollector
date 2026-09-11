@@ -110,7 +110,7 @@ function owReportCard(j) {
   if (r.wiped) lines.push(`Your party was overwhelmed by ${r.foe}. You come to at the last camp, rested.`);
   else if (!r.won) lines.push(`${r.foe} got away.`);
   else {
-    lines.push(`Beat ${r.foe}. +${r.xp} XP each${r.gold ? `, +${r.gold.toLocaleString()} gold` : ''}.`);
+    lines.push(`Beat ${r.foe}. +${r.xp} XP${r.shared > 1 ? ` each to the ${r.shared} that fought` : ''}${r.gold ? `, +${r.gold.toLocaleString()} gold` : ''}.`);
     for (const l of r.levelUps) { lines.push(`${l.name} grew to Lv ${l.to}!`); if (stageOf(l.to) > stageOf(l.from)) lines.push(`${l.name} evolved! ${stageName(stageOf(l.to))}.`); }
     for (const l of r.learned || []) { const mv = getMove(l.move); lines.push(`${l.name} learned ${mv ? mv.name : l.move}!`); }
     if (r.captured) lines.push(`${r.captured.genome.name} joined ${r.toBox ? 'the box' : 'the party'}.`);
@@ -263,6 +263,7 @@ function owAfterStep(event) {
   if (event.kind === 'spire') { owSpireDialog(event); return; }
   if (event.kind === 'shrine') { owShrineSheet(j); return; }
   if (event.kind === 'market') { owMarketSheet(j); return; }
+  if (event.kind === 'storage') { owStorageSheet(j); return; }
 }
 
 function owRefreshHud() {
@@ -283,6 +284,7 @@ function owInteract() {
   if (here === TILE.spireDoor) { owSpireDialog({ open: j.badges.length >= JOURNEY.badgesForSpire, champion: j.champion }); return; }
   if (here === TILE.shrine) { owShrineSheet(j); return; }
   if (here === TILE.marketDoor) { owMarketSheet(j); return; }
+  if (here === TILE.storageDoor) { owStorageSheet(j); return; }
   if (here === TILE.camp) { toast('The fire is warm. Your party is rested.'); return; }
   const ht = habitatTypeAt(world, f.x, f.y);
   if (tileAt(world, f.x, f.y) === TILE.habitat && ht) { toast(`${ht}-type creatures live in this ${biomeAt(world, f.x, f.y).name.toLowerCase()} patch.`); return; }
@@ -427,17 +429,11 @@ function owPartySheet(j) {
     const partyList = h('div', { class: 'party-list' });
     j.party.forEach((m, i) => partyList.append(owMemberRow(j, m, [
       btn('Lead', () => { setLead(j, m.uid); owSave(); render(); }, i === 0),
-      btn('Box', () => { moveMember(j, m.uid, 'box'); owSave(); render(); }, j.party.length <= 1),
       btn('Info', () => openSheet(m.genome, { level: m.level })),
     ])));
     appendChildren(body, [
-      ...section(`Party · ${j.party.length}/${JOURNEY.partyMax}`, h('p', { class: 'hint' }, 'The lead goes out first. Camps heal everyone; a wipe sends you back to the last one you rested at.'), partyList),
+      ...section(`Party · ${j.party.length}/${JOURNEY.partyMax}`, h('p', { class: 'hint' }, `The lead goes out first. Camps heal everyone; a wipe sends you back to the last one you rested at. ${j.box.length ? `${j.box.length} in storage` : 'Storage is empty'}; deposit and withdraw at the Creature Storage in the Crossroads.`), partyList),
     ]);
-    if (j.box.length) {
-      const boxList = h('div', { class: 'party-list' });
-      for (const m of j.box) boxList.append(owMemberRow(j, m, [btn('To party', () => { moveMember(j, m.uid, 'party'); owSave(); render(); }, j.party.length >= JOURNEY.partyMax), btn('Info', () => openSheet(m.genome, { level: m.level }))]));
-      body.append(...section(`Box · ${j.box.length}`, boxList));
-    }
     body.append(h('p', { class: 'hint' }, `${j.stats.steps} steps · ${j.stats.battles} battles · ${j.stats.captures} caught · ${j.stats.trainers} trainers · ${j.stats.bosses} wardens · ${j.stats.fusions} fusions`));
   };
   render();
@@ -457,10 +453,11 @@ function owMapSheet(j) {
   for (const b of world.biomes) { dot(b.camp, '#ffffff', 4); dot(b.lair, j.badges.includes(b.id) ? '#ffd166' : '#ff5a5a', 5); }
   dot(world.spireDoor, '#b98cff', 5);
   dot(world.marketDoor, '#7fe38a', 5);
+  dot(world.storageDoor, '#4fc0a0', 5);
   for (const t of world.trainers) dot({ x: t.x, y: t.y }, j.beaten[t.id] ? '#8f96a8' : '#4f8ef7', 2.5);
   dot(j.player, '#f5c518', 6); ctx.strokeStyle = '#000'; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.arc(j.player.x * S + S / 2, j.player.y * S + S / 2, 6, 0, Math.PI * 2); ctx.stroke();
   const legend = h('div', { class: 'ow-legend' }, world.biomes.map((b) => h('div', {}, h('i', { style: { background: REGIONS[b.clade].ground } }), `${b.name} · to Lv ${b.level}${j.badges.includes(b.id) ? ' · badge ✓' : ''}`)));
-  owSheet('World map', h('div', {}, c, legend, h('p', { class: 'hint', style: { marginTop: '8px' } }, 'You are the gold dot. White: camps. Red: Wardens (gold once beaten). Blue: trainers. Purple: the Council Spire. Green: the Market.')));
+  owSheet('World map', h('div', {}, c, legend, h('p', { class: 'hint', style: { marginTop: '8px' } }, 'You are the gold dot. White: camps. Red: Wardens (gold once beaten). Blue: trainers. Purple: the Council Spire. Green: the Market. Teal: Creature Storage.')));
 }
 
 function owMenuSheet(j) {
@@ -521,7 +518,7 @@ function owTeachPanel(j, teaching, back) {
   const panel = h('div');
   const render = () => {
     clear(panel);
-    panel.append(h('div', { class: 'row', style: { justifyContent: 'flex-start' } }, h('button', { class: 'btn small', type: 'button', onclick: back }, '‹ Bag'), h('span', { class: 'hint', style: { margin: 0 } }, `Teach ${move.name} to…`)));
+    panel.append(h('div', { class: 'row', style: { justifyContent: 'flex-start' } }, h('button', { class: 'btn small', type: 'button', onclick: back }, '‹ Bag'), h('span', { class: 'hint', style: { margin: 0 } }, `Teach ${move.name} to… (party only; withdraw stored creatures first)`)));
     const done = (uid, index) => {
       const m = [...j.party, ...j.box].find((x) => x.uid === uid);
       const r = teachMove(j, uid, move.id, index);
@@ -530,7 +527,7 @@ function owTeachPanel(j, teaching, back) {
       toast(`${m.genome.name} learned ${move.name}!${r.replaced ? ` (forgot ${getMove(r.replaced).name})` : ''}`);
       back();
     };
-    for (const m of [...j.party, ...j.box]) {
+    for (const m of j.party) {
       const c = canTeach(j, m.uid, move.id);
       const picked = teaching.uid === m.uid;
       panel.append(h('div', { class: 'teach-row' }, creatureEl(m.genome, { size: 44, animate: false, level: m.level }),
@@ -572,6 +569,33 @@ function owMarketSheet(j) {
   };
   render();
   owSheet('Market', body, () => owRefreshHud());
+}
+
+/** Creature Storage: the only place the box opens. Deposit from the party, withdraw into it. */
+function owStorageSheet(j) {
+  const body = h('div');
+  const render = () => {
+    clear(body);
+    const btn = (label, onclick, disabled) => h('button', { class: 'btn small', type: 'button', disabled, onclick }, label);
+    const partyList = h('div', { class: 'party-list' });
+    j.party.forEach((m, i) => partyList.append(owMemberRow(j, m, [
+      btn('Lead', () => { setLead(j, m.uid); owSave(); render(); }, i === 0),
+      btn('Deposit', () => { moveMember(j, m.uid, 'box'); owSave(); render(); }, j.party.length <= 1),
+      btn('Info', () => openSheet(m.genome, { level: m.level })),
+    ])));
+    const boxList = h('div', { class: 'party-list' });
+    for (const m of j.box) boxList.append(owMemberRow(j, m, [
+      btn('Withdraw', () => { moveMember(j, m.uid, 'party'); owSave(); render(); }, j.party.length >= JOURNEY.partyMax),
+      btn('Info', () => openSheet(m.genome, { level: m.level })),
+    ]));
+    appendChildren(body, [
+      h('p', { class: 'hint' }, `Up to ${JOURNEY.partyMax} travel with you; the rest wait here. Creatures caught with a full party come straight to storage.`),
+      ...section(`Party · ${j.party.length}/${JOURNEY.partyMax}`, partyList),
+      ...section(`Stored · ${j.box.length}`, j.box.length ? boxList : h('p', { class: 'hint' }, 'Nothing stored yet.')),
+    ]);
+  };
+  render();
+  owSheet('Creature Storage', body, () => owRefreshHud());
 }
 
 /** Grid of everything caught, chosen or fused, newest first. */
@@ -720,7 +744,7 @@ function owDraw(ts) {
       else if (t === TILE.path || t === TILE.door) ground = region.path;
       else if (t === TILE.water) ground = region.water;
       else if (t === TILE.habitat) ground = region.habitat;
-      else if (t === TILE.lair || t === TILE.spire || t === TILE.market) ground = '#2a2731';
+      else if (t === TILE.lair || t === TILE.spire || t === TILE.market || t === TILE.storage) ground = '#2a2731';
       ctx.fillStyle = ground; ctx.fillRect(px, py, T + 0.5, T + 0.5);
       if (t === TILE.grass && hsh > 0.6) { ctx.strokeStyle = 'rgba(0,0,0,.12)'; ctx.lineWidth = 1.5 * s; ctx.beginPath(); ctx.moveTo(px + T * 0.3, py + T * 0.7); ctx.lineTo(px + T * 0.35, py + T * 0.5); ctx.moveTo(px + T * 0.62, py + T * 0.6); ctx.lineTo(px + T * 0.66, py + T * 0.42); ctx.stroke(); }
       else if (t === TILE.habitat) {
@@ -740,7 +764,7 @@ function owDraw(ts) {
       } else if (t === TILE.shrine) {
         ctx.fillStyle = '#f5c518'; ctx.beginPath(); ctx.moveTo(px + T / 2, py + T * 0.12); ctx.lineTo(px + T * 0.78, py + T / 2); ctx.lineTo(px + T / 2, py + T * 0.88); ctx.lineTo(px + T * 0.22, py + T / 2); ctx.closePath(); ctx.fill();
         ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(px + T / 2, py + T / 2, T * 0.1, 0, Math.PI * 2); ctx.fill();
-      } else if (t === TILE.door || t === TILE.spireDoor || t === TILE.marketDoor) { ctx.fillStyle = 'rgba(0,0,0,.25)'; ctx.fillRect(px + T * 0.2, py + T * 0.3, T * 0.6, T * 0.4); }
+      } else if (t === TILE.door || t === TILE.spireDoor || t === TILE.marketDoor || t === TILE.storageDoor) { ctx.fillStyle = 'rgba(0,0,0,.25)'; ctx.fillRect(px + T * 0.2, py + T * 0.3, T * 0.6, T * 0.4); }
       if (t === TILE.lair || t === TILE.spire) deferred.push({ x, y, t, region, px, py });
     }
   }
@@ -783,6 +807,19 @@ function owDraw(ts) {
       ctx.fillStyle = '#ffe9a8'; ctx.fillRect(mx + T * 0.45, my + T * 0.75, 7 * s, 8 * s); ctx.fillRect(mx + W - T * 0.45 - 7 * s, my + T * 0.75, 7 * s, 8 * s);
       ctx.fillStyle = '#f5c518'; ctx.beginPath(); ctx.arc(mx + W / 2, my + T * 0.3, T * 0.22, 0, Math.PI * 2); ctx.fill();
       ctx.fillStyle = '#7a5230'; ctx.font = `bold ${Math.round(T * 0.3)}px system-ui, sans-serif`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText('◆', mx + W / 2, my + T * 0.31);
+    }
+  }
+  {
+    // Creature Storage: a stone house with a teal roof, shuttered windows and a crate sign
+    const st = world.storage, sx2 = (st.x - 1) * T - cam.x, sy2 = st.y * T - cam.y, W = 3 * T, H = 2 * T;
+    if (sx2 + W > 0 && sx2 < ow.cssW && sy2 + H + T > 0 && sy2 < ow.cssH) {
+      ctx.fillStyle = '#5c6b7a'; ctx.fillRect(sx2 + 2 * s, sy2 + 2 * s, W - 4 * s, H - 2 * s);
+      ctx.fillStyle = '#2f7f74'; ctx.fillRect(sx2, sy2, W, T * 0.7);
+      ctx.fillStyle = 'rgba(0,0,0,.2)'; ctx.fillRect(sx2, sy2 + T * 0.7, W, 3 * s);
+      ctx.fillStyle = '#243a44'; ctx.fillRect(sx2 + T * 0.4, sy2 + T * 0.95, 8 * s, 9 * s); ctx.fillRect(sx2 + W - T * 0.4 - 8 * s, sy2 + T * 0.95, 8 * s, 9 * s);
+      ctx.fillStyle = '#9fe8d8'; ctx.fillRect(sx2 + W / 2 - 7 * s, sy2 + T * 0.9, 14 * s, 11 * s);
+      ctx.fillStyle = '#2f7f74'; ctx.fillRect(sx2 + W / 2 - 5 * s, sy2 + T * 0.9 + 2 * s, 10 * s, 7 * s);
+      ctx.fillStyle = '#9fe8d8'; ctx.fillRect(sx2 + W / 2 - 1 * s, sy2 + T * 0.9 + 2 * s, 2 * s, 7 * s); ctx.fillRect(sx2 + W / 2 - 5 * s, sy2 + T * 0.9 + 4.5 * s, 10 * s, 2 * s);
     }
   }
   // tap target

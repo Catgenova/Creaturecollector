@@ -295,11 +295,17 @@ through `src/game/party.js` and `src/game/save.js`.
   common / uncommon / rare (fusions × 0.7), status × 1.5 (sleep, freeze × 2),
   capped at 95%. Three shake checks at the cube root of the odds. A capture
   costs the turn; success ends the battle as a win.
-- **XP and levels.** `xpForLevel(L) = L³`. Each defeated or caught foe gives
-  `7 × L² × bst/400` (× 1.5 for Wardens, the Council and alphas) to every party
-  member. Levelling raises current HP by the max-HP gain. Members keep their
-  own four moves: levelling into a new one fills an empty slot or queues a
-  prompt asking which move to replace, with a skip.
+- **XP and levels.** Pokémon Red's pace. `xpForLevel(L) = L³` (the
+  medium-fast group). A defeated or caught foe yields `bst × 0.15 × stage × L
+  / 7` (`XP` in `party.js`; stage 1 / 1.6 / 2.4 for its evolution stage, so a
+  400-total creature yields about 60 like an early-route wild), half again
+  when it belonged to a trainer, a Warden, the Council or was an alpha. The
+  reward is shared equally by the party members that fought and are still
+  standing (the engine flags `fought` on every creature sent out); benched
+  and fainted creatures get nothing. Levelling raises current HP by the
+  max-HP gain. Members keep their own four moves: levelling into a new one
+  fills an empty slot or queues a prompt asking which move to replace, with a
+  skip.
 - **Party and box.** Five in the party, overflow in the box, swap freely on
   the map, choose the lead. A fainted lead is rotated out automatically.
 - **Save.** One localStorage key, versioned, normalised on load so junk cannot
@@ -674,6 +680,10 @@ into the collection on load.
   to any creature, party or box, adds the move or replaces a chosen one when it
   already knows four, and uses the scroll up. Gold and the bag are saved and
   normalised with the journey.
+- **Creature Storage.** The Market's twin on the hub's north-west edge holds
+  the box. Deposit and withdraw happen only there (the Party sheet elsewhere
+  reorders and inspects); a capture with a full party goes straight to
+  storage, and scrolls teach party members only.
 - **Wipe.** When nobody can fight after a loss the party returns to the last
   camp at full health (`respawnJourney`). No other penalty.
 - **Journey state.** `{ seed, phase: starter|roam|champion, party, box,
@@ -689,8 +699,8 @@ into the collection on load.
   "!" when adjacent; the player walks with a bob. Controls: arrows/WASD, an
   on-screen pad (hold to keep walking), tap the ground to path there (BFS,
   stops on any event) and A / Space to talk. HUD shows the place, its wild
-  level, seven badge dots, gold and Party / Bag / Map / Menu sheets (party and box
-  management with the learn-move prompt, a minimap with camps, lairs, trainers
+  level, seven badge dots, gold and Party / Bag / Map / Menu sheets (party order
+  and the learn-move prompt, a minimap with camps, lairs, trainers
   and the spire, fast battles, return to camp, export/import, abandon). An
   encounter shows a card with the foes and Fight / Run before the fight view.
 
