@@ -542,14 +542,14 @@ already carries the power.
   wings, fins and fur a lot) and, for the protruding families, lengthens its
   tips: the outline points locally farthest from their shape's centre get a
   spike in the shape's own colour, drawn behind it so it reads as the tip
-  growing longer; stage 3 spikes carry an accent "energy" tip. This keeps
-  every species complete while the hand batches land.
+  growing longer; stage 3 spikes carry an accent "energy" tip. It stays as the
+  safety net for any part added later without stages.
 - **The art language.** Stage 2 is "more pronounced": the defining feature
   gains one extra element (a second flame lick, ear tufts, a fourth stripe,
   claws, a darker ruff layered behind the mane). Stage 3 is "exaggerated":
   the feature dominates (a forked tail, a crown of tufts, a sunburst mane,
-  gems and glows, armour bands, a second wing membrane). Hand batches so far:
-  mammals, reptiles, amphibians, fish and birds (422 parts).
+  gems and glows, armour bands, a second wing membrane). Every part of
+  all seven classes has hand-authored stages (590 parts).
 - **UI.** Cards and sheets show a II / III chip (`stageBadge`), sprites in the
   arena, fights and battle setup draw at their level, level-up reports and the
   fight log announce evolutions, and the Lab sheet has Stage 1 / 2 / 3

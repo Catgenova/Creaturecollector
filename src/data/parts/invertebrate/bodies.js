@@ -1,9 +1,12 @@
 // Invertebrate bodies. Origin = centre. The face sits on the body (eye / eyeFar, mouth).
 // Sockets: arm / armFar, legs / legsFar (one part draws a whole side), shell (top), tail (rear),
 // crown (top), feelers (front), skirt (underside). Floaters hover. kinds: 'inv.crawler', 'inv.floater'.
+// Evolutions: stage 2 grows the body and bulges lobes or spines out of it with brighter marks;
+// stage 3 adds a second set (a shell-rim crown on the crab, a fringe on the bell) and glow.
 import { vBody, torsoShade } from './_shared.js';
 import { L, SH, HL, C, PATCH } from '../_dsl.js';
 import { diamondPath, sparklePath, crescentPath, boltPath } from '../_sigils.js';
+import { evoFan, evoGlow, evoGem } from '../_evo.js';
 
 export const V_BODIES = [
   vBody({
@@ -16,6 +19,10 @@ export const V_BODIES = [
       arm: { x: 22, y: 4, a: 0, s: 1 }, armFar: { x: 12, y: 0, a: 0, s: 0.9 }, legs: { x: 8, y: 12, a: 0, s: 1 }, legsFar: { x: 0, y: 8, a: 0, s: 0.9 },
       shell: { x: -14, y: -6, a: 0, s: 1 }, tail: { x: -40, y: 4, a: 0 }, crown: { x: 28, y: -16, a: 0, s: 1 }, feelers: { x: 34, y: -10, a: 0, s: 1 }, skirt: { x: -4, y: 12, a: 0, s: 1 },
     },
+    stages: {
+      2: { grow: [1.06, 1.06], addBehind: [evoFan(-42, 4, 150, 210, 2, 4, 12, { tip: 0.5 })], add: [C(8, -8, 3.6, 'a', { ns: true, cl: true }), C(-8, -4, 3.4, 'a', { ns: true, cl: true }), C(-24, 0, 3.2, 'a', { ns: true, cl: true })] },
+      3: { grow: [1.06, 1.06], addBehind: [evoFan(0, -8, 220, 320, 3, 4, 12, { tip: 0.5 })], add: [evoGlow(8, -8, 6, 0.25), evoGlow(-8, -4, 6, 0.25), evoGlow(-24, 0, 5.5, 0.25)] },
+    },
   }),
   vBody({
     id: 'crab', name: 'Crab', kind: 'inv.crawler', tags: ['crab', 'hard'], dom: 0.55, w: 2,
@@ -26,6 +33,10 @@ export const V_BODIES = [
       eye: { x: 22, y: -14, s: 1 }, eyeFar: { x: 6, y: -16, s: 0.85 }, mouth: { x: 36, y: 6, a: 0, s: 1 },
       arm: { x: 30, y: 8, a: 0, s: 1 }, armFar: { x: 18, y: 4, a: 0, s: 0.9 }, legs: { x: -6, y: 10, a: 0, s: 1 }, legsFar: { x: -14, y: 6, a: 0, s: 0.9 },
       shell: { x: -6, y: -8, a: 0, s: 1 }, tail: { x: -44, y: 2, a: 0 }, crown: { x: 6, y: -18, a: 0, s: 1 }, feelers: { x: 40, y: -4, a: 0, s: 1 }, skirt: { x: -4, y: 18, a: 0, s: 1 },
+    },
+    stages: {
+      2: { grow: [1.06, 1.06], addBehind: [evoFan(0, -16, 200, 340, 5, 6, 14)], add: [PATCH(diamondPath(0, -4, 19, 14), 'a', { op: 0.85 }), HL('M-4,-10 L2,-10 L4,-4 L-6,-4 Z', 0.35)] },
+      3: { grow: [1.06, 1.06], addBehind: [evoFan(0, -16, 190, 350, 7, 8, 20)], add: [...evoGem(0, -4, 3.4)] },
     },
   }),
   vBody({
@@ -38,6 +49,10 @@ export const V_BODIES = [
       arm: { x: 24, y: 6, a: 0, s: 0.9 }, armFar: { x: -20, y: 4, a: 0, s: 0.85 }, legs: { x: 0, y: 10, a: 0, s: 0.8 }, legsFar: { x: -8, y: 8, a: 0, s: 0.75 },
       shell: { x: 0, y: -30, a: 0, s: 0.8 }, tail: { x: -30, y: 2, a: -20 }, crown: { x: 2, y: -30, a: 0, s: 1 }, feelers: { x: 30, y: -2, a: 0, s: 1 }, skirt: { x: 0, y: 10, a: 0, s: 1 },
     },
+    stages: {
+      2: { grow: [1.06, 1.06], addBehind: [evoFan(0, -28, 220, 320, 3, 4, 12, { tip: 0.5 })], add: [L('M-26,4 C-14,10 14,10 26,4', 'a', 2, { ns: true, cl: true, op: 0.6 })] },
+      3: { grow: [1.06, 1.06], addBehind: [evoFan(0, -8, 150, 390, 8, 26, 36, { tip: 0.5 })], add: [evoGlow(-13, -14, 6, 0.25), evoGlow(0, -19, 6.5, 0.25), evoGlow(13, -14, 6, 0.25)] },
+    },
   }),
   vBody({
     id: 'octopus', name: 'Mantle', kind: 'inv.floater', tags: ['octopus', 'soft'], dom: 0.5, w: 2, hover: 14, bottom: 16,
@@ -48,6 +63,10 @@ export const V_BODIES = [
       eye: { x: 14, y: -8, s: 1.1 }, eyeFar: { x: -10, y: -10, s: 0.95 }, mouth: { x: 6, y: 8, a: 0, s: 1 },
       arm: { x: 24, y: 10, a: 0, s: 1 }, armFar: { x: -22, y: 8, a: 0, s: 0.9 }, legs: { x: 0, y: 14, a: 0, s: 0.9 }, legsFar: { x: -8, y: 12, a: 0, s: 0.8 },
       shell: { x: 0, y: -34, a: 0, s: 0.9 }, tail: { x: -30, y: 0, a: -20 }, crown: { x: 0, y: -34, a: 0, s: 1 }, feelers: { x: 28, y: -2, a: 0, s: 1 }, skirt: { x: 0, y: 14, a: 0, s: 1 },
+    },
+    stages: {
+      2: { grow: [1.06, 1.06], addBehind: [evoFan(0, -30, 220, 320, 3, 4, 14, { tip: 0.5 })], add: [PATCH(sparklePath(2, -23, 8), 'a')] },
+      3: { grow: [1.06, 1.06], addBehind: [evoFan(-24, -14, 160, 250, 3, 4, 14, { tip: 0.5 }), evoFan(24, -14, -70, 20, 3, 4, 14, { tip: 0.5 })], add: [evoGlow(2, -23, 11, 0.25)] },
     },
   }),
   vBody({
@@ -60,6 +79,10 @@ export const V_BODIES = [
       arm: { x: 22, y: 0, a: 0, s: 0.9 }, armFar: { x: -20, y: -2, a: 0, s: 0.85 }, legs: null, legsFar: null,
       shell: { x: 0, y: -30, a: 0, s: 0.8 }, tail: { x: -24, y: 6, a: -30 }, crown: { x: 0, y: -30, a: 0, s: 1 }, feelers: { x: 24, y: -8, a: 0, s: 1 }, skirt: { x: 0, y: 12, a: 0, s: 1 },
     },
+    stages: {
+      2: { grow: [1.06, 1.06], addBehind: [evoFan(0, -28, 220, 320, 3, 4, 14)], add: [PATCH(crescentPath(0, -19, 6.5, -90), 'a')] },
+      3: { grow: [1.06, 1.06], addBehind: [evoFan(-22, -10, 150, 240, 2, 4, 14), evoFan(22, -10, -60, 30, 2, 4, 14)], add: [evoGlow(0, -19, 10, 0.25)] },
+    },
   }),
   vBody({
     id: 'scorpion', name: 'Scorpion', kind: 'inv.crawler', tags: ['scorpion', 'armoured'], dom: 0.55, w: 2,
@@ -71,6 +94,10 @@ export const V_BODIES = [
       arm: { x: 32, y: 4, a: 0, s: 1 }, armFar: { x: 22, y: 0, a: 0, s: 0.9 }, legs: { x: 0, y: 12, a: 0, s: 1 }, legsFar: { x: -8, y: 8, a: 0, s: 0.9 },
       shell: { x: -10, y: -6, a: 0, s: 1 }, tail: { x: -44, y: -4, a: 0 }, crown: { x: 14, y: -14, a: 0, s: 1 }, feelers: { x: 40, y: -4, a: 0, s: 1 }, skirt: { x: -6, y: 14, a: 0, s: 1 },
     },
+    stages: {
+      2: { grow: [1.06, 1.06], addBehind: [evoFan(-42, -2, 150, 210, 2, 4, 12)], add: [L('M-34,-4 L-34,10 M-22,-8 L-22,12 M-10,-10 L-10,13 M4,-12 L4,13', 'a', 1.6, { ns: true, cl: true, op: 0.5 })] },
+      3: { grow: [1.06, 1.06], addBehind: [evoFan(0, -12, 220, 320, 4, 4, 12)], add: [evoGlow(-40, 2, 5, 0.3), evoGlow(-28, 1, 5, 0.3), evoGlow(-16, 0, 5, 0.3), evoGlow(-3, 0, 5, 0.3)] },
+    },
   }),
   vBody({
     id: 'spider', name: 'Spider', kind: 'inv.crawler', tags: ['spider'], dom: 0.5, w: 2,
@@ -81,6 +108,10 @@ export const V_BODIES = [
       eye: { x: 14, y: -4, s: 1 }, eyeFar: { x: 4, y: -6, s: 0.85 }, mouth: { x: 22, y: 4, a: 0, s: 1 },
       arm: { x: 18, y: 4, a: 0, s: 0.9 }, armFar: { x: 10, y: 0, a: 0, s: 0.8 }, legs: { x: 2, y: 6, a: 0, s: 1 }, legsFar: { x: -6, y: 2, a: 0, s: 0.9 },
       shell: { x: -24, y: -10, a: 0, s: 1 }, tail: { x: -46, y: 0, a: 0 }, crown: { x: 8, y: -14, a: 0, s: 1 }, feelers: { x: 24, y: -2, a: 0, s: 1 }, skirt: { x: -12, y: 12, a: 0, s: 1 },
+    },
+    stages: {
+      2: { grow: [1.06, 1.06], addBehind: [evoFan(-40, -8, 150, 250, 3, 4, 14)], add: [PATCH(boltPath(-28, -6, 8.5, 10), 'a')] },
+      3: { grow: [1.06, 1.06], addBehind: [evoFan(-24, -18, 200, 320, 3, 4, 12)], add: [evoGlow(-28, -6, 11, 0.25), C(16, -8, 2.2, 'a', { ns: true, cl: true })] },
     },
   }),
 ];

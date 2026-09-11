@@ -1,8 +1,11 @@
 // Insect bodies (thorax and abdomen). Origin = centre. Sockets: head (front of the thorax),
 // legFront / legMid / legBack and their Far copies (underside), wing / wingFar (top of the thorax),
 // tail (abdomen tip, rear), shell (top of the abdomen). Flyers hover.
+// Evolutions: stage 2 grows the body, adds accent segment lines and a pair of spines at the tip of
+// the abdomen; stage 3 adds thorax spines and brighter segment marks.
 import { iBody, torsoShade } from './_shared.js';
 import { L, SH, HL, S, C, PATCH, fur } from '../_dsl.js';
+import { evoFan } from '../_evo.js';
 
 export const I_BODIES = [
   iBody({
@@ -15,6 +18,10 @@ export const I_BODIES = [
       legBack: { x: -12, y: 14 }, legBackFar: { x: -20, y: 10 }, wing: { x: 6, y: -20, a: 0, s: 1 }, wingFar: { x: -4, y: -22, a: 0, s: 0.95 },
       tail: { x: -40, y: -2, a: 0 }, shell: { x: -8, y: -6, a: 0, s: 1 },
     },
+    stages: {
+      2: { grow: [1.06, 1.06], addBehind: [evoFan(-36, -4, 150, 210, 2, 4, 14)], add: [L('M-30,-14 C-20,-8 -6,-6 8,-8 M-32,0 C-20,6 -6,8 8,6', 'a', 1.6, { ns: true, cl: true, op: 0.5 })] },
+      3: { grow: [1.06, 1.06], addBehind: [evoFan(0, -20, 220, 320, 3, 4, 14)], add: [C(-12, -2, 2.4, 'a', { ns: true, cl: true }), C(-24, 0, 2.2, 'a', { ns: true, cl: true })] },
+    },
   }),
   iBody({
     id: 'bee', name: 'Bee', kind: 'insect.flyer', tags: ['bee', 'fuzzy'], dom: 0.5, w: 2, hover: 10,
@@ -25,6 +32,10 @@ export const I_BODIES = [
       head: { x: 32, y: -8, a: 0, s: 1 }, legFront: { x: 24, y: 10 }, legFrontFar: { x: 16, y: 6 }, legMid: { x: 10, y: 12 }, legMidFar: { x: 2, y: 8 },
       legBack: { x: -6, y: 12 }, legBackFar: { x: -14, y: 8 }, wing: { x: 14, y: -17, a: 0, s: 1 }, wingFar: { x: 6, y: -19, a: 0, s: 0.95 },
       tail: { x: -46, y: 0, a: 0 }, shell: { x: -12, y: -8, a: 0, s: 1 },
+    },
+    stages: {
+      2: { grow: [1.06, 1.06], addBehind: [evoFan(-42, -2, 150, 210, 2, 4, 14)], add: [L('M-30,-14 L-28,12 M-18,-16 L-16,13', 'a', 2.2, { ns: true, cl: true, op: 0.6 })] },
+      3: { grow: [1.06, 1.06], addBehind: [evoFan(8, -18, 220, 320, 3, 4, 12, { tip: 0.5 })], add: [L('M-6,-18 L-4,13', 'a', 2.2, { ns: true, cl: true, op: 0.6 }), C(-36, -2, 2.2, 'a', { ns: true, cl: true })] },
     },
   }),
   iBody({
@@ -37,6 +48,10 @@ export const I_BODIES = [
       legBack: { x: -20, y: 10 }, legBackFar: { x: -28, y: 6 }, wing: { x: -4, y: -8, a: 0, s: 1 }, wingFar: { x: -12, y: -10, a: 0, s: 0.95 },
       tail: { x: -44, y: -2, a: 0 }, shell: { x: -20, y: -4, a: 0, s: 1 },
     },
+    stages: {
+      2: { grow: [1.06, 1.06], addBehind: [evoFan(-40, 2, 150, 210, 2, 4, 14)], add: [L('M-30,-6 C-20,-2 -10,0 0,-4', 'a', 1.6, { ns: true, cl: true, op: 0.5 })] },
+      3: { grow: [1.06, 1.06], addBehind: [evoFan(16, -30, 220, 320, 3, 4, 14)], add: [C(-20, 2, 2.2, 'a', { ns: true, cl: true }), C(-34, 4, 2, 'a', { ns: true, cl: true })] },
+    },
   }),
   iBody({
     id: 'dragonfly', name: 'Darter', kind: 'insect.flyer', tags: ['dragonfly', 'long'], dom: 0.5, w: 2, hover: 14,
@@ -47,6 +62,10 @@ export const I_BODIES = [
       head: { x: 28, y: -6, a: 0, s: 1 }, legFront: { x: 22, y: 8 }, legFrontFar: { x: 14, y: 4 }, legMid: { x: 12, y: 8 }, legMidFar: { x: 4, y: 4 },
       legBack: { x: 2, y: 8 }, legBackFar: { x: -6, y: 4 }, wing: { x: 8, y: -12, a: 0, s: 1 }, wingFar: { x: -2, y: -14, a: 0, s: 0.95 },
       tail: { x: -70, y: 0, a: 0 }, shell: { x: -10, y: -2, a: 0, s: 0.8 },
+    },
+    stages: {
+      2: { grow: [1.06, 1.06], addBehind: [evoFan(-66, 0, 150, 210, 2, 4, 14)], add: [L('M-14,-3 L-14,5 M-26,-3 L-26,5 M-38,-2 L-38,4 M-50,-1 L-50,3', 'a', 1.6, { ns: true, cl: true, op: 0.6 })] },
+      3: { grow: [1.06, 1.06], addBehind: [evoFan(16, -12, 220, 320, 3, 4, 12)], add: [C(-20, 1, 3.4, 'a', { ns: true, cl: true, op: 0.4 }), C(-32, 1, 3.2, 'a', { ns: true, cl: true, op: 0.4 }), C(-44, 1, 3, 'a', { ns: true, cl: true, op: 0.4 }), C(-56, 1, 2.8, 'a', { ns: true, cl: true, op: 0.4 })] },
     },
   }),
   iBody({
@@ -59,6 +78,10 @@ export const I_BODIES = [
       legBack: { x: -14, y: 14 }, legBackFar: { x: -22, y: 10 }, wing: { x: 2, y: -18, a: 0, s: 0.9 }, wingFar: { x: -8, y: -20, a: 0, s: 0.85 },
       tail: { x: -30, y: -2, a: 0 }, shell: { x: -4, y: -4, a: 0, s: 1 },
     },
+    stages: {
+      2: { grow: [1.06, 1.06], addBehind: [evoFan(-26, -2, 150, 210, 2, 4, 12, { tip: 0.4 })], add: [L('M-20,-10 C-10,-6 10,-6 20,-10', 'a', 1.6, { ns: true, cl: true, op: 0.5 })] },
+      3: { grow: [1.06, 1.06], addBehind: [evoFan(0, -18, 220, 320, 3, 4, 12, { tip: 0.4 })], add: [C(-14, 4, 2.2, 'a', { ns: true, cl: true }), C(12, 4, 2.2, 'a', { ns: true, cl: true })] },
+    },
   }),
   iBody({
     id: 'ant', name: 'Segmented', kind: 'insect.crawler', tags: ['ant'], dom: 0.5, w: 2,
@@ -70,6 +93,10 @@ export const I_BODIES = [
       legBack: { x: 2, y: 4 }, legBackFar: { x: -6, y: 0 }, wing: { x: 10, y: -12, a: 0, s: 0.9 }, wingFar: { x: 2, y: -14, a: 0, s: 0.85 },
       tail: { x: -44, y: 0, a: 0 }, shell: { x: -22, y: -6, a: 0, s: 0.9 },
     },
+    stages: {
+      2: { grow: [1.06, 1.06], addBehind: [evoFan(-40, -2, 150, 210, 2, 4, 14)], add: [L('M-40,-4 C-32,-8 -20,-8 -12,-4', 'a', 1.6, { ns: true, cl: true, op: 0.5 })] },
+      3: { grow: [1.06, 1.06], addBehind: [evoFan(-24, -12, 220, 320, 3, 4, 12)], add: [C(-32, 1, 5.5, 'a', { ns: true, cl: true, op: 0.4 }), C(18, -2, 2.2, 'a', { ns: true, cl: true })] },
+    },
   }),
   iBody({
     id: 'moth', name: 'Fuzzy', kind: 'insect.flyer', tags: ['moth', 'fuzzy'], dom: 0.5, w: 2, hover: 12,
@@ -80,6 +107,10 @@ export const I_BODIES = [
       head: { x: 26, y: -8, a: 0, s: 1 }, legFront: { x: 18, y: 10 }, legFrontFar: { x: 10, y: 6 }, legMid: { x: 6, y: 12 }, legMidFar: { x: -2, y: 8 },
       legBack: { x: -8, y: 12 }, legBackFar: { x: -16, y: 8 }, wing: { x: 2, y: -16, a: 0, s: 1 }, wingFar: { x: -8, y: -18, a: 0, s: 0.95 },
       tail: { x: -38, y: -2, a: 0 }, shell: { x: -12, y: -6, a: 0, s: 1 },
+    },
+    stages: {
+      2: { grow: [1.06, 1.06], addBehind: [evoFan(-34, -2, 150, 210, 2, 4, 12, { tip: 0.5 })], add: [L('M-30,-8 C-20,-4 -8,-4 4,-8', 'a', 1.6, { ns: true, cl: true, op: 0.5 })] },
+      3: { grow: [1.06, 1.06], addBehind: [evoFan(0, -18, 220, 320, 3, 4, 14, { tip: 0.5 })], add: [C(-26, -2, 3.6, 'a', { ns: true, cl: true, op: 0.4 }), C(-16, 0, 3.3, 'a', { ns: true, cl: true, op: 0.4 }), C(-6, 1, 3, 'a', { ns: true, cl: true, op: 0.4 })] },
     },
   }),
 ];
