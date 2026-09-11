@@ -127,7 +127,7 @@ function resultPanel(child, report, a, b, actions) {
 
   const panel = h('div', { class: 'result' },
     h('div', { class: 'sheet-head' }, h('h2', {}, child.name, child.shiny ? ' ✦' : ''), typeChips(child.types), styleChip(child), elementalBadge(child)),
-    h('p', { class: 'meta' }, `${cladeName(cladeOf(child))} · gen ${child.gen} · ${a.name} × ${b.name} · face from ${parents[report.identity].name}`),
+    h('p', { class: 'meta' }, `${cladeName(cladeOf(child))} · gen ${child.gen} · ${a.name} × ${b.name} · face from ${parents[report.identity].name} · coat from ${parents[report.dominant].name}`),
     h('div', { class: 'hero' }, creatureEl(child, { size: 240, fit: true })),
     h('div', { class: 'row wrap' },
       h('button', { class: 'btn', type: 'button', onclick: actions.reroll }, 'Re-roll'),

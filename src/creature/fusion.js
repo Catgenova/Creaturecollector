@@ -6,10 +6,11 @@
 // generations and lets a grandparent's trait resurface.
 //
 // The "identity parent" is whichever parent supplied the expressed head (or the
-// body, for headless children). It gives the name prefix, the palette base and
-// the primary type. The other parent gives the suffix, one accent colour and the
-// secondary type. Shape from one side, colours from the other: that is what
-// makes a fusion read as half and half.
+// body, for headless children). It gives the name prefix, the accent and eye
+// colours and the primary type. The other parent gives the suffix and the
+// secondary type. Base colours come from the "dominant parent", the one that
+// supplied more of the expressed parts, pulled part of the way toward the other,
+// so a child's coat matches the parts it mostly wears.
 import { getPart, partFits } from '../data/parts/index.js';
 import { getRig, slotsFor, paintSlotsFor, swappableSlotsFor } from '../data/rigs.js';
 import { clamp01, lerp, round3, normalizeWeights } from '../core/util.js';
@@ -18,7 +19,7 @@ import { STAT_KEYS } from '../data/damage.js';
 import { ELEMENTS, isCoreAbility } from '../data/elements.js';
 import { CLADES, cladeName } from '../data/clades.js';
 import { getMove, UNIVERSAL_LEARNSET } from '../data/moves.js';
-import { blendColor } from './palette.js';
+import { blendColor, harmonizePalette } from './palette.js';
 import { joinNameParts, splitName } from './naming.js';
 
 export const FUSE = {
@@ -27,6 +28,8 @@ export const FUSE = {
   carriedMutation: 0.06,
   bodyMutation: 0.01,
   paintSwap: 0.05,
+  paletteBlend: { c1: [0.1, 0.35], c2: [0.2, 0.6] }, // how far each base colour is pulled toward the other parent
+  paletteBlendVisible: 0.3,  // above this the report calls the colour a blend rather than one parent's
   elementalAbility: 0.5,  // chance an Elemental parent's core ability passes to the child
   genBonusPerGen: 4,      // bst bonus per generation
   genBonusCap: 5,         // generations that count toward the bonus
@@ -64,7 +67,7 @@ export function canFuse(a, b) {
 /**
  * Fuse a and b. Deterministic for a given rng seed. Throws if the classes differ.
  * Returns { child, report } where report = { from: {slot: 0|1}, mutated: {slot: true},
- *   identity: 0|1, palette: {c1|c2|c3|eye: 0|1|'blend'}, types: {primary: 0|1, secondary: 0|1|null} }.
+ *   identity: 0|1, dominant: 0|1, palette: {c1|c2|c3|eye: 0|1|'blend'}, types: {primary: 0|1, secondary: 0|1|null} }.
  */
 export function fuse(a, b, rng) {
   const compat = canFuse(a, b);
@@ -143,21 +146,25 @@ export function fuse(a, b, rng) {
     if (swappable.includes(slot) && rPaint.chance(FUSE.paintSwap)) paint[slot] = rPaint.int(PAINT_PERMS.length);
   }
 
-  // Palette: base from the identity parent, one colour from the other parent.
-  const palette = {}, palFrom = {};
-  for (const k of ['c1', 'c2', 'c3']) { palette[k] = nudgeColor(P1.palette[k], rPal); palFrom[k] = identity; }
-  const roll = rPal.next();
-  if (roll < 0.55) {
-    const k = rPal.pick(['c2', 'c3']);
-    palette[k] = nudgeColor(P2.palette.c1, rPal); palFrom[k] = 1 - identity;
-  } else if (roll < 0.85) {
-    palette.c1 = blendColor(P1.palette.c1, P2.palette.c1, rPal.range(0.35, 0.65)); palFrom.c1 = 'blend';
-    const k = rPal.pick(['c2', 'c3']);
-    palette[k] = nudgeColor(P2.palette[k], rPal); palFrom[k] = 1 - identity;
+  // Palette: the dominant parent (the one that supplied more of the expressed parts; the face's
+  // parent on a tie) sets the base colours, each pulled part of the way toward the other parent
+  // so the child is never a straight copy. The accent and the eyes travel with the face, so the
+  // head keeps the trim it was drawn with. Then the accent is pushed clear of the base colours.
+  const counted = slotsFor(rig).filter((slot) => !mutated[slot] && from[slot] != null);
+  const identityShare = counted.filter((slot) => from[slot] === identity).length;
+  const dominant = identityShare * 2 >= counted.length ? identity : 1 - identity;
+  const D = parents[dominant], O = parents[1 - dominant];
+  let palette = {};
+  const palFrom = {};
+  for (const k of ['c1', 'c2']) {
+    const [lo, hi] = FUSE.paletteBlend[k];
+    const t = rPal.range(lo, hi);
+    palette[k] = nudgeColor(blendColor(D.palette[k], O.palette[k], t), rPal);
+    palFrom[k] = t > FUSE.paletteBlendVisible ? 'blend' : dominant;
   }
-  const eyeFrom = rPal.chance(0.5) ? identity : 1 - identity;
-  palette.eye = parents[eyeFrom].palette.eye.slice();
-  palFrom.eye = eyeFrom;
+  palette.c3 = nudgeColor(P1.palette.c3, rPal); palFrom.c3 = identity;
+  palette.eye = P1.palette.eye.slice(); palFrom.eye = identity;
+  palette = harmonizePalette(palette);
 
   const traits = {};
   for (const k of TRAIT_KEYS) {
@@ -218,7 +225,7 @@ export function fuse(a, b, rng) {
   if (Object.keys(aura).length) child.aura = aura;
   return {
     child,
-    report: { from, mutated, identity, palette: palFrom, types: { primary: identity, secondary: secondaryFrom } },
+    report: { from, mutated, identity, dominant, palette: palFrom, types: { primary: identity, secondary: secondaryFrom } },
   };
 }
 

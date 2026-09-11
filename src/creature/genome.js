@@ -14,7 +14,7 @@ import { splitName } from './naming.js';
 import { getMove, UNIVERSAL_LEARNSET } from '../data/moves.js';
 import { ABILITIES } from '../data/abilities.js';
 import { CLADES } from '../data/clades.js';
-import { jitterPalette, shinyPalette } from './palette.js';
+import { jitterPalette, shinyPalette, harmonizePalette } from './palette.js';
 
 export const GENOME_VERSION = 1;
 export const CODE_PREFIX = 'CC1.';
@@ -91,6 +91,7 @@ export function speciesGenome(species, rng) {
   let palette = jitterPalette(species.palette, species.vary, rPal);
   const shiny = rPal.chance(ROLL.shiny);
   if (shiny) palette = shinyPalette(palette, rPal);
+  palette = harmonizePalette(palette);
 
   const traits = {};
   for (const k of TRAIT_KEYS) {
@@ -247,6 +248,7 @@ export function validateGenome(g) {
     const c = g.palette && g.palette[k];
     if (!Array.isArray(c) || c.length !== 3 || !c.every(Number.isFinite)) throw new Error('Bad palette.');
   }
+  g.palette = harmonizePalette(g.palette);
   if (!Array.isArray(g.types) || !isType(g.types[0]) || (g.types[1] != null && !isType(g.types[1]))) throw new Error('Bad types.');
   g.types = [g.types[0], g.types[1] || null];
   g.traits = { ...defaultTraits(), ...(g.traits || {}) };

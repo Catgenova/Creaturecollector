@@ -59,6 +59,12 @@ level decides, and the Lab sheet previews any creature at any stage. Every part
 of every class has hand-drawn stage 2 and stage 3 art, with a procedural growth
 pass as the fallback for anything new.
 
+Creature polish: accents are kept a clear perceptual step away from the base
+colours on every roll, fusion and load; a fusion's coat follows the parent that
+supplied most of its parts while the accent and eyes travel with the face; and
+a head that was not drawn for its body is eased toward the body's designed
+proportion.
+
 ## Develop
 
 ```

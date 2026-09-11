@@ -93,6 +93,23 @@ A genome that names no rig or an unknown one (a code saved before the rebuild)
 falls back to the default rig; its old part ids no longer resolve, so it is
 rejected by the code validator rather than drawn wrong.
 
+**Proportion.** Species are drawn with heads sized for their bodies, but a
+fusion or a wild mutant can pair a wide head with a slight body. When the head
+and body were not designed together (`headFitScale` in `render.js`), the head
+socket gets an extra scale that pulls the head's width part of the way toward
+the proportion the body's own species were drawn with (the mean over species
+built on that body, else over the class): the ratio is clamped to 0.78–1.25 and
+eased with an exponent of 0.6, so a wolf head on a rabbit shrinks about a tenth
+and a turtle head on a raptor grows about a seventh. Species wearing their own
+head and Part Lab mannequins are left alone.
+
+**Accent contrast.** `harmonizePalette` (`palette.js`) measures the three colours
+in CIE Lab and, when the accent sits within ΔE 30 of the primary or ΔE 24 of the
+secondary, moves the accent by the smallest perceptual step (over hue, lightness
+and saturation adjustments) that clears both. It runs on every wild roll, every
+fusion and every load, is idempotent, and leaves compliant palettes untouched,
+so accents always read as accents without redrawing any species.
+
 Colour roles: `p/pd/pl`, `s/sd/sl`, `a/ad/al`, `w/wd`, `e/ed`, `k`. The root SVG
 sets `--c1..--c3` (+ shade/highlight), `--e`, `--ol`, `--w`; each slot group
 remaps `p/s/a` onto those through its paint gene; far-side copies remap onto the
@@ -150,15 +167,19 @@ per seed; the Fusion Lab seeds it from both parents plus a re-roll counter.
   with the carried allele when that one fits. Mutation: 3% expressed, 6% carried,
   1% body.
 - **Identity parent.** Whichever parent supplied the expressed head (or the body
-  when the child is headless). It gives the name prefix, the palette base, the
-  primary type and the shiny flag. The other parent gives the name suffix, one
-  colour and the secondary type. Shape from one side, colours from the other.
+  when the child is headless). It gives the name prefix, the accent and eye
+  colours, the primary type and the shiny flag. The other parent gives the name
+  suffix and the secondary type.
+- **Dominant parent.** Whichever parent supplied more of the expressed parts
+  (the identity parent on a tie). It sets the base colours, so a child's coat
+  matches the parts it mostly wears. `report.dominant` names it.
 - **Paint** travels with the part: each slot's paint gene comes from the parent
   whose allele is expressed there (5% random permutation).
-- **Palette.** c1–c3 from the identity parent with slight jitter, then one of:
-  55% the other parent's primary replaces c2 or c3; 30% c1 is blended between
-  the parents' primaries and one of c2/c3 comes from the other parent; 15% pure.
-  Eyes from either parent.
+- **Palette.** c1 and c2 are the dominant parent's, each pulled part of the way
+  toward the other parent's (`FUSE.paletteBlend`: 10–35% for the primary, 20–60%
+  for the secondary) with slight jitter; the report calls a colour a blend above
+  30%. c3 and the eyes come from the identity parent, so the head keeps the trim
+  it was drawn with. The result then goes through `harmonizePalette` (below).
 - **Traits** blend at a random point between the parents with a little noise.
 - **Types.** Primary = identity parent's primary. Secondary = the first of the
   other parent's primary, the other parent's secondary, the identity parent's

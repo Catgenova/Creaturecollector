@@ -7596,6 +7596,81 @@ function blendColor(a, b, t) {
 
 function swatchCss([h, s, l]) { return hsl(h, s, l); }
 
+// ---- perceptual distance and accent contrast -------------------------------------
+//
+// Accents have to read as accents: an accent within a few steps of the primary or the
+// secondary vanishes into the coat. harmonizePalette measures the three colours in CIE
+// Lab (an approximation good enough for "can you tell these apart") and, when the accent
+// sits too close to either base colour, moves it by the smallest perceptual step that
+// clears both thresholds. It is deterministic and idempotent, so it is safe to run on
+// every roll, every fusion and every load.
+
+function hslToRgb(h, s, l) {
+  s /= 100; l /= 100;
+  const k = (n) => (n + h / 30) % 12;
+  const a = s * Math.min(l, 1 - l);
+  const f = (n) => l - a * Math.max(-1, Math.min(k(n) - 3, 9 - k(n), 1));
+  return [f(0), f(8), f(4)];
+}
+
+function rgbToLab([r, g, b]) {
+  const lin = (c) => (c <= 0.04045 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4);
+  r = lin(r); g = lin(g); b = lin(b);
+  const f = (t) => (t > 0.008856 ? Math.cbrt(t) : 7.787 * t + 16 / 116);
+  const x = f((r * 0.4124 + g * 0.3576 + b * 0.1805) / 0.95047);
+  const y = f(r * 0.2126 + g * 0.7152 + b * 0.0722);
+  const z = f((r * 0.0193 + g * 0.1192 + b * 0.9505) / 1.08883);
+  return [116 * y - 16, 500 * (x - y), 200 * (y - z)];
+}
+
+/** CIE Lab coordinates of an [h, s, l] colour. */
+function labOf([h, s, l]) { return rgbToLab(hslToRgb(wrapHue(h), clamp(s, 0, 100), clamp(l, 0, 100))); }
+
+/** Approximate perceptual distance (CIE76 delta E) between two [h, s, l] colours. About 2 is just noticeable; 30 is clearly a different colour. */
+function colorDistance(a, b) {
+  const p = labOf(a), q = labOf(b);
+  return Math.hypot(p[0] - q[0], p[1] - q[1], p[2] - q[2]);
+}
+
+/** Minimum perceptual distance the accent keeps from the primary and the secondary colour. */
+const ACCENT_CONTRAST = { primary: 30, secondary: 24 };
+
+const HARMONY_HUES = [0, 20, -20, 40, -40, 60, -60, 90, -90, 120, -120, 150, -150, 180];
+const HARMONY_LIGHT = [[0, 0], [0, 10], [0, -10], [0, 20], [0, -20], [0, 30], [0, -30], [1, 20], [1, 50], [1, 80]]; // [absolute?, value]
+const HARMONY_SAT = [[0, 0], [0, 20], [0, 40], [0, -20], [1, 90]];
+
+/** Does the accent of this palette clear the contrast thresholds against both base colours? */
+function accentContrastOk(pal) {
+  return colorDistance(pal.c3, pal.c1) >= ACCENT_CONTRAST.primary && colorDistance(pal.c3, pal.c2) >= ACCENT_CONTRAST.secondary;
+}
+
+/**
+ * Enforce accent contrast. Returns the palette itself when it already complies, else a copy
+ * whose accent has been moved by the smallest perceptual step (searching hue, lightness and
+ * saturation adjustments) that clears both thresholds. Deterministic and idempotent.
+ */
+function harmonizePalette(pal) {
+  if (!pal || !Array.isArray(pal.c1) || !Array.isArray(pal.c2) || !Array.isArray(pal.c3)) return pal;
+  if (accentContrastOk(pal)) return pal;
+  const [h, s, l] = pal.c3;
+  const P = labOf(pal.c1), S = labOf(pal.c2), A = labOf(pal.c3);
+  const dist = (p, q) => Math.hypot(p[0] - q[0], p[1] - q[1], p[2] - q[2]);
+  let best = null, bestCost = Infinity, fallback = null, fallbackScore = -Infinity;
+  for (const dh of HARMONY_HUES) {
+    for (const [absL, vl] of HARMONY_LIGHT) {
+      for (const [absS, vs] of HARMONY_SAT) {
+        const cand = [wrapHue(h + dh), clamp(absS ? vs : s + vs, 8, 100), clamp(absL ? vl : l + vl, 12, 92)].map((x) => Math.round(x * 10) / 10);
+        const lab = labOf(cand);
+        const dP = dist(lab, P) - ACCENT_CONTRAST.primary, dS = dist(lab, S) - ACCENT_CONTRAST.secondary;
+        const cost = dist(lab, A);
+        if (dP >= 0 && dS >= 0) { if (cost < bestCost) { best = cand; bestCost = cost; } }
+        else { const score = Math.min(dP, dS) - cost * 0.05; if (score > fallbackScore) { fallback = cand; fallbackScore = score; } }
+      }
+    }
+  }
+  return { ...pal, c3: best || fallback };
+}
+
 // ---- src/data/damage.js ----
 // Damage types. Every attack is Melee, Ranged or Magic, each with its own offensive and
 // defensive stat, and they form a triangle: Magic beats Ranged, Ranged beats Melee, Melee
@@ -7767,6 +7842,7 @@ function speciesGenome(species, rng) {
   let palette = jitterPalette(species.palette, species.vary, rPal);
   const shiny = rPal.chance(ROLL.shiny);
   if (shiny) palette = shinyPalette(palette, rPal);
+  palette = harmonizePalette(palette);
 
   const traits = {};
   for (const k of TRAIT_KEYS) {
@@ -7923,6 +7999,7 @@ function validateGenome(g) {
     const c = g.palette && g.palette[k];
     if (!Array.isArray(c) || c.length !== 3 || !c.every(Number.isFinite)) throw new Error('Bad palette.');
   }
+  g.palette = harmonizePalette(g.palette);
   if (!Array.isArray(g.types) || !isType(g.types[0]) || (g.types[1] != null && !isType(g.types[1]))) throw new Error('Bad types.');
   g.types = [g.types[0], g.types[1] || null];
   g.traits = { ...defaultTraits(), ...(g.traits || {}) };
@@ -8231,6 +8308,8 @@ function clearEvolutionCache() { cache.clear(); }
 
 
 
+
+
 const FRAME = { w: 200, h: 230, ground: 208 };
 const FAR_DEFAULT = { dx: -6, dy: -4 };
 
@@ -8415,6 +8494,53 @@ function paintOf(g, slot) {
   return slotPaintVars(perm);
 }
 
+// ---- proportion ------------------------------------------------------------------
+//
+// Species are drawn with heads sized for their bodies. A fusion (or a wild mutant) can pair a
+// wide head with a slight body, so heads that were not designed for their body are scaled part
+// of the way toward the proportion the body's own species were drawn with.
+
+const firstAllele = (e) => (Array.isArray(e) ? e[0] : e);
+
+/** Width of a head on a body's head socket as a share of the body's width. 0 when there is no head socket. */
+function headRatio(head, body) {
+  const sk = body && body.sockets && body.sockets.head;
+  if (!sk || !head || head.none) return 0;
+  const bb = body.box || partBounds(body), hb = partBounds(head);
+  return ((hb[2] - hb[0]) * (sk.s == null ? 1 : sk.s)) / Math.max(1, bb[2] - bb[0]);
+}
+
+const headRefCache = new Map();
+/** The head proportion a body was designed for: the mean over the species built on it, else over its class. */
+function designedHeadRatio(rig, bodyId) {
+  const key = `${rig}|${bodyId}`;
+  if (headRefCache.has(key)) return headRefCache.get(key);
+  const ratios = (keep) => SPECIES.filter((s) => s.recipe && s.recipe.head && keep(s)).map((s) => headRatio(getPart(firstAllele(s.recipe.head)), getPart(firstAllele(s.recipe.body)))).filter((r) => r > 0);
+  let rs = ratios((s) => firstAllele(s.recipe.body) === bodyId);
+  if (!rs.length) rs = ratios((s) => getRig(s.rig).id === rig);
+  const ref = rs.length ? rs.reduce((a, b) => a + b, 0) / rs.length : 0;
+  headRefCache.set(key, ref);
+  return ref;
+}
+
+/** How far a mismatched head is pulled toward its body's designed proportion: the ratio is clamped, then eased. */
+const HEAD_FIT = { min: 0.78, max: 1.25, ease: 0.6 };
+
+/**
+ * Extra scale on the head socket for a creature whose head and body were not drawn together
+ * (fusions, wild mutants): part of the way toward the body's designed head proportion.
+ * 1 for species wearing their own head, mannequins and headless rigs.
+ */
+function headFitScale(g, base) {
+  const head = base.head, body = base.body;
+  if (!head || !body || g.mannequin) return 1;
+  const sp = speciesOf(g);
+  if (sp && sp.recipe && firstAllele(sp.recipe.head) === head.id && firstAllele(sp.recipe.body) === body.id) return 1;
+  const ref = designedHeadRatio(rigOf(g), body.id), actual = headRatio(head, body);
+  if (!(ref > 0) || !(actual > 0)) return 1;
+  return Math.round(clamp(ref / actual, HEAD_FIT.min, HEAD_FIT.max) ** HEAD_FIT.ease * 1000) / 1000;
+}
+
 /** Scales derived from continuous trait genes. Exported so the UI can explain them. */
 function traitScales(traits = {}) {
   const t = (k) => (traits[k] == null ? 0.5 : traits[k]);
@@ -8491,9 +8617,11 @@ const FIT_FRAME = { w: 100, h: 60 };
 function buildRigged(g, id, styleName, rig, stage = 1) {
   const R = renderSetup(g, id, styleName);
   const { st, styled, shared, ctxFor, wrap, farWrap, fxWrap } = R;
+  const base = resolveParts(g);
   const P = {};
-  for (const [slot, part] of Object.entries(resolveParts(g))) P[slot] = evolvedPart(part, stage);
+  for (const [slot, part] of Object.entries(base)) P[slot] = evolvedPart(part, stage);
   const body = P.body;
+  const headFit = headFitScale(g, base);
   const K = traitScales(g.traits);
   K.eye *= st.eye;
   K.size *= STAGE_SIZE[stage] || 1;
@@ -8536,7 +8664,7 @@ function buildRigged(g, id, styleName, rig, stage = 1) {
       } else if (node.socket) {
         const sk = parentPart && parentPart.sockets ? parentPart.sockets[node.socket] : null;
         if (!sk) return '';
-        const s = (sk.s == null ? 1 : sk.s) * (node.scale ? K[node.scale] : 1);
+        const s = (sk.s == null ? 1 : sk.s) * (node.scale ? K[node.scale] : 1) * (node.slot === 'head' ? headFit : 1);
         t = xf(sk.x, sk.y, sk.a || 0, s);
         if (sk.flip) t.sx = -t.sx;
       } else t = xf(0, 0, 0, 1);
@@ -8637,7 +8765,7 @@ function mannequinGenome(part) {
   const paint = {};
   if (m.accentSlots.includes(part.slot)) paint[part.slot] = 4; // accent-first
   return {
-    v: 1, seed: 'mannequin', species: null, rig: rig.id, name: part.name, gen: 0, shiny: false, types: ['Normal', null],
+    v: 1, seed: 'mannequin', mannequin: true, species: null, rig: rig.id, name: part.name, gen: 0, shiny: false, types: ['Normal', null],
     parts, paint,
     palette: { c1: [222, 10, 64], c2: [222, 12, 46], c3: [28, 80, 58], eye: [200, 55, 45] },
     traits: { size: 0.6, bulk: 0.5, headScale: 0.5, limbScale: 0.5, tailScale: 0.5, wingScale: 0.5, eyeScale: part.slot === 'eyes' ? 0.9 : 0.5 },
@@ -9018,10 +9146,11 @@ function renderPartsScreen(root) {
 // generations and lets a grandparent's trait resurface.
 //
 // The "identity parent" is whichever parent supplied the expressed head (or the
-// body, for headless children). It gives the name prefix, the palette base and
-// the primary type. The other parent gives the suffix, one accent colour and the
-// secondary type. Shape from one side, colours from the other: that is what
-// makes a fusion read as half and half.
+// body, for headless children). It gives the name prefix, the accent and eye
+// colours and the primary type. The other parent gives the suffix and the
+// secondary type. Base colours come from the "dominant parent", the one that
+// supplied more of the expressed parts, pulled part of the way toward the other,
+// so a child's coat matches the parts it mostly wears.
 
 
 
@@ -9039,6 +9168,8 @@ const FUSE = {
   carriedMutation: 0.06,
   bodyMutation: 0.01,
   paintSwap: 0.05,
+  paletteBlend: { c1: [0.1, 0.35], c2: [0.2, 0.6] }, // how far each base colour is pulled toward the other parent
+  paletteBlendVisible: 0.3,  // above this the report calls the colour a blend rather than one parent's
   elementalAbility: 0.5,  // chance an Elemental parent's core ability passes to the child
   genBonusPerGen: 4,      // bst bonus per generation
   genBonusCap: 5,         // generations that count toward the bonus
@@ -9076,7 +9207,7 @@ function canFuse(a, b) {
 /**
  * Fuse a and b. Deterministic for a given rng seed. Throws if the classes differ.
  * Returns { child, report } where report = { from: {slot: 0|1}, mutated: {slot: true},
- *   identity: 0|1, palette: {c1|c2|c3|eye: 0|1|'blend'}, types: {primary: 0|1, secondary: 0|1|null} }.
+ *   identity: 0|1, dominant: 0|1, palette: {c1|c2|c3|eye: 0|1|'blend'}, types: {primary: 0|1, secondary: 0|1|null} }.
  */
 function fuse(a, b, rng) {
   const compat = canFuse(a, b);
@@ -9155,21 +9286,25 @@ function fuse(a, b, rng) {
     if (swappable.includes(slot) && rPaint.chance(FUSE.paintSwap)) paint[slot] = rPaint.int(PAINT_PERMS.length);
   }
 
-  // Palette: base from the identity parent, one colour from the other parent.
-  const palette = {}, palFrom = {};
-  for (const k of ['c1', 'c2', 'c3']) { palette[k] = nudgeColor(P1.palette[k], rPal); palFrom[k] = identity; }
-  const roll = rPal.next();
-  if (roll < 0.55) {
-    const k = rPal.pick(['c2', 'c3']);
-    palette[k] = nudgeColor(P2.palette.c1, rPal); palFrom[k] = 1 - identity;
-  } else if (roll < 0.85) {
-    palette.c1 = blendColor(P1.palette.c1, P2.palette.c1, rPal.range(0.35, 0.65)); palFrom.c1 = 'blend';
-    const k = rPal.pick(['c2', 'c3']);
-    palette[k] = nudgeColor(P2.palette[k], rPal); palFrom[k] = 1 - identity;
+  // Palette: the dominant parent (the one that supplied more of the expressed parts; the face's
+  // parent on a tie) sets the base colours, each pulled part of the way toward the other parent
+  // so the child is never a straight copy. The accent and the eyes travel with the face, so the
+  // head keeps the trim it was drawn with. Then the accent is pushed clear of the base colours.
+  const counted = slotsFor(rig).filter((slot) => !mutated[slot] && from[slot] != null);
+  const identityShare = counted.filter((slot) => from[slot] === identity).length;
+  const dominant = identityShare * 2 >= counted.length ? identity : 1 - identity;
+  const D = parents[dominant], O = parents[1 - dominant];
+  let palette = {};
+  const palFrom = {};
+  for (const k of ['c1', 'c2']) {
+    const [lo, hi] = FUSE.paletteBlend[k];
+    const t = rPal.range(lo, hi);
+    palette[k] = nudgeColor(blendColor(D.palette[k], O.palette[k], t), rPal);
+    palFrom[k] = t > FUSE.paletteBlendVisible ? 'blend' : dominant;
   }
-  const eyeFrom = rPal.chance(0.5) ? identity : 1 - identity;
-  palette.eye = parents[eyeFrom].palette.eye.slice();
-  palFrom.eye = eyeFrom;
+  palette.c3 = nudgeColor(P1.palette.c3, rPal); palFrom.c3 = identity;
+  palette.eye = P1.palette.eye.slice(); palFrom.eye = identity;
+  palette = harmonizePalette(palette);
 
   const traits = {};
   for (const k of TRAIT_KEYS) {
@@ -9230,7 +9365,7 @@ function fuse(a, b, rng) {
   if (Object.keys(aura).length) child.aura = aura;
   return {
     child,
-    report: { from, mutated, identity, palette: palFrom, types: { primary: identity, secondary: secondaryFrom } },
+    report: { from, mutated, identity, dominant, palette: palFrom, types: { primary: identity, secondary: secondaryFrom } },
   };
 }
 
@@ -9394,7 +9529,7 @@ function resultPanel(child, report, a, b, actions) {
 
   const panel = h('div', { class: 'result' },
     h('div', { class: 'sheet-head' }, h('h2', {}, child.name, child.shiny ? ' ✦' : ''), typeChips(child.types), styleChip(child), elementalBadge(child)),
-    h('p', { class: 'meta' }, `${cladeName(cladeOf(child))} · gen ${child.gen} · ${a.name} × ${b.name} · face from ${parents[report.identity].name}`),
+    h('p', { class: 'meta' }, `${cladeName(cladeOf(child))} · gen ${child.gen} · ${a.name} × ${b.name} · face from ${parents[report.identity].name} · coat from ${parents[report.dominant].name}`),
     h('div', { class: 'hero' }, creatureEl(child, { size: 240, fit: true })),
     h('div', { class: 'row wrap' },
       h('button', { class: 'btn', type: 'button', onclick: actions.reroll }, 'Re-roll'),

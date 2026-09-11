@@ -12,10 +12,12 @@
 // The others compute literal colours per slot and add volume procedurally from
 // the same part data: gradient fills, clipped shadow/highlight rims along the
 // edges, a thick silhouette pass under thin interior lines, and a gloss spot.
-import { lerp, num, uid, escapeHtml, hsl, mixHue } from '../core/util.js';
+import { lerp, num, uid, escapeHtml, hsl, mixHue, clamp } from '../core/util.js';
 import { paletteVars, slotPaintVars, FAR_VARS } from './palette.js';
-import { resolveParts, PAINT_PERMS, typeLabel, rigOf } from './genome.js';
+import { resolveParts, PAINT_PERMS, typeLabel, rigOf, speciesOf } from './genome.js';
 import { getRig } from '../data/rigs.js';
+import { getPart } from '../data/parts/index.js';
+import { SPECIES } from '../data/species.js';
 import { ELEMENTS, elementFilterSvg } from '../data/elements.js';
 import { pathPoints } from './geom.js';
 import { evolvedPart } from './evolve.js';
@@ -205,6 +207,53 @@ function paintOf(g, slot) {
   return slotPaintVars(perm);
 }
 
+// ---- proportion ------------------------------------------------------------------
+//
+// Species are drawn with heads sized for their bodies. A fusion (or a wild mutant) can pair a
+// wide head with a slight body, so heads that were not designed for their body are scaled part
+// of the way toward the proportion the body's own species were drawn with.
+
+const firstAllele = (e) => (Array.isArray(e) ? e[0] : e);
+
+/** Width of a head on a body's head socket as a share of the body's width. 0 when there is no head socket. */
+function headRatio(head, body) {
+  const sk = body && body.sockets && body.sockets.head;
+  if (!sk || !head || head.none) return 0;
+  const bb = body.box || partBounds(body), hb = partBounds(head);
+  return ((hb[2] - hb[0]) * (sk.s == null ? 1 : sk.s)) / Math.max(1, bb[2] - bb[0]);
+}
+
+const headRefCache = new Map();
+/** The head proportion a body was designed for: the mean over the species built on it, else over its class. */
+function designedHeadRatio(rig, bodyId) {
+  const key = `${rig}|${bodyId}`;
+  if (headRefCache.has(key)) return headRefCache.get(key);
+  const ratios = (keep) => SPECIES.filter((s) => s.recipe && s.recipe.head && keep(s)).map((s) => headRatio(getPart(firstAllele(s.recipe.head)), getPart(firstAllele(s.recipe.body)))).filter((r) => r > 0);
+  let rs = ratios((s) => firstAllele(s.recipe.body) === bodyId);
+  if (!rs.length) rs = ratios((s) => getRig(s.rig).id === rig);
+  const ref = rs.length ? rs.reduce((a, b) => a + b, 0) / rs.length : 0;
+  headRefCache.set(key, ref);
+  return ref;
+}
+
+/** How far a mismatched head is pulled toward its body's designed proportion: the ratio is clamped, then eased. */
+export const HEAD_FIT = { min: 0.78, max: 1.25, ease: 0.6 };
+
+/**
+ * Extra scale on the head socket for a creature whose head and body were not drawn together
+ * (fusions, wild mutants): part of the way toward the body's designed head proportion.
+ * 1 for species wearing their own head, mannequins and headless rigs.
+ */
+export function headFitScale(g, base) {
+  const head = base.head, body = base.body;
+  if (!head || !body || g.mannequin) return 1;
+  const sp = speciesOf(g);
+  if (sp && sp.recipe && firstAllele(sp.recipe.head) === head.id && firstAllele(sp.recipe.body) === body.id) return 1;
+  const ref = designedHeadRatio(rigOf(g), body.id), actual = headRatio(head, body);
+  if (!(ref > 0) || !(actual > 0)) return 1;
+  return Math.round(clamp(ref / actual, HEAD_FIT.min, HEAD_FIT.max) ** HEAD_FIT.ease * 1000) / 1000;
+}
+
 /** Scales derived from continuous trait genes. Exported so the UI can explain them. */
 export function traitScales(traits = {}) {
   const t = (k) => (traits[k] == null ? 0.5 : traits[k]);
@@ -281,9 +330,11 @@ export const FIT_FRAME = { w: 100, h: 60 };
 function buildRigged(g, id, styleName, rig, stage = 1) {
   const R = renderSetup(g, id, styleName);
   const { st, styled, shared, ctxFor, wrap, farWrap, fxWrap } = R;
+  const base = resolveParts(g);
   const P = {};
-  for (const [slot, part] of Object.entries(resolveParts(g))) P[slot] = evolvedPart(part, stage);
+  for (const [slot, part] of Object.entries(base)) P[slot] = evolvedPart(part, stage);
   const body = P.body;
+  const headFit = headFitScale(g, base);
   const K = traitScales(g.traits);
   K.eye *= st.eye;
   K.size *= STAGE_SIZE[stage] || 1;
@@ -326,7 +377,7 @@ function buildRigged(g, id, styleName, rig, stage = 1) {
       } else if (node.socket) {
         const sk = parentPart && parentPart.sockets ? parentPart.sockets[node.socket] : null;
         if (!sk) return '';
-        const s = (sk.s == null ? 1 : sk.s) * (node.scale ? K[node.scale] : 1);
+        const s = (sk.s == null ? 1 : sk.s) * (node.scale ? K[node.scale] : 1) * (node.slot === 'head' ? headFit : 1);
         t = xf(sk.x, sk.y, sk.a || 0, s);
         if (sk.flip) t.sx = -t.sx;
       } else t = xf(0, 0, 0, 1);
@@ -427,7 +478,7 @@ export function mannequinGenome(part) {
   const paint = {};
   if (m.accentSlots.includes(part.slot)) paint[part.slot] = 4; // accent-first
   return {
-    v: 1, seed: 'mannequin', species: null, rig: rig.id, name: part.name, gen: 0, shiny: false, types: ['Normal', null],
+    v: 1, seed: 'mannequin', mannequin: true, species: null, rig: rig.id, name: part.name, gen: 0, shiny: false, types: ['Normal', null],
     parts, paint,
     palette: { c1: [222, 10, 64], c2: [222, 12, 46], c3: [28, 80, 58], eye: [200, 55, 45] },
     traits: { size: 0.6, bulk: 0.5, headScale: 0.5, limbScale: 0.5, tailScale: 0.5, wingScale: 0.5, eyeScale: part.slot === 'eyes' ? 0.9 : 0.5 },

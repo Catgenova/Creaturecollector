@@ -63,3 +63,37 @@ test('every render style draws every species cleanly', async () => {
   }
 });
 
+
+test('mismatched heads are pulled toward the body proportion, species and mannequins are not', async () => {
+  const { headFitScale, HEAD_FIT } = await import('../src/creature/render.js');
+  const { resolveParts, speciesGenome } = await import('../src/creature/genome.js');
+  const { SPECIES_BY_ID } = await import('../src/data/species.js');
+  const { fuse } = await import('../src/creature/fusion.js');
+  for (const s of SPECIES) {
+    const g = speciesGenome(s, makeRng('fit'));
+    if (!g.parts.head) continue;
+    const base = resolveParts(g);
+    const recipeHead = [].concat(s.recipe.head)[0];
+    if (base.head && base.head.id === recipeHead) assert.equal(headFitScale(g, base), 1, s.id);
+  }
+  // a rabbit body wearing the wide wolf head shrinks it; a raptor body wearing the small turtle head grows it
+  const rabbit = speciesGenome(SPECIES_BY_ID.bramblit, makeRng('m'));
+  rabbit.species = null; rabbit.gen = 1; rabbit.parts.head = ['m.head.wolf', 'm.head.wolf'];
+  const big = headFitScale(rabbit, resolveParts(rabbit));
+  assert.ok(big < 0.97 && big >= HEAD_FIT.min ** HEAD_FIT.ease, `wolf head on a rabbit ${big}`);
+  const raptor = speciesGenome(SPECIES_BY_ID.raptrix, makeRng('d'));
+  raptor.species = null; raptor.gen = 1; raptor.parts.head = ['r.head.turtle', 'r.head.turtle'];
+  const small = headFitScale(raptor, resolveParts(raptor));
+  assert.ok(small > 1.05 && small <= HEAD_FIT.max ** HEAD_FIT.ease, `turtle head on a raptor ${small}`);
+  const mouse = rabbit;
+  const svgBig = renderCreatureSvg(mouse, { id: 't', animate: false }), svgPlain = renderCreatureSvg({ ...mouse, mannequin: true }, { id: 't', animate: false });
+  assert.notEqual(svgBig, svgPlain, 'the head scale shows up in the markup');
+  for (const p of PARTS.values()) if (p.slot === 'head' && !p.none) { const mg = mannequinGenome(p); assert.equal(headFitScale(mg, resolveParts(mg)), 1, p.id); }
+  // fusions across the classes stay within the clamp
+  for (let i = 0; i < 60; i++) {
+    const a = randomGenome(makeRng(`ha${i}`)), b = randomGenome(makeRng(`hb${i}`), { clade: a.clade });
+    const { child } = fuse(a, b, makeRng(`hf${i}`));
+    const f = headFitScale(child, resolveParts(child));
+    assert.ok(f >= HEAD_FIT.min ** HEAD_FIT.ease - 1e-9 && f <= HEAD_FIT.max ** HEAD_FIT.ease + 1e-9, `fusion ${i} fit ${f}`);
+  }
+});

@@ -137,3 +137,30 @@ test('fusion is locked to a class and linked slots travel together', () => {
   const chain = fuseChain(fox, [fish, wild('cl-d', 'mammal')], makeRng('chain'));
   assert.equal(chain.length, 2, 'incompatible partners are skipped');
 });
+
+test('colours follow the parts: base from the dominant parent, accent and eyes with the face', () => {
+  let blends = 0, n = 0;
+  for (let i = 0; i < 200; i++) {
+    const clade = CLADE_IDS[i % CLADE_IDS.length];
+    const a = wild(`da${i}`, clade), b = wild(`db${i}`, clade);
+    const { child, report } = fuse(a, b, makeRng(`d${i}`));
+    const parents = [a, b];
+    assert.ok([0, 1].includes(report.dominant));
+    const counted = slotsFor(rigOf(child)).filter((s) => !report.mutated[s]);
+    const share = counted.filter((s) => report.from[s] === report.dominant).length;
+    assert.ok(share * 2 >= counted.length, `fusion ${i}: dominant parent supplied ${share}/${counted.length} parts`);
+    assert.equal(report.palette.c3, report.identity);
+    assert.equal(report.palette.eye, report.identity);
+    assert.deepEqual(child.palette.eye, parents[report.identity].palette.eye);
+    for (const k of ['c1', 'c2']) {
+      assert.ok(report.palette[k] === 'blend' || report.palette[k] === report.dominant, `${k} of fusion ${i}`);
+      // the base colour sits between the parents' colours, nearer the dominant one unless reported as a blend
+      const dD = Math.abs(child.palette[k][2] - parents[report.dominant].palette[k][2]);
+      const dO = Math.abs(child.palette[k][2] - parents[1 - report.dominant].palette[k][2]);
+      if (report.palette[k] !== 'blend') assert.ok(dD <= dO + 3, `${k} lightness of fusion ${i} leans to the dominant parent`);
+      if (report.palette[k] === 'blend') blends++;
+      n++;
+    }
+  }
+  assert.ok(blends > n * 0.15 && blends < n * 0.7, `blends ${blends}/${n}`);
+});
