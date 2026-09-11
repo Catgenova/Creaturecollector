@@ -10,7 +10,6 @@ test('every part has the fields the renderer needs', () => {
     assert.ok(SLOTS.includes(p.slot), `${id} slot`);
     assert.ok(typeof p.dom === 'number' && p.dom >= 0 && p.dom <= 1, `${id} dominance`);
     if (p.none) continue;
-    if (p.img) { assert.ok(p.img.src && p.img.w > 0 && p.img.h > 0 && p.origin && p.scale > 0, `${id} image fields`); continue; }
     assert.ok(Array.isArray(p.prims) && p.prims.length > 0, `${id} prims`);
     for (const pr of p.prims) assert.ok(['path', 'ellipse', 'circle', 'line'].includes(pr.t), `${id} prim type`);
     if (p.slot === 'body') {

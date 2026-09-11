@@ -291,17 +291,6 @@ export const SPECIES = [
     abilities: ['hawkeye', 'restless'],
     desc: 'Seen only at dusk, circling old towers. It answers questions nobody asked aloud.',
   },
-  // Raster art test species (hidden from wild pools until the mammal set is complete)
-  {
-    id: 'foxling', name: 'Foxling', nameParts: ['Fox', 'ling'], clade: 'mammal', types: ['Normal'], tier: 'common', bst: 400, hidden: true,
-    stats: { hp: 0.16, atk: 0.18, def: 0.14, spa: 0.16, spd: 0.14, spe: 0.22 },
-    recipe: { body: 'r.mammal.body.fox', head: 'r.mammal.head.fox', eyes: 'eye.round', mouth: 'mouth.none', crown: 'crown.none', legs: 'r.mammal.legs.fox', arms: 'arms.none', wings: 'wings.none', tail: 'tail.none', back: 'back.none', pattern: 'pattern.none' },
-    palette: { c1: [222, 8, 68], c2: [36, 30, 88], c3: [28, 85, 55], eye: [35, 95, 55] }, vary: { h: 60, s: 20, l: 8 },
-    traits: T([0.45, 0.7], MID, MID, MID, MID, MID),
-    learnset: [[1,'swipe'],[1,'yowl'],[6,'dash'],[11,'headbonk'],[16,'brace'],[22,'chomp'],[28,'rake'],[34,'crush_bite'],[40,'whetting'],[46,'blur'],[52,'reckless_charge']],
-    abilities: ['hawkeye', 'second_wind'],
-    desc: 'The first creature drawn for the new art. A grey fox that takes on any colour.',
-  },
 ];
 
 export const SPECIES_BY_ID = Object.fromEntries(SPECIES.map((s) => [s.id, s]));

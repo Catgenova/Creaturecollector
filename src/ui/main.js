@@ -5,7 +5,6 @@ import { renderPartsScreen } from './parts.js';
 import { renderFusionScreen } from './fusion.js';
 import { renderBattleScreen } from './battle.js';
 import { renderArenaScreen } from './arena.js';
-import { renderArtScreen } from './art.js';
 import { partCount } from '../data/parts/index.js';
 import { SPECIES } from '../data/species.js';
 import { sfx, setSfxEnabled, sfxEnabled } from '../core/sfx.js';
@@ -17,7 +16,6 @@ const SCREENS = [
   { id: 'fusion', title: 'Fusion', render: renderFusionScreen },
   { id: 'lab', title: 'Lab', render: renderLabScreen },
   { id: 'parts', title: 'Parts', render: renderPartsScreen },
-  { id: 'art', title: 'Art', render: renderArtScreen },
 ];
 
 function bootApp() {

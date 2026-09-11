@@ -86,62 +86,7 @@ function primSvg(pr, ctx) {
   return out;
 }
 
-/**
- * Tint filter for a raster part. Grey pixels go through a piecewise gradient map
- * (black -> shade, mid grey -> base, light grey -> light, white -> near white);
- * saturated pixels (eyes, noses, claws) are composited back on top untouched.
- */
-function tintFilter(id, fam) {
-  const rgb = ([h, s, l]) => {
-    const c = (1 - Math.abs(2 * (l / 100) - 1)) * (s / 100), x = c * (1 - Math.abs(((h / 60) % 2) - 1)), m = l / 100 - c / 2;
-    const [r1, g1, b1] = h < 60 ? [c, x, 0] : h < 120 ? [x, c, 0] : h < 180 ? [0, c, x] : h < 240 ? [0, x, c] : h < 300 ? [x, 0, c] : [c, 0, x];
-    return [r1 + m, g1 + m, b1 + m];
-  };
-  // nine evenly spaced luminance stops: black outlines stay dark, shadow greys take the
-  // shade, mid grey takes the base, white fur stays near white
-  const ink = [fam.base[0], Math.min(60, fam.base[1] + 10), 12];
-  const deep = [fam.shade[0], fam.shade[1], Math.max(8, fam.shade[2] - 12)];
-  const mid = [fam.base[0], (fam.base[1] + fam.shade[1]) / 2, (fam.base[2] + fam.shade[2]) / 2];
-  const snow = [fam.light[0], Math.max(0, fam.light[1] - 25), 95];
-  const stops = [ink, ink, deep, fam.shade, fam.shade, mid, fam.base, fam.light, snow].map(rgb);
-  const table = (i) => stops.map((c) => num(Math.max(0, Math.min(1, c[i])))).join(' ');
-  const diff = (a, b, res) => `<feColorMatrix in="SourceGraphic" type="matrix" values="${[0, 1, 2].map(() => [0, 1, 2].map((k) => (k === a ? 1 : k === b ? -1 : 0)).join(' ') + ' 0 0').join(' ')} 0 0 0 1 0" result="${res}"/>`;
-  return `<filter id="${id}" color-interpolation-filters="sRGB" x="-5%" y="-5%" width="110%" height="110%">` +
-    // tinted layer
-    '<feColorMatrix in="SourceGraphic" type="matrix" values="0.2126 0.7152 0.0722 0 0 0.2126 0.7152 0.0722 0 0 0.2126 0.7152 0.0722 0 0 0 0 0 1 0" result="lum"/>' +
-    `<feComponentTransfer in="lum" result="tinted"><feFuncR type="table" tableValues="${table(0)}"/><feFuncG type="table" tableValues="${table(1)}"/><feFuncB type="table" tableValues="${table(2)}"/></feComponentTransfer>` +
-    // chroma = |R-G| + |G-B|, thresholded into a mask of saturated pixels
-    diff(0, 1, 'rg') + diff(1, 0, 'gr') + diff(1, 2, 'gb') + diff(2, 1, 'bg') +
-    '<feComposite in="rg" in2="gr" operator="arithmetic" k2="1" k3="1" result="c1"/>' +
-    '<feComposite in="gb" in2="bg" operator="arithmetic" k2="1" k3="1" result="c2"/>' +
-    '<feComposite in="c1" in2="c2" operator="arithmetic" k2="1" k3="1" result="chroma"/>' +
-    '<feComponentTransfer in="chroma" result="maskrgb"><feFuncR type="table" tableValues="0 0 1 1 1 1 1 1"/><feFuncG type="table" tableValues="0 0 1 1 1 1 1 1"/><feFuncB type="table" tableValues="0 0 1 1 1 1 1 1"/></feComponentTransfer>' +
-    '<feColorMatrix in="maskrgb" type="luminanceToAlpha" result="maskA"/>' +
-    '<feComposite in="SourceGraphic" in2="maskA" operator="in" result="detail"/>' +
-    '<feMerge><feMergeNode in="tinted"/><feMergeNode in="detail"/></feMerge></filter>';
-}
-
-function imagePart(part, ctx) {
-  if (ctx.mode === 'outline') return '';
-  const s = part.scale, [ox, oy] = part.origin;
-  const src = (ctx.shared.images && ctx.shared.images[part.id]) || part.img.src;
-  let filter = '';
-  if (part.tint !== false) {
-    const fid = `${ctx.uid}-t-${ctx.slot}${ctx.far ? 'f' : ''}`;
-    if (!ctx.shared.grads.has(fid)) {
-      const fam = (ctx.colors || ctx.shared.rasterColors(ctx.slot, ctx.far)).p;
-      ctx.shared.defs.push(tintFilter(fid, fam));
-      ctx.shared.grads.set(fid, true);
-    }
-    filter = ` filter="url(#${fid})"`;
-  }
-  return `<image href="${src}" x="${num(-ox * s)}" y="${num(-oy * s)}" width="${num(part.img.w * s)}" height="${num(part.img.h * s)}" preserveAspectRatio="none"${filter}/>`;
-}
-
-function partPrimsCtx(part, ctx) {
-  if (part.img) return imagePart(part, ctx);
-  return part.prims.map((pr) => primSvg(pr, ctx)).join('');
-}
+function partPrimsCtx(part, ctx) { return part.prims.map((pr) => primSvg(pr, ctx)).join(''); }
 /** Classic-style primitives for a part (used by tests and tools). */
 export function partPrims(part) { return part.prims.map(classicPrim).join(''); }
 
@@ -179,10 +124,6 @@ const boundsCache = new Map();
  * relative path segments are ignored, which only matters for clipped patterns.
  */
 export function partBounds(part) {
-  if (part.img) {
-    const s = part.scale, [ox, oy] = part.origin;
-    return [-ox * s, -oy * s, (part.img.w - ox) * s, (part.img.h - oy) * s];
-  }
   if (boundsCache.has(part.id)) return boundsCache.get(part.id);
   let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
   const add = (x, y) => { if (x < x0) x0 = x; if (x > x1) x1 = x; if (y < y0) y0 = y; if (y > y1) y1 = y; };
@@ -257,7 +198,7 @@ export function traitScales(traits = {}) {
  * Build the layered markup and measure it. Returns { layers, defs, box, feet, hover, K, body, clip }
  * where box is the creature's bounds in creature space (body centre = 0,0).
  */
-function buildCreature(g, id, styleName, images) {
+function buildCreature(g, id, styleName) {
   const st = STYLE[styleName] || STYLE.classic;
   const styled = st !== STYLE.classic;
   const P = resolveParts(g);
@@ -270,7 +211,7 @@ function buildCreature(g, id, styleName, images) {
   if (P.legs && S.legs) for (const ls of S.legs) feet = Math.max(feet, ls.y + (P.legs.len || 40) * K.leg);
   const hover = body.hover || 0;
 
-  const shared = { n: 0, defs: [], grads: new Map(), images: images || null, rasterColors: (slot, far) => styledColors(g, slot, far, st) };
+  const shared = { n: 0, defs: [], grads: new Map() };
   const ol = styled ? hsl(g.palette.c1[0], Math.min(g.palette.c1[1], st.olS), st.olL) : 'var(--ol)';
   const ctxCache = new Map();
   const ctxFor = (slot, far, mode, extra = {}) => {
@@ -373,8 +314,8 @@ function buildCreature(g, id, styleName, images) {
     let bodyInner = bodyFace ? bodyFace.behind : '';
     bodyInner += pp(body, 'body');
     if (mode !== 'outline') {
-      if (P.pattern && !body.img) bodyInner += `<g clip-path="url(#${id}-clip)">${pp(P.pattern, 'body', false, { small: true })}</g>`;
-      if (st.gloss && !body.img) {
+      if (P.pattern) bodyInner += `<g clip-path="url(#${id}-clip)">${pp(P.pattern, 'body', false, { small: true })}</g>`;
+      if (st.gloss) {
         const b = partBounds(body);
         const w = b[2] - b[0], hh = b[3] - b[1];
         const cx = b[0] + w * 0.34, cy = b[1] + hh * 0.26;
@@ -425,14 +366,13 @@ export function measureCreature(g, facing = 'right') {
  * Render a creature.
  * opts: size (px width), facing ('right' | 'left'), animate (bool), id (svg id prefix),
  *       label (aria), fit (crop the viewBox to the creature instead of the fixed frame),
- *       style (one of RENDER_STYLES; defaults to the global render style),
- *       images ({ partId: dataUrl } overrides for raster parts not yet on disk)
+ *       style (one of RENDER_STYLES; defaults to the global render style)
  */
 export function renderCreatureSvg(g, opts = {}) {
   const { size = 200, facing = 'right', animate = true, fit = false } = opts;
   const styleName = RENDER_STYLES.includes(opts.style) ? opts.style : renderStyle;
   const id = opts.id || uid('cr');
-  const built = buildCreature(g, id, styleName, opts.images);
+  const built = buildCreature(g, id, styleName);
   const chain = placement(built, facing);
   const sc = built.K.size;
   const shadowRx = 36 * sc * (built.hover ? 0.7 : 1), shadowRy = 7 * sc;
@@ -445,7 +385,7 @@ export function renderCreatureSvg(g, opts = {}) {
   }
   const height = Math.round((size * vb[3]) / vb[2]);
   const label = opts.label || `${g.name}, ${typeLabel(g)}`;
-  const live = animate && !built.body.img;
+  const live = animate;
   const delay = live ? ` style="animation-delay:-${num(((g.seed || '').length * 0.37 + (g.traits ? g.traits.size * 3 : 0)) % 3)}s"` : '';
   const clip = built.clip.map((d) => `<path d="${d}"/>`).join('');
   const shadowFill = styleName === 'classic' ? 'var(--k)' : hsl(g.palette.c1[0], 30, 10);

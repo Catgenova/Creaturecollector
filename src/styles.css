@@ -241,15 +241,3 @@ h3.sec { font-size: 12px; text-transform: uppercase; letter-spacing: .1em; color
 .pcard.is-off { opacity: .35; filter: grayscale(.6); }
 .pslot .clade { font-size: 11px; color: var(--fg2); }
 
-/* Art tab */
-.art-stage { border: 1px solid var(--line); border-radius: 12px; background: repeating-conic-gradient(#20222c 0 25%, #171922 0 50%) 0 0 / 24px 24px; padding: 6px; touch-action: none; }
-.art-svg { width: 100%; height: auto; display: block; }
-.art-svg .mark circle { fill: rgba(245, 197, 24, .35); stroke: var(--acc); stroke-width: 3; }
-.art-svg .mark.active circle { fill: rgba(79, 142, 247, .45); stroke: var(--acc2); }
-.art-svg .mark text { fill: #fff; font: 700 1px system-ui; paint-order: stroke; stroke: #000; stroke-width: .4px; }
-.btn.small.missing { opacity: .55; border-style: dashed; }
-.sliders { display: flex; flex-direction: column; gap: 6px; margin: 8px 0; }
-.sliders label { display: grid; grid-template-columns: 90px 1fr; align-items: center; gap: 8px; font-size: 13px; color: var(--fg2); }
-.sliders input[type=range] { width: 100%; }
-.art-preview { min-height: 160px; }
-.tabs .tab { padding: 0 4px; font-size: 14px; }
