@@ -213,3 +213,10 @@ test('status-inflicting moves respect type immunity', () => {
   assert.ok(r.events.some((e) => e.t === 'immune' && e.side === 1) || r.events.some((e) => e.t === 'miss'));
   assert.equal(activeOf(r.state, 1).status, null);
 });
+
+test('every passive skill has a name and a description in the game\'s own stat words', () => {
+  for (const [id, a] of Object.entries(ABILITIES)) {
+    assert.ok(a.name && a.desc && a.desc.length > 12, id);
+    assert.ok(!/\bSp\. ?Atk\b|\bSp\. ?Def\b|\bAttack\b|\bDefense\b/.test(a.desc), `${id} names a stat this game does not have: ${a.desc}`);
+  }
+});

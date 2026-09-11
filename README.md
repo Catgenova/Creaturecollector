@@ -11,7 +11,7 @@ deployed from `main` on every push). Or open `index.html` locally.
 Phase 1 — Creature Lab: seeded procedural creatures assembled from a part
 library, with recolouring, diploid part genes, species, stats and shareable
 creature codes. The Lab and Parts tabs have since been folded away; the
-creature sheet (stats, parts, palette, stages, Elemental preview) opens from
+creature sheet (passive skill, stats, moves and learn levels, parts, palette, stages, Elemental preview) opens from
 anywhere in the overworld, and creature codes now live only in saves and tests.
 
 Phase 2 — Fusion: fuse any two creatures of a class into one, with an

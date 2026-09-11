@@ -55,6 +55,8 @@ if (state.encounter) {
   await page.waitForSelector('.sheet .shop-row', { timeout: 5000 });
   await page.screenshot({ path: path.join(out, 'world-fight-info.png'), fullPage: true });
   console.log('info moves:', JSON.stringify(await page.evaluate(() => [...document.querySelectorAll('.sheet .shop-row')].slice(0, 3).map((r) => r.textContent.trim().replace(/\s+/g, ' ').slice(0, 70)))));
+  console.log('info skill:', JSON.stringify(await page.evaluate(() => { const c = document.querySelector('.sheet .ability-card'); return c ? c.textContent : null; })));
+  console.log('learn tags:', JSON.stringify(await page.evaluate(() => [...document.querySelectorAll('.sheet .shop-row .shop-tag')].map((t) => t.textContent))));
   await page.click('.sheet .close');
   await page.click('text=Fast');
   await page.click('text=Auto');

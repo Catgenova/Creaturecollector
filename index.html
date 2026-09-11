@@ -194,7 +194,11 @@ h3.sec { font-size: 12px; text-transform: uppercase; letter-spacing: .1em; color
 .mv-fx .st { color: #c9b8ff; }
 .shop-fx { display: flex; flex-wrap: wrap; gap: 2px 8px; font-size: 11px; color: #c9b8ff; margin-top: 2px; }
 .shop-fx em { font-style: normal; }
-.shop-row.later { opacity: .55; }
+.shop-row.known { border-color: var(--acc2); }
+.shop-row.next { border-color: var(--acc); }
+.ability-card { display: flex; flex-direction: column; gap: 2px; padding: 8px 10px; border: 1px solid var(--line); border-radius: 10px; background: var(--bg); font-size: 13px; }
+.ability-card b { color: var(--acc); }
+.ability-card span { color: var(--fg); }
 .util-row { display: flex; gap: 8px; justify-content: flex-end; }
 .waiting { color: var(--fg2); text-align: center; padding: 10px; }
 .party-list { display: flex; flex-direction: column; gap: 8px; }
@@ -7721,7 +7725,7 @@ const ABILITIES = {
   tide_heart: { name: 'Tide Heart', desc: 'Water moves hit 1.5x harder when HP is a third or less.' },
   bloom_heart: { name: 'Bloom Heart', desc: 'Grass moves hit 1.5x harder when HP is a third or less.' },
   stonewall: { name: 'Stonewall', desc: 'Survives any single hit from full HP with 1 HP left.' },
-  menace: { name: 'Menace', desc: 'Lowers the foe’s Attack on entry.' },
+  menace: { name: 'Menace', desc: 'Lowers the foe’s Melee Atk and Ranged Atk on entry.' },
   momentum: { name: 'Momentum', desc: 'Speed rises at the end of every turn.' },
   blubber: { name: 'Blubber', desc: 'Takes half damage from Fire and Ice moves.' },
   hover: { name: 'Hover', desc: 'Immune to Ground moves.' },
@@ -7743,7 +7747,7 @@ const ABILITIES = {
   damp_coat: { name: 'Damp Coat', desc: 'Cannot be burned.' },
   heavy_hands: { name: 'Heavy Hands', desc: 'Punching moves hit 1.2x harder.' },
   vice_jaw: { name: 'Vice Jaw', desc: 'Biting moves hit 1.5x harder.' },
-  swagger: { name: 'Swagger', desc: 'Attack rises after knocking out a foe.' },
+  swagger: { name: 'Swagger', desc: 'Melee Atk and Ranged Atk rise after knocking out a foe.' },
   thick_skull: { name: 'Thick Skull', desc: 'Takes no recoil damage.' },
   daredevil: { name: 'Daredevil', desc: 'Recoil moves hit 1.2x harder.' },
   lucky_streak: { name: 'Lucky Streak', desc: 'Secondary effects are twice as likely.' },
@@ -7753,7 +7757,7 @@ const ABILITIES = {
   storm_core: { name: 'Storm Core', desc: 'Electric moves hit 1.3x harder. Cannot be paralyzed; Speed rises on entry.' },
   frost_core: { name: 'Frost Core', desc: 'Ice moves hit 1.3x harder. Cannot be frozen; contact has a 30% chance to chill the attacker\u2019s Speed.' },
   verdant_core: { name: 'Verdant Core', desc: 'Grass moves hit 1.3x harder. Cannot be poisoned; Grass moves heal a quarter of max HP instead of damaging.' },
-  umbral_core: { name: 'Umbral Core', desc: 'Dark and Ghost moves hit 1.3x harder. Lowers the foe\u2019s Sp. Atk on entry.' },
+  umbral_core: { name: 'Umbral Core', desc: 'Dark and Ghost moves hit 1.3x harder. Lowers the foe\u2019s Magic Atk on entry.' },
   radiant_core: { name: 'Radiant Core', desc: 'Fairy and Psychic moves hit 1.3x harder. Immune to Dark moves.' },
   quake_core: { name: 'Quake Core', desc: 'Ground and Rock moves hit 1.3x harder. Takes three quarters damage from Melee moves.' },
 };
@@ -9312,6 +9316,7 @@ function freshSeed() {
 
 
 
+
 function statRows(g) {
   const base = baseStats(g);
   const rows = [];
@@ -9351,10 +9356,28 @@ function moveRows(ids) {
   return rows.length ? h('div', { class: 'shop-list' }, rows) : null;
 }
 
-/** Every move the creature learns by level, lowest first, with the level as the tag; ones still to come are dimmed. */
-function learnsetRows(g, level) {
-  const rows = [...learnsetOf(g)].sort((a, b) => a[0] - b[0]).map(([lv, id]) => (getMove(id) ? h('div', { class: `shop-row${level != null && lv > level ? ' later' : ''}` }, moveInfoEl(getMove(id), `Lv ${lv}`)) : null)).filter(Boolean);
-  return rows.length ? h('div', { class: 'shop-list' }, rows) : h('p', { class: 'hint' }, 'Nothing to learn.');
+/**
+ * Every move the creature learns, lowest level first. Each row is tagged with its level; a move it knows now is
+ * marked known, the first one still ahead of its level is marked next, and the rest ahead say how far off they are.
+ */
+function learnsetRows(g, level, known) {
+  const set = new Set(known || []);
+  const entries = [...learnsetOf(g)].filter(([, id]) => getMove(id)).sort((a, b) => a[0] - b[0]);
+  const next = level != null ? entries.find(([lv]) => lv > level) : null;
+  const rows = entries.map(([lv, id]) => {
+    const isKnown = set.has(id), ahead = level != null && lv > level;
+    const tag = isKnown ? `Lv ${lv} · known` : next && next[0] === lv ? `next · Lv ${lv}` : ahead ? `at Lv ${lv}` : level != null ? `Lv ${lv} · forgotten` : `Lv ${lv}`;
+    return h('div', { class: `shop-row${isKnown ? ' known' : ''}${next && next[0] === lv ? ' next' : ''}` }, moveInfoEl(getMove(id), tag));
+  });
+  const ahead = level != null ? entries.filter(([lv]) => lv > level).length : entries.length;
+  const intro = level == null ? `${entries.length} moves by level.` : ahead ? `${ahead} more ${ahead === 1 ? 'move' : 'moves'} to come${next ? `, the next at Lv ${next[0]}` : ''}. With four known, a new move replaces one you choose.` : 'Every move on its list has been reached.';
+  return rows.length ? h('div', {}, h('p', { class: 'hint' }, intro), h('div', { class: 'shop-list' }, rows)) : h('p', { class: 'hint' }, 'Nothing to learn.');
+}
+
+/** The passive skill: its name and what it does. */
+function abilityCard(g) {
+  const a = getAbility(g.ability);
+  return h('div', { class: 'ability-card' }, h('b', {}, a ? a.name : 'None'), h('span', {}, a ? a.desc : 'This creature has no passive skill.'));
 }
 
 let activeSheet = null;
@@ -9392,9 +9415,10 @@ function openSheet(g, sheetOpts = {}) {
         redraw();
       } }, h('option', { value: '' }, 'Elemental preview'), ...ELEMENT_IDS.map((id) => h('option', { value: id }, `${ELEMENTS[id].name} Elemental`)))),
     sp ? h('p', { class: 'desc' }, sp.desc) : null,
+    ...section('Passive skill', abilityCard(g)),
     ...section('Base stats', statRows(g)),
     ...(moveRows(sheetOpts.moves) ? section('Moves', moveRows(sheetOpts.moves)) : []),
-    ...section('Learnset', learnsetRows(g, sheetOpts.level)),
+    ...section('Learns by level', learnsetRows(g, sheetOpts.level, sheetOpts.moves)),
     ...section('Parts', partRows(g)),
     ...section('Palette', h('div', { class: 'swatches' }, ['c1', 'c2', 'c3', 'eye'].map((k) => h('span', { class: 'sw', title: k, style: { background: swatchCss(g.palette[k]) } })))),
     ...section('Traits', traitRows(g)),
@@ -12166,7 +12190,7 @@ function owStarterView(root, j) {
     cards,
     h('div', { class: 'row wrap' },
       h('button', { class: 'btn primary fuse-btn', type: 'button', disabled: !pick, onclick: () => { chooseJourneyStarter(j, ow.starterPick); recordCollection(ow.save, j.party[0].genome); owSave(); rerender(); } }, pick ? `Set out with ${pick.name}` : 'Pick a companion'),
-      pick ? h('button', { class: 'btn', type: 'button', onclick: () => openSheet(pick) }, 'Details') : null,
+      pick ? h('button', { class: 'btn', type: 'button', onclick: () => openSheet(pick, { level: JOURNEY.starterLevel }) }, 'Details') : null,
       h('button', { class: 'btn', type: 'button', onclick: () => { ow.save.journey = null; owSave(); rerender(); } }, 'Cancel')),
   );
 }

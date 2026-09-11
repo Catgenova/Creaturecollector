@@ -289,8 +289,10 @@ The fight view (`ui/fight.js`) is portrait: foe panel and creature on top,
 yours below, a four-line log, then move cards with type, damage type, power,
 PP, accuracy, every side effect with its odds (`moveEffects`: "30% burn", "+1
 own Speed", "hits 2–5×", "priority +1") and effectiveness words, plus Party,
-Info, Items, capture, Fast and Auto. Info opens the creature sheet with a
-Moves section (the same details) and its learnset by level. It plays
+Info, Items, capture, Fast and Auto. Info opens the creature sheet, which
+shows the passive skill with its description, the moves it knows (the same
+details) and a Learns by level list: every move on its learnset with the
+level, the known ones marked, the next one ahead flagged. It plays
 the engine's events back with sprite poses and sound, and is mounted by the
 overworld for every wild, trainer, Warden and Council fight.
 
