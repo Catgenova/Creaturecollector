@@ -244,10 +244,10 @@ export function traitScales(traits = {}) {
   return {
     size: lerp(0.68, 1.0, t('size')),
     leg: lerp(0.8, 1.2, t('limbScale')),
-    head: lerp(0.85, 1.15, t('headScale')),
+    head: lerp(0.9, 1.22, t('headScale')),
     tail: lerp(0.75, 1.25, t('tailScale')),
     wing: lerp(0.75, 1.25, t('wingScale')),
-    eye: lerp(0.8, 1.25, t('eyeScale')),
+    eye: lerp(0.85, 1.32, t('eyeScale')),
   };
 }
 

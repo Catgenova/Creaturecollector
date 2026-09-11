@@ -1,7 +1,7 @@
 // Insect shells (wing cases and back armour over the abdomen; origin = the body's shell socket)
 // and patterns (clipped to the body, authored in the 100 x 60 frame).
 import { iPart } from './_shared.js';
-import { NONE, S, L, P, C, SH, HL, fur } from '../_dsl.js';
+import { NONE, S, L, P, C, E, SH, HL, fur } from '../_dsl.js';
 
 export const I_SHELLS = [
   NONE('shell', 0.3, 'i.'),
@@ -16,11 +16,11 @@ export const I_SHELLS = [
 
 export const I_PATTERNS = [
   NONE('pattern', 0.3, 'i.'),
-  iPart({ id: 'stripes', slot: 'pattern', name: 'Stripes', tags: ['bee'], dom: 0.5, w: 3, extra: [S([[-30, -40], [-18, -40], [-20, 40], [-32, 40]], 'a', { ns: true }), S([[-4, -40], [8, -40], [6, 40], [-6, 40]], 'a', { ns: true }), S([[20, -40], [32, -40], [30, 40], [18, 40]], 'a', { ns: true })] }),
-  iPart({ id: 'spots', slot: 'pattern', name: 'Spots', tags: ['ladybug'], dom: 0.5, w: 3, extra: [...[[-30, -12, 6], [-8, -22, 5], [14, -14, 6], [34, -20, 4.5], [-18, 10, 5], [8, 8, 5.5], [30, 6, 4]].map(([x, y, r]) => ({ t: 'circle', cx: x, cy: y, r, f: 'a', ns: true }))] }),
-  iPart({ id: 'bands', slot: 'pattern', name: 'Bands', tags: ['ringed'], dom: 0.5, w: 2, extra: [S([[-44, -40], [-36, -40], [-38, 40], [-46, 40]], 'a', { ns: true }), S([[-22, -40], [-14, -40], [-16, 40], [-24, 40]], 'a', { ns: true }), S([[0, -40], [8, -40], [6, 40], [-2, 40]], 'a', { ns: true }), S([[22, -40], [30, -40], [28, 40], [20, 40]], 'a', { ns: true })] }),
+  iPart({ id: 'stripes', slot: 'pattern', name: 'Claw stripes', tags: ['bee'], dom: 0.5, w: 3, extra: [S([[-34, -40], [-16, -40], [-20, -16], [-28, -2, 'c'], [-22, 6], [-32, 22, 'c'], [-32, 4], [-38, -16]], 'a', { ns: true }), S([[-8, -40], [10, -40], [6, -16], [-2, -2, 'c'], [4, 6], [-6, 22, 'c'], [-6, 4], [-12, -16]], 'a', { ns: true }), S([[18, -40], [36, -40], [32, -16], [24, -2, 'c'], [30, 6], [20, 22, 'c'], [20, 4], [14, -16]], 'a', { ns: true })] }),
+  iPart({ id: 'spots', slot: 'pattern', name: 'Ringed spots', tags: ['ladybug'], dom: 0.5, w: 3, extra: [...[[-30, -12, 6.5], [-8, -22, 5.5], [14, -14, 6.5], [34, -20, 5], [-18, 10, 5.5], [8, 8, 6], [30, 6, 4.5]].flatMap(([x, y, r]) => [C(x, y, r, 'a', { ns: true }), C(x + 0.5, y + 0.4, r * 0.45, 's', { ns: true, op: 0.9 })])] }),
+  iPart({ id: 'bands', slot: 'pattern', name: 'Jagged bands', tags: ['ringed'], dom: 0.5, w: 2, extra: [S([[-46, -40], [-34, -40], [-36, -18], [-42, -4, 'c'], [-36, 6], [-44, 20, 'c'], [-44, 4], [-48, -18]], 'a', { ns: true }), S([[-24, -40], [-12, -40], [-14, -18], [-20, -4, 'c'], [-14, 6], [-22, 20, 'c'], [-22, 4], [-26, -18]], 'a', { ns: true }), S([[-2, -40], [10, -40], [8, -18], [2, -4, 'c'], [8, 6], [0, 20, 'c'], [0, 4], [-4, -18]], 'a', { ns: true }), S([[20, -40], [32, -40], [30, -18], [24, -4, 'c'], [30, 6], [22, 20, 'c'], [22, 4], [18, -18]], 'a', { ns: true })] }),
   iPart({ id: 'chevrons', slot: 'pattern', name: 'Chevrons', tags: ['arrows'], dom: 0.45, w: 2, extra: [L('M-36,-16 L-26,0 L-36,16 M-20,-16 L-10,0 L-20,16 M-4,-16 L6,0 L-4,16 M12,-16 L22,0 L12,16 M28,-16 L38,0 L28,16', 'a', 3.2)] }),
   iPart({ id: 'eyespots', slot: 'pattern', name: 'Eyespots', tags: ['moth'], dom: 0.45, w: 2, extra: [...[[-24, -8], [16, -10]].flatMap(([x, y]) => [{ t: 'ellipse', cx: x, cy: y, rx: 11, ry: 9, f: 'a', ns: true }, { t: 'ellipse', cx: x, cy: y, rx: 6.5, ry: 5.5, f: 's', ns: true }, { t: 'circle', cx: x + 1, cy: y, r: 3, f: 'k', ns: true, op: 0.7 }])] }),
-  iPart({ id: 'gradient', slot: 'pattern', name: 'Dark back', tags: ['gradient'], dom: 0.5, w: 2, extra: [S([[-54, -40], [54, -40], [54, -12], [26, 0], [-8, 2], [-36, -2], [-56, -12]], 'a', { ns: true }), S([[-46, -40], [46, -40], [46, -26], [22, -16], [-6, -14], [-30, -18], [-48, -26]], 'k', { ns: true, op: 0.12 })] }),
+  iPart({ id: 'gradient', slot: 'pattern', name: 'Jagged back', tags: ['gradient'], dom: 0.5, w: 2, extra: [S([[-54, -40], [54, -40], [54, -12], [44, 0, 'c'], [34, -10], [24, 4, 'c'], [14, -8], [4, 6, 'c'], [-6, -8], [-16, 4, 'c'], [-26, -10], [-38, 2, 'c'], [-56, -12]], 'a', { ns: true, spline: { tension: 0.45 } }), S([[-46, -40], [46, -40], [46, -26], [22, -16], [-6, -14], [-30, -18], [-48, -26]], 'k', { ns: true, op: 0.12 })] }),
   iPart({ id: 'speckles', slot: 'pattern', name: 'Speckles', tags: ['texture'], dom: 0.45, w: 2, extra: [...Array.from({ length: 24 }, (_, i) => { const x = -44 + (i % 8) * 12 + (Math.floor(i / 8) % 2 ? 6 : 0), y = -22 + Math.floor(i / 8) * 18; return { t: 'circle', cx: x, cy: y, r: 2, f: 's', ns: true, op: 0.8 }; })] }),
 ];

@@ -39,7 +39,9 @@ dragonfly, ladybug, ant, moth; 84 parts, nine species), invertebrates (slug,
 crab, jelly, octopus, wisp, scorpion, spider; 84 parts, eight species) and
 amphibians (frog, toad, tree frog, axolotl, newt, salamander, polliwog; 84
 parts, eight species). Classes lock fusion to the same anatomy. All seven
-classes are on rigs and the old shared skeleton is gone. See `DESIGN.md`.
+classes are on rigs and the old shared skeleton is gone. A fantasy pass then
+pushed every slot away from field-guide realism: forehead sigils, tufted and
+leaf ears, orb and flame tails, glowing tips and bold markings. See `DESIGN.md`.
 
 ## Develop
 

@@ -2,6 +2,7 @@
 // drawn behind the body from the back socket) and patterns (clipped to the body, 100 x 60 frame).
 import { bPart } from './_shared.js';
 import { NONE, S, L, P, C, E, SH, HL, fur } from '../_dsl.js';
+import { spiralPath } from '../_sigils.js';
 
 export const B_CHESTS = [
   NONE('chest', 0.3, 'b.'),
@@ -28,10 +29,10 @@ export const B_BACKS = [
 export const B_PATTERNS = [
   NONE('pattern', 0.3, 'b.'),
   bPart({ id: 'belly', slot: 'pattern', name: 'Light belly', tags: ['soft'], dom: 0.5, w: 3, extra: [S([[54, -10], [36, -20], [10, -22], [-14, -14], [-28, 6], [-24, 28], [0, 40], [54, 40]], 's', { ns: true })] }),
-  bPart({ id: 'stripes', slot: 'pattern', name: 'Stripes', tags: ['striped'], dom: 0.5, w: 2, extra: [S([[-40, -22], [40, -20], [40, -12], [-40, -14]], 'a', { ns: true }), S([[-40, -2], [40, 0], [40, 8], [-40, 6]], 'a', { ns: true }), S([[-40, 18], [40, 20], [40, 28], [-40, 26]], 'a', { ns: true })] }),
-  bPart({ id: 'spots', slot: 'pattern', name: 'Spots', tags: ['spotted'], dom: 0.45, w: 2, extra: [...[[-28, -16, 4], [-10, -24, 3.5], [8, -18, 4.5], [26, -22, 3.5], [-22, 0, 3.5], [-4, -4, 3], [14, -2, 4], [30, 4, 3], [-16, 16, 3.5], [4, 14, 3]].map(([x, y, r]) => ({ t: 'ellipse', cx: x, cy: y, rx: r * 1.05, ry: r * 1.25, f: 'a', ns: true }))] }),
+  bPart({ id: 'stripes', slot: 'pattern', name: 'Chevrons', tags: ['striped'], dom: 0.5, w: 2, extra: [S([[-40, -22], [-20, -28], [0, -20], [20, -28], [40, -22], [40, -14], [20, -20], [0, -12], [-20, -20], [-40, -14]], 'a', { ns: true }), S([[-40, -2], [-20, -8], [0, 0], [20, -8], [40, -2], [40, 6], [20, 0], [0, 8], [-20, 0], [-40, 6]], 'a', { ns: true }), S([[-40, 18], [-20, 12], [0, 20], [20, 12], [40, 18], [40, 26], [20, 20], [0, 28], [-20, 20], [-40, 26]], 'a', { ns: true })] }),
+  bPart({ id: 'spots', slot: 'pattern', name: 'Ringed spots', tags: ['spotted'], dom: 0.45, w: 2, extra: [...[[-28, -16, 5], [-8, -24, 4.5], [10, -18, 5.5], [28, -20, 4.5], [-20, 2, 4.5], [0, -2, 4], [18, 4, 5], [-12, 18, 4], [8, 18, 4]].flatMap(([x, y, r]) => [E(x, y, r * 1.05, r * 1.25, 'a', { ns: true }), E(x + 0.4, y + 0.6, r * 0.45, r * 0.55, 's', { ns: true, op: 0.9 })])] }),
   bPart({ id: 'bars', slot: 'pattern', name: 'Barred', tags: ['hawk'], dom: 0.45, w: 2, extra: [L('M-44,-26 Q-20,-20 4,-26 Q28,-32 52,-26 M-46,-12 Q-20,-6 4,-12 Q28,-18 52,-12 M-46,2 Q-20,8 4,2 Q28,-4 52,2 M-44,16 Q-20,22 4,16 Q28,10 50,16 M-40,30 Q-20,36 4,30 Q26,24 46,30', 'k', 3, { op: 0.3 })] }),
-  bPart({ id: 'patches', slot: 'pattern', name: 'Patches', tags: ['pied'], dom: 0.45, w: 2, extra: [S([[-44, -34], [-16, -38], [-8, -18], [-22, -6], [-46, -12]], 'a', { ns: true }), S([[6, -30], [30, -36], [42, -20], [30, -4], [10, -8]], 'a', { ns: true }), S([[-12, 8], [8, 4], [14, 20], [-2, 28], [-16, 18]], 'a', { ns: true })] }),
+  bPart({ id: 'patches', slot: 'pattern', name: 'Swirls', tags: ['spiral'], dom: 0.45, w: 2, extra: [L(spiralPath(-16, -12, 14, 1.7, 160), 'a', 4, { ns: true }), L(spiralPath(20, -2, 11, 1.6, -20), 'a', 3.4, { ns: true }), C(-30, 14, 3, 'a', { ns: true, op: 0.8 }), C(34, -24, 2.5, 'a', { ns: true, op: 0.8 })] }),
   bPart({ id: 'gradient', slot: 'pattern', name: 'Dark back', tags: ['gradient'], dom: 0.5, w: 2, extra: [S([[-54, -40], [54, -40], [54, -10], [26, 2], [-8, 4], [-36, -2], [-56, -10]], 'a', { ns: true }), S([[-46, -40], [46, -40], [46, -24], [22, -14], [-6, -12], [-30, -16], [-48, -24]], 'k', { ns: true, op: 0.12 })] }),
   bPart({ id: 'speckles', slot: 'pattern', name: 'Speckles', tags: ['starling'], dom: 0.45, w: 2, extra: [...Array.from({ length: 22 }, (_, i) => { const x = -42 + (i % 6) * 16 + (Math.floor(i / 6) % 2 ? 8 : 0), y = -28 + Math.floor(i / 6) * 16; return { t: 'ellipse', cx: x, cy: y, rx: 1.8, ry: 2.6, f: 's', ns: true, op: 0.85 }; })] }),
 ];

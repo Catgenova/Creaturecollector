@@ -3,7 +3,8 @@
 // (side), tail (rear), belly (bottom); plus gills, crest (top of the head), barbels (mouth corner).
 // Fish hover above their shadow (`hover`). kinds: 'fish.round', 'fish.long', 'fish.upright'.
 import { fBody, torsoShade } from './_shared.js';
-import { L, SH, HL, PATCH, tube, arcPts } from '../_dsl.js';
+import { L, SH, HL, PATCH, C, tube, arcPts } from '../_dsl.js';
+import { sparklePath, crescentPath, boltPath, diamondPath, starPath } from '../_sigils.js';
 
 const fRing = (cx, cy, rx, ry, n = 12) => arcPts(cx, cy, rx, ry, 0, 360, n).slice(0, n);
 
@@ -12,6 +13,7 @@ export const F_BODIES = [
     id: 'round', name: 'Round', kind: 'fish.round', tags: ['classic'], dom: 0.5, w: 3, hover: 14,
     pts: [[30, -26], [10, -30], [-14, -28], [-36, -14], [-42, 2], [-34, 18], [-12, 28], [12, 28], [32, 18], [44, 4], [42, -12]],
     shade: torsoShade(-42, 44, -30, 28),
+    extra: [PATCH(sparklePath(8, -17, 5.5), 'a')],
     sockets: {
       eye: { x: 24, y: -8, s: 1 }, eyeFar: null, mouth: { x: 43, y: 3, a: 0, s: 1 },
       dorsal: { x: -4, y: -30, a: 0, s: 1 }, pectoral: { x: 10, y: 6, a: 0, s: 1 }, pectoralFar: { x: -4, y: -2, a: 0, s: 0.9 },
@@ -23,6 +25,7 @@ export const F_BODIES = [
     id: 'betta', name: 'Slender', kind: 'fish.round', tags: ['fancy'], dom: 0.5, w: 2, hover: 16,
     pts: [[26, -20], [6, -24], [-16, -22], [-36, -12], [-42, 0], [-36, 12], [-16, 22], [6, 24], [26, 20], [40, 6], [40, -8]],
     shade: torsoShade(-42, 40, -24, 24),
+    extra: [PATCH(crescentPath(8, -12, 4.5, -60), 'a')],
     sockets: {
       eye: { x: 24, y: -6, s: 1 }, eyeFar: null, mouth: { x: 40, y: 0, a: 0, s: 1 },
       dorsal: { x: -6, y: -24, a: 0, s: 1 }, pectoral: { x: 12, y: 6, a: 0, s: 1 }, pectoralFar: { x: 0, y: 0, a: 0, s: 0.9 },
@@ -34,6 +37,7 @@ export const F_BODIES = [
     id: 'shark', name: 'Torpedo', kind: 'fish.long', tags: ['shark'], dom: 0.55, w: 2, hover: 16,
     pts: [[26, -18], [4, -24], [-18, -22], [-40, -14], [-48, -2], [-40, 10], [-18, 18], [6, 20], [30, 14], [50, 2, 'c'], [44, -8]],
     shade: torsoShade(-48, 50, -24, 20),
+    extra: [PATCH(boltPath(10, -14, 5, 100), 'a')],
     sockets: {
       eye: { x: 28, y: -8, s: 0.9 }, eyeFar: null, mouth: { x: 40, y: 7, a: 0, s: 1 },
       dorsal: { x: -6, y: -24, a: 0, s: 1 }, pectoral: { x: 12, y: 10, a: 0, s: 1 }, pectoralFar: { x: 0, y: 4, a: 0, s: 0.9 },
@@ -45,6 +49,7 @@ export const F_BODIES = [
     id: 'angler', name: 'Big-headed', kind: 'fish.round', tags: ['angler', 'deep'], dom: 0.5, w: 2, hover: 12,
     pts: [[20, -30], [0, -34], [-22, -28], [-38, -10], [-40, 6], [-30, 20], [-8, 26], [14, 24], [32, 14], [40, 0], [36, -16]],
     shade: torsoShade(-40, 40, -34, 26),
+    extra: [PATCH(diamondPath(2, -22, 5, 8), 'a')],
     sockets: {
       eye: { x: 20, y: -14, s: 1.1 }, eyeFar: null, mouth: { x: 37, y: 3, a: 0, s: 1 },
       dorsal: { x: -10, y: -34, a: 0, s: 1 }, pectoral: { x: 8, y: 10, a: 0, s: 1 }, pectoralFar: { x: -6, y: 4, a: 0, s: 0.9 },
@@ -56,6 +61,7 @@ export const F_BODIES = [
     id: 'puffer', name: 'Ball', kind: 'fish.round', tags: ['puffer', 'round'], dom: 0.5, w: 2, hover: 14,
     pts: fRing(0, 0, 32, 30, 12),
     shade: torsoShade(-32, 32, -30, 30, { shadeFrac: 0.35 }),
+    extra: [PATCH(starPath(3, -17, 5, 5, 0.5), 'a')],
     sockets: {
       eye: { x: 18, y: -10, s: 1 }, eyeFar: { x: -8, y: -12, s: 0.85 }, mouth: { x: 30, y: 4, a: 0, s: 1 },
       dorsal: { x: -4, y: -30, a: 0, s: 1 }, pectoral: { x: 12, y: 8, a: 0, s: 1 }, pectoralFar: { x: -4, y: 2, a: 0, s: 0.9 },
@@ -67,7 +73,7 @@ export const F_BODIES = [
     id: 'seahorse', name: 'Upright', kind: 'fish.upright', tags: ['seahorse'], dom: 0.5, w: 2, hover: 6,
     pts: [[2, -50], [12, -48], [20, -42], [34, -40], [40, -35, 'c'], [34, -30], [24, -30], [20, -22], [16, -10], [12, 4], [12, 18], [8, 30], [0, 40], [-10, 44], [-18, 40], [-14, 32], [-8, 20], [-8, 6], [-8, -8], [-6, -22], [-8, -36], [-6, -46]],
     shade: [SH('M-20,10 C-10,24 4,30 12,22 L14,50 L-24,50 Z', 0.12), SH('M-10,-36 C0,-30 10,-30 22,-34 L24,-26 L-10,-26 Z', 0.08), HL('M-4,-46 C6,-50 14,-48 18,-42 L14,-40 C10,-44 4,-44 -2,-42 Z', 0.18), HL('M-4,-20 C-2,-6 0,8 2,22 L-2,22 C-4,8 -6,-6 -7,-20 Z', 0.14)],
-    extra: [L('M-4,-14 C0,-12 6,-12 12,-14 M-5,-2 C0,0 6,0 11,-2 M-5,10 C0,12 6,12 10,10 M-3,22 C0,24 4,24 7,22', 'k', 1.1, { op: 0.25 })],
+    extra: [L('M-4,-14 C0,-12 6,-12 12,-14 M-5,-2 C0,0 6,0 11,-2 M-5,10 C0,12 6,12 10,10 M-3,22 C0,24 4,24 7,22', 'k', 1.1, { op: 0.25 }), PATCH(diamondPath(4, -29, 4.5, 6.5), 'a')],
     sockets: {
       eye: { x: 14, y: -40, s: 0.9 }, eyeFar: null, mouth: { x: 40, y: -35, a: 0, s: 0.8 },
       dorsal: { x: -8, y: 4, a: -12, s: 0.9 }, pectoral: { x: 10, y: -20, a: 30, s: 0.8 }, pectoralFar: { x: 0, y: -22, a: 30, s: 0.7 },
@@ -79,6 +85,7 @@ export const F_BODIES = [
     id: 'eel', name: 'Ribbon', kind: 'fish.long', tags: ['eel', 'long'], dom: 0.5, w: 2, hover: 12,
     pts: [[30, -9], [8, -12], [-16, -11], [-40, -8], [-60, -3], [-66, 3], [-56, 8], [-36, 9], [-12, 11], [12, 11], [34, 8], [44, 0], [40, -6]],
     shade: torsoShade(-66, 44, -12, 11),
+    extra: [C(16, -4, 2.4, 'a', { ns: true, cl: true }), C(0, -4, 2.4, 'a', { ns: true, cl: true }), C(-16, -3, 2.4, 'a', { ns: true, cl: true }), C(-32, -2, 2.2, 'a', { ns: true, cl: true })],
     sockets: {
       eye: { x: 30, y: -3, s: 0.8 }, eyeFar: null, mouth: { x: 43, y: 2, a: 0, s: 0.9 },
       dorsal: { x: -6, y: -10, a: 0, s: 0.85 }, pectoral: { x: 18, y: 5, a: 0, s: 0.7 }, pectoralFar: { x: 8, y: 2, a: 0, s: 0.6 },

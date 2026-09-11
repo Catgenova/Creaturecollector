@@ -297,6 +297,21 @@ far-side copies a shade darker. Fur tufts are sparse and soft. Colour roles are
 used consistently so palettes travel: `p` coat, `s` underside, muzzle, inner
 ear and tail tip, `a` accents (socks, ear tips, nose leather, markings).
 
+**Fantasy over field guide.** The anatomy stays readable but no part should
+pass for a real animal's. Every head carries a sigil in the accent colour
+(`src/data/parts/_sigils.js`: flame, crescent, diamond, star, sparkle, bolt,
+heart, spiral, ring); ears are tufted, curled, ringed or leaves; noses are
+accent hearts and triangles, the heavy kinds carry tusks or twin fangs; every
+tail ends in something an animal's would not (a flame-cut brush, a curled
+tuft, a leaf, a floating sparkle, a banner stripe, an orb); horn, antler,
+feather and fin tips glow in the accent; body markings are bold and stylised
+(claw stripes, ringed spots, flame-hemmed saddles, swirls, jagged bands)
+rather than naturalistic; insect and invertebrate bodies carry glowing
+segment lights and gem plates. Heads and eyes render a little larger than
+life. Species palettes avoid field-guide colours where the type allows, and
+each species expresses at least one accessory slot (mane, horns, back, crest,
+shell...) rather than carrying it silently.
+
 **Mammal rig** (done). Slots: body, head, ears, eyes, muzzle, legsFront,
 legsBack, tail, mane, horns, back, markings. Linked in fusion: the two leg
 slots, and head with muzzle. Body sockets: `head`, `shoulder`/`shoulderFar`,
