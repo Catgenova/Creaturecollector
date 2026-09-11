@@ -229,6 +229,12 @@ h3.sec { font-size: 12px; text-transform: uppercase; letter-spacing: .1em; color
 .kind-badge { font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: .08em; padding: 2px 8px; border-radius: 999px; background: var(--bg3); color: var(--fg2); }
 .kind-badge.boss { background: #f0762e; color: #1a1400; }
 .kind-badge.trainer { background: var(--acc2); color: #fff; }
+.kind-badge.tower { background: #ff9f43; color: #2a1f1a; }
+.encounter.tower { border-color: #ff9f43; background: linear-gradient(160deg, #2a221a, var(--bg2)); }
+.tower-row { grid-template-columns: 1fr auto; }
+.tower-info { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.tower-info .hint { margin: 0; }
+.tower-meta { font-size: 12px; color: var(--fg2); }
 .foes { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; margin: 4px 0 8px; }
 .foe-card { display: flex; flex-direction: column; align-items: center; font-size: 12px; color: var(--fg2); }
 .foe-card svg { height: auto; }

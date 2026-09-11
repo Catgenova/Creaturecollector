@@ -16,6 +16,7 @@ import { WORLD, TILE, REGIONS, HUB, BIOME_ORDER, worldFor, tileAt, biomeAt, habi
 import { TYPE_INFO, TYPE_LIST } from '../data/types.js';
 import { DAMAGE_TYPES } from '../data/damage.js';
 import { marketCatalogue, buyMove, bagList, bagCount, canTeach, teachMove, itemCatalogue, itemList, buyItem, useItem, scrollTypes, scrollLearners, listWords } from '../game/market.js';
+import { TOWER, TOWER_TRAINERS, challengeTower, towerRecord } from '../game/tower.js';
 import { abilityName } from '../data/abilities.js';
 import { getMove } from '../data/moves.js';
 import { getItem } from '../data/items.js';
@@ -102,7 +103,7 @@ function owStarterView(root, j) {
 
 function owKindLabel(enc) {
   if (enc.kind === 'wild') { const el = elementalOf(enc.foes[0].genome); return el && el.pure ? `${el.name} Elemental!` : enc.alpha ? 'Alpha encounter' : 'Wild encounter'; }
-  return { trainer: 'Trainer battle', boss: 'Warden', council: 'The Council' }[enc.kind] || enc.kind;
+  return { trainer: 'Trainer battle', boss: 'Warden', council: 'The Council', tower: 'Battle Tower' }[enc.kind] || enc.kind;
 }
 
 function owReportCard(j) {
@@ -266,6 +267,7 @@ function owAfterStep(event) {
   if (event.kind === 'shrine') { owShrineSheet(j); return; }
   if (event.kind === 'market') { owMarketSheet(j); return; }
   if (event.kind === 'storage') { owStorageSheet(j); return; }
+  if (event.kind === 'tower') { owTowerSheet(j); return; }
 }
 
 function owRefreshHud() {
@@ -287,6 +289,7 @@ function owInteract() {
   if (here === TILE.shrine) { owShrineSheet(j); return; }
   if (here === TILE.marketDoor) { owMarketSheet(j); return; }
   if (here === TILE.storageDoor) { owStorageSheet(j); return; }
+  if (here === TILE.towerDoor) { owTowerSheet(j); return; }
   if (here === TILE.camp) { toast('The fire is warm. Your party is rested.'); return; }
   const ht = habitatTypeAt(world, f.x, f.y);
   if (tileAt(world, f.x, f.y) === TILE.habitat && ht) { toast(`${ht}-type creatures live in this ${biomeAt(world, f.x, f.y).name.toLowerCase()} patch.`); return; }
@@ -355,13 +358,14 @@ function owEncounterView(root, j) {
   const foes = h('div', { class: 'foes' }, enc.foes.map((f) => h('div', { class: 'foe-card' },
     creatureEl(f.genome, { size: enc.foes.length > 2 ? 78 : 120, facing: 'left', animate: enc.foes.length <= 2, level: f.level }),
     h('span', {}, `${f.genome.name} · Lv ${f.level}`, stageBadge(f.level)))));
-  const back = enc.kind === 'wild' ? 'Run' : enc.kind === 'council' ? 'Retreat (forfeits the run)' : 'Back out';
+  const back = enc.kind === 'wild' ? 'Run' : enc.kind === 'council' ? 'Retreat (forfeits the run)' : enc.kind === 'tower' ? 'Back down' : 'Back out';
   const intro = enc.kind === 'wild' ? (enc.alpha ? 'An alpha, well above the local level. Worth more, and harder to catch.' : `A wild creature from the ${enc.type ? `${enc.type} ` : ''}patch. Weaken it to capture it.`)
-    : enc.kind === 'council' ? `${enc.line} Fight ${enc.stage + 1} of ${JOURNEY.councilFights}.` : enc.kind === 'boss' ? `Win for the ${enc.badge}.` : 'A friendly match. No captures.';
+    : enc.kind === 'council' ? `${enc.line} Fight ${enc.stage + 1} of ${JOURNEY.councilFights}.` : enc.kind === 'boss' ? `Win for the ${enc.badge}.`
+    : enc.kind === 'tower' ? `${enc.line} Six on six at level ${enc.level}. A win pays experience and gold${towerRecord(j, enc.floor, enc.level) ? ', a quarter of the gold now this floor is beaten at this level' : ''}.` : 'A friendly match. No captures.';
   root.append(
     h('div', { class: 'ow' }, owHud(j),
       h('div', { class: `encounter ${enc.kind === 'boss' || enc.kind === 'council' ? 'boss' : enc.kind}${elem && elem.pure ? ` elemental elem-${elem.id}` : ''}` },
-        h('div', { class: 'enc-head' }, h('span', { class: `kind-badge ${enc.kind === 'council' ? 'boss' : enc.kind}${elem && elem.pure ? ' elemental' : ''}` }, kind), h('b', {}, enc.name)),
+        h('div', { class: 'enc-head' }, h('span', { class: `kind-badge ${enc.kind === 'council' ? 'boss' : enc.kind}${elem && elem.pure ? ' elemental' : ''}` }, kind), h('b', {}, enc.kind === 'tower' ? `${enc.name} · Lv ${enc.level}` : enc.name)),
         foes,
         h('p', { class: 'hint' }, intro),
         h('div', { class: 'row wrap' },
@@ -529,7 +533,7 @@ function owMapSheet(j) {
   const ctx = c.getContext('2d');
   for (let y = 0; y < world.h; y++) for (let x = 0; x < world.w; x++) {
     const t = world.tiles[y * world.w + x], r = REGIONS[world.biomes[world.bio[y * world.w + x]].clade];
-    ctx.fillStyle = t === TILE.water ? r.water : t === TILE.wall ? r.wallColor : t === TILE.path || t === TILE.door ? r.path : t === TILE.hub || t === TILE.shrine || t === TILE.spireDoor ? HUB.paving : t === TILE.habitat ? r.habitat : t === TILE.lair || t === TILE.spire ? '#1a1a22' : r.ground;
+    ctx.fillStyle = t === TILE.water ? r.water : t === TILE.wall ? r.wallColor : t === TILE.path || t === TILE.door ? r.path : t === TILE.hub || t === TILE.shrine || t === TILE.spireDoor ? HUB.paving : t === TILE.habitat ? r.habitat : t === TILE.lair || t === TILE.spire || t === TILE.tower ? '#1a1a22' : r.ground;
     ctx.fillRect(x * S, y * S, S, S);
   }
   const dot = (p, color, rad) => { ctx.fillStyle = color; ctx.beginPath(); ctx.arc(p.x * S + S / 2, p.y * S + S / 2, rad, 0, Math.PI * 2); ctx.fill(); };
@@ -537,10 +541,11 @@ function owMapSheet(j) {
   dot(world.spireDoor, '#b98cff', 5);
   dot(world.marketDoor, '#7fe38a', 5);
   dot(world.storageDoor, '#4fc0a0', 5);
+  dot(world.towerDoor, '#ff9f43', 5);
   for (const t of world.trainers) dot({ x: t.x, y: t.y }, j.beaten[t.id] ? '#8f96a8' : '#4f8ef7', 2.5);
   dot(j.player, '#f5c518', 6); ctx.strokeStyle = '#000'; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.arc(j.player.x * S + S / 2, j.player.y * S + S / 2, 6, 0, Math.PI * 2); ctx.stroke();
   const legend = h('div', { class: 'ow-legend' }, world.biomes.map((b) => h('div', {}, h('i', { style: { background: REGIONS[b.clade].ground } }), `${b.name} · to Lv ${b.level}${j.badges.includes(b.id) ? ' · badge ✓' : ''}`)));
-  owSheet('World map', h('div', {}, c, legend, h('p', { class: 'hint', style: { marginTop: '8px' } }, 'You are the gold dot. White: camps. Red: Wardens (gold once beaten). Blue: trainers. Purple: the Council Spire. Green: the Market. Teal: Creature Storage.')));
+  owSheet('World map', h('div', {}, c, legend, h('p', { class: 'hint', style: { marginTop: '8px' } }, 'You are the gold dot. White: camps. Red: Wardens (gold once beaten). Blue: trainers. Purple: the Council Spire. Green: the Market. Teal: Creature Storage. Orange: the Battle Tower.')));
 }
 
 function owMenuSheet(j) {
@@ -738,6 +743,36 @@ function owStorageSheet(j) {
   owSheet('Creature Storage', body, () => owRefreshHud());
 }
 
+/** The Battle Tower: six floors, six on six, at a level of the player's choosing. */
+function owTowerSheet(j) {
+  const body = h('div');
+  const top = Math.max(...j.party.map((m) => m.level));
+  let level = ow.towerLevel && TOWER.levels.includes(ow.towerLevel) ? ow.towerLevel : (TOWER.levels.filter((L) => L <= top + 5).pop() || TOWER.levels[0]);
+  const draw = () => {
+    clear(body);
+    const tiers = h('div', { class: 'type-filter tower-tiers' }, TOWER.levels.map((L) => h('button', { class: `btn small${level === L ? ' on' : ''}`, type: 'button', onclick: () => { level = L; ow.towerLevel = L; render(); } }, `Lv ${L}`)));
+    const list = h('div', { class: 'shop-list' });
+    TOWER_TRAINERS.forEach((t, k) => {
+      const wins = towerRecord(j, k, level);
+      list.append(h('div', { class: 'shop-row tower-row' },
+        h('div', { class: 'tower-info' }, h('b', {}, `${t.title} · ${t.name}`), h('span', { class: 'hint' }, t.line), h('span', { class: 'tower-meta' }, `${TOWER.teamSize} random creatures at Lv ${level}${t.fusions ? ` · ${t.fusions} fusion${t.fusions > 1 ? 's' : ''}` : ''}${wins ? ` · beaten ×${wins}` : ''}`)),
+        h('button', { class: `btn small${canFight(j) ? ' primary' : ''}`, type: 'button', disabled: !canFight(j), onclick: () => {
+          const r = challengeTower(j, k, level);
+          if (!r.ok) { toast(r.reason); return; }
+          owSave(); close(); renderWorldScreen(ow.root);
+        } }, wins ? 'Again' : 'Challenge')));
+    });
+    appendChildren(body, [
+      h('p', { class: 'hint' }, `Six floors, each a trainer with six random creatures at the level you pick. Every challenge rolls a new team, and the higher floors field gen-2 fusions. Wins pay experience every time and trainer gold, a quarter of it once a floor is beaten at that level. Your party fights as it is: strongest member Lv ${top}.`),
+      ...section('Level', tiers),
+      ...section('Floors', list),
+    ]);
+  };
+  const render = () => owKeepScroll(body, draw);
+  render();
+  const { close } = owSheet('Battle Tower', body, () => owRefreshHud());
+}
+
 /** Grid of everything caught, chosen or fused, newest first. */
 function owCollectionGrid() {
   const grid = h('div', { class: 'pool' });
@@ -885,7 +920,7 @@ function owDraw(ts) {
       else if (t === TILE.path || t === TILE.door) ground = region.path;
       else if (t === TILE.water) ground = region.water;
       else if (t === TILE.habitat) ground = region.habitat;
-      else if (t === TILE.lair || t === TILE.spire || t === TILE.market || t === TILE.storage) ground = '#2a2731';
+      else if (t === TILE.lair || t === TILE.spire || t === TILE.market || t === TILE.storage || t === TILE.tower) ground = '#2a2731';
       ctx.fillStyle = ground; ctx.fillRect(px, py, T + 0.5, T + 0.5);
       if (t === TILE.grass && hsh > 0.6) { ctx.strokeStyle = 'rgba(0,0,0,.12)'; ctx.lineWidth = 1.5 * s; ctx.beginPath(); ctx.moveTo(px + T * 0.3, py + T * 0.7); ctx.lineTo(px + T * 0.35, py + T * 0.5); ctx.moveTo(px + T * 0.62, py + T * 0.6); ctx.lineTo(px + T * 0.66, py + T * 0.42); ctx.stroke(); }
       else if (t === TILE.habitat) {
@@ -905,7 +940,7 @@ function owDraw(ts) {
       } else if (t === TILE.shrine) {
         ctx.fillStyle = '#f5c518'; ctx.beginPath(); ctx.moveTo(px + T / 2, py + T * 0.12); ctx.lineTo(px + T * 0.78, py + T / 2); ctx.lineTo(px + T / 2, py + T * 0.88); ctx.lineTo(px + T * 0.22, py + T / 2); ctx.closePath(); ctx.fill();
         ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(px + T / 2, py + T / 2, T * 0.1, 0, Math.PI * 2); ctx.fill();
-      } else if (t === TILE.door || t === TILE.spireDoor || t === TILE.marketDoor || t === TILE.storageDoor) { ctx.fillStyle = 'rgba(0,0,0,.25)'; ctx.fillRect(px + T * 0.2, py + T * 0.3, T * 0.6, T * 0.4); }
+      } else if (t === TILE.door || t === TILE.spireDoor || t === TILE.marketDoor || t === TILE.storageDoor || t === TILE.towerDoor) { ctx.fillStyle = 'rgba(0,0,0,.25)'; ctx.fillRect(px + T * 0.2, py + T * 0.3, T * 0.6, T * 0.4); }
       if (t === TILE.lair || t === TILE.spire) deferred.push({ x, y, t, region, px, py });
     }
   }
@@ -961,6 +996,20 @@ function owDraw(ts) {
       ctx.fillStyle = '#9fe8d8'; ctx.fillRect(sx2 + W / 2 - 7 * s, sy2 + T * 0.9, 14 * s, 11 * s);
       ctx.fillStyle = '#2f7f74'; ctx.fillRect(sx2 + W / 2 - 5 * s, sy2 + T * 0.9 + 2 * s, 10 * s, 7 * s);
       ctx.fillStyle = '#9fe8d8'; ctx.fillRect(sx2 + W / 2 - 1 * s, sy2 + T * 0.9 + 2 * s, 2 * s, 7 * s); ctx.fillRect(sx2 + W / 2 - 5 * s, sy2 + T * 0.9 + 4.5 * s, 10 * s, 2 * s);
+    }
+  }
+  {
+    // the Battle Tower: a tall stone keep with battlements, a lit arch over the square-side door and an orange banner
+    const tw = world.tower, tx = (tw.x - 1) * T - cam.x, ty = tw.y * T - cam.y, W = 3 * T, H = 2 * T, rise = T * 1.6;
+    if (tx + W > 0 && tx < ow.cssW && ty + H + T > 0 && ty - rise < ow.cssH) {
+      ctx.fillStyle = '#4a4553'; ctx.fillRect(tx + 2 * s, ty - rise, W - 4 * s, H + rise - 2 * s);
+      ctx.fillStyle = '#5c5766'; ctx.fillRect(tx + 2 * s, ty - rise, W - 4 * s, T * 0.35);
+      for (let k = 0; k < 4; k++) { ctx.fillStyle = '#3a3542'; ctx.fillRect(tx + 2 * s + (k * (W - 4 * s)) / 4 + 3 * s, ty - rise - T * 0.35, (W - 4 * s) / 4 - 6 * s, T * 0.35); }
+      ctx.fillStyle = 'rgba(0,0,0,.2)'; for (let k = 1; k < 4; k++) ctx.fillRect(tx + 2 * s, ty - rise + k * T * 0.8, W - 4 * s, 2 * s);
+      ctx.fillStyle = '#ffe9a8'; ctx.fillRect(tx + T * 0.55, ty - rise + T * 0.6, 5 * s, 8 * s); ctx.fillRect(tx + W - T * 0.55 - 5 * s, ty - rise + T * 0.6, 5 * s, 8 * s); ctx.fillRect(tx + W / 2 - 2.5 * s, ty - rise + T * 1.4, 5 * s, 8 * s);
+      ctx.fillStyle = '#ff9f43'; ctx.fillRect(tx + W / 2 - 6 * s, ty - rise + T * 0.2, 12 * s, T * 0.9); ctx.fillStyle = '#2a1f1a'; ctx.font = `bold ${Math.round(T * 0.42)}px system-ui, sans-serif`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText('VI', tx + W / 2, ty - rise + T * 0.65);
+      ctx.fillStyle = '#2a2731'; ctx.beginPath(); ctx.arc(tx + W / 2, ty - T * 0.1, T * 0.42, Math.PI, 0); ctx.lineTo(tx + W / 2 + T * 0.42, ty + T * 0.3); ctx.lineTo(tx + W / 2 - T * 0.42, ty + T * 0.3); ctx.closePath(); ctx.fill();
+      ctx.fillStyle = 'rgba(0,0,0,.25)'; ctx.fillRect(tx, ty + H, W, 3 * s);
     }
   }
   // tap target

@@ -1,5 +1,6 @@
 // Persistent save: totals, the creature collection, the journey in progress and settings.
 // One localStorage key, versioned, normalised on load so junk cannot brick it.
+import { TOWER, TOWER_TRAINERS } from './tower.js';
 import { b64uEncode, b64uDecode } from '../core/util.js';
 import { validateGenome, learnsetOf } from '../creature/genome.js';
 import { getMove } from '../data/moves.js';
@@ -70,7 +71,8 @@ export function normalizeJourney(r) {
     box: (Array.isArray(r.box) ? r.box : []).map(cleanMember).filter(Boolean),
     nextId: Number(r.nextId) || 1,
     pendingLearns: (Array.isArray(r.pendingLearns) ? r.pendingLearns : []).filter((q) => q && typeof q.uid === 'string' && getMove(q.moveId)),
-    stats: { steps: 0, battles: 0, captures: 0, fusions: 0, trainers: 0, bosses: 0, wipes: 0 },
+    stats: { steps: 0, battles: 0, captures: 0, fusions: 0, trainers: 0, bosses: 0, wipes: 0, tower: 0 },
+    tower: { challenges: 0, wins: {} },
     player: { ...cleanPoint(sameWorld ? r.player : null, { x: hub.x, y: hub.y + 1 }), dir: ['up', 'down', 'left', 'right'].includes(r.player && r.player.dir) ? r.player.dir : 'down' },
     badges: Array.isArray(r.badges) ? r.badges.filter((b, i, arr) => BIOME_ORDER.includes(b) && arr.indexOf(b) === i) : [],
     beaten: {}, camps: sameWorld && Array.isArray(r.camps) ? r.camps.filter((b) => BIOME_ORDER.includes(b)) : [],
@@ -82,7 +84,16 @@ export function normalizeJourney(r) {
   if (r.bag && typeof r.bag === 'object') for (const [id, q] of Object.entries(r.bag)) { const n = Math.min(99, Math.floor(Number(q) || 0)); if (n > 0 && (getItem(id) || getMove(id)) && id !== 'struggle') j.bag[id] = n; }
   if (r.stats && typeof r.stats === 'object') for (const k of Object.keys(j.stats)) j.stats[k] = Math.max(0, Number(r.stats[k]) || 0);
   if (r.beaten && typeof r.beaten === 'object') for (const [k, v] of Object.entries(r.beaten)) if (v) j.beaten[k] = true;
-  if (r.encounter && typeof r.encounter === 'object' && ['wild', 'trainer', 'boss', 'council'].includes(r.encounter.kind)) {
+  if (r.tower && typeof r.tower === 'object') {
+    j.tower.challenges = Math.max(0, Math.floor(Number(r.tower.challenges) || 0));
+    if (r.tower.wins && typeof r.tower.wins === 'object') {
+      for (const [id, byLevel] of Object.entries(r.tower.wins)) {
+        if (!TOWER_TRAINERS.some((t) => t.id === id) || !byLevel || typeof byLevel !== 'object') continue;
+        for (const [lv, n] of Object.entries(byLevel)) { const c = Math.floor(Number(n) || 0); if (c > 0 && TOWER.levels.includes(Number(lv))) { j.tower.wins[id] = j.tower.wins[id] || {}; j.tower.wins[id][lv] = c; } }
+      }
+    }
+  }
+  if (r.encounter && typeof r.encounter === 'object' && ['wild', 'trainer', 'boss', 'council', 'tower'].includes(r.encounter.kind)) {
     const foes = cleanFoes(r.encounter.foes);
     if (foes.length) j.encounter = { ...r.encounter, foes, capturable: r.encounter.kind === 'wild' };
   }

@@ -650,8 +650,8 @@ into the collection on load.
   `version` resets saved positions to the Crossroads when the layout changes):
   grass, habitat, path, wall, water, hub, lair, door, camp, spire, spire door,
   shrine, market, storage (`TILE`). The Crossroads hub sits in the middle (a
-  disc of paving with a camp, the fusion shrine, the Market, the Storage and
-  the Council Spire's door). Biome centres sit on a ring of radius 58 around
+  disc of paving with a camp, the fusion shrine, the Market, the Storage, the
+  Battle Tower and the Council Spire's door). Biome centres sit on a ring of radius 58 around
   it with lairs at 84, clockwise from the south, one per class in difficulty
   order (`BIOME_ORDER`, with `REGIONS` giving the wild level at the lair:
   Heather Downs 5, Sodden Fen 10, Bramble Wilds 14, Hum Meadow 18, Sporewood
@@ -733,6 +733,20 @@ into the collection on load.
   Lock: a locked creature cannot be released or fused at the shrine
   (`member.locked`, kept by the save). Sheet re-renders keep the scroll
   position (`owKeepScroll`).
+- **Battle Tower** (`src/game/tower.js`). A keep on the hub's south-west edge
+  with six floors, each a trainer who fights six on six with random creatures at
+  a level the player picks from 50, 60, 70, 80, 90 or 100 (`TOWER.levels`).
+  Every challenge rolls a fresh team (seeded by the journey and a challenge
+  counter, so a save replays the same one): single species drawn from the whole
+  roster with no repeats, plus as many gen-2 fusions as the floor number minus
+  one (the first floor none, the Keeper at the top five), each built from three
+  species of one class the way the Council's champion builds hers. The player's
+  party fights as it is; the sheet defaults the level to the strongest member.
+  A win pays experience like a Warden's team and trainer-rate gold, a quarter
+  of it once that floor has been beaten at that level (`journey.tower.wins`,
+  kept in the save with the challenge counter and shown as "beaten ×n"); a loss
+  follows the ordinary wipe rule, and the hub camp is next door. The encounter
+  card names the floor and level and offers "Back down".
 - **Wipe.** When nobody can fight after a loss the party returns to the last
   camp at full health (`respawnJourney`). No other penalty.
 - **Journey state.** `{ seed, phase: starter|roam|champion, party, box,
@@ -812,11 +826,19 @@ lightness midpoint after its random nudge. Saves carry `WORLD.version`; a
 journey from an older layout keeps its party and badges but restarts at the
 Crossroads.
 
-Balance: a 2,000-game tournament (`node scripts/sim.mjs 2000 50 3`) puts the
-seventy new species between roughly 30% and 69%, the same band as the older
-roster once sampling noise at seventy games a species is allowed for; a light
-pass on the first outliers (three attacks in every level-50 move set, a few
-base stat totals) closed the gap at both ends.
+Balance: every species now sits inside a 40–60% tournament band. The tuner
+(`node scripts/tune.mjs [rounds] [games] [gain] [verifyGames]`, default six
+rounds of 4,000 games at level 50, 3v3) nudges each base stat total toward a
+50% win rate after every fresh-seeded round (160 points of total per 100% of
+deviation, half that inside ±5%, clamped to 360–520), writes the totals back
+into `species.js` and verifies with a 10,000-game run (about 330 games a
+species, so a true 50% reads 45–55%). The last verification read 41–59% with
+nothing outside the band. Tiers therefore no longer imply a total: common,
+uncommon and rare govern only how often a species spawns and how much it is
+worth, while the total is whatever the tournament needed (Tortoak 520,
+Mantislash 362). Rerun the tuner after any change to moves, abilities, the
+type chart or the roster; the roster-expansion pass (three attacks in every
+level-50 move set) stays in place underneath it.
 
 ## Polish and balance (Phase 5 — implemented)
 

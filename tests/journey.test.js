@@ -3,7 +3,8 @@ import assert from 'node:assert/strict';
 import { makeRng } from '../src/core/rng.js';
 import { step } from '../src/battle/engine.js';
 import { chooseAction } from '../src/battle/ai.js';
-import { cladeOf } from '../src/creature/genome.js';
+import { cladeOf, validateGenome } from '../src/creature/genome.js';
+import { TOWER, TOWER_TRAINERS, challengeTower, towerRecord, towerTeam } from '../src/game/tower.js';
 import { WORLD, BIOME_ORDER, TILE, tileAt, worldFor, trainerAt } from '../src/game/world.js';
 import { JOURNEY, DIRS, newJourney, chooseJourneyStarter, tryMove, facing, talkTo, acceptChallenge, challengeWarden, enterSpire, fleeEncounter, buildJourneyBattle, applyJourneyBattle, journeyPlace, badgeList, canFuseJourney, previewShrineFusion, shrineFuse, respawnJourney, partyHealth  } from '../src/game/journey.js';
 import { memberMaxHp, XP, setLocked } from '../src/game/party.js';
@@ -344,4 +345,60 @@ test('a locked creature cannot be fused away at the shrine, and the lock survive
   assert.equal(back.party[0].locked, false);
   setLocked(j, 'lk1', false);
   assert.ok(!/locked/.test(canFuseJourney(j, j.party[0].uid, 'lk1').reason || ''));
+});
+
+test('the Battle Tower stands at the crossroads: six floors fight six on six at a chosen level and pay gold and experience', () => {
+  const j = fresh('tower');
+  const world = worldFor(j.seed);
+  const d = world.towerDoor;
+  assert.equal(tileAt(world, d.x, d.y), TILE.towerDoor);
+  j.player = { x: d.x, y: d.y - 1, dir: 'down' };
+  const r = tryMove(j, 'down');
+  assert.ok(r.moved); assert.deepEqual(r.event, { kind: 'tower' });
+  assert.equal(TOWER_TRAINERS.length, 6);
+  assert.deepEqual(TOWER.levels, [50, 60, 70, 80, 90, 100]);
+  assert.equal(challengeTower(j, 0, 55).ok, false, 'only the listed levels');
+  assert.equal(challengeTower(j, 9, 50).ok, false, 'only the six floors');
+  // teams: six strong, the floor's count of gen-2 fusions, no species twice, all valid
+  for (let k = 0; k < 6; k++) {
+    const team = towerTeam(`t${k}`, k, 70);
+    assert.equal(team.length, 6);
+    assert.ok(team.every((m) => m.level === 70));
+    assert.equal(team.filter((m) => m.genome.gen === 2).length, TOWER_TRAINERS[k].fusions, `floor ${k} fusions`);
+    const singles = team.filter((m) => !m.genome.gen).map((m) => m.genome.species);
+    assert.equal(new Set(singles).size, singles.length, 'no species twice');
+    for (const m of team) assert.doesNotThrow(() => validateGenome(JSON.parse(JSON.stringify(m.genome))));
+  }
+  const c = challengeTower(j, 5, 100);
+  assert.ok(c.ok);
+  assert.equal(j.encounter.kind, 'tower');
+  assert.equal(j.encounter.foes.length, 6);
+  assert.ok(j.encounter.foes.every((f) => f.level === 100));
+  assert.equal(challengeTower(j, 0, 50).ok, false, 'one fight at a time');
+  const first = j.encounter.foes.map((f) => f.genome.name).join(',');
+  const gold = j.gold, xp0 = j.party[0].xp;
+  const { report } = applyJourneyBattle(j, decided(j, 0));
+  assert.ok(report.won && report.xp > 0 && report.gold > 0);
+  assert.ok(j.party[0].xp > xp0 && j.gold > gold);
+  assert.deepEqual(report.tower, { floor: 5, level: 100, wins: 1 });
+  assert.equal(towerRecord(j, 5, 100), 1);
+  assert.equal(j.stats.tower, 1);
+  assert.equal(j.encounter, null);
+  // a second challenge rolls a different team and, once beaten, pays a quarter of the gold
+  challengeTower(j, 5, 100);
+  assert.notEqual(j.encounter.foes.map((f) => f.genome.name).join(','), first);
+  const again = applyJourneyBattle(j, decided(j, 0)).report;
+  assert.ok(again.gold > 0 && again.gold < report.gold / 3);
+  assert.equal(towerRecord(j, 5, 100), 2);
+  // backing out clears the challenge; the record survives the save; a loss does not count
+  challengeTower(j, 2, 60);
+  fleeEncounter(j);
+  assert.equal(j.encounter, null);
+  const back = normalizeJourney(JSON.parse(JSON.stringify(j)));
+  assert.equal(towerRecord(back, 5, 100), 2);
+  assert.equal(back.tower.challenges, j.tower.challenges);
+  challengeTower(j, 2, 60);
+  const lost = applyJourneyBattle(j, decided(j, 1)).report;
+  assert.ok(!lost.won);
+  assert.equal(towerRecord(j, 2, 60), 0);
 });

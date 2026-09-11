@@ -76,10 +76,11 @@ a badge; camps heal and set the respawn point; a shrine fuses; trainers pay
 gold that the Market turns into potions and single-use move scrolls for your
 Bag (potions work in battle too, and take the turn; a creature learns
 scrolls of its own types, of its Elemental element, and any Normal scroll); the Creature Storage
-holds the box, a creature's Info can rename, lock or release it; experience follows Pokémon Red's formula, is shared by the
+holds the box; the Battle Tower's six floors fight six on six with random
+creatures at a level you pick from 50 to 100, paying experience and gold; a creature's Info can rename, lock or release it; experience follows Pokémon Red's formula, is shared by the
 creatures that fought and reaches the rest of the party at half rate; move
 cards show accuracy and every side effect's odds, and PP follows power (the
-harder a move hits or the nastier its status, the fewer uses); and with seven badges the Council
+harder a move hits or the nastier its status, the fewer uses); and with every badge the Council
 Spire opens to four fights back to back. Walk with the
 keyboard, the on-screen pad or a tap on the ground. The endless arena is gone;
 its capture, XP, party and collection systems live on here, and an old save's

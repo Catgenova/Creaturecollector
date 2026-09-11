@@ -10,6 +10,7 @@ import { createBattle, makeBattler } from '../battle/engine.js';
 import { PARTY, XP, makeMember, gainXp, healParty, xpProgress, xpReward, memberMaxHp, canFight } from './party.js';
 import { WORLD, TILE, REGIONS, BIOME_ORDER, worldFor, tileAt, biomeAt, trainerAt, isWalkable, inBounds, wildSpawn, levelAt } from './world.js';
 import { goldReward, battleItems, syncBagFromBattle } from './market.js';
+import { recordTowerWin, towerRecord } from './tower.js';
 
 export const JOURNEY = { starterLevel: PARTY.starterLevel, maxLevel: PARTY.maxLevel, partyMax: PARTY.max, gauntletHeal: 0.35, badgesForSpire: BIOME_ORDER.length, councilFights: 4 };
 export const DIRS = { up: [0, -1], down: [0, 1], left: [-1, 0], right: [1, 0] };
@@ -29,7 +30,8 @@ export function newJourney(seed) {
   const world = worldFor(seed);
   return {
     seed: String(seed), world: WORLD.version, phase: 'starter', starters, party: [], box: [], nextId: 1, pendingLearns: [],
-    stats: { steps: 0, battles: 0, captures: 0, fusions: 0, trainers: 0, bosses: 0, wipes: 0 },
+    stats: { steps: 0, battles: 0, captures: 0, fusions: 0, trainers: 0, bosses: 0, wipes: 0, tower: 0 },
+    tower: { challenges: 0, wins: {} },
     player: { x: world.start.x, y: world.start.y, dir: 'down' },
     badges: [], beaten: {}, camps: [], lastCamp: { x: world.hubCamp.x, y: world.hubCamp.y }, cooldown: 0,
     gold: 0, bag: {},
@@ -60,7 +62,7 @@ export function journeyPlace(j) {
  * Take one step. Always turns the player; moves when the tile is free. Returns
  * { moved, blocked?: 'wall'|'trainer', trainer?, event? } where event is one of
  * camp (healed), lair (a Warden's door), spire (the Council), shrine (fusion), market
- * (the shop), storage (the box) or encounter (a wild creature is waiting in j.encounter).
+ * (the shop), storage (the box), tower (the Battle Tower) or encounter (a wild creature is waiting in j.encounter).
  */
 export function tryMove(j, dir) {
   const world = worldFor(j.seed);
@@ -91,6 +93,7 @@ export function tryMove(j, dir) {
   if (tile === TILE.shrine) return { moved: true, event: { kind: 'shrine' } };
   if (tile === TILE.marketDoor) return { moved: true, event: { kind: 'market' } };
   if (tile === TILE.storageDoor) return { moved: true, event: { kind: 'storage' } };
+  if (tile === TILE.towerDoor) return { moved: true, event: { kind: 'tower' } };
   if (tile === TILE.habitat && j.cooldown <= 0) {
     const rng = makeRng(`${j.seed}:step:${j.stats.steps}`);
     if (rng.chance(WORLD.encounterChance)) {
@@ -216,7 +219,7 @@ export function applyJourneyBattle(j, state) {
     return { journey: j, report };
   }
   let xp = 0;
-  for (const f of foes) if (f.fainted || (capturedBattler && f.uid === capturedBattler.uid)) xp += xpReward(f.level, f.genome.bst, enc.kind === 'boss' || enc.kind === 'council' || enc.alpha ? 'boss' : 'wild');
+  for (const f of foes) if (f.fainted || (capturedBattler && f.uid === capturedBattler.uid)) xp += xpReward(f.level, f.genome.bst, enc.kind === 'boss' || enc.kind === 'council' || enc.kind === 'tower' || enc.alpha ? 'boss' : 'wild');
   // Red's rule: the experience is shared equally by the party members that fought and are still standing;
   // the rest of the party, if still standing, is granted half of a fighter's share
   let took = j.party.map((m, i) => i).filter((i) => mine[i] && mine[i].fought && j.party[i].hp > 0);
@@ -248,12 +251,14 @@ export function applyJourneyBattle(j, state) {
     report.toBox = !j.party.includes(nm);
   }
   // trainers pay gold: by team size and average level, double for Wardens and the Council, a quarter on rematches
+  // (a tower floor counts as beaten per level, so its first win at each level pays in full)
   if (enc.kind !== 'wild') {
-    const rematch = enc.kind === 'boss' ? j.badges.includes(enc.biome) : enc.kind === 'council' ? j.champion : false;
+    const rematch = enc.kind === 'boss' ? j.badges.includes(enc.biome) : enc.kind === 'council' ? j.champion : enc.kind === 'tower' ? towerRecord(j, enc.floor, enc.level) > 0 : false;
     report.gold = goldReward(enc.foes, enc.kind, rematch);
     j.gold = (j.gold || 0) + report.gold;
   }
   if (enc.kind === 'trainer') { j.beaten[enc.trainerId] = true; j.stats.trainers++; }
+  if (enc.kind === 'tower') { j.stats.tower = (j.stats.tower || 0) + 1; report.tower = { floor: enc.floor, level: enc.level, wins: recordTowerWin(j, enc.towerId, enc.level) }; }
   if (enc.kind === 'boss') { j.stats.bosses++; if (!j.badges.includes(enc.biome)) { j.badges.push(enc.biome); report.badge = enc.badge; } }
   j.encounter = null;
   j.cooldown = WORLD.encounterCooldown;
