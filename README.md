@@ -67,7 +67,10 @@ proportion. Every creature is lit from the upper left, small renders drop fine
 detail so silhouettes stay clean in lists, and shadows are sized to the body
 with contact shadows under standing feet. Creatures hold an idle pose that
 matches their combat style (melee braces forward, ranged crouches, magic
-stands poised) and flash attack and recoil poses in fights.
+stands poised) and flash attack and recoil poses in fights. Final evolutions
+carry a class signature (ruffs, swept horns, plume trains, riveted plates,
+lateral glow, translucent cores) and the shared pattern parts were redrawn
+per class.
 
 ## Develop
 

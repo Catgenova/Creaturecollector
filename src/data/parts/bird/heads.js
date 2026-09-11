@@ -5,7 +5,7 @@
 import { bPart } from './_shared.js';
 import { PATCH, SH, HL, L, C } from '../_dsl.js';
 import { sparklePath, diamondPath, boltPath, heartPath, starPath, crescentPath } from '../_sigils.js';
-import { evoFan, evoGlow } from '../_evo.js';
+import { evoFan, evoGlow, evoPlumes, evoPlumeTips } from '../_evo.js';
 
 export const B_HEADS = [
   bPart({
@@ -15,7 +15,7 @@ export const B_HEADS = [
     sockets: { eye: { x: 8, y: -20, s: 1 }, eyeFar: { x: -8, y: -21, s: 0.8 }, beak: { x: 19, y: -14, a: 0, s: 1 }, crest: { x: 2, y: -34, a: 0, s: 1 }, face: { x: 4, y: -16, s: 1 } },
     stages: {
       2: { grow: [1.05, 1.06], addBehind: [evoFan(-12, -14, 140, 240, 3, 6, 18, { tip: 0.3 })], add: [PATCH(sparklePath(3, -27, 6), 'a')] },
-      3: { grow: [1.05, 1.06], addBehind: [evoFan(2, -30, 200, 340, 3, 5, 18, { tip: 0.3 })], add: [evoGlow(3, -27, 9, 0.25), L('M-6,-24 L-10,-29 M12,-24 L16,-29', 'a', 2, { ns: true })] },
+      3: { grow: [1.05, 1.06], addBehind: [...evoPlumes(0, -27, 4, 27)], add: [evoGlow(3, -27, 9, 0.25), L('M-6,-24 L-10,-29 M12,-24 L16,-29', 'a', 2, { ns: true }), ...evoPlumeTips(0, -27, 4, 27)] },
     },
   }),
   bPart({
@@ -25,7 +25,7 @@ export const B_HEADS = [
     sockets: { eye: { x: 9, y: -20, s: 1.2 }, eyeFar: { x: -9, y: -20, s: 1.1 }, beak: { x: 0, y: -10, a: 0, s: 0.8 }, crest: { x: 0, y: -36, a: 0, s: 1 }, face: { x: 0, y: -18, s: 1 } },
     stages: {
       2: { grow: [1.05, 1.06], addBehind: [evoFan(-18, -16, 140, 240, 3, 6, 18, { tip: 0.3 })], add: [PATCH(diamondPath(0, -29, 7, 9), 'a')] },
-      3: { grow: [1.05, 1.06], addBehind: [evoFan(0, -32, 200, 340, 4, 5, 18, { tip: 0.3 })], add: [evoGlow(0, -29, 9, 0.25), L('M-10,-26 L-14,-31 M10,-26 L14,-31', 'a', 2, { ns: true })] },
+      3: { grow: [1.05, 1.06], addBehind: [...evoPlumes(-2, -29, 4, 27)], add: [evoGlow(0, -29, 9, 0.25), L('M-10,-26 L-14,-31 M10,-26 L14,-31', 'a', 2, { ns: true }), ...evoPlumeTips(-2, -29, 4, 27)] },
     },
   }),
   bPart({
@@ -35,7 +35,7 @@ export const B_HEADS = [
     sockets: { eye: { x: 10, y: -19, s: 0.95 }, eyeFar: null, beak: { x: 23, y: -16, a: 0, s: 1 }, crest: { x: 2, y: -32, a: 0, s: 1 }, face: { x: 6, y: -16, s: 1 } },
     stages: {
       2: { grow: [1.05, 1.06], addBehind: [evoFan(-12, -16, 140, 240, 3, 6, 18, { tip: 0.3 })], add: [PATCH(boltPath(2, -26, 6, 10), 'a')] },
-      3: { grow: [1.05, 1.06], addBehind: [evoFan(2, -28, 200, 340, 3, 5, 18, { tip: 0.3 })], add: [evoGlow(2, -26, 9, 0.25), L('M-6,-22 L-10,-27 M14,-22 L18,-27', 'a', 2, { ns: true })] },
+      3: { grow: [1.05, 1.06], addBehind: [...evoPlumes(0, -25, 4, 27)], add: [evoGlow(2, -26, 9, 0.25), L('M-6,-22 L-10,-27 M14,-22 L18,-27', 'a', 2, { ns: true }), ...evoPlumeTips(0, -25, 4, 27)] },
     },
   }),
   bPart({
@@ -45,7 +45,7 @@ export const B_HEADS = [
     sockets: { eye: { x: 6, y: -18, s: 0.85 }, eyeFar: { x: -7, y: -19, s: 0.75 }, beak: { x: 15, y: -12, a: 0, s: 0.9 }, crest: { x: 0, y: -30, a: 0, s: 0.9 }, face: { x: 2, y: -14, s: 0.9 } },
     stages: {
       2: { grow: [1.05, 1.06], addBehind: [evoFan(-10, -14, 140, 240, 2, 5, 14, { tip: 0.4 })], add: [PATCH(heartPath(0, -25, 3.8), 'a')] },
-      3: { grow: [1.05, 1.06], addBehind: [evoFan(0, -26, 200, 340, 3, 4, 14, { tip: 0.4 })], add: [evoGlow(0, -25, 7, 0.25), L('M-6,-20 L-9,-24 M8,-20 L11,-24', 'a', 2, { ns: true })] },
+      3: { grow: [1.05, 1.06], addBehind: [...evoPlumes(-2, -23, 4, 21)], add: [evoGlow(0, -25, 7, 0.25), L('M-6,-20 L-9,-24 M8,-20 L11,-24', 'a', 2, { ns: true }), ...evoPlumeTips(-2, -23, 4, 21)] },
     },
   }),
   bPart({
@@ -55,7 +55,7 @@ export const B_HEADS = [
     sockets: { eye: { x: 8, y: -20, s: 0.9 }, eyeFar: null, beak: { x: 21, y: -14, a: 0, s: 1 }, crest: { x: 2, y: -30, a: 0, s: 1 }, face: { x: 4, y: -16, s: 1 } },
     stages: {
       2: { grow: [1.05, 1.06], addBehind: [evoFan(-10, -16, 140, 240, 2, 5, 16, { tip: 0.3 })], add: [C(2, -25, 3.6, 'a', { ns: true, cl: true })] },
-      3: { grow: [1.05, 1.06], addBehind: [evoFan(2, -26, 200, 340, 3, 4, 16, { tip: 0.3 })], add: [evoGlow(2, -25, 8, 0.25), L('M-6,-22 L-10,-27 M12,-22 L16,-27', 'a', 2, { ns: true })] },
+      3: { grow: [1.05, 1.06], addBehind: [...evoPlumes(0, -23, 4, 24)], add: [evoGlow(2, -25, 8, 0.25), L('M-6,-22 L-10,-27 M12,-22 L16,-27', 'a', 2, { ns: true }), ...evoPlumeTips(0, -23, 4, 24)] },
     },
   }),
   bPart({
@@ -65,7 +65,7 @@ export const B_HEADS = [
     sockets: { eye: { x: 10, y: -22, s: 0.9 }, eyeFar: { x: -8, y: -23, s: 0.8 }, beak: { x: 20, y: -16, a: 0, s: 1 }, crest: { x: 2, y: -35, a: 0, s: 1 }, face: { x: 6, y: -18, s: 1 } },
     stages: {
       2: { grow: [1.05, 1.06], addBehind: [evoFan(-14, -16, 140, 240, 3, 6, 18, { tip: 0.3 })], add: [PATCH(starPath(4, -29, 6, 5, 0.5), 'a')] },
-      3: { grow: [1.05, 1.06], addBehind: [evoFan(2, -31, 200, 340, 3, 5, 18, { tip: 0.3 })], add: [evoGlow(4, -29, 9, 0.25), L('M-6,-26 L-10,-31 M14,-26 L18,-31', 'a', 2, { ns: true })] },
+      3: { grow: [1.05, 1.06], addBehind: [...evoPlumes(0, -28, 4, 27)], add: [evoGlow(4, -29, 9, 0.25), L('M-6,-26 L-10,-31 M14,-26 L18,-31', 'a', 2, { ns: true }), ...evoPlumeTips(0, -28, 4, 27)] },
     },
   }),
   bPart({
@@ -75,7 +75,7 @@ export const B_HEADS = [
     sockets: { eye: { x: 7, y: -18, s: 0.9 }, eyeFar: null, beak: { x: 16, y: -13, a: 0, s: 0.9 }, crest: { x: 2, y: -30, a: 0, s: 1 }, face: { x: 4, y: -14, s: 0.9 } },
     stages: {
       2: { grow: [1.05, 1.06], addBehind: [evoFan(-10, -14, 140, 240, 3, 5, 16, { tip: 0.3 })], add: [PATCH(crescentPath(2, -24, 5.5, -60), 'a')] },
-      3: { grow: [1.05, 1.06], addBehind: [evoFan(2, -26, 200, 340, 3, 4, 16, { tip: 0.3 })], add: [evoGlow(2, -24, 8, 0.25), L('M-6,-21 L-10,-26 M10,-21 L14,-26', 'a', 2, { ns: true })] },
+      3: { grow: [1.05, 1.06], addBehind: [...evoPlumes(0, -23, 4, 24)], add: [evoGlow(2, -24, 8, 0.25), L('M-6,-21 L-10,-26 M10,-21 L14,-26', 'a', 2, { ns: true }), ...evoPlumeTips(0, -23, 4, 24)] },
     },
   }),
 ];

@@ -1,7 +1,7 @@
 // Shared helpers for hand-authored evolution art: the stage 2 and 3 variants of parts.
 // Everything here returns point lists or prims in a part's own frame, so it composes with
 // the DSL and the builders' `stages` deltas (addShapes / addBehind / add / grow).
-import { P, L, C, PATCH, spline, arcPts } from './_dsl.js';
+import { P, L, C, E, PATCH, spline, arcPts, leaf, tube } from './_dsl.js';
 import { diamondPath } from './_sigils.js';
 import { claws } from './_builders.js';
 
@@ -85,4 +85,81 @@ export function evoLegStages(foot, ankleY, o = {}) {
     2: { grow: g2, add: claws(x0, x1, y, n, 4.5, 'w') },
     3: { reset: true, grow: [g2[0] * g3[0], g2[1] * g3[1]], add: [...evoBands(ankleY, 2, 2.6, 6), ...claws(x0 - 1.5, x1 + 1.5, y, n + 1, 6, 'w')] },
   };
+}
+
+// ---- class tells for the final stage ---------------------------------------------
+//
+// Stage 3 used to give every head the same crown of tufts. Each class now grows its own
+// signature: mammals a shaggy ruff, reptiles swept horns and brow plates, birds a train of
+// plumes, insects a riveted armour plate, fish bioluminescent dots along the lateral line and
+// invertebrates a translucent core with inner motes. Amphibians keep their soft lobes.
+
+/** Mammal: a two-layer fur ruff around the back and top of the skull, for addBehind. */
+export function evoRuff(cx, cy, r, n = 8) {
+  return [
+    { pts: evoFan(cx, cy, 100, 320, n, r * 0.35, r * 1.05, { profile: 'flat', tip: 0.35, wobble: 0.3 }), f: 'pd' },
+    { pts: evoFan(cx + 2, cy - 2, 150, 330, Math.max(3, n - 3), r * 0.3, r * 0.78, { profile: 'flat', tip: 0.4, wobble: 0.2 }), f: 'p' },
+  ];
+}
+
+/** Reptile: a horn swept back and up from (x, y), len long and w wide at the base. Point list for addBehind. */
+export function evoHorn(x, y, len, o = {}) {
+  const w = o.w || 6, sweep = o.sweep == null ? 1 : o.sweep;
+  const centre = [[x, y], [x - len * 0.22 * sweep, y - len * 0.42], [x - len * 0.62 * sweep, y - len * 0.7], [x - len * 0.95 * sweep, y - len * 0.78]];
+  return tube(centre, w, w * 0.22, { tipK: 'c' });
+}
+
+/** Reptile: a small angular brow scale centred on (x, y) with an accent point. */
+export function evoBrowPlate(x, y, s = 4.5, f = 'pd') {
+  return [
+    P(`M${x - s},${y + s * 0.3} L${x - s * 0.4},${y - s} L${x + s * 0.8},${y - s * 0.8} L${x + s},${y + s * 0.2} Z`, f, { sw: 1.2 }),
+    C(x + s * 0.1, y - s * 0.35, s * 0.28, 'a', { ns: true }),
+  ];
+}
+
+/** Bird: n plumes sweeping back and up from (cx, cy), for addBehind; long and short alternate. */
+export function evoPlumes(cx, cy, n = 4, len = 26, a0 = 196, a1 = 262) {
+  const out = [];
+  for (let i = 0; i < n; i++) {
+    const a = a0 + ((a1 - a0) * (i + 0.5)) / n;
+    const l = len * (i % 2 ? 0.72 : 1) * (1 - 0.12 * Math.abs(i - (n - 1) / 2) / n);
+    const tip = [cx + Math.cos(evoRad(a)) * l, cy + Math.sin(evoRad(a)) * l];
+    out.push({ d: leaf([cx, cy], tip, l * 0.16 * (i % 2 ? -1 : 1)), f: i % 2 ? 'pd' : 'p' });
+  }
+  return out;
+}
+
+/** Bird: accent dots on the tips of the long plumes made by evoPlumes with the same arguments. */
+export function evoPlumeTips(cx, cy, n = 4, len = 26, a0 = 196, a1 = 262) {
+  const out = [];
+  for (let i = 0; i < n; i += 2) {
+    const a = a0 + ((a1 - a0) * (i + 0.5)) / n;
+    const l = len * (1 - 0.12 * Math.abs(i - (n - 1) / 2) / n);
+    out.push(C(cx + Math.cos(evoRad(a)) * l * 0.9, cy + Math.sin(evoRad(a)) * l * 0.9, 1.8, 'a', { ns: true }));
+  }
+  return out;
+}
+
+/** Insect: an angular armour plate w wide and h tall standing on (cx, cy), for addBehind. */
+export function evoPlate(cx, cy, w, h, f = 'pd') {
+  return { pts: [[cx - w / 2, cy], [cx - w * 0.36, cy - h * 0.78, 0.3], [cx - w * 0.1, cy - h, 0.3], [cx + w * 0.16, cy - h * 0.94, 0.3], [cx + w * 0.42, cy - h * 0.58, 0.3], [cx + w / 2, cy]], f };
+}
+
+/** Insect: n rivet dots evenly spaced from (x0, y0) to (x1, y1). */
+export function evoRivets(x0, y0, x1, y1, n = 4, r = 1.3) {
+  return Array.from({ length: n }, (_, i) => { const t = n > 1 ? i / (n - 1) : 0.5; return C(x0 + (x1 - x0) * t, y0 + (y1 - y0) * t, r, 'a', { ns: true }); });
+}
+
+/** Fish: bioluminescent dots (a soft accent halo with a bright core) at each point, clipped to the body. */
+export function evoLumen(points, r = 2) {
+  return points.flatMap(([x, y]) => [C(x, y, r * 2.2, 'a', { ns: true, cl: true, op: 0.28 }), C(x, y, r, 'w', { ns: true, cl: true, op: 0.92 })]);
+}
+
+/** Invertebrate: a translucent core (a lighter inner ellipse and a highlight) with three glowing motes, clipped to the body. */
+export function evoTranslucent(cx, cy, rx, ry) {
+  return [
+    E(cx, cy, rx, ry, 'al', { ns: true, cl: true, op: 0.3 }),
+    E(cx - rx * 0.3, cy - ry * 0.35, rx * 0.45, ry * 0.4, 'w', { ns: true, cl: true, op: 0.22 }),
+    ...evoLumen([[cx - rx * 0.6, cy + ry * 0.5], [cx + rx * 0.5, cy - ry * 0.6], [cx + rx * 0.95, cy + ry * 0.3]], 1.7),
+  ];
 }

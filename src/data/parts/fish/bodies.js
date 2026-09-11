@@ -7,7 +7,7 @@
 import { fBody, torsoShade } from './_shared.js';
 import { L, SH, HL, PATCH, C, tube, arcPts } from '../_dsl.js';
 import { sparklePath, crescentPath, boltPath, diamondPath, starPath } from '../_sigils.js';
-import { evoFan, evoGlow } from '../_evo.js';
+import { evoFan, evoGlow, evoLumen } from '../_evo.js';
 
 const fRing = (cx, cy, rx, ry, n = 12) => arcPts(cx, cy, rx, ry, 0, 360, n).slice(0, n);
 
@@ -25,7 +25,7 @@ export const F_BODIES = [
     },
     stages: {
       2: { grow: [1.06, 1.06], add: [PATCH(sparklePath(8, -17, 7.5), 'a'), L('M-36,-2 C-16,4 10,4 38,-2', 'a', 1.8, { ns: true, cl: true, op: 0.5 })] },
-      3: { grow: [1.06, 1.06], addBehind: [evoFan(-18, -24, 220, 320, 3, 6, 18)], add: [evoGlow(8, -17, 11, 0.25)] },
+      3: { grow: [1.06, 1.06], add: [...evoLumen([[-25.6, 0.4], [-12.8, -1.1], [0, -1.7], [12.8, -1.1], [25.6, 0.4]]), evoGlow(8, -17, 11, 0.25)] },
     },
   }),
   fBody({
@@ -41,7 +41,7 @@ export const F_BODIES = [
     },
     stages: {
       2: { grow: [1.06, 1.06], add: [PATCH(crescentPath(8, -12, 6, -60), 'a'), L('M-36,0 C-16,4 10,4 36,0', 'a', 1.8, { ns: true, cl: true, op: 0.5 })] },
-      3: { grow: [1.06, 1.06], addBehind: [evoFan(-20, -18, 220, 320, 3, 6, 18)], add: [evoGlow(8, -12, 10, 0.25)] },
+      3: { grow: [1.06, 1.06], add: [...evoLumen([[-26, 1], [-14, -0.5], [-2, -1.1], [10, -0.5], [22, 1]]), evoGlow(8, -12, 10, 0.25)] },
     },
   }),
   fBody({
@@ -57,7 +57,7 @@ export const F_BODIES = [
     },
     stages: {
       2: { grow: [1.06, 1.06], add: [PATCH(boltPath(10, -14, 6.5, 100), 'a'), L('M-42,0 C-16,4 14,6 44,2', 'a', 1.8, { ns: true, cl: true, op: 0.5 })] },
-      3: { grow: [1.06, 1.06], addBehind: [evoFan(-24, -18, 220, 320, 3, 6, 18), evoFan(-24, 14, 40, 140, 2, 6, 14)], add: [evoGlow(10, -14, 10, 0.25)] },
+      3: { grow: [1.06, 1.06], add: [...evoLumen([[-32.6, -0.9], [-21.7, -2.1], [-10.9, -2.9], [0, -3.2], [10.9, -2.9], [21.7, -2.1], [32.6, -0.9]]), evoGlow(10, -14, 10, 0.25)] },
     },
   }),
   fBody({
@@ -73,7 +73,7 @@ export const F_BODIES = [
     },
     stages: {
       2: { grow: [1.06, 1.06], add: [PATCH(diamondPath(2, -22, 7, 10), 'a'), L('M-34,0 C-14,6 12,6 36,0', 'a', 1.8, { ns: true, cl: true, op: 0.5 })] },
-      3: { grow: [1.06, 1.06], addBehind: [evoFan(-20, -26, 220, 320, 3, 6, 18)], add: [evoGlow(2, -22, 10, 0.25), C(-18, 6, 2, 'a', { ns: true, cl: true, op: 0.8 }), C(-6, 12, 1.8, 'a', { ns: true, cl: true, op: 0.7 }), C(10, 10, 1.8, 'a', { ns: true, cl: true, op: 0.7 })] },
+      3: { grow: [1.06, 1.06], add: [...evoLumen([[-24.2, -2.5], [-12.6, -4], [-1, -4.6], [10.6, -4], [22.2, -2.5]]), evoGlow(2, -22, 10, 0.25), C(-18, 6, 2, 'a', { ns: true, cl: true, op: 0.8 }), C(-6, 12, 1.8, 'a', { ns: true, cl: true, op: 0.7 }), C(10, 10, 1.8, 'a', { ns: true, cl: true, op: 0.7 })] },
     },
   }),
   fBody({
@@ -89,7 +89,7 @@ export const F_BODIES = [
     },
     stages: {
       2: { grow: [1.06, 1.06], add: [PATCH(starPath(3, -17, 6.5, 5, 0.5), 'a')] },
-      3: { grow: [1.06, 1.06], add: [evoGlow(3, -17, 10, 0.25), L('M-24,8 C-10,14 10,14 24,8', 'a', 1.8, { ns: true, cl: true, op: 0.5 })] },
+      3: { grow: [1.06, 1.06], add: [...evoLumen([[-17.8, 0.6], [-9.4, -0.9], [-1, -1.5], [7.4, -0.9], [15.8, 0.6]]), evoGlow(3, -17, 10, 0.25), L('M-24,8 C-10,14 10,14 24,8', 'a', 1.8, { ns: true, cl: true, op: 0.5 })] },
     },
   }),
   fBody({
@@ -105,7 +105,7 @@ export const F_BODIES = [
     },
     stages: {
       2: { grow: [1.06, 1.06], add: [PATCH(diamondPath(4, -29, 6, 8.5), 'a'), L('M-4,-14 C0,-12 6,-12 12,-14 M-5,-2 C0,0 6,0 11,-2 M-5,10 C0,12 6,12 10,10', 'a', 1.6, { ns: true, cl: true, op: 0.5 })] },
-      3: { grow: [1.06, 1.06], addBehind: [evoFan(-8, -12, 170, 260, 3, 4, 14), evoFan(-10, 14, 150, 240, 2, 4, 12)], add: [evoGlow(4, -29, 8, 0.25)] },
+      3: { grow: [1.06, 1.06], add: [...evoLumen([[-2, -14], [0, -2], [1, 10], [-1, 22], [-6, 32]]), evoGlow(4, -29, 8, 0.25)] },
     },
   }),
   fBody({
@@ -121,7 +121,7 @@ export const F_BODIES = [
     },
     stages: {
       2: { grow: [1.06, 1.06], add: [C(-48, 0, 2, 'a', { ns: true, cl: true }), C(32, -4, 2.2, 'a', { ns: true, cl: true }), L('M-60,4 C-30,7 10,7 40,3', 'a', 1.6, { ns: true, cl: true, op: 0.5 })] },
-      3: { grow: [1.06, 1.06], addBehind: [evoFan(-34, -6, 220, 320, 3, 4, 14)], add: [C(16, -4, 5, 'a', { ns: true, cl: true, op: 0.3 }), C(0, -4, 5, 'a', { ns: true, cl: true, op: 0.3 }), C(-16, -3, 5, 'a', { ns: true, cl: true, op: 0.3 }), C(-32, -2, 4.6, 'a', { ns: true, cl: true, op: 0.3 })] },
+      3: { grow: [1.06, 1.06], add: [...evoLumen([[-49.7, -0.2], [-37.1, -1.5], [-24.6, -2.3], [-12, -2.6], [0.6, -2.3], [13.1, -1.5], [25.7, -0.2]]), C(16, -4, 5, 'a', { ns: true, cl: true, op: 0.3 }), C(0, -4, 5, 'a', { ns: true, cl: true, op: 0.3 }), C(-16, -3, 5, 'a', { ns: true, cl: true, op: 0.3 }), C(-32, -2, 4.6, 'a', { ns: true, cl: true, op: 0.3 })] },
     },
   }),
 ];

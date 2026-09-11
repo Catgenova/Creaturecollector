@@ -7,7 +7,7 @@
 import { mPart } from './_shared.js';
 import { fur, PATCH, SH, HL, L, C, E } from '../_dsl.js';
 import { flamePath, crescentPath, diamondPath, starPath, sparklePath, boltPath } from '../_sigils.js';
-import { evoFan, evoGlow } from '../_evo.js';
+import { evoFan, evoGlow, evoRuff } from '../_evo.js';
 
 export const M_HEADS = [
   mPart({
@@ -31,7 +31,7 @@ export const M_HEADS = [
     },
     stages: {
       2: { grow: [1.05, 1.06], addBehind: [evoFan(-14, -10, 130, 230, 3, 8, 26)], add: [PATCH(flamePath(9, -36, 8.5), 'a')] },
-      3: { grow: [1.05, 1.06], addBehind: [evoFan(6, -40, 200, 340, 4, 6, 24)], add: [evoGlow(9, -36, 12, 0.25), L('M-6,-33 L-11,-39 M20,-34 L25,-40', 'a', 2.2, { ns: true })] },
+      3: { grow: [1.05, 1.06], addBehind: [...evoRuff(2, -30, 24, 8)], add: [evoGlow(9, -36, 12, 0.25), L('M-6,-33 L-11,-39 M20,-34 L25,-40', 'a', 2.2, { ns: true })] },
     },
   }),
 
@@ -51,7 +51,7 @@ export const M_HEADS = [
     },
     stages: {
       2: { grow: [1.05, 1.06], addBehind: [evoFan(-16, -8, 130, 230, 3, 8, 24)], add: [PATCH(crescentPath(6, -36, 6.5, -60), 'a')] },
-      3: { grow: [1.05, 1.06], addBehind: [evoFan(4, -40, 200, 340, 3, 6, 22)], add: [evoGlow(6, -36, 11, 0.25), L('M-8,-32 L-13,-38 M18,-33 L23,-39', 'a', 2.2, { ns: true })] },
+      3: { grow: [1.05, 1.06], addBehind: [...evoRuff(0, -30, 22, 8)], add: [evoGlow(6, -36, 11, 0.25), L('M-8,-32 L-13,-38 M18,-33 L23,-39', 'a', 2.2, { ns: true })] },
     },
   }),
   mPart({
@@ -70,7 +70,7 @@ export const M_HEADS = [
     },
     stages: {
       2: { grow: [1.05, 1.06], addBehind: [evoFan(-18, -12, 140, 230, 3, 8, 24, { tip: 0.3 })], add: [PATCH(diamondPath(5, -35, 9, 13), 'a')] },
-      3: { grow: [1.05, 1.06], addBehind: [evoFan(2, -44, 210, 330, 3, 6, 22, { tip: 0.3 })], add: [evoGlow(5, -35, 12, 0.25), L('M-8,-30 L-13,-36 M16,-31 L21,-37', 'a', 2.2, { ns: true })] },
+      3: { grow: [1.05, 1.06], addBehind: [...evoRuff(-2, -34, 22, 8)], add: [evoGlow(5, -35, 12, 0.25), L('M-8,-30 L-13,-36 M16,-31 L21,-37', 'a', 2.2, { ns: true })] },
     },
   }),
   mPart({
@@ -90,7 +90,7 @@ export const M_HEADS = [
     },
     stages: {
       2: { grow: [1.05, 1.06], addBehind: [evoFan(-18, -12, 140, 230, 2, 8, 22, { tip: 0.4 })], add: [PATCH(starPath(5, -35, 6.5, 5, 0.5), 'a')] },
-      3: { grow: [1.05, 1.06], addBehind: [evoFan(4, -40, 220, 320, 3, 6, 20, { tip: 0.4 })], add: [evoGlow(5, -35, 11, 0.25), L('M-6,-31 L-11,-37 M16,-31 L21,-37', 'a', 2.2, { ns: true })] },
+      3: { grow: [1.05, 1.06], addBehind: [...evoRuff(0, -30, 20, 8)], add: [evoGlow(5, -35, 11, 0.25), L('M-6,-31 L-11,-37 M16,-31 L21,-37', 'a', 2.2, { ns: true })] },
     },
   }),
 
@@ -111,7 +111,7 @@ export const M_HEADS = [
     },
     stages: {
       2: { grow: [1.05, 1.06], addBehind: [evoFan(-14, -10, 140, 230, 3, 8, 24)], add: [PATCH(sparklePath(6, -33, 8), 'a')] },
-      3: { grow: [1.05, 1.06], addBehind: [evoFan(4, -38, 210, 330, 3, 6, 20)], add: [evoGlow(6, -33, 11, 0.25), L('M-4,-30 L-9,-36 M16,-30 L21,-36', 'a', 2.2, { ns: true })] },
+      3: { grow: [1.05, 1.06], addBehind: [...evoRuff(0, -28, 20, 8)], add: [evoGlow(6, -33, 11, 0.25), L('M-4,-30 L-9,-36 M16,-30 L21,-36', 'a', 2.2, { ns: true })] },
     },
   }),
   mPart({
@@ -132,7 +132,7 @@ export const M_HEADS = [
     },
     stages: {
       2: { grow: [1.05, 1.06], addBehind: [evoFan(-16, -10, 130, 230, 4, 8, 28)], add: [PATCH(boltPath(8, -37, 7, 8), 'a')] },
-      3: { grow: [1.05, 1.06], addBehind: [evoFan(4, -42, 200, 340, 4, 6, 24)], add: [evoGlow(8, -37, 12, 0.25), L('M-6,-34 L-11,-40 M20,-35 L25,-41', 'a', 2.2, { ns: true })] },
+      3: { grow: [1.05, 1.06], addBehind: [...evoRuff(0, -32, 24, 8)], add: [evoGlow(8, -37, 12, 0.25), L('M-6,-34 L-11,-40 M20,-35 L25,-41', 'a', 2.2, { ns: true })] },
     },
   }),
   mPart({
@@ -151,7 +151,7 @@ export const M_HEADS = [
     },
     stages: {
       2: { grow: [1.05, 1.06], addBehind: [evoFan(-18, -12, 140, 230, 2, 8, 20, { tip: 0.5 })], add: [C(23, -11, 6, 'a', { ns: true, cl: true, op: 0.8 }), C(-13, -13, 4.6, 'a', { ns: true, cl: true, op: 0.6 })] },
-      3: { grow: [1.05, 1.06], addBehind: [evoFan(2, -38, 220, 320, 3, 6, 18, { tip: 0.5 })], add: [PATCH(sparklePath(4, -33, 6), 'a'), L('M-6,-30 L-11,-36 M14,-30 L19,-36', 'a', 2.2, { ns: true })] },
+      3: { grow: [1.05, 1.06], addBehind: [...evoRuff(-2, -28, 18, 8)], add: [PATCH(sparklePath(4, -33, 6), 'a'), L('M-6,-30 L-11,-36 M14,-30 L19,-36', 'a', 2.2, { ns: true })] },
     },
   }),
 ];

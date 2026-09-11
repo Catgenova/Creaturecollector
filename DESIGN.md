@@ -601,10 +601,28 @@ already carries the power.
   spike in the shape's own colour, drawn behind it so it reads as the tip
   growing longer; stage 3 spikes carry an accent "energy" tip. It stays as the
   safety net for any part added later without stages.
+- **Class tells at stage 3.** Heads (and the head-like bodies of fish and
+  invertebrates) no longer share one crown of tufts. Each class grows its own
+  signature from helpers in `_evo.js`: mammals a two-layer fur ruff behind
+  the skull (`evoRuff`), reptiles three horns swept back from the crown and
+  angular brow plates (`evoHorn`, `evoBrowPlate`), birds a train of plumes
+  with accent tips (`evoPlumes`, `evoPlumeTips`), insects a riveted armour
+  plate standing behind the head (`evoPlate`, `evoRivets`), fish a row of
+  bioluminescent dots along the lateral line (`evoLumen`) and invertebrates
+  a translucent inner core with glowing motes (`evoTranslucent`). Amphibians
+  keep their soft lobes.
+- **Class patterns.** The generic pattern parts that every class shared were
+  redrawn per class, keeping their ids: fish `stripes` are tiger bars,
+  `spots` eyespots and `gradient` a countershade with a lateral line; birds
+  `spots` are iridescent patches, `gradient` a cap and bib and `patches` wing
+  bars; insects `stripes` are warning bands, `speckles` a metallic sheen and
+  `gradient` chitin segments; invertebrates `spots` are chromatophore rings,
+  `stripes` sucker rows and `gradient` an inner glow. Each has stage 2 and 3
+  art.
 - **The art language.** Stage 2 is "more pronounced": the defining feature
   gains one extra element (a second flame lick, ear tufts, a fourth stripe,
   claws, a darker ruff layered behind the mane). Stage 3 is "exaggerated":
-  the feature dominates (a forked tail, a crown of tufts, a sunburst mane,
+  the feature dominates (a forked tail, the class's head signature, a sunburst mane,
   gems and glows, armour bands, a second wing membrane). Every part of
   all seven classes has hand-authored stages (590 parts).
 - **UI.** Cards and sheets show a II / III chip (`stageBadge`), sprites in the
