@@ -14,6 +14,7 @@ export const CLADES = {
   flora: { name: 'Flora', plural: 'Flora', linked: [['leaves', 'roots']], desc: 'Walking plants. Stems, blooms, leaves and roots.' },
   ooze: { name: 'Ooze', plural: 'Oozes', linked: [['pseudopods', 'base']], desc: 'Living slime. A core, a puddle and whatever it swallowed.' },
   fungus: { name: 'Fungus', plural: 'Fungi', linked: [['head', 'roots']], desc: 'Walking mushrooms. A cap for a hat, a face on the stalk, roots for feet.' },
+  wyrm: { name: 'Wyrm', plural: 'Wyrms', linked: [['mane', 'tail']], desc: 'Serpentine dragons. Long coils, whiskers, small legs and long tails.' },
 };
 
 export const CLADE_IDS = Object.keys(CLADES);

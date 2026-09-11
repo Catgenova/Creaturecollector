@@ -117,6 +117,15 @@ POSES.fungus = {
   hurt: { body: { da: -10, dx: -4 }, head: { da: -8, dx: -3 }, roots: { da: 10, far: { da: 6 } }, spores: { dy: 4 }, veil: { da: 6 }, shelves: { da: -6 } },
 };
 
+POSES.wyrm = {
+  stand: {},
+  brace: { body: { da: 3, dx: 2 }, head: { da: 5, dx: 2 }, legs: { da: -6, far: { da: -2 } }, tail: { da: 10 }, whiskers: { da: 6 } },
+  crouch: { body: { dy: 5, da: 2 }, head: { dy: 2, da: 3 }, legs: { ds: 0.88 }, tail: { da: 14 }, mane: { ds: 0.96 } },
+  poise: { body: { da: -4, dy: -2 }, head: { da: -8, dy: -2 }, legs: { da: 4 }, tail: { da: -6 }, mane: { ds: 1.06 }, whiskers: { da: -10 } },
+  attack: { body: { da: 5, dx: 6 }, head: { da: -6, dx: 5 }, maw: { ds: 1.2 }, legs: { da: -22, far: { da: -10 } }, tail: { da: 18 }, whiskers: { da: 14 }, mane: { ds: 1.06 } },
+  hurt: { body: { da: -8, dx: -4 }, head: { da: -14, dx: -3 }, legs: { da: 12, far: { da: 8 } }, tail: { da: -10 }, whiskers: { da: -18 }, horns: { da: -8 } },
+};
+
 /** The slot deltas of a pose on a rig ({} for an unknown pose or 'stand'). */
 export function poseTable(rig, pose) { return (POSES[rig] && POSES[rig][pose]) || {}; }
 

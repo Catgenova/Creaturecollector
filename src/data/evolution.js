@@ -48,5 +48,7 @@ export const SLOT_FAMILY = {
   core: 'face', pseudopods: 'limb', drips: 'face', tendrils: 'tail', base: 'fur', inclusions: 'flat', sheen: 'flat', bumps: 'fur',
   // fungus
   spores: 'fur', ring: 'face', shelves: 'fur', veil: 'fur',
+  // wyrm
+  maw: 'face', whiskers: 'crown', plates: 'fur', bands: 'flat',
 };
 export function growthFor(slot) { return SLOT_GROWTH[SLOT_FAMILY[slot] || 'face']; }

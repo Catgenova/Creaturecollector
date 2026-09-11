@@ -894,6 +894,58 @@ RIGS.fungus = {
   },
 };
 
+RIGS.wyrm = {
+  id: 'wyrm', name: 'Wyrm', prefix: 'w.',
+  slots: ['body', 'head', 'eyes', 'maw', 'whiskers', 'legs', 'tail', 'mane', 'plates', 'horns', 'glow', 'bands'],
+  names: {
+    body: 'Coil', head: 'Head', eyes: 'Eyes', maw: 'Maw', whiskers: 'Whiskers', legs: 'Legs',
+    tail: 'Tail', mane: 'Mane', plates: 'Plates', horns: 'Horns', glow: 'Glow', bands: 'Bands',
+  },
+  paint: ['body', 'head', 'whiskers', 'legs', 'tail', 'mane', 'plates', 'horns', 'glow', 'bands'],
+  swappable: ['whiskers', 'mane', 'plates', 'horns', 'glow', 'bands'],
+  required: ['body', 'head', 'eyes', 'maw', 'legs', 'tail'],
+  linked: [['head', 'maw'], ['mane', 'tail']],
+  ground: ['body', 'legs'],
+  clipped: ['bands'],
+  // One leg part stands at four sockets: a front and a hind pair, near and far.
+  tree: {
+    slot: 'body', anim: 'body',
+    behind: [
+      { slot: 'glow', fitBox: true },
+      { slot: 'mane', socket: 'mane', anim: 'sway' },
+      { slot: 'tail', socket: 'tail', scale: 'tail', anim: 'tail' },
+      { slot: 'legs', socket: 'legBackFar', far: true, scale: 'leg' },
+      { slot: 'legs', socket: 'legFar', far: true, scale: 'leg' },
+    ],
+    front: [
+      { slot: 'plates', socket: 'plates' },
+      { slot: 'legs', socket: 'legBack', scale: 'leg' },
+      { slot: 'legs', socket: 'leg', scale: 'leg' },
+      {
+        slot: 'head', socket: 'head', scale: 'head', anim: 'head',
+        behind: [
+          { slot: 'horns', socket: 'horns' },
+          { slot: 'whiskers', socket: 'whiskerFar', far: true, small: true },
+        ],
+        front: [
+          { slot: 'eyes', socket: 'eyeFar', far: true, scale: 'eye', small: true },
+          { slot: 'eyes', socket: 'eye', scale: 'eye', small: true },
+          { slot: 'maw', socket: 'maw', small: true },
+          { slot: 'whiskers', socket: 'whisker', small: true },
+        ],
+      },
+    ],
+  },
+  mannequin: {
+    parts: {
+      body: 'w.body.serpent', head: 'w.head.sleek', eyes: 'w.eyes.round', maw: 'w.maw.grin', whiskers: 'w.whiskers.none', legs: 'w.legs.claw',
+      tail: 'w.tail.taper', mane: 'w.mane.none', plates: 'w.plates.none', horns: 'w.horns.none', glow: 'w.glow.none', bands: 'w.bands.none',
+    },
+    forSlot: {},
+    accentSlots: ['whiskers', 'legs', 'tail', 'mane', 'plates', 'horns', 'glow', 'bands'],
+  },
+};
+
 const RIG_IDS = Object.keys(RIGS);
 
 /** Rig used when a genome names none or an unknown one (old saves): the first class. */
@@ -7379,12 +7431,299 @@ const FUNGUS_PARTS = {
   roots: FG_ROOTS, ring: FG_RINGS, shelves: FG_SHELVES, veil: FG_VEILS, glow: FG_GLOW, pattern: FG_PATTERNS,
 };
 
+// ---- src/data/parts/wyrm/_shared.js ----
+// Wyrm builders: the shared constructors namespaced with "w." (wyrms).
+// Serpentine coils about 65 wide and 45 tall, a head reaching forward and up from the front end, small legs
+// hanging from the belly at two pairs of sockets, and a long tail trailing from the back end.
+
+
+const wyrmBuilders = partBuilders('w.');
+const wyBody = wyrmBuilders.body;
+const wyLeg = wyrmBuilders.leg;
+const wyPart = wyrmBuilders.part;
+
+// ---- src/data/parts/wyrm/bodies.js ----
+// Wyrm bodies (coils). Origin = centre. Sockets: head (the front end, up and forward), tail (the back end),
+// leg / legFar (front pair) and legBack / legBackFar (hind pair) on the belly, mane and plates on the spine.
+// kinds: 'wyrm.low' (serpents), 'wyrm.rear' (rearing), 'wyrm.arch' (humped), 'wyrm.coil' (looped),
+// 'wyrm.float' (cloud riders), 'wyrm.stout' (lindworms).
+// Evolutions: stage 2 thickens and raises a dorsal fin; stage 3 raises a second and rings the flank.
+
+
+
+
+const wyBodyStages = (x2, y2, x3, y3) => ({
+  2: { grow: [1.06, 1.06], addBehind: [evoFan(x2, y2, -130, -50, 3, 6, 16, { tip: 0.5 })] },
+  3: { grow: [1.06, 1.07], addBehind: [evoFan(x3, y3, -140, -40, 4, 6, 18, { tip: 0.5 })], add: [evoRing(0, 2, 6, 'a', 1.2, { op: 0.45 })] },
+});
+const wySockets = (o) => ({ head: { x: 30, y: -6, a: -20, s: 1 }, tail: { x: -32, y: 10, a: 0, s: 1 }, leg: { x: 14, y: 16, a: 0 }, legFar: { x: 8, y: 14, a: 0 }, legBack: { x: -14, y: 20, a: 0 }, legBackFar: { x: -20, y: 18, a: 0 }, mane: { x: 0, y: -2, a: 0 }, plates: { x: 0, y: 0, a: 0 }, ...o });
+
+const WY_BODIES = [
+  wyBody({
+    id: 'serpent', name: 'Serpent', kind: 'wyrm.low', tags: ['low', 'long'], dom: 0.5, w: 3,
+    pts: tube([[-32, 10], [-18, 14], [-4, 6], [10, 10], [22, 2], [30, -6]], 11, 16, { tipK: 1 }),
+    shade: torsoShade(-32, 30, -12, 22, { shadeFrac: 0.35 }),
+    extra: [HL('M-30,6 C-24,2 -18,4 -14,8 C-18,8 -24,8 -28,10 Z', 0.2), L('M-26,16 C-16,20 -6,12 8,16 C16,10 22,6 28,0', 'k', 1, { op: 0.16 })],
+    sockets: wySockets({}), stages: wyBodyStages(-4, -2, 12, 2),
+  }),
+  wyBody({
+    id: 'rearing', name: 'Rearing', kind: 'wyrm.rear', tags: ['tall', 'rearing'], dom: 0.5, w: 2,
+    pts: tube([[-30, 18], [-14, 16], [-2, 6], [0, -8], [8, -20], [20, -30]], 11, 16, { tipK: 1 }),
+    shade: torsoShade(-32, 24, -32, 24, { shadeFrac: 0.35 }),
+    extra: [HL('M-8,-4 C-6,-12 -2,-18 4,-24 C2,-16 -2,-10 -4,-2 Z', 0.2), L('M-26,22 C-16,22 -6,16 4,6 C8,-4 12,-14 18,-22', 'k', 1, { op: 0.16 })],
+    sockets: wySockets({ head: { x: 20, y: -30, a: -15, s: 1 }, tail: { x: -30, y: 18, a: 0, s: 1 }, leg: { x: 9, y: -8, a: 0 }, legFar: { x: 4, y: -10, a: 0 }, legBack: { x: -8, y: 22, a: 0 }, legBackFar: { x: -14, y: 20, a: 0 }, mane: { x: -6, y: -8, a: 0 }, plates: { x: -4, y: -6, a: 0 } }),
+    stages: wyBodyStages(-8, -10, -20, 12),
+  }),
+  wyBody({
+    id: 'arch', name: 'Arch', kind: 'wyrm.arch', tags: ['humped'], dom: 0.5, w: 2,
+    pts: tube([[-32, 14], [-20, -2], [-4, -14], [12, -8], [24, 2], [32, -4]], 11, 16, { tipK: 1 }),
+    shade: torsoShade(-32, 32, -22, 20, { shadeFrac: 0.35 }),
+    extra: [HL('M-22,-2 C-18,-10 -10,-16 -2,-18 C-8,-14 -14,-10 -18,-2 Z', 0.2), L('M-28,18 C-20,8 -12,-2 -2,-6 C8,-2 16,6 24,8', 'k', 1, { op: 0.16 })],
+    sockets: wySockets({ head: { x: 32, y: -4, a: -25, s: 1 }, tail: { x: -32, y: 14, a: 0, s: 1 }, leg: { x: 16, y: 6, a: 0 }, legFar: { x: 10, y: 2, a: 0 }, legBack: { x: -18, y: 8, a: 0 }, legBackFar: { x: -24, y: 6, a: 0 }, mane: { x: -6, y: -20, a: 0 }, plates: { x: -4, y: -18, a: 0 } }),
+    stages: wyBodyStages(-6, -20, 14, -12),
+  }),
+  wyBody({
+    id: 'coil', name: 'Coil', kind: 'wyrm.coil', tags: ['looped'], dom: 0.5, w: 2,
+    shapes: [{ pts: tube([[-4, 12], [-18, 8], [-20, -6], [-8, -14], [6, -10]], 9, 11, { tipK: 1 }), f: 'pd' }, tube([[-30, 18], [-12, 18], [4, 12], [16, 2], [28, -8]], 11, 16, { tipK: 1 })],
+    shade: torsoShade(-32, 30, -18, 26, { shadeFrac: 0.35 }),
+    extra: [HL('M-18,-4 C-16,-10 -10,-14 -4,-14 C-8,-10 -12,-8 -14,-2 Z', 0.2), L('M-26,22 C-14,24 -2,20 10,12 C16,6 20,0 26,-4', 'k', 1, { op: 0.16 })],
+    sockets: wySockets({ head: { x: 28, y: -8, a: -20, s: 1 }, tail: { x: -30, y: 18, a: 0, s: 1 }, leg: { x: 16, y: 10, a: 0 }, legFar: { x: 10, y: 10, a: 0 }, legBack: { x: -10, y: 25, a: 0 }, legBackFar: { x: -16, y: 24, a: 0 }, mane: { x: -8, y: -16, a: 0 }, plates: { x: 0, y: 4, a: 0 } }),
+    stages: wyBodyStages(-8, -16, 14, 0),
+  }),
+  wyBody({
+    id: 'knot', name: 'Knot', kind: 'wyrm.coil', tags: ['knotted'], dom: 0.5, w: 2,
+    shapes: [{ pts: tube([[-16, 6], [-26, -6], [-16, -18], [-4, -10]], 8, 9, { tipK: 1 }), f: 'pd' }, { pts: tube([[6, 4], [20, -8], [12, -20], [0, -10]], 8, 9, { tipK: 1 }), f: 'pd' }, tube([[-30, 20], [-12, 16], [8, 16], [22, 6], [30, -4]], 11, 16, { tipK: 1 })],
+    shade: torsoShade(-32, 32, -22, 26, { shadeFrac: 0.35 }),
+    extra: [HL('M-24,-4 C-22,-12 -16,-16 -10,-16 C-14,-12 -18,-8 -20,-2 Z', 0.2), L('M-26,24 C-14,22 4,22 16,14 C20,8 24,2 28,-2', 'k', 1, { op: 0.16 })],
+    sockets: wySockets({ head: { x: 30, y: -4, a: -25, s: 1 }, tail: { x: -30, y: 20, a: 0, s: 1 }, leg: { x: 18, y: 12, a: 0 }, legFar: { x: 12, y: 14, a: 0 }, legBack: { x: -12, y: 22, a: 0 }, legBackFar: { x: -18, y: 22, a: 0 }, mane: { x: -2, y: -4, a: 0 }, plates: { x: 0, y: 6, a: 0 } }),
+    stages: wyBodyStages(-2, 8, 14, 8),
+  }),
+  wyBody({
+    id: 'hover', name: 'Cloud rider', kind: 'wyrm.float', tags: ['floating'], dom: 0.5, w: 2, hover: 6,
+    pts: tube([[-34, 6], [-20, -4], [-6, 6], [8, -4], [22, 4], [32, -4]], 11, 15, { tipK: 1 }),
+    shade: torsoShade(-34, 32, -12, 14, { shadeFrac: 0.35 }),
+    extra: [HL('M-30,2 C-26,-4 -20,-8 -14,-6 C-20,-4 -24,-2 -28,4 Z', 0.2), L('M-30,10 C-20,2 -10,10 0,2 C10,-4 20,8 28,2', 'k', 1, { op: 0.16 })],
+    sockets: wySockets({ head: { x: 32, y: -4, a: -15, s: 1 }, tail: { x: -34, y: 6, a: 0, s: 1 }, leg: { x: 12, y: 3, a: 0 }, legFar: { x: 6, y: 4, a: 0 }, legBack: { x: -16, y: 3, a: 0 }, legBackFar: { x: -22, y: 2, a: 0 }, mane: { x: -6, y: -10, a: 0 }, plates: { x: -4, y: -8, a: 0 } }),
+    stages: wyBodyStages(-6, -10, 10, -10),
+  }),
+  wyBody({
+    id: 'stout', name: 'Lindworm', kind: 'wyrm.stout', tags: ['thick', 'low'], dom: 0.55, w: 2,
+    pts: [[-30, -4], [-22, -14], [-6, -18], [12, -16], [24, -10], [30, -2], [30, 8], [24, 16], [6, 20], [-14, 20], [-28, 14], [-32, 6]],
+    shade: torsoShade(-32, 30, -18, 20, { shadeFrac: 0.35 }),
+    extra: [PATCH('M-26,10 C-14,18 8,20 24,12 L26,16 C8,24 -14,22 -28,14 Z', 's'), HL('M-24,-8 C-18,-14 -8,-16 0,-16 C-8,-13 -16,-10 -20,-4 Z', 0.2)],
+    sockets: wySockets({ head: { x: 28, y: -10, a: -10, s: 1 }, tail: { x: -31, y: 2, a: 0, s: 1 }, leg: { x: 18, y: 18, a: 0 }, legFar: { x: 12, y: 18, a: 0 }, legBack: { x: -16, y: 20, a: 0 }, legBackFar: { x: -22, y: 18, a: 0 }, mane: { x: -4, y: -18, a: 0 }, plates: { x: -2, y: -16, a: 0 } }),
+    stages: wyBodyStages(-6, -18, 14, -16),
+  }),
+];
+
+// ---- src/data/parts/wyrm/heads.js ----
+// Wyrm heads. Origin = the neck point at the back; the snout reaches right. Sockets: eye / eyeFar, maw (the
+// snout), whisker / whiskerFar (the snout tip), horns (the brow, drawn behind).
+// Evolutions: stage 2 raises a brow plate; stage 3 a bigger one and a cheek ring.
+
+
+
+
+const wyHeadStages = { 2: { grow: [1.05, 1.05], add: [...evoBrowPlate(6, -12, 4)] }, 3: { grow: [1.05, 1.06], add: [...evoBrowPlate(6, -12, 4.6), evoRing(12, -2, 4, 'a', 1, { op: 0.5 })] } };
+const wyHeadSockets = (o = {}) => ({ eye: { x: 9, y: -6, s: 1 }, eyeFar: { x: 1, y: -7, s: 0.9 }, maw: { x: 17, y: 2, a: 0, s: 1 }, whisker: { x: 24, y: -1, a: 0, s: 1 }, whiskerFar: { x: 22, y: -4, a: 0, s: 0.9 }, horns: { x: 2, y: -12, a: 0, s: 1 }, ...o });
+const wyBrow = HL('M-2,-9 C2,-12 8,-12 12,-10 C8,-9 2,-8 -2,-6 Z', 0.2);
+
+const WY_HEADS = [
+  wyPart({ id: 'sleek', slot: 'head', name: 'Sleek', tags: ['narrow'], dom: 0.5, w: 3, shapes: [[[-4, -10], [8, -13], [20, -9], [27, -3], [26, 3], [18, 6], [6, 8], [-4, 6]]], extra: [wyBrow, C(23, -2, 0.9, 'k', { ns: true, op: 0.6 })], sockets: wyHeadSockets(), stages: wyHeadStages }),
+  wyPart({ id: 'blunt', slot: 'head', name: 'Blunt', tags: ['round'], dom: 0.5, w: 2, shapes: [[[-4, -12], [8, -15], [18, -12], [24, -4], [24, 4], [18, 9], [6, 10], [-4, 7]]], extra: [wyBrow, C(21, -3, 1, 'k', { ns: true, op: 0.6 })], sockets: wyHeadSockets({ maw: { x: 16, y: 4, a: 0, s: 1 }, whisker: { x: 23, y: 0, a: 0, s: 1 }, whiskerFar: { x: 21, y: -3, a: 0, s: 0.9 }, horns: { x: 2, y: -14, a: 0, s: 1 } }), stages: wyHeadStages }),
+  wyPart({ id: 'frilled', slot: 'head', name: 'Frilled', tags: ['frill'], dom: 0.5, w: 2, shapes: [{ pts: [[-6, -12], [-14, -18, 'c'], [-4, -15], [-10, -24, 'c'], [0, -17], [-2, -27, 'c'], [5, -16], [8, -25, 'c'], [10, -13]], f: 'a' }, [[-4, -12], [8, -15], [18, -12], [24, -4], [24, 4], [18, 9], [6, 10], [-4, 7]]], extra: [wyBrow, C(21, -3, 1, 'k', { ns: true, op: 0.6 })], sockets: wyHeadSockets({ maw: { x: 16, y: 4, a: 0, s: 1 }, whisker: { x: 23, y: 0, a: 0, s: 1 }, whiskerFar: { x: 21, y: -3, a: 0, s: 0.9 }, horns: { x: 2, y: -14, a: 0, s: 1 } }), stages: wyHeadStages }),
+  wyPart({ id: 'beaked', slot: 'head', name: 'Beaked', tags: ['pointed'], dom: 0.5, w: 2, shapes: [[[-4, -10], [8, -13], [18, -10], [28, -6], [30, -2], [22, 2], [16, 7], [6, 9], [-4, 6]]], extra: [wyBrow, L('M20,-4 L28,-3', 'k', 1, { op: 0.3 })], sockets: wyHeadSockets({ maw: { x: 16, y: 3, a: 0, s: 1 }, whisker: { x: 26, y: -1, a: 0, s: 1 }, whiskerFar: { x: 24, y: -4, a: 0, s: 0.9 } }), stages: wyHeadStages }),
+  wyPart({ id: 'wide', slot: 'head', name: 'Catfish', tags: ['flat', 'wide'], dom: 0.5, w: 2, shapes: [[[-4, -9], [6, -12], [18, -11], [28, -6], [30, 0], [26, 6], [16, 9], [4, 9], [-4, 6]]], extra: [wyBrow, C(24, -3, 1, 'k', { ns: true, op: 0.6 }), C(27, -1, 0.8, 'k', { ns: true, op: 0.5 })], sockets: wyHeadSockets({ eye: { x: 11, y: -6, s: 1 }, eyeFar: { x: 2, y: -7, s: 0.9 }, maw: { x: 19, y: 3, a: 0, s: 1 }, whisker: { x: 27, y: 2, a: 0, s: 1 }, whiskerFar: { x: 25, y: -2, a: 0, s: 0.9 }, horns: { x: 2, y: -11, a: 0, s: 1 } }), stages: wyHeadStages }),
+  wyPart({ id: 'serpent', slot: 'head', name: 'Serpent', tags: ['smooth'], dom: 0.5, w: 2, shapes: [[[-4, -8], [6, -11], [18, -10], [26, -5], [28, 0], [24, 4], [14, 6], [4, 7], [-4, 5]]], extra: [HL('M-2,-7 C2,-10 8,-10 12,-9 C8,-8 2,-7 -2,-5 Z', 0.2), C(24, -2, 0.9, 'k', { ns: true, op: 0.6 })], sockets: wyHeadSockets({ eye: { x: 9, y: -5, s: 1 }, eyeFar: { x: 1, y: -6, s: 0.9 }, maw: { x: 18, y: 2, a: 0, s: 1 }, whisker: { x: 25, y: 0, a: 0, s: 1 }, whiskerFar: { x: 23, y: -3, a: 0, s: 0.9 }, horns: { x: 2, y: -10, a: 0, s: 1 } }), stages: wyHeadStages }),
+  wyPart({ id: 'lion', slot: 'head', name: 'Lion-nosed', tags: ['oriental'], dom: 0.5, w: 2, shapes: [[[-4, -12], [6, -16], [16, -14], [22, -8], [26, -2], [24, 4], [16, 8], [6, 10], [-4, 7]]], extra: [C(24, -2, 3.6, 'p', { sw: 1.4 }), C(23, -3, 1, 'w', { ns: true, op: 0.6 }), L('M4,-11 C8,-14 13,-14 17,-11', 'k', 1.4, { op: 0.4 }), wyBrow], sockets: wyHeadSockets({ eye: { x: 8, y: -7, s: 1 }, eyeFar: { x: 0, y: -8, s: 0.9 }, maw: { x: 16, y: 3, a: 0, s: 1 }, whisker: { x: 26, y: 1, a: 0, s: 1 }, whiskerFar: { x: 24, y: -2, a: 0, s: 0.9 }, horns: { x: 2, y: -14, a: 0, s: 1 } }), stages: wyHeadStages }),
+];
+
+// ---- src/data/parts/wyrm/face.js ----
+// Wyrm eyes and maws (the mouth at the snout, drawn back toward the cheek).
+// Evolutions: eyes ring the iris then glow; maws grow with the face family.
+
+
+
+
+const wyEyeStages = (r) => ({
+  2: { grow: [1.05, 1.05], add: [evoRing(0.6, 0.2, r * 0.95, 'a', 1.2, { cl: true, op: 0.8 })] },
+  3: { grow: [1.05, 1.05], add: [evoGlow(0.6, 0.2, r * 1.5, 0.2), C(-1.2, -1.6, r * 0.3, 'w', { ns: true, op: 0.9 })] },
+});
+function wyEye({ id, name, shape, sclera = 'w', iris = [0.6, 0.2, 3.4], irisRole = 'e', pupil = [1, 0.5, 1.8], glint = [1.9, -1.6, 1.2], lid, tags = [], w = 2 }) {
+  const prims = [P(shape, sclera, { sw: 2 })];
+  if (iris) prims.push(C(iris[0], iris[1], iris[2], irisRole, { ns: true, cl: true }));
+  if (pupil) prims.push(Array.isArray(pupil[2]) ? E(pupil[0], pupil[1], pupil[2][0], pupil[2][1], 'k', { ns: true, cl: true }) : C(pupil[0], pupil[1], pupil[2], 'k', { ns: true, cl: true }));
+  if (glint) prims.push(C(glint[0], glint[1], glint[2], 'w', { ns: true }));
+  if (lid) prims.push(L(lid, 'k', 1.6));
+  return wyPart({ id, slot: 'eyes', name, tags, dom: 0.5, w, extra: prims, stages: wyEyeStages(iris ? iris[2] : 3) });
+}
+const WY_OVAL = spline([[0, -5.5], [5, -1.5], [4.6, 4], [0, 5.8], [-4.6, 4], [-5, -1.5]]);
+const WY_ROUND = spline([[0, -6], [5.6, -2.2], [5.6, 2.8], [0, 6.2], [-5.6, 2.8], [-5.6, -2.2]]);
+const WY_SLIT = spline([[-6, 0, 'c'], [-1, -3.6], [6, 0, 'c'], [-1, 3.6]]);
+
+const WY_EYES = [
+  wyEye({ id: 'slit', name: 'Slit', tags: ['reptile'], w: 3, shape: WY_SLIT, iris: [0.4, 0, 3], pupil: [0.8, 0, [0.9, 2.6]], glint: [1.6, -1.4, 1] }),
+  wyEye({ id: 'round', name: 'Round', tags: ['round'], w: 3, shape: WY_ROUND, iris: [0.6, 0.4, 4.2], pupil: [1, 0.8, 2.2], glint: [2.2, -2, 1.5] }),
+  wyEye({ id: 'fierce', name: 'Fierce', tags: ['angry'], shape: spline([[-6, -1, 'c'], [0, -4.5], [6, -2.5, 'c'], [2, 4], [-4, 3.5]]), iris: [0.6, 0, 3.2], pupil: [1, 0.2, 1.6], glint: [2, -1.8, 1], lid: 'M-6,-2 L5,-4.5' }),
+  wyEye({ id: 'sleepy', name: 'Drowsy', tags: ['sleepy'], shape: WY_OVAL, iris: [0.6, 1, 3.4], pupil: [1, 1.2, 1.8], glint: [1.8, -0.4, 1], lid: 'M-5,-2 Q0,-3.5 5,-2' }),
+  wyEye({ id: 'gem', name: 'Gem', tags: ['gem'], shape: WY_ROUND, sclera: 'e', iris: [0.4, 0.2, 4], irisRole: 'el', pupil: [0.8, 0.4, 1.6], glint: [2, -2, 1.4] }),
+  wyEye({ id: 'glow', name: 'Glowing', tags: ['light'], w: 1, shape: WY_OVAL, sclera: 'e', iris: [0.4, 0, 3.6], irisRole: 'el', pupil: null, glint: [1.6, -1.6, 1.2] }),
+  wyEye({ id: 'bead', name: 'Bead', tags: ['bead'], shape: spline([[0, -4], [3.8, -1.2], [3.6, 2.8], [0, 4.4], [-3.6, 2.8], [-3.8, -1.2]]), iris: [0.3, 0.2, 3], irisRole: 'k', pupil: null, glint: [1.2, -1.2, 1.1] }),
+];
+
+const WY_MAWS = [
+  wyPart({ id: 'grin', slot: 'maw', name: 'Grin', tags: ['happy'], dom: 0.5, w: 3, extra: [P('M4,-1 C0,4 -6,5 -12,1 C-6,2 0,1 4,-1 Z', 'k', { ns: true }), P('M1,0 C-2,2 -6,2.6 -10,1 C-6,1.6 -2,1 1,0 Z', 'w', { ns: true })] }),
+  wyPart({ id: 'fangs', slot: 'maw', name: 'Fangs', tags: ['fierce'], dom: 0.5, w: 2, extra: [L('M5,-1 C1,3 -6,4 -13,1', 'k', 2), P('M1,1 L0,5.5 L-2,1.4 Z', 'w', { ns: true }), P('M-7,2.6 L-8.6,6.4 L-10,2 Z', 'w', { ns: true })] }),
+  wyPart({ id: 'roar', slot: 'maw', name: 'Roar', tags: ['open'], dom: 0.5, w: 2, extra: [P('M5,-2 C2,5 -6,7 -13,2 C-8,0 -2,-1 5,-2 Z', 'k', { ns: true }), P('M3,-1 L1,2 L-1,-0.6 L-3,2.6 L-5,0 L-7,2.8 L-9,0.6 L-11,2 L-11,1 C-6,-0.4 -2,-1 3,-1 Z', 'w', { ns: true }), E(-4, 3, 3, 1.4, 'a', { ns: true, op: 0.8 })] }),
+  wyPart({ id: 'smile', slot: 'maw', name: 'Smile', tags: ['happy'], dom: 0.5, w: 2, extra: [L('M4,-1 C0,3 -6,4 -12,1', 'k', 2)] }),
+  wyPart({ id: 'snarl', slot: 'maw', name: 'Snarl', tags: ['fierce'], dom: 0.5, w: 2, extra: [L('M5,0 C2,-2 -2,3 -6,1 C-9,-1 -11,2 -13,1', 'k', 2), P('M-1,1 L-2,4.6 L-4,1.2 Z', 'w', { ns: true }), L('M3,-3 L6,-4', 'k', 1.4, { op: 0.6 })] }),
+  wyPart({ id: 'beard', slot: 'maw', name: 'Bearded', tags: ['wise'], dom: 0.5, w: 2, extra: [L('M4,-1 C0,3 -6,4 -12,1', 'k', 2), L('M-2,3 C-1,8 -3,12 -2,16 M-6,3 C-6,7 -8,10 -7,14', 'a', 2.2), L('M2,2 C4,5 3,8 4,11', 'a', 1.8)] }),
+  wyPart({ id: 'tongue', slot: 'maw', name: 'Forked tongue', tags: ['tongue'], dom: 0.5, w: 2, extra: [L('M4,-1 C0,3 -6,4 -12,1', 'k', 2), L('M4,0 C8,0 11,1 14,2 M14,2 L17,0 M14,2 L17,4', 'a', 1.6)] }),
+];
+
+// ---- src/data/parts/wyrm/limbs.js ----
+// Wyrm whiskers (origin = the snout tip, trailing forward and down), legs (origin = a belly socket, hanging
+// down to the ground; one part stands at four sockets) and tails (origin = the back end, trailing behind).
+// Evolutions: whiskers grow with the crown family; legs grow and band; tails grow and spike.
+
+
+
+
+
+
+const wyWhiskerStages = { 2: { grow: [1.1, 1.1] }, 3: { grow: [1.15, 1.15] } };
+const wyLegStages = { 2: { grow: [1.06, 1.08] }, 3: { grow: [1.1, 1.14], add: [...evoBands(6, 2, 2, 4), evoRing(0, 2, 3.5, 'a', 1, { op: 0.5 })] } };
+const wyTailStages = (x, y) => ({ 2: { grow: [1.1, 1.06] }, 3: { grow: [1.15, 1.1], addShapes: [{ pts: evoSpike(x, y, -100, 8, 3), f: 'a' }, { pts: evoSpike(x + 10, y + 1, -100, 7, 3), f: 'a' }] } });
+
+const WY_WHISKERS = [
+  NONE('whiskers', 0.3, 'w.'),
+  wyPart({ id: 'long', slot: 'whiskers', name: 'Long', tags: ['flowing'], dom: 0.5, w: 3, extra: [L('M0,0 C8,-2 14,4 12,12 C10,16 6,16 4,14', 'p', 2.2)], stages: wyWhiskerStages }),
+  wyPart({ id: 'short', slot: 'whiskers', name: 'Short', tags: ['stub'], dom: 0.5, w: 2, extra: [L('M0,0 C5,1 8,4 7,8', 'p', 2.2)], stages: wyWhiskerStages }),
+  wyPart({ id: 'curled', slot: 'whiskers', name: 'Curled', tags: ['spiral'], dom: 0.5, w: 2, extra: [L('M0,0 L5,2', 'p', 2.2), L(spiralPath(9, 5, 4.5, 1.5, -90), 'p', 2)], stages: wyWhiskerStages }),
+  wyPart({ id: 'wavy', slot: 'whiskers', name: 'Wavy', tags: ['flowing'], dom: 0.5, w: 2, extra: [L('M0,0 C6,-4 8,4 14,0 C18,-3 20,3 24,1', 'p', 2)], stages: wyWhiskerStages }),
+  wyPart({ id: 'droop', slot: 'whiskers', name: 'Drooping', tags: ['sad'], dom: 0.5, w: 2, extra: [L('M0,0 C3,8 1,16 -3,22', 'p', 2.2), C(-3.5, 23, 1.2, 'p', { sw: 1 })], stages: wyWhiskerStages }),
+  wyPart({ id: 'forked', slot: 'whiskers', name: 'Forked', tags: ['two'], dom: 0.5, w: 2, extra: [L('M0,0 C6,-3 10,-6 16,-8 M0,0 C6,3 10,8 12,14', 'p', 2)], stages: wyWhiskerStages }),
+  wyPart({ id: 'tufted', slot: 'whiskers', name: 'Tufted', tags: ['puff'], dom: 0.5, w: 2, extra: [L('M0,0 C6,0 10,4 12,9', 'p', 2.2), P(`${puff(13, 11, 3.5, 6, 1).map((p, i) => `${i ? 'L' : 'M'}${p[0].toFixed(1)},${p[1].toFixed(1)}`).join(' ')} Z`, 'a', { sw: 1 })], stages: wyWhiskerStages }),
+];
+
+const WY_LEGS = [
+  wyLeg({ id: 'claw', slot: 'legs', name: 'Clawed', tags: ['claw'], dom: 0.5, w: 3, shapes: [tube([[0, 0], [1, 7], [0, 13]], 7, 5, { tipK: 1 })], extra: [L('M-3,13 L-4,17 M0,13 L0,17 M3,13 L4,17', 'k', 1.4)], stages: wyLegStages }),
+  wyLeg({ id: 'stub', slot: 'legs', name: 'Stub', tags: ['short'], dom: 0.5, w: 2, shapes: [tube([[0, 0], [0, 8]], 7, 5, { tipK: 1 })], extra: [L('M-2,8 L-2,11 M2,8 L2,11', 'k', 1.3, { op: 0.6 })], stages: wyLegStages }),
+  wyLeg({ id: 'talon', slot: 'legs', name: 'Taloned', tags: ['bird'], dom: 0.5, w: 2, shapes: [tube([[0, 0], [2, 6], [0, 12]], 6, 4, { tipK: 1 })], extra: [...claws(-4, 4, 12, 3, 5)], stages: wyLegStages }),
+  wyLeg({ id: 'paw', slot: 'legs', name: 'Paw', tags: ['soft'], dom: 0.5, w: 2, shapes: [tube([[0, 0], [1, 6], [0, 11]], 7, 5, { tipK: 1 }), { pts: puff(1, 13, 4.5, 6, 0.8), f: 'p' }], extra: [C(-1, 12, 1, 'w', { ns: true, op: 0.5 }), L('M-2,16 L-2,17.5 M1,16.5 L1,18 M4,16 L4,17.5', 'k', 1.2, { op: 0.5 })], stages: wyLegStages }),
+  wyLeg({ id: 'fin', slot: 'legs', name: 'Flipper', tags: ['fin'], dom: 0.5, w: 2, shapes: [{ d: leaf([0, 0], [8, 14], 5), f: 'p' }], extra: [L('M1,2 L6,10 M0,3 L3,11', 'k', 1, { op: 0.3 })], stages: wyLegStages }),
+  wyLeg({ id: 'hook', slot: 'legs', name: 'Hooked', tags: ['hook'], dom: 0.5, w: 2, shapes: [tube([[0, 0], [1, 6], [0, 11], [4, 14]], 6, 3, { tipK: 'c' })], extra: [L('M-1,10 L-2,13', 'k', 1.2, { op: 0.5 })], stages: wyLegStages }),
+  wyLeg({ id: 'spur', slot: 'legs', name: 'Spurred', tags: ['spike'], dom: 0.5, w: 2, shapes: [tube([[0, 0], [1, 7], [0, 13]], 7, 5, { tipK: 1 }), [[-3, 4], [-9, 8, 'c'], [-3, 8]]], extra: [L('M-2,13 L-3,16 M2,13 L3,16', 'k', 1.4)], stages: wyLegStages }),
+];
+
+const WY_TAILS = [
+  wyPart({ id: 'taper', slot: 'tail', name: 'Taper', tags: ['plain'], dom: 0.5, w: 3, shapes: [tube([[0, 0], [-12, 4], [-24, 2], [-34, -2]], 12, 2, { tipK: 'c' })], extra: [L('M-4,-3 C-12,-2 -20,-4 -28,-4', 'k', 1, { op: 0.2 })], stages: wyTailStages(-14, -2) }),
+  wyPart({ id: 'fin', slot: 'tail', name: 'Finned', tags: ['fin'], dom: 0.5, w: 2, shapes: [tube([[0, 0], [-12, 4], [-24, 2], [-32, -2]], 12, 3, { tipK: 'c' }), { d: leaf([-30, -1], [-42, -14], 5), f: 'a' }, { d: leaf([-30, 0], [-40, 10], 4), f: 'a' }], stages: wyTailStages(-14, -2) }),
+  wyPart({ id: 'tuft', slot: 'tail', name: 'Tufted', tags: ['lion'], dom: 0.5, w: 2, shapes: [tube([[0, 0], [-12, 4], [-24, 2], [-32, -2]], 12, 3, { tipK: 'c' }), { pts: puff(-36, -3, 6, 7, 2), f: 'a' }], stages: wyTailStages(-14, -2) }),
+  wyPart({ id: 'spade', slot: 'tail', name: 'Spade', tags: ['arrow'], dom: 0.5, w: 2, shapes: [tube([[0, 0], [-12, 4], [-24, 2], [-32, -2]], 12, 3, { tipK: 'c' })], extra: [P(diamondPath(-38, -3, 12, 9), 'a', { sw: 1.3 })], stages: wyTailStages(-14, -2) }),
+  wyPart({ id: 'spiked', slot: 'tail', name: 'Spiked', tags: ['spiky'], dom: 0.5, w: 2, shapes: [tube([[0, 0], [-12, 4], [-24, 2], [-34, -2]], 12, 2, { tipK: 'c' }), { pts: [[-4, -5], ...fur([-4, -5], [-26, -4], 5, 6, { tip: 'c' }), [-26, 0], [-4, 0]], f: 'a' }], stages: wyTailStages(-14, -6) }),
+  wyPart({ id: 'flame', slot: 'tail', name: 'Flame-tipped', tags: ['fire'], dom: 0.5, w: 2, shapes: [tube([[0, 0], [-12, 4], [-24, 2], [-32, -2]], 12, 3, { tipK: 'c' })], extra: [P(flamePath(-36, -8, 10, -30), 'a', { sw: 1.3 }), P(flamePath(-36, -5, 5, -30), 'w', { ns: true, op: 0.5 })], stages: wyTailStages(-14, -2) }),
+  wyPart({ id: 'curl', slot: 'tail', name: 'Curled', tags: ['spiral'], dom: 0.5, w: 2, shapes: [tube([[0, 0], [-12, 4], [-22, 0], [-26, -8], [-20, -14]], 12, 3, { tipK: 1 })], extra: [L('M-4,-3 C-12,-2 -20,-4 -24,-8', 'k', 1, { op: 0.2 })], stages: wyTailStages(-12, -2) }),
+];
+
+// ---- src/data/parts/wyrm/crest.js ----
+// Wyrm manes (a ridge along the spine, drawn behind at the mane socket), plates (armour on the back, in front)
+// and horns (on the brow, drawn behind the head).
+// Evolutions: manes and plates grow; horns grow with the crown family.
+
+
+
+
+
+const wyCrestStages = { 2: { grow: [1.1, 1.1] }, 3: { grow: [1.12, 1.15] } };
+const wyPlate = (x, y, w, h) => [[x - w, y], [x - w * 0.5, y - h], [x + w * 0.5, y - h], [x + w, y], [x, y + h * 0.5]];
+
+const WY_MANES = [
+  NONE('mane', 0.3, 'w.'),
+  wyPart({ id: 'ridge', slot: 'mane', name: 'Ridge', tags: ['fin'], dom: 0.5, w: 3, shapes: [{ pts: [[-16, 2], ...fur([-16, 2], [16, 2], 6, 9, { tip: 'c' }), [16, 6], [-16, 6]], f: 'a' }], stages: wyCrestStages }),
+  wyPart({ id: 'fur', slot: 'mane', name: 'Fur', tags: ['fluffy'], dom: 0.5, w: 2, shapes: [{ pts: [[-16, 2], ...fur([-16, 2], [16, 2], 8, 6, { tip: 0.5 }), [16, 6], [-16, 6]], f: 'a' }], extra: [C(-8, -1, 0.9, 'w', { ns: true, op: 0.5 }), C(4, -2, 0.9, 'w', { ns: true, op: 0.5 })], stages: wyCrestStages }),
+  wyPart({ id: 'flames', slot: 'mane', name: 'Flames', tags: ['fire'], dom: 0.5, w: 2, extra: [P(flamePath(-12, -4, 8), 'a', { sw: 1.2 }), P(flamePath(-2, -8, 11), 'a', { sw: 1.2 }), P(flamePath(9, -4, 8), 'a', { sw: 1.2 }), P(flamePath(-2, -5, 5), 'w', { ns: true, op: 0.5 })], stages: wyCrestStages }),
+  wyPart({ id: 'spines', slot: 'mane', name: 'Spines', tags: ['spiky'], dom: 0.5, w: 2, extra: [L('M-14,3 L-16,-8 M-7,2 L-8,-11 M0,1 L0,-13 M7,2 L8,-11 M14,3 L16,-8', 'pd', 2.6), L('M-14,3 L-16,-8 M0,1 L0,-13 M14,3 L16,-8', 'k', 0.8, { op: 0.3 })], stages: wyCrestStages }),
+  wyPart({ id: 'feathers', slot: 'mane', name: 'Feathers', tags: ['plume'], dom: 0.5, w: 2, shapes: [{ d: leaf([-12, 3], [-20, -10], 3.5), f: 'a' }, { d: leaf([-4, 2], [-8, -13], 3.5), f: 'a' }, { d: leaf([4, 2], [6, -14], 3.5), f: 'a' }, { d: leaf([12, 3], [20, -10], 3.5), f: 'a' }], extra: [L('M-12,3 L-19,-8 M-4,2 L-7,-11 M4,2 L6,-12 M12,3 L19,-8', 'k', 0.8, { op: 0.3 })], stages: wyCrestStages }),
+  wyPart({ id: 'frill', slot: 'mane', name: 'Frill', tags: ['wavy'], dom: 0.5, w: 2, shapes: [{ pts: [[-16, 3], [-12, -7, 'c'], [-6, -2], [-1, -12, 'c'], [4, -2], [10, -9, 'c'], [16, 3]], f: 'a' }], extra: [L('M-12,-4 L-10,2 M-1,-9 L-1,1 M10,-6 L9,2', 'k', 0.8, { op: 0.3 })], stages: wyCrestStages }),
+  wyPart({ id: 'fins', slot: 'mane', name: 'Twin fins', tags: ['fin'], dom: 0.5, w: 2, shapes: [[[-16, 3], [-12, -10, 'c'], [-2, 2]], [[2, 2], [8, -11, 'c'], [16, 3]]], extra: [L('M-10,-6 L-8,1 M8,-7 L9,0', 'k', 0.8, { op: 0.3 })], stages: wyCrestStages }),
+];
+
+const WY_PLATES = [
+  NONE('plates', 0.3, 'w.'),
+  wyPart({ id: 'scutes', slot: 'plates', name: 'Scutes', tags: ['plate'], dom: 0.5, w: 3, shapes: [{ pts: wyPlate(-12, 0, 6, 5), f: 'pd' }, { pts: wyPlate(0, -1, 7, 6), f: 'pd' }, { pts: wyPlate(12, 0, 6, 5), f: 'pd' }], extra: [HL('M-15,-1 L-13,-4 L-10,-4 L-13,-1 Z', 0.25), HL('M-3,-2 L-1,-6 L2,-6 L-1,-2 Z', 0.25)], stages: wyCrestStages }),
+  wyPart({ id: 'shell', slot: 'plates', name: 'Shell', tags: ['plate'], dom: 0.5, w: 2, shapes: [{ pts: [[-14, 2], [-8, -6], [0, -8], [8, -6], [14, 2], [0, 5]], f: 'pd' }], extra: [L('M-8,-2 L8,-2 M-4,-5 L4,-5', 'k', 0.9, { op: 0.3 }), HL('M-11,0 C-8,-4 -4,-6 -1,-6 C-4,-4 -7,-2 -9,1 Z', 0.22)], stages: wyCrestStages }),
+  wyPart({ id: 'ridges', slot: 'plates', name: 'Ridges', tags: ['lines'], dom: 0.5, w: 2, extra: [L('M-14,2 C-10,-3 -6,-3 -2,2 M-2,2 C2,-3 6,-3 10,2 M10,2 C12,-1 14,-1 16,2', 'pd', 3), L('M-14,2 C-10,-3 -6,-3 -2,2 M-2,2 C2,-3 6,-3 10,2', 'k', 0.8, { op: 0.3 })], stages: wyCrestStages }),
+  wyPart({ id: 'scales', slot: 'plates', name: 'Scales', tags: ['overlap'], dom: 0.5, w: 2, extra: [...[[-12, 0], [-4, -1], [4, -1], [12, 0], [-8, 4], [0, 3], [8, 4]].map(([x, y]) => P(`M${x - 4},${y} A4,4 0 0 1 ${x + 4},${y} L${x + 3},${y + 3} L${x - 3},${y + 3} Z`, 'pd', { sw: 1 }))], stages: wyCrestStages }),
+  wyPart({ id: 'gems', slot: 'plates', name: 'Gems', tags: ['crystal'], dom: 0.5, w: 2, extra: [...evoGem(-11, 0, 3), ...evoGem(0, -2, 4), ...evoGem(11, 0, 3)], stages: wyCrestStages }),
+  wyPart({ id: 'spikes', slot: 'plates', name: 'Spikes', tags: ['spiky'], dom: 0.5, w: 2, shapes: [[[-14, 2], [-11, -8, 'c'], [-8, 2]], [[-4, 2], [0, -11, 'c'], [4, 2]], [[8, 2], [11, -8, 'c'], [14, 2]]], extra: [HL('M-13,0 L-11,-6 L-10,-2 Z', 0.25), HL('M-3,0 L0,-8 L1,-3 Z', 0.25)], stages: wyCrestStages }),
+  wyPart({ id: 'saddle', slot: 'plates', name: 'Saddle', tags: ['tack'], dom: 0.5, w: 2, shapes: [{ pts: [[-11, -2], [11, -2], [13, 4], [-13, 4]], f: 's' }], extra: [L('M-9,-1 L9,-1 M-9,2 L9,2', 'k', 0.8, { op: 0.3 }), C(-10, 1, 1, 'a', { ns: true }), C(10, 1, 1, 'a', { ns: true })], stages: wyCrestStages }),
+];
+
+const WY_HORNS = [
+  NONE('horns', 0.3, 'w.'),
+  wyPart({ id: 'antler', slot: 'horns', name: 'Antlers', tags: ['branch'], dom: 0.5, w: 3, extra: [L('M-3,0 L-8,-12 M-8,-12 L-14,-16 M-8,-12 L-6,-20 M3,0 L8,-12 M8,-12 L14,-16 M8,-12 L6,-20', 'a', 3.2), L('M-3,0 L-8,-12 M3,0 L8,-12', 'k', 0.9, { op: 0.25 })], stages: wyCrestStages }),
+  wyPart({ id: 'curved', slot: 'horns', name: 'Curved', tags: ['horn'], dom: 0.5, w: 2, shapes: [{ pts: tube([[-4, 0], [-9, -8], [-6, -18]], 5, 1.5, { tipK: 'c' }), f: 'a' }, { pts: tube([[4, 0], [9, -8], [6, -18]], 5, 1.5, { tipK: 'c' }), f: 'a' }], extra: [L('M-6,-4 L-8,-10 M6,-4 L8,-10', 'k', 0.8, { op: 0.3 })], stages: wyCrestStages }),
+  wyPart({ id: 'straight', slot: 'horns', name: 'Straight', tags: ['horn'], dom: 0.5, w: 2, shapes: [[[-6, 1], [-10, -16, 'c'], [-2, 0]], [[2, 0], [8, -18, 'c'], [6, 1]]], extra: [HL('M-7,-2 L-9,-10 L-6,-4 Z', 0.25)], stages: wyCrestStages }),
+  wyPart({ id: 'ram', slot: 'horns', name: 'Ram', tags: ['spiral'], dom: 0.5, w: 2, extra: [L(spiralPath(-8, -4, 7, 1.6, 180), 'a', 4), L(spiralPath(8, -4, 7, 1.6, 0), 'a', 4), L(spiralPath(-8, -4, 7, 1.6, 180), 'k', 0.9, { op: 0.25 }), L(spiralPath(8, -4, 7, 1.6, 0), 'k', 0.9, { op: 0.25 })], stages: wyCrestStages }),
+  wyPart({ id: 'crest', slot: 'horns', name: 'Crest', tags: ['fan'], dom: 0.5, w: 2, shapes: [{ pts: [[-10, 0], ...fur([-10, 0], [10, 0], 5, 12, { tip: 'c' }), [10, 3], [-10, 3]], f: 'a' }], stages: wyCrestStages }),
+  wyPart({ id: 'nubs', slot: 'horns', name: 'Nubs', tags: ['small'], dom: 0.5, w: 2, extra: [C(-6, -2, 3, 'pd', { sw: 1.2 }), C(6, -2, 3, 'pd', { sw: 1.2 }), C(-7, -3, 0.9, 'w', { ns: true, op: 0.6 }), C(5, -3, 0.9, 'w', { ns: true, op: 0.6 })], stages: wyCrestStages }),
+  wyPart({ id: 'crown', slot: 'horns', name: 'Crown', tags: ['royal'], dom: 0.5, w: 2, shapes: [{ pts: [[-10, 2], [-10, -8], [-6, -3], [-2, -10], [2, -3], [6, -10], [10, -3], [10, 2]], f: 'a' }], extra: [C(-6, -1, 1, 'w', { ns: true, op: 0.7 }), C(0, -1, 1, 'w', { ns: true, op: 0.7 }), C(6, -1, 1, 'w', { ns: true, op: 0.7 })], stages: wyCrestStages }),
+];
+
+// ---- src/data/parts/wyrm/fx.js ----
+// Wyrm glow (a light behind the coil, fitted to its box) and bands (markings clipped to the coil, 100 x 60 frame).
+// Evolutions: glows spread; bands are flat.
+
+
+
+
+const wyGlowStages = { 2: { grow: [1.08, 1.08] }, 3: { grow: [1.06, 1.06], add: [E(0, 0, 74, 48, 'a', { ns: true, op: 0.1 })] } };
+const wyPuffPath = (cx, cy, r, n, amp) => `${puff(cx, cy, r, n, amp).map((p, i) => `${i ? 'L' : 'M'}${p[0].toFixed(1)},${p[1].toFixed(1)}`).join(' ')} Z`;
+
+const WY_GLOW = [
+  NONE('glow', 0.3, 'w.'),
+  wyPart({ id: 'halo', slot: 'glow', name: 'Halo', tags: ['light'], dom: 0.5, w: 3, extra: [E(0, 0, 62, 40, 'a', { ns: true, op: 0.16 }), E(0, 0, 54, 34, 'a', { ns: true, op: 0.14 })], stages: wyGlowStages }),
+  wyPart({ id: 'aura', slot: 'glow', name: 'Aura', tags: ['light'], dom: 0.5, w: 2, extra: [E(0, 2, 70, 46, 'a', { ns: true, op: 0.12 }), E(0, 0, 60, 38, 'a', { ns: true, op: 0.14 }), E(0, -2, 50, 30, 'a', { ns: true, op: 0.14 })], stages: wyGlowStages }),
+  wyPart({ id: 'stormcloud', slot: 'glow', name: 'Storm cloud', tags: ['cloud'], dom: 0.5, w: 2, extra: [P(wyPuffPath(-20, 18, 22, 9, 4), 'k', { ns: true, op: 0.22 }), P(wyPuffPath(18, 22, 20, 9, 4), 'k', { ns: true, op: 0.22 }), P(wyPuffPath(0, 26, 18, 8, 3), 'w', { ns: true, op: 0.14 }), L('M-30,-30 L-36,-16 L-30,-14 L-38,0', 'a', 2, { op: 0.8 })], stages: wyGlowStages }),
+  wyPart({ id: 'sparkles', slot: 'glow', name: 'Sparkles', tags: ['fairy'], dom: 0.45, w: 2, extra: [E(0, 0, 50, 32, 'a', { ns: true, op: 0.1 }), ...[[-58, -22], [-50, 14], [56, -18], [58, 16], [-10, -42], [22, -40], [-30, 40], [30, 38]].flatMap(([x, y]) => [P(sparklePath(x, y, 5), 'a', { ns: true, op: 0.85 }), C(x, y, 1.6, 'w', { ns: true, op: 0.6 })])], stages: wyGlowStages }),
+  wyPart({ id: 'rays', slot: 'glow', name: 'Rays', tags: ['sun'], dom: 0.5, w: 2, extra: [E(0, 0, 56, 36, 'a', { ns: true, op: 0.14 }), ...[-70, -40, -10, 20, 50, 80, 110, 140, 170, 200, 230, 260].map((a) => { const r = (a * Math.PI) / 180; return L(`M${(Math.cos(r) * 40).toFixed(1)},${(Math.sin(r) * 26).toFixed(1)} L${(Math.cos(r) * 68).toFixed(1)},${(Math.sin(r) * 44).toFixed(1)}`, 'a', 2, { op: 0.3 }); })], stages: wyGlowStages }),
+  wyPart({ id: 'mist', slot: 'glow', name: 'Mist', tags: ['soft'], dom: 0.5, w: 2, extra: [E(-20, 14, 34, 16, 'w', { ns: true, op: 0.12 }), E(16, 18, 36, 14, 'w', { ns: true, op: 0.12 }), E(0, 24, 50, 10, 'w', { ns: true, op: 0.1 }), E(0, -6, 60, 36, 'a', { ns: true, op: 0.08 })], stages: wyGlowStages }),
+  wyPart({ id: 'embers', slot: 'glow', name: 'Embers', tags: ['fire'], dom: 0.5, w: 2, extra: [E(0, 4, 56, 36, 'a', { ns: true, op: 0.1 }), ...[[-54, -10], [-44, -30], [-20, -40], [10, -44], [36, -34], [54, -14], [50, 12], [-50, 16]].map(([x, y], i) => C(x, y, i % 2 ? 1.6 : 2.4, 'a', { ns: true, op: 0.8 }))], stages: wyGlowStages }),
+];
+
+const WY_BANDS = [
+  NONE('bands', 0.3, 'w.'),
+  wyPart({ id: 'rings', slot: 'bands', name: 'Rings', tags: ['band'], dom: 0.5, w: 3, extra: [...[-32, -12, 8, 28].map((x) => P(`M${x},-30 L${x + 7},-30 L${x + 5},30 L${x - 2},30 Z`, 'k', { ns: true, op: 0.18 }))] }),
+  wyPart({ id: 'belly', slot: 'bands', name: 'Belly plates', tags: ['belly'], dom: 0.5, w: 2, extra: [P('M-50,10 C-25,18 25,18 50,10 L50,30 L-50,30 Z', 'w', { ns: true, op: 0.3 }), L('M-40,20 L40,20 M-44,16 L44,16 M-36,24 L36,24', 'k', 0.8, { op: 0.16 })] }),
+  wyPart({ id: 'diamonds', slot: 'bands', name: 'Diamonds', tags: ['pattern'], dom: 0.5, w: 2, extra: [...[-36, -18, 0, 18, 36].map((x) => P(diamondPath(x, -4, 12, 18), 'a', { ns: true, op: 0.7 }))] }),
+  wyPart({ id: 'stripes', slot: 'bands', name: 'Stripes', tags: ['stripe'], dom: 0.5, w: 2, extra: [L('M-40,-30 L-30,30 M-24,-30 L-14,30 M-8,-30 L2,30 M8,-30 L18,30 M24,-30 L34,30', 'k', 3, { op: 0.18 })] }),
+  wyPart({ id: 'spots', slot: 'bands', name: 'Spots', tags: ['dots'], dom: 0.5, w: 2, extra: [...[[-36, -8], [-24, 6], [-14, -12], [0, 2], [12, -10], [24, 8], [36, -4], [-6, 14], [18, -22], [-30, -22]].map(([x, y], i) => C(x, y, i % 3 ? 2.6 : 3.6, 'ad', { ns: true, op: 0.55 }))] }),
+  wyPart({ id: 'scales', slot: 'bands', name: 'Scales', tags: ['scale'], dom: 0.5, w: 2, extra: [L([-24, -12, 0, 12, 24].map((y) => `M-50,${y} ${[-40, -30, -20, -10, 0, 10, 20, 30, 40, 50].map((x) => `A5,5 0 0 0 ${x},${y}`).join(' ')}`).join(' '), 'k', 0.9, { op: 0.22 })] }),
+  wyPart({ id: 'dorsal', slot: 'bands', name: 'Dorsal wash', tags: ['dark'], dom: 0.5, w: 2, extra: [P('M-50,-30 L50,-30 L50,-12 C25,-4 -25,-4 -50,-12 Z', 'k', { ns: true, op: 0.16 }), L('M-44,-8 L44,-8', 'w', 0.8, { op: 0.2 })] }),
+];
+
+// ---- src/data/parts/wyrm/index.js ----
+// The wyrm library, one list per rig slot.
+
+
+
+
+
+
+
+const WYRM_PARTS = {
+  body: WY_BODIES, head: WY_HEADS, eyes: WY_EYES, maw: WY_MAWS, whiskers: WY_WHISKERS, legs: WY_LEGS,
+  tail: WY_TAILS, mane: WY_MANES, plates: WY_PLATES, horns: WY_HORNS, glow: WY_GLOW, bands: WY_BANDS,
+};
+
 // ---- src/data/parts/index.js ----
 // Part registry. Part ids are stable forever: a saved creature must decode the
 // same way after the library grows, so never rename or reuse an id.
 //
 // Parts are grouped by rig, then slot. A part fits any body of its own rig
 // unless it lists the body kinds it accepts in `fit`.
+
 
 
 
@@ -7408,6 +7747,7 @@ const RIG_PARTS = {
   flora: FLORA_PARTS,
   ooze: OOZE_PARTS,
   fungus: FUNGUS_PARTS,
+  wyrm: WYRM_PARTS,
 };
 
 const PARTS = new Map();
@@ -9243,6 +9583,159 @@ const SPECIES = [
     abilities: ['purebred','thorn_hide'],
     desc: 'Grew from a spore that landed on a sleeping dragon and stayed for the warmth. It picked up habits.',
   },
+  // ---- Roster expansion: wyrms ----
+  {
+    id: 'wyrmling', name: 'Wyrmling', nameParts: ['Wyrm', 'ling'], clade: 'wyrm', rig: 'wyrm', types: ['Dragon'], tier: 'common', bst: 400,
+    stats: { hp: 0.15, melee: 0.2, ranged: 0.08, magic: 0.08, meleeDef: 0.12, rangedDef: 0.11, magicDef: 0.1, spe: 0.16 },
+    recipe: { body: 'w.body.serpent', head: 'w.head.sleek', eyes: 'w.eyes.round', maw: 'w.maw.grin', whiskers: ['w.whiskers.short', 'w.whiskers.none'], legs: 'w.legs.claw', tail: 'w.tail.taper', mane: ['w.mane.ridge', 'w.mane.none'], plates: 'w.plates.none', horns: ['w.horns.nubs', 'w.horns.none'], glow: 'w.glow.none', bands: ['w.bands.belly', 'w.bands.none'] },
+    palette: { c1: [150, 45, 42], c2: [50, 50, 75], c3: [40, 85, 60], eye: [45, 90, 55] }, vary: { h: 10, s: 8, l: 6 },
+    traits: T([0.3, 0.55], MID, [0.3, 0.5], [0.5, 0.75], MID, [0.55, 0.85]),
+    learnset: [[1,'bump'],[1,'glare'],[6,'swipe'],[11,'wyrm_breath'],[16,'headbonk'],[22,'wyrm_claw'],[28,'whetting'],[34,'wyrm_rush'],[40,'wyrm_dance'],[46,'rampage'],[52,'comet_roar']],
+    abilities: ['purebred','grit'],
+    desc: 'A hatchling wyrm, all coil and confidence. It has not learned to fly yet and does not believe you when you say it cannot.',
+  },
+  {
+    id: 'stormcoil', name: 'Stormcoil', nameParts: ['Storm', 'coil'], clade: 'wyrm', rig: 'wyrm', types: ['Electric', 'Dragon'], tier: 'uncommon', bst: 440,
+    stats: { hp: 0.13, melee: 0.07, ranged: 0.09, magic: 0.21, meleeDef: 0.1, rangedDef: 0.11, magicDef: 0.11, spe: 0.18 },
+    recipe: { body: 'w.body.hover', head: 'w.head.serpent', eyes: 'w.eyes.glow', maw: 'w.maw.snarl', whiskers: ['w.whiskers.long', 'w.whiskers.none'], legs: 'w.legs.stub', tail: 'w.tail.fin', mane: ['w.mane.spines', 'w.mane.none'], plates: 'w.plates.none', horns: ['w.horns.straight', 'w.horns.none'], glow: ['w.glow.stormcloud', 'w.glow.none'], bands: ['w.bands.stripes', 'w.bands.none'] },
+    palette: { c1: [220, 55, 50], c2: [50, 90, 70], c3: [55, 100, 60], eye: [55, 100, 60] }, vary: { h: 8, s: 6, l: 5 },
+    paint: { mane: 4, whiskers: 4 },
+    traits: T([0.35, 0.6], MID, [0.3, 0.5], [0.6, 0.9], MID, [0.5, 0.75]),
+    learnset: [[1,'zap'],[1,'glare'],[6,'arc_beam'],[11,'wyrm_breath'],[16,'static_net'],[22,'quicken'],[28,'voltage'],[34,'wyrm_pulse'],[40,'wyrm_dance'],[46,'plasma_burst'],[52,'comet_roar']],
+    abilities: ['storm_heart','quick_start'],
+    desc: 'Rides the front of every thunderstorm and takes credit for the lightning. Sometimes it deserves it.',
+  },
+  {
+    id: 'tidewyrm', name: 'Tidewyrm', nameParts: ['Tide', 'wyrm'], clade: 'wyrm', rig: 'wyrm', types: ['Water', 'Dragon'], tier: 'uncommon', bst: 435,
+    stats: { hp: 0.15, melee: 0.07, ranged: 0.08, magic: 0.2, meleeDef: 0.11, rangedDef: 0.12, magicDef: 0.13, spe: 0.14 },
+    recipe: { body: 'w.body.coil', head: 'w.head.wide', eyes: 'w.eyes.round', maw: 'w.maw.beard', whiskers: ['w.whiskers.droop', 'w.whiskers.none'], legs: 'w.legs.fin', tail: 'w.tail.fin', mane: ['w.mane.fins', 'w.mane.none'], plates: ['w.plates.scales', 'w.plates.none'], horns: ['w.horns.curved', 'w.horns.none'], glow: 'w.glow.none', bands: ['w.bands.scales', 'w.bands.none'] },
+    palette: { c1: [200, 60, 45], c2: [185, 45, 70], c3: [40, 60, 80], eye: [200, 80, 45] }, vary: { h: 8, s: 6, l: 5 },
+    paint: { mane: 3, tail: 3 },
+    traits: T([0.35, 0.6], MID, [0.3, 0.5], [0.6, 0.9], MID, [0.5, 0.75]),
+    learnset: [[1,'squirt'],[1,'glare'],[6,'ripple'],[11,'wyrm_breath'],[16,'water_jet'],[22,'brace'],[28,'tidal_wave'],[34,'wyrm_pulse'],[40,'wyrm_dance'],[46,'maelstrom'],[52,'comet_roar']],
+    abilities: ['tide_heart','mirror_scale'],
+    desc: 'Pulls the tide in with its coils and lets it out again when it is bored. Fishermen set their clocks by it.',
+  },
+  {
+    id: 'sandwyrm', name: 'Sandwyrm', nameParts: ['Sand', 'wyrm'], clade: 'wyrm', rig: 'wyrm', types: ['Ground', 'Dragon'], tier: 'uncommon', bst: 445,
+    stats: { hp: 0.18, melee: 0.18, ranged: 0.06, magic: 0.05, meleeDef: 0.17, rangedDef: 0.14, magicDef: 0.12, spe: 0.1 },
+    recipe: { body: 'w.body.stout', head: 'w.head.blunt', eyes: 'w.eyes.sleepy', maw: 'w.maw.fangs', whiskers: 'w.whiskers.none', legs: 'w.legs.paw', tail: 'w.tail.spiked', mane: 'w.mane.none', plates: ['w.plates.scutes', 'w.plates.none'], horns: ['w.horns.ram', 'w.horns.none'], glow: 'w.glow.none', bands: ['w.bands.rings', 'w.bands.none'] },
+    palette: { c1: [35, 45, 55], c2: [30, 35, 75], c3: [20, 70, 45], eye: [40, 80, 50] }, vary: { h: 8, s: 5, l: 6 },
+    traits: T([0.45, 0.7], MID, [0.35, 0.55], [0.5, 0.75], MID, [0.35, 0.55]),
+    learnset: [[1,'bump'],[1,'mud_fling'],[6,'stampede'],[11,'wyrm_breath'],[16,'brace'],[22,'wyrm_claw'],[28,'bull_rush'],[34,'wyrm_rush'],[40,'dust_kick'],[46,'quake_stomp'],[52,'rampage']],
+    abilities: ['stonewall','thick_skull'],
+    desc: 'Swims through dunes the way others swim through water. Surfaces under caravans, mostly by accident.',
+  },
+  {
+    id: 'frostwyrm', name: 'Frostwyrm', nameParts: ['Frost', 'wyrm'], clade: 'wyrm', rig: 'wyrm', types: ['Ice', 'Dragon'], tier: 'uncommon', bst: 435,
+    stats: { hp: 0.14, melee: 0.08, ranged: 0.2, magic: 0.1, meleeDef: 0.1, rangedDef: 0.12, magicDef: 0.11, spe: 0.15 },
+    recipe: { body: 'w.body.arch', head: 'w.head.sleek', eyes: 'w.eyes.gem', maw: 'w.maw.snarl', whiskers: ['w.whiskers.forked', 'w.whiskers.none'], legs: 'w.legs.talon', tail: 'w.tail.spade', mane: ['w.mane.frill', 'w.mane.none'], plates: ['w.plates.ridges', 'w.plates.none'], horns: ['w.horns.antler', 'w.horns.none'], glow: ['w.glow.mist', 'w.glow.none'], bands: ['w.bands.diamonds', 'w.bands.none'] },
+    palette: { c1: [200, 35, 68], c2: [210, 25, 90], c3: [260, 50, 72], eye: [215, 70, 45] }, vary: { h: 8, s: 6, l: 5 },
+    paint: { mane: 3, horns: 3 },
+    traits: T([0.35, 0.6], MID, [0.3, 0.5], [0.55, 0.85], MID, [0.45, 0.7]),
+    learnset: [[1,'sleet'],[1,'glare'],[6,'icicle_dart'],[11,'wyrm_breath'],[16,'hail_volley'],[22,'whetting'],[28,'glacier_toss'],[34,'wyrm_dance'],[40,'brace'],[46,'star_breath'],[52,'whiteout']],
+    abilities: ['frost_heart','warm_core'],
+    desc: 'Its breath is the first frost of the year. Where it sleeps the lakes stay frozen into summer.',
+  },
+  {
+    id: 'emberwyrm', name: 'Emberwyrm', nameParts: ['Ember', 'wyrm'], clade: 'wyrm', rig: 'wyrm', types: ['Fire', 'Dragon'], tier: 'common', bst: 410,
+    stats: { hp: 0.14, melee: 0.08, ranged: 0.2, magic: 0.1, meleeDef: 0.1, rangedDef: 0.11, magicDef: 0.11, spe: 0.16 },
+    recipe: { body: 'w.body.serpent', head: 'w.head.beaked', eyes: 'w.eyes.fierce', maw: 'w.maw.roar', whiskers: ['w.whiskers.wavy', 'w.whiskers.none'], legs: 'w.legs.claw', tail: 'w.tail.flame', mane: ['w.mane.flames', 'w.mane.none'], plates: 'w.plates.none', horns: ['w.horns.straight', 'w.horns.none'], glow: ['w.glow.embers', 'w.glow.none'], bands: ['w.bands.dorsal', 'w.bands.none'] },
+    palette: { c1: [12, 80, 48], c2: [35, 90, 65], c3: [50, 100, 58], eye: [50, 100, 60] }, vary: { h: 8, s: 5, l: 5 },
+    paint: { mane: 4, tail: 4 },
+    traits: T([0.3, 0.55], MID, [0.3, 0.5], [0.55, 0.85], MID, [0.45, 0.7]),
+    learnset: [[1,'cinder'],[1,'glare'],[6,'kindle_rush'],[11,'wyrm_breath'],[16,'flare'],[22,'whetting'],[28,'fire_stream'],[34,'heat_wave'],[40,'wyrm_dance'],[46,'star_breath'],[52,'meltdown']],
+    abilities: ['ember_heart','damp_coat'],
+    desc: 'A coal that grew scales and a grudge. Curls up in forges and hisses at the smith.',
+  },
+  {
+    id: 'mistwyrm', name: 'Mistwyrm', nameParts: ['Mist', 'wyrm'], clade: 'wyrm', rig: 'wyrm', types: ['Flying', 'Dragon'], tier: 'common', bst: 405,
+    stats: { hp: 0.13, melee: 0.06, ranged: 0.2, magic: 0.1, meleeDef: 0.09, rangedDef: 0.11, magicDef: 0.1, spe: 0.21 },
+    recipe: { body: 'w.body.hover', head: 'w.head.serpent', eyes: 'w.eyes.round', maw: 'w.maw.smile', whiskers: ['w.whiskers.long', 'w.whiskers.none'], legs: 'w.legs.stub', tail: 'w.tail.tuft', mane: ['w.mane.fur', 'w.mane.none'], plates: 'w.plates.none', horns: ['w.horns.nubs', 'w.horns.none'], glow: ['w.glow.mist', 'w.glow.none'], bands: 'w.bands.none' },
+    palette: { c1: [195, 38, 66], c2: [200, 25, 88], c3: [280, 45, 70], eye: [210, 60, 45] }, vary: { h: 8, s: 6, l: 5 },
+    paint: { mane: 3, tail: 3 },
+    traits: T([0.3, 0.55], MID, [0.3, 0.45], [0.6, 0.9], MID, [0.55, 0.85]),
+    learnset: [[1,'gale'],[1,'glare'],[6,'slipstream'],[11,'wyrm_breath'],[16,'preen'],[22,'wind_cutter'],[28,'quicken'],[34,'star_breath'],[40,'wyrm_dance'],[46,'tempest_shot'],[52,'comet_roar']],
+    abilities: ['hover','finesse'],
+    desc: 'Made of morning fog and moving faster than it. By the time you have seen it, it has been through your pockets.',
+  },
+  {
+    id: 'jadewyrm', name: 'Jadewyrm', nameParts: ['Jade', 'wyrm'], clade: 'wyrm', rig: 'wyrm', types: ['Grass', 'Dragon'], tier: 'uncommon', bst: 430,
+    stats: { hp: 0.15, melee: 0.08, ranged: 0.07, magic: 0.21, meleeDef: 0.12, rangedDef: 0.11, magicDef: 0.13, spe: 0.13 },
+    recipe: { body: 'w.body.rearing', head: 'w.head.lion', eyes: 'w.eyes.sleepy', maw: 'w.maw.beard', whiskers: ['w.whiskers.long', 'w.whiskers.none'], legs: 'w.legs.paw', tail: 'w.tail.tuft', mane: ['w.mane.feathers', 'w.mane.none'], plates: ['w.plates.gems', 'w.plates.none'], horns: ['w.horns.antler', 'w.horns.none'], glow: 'w.glow.none', bands: ['w.bands.belly', 'w.bands.none'] },
+    palette: { c1: [150, 50, 40], c2: [45, 50, 80], c3: [40, 85, 60], eye: [40, 90, 55] }, vary: { h: 8, s: 6, l: 5 },
+    paint: { mane: 4, horns: 4 },
+    traits: T([0.4, 0.65], MID, [0.3, 0.5], [0.6, 0.9], MID, [0.45, 0.7]),
+    learnset: [[1,'seed_volley'],[1,'glare'],[6,'drowse_dust'],[11,'wyrm_breath'],[16,'sap_drain'],[22,'photosynth'],[28,'wyrm_pulse'],[34,'brace'],[40,'wyrm_dance'],[46,'sunlance'],[52,'comet_roar']],
+    abilities: ['regrowth','steady'],
+    desc: 'Coils around old temples and lets the vines grow over it. Asks riddles, and is patient about the answers.',
+  },
+  {
+    id: 'ironwyrm', name: 'Ironwyrm', nameParts: ['Iron', 'wyrm'], clade: 'wyrm', rig: 'wyrm', types: ['Steel', 'Dragon'], tier: 'uncommon', bst: 450,
+    stats: { hp: 0.16, melee: 0.19, ranged: 0.06, magic: 0.05, meleeDef: 0.18, rangedDef: 0.15, magicDef: 0.11, spe: 0.1 },
+    recipe: { body: 'w.body.stout', head: 'w.head.blunt', eyes: 'w.eyes.bead', maw: 'w.maw.fangs', whiskers: 'w.whiskers.none', legs: 'w.legs.hook', tail: 'w.tail.spade', mane: 'w.mane.none', plates: ['w.plates.shell', 'w.plates.none'], horns: ['w.horns.crown', 'w.horns.none'], glow: 'w.glow.none', bands: ['w.bands.rings', 'w.bands.none'] },
+    palette: { c1: [210, 12, 55], c2: [200, 10, 75], c3: [30, 80, 55], eye: [30, 90, 55] }, vary: { h: 10, s: 4, l: 6 },
+    paint: { plates: 4 },
+    traits: T([0.45, 0.7], MID, [0.35, 0.55], [0.5, 0.75], MID, [0.35, 0.55]),
+    learnset: [[1,'bolt_jab'],[1,'glare'],[6,'iron_claw'],[11,'wyrm_breath'],[16,'plate_up'],[22,'wyrm_claw'],[28,'steel_ram'],[34,'wyrm_rush'],[40,'grind_screech'],[46,'comet_fist'],[52,'rampage']],
+    abilities: ['iron_hide','bulwark'],
+    desc: 'Sleeps in mine shafts and wakes up wearing the ore. Knights have been known to mistake it for a rival.',
+  },
+  {
+    id: 'shadowcoil', name: 'Shadowcoil', nameParts: ['Shadow', 'coil'], clade: 'wyrm', rig: 'wyrm', types: ['Dark', 'Dragon'], tier: 'uncommon', bst: 430,
+    stats: { hp: 0.13, melee: 0.21, ranged: 0.08, magic: 0.06, meleeDef: 0.11, rangedDef: 0.11, magicDef: 0.1, spe: 0.2 },
+    recipe: { body: 'w.body.coil', head: 'w.head.sleek', eyes: 'w.eyes.slit', maw: 'w.maw.snarl', whiskers: ['w.whiskers.short', 'w.whiskers.none'], legs: 'w.legs.talon', tail: 'w.tail.curl', mane: ['w.mane.spines', 'w.mane.none'], plates: 'w.plates.none', horns: ['w.horns.curved', 'w.horns.none'], glow: 'w.glow.none', bands: ['w.bands.stripes', 'w.bands.none'] },
+    palette: { c1: [265, 25, 30], c2: [280, 20, 48], c3: [345, 75, 55], eye: [345, 90, 60] }, vary: { h: 10, s: 4, l: 5 },
+    paint: { horns: 4, mane: 4 },
+    traits: T([0.3, 0.55], MID, [0.3, 0.5], [0.6, 0.9], MID, [0.4, 0.6]),
+    learnset: [[1,'swipe'],[1,'sneer'],[6,'blindside'],[11,'wyrm_breath'],[16,'cheap_shot'],[22,'wyrm_claw'],[28,'dusk_slash'],[34,'scheme'],[40,'wyrm_rush'],[46,'crush_bite'],[52,'night_volley']],
+    abilities: ['keen_edge','swagger'],
+    desc: 'Lives in the shadow of things and moves when they do. You will hear the coils a moment before you see the eyes.',
+  },
+  {
+    id: 'gloomwyrm', name: 'Gloomwyrm', nameParts: ['Gloom', 'wyrm'], clade: 'wyrm', rig: 'wyrm', types: ['Ghost', 'Dragon'], tier: 'rare', bst: 460,
+    stats: { hp: 0.14, melee: 0.06, ranged: 0.08, magic: 0.22, meleeDef: 0.1, rangedDef: 0.11, magicDef: 0.15, spe: 0.14 },
+    recipe: { body: 'w.body.hover', head: 'w.head.frilled', eyes: 'w.eyes.glow', maw: 'w.maw.roar', whiskers: ['w.whiskers.droop', 'w.whiskers.none'], legs: 'w.legs.stub', tail: 'w.tail.flame', mane: ['w.mane.flames', 'w.mane.none'], plates: 'w.plates.none', horns: ['w.horns.crest', 'w.horns.none'], glow: ['w.glow.aura', 'w.glow.none'], bands: ['w.bands.dorsal', 'w.bands.none'] },
+    palette: { c1: [180, 25, 45], c2: [170, 20, 70], c3: [120, 70, 60], eye: [120, 95, 60] }, vary: { h: 10, s: 5, l: 5 },
+    paint: { mane: 4, tail: 4, glow: 4 },
+    traits: T([0.35, 0.6], MID, [0.3, 0.45], [0.6, 0.9], MID, [0.5, 0.75]),
+    learnset: [[1,'cold_lick'],[1,'glare'],[6,'wraith_touch'],[11,'wyrm_breath'],[16,'curse_bolt'],[22,'haunt'],[28,'umbral_orb'],[34,'wyrm_pulse'],[40,'wyrm_dance'],[46,'comet_roar'],[52,'dread_pulse']],
+    abilities: ['restless','mirror_scale'],
+    desc: 'The ghost of a wyrm that never got its hoard. It guards an empty cave with great ceremony.',
+  },
+  {
+    id: 'pearlwyrm', name: 'Pearlwyrm', nameParts: ['Pearl', 'wyrm'], clade: 'wyrm', rig: 'wyrm', types: ['Fairy', 'Dragon'], tier: 'rare', bst: 460,
+    stats: { hp: 0.16, melee: 0.05, ranged: 0.08, magic: 0.2, meleeDef: 0.11, rangedDef: 0.12, magicDef: 0.15, spe: 0.13 },
+    recipe: { body: 'w.body.arch', head: 'w.head.lion', eyes: 'w.eyes.gem', maw: 'w.maw.smile', whiskers: ['w.whiskers.curled', 'w.whiskers.none'], legs: 'w.legs.paw', tail: 'w.tail.tuft', mane: ['w.mane.fur', 'w.mane.none'], plates: ['w.plates.gems', 'w.plates.none'], horns: ['w.horns.antler', 'w.horns.none'], glow: ['w.glow.sparkles', 'w.glow.none'], bands: ['w.bands.spots', 'w.bands.none'] },
+    palette: { c1: [340, 35, 82], c2: [45, 40, 92], c3: [190, 60, 70], eye: [200, 70, 50] }, vary: { h: 8, s: 6, l: 4 },
+    paint: { mane: 3, horns: 4 },
+    traits: T([0.35, 0.6], MID, [0.3, 0.5], [0.6, 0.9], MID, [0.55, 0.85]),
+    learnset: [[1,'glitter_gust'],[1,'glare'],[6,'mind_jolt'],[11,'wyrm_breath'],[16,'doe_eyes'],[22,'moonbathe'],[28,'dazzle'],[34,'wyrm_pulse'],[40,'wyrm_dance'],[46,'lunar_burst'],[52,'comet_roar']],
+    abilities: ['lucky_streak','steady'],
+    desc: 'Carries a pearl it will not show anyone. Brings luck to the humble and headaches to the greedy.',
+  },
+  {
+    id: 'cavewyrm', name: 'Cavewyrm', nameParts: ['Cave', 'wyrm'], clade: 'wyrm', rig: 'wyrm', types: ['Rock', 'Dragon'], tier: 'common', bst: 415,
+    stats: { hp: 0.17, melee: 0.18, ranged: 0.06, magic: 0.05, meleeDef: 0.17, rangedDef: 0.15, magicDef: 0.11, spe: 0.11 },
+    recipe: { body: 'w.body.knot', head: 'w.head.wide', eyes: 'w.eyes.bead', maw: 'w.maw.grin', whiskers: 'w.whiskers.none', legs: 'w.legs.claw', tail: 'w.tail.spiked', mane: ['w.mane.ridge', 'w.mane.none'], plates: ['w.plates.scutes', 'w.plates.none'], horns: ['w.horns.nubs', 'w.horns.none'], glow: 'w.glow.none', bands: ['w.bands.spots', 'w.bands.none'] },
+    palette: { c1: [30, 25, 45], c2: [35, 20, 62], c3: [190, 50, 60], eye: [190, 80, 55] }, vary: { h: 8, s: 5, l: 6 },
+    paint: { mane: 4, plates: 2 },
+    traits: T([0.4, 0.65], MID, [0.3, 0.5], [0.5, 0.75], MID, [0.4, 0.6]),
+    learnset: [[1,'bump'],[1,'pebble_barrage'],[6,'rock_smash'],[11,'wyrm_breath'],[16,'brace'],[22,'wyrm_claw'],[28,'boulder_bash'],[34,'smooth_stone'],[40,'wyrm_rush'],[46,'rampage'],[52,'shard_spire']],
+    abilities: ['stone_heart','thick_skull'],
+    desc: 'Ties itself in knots in the dark and untangles when something edible walks in. The crystals are not for sale.',
+  },
+  {
+    id: 'sagecoil', name: 'Sagecoil', nameParts: ['Sage', 'coil'], clade: 'wyrm', rig: 'wyrm', types: ['Psychic', 'Dragon'], tier: 'rare', bst: 465,
+    stats: { hp: 0.15, melee: 0.05, ranged: 0.08, magic: 0.23, meleeDef: 0.1, rangedDef: 0.11, magicDef: 0.15, spe: 0.13 },
+    recipe: { body: 'w.body.coil', head: 'w.head.frilled', eyes: 'w.eyes.glow', maw: 'w.maw.beard', whiskers: ['w.whiskers.wavy', 'w.whiskers.none'], legs: 'w.legs.stub', tail: 'w.tail.curl', mane: ['w.mane.frill', 'w.mane.none'], plates: ['w.plates.gems', 'w.plates.none'], horns: ['w.horns.crown', 'w.horns.none'], glow: ['w.glow.halo', 'w.glow.none'], bands: ['w.bands.diamonds', 'w.bands.none'] },
+    palette: { c1: [45, 60, 60], c2: [40, 50, 85], c3: [280, 60, 60], eye: [280, 80, 55] }, vary: { h: 8, s: 6, l: 5 },
+    paint: { head: 3, mane: 4, glow: 4 },
+    traits: T([0.35, 0.6], MID, [0.3, 0.45], [0.6, 0.9], MID, [0.5, 0.75]),
+    learnset: [[1,'mind_jolt'],[1,'glare'],[6,'meditate'],[11,'wyrm_breath'],[16,'thought_beam'],[22,'lull'],[28,'psi_shock'],[34,'wyrm_pulse'],[40,'blank_mind'],[46,'comet_roar'],[52,'psystorm']],
+    abilities: ['hawkeye','mirror_scale'],
+    desc: 'Has been thinking about one question for nine hundred years and is nearly ready to ask it.',
+  },
 ];
 
 const SPECIES_BY_ID = Object.fromEntries(SPECIES.map((s) => [s.id, s]));
@@ -9909,6 +10402,7 @@ const CLADES = {
   flora: { name: 'Flora', plural: 'Flora', linked: [['leaves', 'roots']], desc: 'Walking plants. Stems, blooms, leaves and roots.' },
   ooze: { name: 'Ooze', plural: 'Oozes', linked: [['pseudopods', 'base']], desc: 'Living slime. A core, a puddle and whatever it swallowed.' },
   fungus: { name: 'Fungus', plural: 'Fungi', linked: [['head', 'roots']], desc: 'Walking mushrooms. A cap for a hat, a face on the stalk, roots for feet.' },
+  wyrm: { name: 'Wyrm', plural: 'Wyrms', linked: [['mane', 'tail']], desc: 'Serpentine dragons. Long coils, whiskers, small legs and long tails.' },
 };
 
 const CLADE_IDS = Object.keys(CLADES);
@@ -10406,6 +10900,8 @@ const SLOT_FAMILY = {
   core: 'face', pseudopods: 'limb', drips: 'face', tendrils: 'tail', base: 'fur', inclusions: 'flat', sheen: 'flat', bumps: 'fur',
   // fungus
   spores: 'fur', ring: 'face', shelves: 'fur', veil: 'fur',
+  // wyrm
+  maw: 'face', whiskers: 'crown', plates: 'fur', bands: 'flat',
 };
 function growthFor(slot) { return SLOT_GROWTH[SLOT_FAMILY[slot] || 'face']; }
 
@@ -10725,6 +11221,15 @@ POSES.fungus = {
   poise: { body: { da: -4, dy: -2 }, head: { da: -3, dy: -1 }, spores: { dy: -4, ds: 1.06 }, ring: { ds: 1.04 }, gills: { ds: 1.02 } },
   attack: { body: { da: 8, dx: 6 }, head: { da: 6, dx: 4 }, roots: { da: -12, far: { da: -6 } }, spores: { dx: 6, dy: -4, ds: 1.15 }, mouth: { ds: 1.15 }, gills: { ds: 1.08 } },
   hurt: { body: { da: -10, dx: -4 }, head: { da: -8, dx: -3 }, roots: { da: 10, far: { da: 6 } }, spores: { dy: 4 }, veil: { da: 6 }, shelves: { da: -6 } },
+};
+
+POSES.wyrm = {
+  stand: {},
+  brace: { body: { da: 3, dx: 2 }, head: { da: 5, dx: 2 }, legs: { da: -6, far: { da: -2 } }, tail: { da: 10 }, whiskers: { da: 6 } },
+  crouch: { body: { dy: 5, da: 2 }, head: { dy: 2, da: 3 }, legs: { ds: 0.88 }, tail: { da: 14 }, mane: { ds: 0.96 } },
+  poise: { body: { da: -4, dy: -2 }, head: { da: -8, dy: -2 }, legs: { da: 4 }, tail: { da: -6 }, mane: { ds: 1.06 }, whiskers: { da: -10 } },
+  attack: { body: { da: 5, dx: 6 }, head: { da: -6, dx: 5 }, maw: { ds: 1.2 }, legs: { da: -22, far: { da: -10 } }, tail: { da: 18 }, whiskers: { da: 14 }, mane: { ds: 1.06 } },
+  hurt: { body: { da: -8, dx: -4 }, head: { da: -14, dx: -3 }, legs: { da: 12, far: { da: 8 } }, tail: { da: -10 }, whiskers: { da: -18 }, horns: { da: -8 } },
 };
 
 /** The slot deltas of a pose on a rig ({} for an unknown pose or 'stand'). */
@@ -13241,7 +13746,7 @@ const TILE = { grass: 0, habitat: 1, path: 2, wall: 3, water: 4, hub: 5, lair: 6
 const WALKABLE_TILES = new Set([TILE.grass, TILE.habitat, TILE.path, TILE.hub, TILE.door, TILE.camp, TILE.spireDoor, TILE.shrine, TILE.marketDoor, TILE.storageDoor]);
 
 /** Biomes in difficulty order, clockwise from the south of the hub. Levels climb 5 to the fifties; the gaps in the ladder are for classes still to come. */
-const BIOME_ORDER = ['mammal', 'amphibian', 'flora', 'insect', 'fungus', 'bird', 'ooze', 'fish', 'invertebrate', 'reptile'];
+const BIOME_ORDER = ['mammal', 'amphibian', 'flora', 'insect', 'fungus', 'bird', 'ooze', 'fish', 'wyrm', 'invertebrate', 'reptile'];
 
 /** Per-class region: name, wild level, palette and the look of its walls. */
 const REGIONS = {
@@ -13253,6 +13758,7 @@ const REGIONS = {
   invertebrate: { name: 'Murk Hollow',    level: 45, ground: '#5a5470', ground2: '#524c68', habitat: '#443f5c', path: '#8c8494', water: '#3b3f6e', wall: 'rock',     wallColor: '#3a3448', accent: '#b98cff', waterT: 0.62, warden: 'Warden Gloam',  badge: 'Hollow Badge' },
   flora:        { name: 'Bramble Wilds',  level: 14, ground: '#5f9a3d', ground2: '#578f3a', habitat: '#3f7d31', path: '#c4ad76', water: '#3f86b8', wall: 'hedge',    wallColor: '#3b6b2a', accent: '#f2a5c8', waterT: 0.66, warden: 'Warden Bryony', badge: 'Bramble Badge' },
   fungus:       { name: 'Sporewood',      level: 23, ground: '#7a7f5c', ground2: '#70754f', habitat: '#5b5f47', path: '#c7b48a', water: '#4e7aa0', wall: 'tree',     wallColor: '#5a4a6a', accent: '#d9a3ff', waterT: 0.6,  warden: 'Warden Morel',  badge: 'Spore Badge' },
+  wyrm:         { name: 'Coiling Gorge',  level: 41, ground: '#8a8570', ground2: '#807b66', habitat: '#6b6a52', path: '#d2c39a', water: '#4f8fb8', wall: 'rock',     wallColor: '#5c5548', accent: '#8fd3ff', waterT: 0.62, warden: 'Warden Tempest', badge: 'Gorge Badge' },
   ooze:         { name: 'Slurry Sump',    level: 32, ground: '#7a8a4c', ground2: '#707f45', habitat: '#55703a', path: '#c0b27e', water: '#7fb84f', wall: 'rock',     wallColor: '#4c4a3e', accent: '#b6f06a', waterT: 0.6,  warden: 'Warden Dreg',   badge: 'Sump Badge' },
   reptile:      { name: 'Ember Scar',     level: 50, ground: '#9c6b4a', ground2: '#906244', habitat: '#7a4d38', path: '#d0a878', water: '#e0562a', wall: 'rock',     wallColor: '#5a3a2c', accent: '#ff9a4a', waterT: 0.7,  warden: 'Warden Cinder', badge: 'Scar Badge' },
 };
@@ -13402,6 +13908,7 @@ const TRAINER_TITLES = {
   flora: ['Gardener', 'Hedge Witch', 'Orchard Keeper'],
   ooze: ['Sump Dredger', 'Slime Wrangler', 'Vat Keeper'],
   fungus: ['Forager', 'Spore Sweeper', 'Cellar Keeper'],
+  wyrm: ['Storm Chaser', 'Ridge Runner', 'Kite Flyer'],
 };
 const TRAINER_LINES = {
   mammal: ['My team was raised on these downs. Care for a bout?', 'Fur and fang against whatever you have. Fight?'],
@@ -13414,6 +13921,7 @@ const TRAINER_LINES = {
   flora: ['Everything in the Wilds grows back. Your pride might not. Fight?', 'My team put down roots here. Try pulling them up.'],
   ooze: ['Mind the puddles. Some of them mind you back. Fight?', 'My team has no bones to break. How about yours?'],
   fungus: ['Everything down here is quietly eating something. Fight?', 'Breathe shallow and battle quick. Ready?'],
+  wyrm: ['Feel that wind? That is my team breathing. Fight?', 'Up here the sky bites back. Battle?'],
 };
 const TRAINER_AFTER = ['Good match. Come back stronger.', 'Well fought. The Warden is another matter.', 'You earned that one.', 'My team will remember you.'];
 

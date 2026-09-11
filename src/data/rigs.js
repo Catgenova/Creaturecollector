@@ -494,6 +494,58 @@ RIGS.fungus = {
   },
 };
 
+RIGS.wyrm = {
+  id: 'wyrm', name: 'Wyrm', prefix: 'w.',
+  slots: ['body', 'head', 'eyes', 'maw', 'whiskers', 'legs', 'tail', 'mane', 'plates', 'horns', 'glow', 'bands'],
+  names: {
+    body: 'Coil', head: 'Head', eyes: 'Eyes', maw: 'Maw', whiskers: 'Whiskers', legs: 'Legs',
+    tail: 'Tail', mane: 'Mane', plates: 'Plates', horns: 'Horns', glow: 'Glow', bands: 'Bands',
+  },
+  paint: ['body', 'head', 'whiskers', 'legs', 'tail', 'mane', 'plates', 'horns', 'glow', 'bands'],
+  swappable: ['whiskers', 'mane', 'plates', 'horns', 'glow', 'bands'],
+  required: ['body', 'head', 'eyes', 'maw', 'legs', 'tail'],
+  linked: [['head', 'maw'], ['mane', 'tail']],
+  ground: ['body', 'legs'],
+  clipped: ['bands'],
+  // One leg part stands at four sockets: a front and a hind pair, near and far.
+  tree: {
+    slot: 'body', anim: 'body',
+    behind: [
+      { slot: 'glow', fitBox: true },
+      { slot: 'mane', socket: 'mane', anim: 'sway' },
+      { slot: 'tail', socket: 'tail', scale: 'tail', anim: 'tail' },
+      { slot: 'legs', socket: 'legBackFar', far: true, scale: 'leg' },
+      { slot: 'legs', socket: 'legFar', far: true, scale: 'leg' },
+    ],
+    front: [
+      { slot: 'plates', socket: 'plates' },
+      { slot: 'legs', socket: 'legBack', scale: 'leg' },
+      { slot: 'legs', socket: 'leg', scale: 'leg' },
+      {
+        slot: 'head', socket: 'head', scale: 'head', anim: 'head',
+        behind: [
+          { slot: 'horns', socket: 'horns' },
+          { slot: 'whiskers', socket: 'whiskerFar', far: true, small: true },
+        ],
+        front: [
+          { slot: 'eyes', socket: 'eyeFar', far: true, scale: 'eye', small: true },
+          { slot: 'eyes', socket: 'eye', scale: 'eye', small: true },
+          { slot: 'maw', socket: 'maw', small: true },
+          { slot: 'whiskers', socket: 'whisker', small: true },
+        ],
+      },
+    ],
+  },
+  mannequin: {
+    parts: {
+      body: 'w.body.serpent', head: 'w.head.sleek', eyes: 'w.eyes.round', maw: 'w.maw.grin', whiskers: 'w.whiskers.none', legs: 'w.legs.claw',
+      tail: 'w.tail.taper', mane: 'w.mane.none', plates: 'w.plates.none', horns: 'w.horns.none', glow: 'w.glow.none', bands: 'w.bands.none',
+    },
+    forSlot: {},
+    accentSlots: ['whiskers', 'legs', 'tail', 'mane', 'plates', 'horns', 'glow', 'bands'],
+  },
+};
+
 export const RIG_IDS = Object.keys(RIGS);
 
 /** Rig used when a genome names none or an unknown one (old saves): the first class. */
