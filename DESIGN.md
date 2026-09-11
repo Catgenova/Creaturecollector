@@ -626,9 +626,9 @@ into the collection on load.
   camp, spire, spire door, shrine (`TILE`). The Crossroads hub sits in the
   middle (a disc of paving with a camp, the fusion shrine and the Council
   Spire's door). Seven biome centres sit on a ring around it, clockwise from
-  the south, one per class in difficulty order (`BIOME_ORDER`: mammal 6,
-  amphibian 15, insect 24, bird 33, fish 42, invertebrate 51, reptile 60 =
-  wild level, `REGIONS`). Tiles take the nearest centre through jittered
+  the south, one per class in difficulty order (`BIOME_ORDER`: mammal 5,
+  amphibian 12, insect 20, bird 28, fish 36, invertebrate 44, reptile 52 =
+  the wild level at the lair, `REGIONS`). Tiles take the nearest centre through jittered
   coordinates so borders wander. Terrain is value noise per biome: water
   (more in the fen and lagoon), walls drawn as that region's trees, reeds,
   hedges, pines, palms or rocks, and habitat patches. Roads are carved in two
@@ -640,10 +640,12 @@ into the collection on load.
   its species have them. `wildSpawn` weights every wild species by affinity
   (3 for the home class, +2 for the patch's type; strangers 0.03) times tier
   rarity (common 1, uncommon 0.45, rare 0.12), so stronger species are rarer.
-  Level: the local level ±2, where `levelAt` deepens each biome from a
-  quarter of its level at the hub's edge (never below 4) to the full level at
-  its lair, so the hard side of the ring is survivable near town; 14% three to
-  six higher; 4% an **alpha** eight to twelve higher (worth Warden XP). The 1/1000 Elemental roll applies. Each
+  Level: the local level ±2, where `levelAt` starts every biome at level 1
+  to 4 at the hub's edge (a tenth of the region's level, clamped) and deepens
+  to the full level at its lair, so the first steps out of town meet level 1 to
+  5 creatures and the deepest lairs the fifties; 14% a few levels higher and
+  4% an **alpha** (worth Warden XP), both boosts scaling with the area (up to
+  +6 and +14). The 1/1000 Elemental roll applies. Each
   habitat step has a 12% encounter chance, with a four-step cooldown after a
   fight; rolls are seeded by the step count so a replayed save spawns the same.
 - **Trainers.** Four per biome, standing on the road (three on the way in,
@@ -656,7 +658,7 @@ into the collection on load.
   the region's badge (once); rematches are free. Camps (the biome centre and
   the hub) heal fully and set the respawn point.
 - **Council.** The spire opens with seven badges: four fights back to back
-  (`COUNCIL_LEVELS` 66, 70, 74, 80): Marshal Kord (melee species), Ranger
+  (`COUNCIL_LEVELS` 58, 62, 66, 70): Marshal Kord (melee species), Ranger
   Selene (ranged), Oracle Vesh (magic) and Champion Aurel (two gen-2 fusions
   and three rares). Only a 35% heal between fights; a loss ends the run and
   the wipe rule applies. Beating all four sets `champion`; rematches allowed.
@@ -687,8 +689,8 @@ Balance was done with the two simulators, not by feel:
 - A whole-run simulator drove the first tuning while the game was an endless
   arena (it went with the arena). What it settled stays: every species
   learnset follows one curve (a real STAB move by level 6, four moves by 11,
-  coverage in the 20s and 30s, nukes in the 50s), starters at level 8, and an
-  XP constant that keeps low levels pacing the wild level.
+  coverage in the 20s and 30s, nukes in the 50s) and an XP constant that keeps
+  low levels pacing the wild level. Starters set out at level 5.
 - `node scripts/sim.mjs` tournaments (800–1200 games, level 50, 3v3) gave a
   species spread of roughly 36%–67%. Extremes were compressed with base stat
   totals and a few stat weights; Grass and Bug species remain at the bottom

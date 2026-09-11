@@ -7,7 +7,7 @@ import { getMove } from '../data/moves.js';
 import { statsAtLevel, movesAtLevel } from '../battle/stats.js';
 import { MAX_PARTY } from '../battle/engine.js';
 
-export const PARTY = { max: MAX_PARTY, maxLevel: 100, xpK: 7, starterLevel: 8 };
+export const PARTY = { max: MAX_PARTY, maxLevel: 100, xpK: 7, starterLevel: 5 };
 
 export function xpForLevel(L) { return L * L * L; }
 /** XP for defeating (or catching) one foe; Wardens, the Council and alphas pay half again. */

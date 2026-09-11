@@ -29,9 +29,16 @@ test('the world is deterministic, sized and split into seven biomes around a hub
     assert.equal(levelAt(world, b.lair.x, b.lair.y), b.level, `${b.id} lair at full level`);
     assert.ok(levelAt(world, b.camp.x, b.camp.y) < b.level || b.level <= 6, `${b.id} camp below the lair`);
   }
-  let nearMax = 0;
-  for (let y = world.hub.y - 12; y <= world.hub.y + 12; y++) for (let x = world.hub.x - 12; x <= world.hub.x + 12; x++) if (Math.hypot(x - world.hub.x, y - world.hub.y) <= 12) nearMax = Math.max(nearMax, levelAt(world, x, y));
-  assert.ok(nearMax <= 24, `gentle around the crossroads (max ${nearMax})`);
+  let nearMax = 0, edgeMax = 0;
+  for (let y = world.hub.y - 9; y <= world.hub.y + 9; y++) for (let x = world.hub.x - 9; x <= world.hub.x + 9; x++) {
+    const d = Math.hypot(x - world.hub.x, y - world.hub.y);
+    if (d <= 9) nearMax = Math.max(nearMax, levelAt(world, x, y));
+    if (d <= 7) edgeMax = Math.max(edgeMax, levelAt(world, x, y));
+  }
+  assert.ok(edgeMax <= 5, `level 1 to 5 at the town's edge (max ${edgeMax})`);
+  assert.ok(nearMax <= 9, `gentle around the crossroads (max ${nearMax})`);
+  assert.equal(levelAt(world, world.hub.x, world.hub.y + WORLD.hubR + 1), 1, 'the first steps south are level 1');
+  assert.ok(world.biomes[6].level >= 50 && world.biomes[6].level < 60, 'the deepest lair sits in the fifties');
 });
 
 test('every camp, lair, the spire and the shrine can be walked to from the start', () => {
@@ -120,13 +127,13 @@ test('habitats carry the element types of their class and spawns follow class, e
       if (SPECIES_BY_ID[s.genome.species].tier === 'rare') rare++;
       if (s.level > L + 2) strong++;
       assert.equal(s.areaLevel, L);
-      assert.ok(s.level >= L - 2 && s.level <= L + 12, `level ${s.level} at local ${L}`);
+      assert.ok(s.level >= Math.max(1, L - 2) && s.level <= L + 15, `level ${s.level} at local ${L}`);
       assert.doesNotThrow(() => validateGenome(JSON.parse(JSON.stringify(s.genome))));
     }
     assert.ok(home / n > 0.6, `${b.id}: ${home}/${n} at home`);
     assert.ok(typed / n > 0.3, `${b.id}: ${typed}/${n} match the patch element`);
     assert.ok(alpha / n > 0.005 && alpha / n < 0.1, `${b.id}: ${alpha} alphas`);
     assert.ok(rare / n < 0.15, `${b.id}: ${rare} rares`);
-    assert.ok(strong / n > 0.08 && strong / n < 0.3, `${b.id}: ${strong} stronger than the area`);
+    assert.ok(strong / n > 0.06 && strong / n < 0.3, `${b.id}: ${strong} stronger than the area`);
   }
 });

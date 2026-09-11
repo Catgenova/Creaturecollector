@@ -27,22 +27,22 @@ export const BIOME_ORDER = ['mammal', 'amphibian', 'insect', 'bird', 'fish', 'in
 
 /** Per-class region: name, wild level, palette and the look of its walls. */
 export const REGIONS = {
-  mammal:       { name: 'Heather Downs',  level: 6,  ground: '#6d9c4e', ground2: '#63914a', habitat: '#4f8a3e', path: '#c9b27b', water: '#3f7fc4', wall: 'tree',     wallColor: '#3f7332', accent: '#e0c86f', waterT: 0.68, warden: 'Warden Marrow', badge: 'Downs Badge' },
-  amphibian:    { name: 'Sodden Fen',     level: 15, ground: '#5f8c5a', ground2: '#56825a', habitat: '#456f4a', path: '#b3a26f', water: '#3b6f8a', wall: 'reed',     wallColor: '#6a8a3a', accent: '#a7d36a', waterT: 0.56, warden: 'Warden Sedge',  badge: 'Fen Badge' },
-  insect:       { name: 'Hum Meadow',     level: 24, ground: '#8fb050', ground2: '#84a84a', habitat: '#6f9a3c', path: '#d3bd82', water: '#4a94c8', wall: 'hedge',    wallColor: '#4c7d2e', accent: '#f0d25a', waterT: 0.7,  warden: 'Warden Thrum',  badge: 'Meadow Badge' },
-  bird:         { name: 'Windward Crags', level: 33, ground: '#7c8f78', ground2: '#72866f', habitat: '#617a5c', path: '#b9b39a', water: '#4d8fc4', wall: 'pine',     wallColor: '#2f5a44', accent: '#cfe3f0', waterT: 0.68, warden: 'Warden Gale',   badge: 'Crag Badge' },
-  fish:         { name: 'Glass Lagoon',   level: 42, ground: '#d8c68e', ground2: '#cebb84', habitat: '#8fc7d3', path: '#e6d9a8', water: '#3aa7d8', wall: 'palm',     wallColor: '#4f8f5f', accent: '#7fe0ea', waterT: 0.5,  warden: 'Warden Brine',  badge: 'Lagoon Badge' },
-  invertebrate: { name: 'Murk Hollow',    level: 51, ground: '#5a5470', ground2: '#524c68', habitat: '#443f5c', path: '#8c8494', water: '#3b3f6e', wall: 'rock',     wallColor: '#3a3448', accent: '#b98cff', waterT: 0.62, warden: 'Warden Gloam',  badge: 'Hollow Badge' },
-  reptile:      { name: 'Ember Scar',     level: 60, ground: '#9c6b4a', ground2: '#906244', habitat: '#7a4d38', path: '#d0a878', water: '#e0562a', wall: 'rock',     wallColor: '#5a3a2c', accent: '#ff9a4a', waterT: 0.7,  warden: 'Warden Cinder', badge: 'Scar Badge' },
+  mammal:       { name: 'Heather Downs',  level: 5,  ground: '#6d9c4e', ground2: '#63914a', habitat: '#4f8a3e', path: '#c9b27b', water: '#3f7fc4', wall: 'tree',     wallColor: '#3f7332', accent: '#e0c86f', waterT: 0.68, warden: 'Warden Marrow', badge: 'Downs Badge' },
+  amphibian:    { name: 'Sodden Fen',     level: 12, ground: '#5f8c5a', ground2: '#56825a', habitat: '#456f4a', path: '#b3a26f', water: '#3b6f8a', wall: 'reed',     wallColor: '#6a8a3a', accent: '#a7d36a', waterT: 0.56, warden: 'Warden Sedge',  badge: 'Fen Badge' },
+  insect:       { name: 'Hum Meadow',     level: 20, ground: '#8fb050', ground2: '#84a84a', habitat: '#6f9a3c', path: '#d3bd82', water: '#4a94c8', wall: 'hedge',    wallColor: '#4c7d2e', accent: '#f0d25a', waterT: 0.7,  warden: 'Warden Thrum',  badge: 'Meadow Badge' },
+  bird:         { name: 'Windward Crags', level: 28, ground: '#7c8f78', ground2: '#72866f', habitat: '#617a5c', path: '#b9b39a', water: '#4d8fc4', wall: 'pine',     wallColor: '#2f5a44', accent: '#cfe3f0', waterT: 0.68, warden: 'Warden Gale',   badge: 'Crag Badge' },
+  fish:         { name: 'Glass Lagoon',   level: 36, ground: '#d8c68e', ground2: '#cebb84', habitat: '#8fc7d3', path: '#e6d9a8', water: '#3aa7d8', wall: 'palm',     wallColor: '#4f8f5f', accent: '#7fe0ea', waterT: 0.5,  warden: 'Warden Brine',  badge: 'Lagoon Badge' },
+  invertebrate: { name: 'Murk Hollow',    level: 44, ground: '#5a5470', ground2: '#524c68', habitat: '#443f5c', path: '#8c8494', water: '#3b3f6e', wall: 'rock',     wallColor: '#3a3448', accent: '#b98cff', waterT: 0.62, warden: 'Warden Gloam',  badge: 'Hollow Badge' },
+  reptile:      { name: 'Ember Scar',     level: 52, ground: '#9c6b4a', ground2: '#906244', habitat: '#7a4d38', path: '#d0a878', water: '#e0562a', wall: 'rock',     wallColor: '#5a3a2c', accent: '#ff9a4a', waterT: 0.7,  warden: 'Warden Cinder', badge: 'Scar Badge' },
 };
 
 export const HUB = { name: 'Crossroads', ground: '#b8ad8e', paving: '#a89c7e' };
 
 /** Rarity by tier: the stronger a species, the rarer it is in the wild. */
 export const WILD_RARITY = { common: 1, uncommon: 0.45, rare: 0.12 };
-/** Odds of a stronger wild creature: an alpha well above the area level, or one a few levels up. */
-export const WILD_LEVEL = { alpha: 0.04, alphaBoost: [8, 12], strong: 0.14, strongBoost: [3, 6], spread: 2 };
-export const COUNCIL_LEVELS = [66, 70, 74, 80];
+/** Odds of a stronger wild creature: an alpha well above the area level, or one a few levels up (boosts scale with the area, capped). */
+export const WILD_LEVEL = { alpha: 0.04, alphaMax: 12, strong: 0.14, strongMax: 6, spread: 2 };
+export const COUNCIL_LEVELS = [58, 62, 66, 70];
 /** Odds that a wild creature is born of an element (a knob so tests can force it). */
 export const WILD_ELEMENTAL = { chance: ELEMENTAL_CHANCE };
 
@@ -78,16 +78,17 @@ export function isWalkable(world, x, y) { return WALKABLE_TILES.has(tileAt(world
 export function isHubTile(world, x, y) { const dx = x - world.hub.x, dy = y - world.hub.y; return dx * dx + dy * dy <= WORLD.hubR * WORLD.hubR; }
 
 /**
- * The wild level at a tile. Each biome deepens from the Crossroads to its lair: about a third
- * of the region's level at the hub's edge (a quarter, never below 4), the full level at the lair. So the
- * ring's hard side is survivable near town and the danger reads on the HUD as you walk out.
+ * The wild level at a tile. Every biome starts gentle at the Crossroads (level 1 to 4 at the edge, a
+ * tenth of the region's level clamped, so the first patches are level 1 to 5) and deepens to the region's full level at its lair, so the first
+ * steps out of town meet level 1 to 5 creatures and the deepest lairs reach the fifties. The HUD
+ * shows the local level as you walk out.
  */
 export function levelAt(world, x, y) {
   const b = biomeAt(world, x, y);
   const d = Math.hypot(x - world.hub.x, y - world.hub.y);
   const t = Math.max(0, Math.min(1, (d - WORLD.hubR) / (WORLD.lairR - WORLD.hubR)));
-  const edge = Math.max(4, b.level * 0.25);
-  return Math.round(edge + (b.level - edge) * t);
+  const edge = Math.max(1, Math.min(4, Math.round(b.level * 0.1)));
+  return Math.max(1, Math.round(edge + (b.level - edge) * t));
 }
 
 /** Shortest walk from `from` to `to` (list of steps excluding the start), or null. Trainers block; `to` may be a trainer tile, in which case the path stops next to it. */
@@ -149,9 +150,10 @@ export function wildSpawn(world, x, y, rng) {
   const L = levelAt(world, x, y);
   const r = rng.next();
   let level = L + rng.between(-WILD_LEVEL.spread, WILD_LEVEL.spread), alpha = false;
-  if (r < WILD_LEVEL.alpha) { level = L + rng.between(WILD_LEVEL.alphaBoost[0], WILD_LEVEL.alphaBoost[1]); alpha = true; }
-  else if (r < WILD_LEVEL.alpha + WILD_LEVEL.strong) level = L + rng.between(WILD_LEVEL.strongBoost[0], WILD_LEVEL.strongBoost[1]);
-  level = Math.max(2, Math.min(100, level));
+  // the boosts scale with the area so an alpha near town is a handful, not a wall
+  if (r < WILD_LEVEL.alpha) { level = L + Math.min(WILD_LEVEL.alphaMax, 3 + Math.round(L * 0.3)) + rng.between(0, 2); alpha = true; }
+  else if (r < WILD_LEVEL.alpha + WILD_LEVEL.strong) level = L + Math.min(WILD_LEVEL.strongMax, 2 + Math.round(L * 0.15)) + rng.between(0, 1);
+  level = Math.max(1, Math.min(100, level));
   const elemental = rollElemental(genome, rng.fork('elemental'), WILD_ELEMENTAL.chance);
   return { genome, level, alpha, elemental, type, biome: biome.id, areaLevel: L };
 }
@@ -205,7 +207,7 @@ function trainersFor(rng, world, biome, spots) {
       const pool = k === 0 || r.chance(0.75) ? home : WILD_SPECIES; // the lead is always from the home class
       const sp = pickSpecies(r.fork(`s${k}`), pool, false, used);
       const L = levelAt(world, spot.x, spot.y);
-      team.push({ genome: speciesGenome(sp, r.fork(`g${k}`)), level: Math.max(2, Math.min(100, L + (i === 3 ? 1 + r.int(2) : r.between(-1, 1)))) });
+      team.push({ genome: speciesGenome(sp, r.fork(`g${k}`)), level: Math.max(1, Math.min(100, L + (i === 3 ? 1 + r.int(2) : r.between(-1, 1)))) });
     }
     out.push({
       id: `${clade}-${i}`, biome: clade, name: `${r.pick(TRAINER_TITLES[clade])} ${names[i % names.length]}`, x: spot.x, y: spot.y, dir: spot.dir || 'down',
