@@ -5,7 +5,7 @@ import { SPECIES_BY_ID } from '../src/data/species.js';
 import { getMove } from '../src/data/moves.js';
 import { speciesGenome, learnsetOf } from '../src/creature/genome.js';
 import { createBattle, makeBattler, captureChance, legalActions, step } from '../src/battle/engine.js';
-import { PARTY, XP, xpForLevel, xpReward, makeMember, memberMaxHp, xpProgress, gainXp, movesLearnedBetween, learnMove, healParty, moveMember, setLead, canFight, memberById, releaseMember } from '../src/game/party.js';
+import { PARTY, XP, xpForLevel, xpReward, makeMember, memberMaxHp, xpProgress, gainXp, movesLearnedBetween, learnMove, healParty, moveMember, setLead, canFight, memberById, releaseMember, renameMember, setLocked, NAME_MAX } from '../src/game/party.js';
 
 const ember = (seed, level = 8) => makeMember(speciesGenome(SPECIES_BY_ID.emberox, makeRng(seed)), level, `u-${seed}`);
 
@@ -116,4 +116,23 @@ test('release lets a creature go from the party or the box, but never the last o
   assert.equal(last.ok, false); assert.match(last.reason, /at least one/);
   assert.equal(owner.party.length, 1);
   assert.equal(memberById(owner, 'u-r2'), null);
+});
+
+test('rename trims and caps a nickname; lock keeps a creature from release', () => {
+  const owner = { party: [ember('n1'), ember('n2')], box: [] };
+  assert.equal(renameMember(owner, 'nobody', 'X').ok, false);
+  assert.deepEqual(renameMember(owner, 'u-n1', '  Big   Red \n'), { ok: true, name: 'Big Red' });
+  assert.equal(owner.party[0].genome.name, 'Big Red');
+  assert.equal(renameMember(owner, 'u-n1', '   ').ok, false, 'empty names are refused');
+  assert.equal(owner.party[0].genome.name, 'Big Red');
+  const long = renameMember(owner, 'u-n1', 'A'.repeat(40));
+  assert.equal(long.name.length, NAME_MAX);
+  assert.deepEqual(setLocked(owner, 'u-n2', true), { ok: true, locked: true });
+  assert.equal(owner.party[1].locked, true);
+  const r = releaseMember(owner, 'u-n2');
+  assert.equal(r.ok, false); assert.match(r.reason, /locked/);
+  assert.equal(owner.party.length, 2);
+  assert.deepEqual(setLocked(owner, 'u-n2', false), { ok: true, locked: false });
+  assert.equal(releaseMember(owner, 'u-n2').ok, true);
+  assert.equal(setLocked(owner, 'nobody', true).ok, false);
 });

@@ -30,7 +30,7 @@ function cleanMember(m) {
   const level = Math.max(1, Math.min(100, Math.round(m.level)));
   let moves = Array.isArray(m.moves) ? m.moves.filter((id) => typeof id === 'string' && getMove(id)).slice(0, 4) : [];
   if (!moves.length) moves = movesAtLevel(learnsetOf(m.genome), level);
-  return { uid: String(m.uid || ''), genome: m.genome, level, xp: Number.isFinite(m.xp) ? m.xp : 0, hp: Number.isFinite(m.hp) ? Math.max(0, m.hp) : 1, status: m.status || null, moves };
+  return { uid: String(m.uid || ''), genome: m.genome, level, xp: Number.isFinite(m.xp) ? m.xp : 0, hp: Number.isFinite(m.hp) ? Math.max(0, m.hp) : 1, status: m.status || null, moves, locked: Boolean(m.locked) };
 }
 
 /** Coerce any parsed object into a valid save, dropping anything broken. */

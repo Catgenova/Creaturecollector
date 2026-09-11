@@ -274,6 +274,7 @@ export function canFuseJourney(j, uidA, uidB) {
   const a = memberOf(j, uidA), b = memberOf(j, uidB);
   if (!a || !b) return { ok: false, reason: 'Pick two creatures.' };
   if (a === b) return { ok: false, reason: 'Pick two different creatures.' };
+  if (a.locked || b.locked) return { ok: false, reason: `${(a.locked ? a : b).genome.name} is locked. Unlock it first.` };
   return canFuse(a.genome, b.genome);
 }
 
@@ -288,8 +289,7 @@ export function previewShrineFusion(j, uidA, uidB) {
 /** Fuse two members at the shrine. Both are consumed; the child takes the higher level and full health. */
 export function shrineFuse(j, uidA, uidB) {
   const a = memberOf(j, uidA), b = memberOf(j, uidB);
-  if (!a || !b || a === b) throw new Error('Pick two different creatures.');
-  const compat = canFuse(a.genome, b.genome);
+  const compat = canFuseJourney(j, uidA, uidB);
   if (!compat.ok) throw new Error(compat.reason);
   if (j.party.length + j.box.length <= 2 && j.party.includes(a) && j.party.includes(b) && j.party.length === 2 && j.box.length === 0) {
     // fusing the whole party is fine: the child is the party

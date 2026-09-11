@@ -55,8 +55,10 @@ button, input, select, textarea { font: inherit; }
 .sheet-head { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
 .sheet h2 { margin: 0; font-size: 20px; }
 .sheet .close { margin-left: auto; min-width: var(--tap); padding: 0; }
-.sheet-head .head-release { margin-left: auto; }
-.sheet-head .head-release + .close { margin-left: 0; }
+.sheet-head .head-actions { margin-left: auto; display: inline-flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end; }
+.sheet-head .head-actions + .close { margin-left: 0; }
+.sheet-head .name-in { font-size: 18px; font-weight: 700; width: 11ch; max-width: 45vw; padding: 4px 8px; }
+.status.lock { background: var(--acc); color: #14151c; }
 .hero { display: flex; justify-content: center; }
 .hero { min-height: 200px; align-items: center; }
 .hero svg { width: min(72vw, 280px); max-height: 46dvh; height: auto; }

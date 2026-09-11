@@ -66,8 +66,10 @@ button, input, select, textarea { font: inherit; }
 .sheet-head { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
 .sheet h2 { margin: 0; font-size: 20px; }
 .sheet .close { margin-left: auto; min-width: var(--tap); padding: 0; }
-.sheet-head .head-release { margin-left: auto; }
-.sheet-head .head-release + .close { margin-left: 0; }
+.sheet-head .head-actions { margin-left: auto; display: inline-flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end; }
+.sheet-head .head-actions + .close { margin-left: 0; }
+.sheet-head .name-in { font-size: 18px; font-weight: 700; width: 11ch; max-width: 45vw; padding: 4px 8px; }
+.status.lock { background: var(--acc); color: #14151c; }
 .hero { display: flex; justify-content: center; }
 .hero { min-height: 200px; align-items: center; }
 .hero svg { width: min(72vw, 280px); max-height: 46dvh; height: auto; }
@@ -9390,19 +9392,70 @@ function abilityCard(g) {
   return h('div', { class: 'ability-card' }, h('small', {}, 'Passive skill'), h('b', {}, a ? a.name : 'None'), h('span', {}, a ? a.desc : 'This creature has no passive skill.'));
 }
 
+const optVal = (v) => (typeof v === 'function' ? v() : v);
+
 /**
  * Release, in the sheet head beside the close button: two taps, the second within a few seconds.
- * opts = { can, reason?, onRelease() -> boolean }; the sheet closes when onRelease reports success.
+ * opts = { can, reason?, onRelease() -> boolean } (can and reason may be functions, re-read on refresh);
+ * the sheet closes when onRelease reports success.
  */
 function releaseButton(opts, close) {
   let armed = false, timer = 0;
-  const paint = () => { btn.textContent = armed ? 'Really release?' : 'Release'; btn.classList.toggle('danger', armed); };
-  const btn = h('button', { class: 'btn small head-release', type: 'button', disabled: !opts.can, title: opts.can ? 'Let this creature go for good; it stays in your Collection' : (opts.reason || ''), onclick: () => {
+  const paint = () => {
+    const can = optVal(opts.can);
+    btn.disabled = !can;
+    btn.title = can ? 'Let this creature go for good; it stays in your Collection' : (optVal(opts.reason) || '');
+    btn.textContent = armed ? 'Really release?' : 'Release';
+    btn.classList.toggle('danger', armed);
+  };
+  const btn = h('button', { class: 'btn small head-release', type: 'button', onclick: () => {
     if (!armed) { armed = true; paint(); clearTimeout(timer); timer = setTimeout(() => { armed = false; if (btn.isConnected) paint(); }, 4000); return; }
     clearTimeout(timer); armed = false;
     if (opts.onRelease()) close(); else paint();
   } }, '');
   paint();
+  btn.refresh = paint;
+  return btn;
+}
+
+/** Lock toggle: a locked creature cannot be released or fused. opts = { locked, onToggle() -> { ok, locked } }. */
+function lockButton(opts, afterToggle) {
+  const paint = () => {
+    const locked = optVal(opts.locked);
+    btn.textContent = locked ? 'Locked' : 'Lock';
+    btn.classList.toggle('on', locked);
+    btn.title = locked ? 'Locked: cannot be released or fused. Tap to unlock.' : 'Lock against release and fusion';
+  };
+  const btn = h('button', { class: 'btn small', type: 'button', onclick: () => { const r = opts.onToggle(); if (r && r.ok) { paint(); if (afterToggle) afterToggle(); } } }, '');
+  paint();
+  return btn;
+}
+
+/**
+ * Rename: turns the title into a text box; Enter or the Save button keeps the new name, Escape gives up.
+ * opts = { onRename(name) -> { ok, reason?, name } }.
+ */
+function renameButton(g, opts, titleEl, sheetEl) {
+  let editing = false, input = null;
+  const stop = () => { editing = false; if (input) input.remove(); input = null; titleEl.hidden = false; btn.textContent = 'Rename'; };
+  const save = () => {
+    if (!input) return;
+    const r = opts.onRename(input.value);
+    if (!r || !r.ok) { input.focus(); return; }
+    titleEl.textContent = r.name;
+    if (sheetEl) sheetEl.setAttribute('aria-label', r.name);
+    stop();
+  };
+  const btn = h('button', { class: 'btn small', type: 'button', onclick: () => {
+    if (editing) { save(); return; }
+    editing = true;
+    input = h('input', { class: 'seed name-in', type: 'text', value: titleEl.textContent, maxlength: '16', 'aria-label': 'New name', autocapitalize: 'words', autocomplete: 'off', spellcheck: 'false',
+      onkeydown: (e) => { if (e.key === 'Enter') { e.preventDefault(); save(); } else if (e.key === 'Escape') { e.preventDefault(); stop(); } } });
+    titleEl.hidden = true;
+    titleEl.after(input);
+    btn.textContent = 'Save';
+    input.focus(); input.select();
+  } }, 'Rename');
   return btn;
 }
 
@@ -9422,14 +9475,19 @@ function openSheet(g, sheetOpts = {}) {
   activeSheet = close;
   const onKey = (e) => { if (e.key === 'Escape') close(); };
   const backdrop = h('div', { class: 'sheet-backdrop', onclick: close });
+  const title = h('h2', {}, g.name, g.shiny ? ' ✦' : '');
+  const releaseBtn = sheetOpts.release ? releaseButton(sheetOpts.release, close) : null;
   const sheet = h('section', { class: 'sheet', role: 'dialog', 'aria-modal': 'true', 'aria-label': g.name },
     h('div', { class: 'grab' }),
     h('div', { class: 'sheet-head' },
-      h('h2', {}, g.name, g.shiny ? ' ✦' : ''),
+      title,
       typeChips(g.types),
       styleChip(g),
       elementalBadge(g),
-      sheetOpts.release ? releaseButton(sheetOpts.release, close) : null,
+      sheetOpts.lock || sheetOpts.rename || releaseBtn ? h('span', { class: 'head-actions' },
+        sheetOpts.lock ? lockButton(sheetOpts.lock, () => { if (releaseBtn) releaseBtn.refresh(); }) : null,
+        sheetOpts.rename ? renameButton(g, sheetOpts.rename, title, null) : null,
+        releaseBtn) : null,
       h('button', { class: 'btn close', onclick: close, 'aria-label': 'Close' }, '✕')),
     h('p', { class: 'meta' }, sp ? `${sp.name} · ${sp.tier}` : 'Fusion', ` · ${cladeName(cladeOf(g))} · gen ${g.gen} · seed ${g.seed}`),
     abilityCard(g),
@@ -11442,7 +11500,7 @@ function cleanMember(m) {
   const level = Math.max(1, Math.min(100, Math.round(m.level)));
   let moves = Array.isArray(m.moves) ? m.moves.filter((id) => typeof id === 'string' && getMove(id)).slice(0, 4) : [];
   if (!moves.length) moves = movesAtLevel(learnsetOf(m.genome), level);
-  return { uid: String(m.uid || ''), genome: m.genome, level, xp: Number.isFinite(m.xp) ? m.xp : 0, hp: Number.isFinite(m.hp) ? Math.max(0, m.hp) : 1, status: m.status || null, moves };
+  return { uid: String(m.uid || ''), genome: m.genome, level, xp: Number.isFinite(m.xp) ? m.xp : 0, hp: Number.isFinite(m.hp) ? Math.max(0, m.hp) : 1, status: m.status || null, moves, locked: Boolean(m.locked) };
 }
 
 /** Coerce any parsed object into a valid save, dropping anything broken. */
@@ -11657,10 +11715,30 @@ function moveMember(owner, uid, to) {
   return owner;
 }
 
-/** Let a creature go for good, from the party or the box. The party always keeps at least one. { ok, reason?, member? } */
+const NAME_MAX = 16;
+/** Nickname a creature: trimmed, single-spaced, 1 to 16 characters. { ok, reason?, name } */
+function renameMember(owner, uid, name) {
+  const m = memberById(owner, uid);
+  if (!m) return { ok: false, reason: 'No such creature.' };
+  const clean = String(name == null ? '' : name).replace(/[\u0000-\u001f\u007f]/g, '').replace(/\s+/g, ' ').trim().slice(0, NAME_MAX);
+  if (!clean) return { ok: false, reason: 'Give it a name.' };
+  m.genome.name = clean;
+  return { ok: true, name: clean };
+}
+
+/** Lock a creature against release and fusion, or unlock it. { ok, reason?, locked } */
+function setLocked(owner, uid, locked) {
+  const m = memberById(owner, uid);
+  if (!m) return { ok: false, reason: 'No such creature.' };
+  m.locked = Boolean(locked);
+  return { ok: true, locked: m.locked };
+}
+
+/** Let a creature go for good, from the party or the box. The party always keeps at least one; locked creatures stay. { ok, reason?, member? } */
 function releaseMember(owner, uid) {
   const m = memberById(owner, uid);
   if (!m) return { ok: false, reason: 'No such creature.' };
+  if (m.locked) return { ok: false, reason: `${m.genome.name} is locked. Unlock it first.` };
   if (owner.party.includes(m)) {
     if (owner.party.length <= 1) return { ok: false, reason: 'Keep at least one creature with you.' };
     owner.party = owner.party.filter((x) => x !== m);
@@ -12123,6 +12201,7 @@ function canFuseJourney(j, uidA, uidB) {
   const a = memberOf(j, uidA), b = memberOf(j, uidB);
   if (!a || !b) return { ok: false, reason: 'Pick two creatures.' };
   if (a === b) return { ok: false, reason: 'Pick two different creatures.' };
+  if (a.locked || b.locked) return { ok: false, reason: `${(a.locked ? a : b).genome.name} is locked. Unlock it first.` };
   return canFuse(a.genome, b.genome);
 }
 
@@ -12137,8 +12216,7 @@ function previewShrineFusion(j, uidA, uidB) {
 /** Fuse two members at the shrine. Both are consumed; the child takes the higher level and full health. */
 function shrineFuse(j, uidA, uidB) {
   const a = memberOf(j, uidA), b = memberOf(j, uidB);
-  if (!a || !b || a === b) throw new Error('Pick two different creatures.');
-  const compat = canFuse(a.genome, b.genome);
+  const compat = canFuseJourney(j, uidA, uidB);
   if (!compat.ok) throw new Error(compat.reason);
   if (j.party.length + j.box.length <= 2 && j.party.includes(a) && j.party.includes(b) && j.party.length === 2 && j.box.length === 0) {
     // fusing the whole party is fine: the child is the party
@@ -12592,7 +12670,7 @@ function owMemberRow(j, m, actions) {
     creatureEl(m.genome, { size: 64, animate: false, level: m.level }),
     h('div', { class: 'party-info' },
       h('div', {}, h('b', {}, m.genome.name), ' ', h('span', { class: 'lvl' }, `Lv ${m.level}`), stageBadge(m.level), ' ',
-        m.status ? h('span', { class: `status st-${m.status}` }, STATUS_INFO[m.status].short) : null, m.hp <= 0 ? h('span', { class: 'status' }, 'FAINTED') : null),
+        m.status ? h('span', { class: `status st-${m.status}` }, STATUS_INFO[m.status].short) : null, m.hp <= 0 ? h('span', { class: 'status' }, 'FAINTED') : null, m.locked ? h('span', { class: 'status lock', title: 'Cannot be released or fused' }, 'LOCKED') : null),
       h('div', { class: 'hpbar' }, h('i', { class: frac > 0.5 ? 'ok' : frac > 0.2 ? 'warn' : 'low', style: { width: `${Math.max(0, frac * 100)}%` } })),
       h('div', { class: 'xpline' }, xpRow(xp), h('span', { class: 'xpnum' }, xp.next > xp.prev ? `${xp.cur - xp.prev} / ${xp.next - xp.prev}` : 'MAX')),
       h('div', { class: 'move-chips' }, (m.moves || []).map((id) => { const mv = getMove(id); return mv ? h('span', { class: 'chip', style: { '--chip': TYPE_INFO[mv.type].color } }, mv.name) : null; })),
@@ -12601,10 +12679,10 @@ function owMemberRow(j, m, actions) {
 
 /** Release: tap once to arm (the button changes in place), again within a few seconds to let the creature go. The party keeps at least one. */
 function owReleaseBtn(j, m, render) {
-  const disabled = j.party.includes(m) && j.party.length <= 1;
+  const block = owReleaseBlock(j, m);
   const armed = () => ow.confirmRelease === m.uid;
   const paint = () => { btn.textContent = armed() ? 'Really release?' : 'Release'; btn.classList.toggle('danger', armed()); };
-  const btn = h('button', { class: 'btn small', type: 'button', disabled, title: disabled ? 'Keep at least one creature with you.' : '', onclick: () => {
+  const btn = h('button', { class: 'btn small', type: 'button', disabled: Boolean(block), title: block, onclick: () => {
     if (!armed()) {
       ow.confirmRelease = m.uid;
       paint();
@@ -12623,20 +12701,49 @@ function owReleaseBtn(j, m, render) {
   return btn;
 }
 
-/** What the Info sheet needs to offer Release for a journey member: whether it may go, why not, and what to do when it does. */
-function owReleaseOpts(j, m, render) {
-  const last = j.party.includes(m) && j.party.length <= 1;
+/** Why a member cannot be released right now, or '' when it can. */
+function owReleaseBlock(j, m) {
+  if (m.locked) return `${m.genome.name} is locked. Unlock it first.`;
+  if (j.party.includes(m) && j.party.length <= 1) return 'Keep at least one creature with you.';
+  return '';
+}
+
+/** Everything the Info sheet needs for a journey member: level, moves, and the Lock, Rename and Release actions. */
+function owInfoOpts(j, m, render) {
   return {
-    can: !last,
-    reason: last ? 'Keep at least one creature with you.' : '',
-    onRelease: () => {
-      const r = releaseMember(j, m.uid);
-      if (!r.ok) { toast(r.reason); return false; }
-      ow.confirmRelease = null;
-      owSave();
-      toast(`${m.genome.name} was released. It stays in your Collection.`);
-      render();
-      return true;
+    level: m.level,
+    moves: m.moves,
+    lock: {
+      locked: () => Boolean(m.locked),
+      onToggle: () => {
+        const r = setLocked(j, m.uid, !m.locked);
+        if (!r.ok) { toast(r.reason); return r; }
+        owSave(); render();
+        toast(r.locked ? `${m.genome.name} is locked: it cannot be released or fused.` : `${m.genome.name} is unlocked.`);
+        return r;
+      },
+    },
+    rename: {
+      onRename: (name) => {
+        const r = renameMember(j, m.uid, name);
+        if (!r.ok) { toast(r.reason); return r; }
+        owSave(); render();
+        toast(`Renamed to ${r.name}.`);
+        return r;
+      },
+    },
+    release: {
+      can: () => !owReleaseBlock(j, m),
+      reason: () => owReleaseBlock(j, m),
+      onRelease: () => {
+        const r = releaseMember(j, m.uid);
+        if (!r.ok) { toast(r.reason); return false; }
+        ow.confirmRelease = null;
+        owSave();
+        toast(`${m.genome.name} was released. It stays in your Collection.`);
+        render();
+        return true;
+      },
     },
   };
 }
@@ -12649,7 +12756,7 @@ function owPartySheet(j) {
     const partyList = h('div', { class: 'party-list' });
     j.party.forEach((m, i) => partyList.append(owMemberRow(j, m, [
       btn('Lead', () => { setLead(j, m.uid); owSave(); render(); }, i === 0),
-      btn('Info', () => openSheet(m.genome, { level: m.level, moves: m.moves, release: owReleaseOpts(j, m, render) })),
+      btn('Info', () => openSheet(m.genome, owInfoOpts(j, m, render))),
       owReleaseBtn(j, m, render),
     ])));
     appendChildren(body, [
@@ -12857,13 +12964,13 @@ function owStorageSheet(j) {
     j.party.forEach((m, i) => partyList.append(owMemberRow(j, m, [
       btn('Lead', () => { setLead(j, m.uid); owSave(); render(); }, i === 0),
       btn('Deposit', () => { moveMember(j, m.uid, 'box'); owSave(); render(); }, j.party.length <= 1),
-      btn('Info', () => openSheet(m.genome, { level: m.level, moves: m.moves, release: owReleaseOpts(j, m, render) })),
+      btn('Info', () => openSheet(m.genome, owInfoOpts(j, m, render))),
       owReleaseBtn(j, m, render),
     ])));
     const boxList = h('div', { class: 'party-list' });
     for (const m of j.box) boxList.append(owMemberRow(j, m, [
       btn('Withdraw', () => { moveMember(j, m.uid, 'party'); owSave(); render(); }, j.party.length >= JOURNEY.partyMax),
-      btn('Info', () => openSheet(m.genome, { level: m.level, moves: m.moves, release: owReleaseOpts(j, m, render) })),
+      btn('Info', () => openSheet(m.genome, owInfoOpts(j, m, render))),
       owReleaseBtn(j, m, render),
     ]));
     appendChildren(body, [
@@ -12903,9 +13010,9 @@ function owShrineSheet(j) {
     const anchor = pick.a || pick.b;
     for (const m of all) {
       const tag = pick.a === m.uid ? 'A' : pick.b === m.uid ? 'B' : null;
-      const off = anchor && !tag && !canFuseJourney(j, anchor, m.uid).ok;
+      const off = Boolean(m.locked) || (anchor && !tag && !canFuseJourney(j, anchor, m.uid).ok);
       list.append(h('button', { class: `pcard${tag === 'A' ? ' is-a' : tag === 'B' ? ' is-b' : off ? ' is-off' : ''}`, type: 'button', onclick: () => {
-        if (off) { toast(canFuseJourney(j, anchor, m.uid).reason); return; }
+        if (off) { toast(m.locked ? `${m.genome.name} is locked. Unlock it in Info first.` : canFuseJourney(j, anchor, m.uid).reason); return; }
         if (pick.a === m.uid) pick.a = null; else if (pick.b === m.uid) pick.b = null; else if (!pick.a) pick.a = m.uid; else pick.b = m.uid;
         render();
       } }, tag ? h('span', { class: `sel badge ${tag.toLowerCase()}` }, tag) : null, h('span', { class: 'gen' }, cladeName(cladeOf(m.genome))), creatureEl(m.genome, { size: 104, animate: false, level: m.level }), h('span', {}, `${m.genome.name} · Lv ${m.level}`)));

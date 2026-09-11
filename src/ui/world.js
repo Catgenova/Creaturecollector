@@ -10,7 +10,7 @@ import { mountFight, xpRow } from './fight.js';
 import { STATUS_INFO } from '../battle/engine.js';
 import { stageOf, stageName } from '../data/evolution.js';
 import { loadSave, persistSave, exportSave, importSave, recordCollection, retireJourney } from '../game/save.js';
-import { memberMaxHp, xpProgress, learnMove, moveMember, setLead, canFight, releaseMember } from '../game/party.js';
+import { memberMaxHp, xpProgress, learnMove, moveMember, setLead, canFight, releaseMember, renameMember, setLocked } from '../game/party.js';
 import { JOURNEY, newJourney, chooseJourneyStarter, tryMove, facing, talkTo, acceptChallenge, challengeWarden, enterSpire, fleeEncounter, buildJourneyBattle, applyJourneyBattle, journeyPlace, badgeList, canFuseJourney, previewShrineFusion, shrineFuse, respawnJourney } from '../game/journey.js';
 import { WORLD, TILE, REGIONS, HUB, worldFor, tileAt, biomeAt, habitatTypeAt, trainerAt, findPath, isHubTile } from '../game/world.js';
 import { TYPE_INFO, TYPE_LIST } from '../data/types.js';
@@ -424,7 +424,7 @@ function owMemberRow(j, m, actions) {
     creatureEl(m.genome, { size: 64, animate: false, level: m.level }),
     h('div', { class: 'party-info' },
       h('div', {}, h('b', {}, m.genome.name), ' ', h('span', { class: 'lvl' }, `Lv ${m.level}`), stageBadge(m.level), ' ',
-        m.status ? h('span', { class: `status st-${m.status}` }, STATUS_INFO[m.status].short) : null, m.hp <= 0 ? h('span', { class: 'status' }, 'FAINTED') : null),
+        m.status ? h('span', { class: `status st-${m.status}` }, STATUS_INFO[m.status].short) : null, m.hp <= 0 ? h('span', { class: 'status' }, 'FAINTED') : null, m.locked ? h('span', { class: 'status lock', title: 'Cannot be released or fused' }, 'LOCKED') : null),
       h('div', { class: 'hpbar' }, h('i', { class: frac > 0.5 ? 'ok' : frac > 0.2 ? 'warn' : 'low', style: { width: `${Math.max(0, frac * 100)}%` } })),
       h('div', { class: 'xpline' }, xpRow(xp), h('span', { class: 'xpnum' }, xp.next > xp.prev ? `${xp.cur - xp.prev} / ${xp.next - xp.prev}` : 'MAX')),
       h('div', { class: 'move-chips' }, (m.moves || []).map((id) => { const mv = getMove(id); return mv ? h('span', { class: 'chip', style: { '--chip': TYPE_INFO[mv.type].color } }, mv.name) : null; })),
@@ -433,10 +433,10 @@ function owMemberRow(j, m, actions) {
 
 /** Release: tap once to arm (the button changes in place), again within a few seconds to let the creature go. The party keeps at least one. */
 function owReleaseBtn(j, m, render) {
-  const disabled = j.party.includes(m) && j.party.length <= 1;
+  const block = owReleaseBlock(j, m);
   const armed = () => ow.confirmRelease === m.uid;
   const paint = () => { btn.textContent = armed() ? 'Really release?' : 'Release'; btn.classList.toggle('danger', armed()); };
-  const btn = h('button', { class: 'btn small', type: 'button', disabled, title: disabled ? 'Keep at least one creature with you.' : '', onclick: () => {
+  const btn = h('button', { class: 'btn small', type: 'button', disabled: Boolean(block), title: block, onclick: () => {
     if (!armed()) {
       ow.confirmRelease = m.uid;
       paint();
@@ -455,20 +455,49 @@ function owReleaseBtn(j, m, render) {
   return btn;
 }
 
-/** What the Info sheet needs to offer Release for a journey member: whether it may go, why not, and what to do when it does. */
-function owReleaseOpts(j, m, render) {
-  const last = j.party.includes(m) && j.party.length <= 1;
+/** Why a member cannot be released right now, or '' when it can. */
+function owReleaseBlock(j, m) {
+  if (m.locked) return `${m.genome.name} is locked. Unlock it first.`;
+  if (j.party.includes(m) && j.party.length <= 1) return 'Keep at least one creature with you.';
+  return '';
+}
+
+/** Everything the Info sheet needs for a journey member: level, moves, and the Lock, Rename and Release actions. */
+function owInfoOpts(j, m, render) {
   return {
-    can: !last,
-    reason: last ? 'Keep at least one creature with you.' : '',
-    onRelease: () => {
-      const r = releaseMember(j, m.uid);
-      if (!r.ok) { toast(r.reason); return false; }
-      ow.confirmRelease = null;
-      owSave();
-      toast(`${m.genome.name} was released. It stays in your Collection.`);
-      render();
-      return true;
+    level: m.level,
+    moves: m.moves,
+    lock: {
+      locked: () => Boolean(m.locked),
+      onToggle: () => {
+        const r = setLocked(j, m.uid, !m.locked);
+        if (!r.ok) { toast(r.reason); return r; }
+        owSave(); render();
+        toast(r.locked ? `${m.genome.name} is locked: it cannot be released or fused.` : `${m.genome.name} is unlocked.`);
+        return r;
+      },
+    },
+    rename: {
+      onRename: (name) => {
+        const r = renameMember(j, m.uid, name);
+        if (!r.ok) { toast(r.reason); return r; }
+        owSave(); render();
+        toast(`Renamed to ${r.name}.`);
+        return r;
+      },
+    },
+    release: {
+      can: () => !owReleaseBlock(j, m),
+      reason: () => owReleaseBlock(j, m),
+      onRelease: () => {
+        const r = releaseMember(j, m.uid);
+        if (!r.ok) { toast(r.reason); return false; }
+        ow.confirmRelease = null;
+        owSave();
+        toast(`${m.genome.name} was released. It stays in your Collection.`);
+        render();
+        return true;
+      },
     },
   };
 }
@@ -481,7 +510,7 @@ function owPartySheet(j) {
     const partyList = h('div', { class: 'party-list' });
     j.party.forEach((m, i) => partyList.append(owMemberRow(j, m, [
       btn('Lead', () => { setLead(j, m.uid); owSave(); render(); }, i === 0),
-      btn('Info', () => openSheet(m.genome, { level: m.level, moves: m.moves, release: owReleaseOpts(j, m, render) })),
+      btn('Info', () => openSheet(m.genome, owInfoOpts(j, m, render))),
       owReleaseBtn(j, m, render),
     ])));
     appendChildren(body, [
@@ -689,13 +718,13 @@ function owStorageSheet(j) {
     j.party.forEach((m, i) => partyList.append(owMemberRow(j, m, [
       btn('Lead', () => { setLead(j, m.uid); owSave(); render(); }, i === 0),
       btn('Deposit', () => { moveMember(j, m.uid, 'box'); owSave(); render(); }, j.party.length <= 1),
-      btn('Info', () => openSheet(m.genome, { level: m.level, moves: m.moves, release: owReleaseOpts(j, m, render) })),
+      btn('Info', () => openSheet(m.genome, owInfoOpts(j, m, render))),
       owReleaseBtn(j, m, render),
     ])));
     const boxList = h('div', { class: 'party-list' });
     for (const m of j.box) boxList.append(owMemberRow(j, m, [
       btn('Withdraw', () => { moveMember(j, m.uid, 'party'); owSave(); render(); }, j.party.length >= JOURNEY.partyMax),
-      btn('Info', () => openSheet(m.genome, { level: m.level, moves: m.moves, release: owReleaseOpts(j, m, render) })),
+      btn('Info', () => openSheet(m.genome, owInfoOpts(j, m, render))),
       owReleaseBtn(j, m, render),
     ]));
     appendChildren(body, [
@@ -735,9 +764,9 @@ function owShrineSheet(j) {
     const anchor = pick.a || pick.b;
     for (const m of all) {
       const tag = pick.a === m.uid ? 'A' : pick.b === m.uid ? 'B' : null;
-      const off = anchor && !tag && !canFuseJourney(j, anchor, m.uid).ok;
+      const off = Boolean(m.locked) || (anchor && !tag && !canFuseJourney(j, anchor, m.uid).ok);
       list.append(h('button', { class: `pcard${tag === 'A' ? ' is-a' : tag === 'B' ? ' is-b' : off ? ' is-off' : ''}`, type: 'button', onclick: () => {
-        if (off) { toast(canFuseJourney(j, anchor, m.uid).reason); return; }
+        if (off) { toast(m.locked ? `${m.genome.name} is locked. Unlock it in Info first.` : canFuseJourney(j, anchor, m.uid).reason); return; }
         if (pick.a === m.uid) pick.a = null; else if (pick.b === m.uid) pick.b = null; else if (!pick.a) pick.a = m.uid; else pick.b = m.uid;
         render();
       } }, tag ? h('span', { class: `sel badge ${tag.toLowerCase()}` }, tag) : null, h('span', { class: 'gen' }, cladeName(cladeOf(m.genome))), creatureEl(m.genome, { size: 104, animate: false, level: m.level }), h('span', {}, `${m.genome.name} · Lv ${m.level}`)));

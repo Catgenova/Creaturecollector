@@ -716,8 +716,11 @@ into the collection on load.
   storage, and scrolls teach party members only. Release (Party or Storage
   sheet, or the Release button in the head of the creature's own Info sheet;
   two taps, the button arms in place) lets a creature go for good; the party always keeps at least one,
-  and released creatures remain in the collection. Sheet re-renders keep
-  the scroll position (`owKeepScroll`).
+  and released creatures remain in the collection. The Info head also offers
+  Rename (a nickname of up to 16 characters, stored as the genome's name) and
+  Lock: a locked creature cannot be released or fused at the shrine
+  (`member.locked`, kept by the save). Sheet re-renders keep the scroll
+  position (`owKeepScroll`).
 - **Wipe.** When nobody can fight after a loss the party returns to the last
   camp at full health (`respawnJourney`). No other penalty.
 - **Journey state.** `{ seed, phase: starter|roam|champion, party, box,

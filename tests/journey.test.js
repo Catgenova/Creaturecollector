@@ -5,11 +5,11 @@ import { step } from '../src/battle/engine.js';
 import { chooseAction } from '../src/battle/ai.js';
 import { cladeOf } from '../src/creature/genome.js';
 import { BIOME_ORDER, TILE, tileAt, worldFor, trainerAt } from '../src/game/world.js';
-import { JOURNEY, DIRS, newJourney, chooseJourneyStarter, tryMove, facing, talkTo, acceptChallenge, challengeWarden, enterSpire, fleeEncounter, buildJourneyBattle, applyJourneyBattle, journeyPlace, badgeList, canFuseJourney, previewShrineFusion, shrineFuse, respawnJourney, partyHealth } from '../src/game/journey.js';
-import { memberMaxHp, XP } from '../src/game/party.js';
+import { JOURNEY, DIRS, newJourney, chooseJourneyStarter, tryMove, facing, talkTo, acceptChallenge, challengeWarden, enterSpire, fleeEncounter, buildJourneyBattle, applyJourneyBattle, journeyPlace, badgeList, canFuseJourney, previewShrineFusion, shrineFuse, respawnJourney, partyHealth  } from '../src/game/journey.js';
+import { memberMaxHp, XP, setLocked } from '../src/game/party.js';
 import { emptySave, normalizeSave, exportSave, importSave, normalizeJourney } from '../src/game/save.js';
 import { findPath } from '../src/game/world.js';
-import { WILD_SPECIES } from '../src/data/species.js';
+import { WILD_SPECIES, SPECIES_BY_ID } from '../src/data/species.js';
 import { speciesGenome } from '../src/creature/genome.js';
 import { makeMember } from '../src/game/party.js';
 
@@ -318,4 +318,20 @@ test('Creature Storage stands at the crossroads and opens when you step on its d
   j.player.x = d.x; j.player.y = d.y + 1; j.player.dir = 'up';
   const r = tryMove(j, 'up');
   assert.ok(r.moved); assert.deepEqual(r.event, { kind: 'storage' });
+});
+
+test('a locked creature cannot be fused away at the shrine, and the lock survives the save', () => {
+  const j = fresh('lock');
+  const other = makeMember(speciesGenome(SPECIES_BY_ID.emberox, makeRng('lk')), 7, 'lk1');
+  j.box.push(other);
+  setLocked(j, 'lk1', true);
+  const r = canFuseJourney(j, j.party[0].uid, 'lk1');
+  assert.equal(r.ok, false); assert.match(r.reason, /locked/);
+  assert.throws(() => shrineFuse(j, j.party[0].uid, 'lk1'), /locked/);
+  assert.equal(j.box.length, 1, 'nothing was consumed');
+  const back = normalizeJourney(JSON.parse(JSON.stringify(j)));
+  assert.equal(back.box[0].locked, true);
+  assert.equal(back.party[0].locked, false);
+  setLocked(j, 'lk1', false);
+  assert.ok(!/locked/.test(canFuseJourney(j, j.party[0].uid, 'lk1').reason || ''));
 });

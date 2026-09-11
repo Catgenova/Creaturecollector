@@ -77,19 +77,70 @@ function abilityCard(g) {
   return h('div', { class: 'ability-card' }, h('small', {}, 'Passive skill'), h('b', {}, a ? a.name : 'None'), h('span', {}, a ? a.desc : 'This creature has no passive skill.'));
 }
 
+const optVal = (v) => (typeof v === 'function' ? v() : v);
+
 /**
  * Release, in the sheet head beside the close button: two taps, the second within a few seconds.
- * opts = { can, reason?, onRelease() -> boolean }; the sheet closes when onRelease reports success.
+ * opts = { can, reason?, onRelease() -> boolean } (can and reason may be functions, re-read on refresh);
+ * the sheet closes when onRelease reports success.
  */
 function releaseButton(opts, close) {
   let armed = false, timer = 0;
-  const paint = () => { btn.textContent = armed ? 'Really release?' : 'Release'; btn.classList.toggle('danger', armed); };
-  const btn = h('button', { class: 'btn small head-release', type: 'button', disabled: !opts.can, title: opts.can ? 'Let this creature go for good; it stays in your Collection' : (opts.reason || ''), onclick: () => {
+  const paint = () => {
+    const can = optVal(opts.can);
+    btn.disabled = !can;
+    btn.title = can ? 'Let this creature go for good; it stays in your Collection' : (optVal(opts.reason) || '');
+    btn.textContent = armed ? 'Really release?' : 'Release';
+    btn.classList.toggle('danger', armed);
+  };
+  const btn = h('button', { class: 'btn small head-release', type: 'button', onclick: () => {
     if (!armed) { armed = true; paint(); clearTimeout(timer); timer = setTimeout(() => { armed = false; if (btn.isConnected) paint(); }, 4000); return; }
     clearTimeout(timer); armed = false;
     if (opts.onRelease()) close(); else paint();
   } }, '');
   paint();
+  btn.refresh = paint;
+  return btn;
+}
+
+/** Lock toggle: a locked creature cannot be released or fused. opts = { locked, onToggle() -> { ok, locked } }. */
+function lockButton(opts, afterToggle) {
+  const paint = () => {
+    const locked = optVal(opts.locked);
+    btn.textContent = locked ? 'Locked' : 'Lock';
+    btn.classList.toggle('on', locked);
+    btn.title = locked ? 'Locked: cannot be released or fused. Tap to unlock.' : 'Lock against release and fusion';
+  };
+  const btn = h('button', { class: 'btn small', type: 'button', onclick: () => { const r = opts.onToggle(); if (r && r.ok) { paint(); if (afterToggle) afterToggle(); } } }, '');
+  paint();
+  return btn;
+}
+
+/**
+ * Rename: turns the title into a text box; Enter or the Save button keeps the new name, Escape gives up.
+ * opts = { onRename(name) -> { ok, reason?, name } }.
+ */
+function renameButton(g, opts, titleEl, sheetEl) {
+  let editing = false, input = null;
+  const stop = () => { editing = false; if (input) input.remove(); input = null; titleEl.hidden = false; btn.textContent = 'Rename'; };
+  const save = () => {
+    if (!input) return;
+    const r = opts.onRename(input.value);
+    if (!r || !r.ok) { input.focus(); return; }
+    titleEl.textContent = r.name;
+    if (sheetEl) sheetEl.setAttribute('aria-label', r.name);
+    stop();
+  };
+  const btn = h('button', { class: 'btn small', type: 'button', onclick: () => {
+    if (editing) { save(); return; }
+    editing = true;
+    input = h('input', { class: 'seed name-in', type: 'text', value: titleEl.textContent, maxlength: '16', 'aria-label': 'New name', autocapitalize: 'words', autocomplete: 'off', spellcheck: 'false',
+      onkeydown: (e) => { if (e.key === 'Enter') { e.preventDefault(); save(); } else if (e.key === 'Escape') { e.preventDefault(); stop(); } } });
+    titleEl.hidden = true;
+    titleEl.after(input);
+    btn.textContent = 'Save';
+    input.focus(); input.select();
+  } }, 'Rename');
   return btn;
 }
 
@@ -109,14 +160,19 @@ export function openSheet(g, sheetOpts = {}) {
   activeSheet = close;
   const onKey = (e) => { if (e.key === 'Escape') close(); };
   const backdrop = h('div', { class: 'sheet-backdrop', onclick: close });
+  const title = h('h2', {}, g.name, g.shiny ? ' ✦' : '');
+  const releaseBtn = sheetOpts.release ? releaseButton(sheetOpts.release, close) : null;
   const sheet = h('section', { class: 'sheet', role: 'dialog', 'aria-modal': 'true', 'aria-label': g.name },
     h('div', { class: 'grab' }),
     h('div', { class: 'sheet-head' },
-      h('h2', {}, g.name, g.shiny ? ' ✦' : ''),
+      title,
       typeChips(g.types),
       styleChip(g),
       elementalBadge(g),
-      sheetOpts.release ? releaseButton(sheetOpts.release, close) : null,
+      sheetOpts.lock || sheetOpts.rename || releaseBtn ? h('span', { class: 'head-actions' },
+        sheetOpts.lock ? lockButton(sheetOpts.lock, () => { if (releaseBtn) releaseBtn.refresh(); }) : null,
+        sheetOpts.rename ? renameButton(g, sheetOpts.rename, title, null) : null,
+        releaseBtn) : null,
       h('button', { class: 'btn close', onclick: close, 'aria-label': 'Close' }, '✕')),
     h('p', { class: 'meta' }, sp ? `${sp.name} · ${sp.tier}` : 'Fusion', ` · ${cladeName(cladeOf(g))} · gen ${g.gen} · seed ${g.seed}`),
     abilityCard(g),

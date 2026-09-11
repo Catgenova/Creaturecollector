@@ -95,10 +95,30 @@ export function moveMember(owner, uid, to) {
   return owner;
 }
 
-/** Let a creature go for good, from the party or the box. The party always keeps at least one. { ok, reason?, member? } */
+export const NAME_MAX = 16;
+/** Nickname a creature: trimmed, single-spaced, 1 to 16 characters. { ok, reason?, name } */
+export function renameMember(owner, uid, name) {
+  const m = memberById(owner, uid);
+  if (!m) return { ok: false, reason: 'No such creature.' };
+  const clean = String(name == null ? '' : name).replace(/[\u0000-\u001f\u007f]/g, '').replace(/\s+/g, ' ').trim().slice(0, NAME_MAX);
+  if (!clean) return { ok: false, reason: 'Give it a name.' };
+  m.genome.name = clean;
+  return { ok: true, name: clean };
+}
+
+/** Lock a creature against release and fusion, or unlock it. { ok, reason?, locked } */
+export function setLocked(owner, uid, locked) {
+  const m = memberById(owner, uid);
+  if (!m) return { ok: false, reason: 'No such creature.' };
+  m.locked = Boolean(locked);
+  return { ok: true, locked: m.locked };
+}
+
+/** Let a creature go for good, from the party or the box. The party always keeps at least one; locked creatures stay. { ok, reason?, member? } */
 export function releaseMember(owner, uid) {
   const m = memberById(owner, uid);
   if (!m) return { ok: false, reason: 'No such creature.' };
+  if (m.locked) return { ok: false, reason: `${m.genome.name} is locked. Unlock it first.` };
   if (owner.party.includes(m)) {
     if (owner.party.length <= 1) return { ok: false, reason: 'Keep at least one creature with you.' };
     owner.party = owner.party.filter((x) => x !== m);
