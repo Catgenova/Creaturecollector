@@ -12,6 +12,7 @@ import { typeEffectiveness } from '../data/types.js';
 import { getMove, moveFx, isDamaging, STRUGGLE } from '../data/moves.js';
 import { abilityName } from '../data/abilities.js';
 import { learnsetOf } from '../creature/genome.js';
+import { SPECIES_BY_ID } from '../data/species.js';
 import { statsAtLevel, movesAtLevel } from './stats.js';
 
 export const STATUS_INFO = {
@@ -56,14 +57,32 @@ export function makeBattler(genome, level, opts = {}) {
 export function activeOf(state, side) { const s = state.sides[side]; return s.party[s.active]; }
 export function aliveCount(side) { return side.party.filter((b) => !b.fainted).length; }
 
-/** Start a battle. sides: [{ name, party: [battler...], ai }, ...]. Returns { state, events }. */
-export function createBattle({ sides, seed = 'battle' }) {
+/**
+ * Chance (0..1) that a capture attempt on this battler succeeds right now.
+ * Low HP and status help; rarer species and fusions resist more.
+ */
+export function captureChance(b) {
+  const sp = b.genome && b.genome.species ? SPECIES_BY_ID[b.genome.species] : null;
+  let base = sp ? (sp.tier === 'rare' ? 0.45 : sp.tier === 'uncommon' ? 0.7 : 1) : 0.7;
+  if (b.genome && b.genome.gen > 0) base *= 0.7;
+  const hpFactor = 1 - (2 / 3) * (b.hp / b.maxHp);
+  const statusMul = b.status === 'slp' || b.status === 'frz' ? 2 : b.status ? 1.5 : 1;
+  return clamp(0.08 + 0.72 * hpFactor * base * statusMul, 0.03, 0.95);
+}
+
+/**
+ * Start a battle. sides: [{ name, party: [battler...], ai }, ...]. Returns { state, events }.
+ * capturable: side 0 may try to capture side 1's active creature (wild encounters).
+ */
+export function createBattle({ sides, seed = 'battle', capturable = false }) {
   if (!sides || sides.length !== 2) throw new Error('A battle needs exactly two sides.');
   const state = {
     seed: String(seed),
     turn: 0,
     phase: 'choose',
     winner: null,
+    capturable: Boolean(capturable),
+    captured: null,
     sides: sides.map((s, si) => {
       if (!s.party || !s.party.length) throw new Error(`Side ${si} has an empty party.`);
       return {
@@ -90,7 +109,8 @@ export function legalActions(state, side) {
   if (state.phase === 'over') return [];
   if (state.phase === 'replace') return s.needsReplace ? switches : [];
   const moves = me.moves.map((mv, i) => ({ type: 'move', index: i })).filter((a) => me.moves[a.index].pp > 0);
-  return [...(moves.length ? moves : [{ type: 'move', index: -1, struggle: true }]), ...switches];
+  const capture = state.capturable && side === 0 && !activeOf(state, 1).fainted ? [{ type: 'capture' }] : [];
+  return [...(moves.length ? moves : [{ type: 'move', index: -1, struggle: true }]), ...capture, ...switches];
 }
 
 function sameAction(a, b) { return a && b && a.type === b.type && a.index === b.index; }
@@ -138,13 +158,16 @@ export function step(input, actions) {
   // Order: switches first, then moves by priority, then speed, ties random.
   const order = [0, 1].map((i) => {
     const a = actions[i];
-    const prio = a.type === 'switch' ? 100 : (a.struggle ? 0 : getMove(activeOf(state, i).moves[a.index].id).prio);
+    const prio = a.type === 'switch' || a.type === 'capture' ? 100 : (a.struggle ? 0 : getMove(activeOf(state, i).moves[a.index].id).prio);
     return { i, a, prio, spe: effectiveStat(activeOf(state, i), 'spe'), tie: rng.next() };
   }).sort((x, y) => (y.prio - x.prio) || (y.spe - x.spe) || (y.tie - x.tie));
 
   for (const o of order) {
     if (state.phase === 'over') break;
-    if (o.a.type === 'switch') {
+    if (o.a.type === 'capture') {
+      attemptCapture(state, events, rng);
+      if (state.phase === 'over') return { state, events };
+    } else if (o.a.type === 'switch') {
       doSwitch(state, o.i, o.a.index, events, false);
       entryHooks(state, o.i, events);
     } else {
@@ -160,6 +183,22 @@ export function step(input, actions) {
     if (activeOf(state, i).fainted) { state.sides[i].needsReplace = true; state.phase = 'replace'; }
   }
   return { state, events };
+}
+
+function attemptCapture(state, events, rng) {
+  const target = activeOf(state, 1);
+  const perShake = Math.cbrt(captureChance(target));
+  let shakes = 0;
+  for (let k = 0; k < 3; k++) { if (rng.chance(perShake)) shakes++; else break; }
+  if (shakes === 3) {
+    events.push({ t: 'capture', ok: true, side: 1, name: target.name, shakes });
+    state.captured = target.uid;
+    state.phase = 'over';
+    state.winner = 0;
+    events.push({ t: 'end', winner: 0, capture: true, name: target.name });
+  } else {
+    events.push({ t: 'capture', ok: false, side: 1, name: target.name, shakes });
+  }
 }
 
 function doSwitch(state, i, index, events, forced) {
@@ -454,13 +493,15 @@ function checkEnd(state, events) {
   return true;
 }
 
-/** Human-readable line for an event. `names` = [sideName0, sideName1] for switch messages. */
-export function describeEvent(e, names = ['You', 'Foe']) {
+/** Human-readable line for an event. `names` = [sideName0, sideName1]; opts.wild for wild encounters. */
+export function describeEvent(e, names = ['You', 'Foe'], opts = {}) {
   const foe = e.side === 1;
-  const who = foe ? `The foe's ${e.name}` : e.name;
+  const who = foe ? (opts.wild ? `The wild ${e.name}` : `The foe's ${e.name}`) : e.name;
   switch (e.t) {
     case 'turn': return `— Turn ${e.n} —`;
-    case 'switch': return e.initial ? (foe ? `${names[1]} sends out ${e.name}!` : `Go, ${e.name}!`) : (foe ? `${names[1]} sends out ${e.name}!` : `Come back! Go, ${e.name}!`);
+    case 'switch':
+      if (!foe) return e.initial ? `Go, ${e.name}!` : `Come back! Go, ${e.name}!`;
+      return opts.wild ? `A wild ${e.name} appeared!` : `${names[1]} sends out ${e.name}!`;
     case 'move': return `${who} used ${e.move}!`;
     case 'damage': {
       const bits = [];
@@ -488,7 +529,8 @@ export function describeEvent(e, names = ['You', 'Foe']) {
     case 'hurt': return e.why === 'recoil' || e.why === 'struggle' ? `${who} is hit with recoil!` : e.why === 'brn' ? `${who} is hurt by its burn!` : e.why === 'psn' ? `${who} is hurt by poison!` : e.why === 'thorns' ? `${who} is pricked by thorns!` : `${who} took ${e.amount} damage.`;
     case 'ability': return `[${who}'s ${e.ability}]`;
     case 'faint': return `${who} fainted!`;
-    case 'end': return e.winner == null ? 'Both sides are out of creatures. It is a draw!' : e.winner === 0 ? `${names[0]} won the battle!` : `${names[1]} won the battle!`;
+    case 'capture': return e.ok ? `Gotcha! ${e.name} was caught!` : e.shakes === 0 ? 'Oh no! It broke free right away!' : e.shakes === 1 ? 'It shook once… and broke free!' : 'So close! It broke free!';
+    case 'end': return e.capture ? `${e.name} joined the team!` : e.winner == null ? 'Both sides are out of creatures. It is a draw!' : e.winner === 0 ? `${names[0]} won the battle!` : opts.wild ? 'Your team was defeated…' : `${names[1]} won the battle!`;
     default: return '';
   }
 }

@@ -19,7 +19,12 @@ Phase 3 — Battle: a deterministic, headless battle engine (157 moves, 30
 abilities, status, stages, switching, parties of five, AI opponent, balance
 simulator) and a portrait battle screen.
 
-The endless arena with capture and saving is next. See `DESIGN.md` for the
+Phase 4 — Endless Arena: the game loop. Starters, scaling floors of wild
+creatures, trainers and wardens, in-battle capture, XP and levels, party and
+box, fusion altars after bosses, autosave with export and import, and a
+persistent collection.
+
+Next: a balance and polish pass, then the overworld. See `DESIGN.md` for the
 plan and the decisions behind it.
 
 ## Develop

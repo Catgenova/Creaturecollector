@@ -4,14 +4,16 @@ import { renderLabScreen, closeSheet } from './lab.js';
 import { renderPartsScreen } from './parts.js';
 import { renderFusionScreen } from './fusion.js';
 import { renderBattleScreen } from './battle.js';
+import { renderArenaScreen } from './arena.js';
 import { partCount } from '../data/parts/index.js';
 import { SPECIES } from '../data/species.js';
 
 const SCREENS = [
+  { id: 'arena', title: 'Arena', render: renderArenaScreen },
+  { id: 'battle', title: 'Battle', render: renderBattleScreen },
+  { id: 'fusion', title: 'Fusion', render: renderFusionScreen },
   { id: 'lab', title: 'Lab', render: renderLabScreen },
   { id: 'parts', title: 'Parts', render: renderPartsScreen },
-  { id: 'fusion', title: 'Fusion', render: renderFusionScreen },
-  { id: 'battle', title: 'Battle', render: renderBattleScreen },
 ];
 
 function bootApp() {

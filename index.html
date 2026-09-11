@@ -196,6 +196,45 @@ h3.sec { font-size: 12px; text-transform: uppercase; letter-spacing: .1em; color
 .party-row svg { width: 64px; height: auto; }
 .result-card { border: 1px solid var(--acc); border-radius: var(--radius); background: var(--bg2); padding: 14px; text-align: center; }
 .result-card h2 { margin: 0 0 4px; }
+
+/* Arena */
+.screen-title { margin: 0 0 4px; font-size: 22px; }
+.hero-card { border: 1px solid var(--line); border-radius: var(--radius); background: linear-gradient(160deg, #1f2338, var(--bg2)); padding: 16px; margin-bottom: 14px; }
+.hero-card h2 { margin: 0 0 6px; font-size: 24px; }
+.tiles { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin: 12px 0; }
+.tile { background: var(--bg); border: 1px solid var(--line); border-radius: 10px; padding: 8px 4px; text-align: center; }
+.tile b { display: block; font-size: 20px; }
+.tile span { font-size: 11px; color: var(--fg2); text-transform: uppercase; letter-spacing: .06em; }
+.starters { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.starters .pslot { min-height: 200px; }
+.floor-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; margin-bottom: 10px; }
+.floor-head.compact { margin-bottom: 8px; font-size: 14px; color: var(--fg2); }
+.encounter { border: 1px solid var(--line); border-radius: var(--radius); background: var(--bg2); padding: 12px; margin-bottom: 8px; }
+.encounter.boss { border-color: #f0762e; background: linear-gradient(160deg, #2a1f1a, var(--bg2)); }
+.encounter.trainer { border-color: var(--acc2); }
+.enc-head { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 6px; font-size: 16px; }
+.kind-badge { font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: .08em; padding: 2px 8px; border-radius: 999px; background: var(--bg3); color: var(--fg2); }
+.kind-badge.boss { background: #f0762e; color: #1a1400; }
+.kind-badge.trainer { background: var(--acc2); color: #fff; }
+.foes { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; margin: 4px 0 8px; }
+.foe-card { display: flex; flex-direction: column; align-items: center; font-size: 12px; color: var(--fg2); }
+.foe-card svg { height: auto; }
+.altar-btn { border-color: var(--acc); color: var(--acc); }
+.party-row.static { cursor: default; }
+.party-row.fainted svg { filter: grayscale(1) brightness(.6); }
+.row-actions { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; margin-top: 4px; }
+.row-actions .btn.small { min-height: 30px; padding: 0 8px; font-size: 12px; }
+.xpbar { height: 4px; border-radius: 2px; background: var(--bg3); overflow: hidden; margin-top: 4px; }
+.xpbar i { display: block; height: 100%; background: var(--acc2); }
+.result-card.slim { text-align: left; padding: 10px 12px; margin-bottom: 10px; font-size: 14px; border-color: var(--line); }
+.result-card.slim .btn { margin-top: 6px; }
+.btn.danger { border-color: #c23b3b; color: #ff8a8a; }
+.btn.capture { border-color: var(--acc); color: var(--acc); }
+.combatant.captured { animation: captured .9s ease forwards; }
+.combatant.wobble { animation: wobble .7s ease; }
+@keyframes captured { 0% { transform: scale(1); opacity: 1; } 60% { transform: scale(.4) translateY(-30px); opacity: .9; } 100% { transform: scale(0); opacity: 0; } }
+@keyframes wobble { 0%, 100% { transform: rotate(0); } 25% { transform: rotate(-8deg) scale(.95); } 50% { transform: rotate(8deg) scale(.95); } 75% { transform: rotate(-4deg); } }
+@media (max-width: 380px) { .starters { grid-template-columns: 1fr; } .tiles { grid-template-columns: repeat(2, 1fr); } }
 </style>
 </head>
 <body>
@@ -2652,6 +2691,7 @@ function movesAtLevel(learnset, level) {
 
 
 
+
 const STATUS_INFO = {
   brn: { name: 'Burn', short: 'BRN', verb: 'was burned' },
   psn: { name: 'Poison', short: 'PSN', verb: 'was poisoned' },
@@ -2694,14 +2734,32 @@ function makeBattler(genome, level, opts = {}) {
 function activeOf(state, side) { const s = state.sides[side]; return s.party[s.active]; }
 function aliveCount(side) { return side.party.filter((b) => !b.fainted).length; }
 
-/** Start a battle. sides: [{ name, party: [battler...], ai }, ...]. Returns { state, events }. */
-function createBattle({ sides, seed = 'battle' }) {
+/**
+ * Chance (0..1) that a capture attempt on this battler succeeds right now.
+ * Low HP and status help; rarer species and fusions resist more.
+ */
+function captureChance(b) {
+  const sp = b.genome && b.genome.species ? SPECIES_BY_ID[b.genome.species] : null;
+  let base = sp ? (sp.tier === 'rare' ? 0.45 : sp.tier === 'uncommon' ? 0.7 : 1) : 0.7;
+  if (b.genome && b.genome.gen > 0) base *= 0.7;
+  const hpFactor = 1 - (2 / 3) * (b.hp / b.maxHp);
+  const statusMul = b.status === 'slp' || b.status === 'frz' ? 2 : b.status ? 1.5 : 1;
+  return clamp(0.08 + 0.72 * hpFactor * base * statusMul, 0.03, 0.95);
+}
+
+/**
+ * Start a battle. sides: [{ name, party: [battler...], ai }, ...]. Returns { state, events }.
+ * capturable: side 0 may try to capture side 1's active creature (wild encounters).
+ */
+function createBattle({ sides, seed = 'battle', capturable = false }) {
   if (!sides || sides.length !== 2) throw new Error('A battle needs exactly two sides.');
   const state = {
     seed: String(seed),
     turn: 0,
     phase: 'choose',
     winner: null,
+    capturable: Boolean(capturable),
+    captured: null,
     sides: sides.map((s, si) => {
       if (!s.party || !s.party.length) throw new Error(`Side ${si} has an empty party.`);
       return {
@@ -2728,7 +2786,8 @@ function legalActions(state, side) {
   if (state.phase === 'over') return [];
   if (state.phase === 'replace') return s.needsReplace ? switches : [];
   const moves = me.moves.map((mv, i) => ({ type: 'move', index: i })).filter((a) => me.moves[a.index].pp > 0);
-  return [...(moves.length ? moves : [{ type: 'move', index: -1, struggle: true }]), ...switches];
+  const capture = state.capturable && side === 0 && !activeOf(state, 1).fainted ? [{ type: 'capture' }] : [];
+  return [...(moves.length ? moves : [{ type: 'move', index: -1, struggle: true }]), ...capture, ...switches];
 }
 
 function sameAction(a, b) { return a && b && a.type === b.type && a.index === b.index; }
@@ -2776,13 +2835,16 @@ function step(input, actions) {
   // Order: switches first, then moves by priority, then speed, ties random.
   const order = [0, 1].map((i) => {
     const a = actions[i];
-    const prio = a.type === 'switch' ? 100 : (a.struggle ? 0 : getMove(activeOf(state, i).moves[a.index].id).prio);
+    const prio = a.type === 'switch' || a.type === 'capture' ? 100 : (a.struggle ? 0 : getMove(activeOf(state, i).moves[a.index].id).prio);
     return { i, a, prio, spe: effectiveStat(activeOf(state, i), 'spe'), tie: rng.next() };
   }).sort((x, y) => (y.prio - x.prio) || (y.spe - x.spe) || (y.tie - x.tie));
 
   for (const o of order) {
     if (state.phase === 'over') break;
-    if (o.a.type === 'switch') {
+    if (o.a.type === 'capture') {
+      attemptCapture(state, events, rng);
+      if (state.phase === 'over') return { state, events };
+    } else if (o.a.type === 'switch') {
       doSwitch(state, o.i, o.a.index, events, false);
       entryHooks(state, o.i, events);
     } else {
@@ -2798,6 +2860,22 @@ function step(input, actions) {
     if (activeOf(state, i).fainted) { state.sides[i].needsReplace = true; state.phase = 'replace'; }
   }
   return { state, events };
+}
+
+function attemptCapture(state, events, rng) {
+  const target = activeOf(state, 1);
+  const perShake = Math.cbrt(captureChance(target));
+  let shakes = 0;
+  for (let k = 0; k < 3; k++) { if (rng.chance(perShake)) shakes++; else break; }
+  if (shakes === 3) {
+    events.push({ t: 'capture', ok: true, side: 1, name: target.name, shakes });
+    state.captured = target.uid;
+    state.phase = 'over';
+    state.winner = 0;
+    events.push({ t: 'end', winner: 0, capture: true, name: target.name });
+  } else {
+    events.push({ t: 'capture', ok: false, side: 1, name: target.name, shakes });
+  }
 }
 
 function doSwitch(state, i, index, events, forced) {
@@ -3092,13 +3170,15 @@ function checkEnd(state, events) {
   return true;
 }
 
-/** Human-readable line for an event. `names` = [sideName0, sideName1] for switch messages. */
-function describeEvent(e, names = ['You', 'Foe']) {
+/** Human-readable line for an event. `names` = [sideName0, sideName1]; opts.wild for wild encounters. */
+function describeEvent(e, names = ['You', 'Foe'], opts = {}) {
   const foe = e.side === 1;
-  const who = foe ? `The foe's ${e.name}` : e.name;
+  const who = foe ? (opts.wild ? `The wild ${e.name}` : `The foe's ${e.name}`) : e.name;
   switch (e.t) {
     case 'turn': return `— Turn ${e.n} —`;
-    case 'switch': return e.initial ? (foe ? `${names[1]} sends out ${e.name}!` : `Go, ${e.name}!`) : (foe ? `${names[1]} sends out ${e.name}!` : `Come back! Go, ${e.name}!`);
+    case 'switch':
+      if (!foe) return e.initial ? `Go, ${e.name}!` : `Come back! Go, ${e.name}!`;
+      return opts.wild ? `A wild ${e.name} appeared!` : `${names[1]} sends out ${e.name}!`;
     case 'move': return `${who} used ${e.move}!`;
     case 'damage': {
       const bits = [];
@@ -3126,7 +3206,8 @@ function describeEvent(e, names = ['You', 'Foe']) {
     case 'hurt': return e.why === 'recoil' || e.why === 'struggle' ? `${who} is hit with recoil!` : e.why === 'brn' ? `${who} is hurt by its burn!` : e.why === 'psn' ? `${who} is hurt by poison!` : e.why === 'thorns' ? `${who} is pricked by thorns!` : `${who} took ${e.amount} damage.`;
     case 'ability': return `[${who}'s ${e.ability}]`;
     case 'faint': return `${who} fainted!`;
-    case 'end': return e.winner == null ? 'Both sides are out of creatures. It is a draw!' : e.winner === 0 ? `${names[0]} won the battle!` : `${names[1]} won the battle!`;
+    case 'capture': return e.ok ? `Gotcha! ${e.name} was caught!` : e.shakes === 0 ? 'Oh no! It broke free right away!' : e.shakes === 1 ? 'It shook once… and broke free!' : 'So close! It broke free!';
+    case 'end': return e.capture ? `${e.name} joined the team!` : e.winner == null ? 'Both sides are out of creatures. It is a draw!' : e.winner === 0 ? `${names[0]} won the battle!` : opts.wild ? 'Your team was defeated…' : `${names[1]} won the battle!`;
     default: return '';
   }
 }
@@ -3212,6 +3293,7 @@ function chooseAction(state, side, rng) {
   if (!legal.length) return null;
   let best = null, bestScore = -Infinity;
   for (const a of legal) {
+    if (a.type === 'capture') continue; // the AI never captures
     let score;
     if (state.phase === 'replace') score = scoreReplacement(state, side, a);
     else if (a.type === 'switch') score = scoreSwitch(state, side, a);
@@ -3222,12 +3304,261 @@ function chooseAction(state, side, rng) {
   return best;
 }
 
+// ---- src/ui/fight.js ----
+// Reusable interactive battle view. Mount it with an engine state and it plays
+// events, takes the player's choices, asks the AI for the foe's, and reports
+// the final state. Used by the sandbox Battle tab and by the Arena.
+
+
+
+
+
+
+
+
+
+
+const wait = (ms) => new Promise((r) => setTimeout(r, ms));
+const hpClass = (frac) => (frac > 0.5 ? 'ok' : frac > 0.2 ? 'warn' : 'low');
+
+/**
+ * cfg: { state, events, names, auto, fast, onEnd(state), onQuit(), resultButtons: [{label, primary, onclick}] }
+ * Returns { destroy() }.
+ */
+function mountFight(root, cfg) {
+  const f = {
+    root, state: cfg.state, names: cfg.names || ['You', 'Foe'], wild: Boolean(cfg.wild), auto: Boolean(cfg.auto), fast: Boolean(cfg.fast),
+    busy: true, log: [], els: null, token: 1, alive: true, sheetClose: null,
+    onEnd: cfg.onEnd || (() => {}), onQuit: cfg.onQuit || null, resultButtons: cfg.resultButtons || null, ended: false,
+  };
+  buildFight(f);
+  playFightEvents(f, cfg.events || []).then((ok) => { if (ok) afterFightStep(f); });
+  return {
+    destroy() { f.alive = false; f.token++; if (f.sheetClose) f.sheetClose(); },
+    get state() { return f.state; },
+  };
+}
+
+function buildFight(f) {
+  const els = {
+    foePanel: h('div', { class: 'panel panel-foe' }),
+    foeStage: h('div', { class: 'stage stage-foe' }),
+    meStage: h('div', { class: 'stage stage-me' }),
+    mePanel: h('div', { class: 'panel panel-me' }),
+    log: h('div', { class: 'battle-log', 'aria-live': 'polite' }),
+    controls: h('div', { class: 'controls' }),
+  };
+  f.els = els;
+  clear(f.root).append(
+    h('div', { class: 'arena' },
+      h('div', { class: 'arena-row' }, els.foePanel, els.foeStage),
+      h('div', { class: 'arena-row' }, els.meStage, els.mePanel)),
+    els.log,
+    els.controls,
+  );
+  for (const i of [0, 1]) { renderStage(f, i); renderPanel(f, i); }
+  renderFightControls(f);
+}
+
+function renderPanel(f, i) {
+  const st = f.state, side = st.sides[i], b = activeOf(st, i);
+  const el = i === 0 ? f.els.mePanel : f.els.foePanel;
+  const frac = b.hp / b.maxHp;
+  clear(el).append(
+    h('div', { class: 'panel-head' }, h('b', {}, b.name), h('span', { class: 'lvl' }, `Lv ${b.level}`),
+      b.status ? h('span', { class: `status st-${b.status}` }, STATUS_INFO[b.status].short) : null),
+    typeChips(b.types),
+    h('div', { class: 'hpbar' }, h('i', { class: hpClass(frac), style: { width: `${Math.max(0, frac * 100)}%` } })),
+    h('div', { class: 'panel-foot' },
+      h('span', { class: 'hpnum' }, i === 0 ? `${b.hp} / ${b.maxHp}` : `${Math.ceil(frac * 100)}%`),
+      h('span', { class: 'balls' }, side.party.map((p) => h('i', { class: p.fainted ? 'out' : '' })))),
+  );
+}
+
+function renderStage(f, i) {
+  const b = activeOf(f.state, i);
+  const el = i === 0 ? f.els.meStage : f.els.foeStage;
+  clear(el).append(h('div', { class: 'combatant enter' }, creatureEl(b.genome, { size: 200, facing: i === 0 ? 'right' : 'left' })));
+  setTimeout(() => { const c = el.firstChild; if (c) c.classList.remove('enter'); }, 400);
+}
+
+function setHp(f, i, hp, maxHp) {
+  const el = i === 0 ? f.els.mePanel : f.els.foePanel;
+  const bar = el.querySelector('.hpbar i');
+  const frac = hp / maxHp;
+  if (bar) { bar.style.width = `${Math.max(0, frac * 100)}%`; bar.className = hpClass(frac); }
+  const num = el.querySelector('.hpnum');
+  if (num) num.textContent = i === 0 ? `${hp} / ${maxHp}` : `${Math.ceil(frac * 100)}%`;
+}
+
+function animateStage(f, i, cls, ms = 500) {
+  const el = i === 0 ? f.els.meStage : f.els.foeStage;
+  const c = el.firstChild;
+  if (!c) return;
+  c.classList.add(cls);
+  setTimeout(() => c.classList.remove(cls), ms);
+}
+
+function logLine(f, text) {
+  if (!text) return;
+  f.log.push(text);
+  const el = f.els.log;
+  el.append(h('div', { class: 'line' }, text));
+  while (el.children.length > 4) el.removeChild(el.firstChild);
+}
+
+/** Apply one event to the DOM. Returns how long to pause after it. */
+function applyFightEvent(f, e) {
+  const text = describeEvent(e, f.names, { wild: f.wild });
+  switch (e.t) {
+    case 'turn': logLine(f, text); return 250;
+    case 'switch': renderStage(f, e.side); renderPanel(f, e.side); logLine(f, text); return 650;
+    case 'move': logLine(f, text); animateStage(f, e.side, e.side === 0 ? 'lunge-r' : 'lunge-l', 450); return 550;
+    case 'damage': animateStage(f, e.side, 'hit', 450); setHp(f, e.side, e.hp, e.maxHp); logLine(f, text); return e.eff !== 1 || e.crit ? 750 : 550;
+    case 'hurt': animateStage(f, e.side, 'hit', 350); setHp(f, e.side, e.hp, e.maxHp); logLine(f, text); return 550;
+    case 'heal': setHp(f, e.side, e.hp, e.maxHp); logLine(f, text); return 550;
+    case 'faint': animateStage(f, e.side, 'faint', 900); logLine(f, text); renderPanel(f, e.side); return 900;
+    case 'status': case 'cure': renderPanel(f, e.side); logLine(f, text); return 550;
+    case 'capture': animateStage(f, 1, e.ok ? 'captured' : 'wobble', e.ok ? 900 : 700); logLine(f, text); return e.ok ? 900 : 800;
+    case 'end': logLine(f, text); return 600;
+    default: logLine(f, text); return text ? 450 : 0;
+  }
+}
+
+async function playFightEvents(f, events) {
+  const token = f.token;
+  for (const e of events) {
+    if (!f.alive || token !== f.token || !f.root.isConnected) return false;
+    const ms = applyFightEvent(f, e);
+    if (ms) await wait(f.fast ? Math.round(ms * 0.3) : ms);
+  }
+  return f.alive && token === f.token && f.root.isConnected;
+}
+
+function aiFor(st, i) { return chooseAction(st, i, makeRng(`${st.seed}:ai:${st.turn}:${st.phase}:${i}`)); }
+
+async function doFightStep(f, playerAction) {
+  const st = f.state;
+  let actions;
+  if (st.phase === 'replace') actions = [st.sides[0].needsReplace ? (playerAction || aiFor(st, 0)) : null, st.sides[1].needsReplace ? aiFor(st, 1) : null];
+  else actions = [playerAction || aiFor(st, 0), aiFor(st, 1)];
+  let result;
+  try { result = step(st, actions); } catch (e) { toast(e.message); f.busy = false; renderFightControls(f); return; }
+  f.state = result.state;
+  f.busy = true;
+  renderFightControls(f);
+  const ok = await playFightEvents(f, result.events);
+  if (ok) afterFightStep(f);
+}
+
+async function afterFightStep(f) {
+  const st = f.state;
+  if (st.phase === 'over') {
+    f.busy = false;
+    renderFightControls(f);
+    if (!f.ended) { f.ended = true; showFightResult(f); f.onEnd(st); }
+    return;
+  }
+  if (st.phase === 'replace') {
+    if (st.sides[0].needsReplace && !f.auto) { f.busy = false; renderFightControls(f); openFightParty(f, true); return; }
+    await wait(f.fast ? 200 : 500);
+    if (f.alive) doFightStep(f, null);
+    return;
+  }
+  f.busy = false;
+  renderFightControls(f);
+  if (f.auto) { await wait(f.fast ? 250 : 700); if (f.alive && f.auto && !f.busy && f.state.phase === 'choose') doFightStep(f, null); }
+}
+
+function effMarker(mv, foe) {
+  if (mv.cat === 'status' && !mv.fx.some((x) => x.k === 'status')) return '';
+  const eff = moveEffectiveness(mv, foe);
+  if (mv.cat === 'status') return eff === 0 ? '✕' : '';
+  if (eff === 0) return '✕';
+  if (eff >= 4) return '▲▲';
+  if (eff >= 2) return '▲';
+  if (eff <= 0.25) return '▼▼';
+  if (eff < 1) return '▼';
+  return '';
+}
+
+function renderFightControls(f) {
+  const el = f.els && f.els.controls;
+  if (!el) return;
+  const st = f.state;
+  clear(el);
+  const util = h('div', { class: 'util-row' },
+    h('button', { class: `btn small${f.fast ? ' on' : ''}`, type: 'button', onclick: () => { f.fast = !f.fast; renderFightControls(f); } }, f.fast ? 'Fast ✓' : 'Fast'),
+    h('button', { class: `btn small${f.auto ? ' on' : ''}`, type: 'button', onclick: () => { f.auto = !f.auto; renderFightControls(f); if (f.auto && !f.busy && st.phase !== 'over') afterFightStep(f); } }, f.auto ? 'Auto ✓' : 'Auto'),
+    f.onQuit ? h('button', { class: 'btn small', type: 'button', onclick: () => { f.alive = false; f.token++; f.onQuit(); } }, 'Quit') : null,
+  );
+  if (st.phase === 'over') { el.append(util); return; }
+  if (f.busy || f.auto) { el.append(h('div', { class: 'waiting' }, f.auto ? 'Auto battle running…' : '…'), util); return; }
+  if (st.phase === 'replace') {
+    el.append(h('button', { class: 'btn primary fuse-btn', type: 'button', onclick: () => openFightParty(f, true) }, 'Choose next creature'), util);
+    return;
+  }
+  const me = activeOf(st, 0), foe = activeOf(st, 1);
+  const legal = legalActions(st, 0);
+  const grid = h('div', { class: 'moves' });
+  me.moves.forEach((m, i) => {
+    const mv = getMove(m.id);
+    const info = TYPE_INFO[mv.type];
+    const ok = legal.some((a) => a.type === 'move' && a.index === i);
+    grid.append(h('button', { class: 'move-btn', type: 'button', disabled: !ok, style: { '--chip': info.color }, onclick: () => doFightStep(f, { type: 'move', index: i }) },
+      h('span', { class: 'mv-name' }, mv.name, h('em', { class: 'eff' }, effMarker(mv, foe))),
+      h('span', { class: 'mv-meta' }, h('span', { class: 'chip' }, h('b', {}, info.glyph), mv.type), h('span', { class: 'pp' }, `${m.pp}/${m.maxPp}`))));
+  });
+  const struggle = legal.find((a) => a.struggle);
+  if (struggle) grid.append(h('button', { class: 'move-btn', type: 'button', onclick: () => doFightStep(f, struggle) }, h('span', { class: 'mv-name' }, 'Struggle'), h('span', { class: 'mv-meta' }, 'No PP left')));
+  const row = h('div', { class: 'row wrap' },
+    h('button', { class: 'btn', type: 'button', onclick: () => openFightParty(f, false) }, `Party (${aliveCount(st.sides[0])})`),
+    h('button', { class: 'btn', type: 'button', onclick: () => openSheet(me.genome) }, 'Info'));
+  if (legal.some((a) => a.type === 'capture')) {
+    const pct = Math.round(captureChance(foe) * 100);
+    row.prepend(h('button', { class: 'btn capture', type: 'button', onclick: () => doFightStep(f, { type: 'capture' }) }, `Capture · ${pct}%`));
+  }
+  el.append(grid, row, util);
+}
+
+function openFightParty(f, forced) {
+  if (f.sheetClose) f.sheetClose();
+  const st = f.state, side = st.sides[0];
+  const legal = legalActions(st, 0);
+  const close = () => { backdrop.remove(); sheet.remove(); f.sheetClose = null; };
+  f.sheetClose = close;
+  const backdrop = h('div', { class: 'sheet-backdrop', onclick: forced ? null : close });
+  const list = h('div', { class: 'party-list' });
+  side.party.forEach((b, i) => {
+    const can = legal.some((a) => a.type === 'switch' && a.index === i);
+    const frac = b.hp / b.maxHp;
+    list.append(h('button', { class: `party-row${i === side.active ? ' active' : ''}${b.fainted ? ' fainted' : ''}`, type: 'button', disabled: !can, onclick: () => { close(); doFightStep(f, { type: 'switch', index: i }); } },
+      creatureEl(b.genome, { size: 64, animate: false }),
+      h('div', { class: 'party-info' },
+        h('div', {}, h('b', {}, b.name), ' ', h('span', { class: 'lvl' }, `Lv ${b.level}`), ' ', b.status ? h('span', { class: `status st-${b.status}` }, STATUS_INFO[b.status].short) : null, i === side.active ? h('span', { class: 'status' }, 'ACTIVE') : null),
+        h('div', { class: 'hpbar' }, h('i', { class: hpClass(frac), style: { width: `${frac * 100}%` } })),
+        h('div', { class: 'hint', style: { margin: 0 } }, `${b.hp} / ${b.maxHp} · ${abilityName(b.ability)}`))));
+  });
+  const sheet = h('section', { class: 'sheet', role: 'dialog', 'aria-modal': 'true', 'aria-label': 'Party' },
+    h('div', { class: 'grab' }),
+    h('div', { class: 'sheet-head' }, h('h2', {}, forced ? 'Choose your next creature' : 'Party'), forced ? null : h('button', { class: 'btn close', onclick: close, 'aria-label': 'Close' }, '✕')),
+    list);
+  document.body.append(backdrop, sheet);
+}
+
+function showFightResult(f) {
+  const st = f.state;
+  const won = st.winner === 0, draw = st.winner == null;
+  const title = st.captured ? 'Caught!' : draw ? 'Draw!' : won ? 'You won!' : 'You lost…';
+  const buttons = (f.resultButtons || []).map((b) => h('button', { class: `btn${b.primary ? ' primary' : ''}`, type: 'button', onclick: b.onclick }, b.label));
+  f.els.controls.prepend(h('div', { class: 'result-card' },
+    h('h2', {}, title),
+    h('p', { class: 'hint' }, `${st.turn} turns · ${aliveCount(st.sides[0])} of yours still standing`),
+    buttons.length ? h('div', { class: 'row wrap' }, buttons) : null));
+}
+
 // ---- src/ui/battle.js ----
-// Battle screen: party setup, then a portrait arena that plays back engine events.
-
-
-
-
+// Sandbox battles: pick a party, fight a random opponent, or watch AI vs AI.
 
 
 
@@ -3237,14 +3568,7 @@ function chooseAction(state, side, rng) {
 
 
 const LEVELS = [10, 30, 50, 100];
-const bs = {
-  mode: 'setup', level: 30, rosterSeed: null, roster: [], chosen: [],
-  state: null, names: ['You', 'Foe'], log: [], auto: false, fast: false, busy: false,
-  root: null, els: null, last: null, token: 0, sheetClose: null,
-};
-
-const wait = (ms) => new Promise((r) => setTimeout(r, ms));
-
+const bs = { mode: 'setup', level: 30, rosterSeed: 'ARENA', roster: [], chosen: [], root: null, fight: null, last: null, auto: false };
 let seededRoster = { seed: null, genomes: [] };
 
 function buildRoster() {
@@ -3259,14 +3583,12 @@ function buildRoster() {
 
 function renderBattleScreen(root) {
   bs.root = root;
-  if (!bs.rosterSeed) bs.rosterSeed = 'ARENA';
+  if (bs.fight) { bs.fight.destroy(); bs.fight = null; }
   buildRoster();
   clear(root);
-  if (bs.mode === 'setup') setupView(root);
-  else fightView(root);
+  if (bs.mode === 'fight' && bs.last) startSandboxBattle(bs.last.mine, { foeParty: bs.last.foe, seed: bs.last.seed });
+  else setupView(root);
 }
-
-// ---- setup ------------------------------------------------------------------
 
 function setupView(root) {
   const rerender = () => renderBattleScreen(root);
@@ -3291,10 +3613,10 @@ function setupView(root) {
     let party = bs.chosen.slice();
     if (!party.length) party = bs.roster.slice(0, 3);
     bs.auto = auto;
-    startBattle(party);
+    startSandboxBattle(party);
   };
   root.append(
-    h('p', { class: 'hint' }, `Pick up to ${MAX_PARTY} creatures. The opponent gets a random party of the same size at the same level.`),
+    h('p', { class: 'hint' }, `Free battles for testing. Pick up to ${MAX_PARTY} creatures; the opponent gets a random party of the same size and level.`),
     ...section('Level', levelRow),
     ...section(`Your party · ${bs.chosen.length}/${MAX_PARTY}`,
       h('div', { class: 'toolbar' },
@@ -3308,246 +3630,612 @@ function setupView(root) {
   );
 }
 
-// ---- battle flow ------------------------------------------------------------
-
-function startBattle(partyGenomes, opts = {}) {
+function startSandboxBattle(partyGenomes, opts = {}) {
   const seed = opts.seed || freshSeed();
   const rng = makeRng(`${seed}:foe`);
   const foeParty = opts.foeParty || Array.from({ length: partyGenomes.length }, (_, i) => randomGenome(rng.fork(`f${i}`)));
   const { state, events } = createBattle({
     sides: [
-      { name: bs.names[0], party: partyGenomes.map((g) => makeBattler(g, bs.level)) },
-      { name: bs.names[1], ai: true, party: foeParty.map((g) => makeBattler(g, bs.level)) },
+      { name: 'You', party: partyGenomes.map((g) => makeBattler(g, bs.level)) },
+      { name: 'Foe', ai: true, party: foeParty.map((g) => makeBattler(g, bs.level)) },
     ],
     seed,
   });
-  bs.last = { mine: partyGenomes, foe: foeParty };
-  bs.state = state;
+  bs.last = { mine: partyGenomes, foe: foeParty, seed };
   bs.mode = 'fight';
-  bs.log = [];
-  bs.busy = true;
-  bs.token++;
-  renderBattleScreen(bs.root);
-  playEvents(events, bs.token).then((ok) => { if (ok) afterStep(); });
+  if (bs.fight) bs.fight.destroy();
+  clear(bs.root);
+  const host = h('div');
+  bs.root.append(host);
+  bs.fight = mountFight(host, {
+    state, events, names: ['You', 'Foe'], auto: bs.auto,
+    onQuit: () => { bs.mode = 'setup'; bs.auto = false; renderBattleScreen(bs.root); },
+    resultButtons: [
+      { label: 'Rematch', primary: true, onclick: () => { bs.auto = false; startSandboxBattle(bs.last.mine, { foeParty: bs.last.foe }); } },
+      { label: 'New opponent', onclick: () => { bs.auto = false; startSandboxBattle(bs.last.mine); } },
+      { label: 'Change party', onclick: () => { bs.mode = 'setup'; bs.auto = false; renderBattleScreen(bs.root); } },
+    ],
+  });
 }
 
-function aiFor(st, i) { return chooseAction(st, i, makeRng(`${st.seed}:ai:${st.turn}:${st.phase}:${i}`)); }
+// ---- src/game/save.js ----
+// Persistent save: best results, the creature collection, and the run in progress.
 
-async function doStep(playerAction) {
-  const st = bs.state;
-  let actions;
-  if (st.phase === 'replace') actions = [st.sides[0].needsReplace ? (playerAction || aiFor(st, 0)) : null, st.sides[1].needsReplace ? aiFor(st, 1) : null];
-  else actions = [playerAction || aiFor(st, 0), aiFor(st, 1)];
-  let result;
-  try { result = step(st, actions); } catch (e) { toast(e.message); bs.busy = false; renderControls(); return; }
-  bs.state = result.state;
-  bs.busy = true;
-  renderControls();
-  const ok = await playEvents(result.events, bs.token);
-  if (ok) afterStep();
-}
 
-async function afterStep() {
-  const st = bs.state;
-  if (st.phase === 'over') { bs.busy = false; renderControls(); showResult(); return; }
-  if (st.phase === 'replace') {
-    if (st.sides[0].needsReplace && !bs.auto) { bs.busy = false; renderControls(); openParty(true); return; }
-    await wait(bs.fast ? 200 : 500);
-    doStep(null);
-    return;
-  }
-  bs.busy = false;
-  renderControls();
-  if (bs.auto) { await wait(bs.fast ? 250 : 700); if (bs.auto && bs.mode === 'fight' && !bs.busy) doStep(null); }
-}
 
-// ---- fight view -------------------------------------------------------------
+const SAVE_KEY = 'creaturecollector.save';
+const SAVE_VERSION = 1;
+const SAVE_PREFIX = 'CCSAVE1.';
+const COLLECTION_MAX = 200;
 
-function fightView(root) {
-  const st = bs.state;
-  const els = {
-    foePanel: h('div', { class: 'panel panel-foe' }),
-    foeStage: h('div', { class: 'stage stage-foe' }),
-    meStage: h('div', { class: 'stage stage-me' }),
-    mePanel: h('div', { class: 'panel panel-me' }),
-    log: h('div', { class: 'battle-log', 'aria-live': 'polite' }),
-    controls: h('div', { class: 'controls' }),
+function emptySave() {
+  return {
+    v: SAVE_VERSION,
+    best: { floor: 0, runs: 0 },
+    totals: { battles: 0, captures: 0, fusions: 0 },
+    collection: [],
+    run: null,
+    settings: { fast: false },
   };
-  bs.els = els;
+}
+
+function cleanMember(m) {
+  if (!m || typeof m !== 'object') return null;
+  try { validateGenome(m.genome); } catch { return null; }
+  if (!Number.isFinite(m.level)) return null;
+  return { uid: String(m.uid || ''), genome: m.genome, level: Math.max(1, Math.min(100, Math.round(m.level))), xp: Number.isFinite(m.xp) ? m.xp : 0, hp: Number.isFinite(m.hp) ? Math.max(0, m.hp) : 1, status: m.status || null };
+}
+
+/** Coerce any parsed object into a valid save, dropping anything broken. */
+function normalizeSave(raw) {
+  const s = emptySave();
+  if (!raw || typeof raw !== 'object' || raw.v !== SAVE_VERSION) return s;
+  if (raw.best) { s.best.floor = Number(raw.best.floor) || 0; s.best.runs = Number(raw.best.runs) || 0; }
+  if (raw.totals) for (const k of Object.keys(s.totals)) s.totals[k] = Number(raw.totals[k]) || 0;
+  if (raw.settings) s.settings.fast = Boolean(raw.settings.fast);
+  if (Array.isArray(raw.collection)) {
+    for (const e of raw.collection) {
+      try { validateGenome(e.genome); s.collection.push({ genome: e.genome, floor: Number(e.floor) || 0, when: Number(e.when) || 0 }); } catch { /* skip */ }
+      if (s.collection.length >= COLLECTION_MAX) break;
+    }
+  }
+  const r = raw.run;
+  if (r && typeof r === 'object' && ['starter', 'floor', 'gameover'].includes(r.phase)) {
+    const run = {
+      seed: String(r.seed || 'run'), floor: Math.max(1, Number(r.floor) || 1), phase: r.phase,
+      party: (Array.isArray(r.party) ? r.party : []).map(cleanMember).filter(Boolean),
+      box: (Array.isArray(r.box) ? r.box : []).map(cleanMember).filter(Boolean),
+      starters: null, altar: Boolean(r.altar), encounter: r.encounter && r.encounter.foes ? r.encounter : null,
+      nextId: Number(r.nextId) || 1, stats: { battles: 0, captures: 0, fusions: 0, bosses: 0, ...(r.stats || {}) }, lastReport: r.lastReport || null,
+    };
+    if (Array.isArray(r.starters)) {
+      run.starters = r.starters.filter((g) => { try { validateGenome(g); return true; } catch { return false; } });
+    }
+    const usable = run.phase === 'starter' ? run.starters && run.starters.length === 3 : run.party.length > 0;
+    if (usable) s.run = run;
+  }
+  return s;
+}
+
+function storageOf(storage) {
+  if (storage) return storage;
+  try { return globalThis.localStorage || null; } catch { return null; }
+}
+
+function loadSave(storage) {
+  const st = storageOf(storage);
+  if (!st) return emptySave();
+  try { const raw = st.getItem(SAVE_KEY); return raw ? normalizeSave(JSON.parse(raw)) : emptySave(); } catch { return emptySave(); }
+}
+
+function persistSave(save, storage) {
+  const st = storageOf(storage);
+  if (!st) return false;
+  try { st.setItem(SAVE_KEY, JSON.stringify(save)); return true; } catch { return false; }
+}
+
+function clearSave(storage) {
+  const st = storageOf(storage);
+  try { if (st) st.removeItem(SAVE_KEY); } catch { /* ignore */ }
+}
+
+function exportSave(save) { return SAVE_PREFIX + b64uEncode(JSON.stringify(save)); }
+
+function importSave(code) {
+  const s = String(code || '').trim();
+  if (!s.startsWith(SAVE_PREFIX)) throw new Error('That is not a save code.');
+  let raw;
+  try { raw = JSON.parse(b64uDecode(s.slice(SAVE_PREFIX.length))); } catch { throw new Error('That save code is damaged.'); }
+  return normalizeSave(raw);
+}
+
+/** Remember a creature in the collection. Wild species dedupe by species; fusions by name and seed. */
+function recordCollection(save, genome, floor) {
+  const key = genome.gen ? `${genome.name}#${genome.seed}` : genome.species;
+  const exists = save.collection.some((e) => (e.genome.gen ? `${e.genome.name}#${e.genome.seed}` : e.genome.species) === key);
+  if (exists) return false;
+  save.collection.push({ genome, floor: floor || 0, when: Date.now() });
+  while (save.collection.length > COLLECTION_MAX) save.collection.shift();
+  return true;
+}
+
+/** Close out a run: tally totals, update the best floor, retire its creatures to the collection. */
+function endRun(save) {
+  const run = save.run;
+  if (!run) return save;
+  const reached = run.phase === 'gameover' ? run.floor : Math.max(1, run.floor - 1);
+  save.best.floor = Math.max(save.best.floor, reached);
+  save.best.runs++;
+  save.totals.battles += run.stats.battles || 0;
+  save.totals.captures += run.stats.captures || 0;
+  save.totals.fusions += run.stats.fusions || 0;
+  for (const m of [...run.party, ...run.box]) recordCollection(save, m.genome, run.floor);
+  save.run = null;
+  return save;
+}
+
+// ---- src/game/run.js ----
+// Endless arena rules. Pure game logic over a plain `run` object; the UI calls
+// these and persists the result. Every roll is seeded by the run seed and floor.
+
+
+
+
+
+
+
+const ARENA = {
+  partyMax: MAX_PARTY,
+  starterLevel: 5,
+  baseLevel: 4,
+  levelPerFloor: 2,
+  maxLevel: 100,
+  bossEvery: 5,
+  trainerEvery: 3,
+  healBetweenFloors: 0.4,
+  xpK: 5.5,
+  wildFusionFrom: 6,
+};
+
+const TRAINER_NAMES = ['Ranger Ivy', 'Scout Bram', 'Herder Tobin', 'Keeper Sable', 'Drifter Wren', 'Tamer Oakes', 'Courier Pim', 'Warden’s Aide Lise'];
+const WARDEN_NAMES = ['Ashvale', 'Brine', 'Cinder', 'Duskmoor', 'Emberlake', 'Frostgate', 'Gloam', 'Hollowreach'];
+
+function floorLevel(floor) { return Math.min(ARENA.maxLevel, ARENA.baseLevel + floor * ARENA.levelPerFloor); }
+function xpForLevel(L) { return L * L * L; }
+/** XP for defeating (or catching) one foe. Tuned so a floor is worth roughly two levels. */
+function xpReward(level, bst, kind) {
+  return Math.round(ARENA.xpK * level * level * ((bst || 400) / 400) * (kind === 'boss' ? 1.5 : 1));
+}
+
+function memberMaxHp(m) { return statsAtLevel(m.genome, m.level).hp; }
+
+function makeMember(genome, level, uid) {
+  const m = { uid, genome, level, xp: xpForLevel(level), hp: 0, status: null };
+  m.hp = memberMaxHp(m);
+  return m;
+}
+
+function nextUid(run) { return `m${run.nextId++}`; }
+
+function newRun(seed) {
+  const rng = makeRng(`${seed}:starters`);
+  const starters = [];
+  const used = new Set();
+  let guard = 0;
+  while (starters.length < 3 && guard++ < 50) {
+    const sp = rng.weighted(SPECIES.filter((s) => s.tier !== 'rare'), (s) => TIER_WEIGHT[s.tier]);
+    if (used.has(sp.id)) continue;
+    used.add(sp.id);
+    starters.push(speciesGenome(sp, rng.fork(`s${starters.length}`)));
+  }
+  return {
+    seed: String(seed), floor: 1, phase: 'starter', party: [], box: [], starters, altar: false, encounter: null,
+    nextId: 1, stats: { battles: 0, captures: 0, fusions: 0, bosses: 0 }, lastReport: null,
+  };
+}
+
+function chooseStarter(run, index) {
+  const g = run.starters[index];
+  if (!g) throw new Error('No such starter.');
+  run.party = [makeMember(g, ARENA.starterLevel, nextUid(run))];
+  run.starters = null;
+  run.phase = 'floor';
+  run.encounter = encounterFor(run, run.floor);
+  return run;
+}
+
+function wildGenome(rng, floor) {
+  const sp = rng.weighted(SPECIES, (s) => (s.tier === 'rare' ? Math.min(0.9, 0.2 + floor * 0.02) : s.tier === 'uncommon' ? Math.min(1, 0.55 + floor * 0.01) : 1));
+  return speciesGenome(sp, rng.fork(`w${sp.id}`));
+}
+
+function wildOrFusion(rng, floor) {
+  const fusionChance = floor >= ARENA.wildFusionFrom ? Math.min(0.35, (floor - ARENA.wildFusionFrom + 1) * 0.04) : 0;
+  const a = wildGenome(rng.fork('a'), floor);
+  if (!rng.chance(fusionChance)) return a;
+  const b = wildGenome(rng.fork('b'), floor);
+  return fuse(a, b, rng.fork('fuse')).child;
+}
+
+/** The encounter waiting on a floor. Deterministic per run seed and floor. */
+function encounterFor(run, floor) {
+  const rng = makeRng(`${run.seed}:floor:${floor}`);
+  const L = floorLevel(floor);
+  const cap = (x) => Math.max(2, Math.min(ARENA.maxLevel, x));
+  if (floor % ARENA.bossEvery === 0) {
+    const count = Math.min(ARENA.partyMax, 2 + Math.floor(floor / ARENA.bossEvery));
+    const a = wildGenome(rng.fork('b1'), floor), b = wildGenome(rng.fork('b2'), floor), c = wildGenome(rng.fork('b3'), floor);
+    const leader = fuse(fuse(a, b, rng.fork('f1')).child, c, rng.fork('f2')).child;
+    const foes = [{ genome: leader, level: cap(L + 3) }];
+    for (let i = 1; i < count; i++) foes.push({ genome: wildOrFusion(rng.fork(`m${i}`), floor), level: cap(L + 1) });
+    return { kind: 'boss', name: `Warden ${rng.pick(WARDEN_NAMES)}`, foes, capturable: false };
+  }
+  if (floor % ARENA.trainerEvery === 0) {
+    const count = Math.min(ARENA.partyMax, 1 + Math.floor(floor / ARENA.trainerEvery));
+    const foes = [];
+    for (let i = 0; i < count; i++) foes.push({ genome: wildOrFusion(rng.fork(`t${i}`), floor), level: cap(L - rng.int(2)) });
+    return { kind: 'trainer', name: rng.pick(TRAINER_NAMES), foes, capturable: false };
+  }
+  const g = wildOrFusion(rng.fork('wild'), floor);
+  return { kind: 'wild', name: `Wild ${g.name}`, foes: [{ genome: g, level: cap(L + rng.between(-1, 1)) }], capturable: true };
+}
+
+/** Build the engine state for the current floor. Rotates a fainted lead out of the first slot. */
+function buildBattle(run) {
+  const enc = run.encounter;
+  if (!enc) throw new Error('No encounter on this floor.');
+  if (run.party[0].hp <= 0) {
+    const k = run.party.findIndex((m) => m.hp > 0);
+    if (k < 0) throw new Error('Nobody in the party can fight.');
+    run.party.unshift(...run.party.splice(k, 1));
+  }
+  const mine = run.party.map((m) => {
+    const b = makeBattler(m.genome, m.level);
+    b.hp = Math.max(0, Math.min(m.hp, b.maxHp));
+    b.status = m.status;
+    b.fainted = b.hp <= 0;
+    return b;
+  });
+  const foes = enc.foes.map((f) => makeBattler(f.genome, f.level));
+  return createBattle({
+    sides: [{ name: 'You', party: mine }, { name: enc.name, ai: true, party: foes }],
+    seed: `${run.seed}:battle:${run.floor}`,
+    capturable: enc.capturable,
+  });
+}
+
+function gainXp(m, xp) {
+  const from = m.level;
+  m.xp += xp;
+  while (m.level < ARENA.maxLevel && m.xp >= xpForLevel(m.level + 1)) {
+    const oldMax = memberMaxHp(m);
+    m.level++;
+    if (m.hp > 0) m.hp += memberMaxHp(m) - oldMax;
+  }
+  return { from, to: m.level };
+}
+
+function healParty(run, fraction, full) {
+  for (const m of [...run.party, ...run.box]) {
+    const max = memberMaxHp(m);
+    if (full) { m.hp = max; m.status = null; continue; }
+    m.hp = Math.min(max, m.hp + Math.round(max * fraction));
+    if (m.status === 'slp' || m.status === 'frz') m.status = null;
+  }
+  return run;
+}
+
+/** Fold a finished battle back into the run. Returns { run, report }. */
+function applyBattle(run, state) {
+  const enc = run.encounter;
+  const mine = state.sides[0].party;
+  const foes = state.sides[1].party;
+  run.party.forEach((m, i) => { const b = mine[i]; if (b) { m.hp = b.hp; m.status = b.status; } });
+  const won = state.winner === 0;
+  const capturedBattler = state.captured ? foes.find((f) => f.uid === state.captured) : null;
+  let xp = 0;
+  for (const f of foes) if (f.fainted || (capturedBattler && f.uid === capturedBattler.uid)) xp += xpReward(f.level, f.genome.bst, enc.kind);
+  run.stats.battles++;
+  const report = { won, kind: enc.kind, foe: enc.name, xp: 0, levelUps: [], captured: null, floor: run.floor };
+  if (!won) { run.phase = 'gameover'; run.lastReport = report; return { run, report }; }
+  report.xp = xp;
+  for (const m of run.party) {
+    const r = gainXp(m, xp);
+    if (r.to > r.from) report.levelUps.push({ name: m.genome.name, from: r.from, to: r.to });
+  }
+  if (capturedBattler) {
+    const nm = makeMember(capturedBattler.genome, capturedBattler.level, nextUid(run));
+    nm.hp = Math.max(1, capturedBattler.hp);
+    nm.status = capturedBattler.status;
+    (run.party.length < ARENA.partyMax ? run.party : run.box).push(nm);
+    run.stats.captures++;
+    report.captured = nm;
+    report.toBox = !run.party.includes(nm);
+  }
+  if (enc.kind === 'boss') { run.stats.bosses++; run.altar = true; }
+  run.floor++;
+  run.encounter = encounterFor(run, run.floor);
+  healParty(run, ARENA.healBetweenFloors, false);
+  run.phase = 'floor';
+  run.lastReport = report;
+  return { run, report };
+}
+
+function findMember(run, uid) { return [...run.party, ...run.box].find((m) => m.uid === uid) || null; }
+
+function altarSeed(run, uidA, uidB) { return `${run.seed}:altar:${run.floor}:${uidA}:${uidB}`; }
+
+/** Preview the altar child without changing the run. */
+function previewFusion(run, uidA, uidB) {
+  const a = findMember(run, uidA), b = findMember(run, uidB);
+  if (!a || !b || a === b) return null;
+  return fuse(a.genome, b.genome, makeRng(altarSeed(run, uidA, uidB))).child;
+}
+
+/** Fuse two members at the altar. Both are consumed; the child takes the higher level and full HP. */
+function fuseMembers(run, uidA, uidB) {
+  const a = findMember(run, uidA), b = findMember(run, uidB);
+  if (!a || !b || a === b) throw new Error('Pick two different creatures.');
+  const child = previewFusion(run, uidA, uidB);
+  const member = makeMember(child, Math.max(a.level, b.level), nextUid(run));
+  run.party = run.party.filter((m) => m !== a && m !== b);
+  run.box = run.box.filter((m) => m !== a && m !== b);
+  (run.party.length < ARENA.partyMax ? run.party : run.box).push(member);
+  run.stats.fusions++;
+  run.altar = false;
+  healParty(run, 1, true);
+  return { run, child: member };
+}
+
+function skipAltar(run) { run.altar = false; healParty(run, 1, true); return run; }
+
+function moveMember(run, uid, to) {
+  const m = findMember(run, uid);
+  if (!m) return run;
+  if (to === 'box') {
+    if (run.party.length <= 1 || !run.party.includes(m)) return run;
+    run.party = run.party.filter((x) => x !== m); run.box.push(m);
+  } else {
+    if (run.party.length >= ARENA.partyMax || !run.box.includes(m)) return run;
+    run.box = run.box.filter((x) => x !== m); run.party.push(m);
+  }
+  return run;
+}
+
+function setLead(run, uid) {
+  const i = run.party.findIndex((m) => m.uid === uid);
+  if (i > 0) run.party.unshift(...run.party.splice(i, 1));
+  return run;
+}
+
+function canFight(run) { return run.party.some((m) => m.hp > 0); }
+
+// ---- src/ui/arena.js ----
+// Endless Arena: the game loop. Starter -> floors of wild, trainer and boss
+// encounters -> capture, level up, fuse at altars -> run ends on a wipe.
+
+
+
+
+
+
+
+
+
+
+const ar = { save: null, root: null, fight: null, altar: null, starterPick: -1, confirmReset: false, showReport: true };
+
+function save() { if (!persistSave(ar.save)) toast('Could not save (storage blocked?)'); }
+
+function renderArenaScreen(root) {
+  ar.root = root;
+  if (!ar.save) ar.save = loadSave();
+  if (ar.fight) { ar.fight.destroy(); ar.fight = null; }
+  clear(root);
+  const run = ar.save.run;
+  if (!run) return homeView(root);
+  if (run.phase === 'starter') return starterView(root, run);
+  if (run.phase === 'gameover') return gameOverView(root, run);
+  if (ar.altar) return altarView(root, run);
+  return floorView(root, run);
+}
+
+// ---- home -------------------------------------------------------------------
+
+function tile(label, value) { return h('div', { class: 'tile' }, h('b', {}, String(value)), h('span', {}, label)); }
+
+function homeView(root) {
+  const s = ar.save;
+  const rerender = () => renderArenaScreen(root);
+  const importInput = h('input', { class: 'seed code-in', type: 'text', placeholder: 'Paste a save code (CCSAVE1....)', autocapitalize: 'off', autocomplete: 'off', spellcheck: 'false', 'aria-label': 'Save code' });
   root.append(
-    h('div', { class: 'arena' },
-      h('div', { class: 'arena-row' }, els.foePanel, els.foeStage),
-      h('div', { class: 'arena-row' }, els.meStage, els.mePanel)),
-    els.log,
-    els.controls,
+    h('div', { class: 'hero-card' },
+      h('h2', {}, 'Endless Arena'),
+      h('p', { class: 'hint' }, 'Climb floors of wild creatures, trainers and wardens. Catch what you weaken, fuse what you catch, and see how deep you get before your party falls.'),
+      h('div', { class: 'tiles' }, tile('best floor', s.best.floor), tile('runs', s.best.runs), tile('caught', s.totals.captures), tile('fused', s.totals.fusions)),
+      h('button', { class: 'btn primary fuse-btn', type: 'button', onclick: () => { ar.save.run = newRun(freshSeed()); ar.starterPick = -1; save(); rerender(); } }, 'New run')),
   );
-  for (const i of [0, 1]) { renderStage(i); renderPanel(i); }
-  for (const line of bs.log.slice(-4)) els.log.append(h('div', { class: 'line' }, line));
-  renderControls();
-  if (st.phase === 'over') showResult();
-}
-
-function hpClass(frac) { return frac > 0.5 ? 'ok' : frac > 0.2 ? 'warn' : 'low'; }
-
-function renderPanel(i) {
-  const st = bs.state, side = st.sides[i], b = activeOf(st, i);
-  const el = i === 0 ? bs.els.mePanel : bs.els.foePanel;
-  const frac = b.hp / b.maxHp;
-  clear(el).append(
-    h('div', { class: 'panel-head' }, h('b', {}, b.name), h('span', { class: 'lvl' }, `Lv ${b.level}`),
-      b.status ? h('span', { class: `status st-${b.status}` }, STATUS_INFO[b.status].short) : null),
-    typeChips(b.types),
-    h('div', { class: 'hpbar' }, h('i', { class: hpClass(frac), style: { width: `${Math.max(0, frac * 100)}%` } })),
-    h('div', { class: 'panel-foot' },
-      h('span', { class: 'hpnum' }, i === 0 ? `${b.hp} / ${b.maxHp}` : `${Math.ceil(frac * 100)}%`),
-      h('span', { class: 'balls' }, side.party.map((p) => h('i', { class: p.fainted ? 'out' : '' })))),
-  );
-  el.dataset.uid = b.uid;
-}
-
-function renderStage(i) {
-  const b = activeOf(bs.state, i);
-  const el = i === 0 ? bs.els.meStage : bs.els.foeStage;
-  clear(el).append(h('div', { class: 'combatant enter', dataset: { uid: b.uid } }, creatureEl(b.genome, { size: 200, facing: i === 0 ? 'right' : 'left' })));
-  setTimeout(() => { const c = el.firstChild; if (c) c.classList.remove('enter'); }, 400);
-}
-
-function setHp(i, hp, maxHp) {
-  const el = i === 0 ? bs.els.mePanel : bs.els.foePanel;
-  const bar = el.querySelector('.hpbar i');
-  const frac = hp / maxHp;
-  if (bar) { bar.style.width = `${Math.max(0, frac * 100)}%`; bar.className = hpClass(frac); }
-  const num = el.querySelector('.hpnum');
-  if (num) num.textContent = i === 0 ? `${hp} / ${maxHp}` : `${Math.ceil(frac * 100)}%`;
-}
-
-function animate(i, cls, ms = 500) {
-  const el = i === 0 ? bs.els.meStage : bs.els.foeStage;
-  const c = el.firstChild;
-  if (!c) return;
-  c.classList.add(cls);
-  setTimeout(() => c.classList.remove(cls), ms);
-}
-
-function logLine(text) {
-  if (!text) return;
-  bs.log.push(text);
-  const el = bs.els.log;
-  el.append(h('div', { class: 'line' }, text));
-  while (el.children.length > 4) el.removeChild(el.firstChild);
-}
-
-/** Apply one event to the DOM. Returns how long to pause after it. */
-function applyEvent(e) {
-  const text = describeEvent(e, bs.names);
-  switch (e.t) {
-    case 'turn': logLine(text); return 250;
-    case 'switch': renderStage(e.side); renderPanel(e.side); logLine(text); return 650;
-    case 'move': logLine(text); animate(e.side, e.side === 0 ? 'lunge-r' : 'lunge-l', 450); return 550;
-    case 'damage': animate(e.side, 'hit', 450); setHp(e.side, e.hp, e.maxHp); logLine(text); return e.eff !== 1 || e.crit ? 750 : 550;
-    case 'hurt': animate(e.side, 'hit', 350); setHp(e.side, e.hp, e.maxHp); logLine(text); return 550;
-    case 'heal': setHp(e.side, e.hp, e.maxHp); logLine(text); return 550;
-    case 'faint': animate(e.side, 'faint', 900); logLine(text); renderPanel(e.side); return 900;
-    case 'status': case 'cure': renderPanel(e.side); logLine(text); return 550;
-    case 'end': logLine(text); return 600;
-    default: logLine(text); return text ? 450 : 0;
+  if (s.collection.length) {
+    const grid = h('div', { class: 'pool' });
+    for (const e of s.collection.slice().reverse()) {
+      grid.append(h('button', { class: 'pcard', type: 'button', onclick: () => openSheet(e.genome) },
+        e.genome.gen ? h('span', { class: 'gen' }, `gen ${e.genome.gen}`) : null,
+        creatureEl(e.genome, { size: 104, animate: false }), h('span', {}, e.genome.name)));
+    }
+    root.append(...section(`Collection · ${s.collection.length}`, h('p', { class: 'hint' }, 'Every species and fusion that has been on your team. Tap for details, or send one to the Fusion Lab from its sheet.'), grid));
   }
+  root.append(...section('Save',
+    h('div', { class: 'toolbar' },
+      h('button', { class: 'btn', type: 'button', onclick: async () => toast((await copyText(exportSave(ar.save))) ? 'Save code copied' : 'Copy failed') }, 'Export'),
+      h('button', { class: `btn${ar.confirmReset ? ' danger' : ''}`, type: 'button', onclick: () => {
+        if (!ar.confirmReset) { ar.confirmReset = true; toast('Tap again to erase everything'); rerender(); setTimeout(() => { ar.confirmReset = false; if (root.isConnected) rerender(); }, 4000); return; }
+        ar.save = emptySave(); clearSave(); ar.confirmReset = false; toast('Save erased'); rerender();
+      } }, ar.confirmReset ? 'Really erase?' : 'Erase save')),
+    h('div', { class: 'toolbar' }, importInput,
+      h('button', { class: 'btn', type: 'button', onclick: () => {
+        try { ar.save = importSave(importInput.value); save(); toast('Save loaded'); rerender(); } catch (e) { toast(e.message); }
+      } }, 'Import')),
+    h('p', { class: 'hint' }, 'Progress autosaves in this browser. Export gives you a code to move it elsewhere.')));
 }
 
-async function playEvents(events, token) {
-  for (const e of events) {
-    if (token !== bs.token || !bs.root.isConnected || bs.mode !== 'fight') return false;
-    const ms = applyEvent(e);
-    if (ms) await wait(bs.fast ? Math.round(ms * 0.3) : ms);
-  }
-  return token === bs.token && bs.root.isConnected && bs.mode === 'fight';
-}
+// ---- starter ----------------------------------------------------------------
 
-function effMarker(mv, foe) {
-  if (mv.cat === 'status' && !mv.fx.some((f) => f.k === 'status')) return '';
-  const eff = moveEffectiveness(mv, foe);
-  if (mv.cat === 'status') return eff === 0 ? '✕' : '';
-  if (eff === 0) return '✕';
-  if (eff >= 4) return '▲▲';
-  if (eff >= 2) return '▲';
-  if (eff <= 0.25) return '▼▼';
-  if (eff < 1) return '▼';
-  return '';
-}
-
-function renderControls() {
-  const el = bs.els && bs.els.controls;
-  if (!el) return;
-  const st = bs.state;
-  clear(el);
-  const util = h('div', { class: 'util-row' },
-    h('button', { class: `btn small${bs.fast ? ' on' : ''}`, type: 'button', onclick: () => { bs.fast = !bs.fast; renderControls(); } }, bs.fast ? 'Fast ✓' : 'Fast'),
-    h('button', { class: `btn small${bs.auto ? ' on' : ''}`, type: 'button', onclick: () => { bs.auto = !bs.auto; renderControls(); if (bs.auto && !bs.busy && st.phase !== 'over') afterStep(); } }, bs.auto ? 'Auto ✓' : 'Auto'),
-    h('button', { class: 'btn small', type: 'button', onclick: () => { bs.token++; bs.mode = 'setup'; bs.auto = false; renderBattleScreen(bs.root); } }, 'Quit'),
-  );
-  if (st.phase === 'over') { el.append(util); return; }
-  if (bs.busy || bs.auto) {
-    el.append(h('div', { class: 'waiting' }, bs.auto ? 'Auto battle running…' : '…'), util);
-    return;
-  }
-  if (st.phase === 'replace') {
-    el.append(h('button', { class: 'btn primary fuse-btn', type: 'button', onclick: () => openParty(true) }, 'Choose next creature'), util);
-    return;
-  }
-  const me = activeOf(st, 0), foe = activeOf(st, 1);
-  const legal = legalActions(st, 0);
-  const grid = h('div', { class: 'moves' });
-  me.moves.forEach((m, i) => {
-    const mv = getMove(m.id);
-    const info = TYPE_INFO[mv.type];
-    const ok = legal.some((a) => a.type === 'move' && a.index === i);
-    grid.append(h('button', { class: 'move-btn', type: 'button', disabled: !ok, style: { '--chip': info.color }, onclick: () => doStep({ type: 'move', index: i }) },
-      h('span', { class: 'mv-name' }, mv.name, h('em', { class: 'eff' }, effMarker(mv, foe))),
-      h('span', { class: 'mv-meta' }, h('span', { class: 'chip' }, h('b', {}, info.glyph), mv.type), h('span', { class: 'pp' }, `${m.pp}/${m.maxPp}`))));
-  });
-  const struggle = legal.find((a) => a.struggle);
-  if (struggle) grid.append(h('button', { class: 'move-btn', type: 'button', onclick: () => doStep(struggle) }, h('span', { class: 'mv-name' }, 'Struggle'), h('span', { class: 'mv-meta' }, 'No PP left')));
-  el.append(grid, h('div', { class: 'row' },
-    h('button', { class: 'btn', type: 'button', onclick: () => openParty(false) }, `Party (${aliveCount(st.sides[0])})`),
-    h('button', { class: 'btn', type: 'button', onclick: () => openSheet(me.genome) }, 'Info')), util);
-}
-
-function openParty(forced) {
-  if (bs.sheetClose) bs.sheetClose();
-  const st = bs.state, side = st.sides[0];
-  const legal = legalActions(st, 0);
-  const close = () => { backdrop.remove(); sheet.remove(); bs.sheetClose = null; };
-  bs.sheetClose = close;
-  const backdrop = h('div', { class: 'sheet-backdrop', onclick: forced ? null : close });
-  const list = h('div', { class: 'party-list' });
-  side.party.forEach((b, i) => {
-    const can = legal.some((a) => a.type === 'switch' && a.index === i);
-    const frac = b.hp / b.maxHp;
-    list.append(h('button', { class: `party-row${i === side.active ? ' active' : ''}${b.fainted ? ' fainted' : ''}`, type: 'button', disabled: !can, onclick: () => { close(); doStep({ type: 'switch', index: i }); } },
-      creatureEl(b.genome, { size: 64, animate: false }),
-      h('div', { class: 'party-info' },
-        h('div', {}, h('b', {}, b.name), ' ', h('span', { class: 'lvl' }, `Lv ${b.level}`), b.status ? h('span', { class: `status st-${b.status}` }, STATUS_INFO[b.status].short) : null, i === side.active ? h('span', { class: 'status' }, 'ACTIVE') : null),
-        h('div', { class: 'hpbar' }, h('i', { class: hpClass(frac), style: { width: `${frac * 100}%` } })),
-        h('div', { class: 'hint', style: { margin: 0 } }, `${b.hp} / ${b.maxHp} · ${abilityName(b.ability)}`))));
-  });
-  const sheet = h('section', { class: 'sheet', role: 'dialog', 'aria-modal': 'true', 'aria-label': 'Party' },
-    h('div', { class: 'grab' }),
-    h('div', { class: 'sheet-head' }, h('h2', {}, forced ? 'Choose your next creature' : 'Party'), forced ? null : h('button', { class: 'btn close', onclick: close, 'aria-label': 'Close' }, '✕')),
-    list);
-  document.body.append(backdrop, sheet);
-}
-
-function showResult() {
-  const st = bs.state;
-  const won = st.winner === 0, draw = st.winner == null;
-  const card = h('div', { class: 'result-card' },
-    h('h2', {}, draw ? 'Draw!' : won ? 'You won!' : 'You lost…'),
-    h('p', { class: 'hint' }, `${st.turn} turns · ${aliveCount(st.sides[0])} of yours still standing`),
+function starterView(root, run) {
+  const rerender = () => renderArenaScreen(root);
+  const cards = h('div', { class: 'starters' });
+  run.starters.forEach((g, i) => cards.append(h('button', { class: `pslot${ar.starterPick === i ? ' filled' : ''}`, type: 'button', onclick: () => { ar.starterPick = i; rerender(); } },
+    creatureEl(g, { size: 150, animate: true }), h('b', {}, g.name), typeChips(g.types),
+    h('span', { class: 'hint', style: { margin: 0 } }, `Lv ${ARENA.starterLevel}`))));
+  const pick = run.starters[ar.starterPick];
+  root.append(
+    h('h2', { class: 'screen-title' }, 'Choose your starter'),
+    h('p', { class: 'hint' }, 'Three wild creatures are willing to come along. Tap one to see it, then start the climb.'),
+    cards,
     h('div', { class: 'row wrap' },
-      h('button', { class: 'btn primary', type: 'button', onclick: () => { bs.auto = false; startBattle(bs.last.mine, { foeParty: bs.last.foe }); } }, 'Rematch'),
-      h('button', { class: 'btn', type: 'button', onclick: () => { bs.auto = false; startBattle(bs.last.mine); } }, 'New opponent'),
-      h('button', { class: 'btn', type: 'button', onclick: () => { bs.mode = 'setup'; bs.auto = false; renderBattleScreen(bs.root); } }, 'Change party')));
-  bs.els.controls.prepend(card);
+      h('button', { class: 'btn primary fuse-btn', type: 'button', disabled: !pick, onclick: () => {
+        chooseStarter(run, ar.starterPick); recordCollection(ar.save, run.party[0].genome, 1); save(); rerender();
+      } }, pick ? `Start with ${pick.name}` : 'Pick a starter'),
+      pick ? h('button', { class: 'btn', type: 'button', onclick: () => openSheet(pick) }, 'Details') : null,
+      h('button', { class: 'btn', type: 'button', onclick: () => { ar.save.run = null; save(); rerender(); } }, 'Cancel')),
+  );
+}
+
+// ---- floor ------------------------------------------------------------------
+
+function memberRow(run, m, actions) {
+  const max = memberMaxHp(m);
+  const frac = m.hp / max;
+  const next = m.level < ARENA.maxLevel ? xpForLevel(m.level + 1) : m.xp;
+  const prev = xpForLevel(m.level);
+  const xpFrac = next > prev ? Math.min(1, (m.xp - prev) / (next - prev)) : 1;
+  return h('div', { class: `party-row static${m.hp <= 0 ? ' fainted' : ''}` },
+    creatureEl(m.genome, { size: 64, animate: false }),
+    h('div', { class: 'party-info' },
+      h('div', {}, h('b', {}, m.genome.name), ' ', h('span', { class: 'lvl' }, `Lv ${m.level}`), ' ',
+        m.status ? h('span', { class: `status st-${m.status}` }, STATUS_INFO[m.status].short) : null,
+        m.hp <= 0 ? h('span', { class: 'status' }, 'FAINTED') : null),
+      h('div', { class: 'hpbar' }, h('i', { class: frac > 0.5 ? 'ok' : frac > 0.2 ? 'warn' : 'low', style: { width: `${Math.max(0, frac * 100)}%` } })),
+      h('div', { class: 'xpbar' }, h('i', { style: { width: `${xpFrac * 100}%` } })),
+      h('div', { class: 'row-actions' }, h('span', { class: 'hint', style: { margin: 0 } }, `${m.hp} / ${max}`), ...actions)));
+}
+
+function smallBtn(label, onclick, disabled) { return h('button', { class: 'btn small', type: 'button', disabled, onclick }, label); }
+
+function reportCard(report) {
+  if (!report || !report.won) return null;
+  const lines = [];
+  lines.push(`Beat ${report.foe} on floor ${report.floor}. +${report.xp} XP each.`);
+  for (const l of report.levelUps) lines.push(`${l.name} grew to Lv ${l.to}!`);
+  if (report.captured) lines.push(`${report.captured.genome.name} joined ${report.toBox ? 'the box' : 'the party'}.`);
+  return h('div', { class: 'result-card slim' }, lines.map((t) => h('div', {}, t)),
+    h('button', { class: 'btn small', type: 'button', onclick: () => { ar.showReport = false; renderArenaScreen(ar.root); } }, 'Dismiss'));
+}
+
+function floorView(root, run) {
+  const rerender = () => renderArenaScreen(root);
+  const enc = run.encounter;
+  const L = floorLevel(run.floor);
+  const kindLabel = { wild: 'Wild encounter', trainer: 'Trainer battle', boss: 'Warden' }[enc.kind];
+  const foesRow = h('div', { class: 'foes' }, enc.foes.map((f) => h('div', { class: 'foe-card' },
+    creatureEl(f.genome, { size: enc.foes.length > 2 ? 78 : 120, facing: 'left', animate: enc.foes.length <= 2 }),
+    h('span', {}, `${f.genome.name} · Lv ${f.level}`))));
+  appendChildren(root, [
+    h('div', { class: 'floor-head' },
+      h('div', {}, h('h2', { class: 'screen-title' }, `Floor ${run.floor}`), h('span', { class: 'hint' }, `wild level ${L} · ${run.stats.captures} caught · ${run.stats.fusions} fused`)),
+      h('button', { class: 'btn small', type: 'button', onclick: () => { if (confirm('Abandon this run? Your party retires to the collection.')) { run.phase = 'gameover'; endRun(ar.save); save(); rerender(); } } }, 'Abandon')),
+    ar.showReport ? reportCard(run.lastReport) : null,
+    h('div', { class: `encounter ${enc.kind}` },
+      h('div', { class: 'enc-head' }, h('span', { class: `kind-badge ${enc.kind}` }, kindLabel), h('b', {}, enc.name)),
+      foesRow,
+      enc.capturable ? h('p', { class: 'hint' }, 'Wild creatures can be captured during the fight. Weaken them first.') : null,
+      h('div', { class: 'row wrap' },
+        h('button', { class: 'btn primary fuse-btn', type: 'button', disabled: !canFight(run), onclick: () => startArenaBattle(root, run) }, canFight(run) ? 'Fight' : 'Nobody can fight'),
+        run.altar ? h('button', { class: 'btn altar-btn', type: 'button', onclick: () => { ar.altar = { a: null, b: null }; rerender(); } }, '✦ Fusion altar') : null)),
+  ]);
+  const partyList = h('div', { class: 'party-list' });
+  run.party.forEach((m, i) => partyList.append(memberRow(run, m, [
+    smallBtn('Lead', () => { setLead(run, m.uid); save(); rerender(); }, i === 0),
+    smallBtn('Box', () => { moveMember(run, m.uid, 'box'); save(); rerender(); }, run.party.length <= 1),
+    smallBtn('Info', () => openSheet(m.genome)),
+  ])));
+  root.append(...section(`Party · ${run.party.length}/${ARENA.partyMax}`, h('p', { class: 'hint' }, 'The lead goes out first. Everyone recovers 40% HP between floors; the altar heals fully.'), partyList));
+  if (run.box.length) {
+    const boxList = h('div', { class: 'party-list' });
+    for (const m of run.box) boxList.append(memberRow(run, m, [
+      smallBtn('To party', () => { moveMember(run, m.uid, 'party'); save(); rerender(); }, run.party.length >= ARENA.partyMax),
+      smallBtn('Info', () => openSheet(m.genome)),
+    ]));
+    root.append(...section(`Box · ${run.box.length}`, boxList));
+  }
+}
+
+function startArenaBattle(root, run) {
+  let built;
+  try { built = buildBattle(run); } catch (e) { toast(e.message); return; }
+  save();
+  clear(root);
+  const host = h('div');
+  root.append(h('div', { class: 'floor-head compact' }, h('b', {}, `Floor ${run.floor} · ${run.encounter.name}`)), host);
+  ar.fight = mountFight(host, {
+    state: built.state, events: built.events, names: ['You', run.encounter.name], wild: run.encounter.capturable, fast: ar.save.settings.fast,
+    onEnd: (state) => {
+      const { report } = applyBattle(run, state);
+      if (report.captured) recordCollection(ar.save, report.captured.genome, report.floor);
+      ar.showReport = true;
+      save();
+    },
+    resultButtons: [{ label: 'Continue', primary: true, onclick: () => renderArenaScreen(root) }],
+  });
+}
+
+// ---- altar ------------------------------------------------------------------
+
+function altarView(root, run) {
+  const rerender = () => renderArenaScreen(root);
+  const pick = ar.altar;
+  const all = [...run.party, ...run.box];
+  const list = h('div', { class: 'pool' });
+  for (const m of all) {
+    const tag = pick.a === m.uid ? 'A' : pick.b === m.uid ? 'B' : null;
+    list.append(h('button', { class: `pcard${tag === 'A' ? ' is-a' : tag === 'B' ? ' is-b' : ''}`, type: 'button', onclick: () => {
+      if (pick.a === m.uid) pick.a = null; else if (pick.b === m.uid) pick.b = null; else if (!pick.a) pick.a = m.uid; else if (!pick.b) pick.b = m.uid; else pick.b = m.uid;
+      rerender();
+    } }, tag ? h('span', { class: `sel badge ${tag.toLowerCase()}` }, tag) : null, creatureEl(m.genome, { size: 104, animate: false }), h('span', {}, `${m.genome.name} · Lv ${m.level}`)));
+  }
+  const child = pick.a && pick.b ? previewFusion(run, pick.a, pick.b) : null;
+  root.append(
+    h('h2', { class: 'screen-title' }, '✦ Fusion altar'),
+    h('p', { class: 'hint' }, 'Fuse two of your creatures into one. Both are consumed; the child keeps the higher level and starts at full health. Everyone is fully healed when you leave.'),
+    ...section('Choose two', list),
+    child ? h('div', { class: 'result' },
+      h('div', { class: 'sheet-head' }, h('h2', {}, child.name), typeChips(child.types)),
+      h('p', { class: 'meta' }, `gen ${child.gen} · ${child.parents.join(' × ')}`),
+      h('div', { class: 'hero' }, creatureEl(child, { size: 240, fit: true })),
+      h('div', { class: 'row wrap' },
+        h('button', { class: 'btn primary', type: 'button', onclick: () => {
+          const { child: member } = fuseMembers(run, pick.a, pick.b);
+          recordCollection(ar.save, member.genome, run.floor);
+          addToPool(member.genome);
+          ar.altar = null; save(); toast(`${member.genome.name} is born!`); rerender();
+        } }, 'Fuse them'),
+        h('button', { class: 'btn', type: 'button', onclick: () => openSheet(child) }, 'Details'))) : null,
+    h('div', { class: 'row wrap' }, h('button', { class: 'btn', type: 'button', onclick: () => { skipAltar(run); ar.altar = null; save(); rerender(); } }, 'Leave without fusing')),
+  );
+}
+
+// ---- game over --------------------------------------------------------------
+
+function gameOverView(root, run) {
+  const rerender = () => renderArenaScreen(root);
+  const fallen = h('div', { class: 'pool' });
+  for (const m of [...run.party, ...run.box]) fallen.append(h('button', { class: 'pcard', type: 'button', onclick: () => openSheet(m.genome) }, creatureEl(m.genome, { size: 104, animate: false }), h('span', {}, `${m.genome.name} · Lv ${m.level}`)));
+  root.append(
+    h('div', { class: 'hero-card' },
+      h('h2', {}, `Run over on floor ${run.floor}`),
+      h('p', { class: 'hint' }, `${run.stats.battles} battles · ${run.stats.captures} caught · ${run.stats.fusions} fused · ${run.stats.bosses} wardens beaten`),
+      h('button', { class: 'btn primary fuse-btn', type: 'button', onclick: () => { endRun(ar.save); save(); rerender(); } }, 'Retire the team and return')),
+    ...section('Your team', h('p', { class: 'hint' }, 'They join the collection, and you can still fuse them in the Fusion Lab.'), fallen),
+  );
 }
 
 // ---- src/ui/main.js ----
@@ -3560,11 +4248,13 @@ function showResult() {
 
 
 
+
 const SCREENS = [
+  { id: 'arena', title: 'Arena', render: renderArenaScreen },
+  { id: 'battle', title: 'Battle', render: renderBattleScreen },
+  { id: 'fusion', title: 'Fusion', render: renderFusionScreen },
   { id: 'lab', title: 'Lab', render: renderLabScreen },
   { id: 'parts', title: 'Parts', render: renderPartsScreen },
-  { id: 'fusion', title: 'Fusion', render: renderFusionScreen },
-  { id: 'battle', title: 'Battle', render: renderBattleScreen },
 ];
 
 function bootApp() {

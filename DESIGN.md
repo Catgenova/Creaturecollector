@@ -186,16 +186,54 @@ effectiveness marker, party sheet for switching, Fast and Auto toggles, and a
 result card with rematch. Events play with lunge, hit-shake, HP transitions
 and faint animations.
 
-## Arena and save (Phase 4)
+## Arena and save (Phase 4 — implemented)
 
-Endless floors with rising level and party size, fusion altar between floors,
-capture on weakened wild creatures, run ends on wipe. Save in localStorage with
-a versioned schema plus export/import strings. Team codes for sharing.
+`src/game/run.js` holds the rules as pure functions over a `run` object;
+`src/ui/arena.js` drives them and persists after every change through
+`src/game/save.js`.
+
+- **Run.** Pick one of three seeded starters at level 5, then climb floors.
+  Wild level = 4 + 2 × floor, capped at 100. Every floor is one encounter,
+  generated deterministically from the run seed and floor number.
+- **Encounters.** Wild (one creature, capturable) by default; a trainer with
+  1 + floor/3 creatures every third floor; a Warden every fifth floor whose
+  leader is a gen-2 fusion three levels up, followed by the fusion altar. From
+  floor 6, wild fusions appear with rising odds (cap 35%). Rare species get
+  more common as floors climb.
+- **Capture** is an in-battle action (engine `{ type: 'capture' }`, wild only).
+  Odds shown on the button: `0.08 + 0.72 × hpFactor × tier × status`, where
+  hpFactor runs from 1/3 at full HP to 1 at none, tier is 1 / 0.7 / 0.45 for
+  common / uncommon / rare (fusions × 0.7), status × 1.5 (sleep, freeze × 2),
+  capped at 95%. Three shake checks at the cube root of the odds. A capture
+  costs the turn; success ends the battle as a win.
+- **XP and levels.** `xpForLevel(L) = L³`. Each defeated or caught foe gives
+  `5.5 × L² × bst/400` (× 1.5 for wardens) to every party member, tuned so a
+  floor is worth about two levels and the party keeps pace with the curve.
+  Levelling raises current HP by the max-HP gain. Movesets follow the learnset
+  automatically.
+- **Between floors** everyone recovers 40% HP and shakes off sleep and freeze;
+  other statuses stick until the altar, which heals fully.
+- **Party and box.** Five in the party, overflow in the box, swap freely
+  between floors, choose the lead. A fainted lead is rotated out
+  automatically. A run ends when the whole party faints in one battle.
+- **Altar.** After each warden: fuse any two of your creatures (party or box).
+  Both are consumed; the child takes the higher level. Preview before you
+  commit; the child also lands in the Fusion Lab pool.
+- **Save.** One localStorage key, versioned, normalised on load so junk cannot
+  brick it. Holds best floor, totals, the collection (species deduped, fusions
+  by name and seed, capped at 200) and the run in progress. Battles themselves
+  are not persisted: a reload mid-fight returns you to the floor. Export and
+  import as a `CCSAVE1.` code. Ending a run retires the team into the
+  collection, where any creature can be inspected or sent to the Fusion Lab.
+
+The fight view is a reusable component (`ui/fight.js`) shared by the Arena and
+the sandbox Battle tab.
 
 ## Later
 
-Overworld (tile map, movement, encounters, NPC dialogue, story beats), sound
-(WebAudio), Fusiondex, single-file distribution stays.
+Balance pass with the simulator, more parts and species, sound (WebAudio),
+move-learning choices, trainer personalities, and then the overworld: tile map,
+movement, encounters, NPC dialogue, story beats. Single-file distribution stays.
 
 ## Limitations to keep in mind
 
