@@ -2,7 +2,8 @@
 // these and persists the result. Every roll is seeded by the run seed and floor.
 import { makeRng } from '../core/rng.js';
 import { WILD_SPECIES as SPECIES, TIER_WEIGHT } from '../data/species.js';
-import { speciesGenome, learnsetOf } from '../creature/genome.js';
+import { speciesGenome, learnsetOf, rollElemental } from '../creature/genome.js';
+import { ELEMENTAL_CHANCE } from '../data/elements.js';
 import { getMove } from '../data/moves.js';
 import { fuse, canFuse } from '../creature/fusion.js';
 import { BIOMES, CLADE_IDS } from '../data/clades.js';
@@ -24,6 +25,7 @@ export const ARENA = {
   wildFusionFrom: 8,
   rareFrom: 4,
   gentleFloors: 3,
+  elementalChance: ELEMENTAL_CHANCE, // a capturable wild creature born of an element
 };
 
 const TRAINER_NAMES = ['Ranger Ivy', 'Scout Bram', 'Herder Tobin', 'Keeper Sable', 'Drifter Wren', 'Tamer Oakes', 'Courier Pim', 'Warden’s Aide Lise'];
@@ -155,7 +157,8 @@ export function encounterFor(run, floor) {
     const counters = (w) => w.types.some((t) => t && typeEffectiveness(t, leadTypes) >= 2);
     for (let i = 0; i < 8 && counters(g); i++) g = wildOrFusion(rng.fork(`wild${i}`), floor);
   }
-  return { kind: 'wild', name: `Wild ${g.name}`, foes: [{ genome: g, level: cap(L + rng.between(-1, 1)) }], capturable: true, biome: biomeFor(floor).id };
+  const elemental = rollElemental(g, rng.fork('elemental'), ARENA.elementalChance);
+  return { kind: 'wild', name: `Wild ${g.name}`, foes: [{ genome: g, level: cap(L + rng.between(-1, 1)) }], capturable: true, biome: biomeFor(floor).id, elemental };
 }
 
 /** Build the engine state for the current floor. Rotates a fainted lead out of the first slot. */

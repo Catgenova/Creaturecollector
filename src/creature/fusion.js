@@ -13,7 +13,8 @@
 import { getPart, partFits } from '../data/parts/index.js';
 import { getRig, slotsFor, paintSlotsFor, swappableSlotsFor } from '../data/rigs.js';
 import { clamp01, lerp, round3, normalizeWeights } from '../core/util.js';
-import { GENOME_VERSION, PAINT_PERMS, TRAIT_KEYS, STAT_KEYS, randomPartId, learnsetOf, cladeOf, rigOf } from './genome.js';
+import { GENOME_VERSION, PAINT_PERMS, TRAIT_KEYS, STAT_KEYS, randomPartId, learnsetOf, cladeOf, rigOf, speciesOf } from './genome.js';
+import { ELEMENTS, isCoreAbility } from '../data/elements.js';
 import { CLADES, cladeName } from '../data/clades.js';
 import { getMove, UNIVERSAL_LEARNSET } from '../data/moves.js';
 import { blendColor } from './palette.js';
@@ -25,6 +26,7 @@ export const FUSE = {
   carriedMutation: 0.06,
   bodyMutation: 0.01,
   paintSwap: 0.05,
+  elementalAbility: 0.5,  // chance an Elemental parent's core ability passes to the child
   genBonusPerGen: 4,      // bst bonus per generation
   genBonusCap: 5,         // generations that count toward the bonus
   maxLineage: 16,
@@ -119,6 +121,14 @@ export function fuse(a, b, rng) {
     }
   }
 
+  // An Elemental's aura travels with the part it was expressed on; a mutated part is born plain.
+  const aura = {};
+  for (const slot of slotsFor(rig)) {
+    if (mutated[slot] || from[slot] == null) continue;
+    const src = parents[from[slot]];
+    if (src.aura && ELEMENTS[src.aura[slot]]) aura[slot] = src.aura[slot];
+  }
+
   const headPart = parts.head ? getPart(parts.head[0]) : null;
   const identity = headPart && !headPart.none && !mutated.head ? from.head : from.body;
   const P1 = parents[identity], P2 = parents[1 - identity];
@@ -174,6 +184,17 @@ export function fuse(a, b, rng) {
     vigor[k] = round3(clamp01(base + rStats.gauss() * 0.03));
   }
 
+  // Core abilities (born on Elementals) each get a chance to pass down; otherwise the usual
+  // draw between the parents' ordinary abilities, falling back to the identity species' own.
+  let ability = null;
+  for (const p of [P1, P2]) if (isCoreAbility(p.ability) && rAbility.chance(FUSE.elementalAbility)) { ability = p.ability; break; }
+  if (!ability) {
+    const plain = [P1, P2].filter((p) => !isCoreAbility(p.ability)).map((p) => p.ability);
+    if (plain.length === 2) ability = rAbility.chance(0.6) ? plain[0] : plain[1];
+    else if (plain.length === 1) ability = plain[0];
+    else { const sp = speciesOf(P1) || speciesOf(P2); ability = (sp && sp.abilities && sp.abilities[0]) || 'lucky_streak'; }
+  }
+
   const nameParts = [namePartsOf(P1)[0], namePartsOf(P2)[1]];
   const lineage = [...(a.lineage || []), ...(b.lineage || [])].filter((x, i, arr) => arr.indexOf(x) === i).slice(-FUSE.maxLineage);
 
@@ -191,8 +212,9 @@ export function fuse(a, b, rng) {
     parts, paint, palette, traits, stats, vigor, bst, lineage,
     parents: [a.name, b.name],
     learnset: fuseLearnsets(a, b, [primary, secondary]),
-    ability: rAbility.chance(0.6) ? P1.ability : P2.ability,
+    ability,
   };
+  if (Object.keys(aura).length) child.aura = aura;
   return {
     child,
     report: { from, mutated, identity, palette: palFrom, types: { primary: identity, secondary: secondaryFrom } },

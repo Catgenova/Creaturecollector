@@ -11,6 +11,7 @@ import { clamp } from '../core/util.js';
 import { typeEffectiveness } from '../data/types.js';
 import { getMove, moveFx, isDamaging, STRUGGLE } from '../data/moves.js';
 import { abilityName } from '../data/abilities.js';
+import { coreTypes } from '../data/elements.js';
 import { learnsetOf } from '../creature/genome.js';
 import { SPECIES_BY_ID } from '../data/species.js';
 import { statsAtLevel, movesAtLevel } from './stats.js';
@@ -229,6 +230,14 @@ function entryHooks(state, i, events) {
     events.push({ t: 'ability', side: i, name: me.name, ability: abilityName(me.ability) });
     changeStages(state, 1 - i, { atk: -1 }, events);
   }
+  if (me.ability === 'umbral_core' && !foe.fainted) {
+    events.push({ t: 'ability', side: i, name: me.name, ability: abilityName(me.ability) });
+    changeStages(state, 1 - i, { spa: -1 }, events);
+  }
+  if (me.ability === 'storm_core' && me.stages.spe < 6) {
+    events.push({ t: 'ability', side: i, name: me.name, ability: abilityName(me.ability) });
+    changeStages(state, i, { spe: 1 }, events);
+  }
 }
 
 function canHaveStatus(b, status, mv) {
@@ -236,11 +245,11 @@ function canHaveStatus(b, status, mv) {
   const t = b.types;
   if (mv && mv.flags.includes('powder') && t.includes('Grass')) return false;
   switch (status) {
-    case 'brn': return !t.includes('Fire') && b.ability !== 'damp_coat';
-    case 'psn': return !t.includes('Poison') && !t.includes('Steel') && b.ability !== 'antitoxin';
-    case 'par': return !t.includes('Electric') && b.ability !== 'loose_joints';
+    case 'brn': return !t.includes('Fire') && b.ability !== 'damp_coat' && b.ability !== 'inferno_core';
+    case 'psn': return !t.includes('Poison') && !t.includes('Steel') && b.ability !== 'antitoxin' && b.ability !== 'verdant_core';
+    case 'par': return !t.includes('Electric') && b.ability !== 'loose_joints' && b.ability !== 'storm_core';
     case 'slp': return b.ability !== 'restless';
-    case 'frz': return !t.includes('Ice') && b.ability !== 'warm_core';
+    case 'frz': return !t.includes('Ice') && b.ability !== 'warm_core' && b.ability !== 'frost_core';
     default: return false;
   }
 }
@@ -317,6 +326,8 @@ export function calcDamage(user, target, mv, eff, roll, crit) {
   if (user.ability === 'vice_jaw' && mv.flags.includes('bite')) power *= 1.5;
   if (user.ability === 'daredevil' && moveFx(mv, 'recoil')) power *= 1.2;
   if (SURGE[user.ability] === mv.type && user.hp <= user.maxHp / 3) power *= 1.5;
+  const core = coreTypes(user.ability);
+  if (core && core.includes(mv.type)) power *= 1.3;
   let dmg = Math.floor(Math.floor((Math.floor((2 * user.level) / 5) + 2) * power * A / D) / 50) + 2;
   if (crit) dmg = Math.floor(dmg * 1.5);
   dmg = Math.floor(dmg * roll);
@@ -324,6 +335,7 @@ export function calcDamage(user, target, mv, eff, roll, crit) {
   dmg = Math.floor(dmg * eff);
   if (user.status === 'brn' && mv.cat === 'phys' && user.ability !== 'grit') dmg = Math.floor(dmg / 2);
   if (target.ability === 'blubber' && (mv.type === 'Fire' || mv.type === 'Ice')) dmg = Math.floor(dmg / 2);
+  if (target.ability === 'quake_core' && mv.cat === 'phys') dmg = Math.floor(dmg * 0.75);
   return Math.max(1, dmg);
 }
 
@@ -332,6 +344,7 @@ export function moveEffectiveness(mv, target) {
   if (mv.typeless) return 1;
   if (mv.type === 'Ground' && target.ability === 'hover') return 0;
   if ((mv.type === 'Water' && target.ability === 'sponge') || (mv.type === 'Electric' && target.ability === 'capacitor')) return 0;
+  if ((mv.type === 'Grass' && target.ability === 'verdant_core') || (mv.type === 'Dark' && target.ability === 'radiant_core')) return 0;
   return typeEffectiveness(mv.type, target.types);
 }
 
@@ -376,8 +389,8 @@ function executeMove(state, i, action, events, rng) {
 
   const eff = moveEffectiveness(mv, target);
   if (eff === 0) {
-    if (target.ability === 'hover' && mv.type === 'Ground') events.push({ t: 'ability', side: foeSide, name: target.name, ability: abilityName(target.ability) });
-    if ((target.ability === 'sponge' && mv.type === 'Water') || (target.ability === 'capacitor' && mv.type === 'Electric')) {
+    if ((target.ability === 'hover' && mv.type === 'Ground') || (target.ability === 'radiant_core' && mv.type === 'Dark')) events.push({ t: 'ability', side: foeSide, name: target.name, ability: abilityName(target.ability) });
+    if ((target.ability === 'sponge' && mv.type === 'Water') || (target.ability === 'capacitor' && mv.type === 'Electric') || (target.ability === 'verdant_core' && mv.type === 'Grass')) {
       events.push({ t: 'ability', side: foeSide, name: target.name, ability: abilityName(target.ability) });
       if (!healBattler(state, foeSide, target.maxHp / 4, events, 'absorb')) events.push({ t: 'immune', side: foeSide, name: target.name });
       return;
@@ -437,8 +450,11 @@ function contactEffects(state, i, events, rng) {
   if (ab === 'thorn_hide') {
     events.push({ t: 'ability', side: foeSide, name: target.name, ability: abilityName(ab) });
     hurtBattler(state, i, Math.max(1, user.maxHp / 8), events, 'thorns');
-  } else if ((ab === 'live_fur' || ab === 'hot_blooded' || ab === 'venom_barbs') && rng.chance(0.3)) {
-    const status = ab === 'live_fur' ? 'par' : ab === 'hot_blooded' ? 'brn' : 'psn';
+  } else if (ab === 'frost_core' && rng.chance(0.3) && user.stages.spe > -6) {
+    events.push({ t: 'ability', side: foeSide, name: target.name, ability: abilityName(ab) });
+    changeStages(state, i, { spe: -1 }, events);
+  } else if ((ab === 'live_fur' || ab === 'hot_blooded' || ab === 'venom_barbs' || ab === 'inferno_core') && rng.chance(0.3)) {
+    const status = ab === 'live_fur' ? 'par' : (ab === 'hot_blooded' || ab === 'inferno_core') ? 'brn' : 'psn';
     if (canHaveStatus(user, status)) {
       events.push({ t: 'ability', side: foeSide, name: target.name, ability: abilityName(ab) });
       setStatus(state, i, status, events, rng);
@@ -481,6 +497,10 @@ function endOfTurn(state, events, rng) {
     if (!b.fainted && b.ability === 'momentum' && b.stages.spe < 6) {
       events.push({ t: 'ability', side: i, name: b.name, ability: abilityName(b.ability) });
       changeStages(state, i, { spe: 1 }, events);
+    }
+    if (!b.fainted && b.ability === 'tide_core' && b.hp < b.maxHp) {
+      events.push({ t: 'ability', side: i, name: b.name, ability: abilityName(b.ability) });
+      healBattler(state, i, Math.max(1, b.maxHp / 16), events, 'ability');
     }
   }
 }

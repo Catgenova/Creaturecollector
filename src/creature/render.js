@@ -16,6 +16,7 @@ import { lerp, num, uid, escapeHtml, hsl, mixHue } from '../core/util.js';
 import { paletteVars, slotPaintVars, FAR_VARS } from './palette.js';
 import { resolveParts, PAINT_PERMS, typeLabel, rigOf } from './genome.js';
 import { getRig } from '../data/rigs.js';
+import { ELEMENTS, elementFilterSvg } from '../data/elements.js';
 
 export const FRAME = { w: 200, h: 230, ground: 208 };
 const FAR_DEFAULT = { dx: -6, dy: -4 };
@@ -30,6 +31,9 @@ const STYLE = {
 };
 let renderStyle = 'classic';
 export function setRenderStyle(s) { renderStyle = RENDER_STYLES.includes(s) ? s : 'classic'; return renderStyle; }
+/** Honour prefers-reduced-motion: element filters render frozen instead of animated. */
+let reducedMotion = false;
+export function setReducedMotion(v) { reducedMotion = Boolean(v); }
 export function getRenderStyle() { return renderStyle; }
 
 // ---- primitives ---------------------------------------------------------------
@@ -279,7 +283,16 @@ function renderSetup(g, id, styleName) {
   };
   const wrap = (slot, inner) => (styled ? `<g>${inner}</g>` : `<g style="${paintOf(g, slot)}">${inner}</g>`);
   const farWrap = (inner) => (styled ? inner : `<g style="${FAR_VARS}">${inner}</g>`);
-  return { st, styled, shared, ol, ctxFor, wrap, farWrap };
+  // Elemental auras: the element each drawn slot carries. When every drawn slot shares one
+  // element the whole creature gets a single filter (cheaper); otherwise each part gets its own.
+  const aura = {};
+  const P = resolveParts(g);
+  for (const slot of Object.keys(P)) if (P[slot] && g.aura && ELEMENTS[g.aura[slot]]) aura[slot] = g.aura[slot];
+  const drawn = Object.keys(P).filter((slot) => P[slot]);
+  const elems = new Set(Object.values(aura));
+  const wholeAura = elems.size === 1 && drawn.every((slot) => aura[slot]) ? [...elems][0] : null;
+  const fxWrap = (slot, inner) => (aura[slot] && !wholeAura ? `<g filter="url(#${id}-fx-${aura[slot]})">${inner}</g>` : inner);
+  return { st, styled, shared, ol, ctxFor, wrap, farWrap, aura, elems, wholeAura, fxWrap };
 }
 
 /** Gloss spot for the styled renderers, clipped to the body. */
@@ -304,7 +317,7 @@ export const FIT_FRAME = { w: 100, h: 60 };
  */
 function buildRigged(g, id, styleName, rig) {
   const R = renderSetup(g, id, styleName);
-  const { st, styled, shared, ctxFor, wrap, farWrap } = R;
+  const { st, styled, shared, ctxFor, wrap, farWrap, fxWrap } = R;
   const P = resolveParts(g);
   const body = P.body;
   const K = traitScales(g.traits);
@@ -329,7 +342,7 @@ function buildRigged(g, id, styleName, rig) {
       if (!part) continue;
       const sx = (bodyBox[2] - bodyBox[0]) / FIT_FRAME.w, sy = (bodyBox[3] - bodyBox[1]) / FIT_FRAME.h;
       const t = { x: (bodyBox[0] + bodyBox[2]) / 2, y: (bodyBox[1] + bodyBox[3]) / 2, a: 0, sx: part.fitBox === false ? 1 : sx, sy: part.fitBox === false ? 1 : sy };
-      out += wrap(slot, `<g clip-path="url(#${id}-clip)"><g transform="${tf(t)}">${pp(part, slot, false, { small: true })}</g></g>`);
+      out += wrap(slot, fxWrap(slot, `<g clip-path="url(#${id}-clip)"><g transform="${tf(t)}">${pp(part, slot, false, { small: true })}</g></g>`));
     }
     if (st.gloss) out += glossSvg(body, id);
     return out;
@@ -358,7 +371,7 @@ function buildRigged(g, id, styleName, rig) {
       for (const c of node.behind || []) inner += drawNode(c, part, chain);
       let own = pp(part, node.slot, Boolean(node.far), { small: node.small, noOutline: node.noOutline });
       if (node.far) own = farWrap(own);
-      inner += own;
+      inner += fxWrap(node.slot, own);
       if (node.slot === 'body') inner += clippedSvg(mode, pp);
       for (const c of node.front || []) inner += drawNode(c, part, chain);
       const cls = node.anim && ANIM_CLASS[node.anim] ? ANIM_CLASS[node.anim] : '';
@@ -372,7 +385,7 @@ function buildRigged(g, id, styleName, rig) {
   const layers = assemble('normal');
   if (!Number.isFinite(feet)) feet = bodyBox[3];
   if (typeof body.bottom === 'number') feet = Math.max(feet, body.bottom);
-  return { layers: [...outline, ...layers], defs: shared.defs.join(''), box: box || [-40, -40, 40, 40], feet, hover, K, body, clip: body.clip || [] };
+  return { layers: [...outline, ...layers], defs: shared.defs.join(''), box: box || [-40, -40, 40, 40], feet, hover, K, body, clip: body.clip || [], elems: R.elems, wholeAura: R.wholeAura };
 }
 
 function buildCreature(g, id, styleName) {
@@ -426,12 +439,14 @@ export function renderCreatureSvg(g, opts = {}) {
   const delay = live ? ` style="animation-delay:-${num(((g.seed || '').length * 0.37 + (g.traits ? g.traits.size * 3 : 0)) % 3)}s"` : '';
   const clip = built.clip.map((d) => `<path d="${d}"/>`).join('');
   const shadowFill = styleName === 'classic' ? 'var(--k)' : hsl(g.palette.c1[0], 30, 10);
+  const fxDefs = [...(built.elems || [])].map((e) => elementFilterSvg(e, `${id}-fx-${e}`, live && !reducedMotion)).join('');
+  const layers = built.wholeAura ? `<g filter="url(#${id}-fx-${built.wholeAura})">${built.layers.join('')}</g>` : built.layers.join('');
 
   return `<svg class="cr cr-${styleName}${live ? ' cr-live' : ''}" xmlns="http://www.w3.org/2000/svg" viewBox="${vb.map(num).join(' ')}" width="${size}" height="${height}" role="img" aria-label="${escapeHtml(label)}" style="${paletteVars(g.palette)}">` +
-    `<defs><clipPath id="${id}-clip">${clip}</clipPath>${built.defs}</defs>` +
+    `<defs><clipPath id="${id}-clip">${clip}</clipPath>${built.defs}${fxDefs}</defs>` +
     `<ellipse class="cr-shadow" cx="${num(FRAME.w / 2)}" cy="${FRAME.ground}" rx="${num(shadowRx)}" ry="${num(shadowRy)}" fill="${shadowFill}" opacity="0.18"/>` +
     `<g transform="${tf(chain[1])} translate(0 ${num(chain[0].y)})">` +
-    `<g class="cr-anim"${delay}>${built.layers.join('')}</g></g></svg>`;
+    `<g class="cr-anim"${delay}>${layers}</g></g></svg>`;
 }
 
 /** A neutral mannequin genome used by the Part Lab to preview any single part. */

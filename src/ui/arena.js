@@ -9,7 +9,7 @@ import { STATUS_INFO } from '../battle/engine.js';
 import { loadSave, persistSave, exportSave, importSave, emptySave, clearSave, recordCollection, endRun } from '../game/save.js';
 import { ARENA, floorLevel, newRun, chooseStarter, buildBattle, applyBattle, previewFusion, fuseMembers, skipAltar, moveMember, setLead, memberMaxHp, xpProgress, canFight, learnMove, biomeFor, canFuseMembers } from '../game/run.js';
 import { cladeName } from '../data/clades.js';
-import { cladeOf } from '../creature/genome.js';
+import { cladeOf, elementalOf } from '../creature/genome.js';
 import { getMove } from '../data/moves.js';
 import { TYPE_INFO } from '../data/types.js';
 import { addToPool } from './state.js';
@@ -144,7 +144,8 @@ function floorView(root, run) {
   const rerender = () => renderArenaScreen(root);
   const enc = run.encounter;
   const L = floorLevel(run.floor);
-  const kindLabel = { wild: 'Wild encounter', trainer: 'Trainer battle', boss: 'Warden' }[enc.kind];
+  const elem = enc.foes.map((f) => elementalOf(f.genome)).find((e) => e && e.pure) || null;
+  const kindLabel = elem ? `${elem.name} Elemental!` : { wild: 'Wild encounter', trainer: 'Trainer battle', boss: 'Warden' }[enc.kind];
   const foesRow = h('div', { class: 'foes' }, enc.foes.map((f) => h('div', { class: 'foe-card' },
     creatureEl(f.genome, { size: enc.foes.length > 2 ? 78 : 120, facing: 'left', animate: enc.foes.length <= 2 }),
     h('span', {}, `${f.genome.name} · Lv ${f.level}`))));
@@ -154,9 +155,10 @@ function floorView(root, run) {
       h('button', { class: 'btn small', type: 'button', onclick: () => { if (confirm('Abandon this run? Your party retires to the collection.')) { run.phase = 'gameover'; endRun(ar.save); save(); rerender(); } } }, 'Abandon')),
     ar.showReport ? reportCard(run.lastReport) : null,
     learnCard(run),
-    h('div', { class: `encounter ${enc.kind}` },
-      h('div', { class: 'enc-head' }, h('span', { class: `kind-badge ${enc.kind}` }, kindLabel), h('b', {}, enc.name)),
+    h('div', { class: `encounter ${enc.kind}${elem ? ` elemental elem-${elem.id}` : ''}` },
+      h('div', { class: 'enc-head' }, h('span', { class: `kind-badge ${enc.kind}${elem ? ' elemental' : ''}` }, kindLabel), h('b', {}, enc.name)),
       foesRow,
+      elem ? h('p', { class: 'hint elem-hint' }, `One in a thousand: a creature born of ${elem.name.toLowerCase()}. Every part it has carries the element, and its parts keep it when passed down in fusion.`) : null,
       enc.capturable ? h('p', { class: 'hint' }, 'Wild creatures can be captured during the fight. Weaken them first.') : null,
       h('div', { class: 'row wrap' },
         h('button', { class: 'btn primary fuse-btn', type: 'button', disabled: !canFight(run), onclick: () => startArenaBattle(root, run) }, canFight(run) ? 'Fight' : 'Nobody can fight'),

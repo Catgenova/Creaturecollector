@@ -29,6 +29,7 @@ src/data/rigs.js      class skeletons: slot lists, draw trees, sockets each part
 src/data/parts/       the part library: one folder per class (mammal/, reptile/, fish/, bird/, insect/, invertebrate/, amphibian/),
                       shared builders (_builders.js), drawing DSL (_dsl.js), registry (index.js)
 src/data/species.js   base species recipes
+src/data/elements.js  Elementals: the eight elements, their core abilities and one SVG filter each
 src/creature/         genome (schema, rolls, codes), palette, render (SVG)
 src/ui/               dom helpers, screens (lab, parts), app shell (main.js = build entry)
 tests/                node:test suites
@@ -432,6 +433,42 @@ Mudpup (Ground/Water), Wigglet (Water) and Leapfern (Grass/Water).
 All seven classes are now on rigs, so the legacy skeleton and its parts are
 retired: every species carries a `rig`, and the part registry, renderer and
 mannequins only know the seven class rigs.
+
+## Elementals
+
+One capturable wild creature in a thousand (`ARENA.elementalChance`, rolled in
+`encounterFor` for the plain wild encounter) is born of an element. The eight
+elements live in `src/data/elements.js`: Fire, Water, Storm, Frost, Bloom,
+Shadow, Light and Earth, each with a core ability and one SVG filter.
+
+- **Genome.** `g.aura` maps slot → element id. A wild Elemental carries its
+  element on every slot (`makeElemental`), and `elementalOf(g)` reports the
+  dominant element with the share of slots that carry it (`pure` when all do).
+  `validateGenome` keeps only known slots and elements, so codes round-trip.
+- **Render.** Each element is exactly one animated `<filter>` (turbulence
+  displacement, glows, flicker, sparkle grain, smoke, halo, grit and rumble).
+  Parts with an aura are wrapped in `filter="url(#…-fx-<element>)"`; when
+  every drawn slot shares one element the whole creature gets a single filter
+  instead, which is what a wild Elemental costs to draw. Static renders and
+  `prefers-reduced-motion` (`setReducedMotion`) get the same look frozen.
+- **Fusion.** The aura travels with the part that was expressed, so a child
+  keeps the element on exactly the slots it inherited from the Elemental
+  parent; a mutated part is born plain. Core abilities pass with
+  `FUSE.elementalAbility` (50%) per Elemental parent; otherwise the usual
+  draw between the parents' ordinary abilities. Descendants show as
+  "Fire-touched" with the share of elemental slots.
+- **Battle.** Every core ability boosts its element's move types 1.3× and adds
+  a passive: Inferno (burn immunity, contact burns), Tide (heals a sixteenth
+  each turn), Storm (paralysis immunity, Speed on entry), Frost (freeze
+  immunity, contact chills Speed), Verdant (poison immunity, absorbs Grass),
+  Umbral (lowers the foe's Sp. Atk on entry), Radiant (immune to Dark), Quake
+  (physical hits do three quarters).
+- **UI.** The encounter card announces "Fire Elemental!" with the element's
+  glow, cards and sheets carry a "◆ Fire Elemental" badge, and the Lab sheet
+  has a preview selector so any creature can be seen as any Elemental
+  without changing it. `node scripts/elementals.mjs` renders one creature per
+  element plus fused descendants; `scripts/hero.mjs fox+elemental=fire`
+  previews one.
 
 ## Polish and balance (Phase 5 — implemented)
 

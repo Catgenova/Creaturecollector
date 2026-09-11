@@ -30,6 +30,15 @@ export const ABILITIES = {
   thick_skull: { name: 'Thick Skull', desc: 'Takes no recoil damage.' },
   daredevil: { name: 'Daredevil', desc: 'Recoil moves hit 1.2x harder.' },
   lucky_streak: { name: 'Lucky Streak', desc: 'Secondary effects are twice as likely.' },
+  // Elemental cores: only born on Elementals, and passed down through fusion by chance.
+  inferno_core: { name: 'Inferno Core', desc: 'Fire moves hit 1.3x harder. Cannot be burned; contact has a 30% chance to burn the attacker.' },
+  tide_core: { name: 'Tide Core', desc: 'Water moves hit 1.3x harder. Restores a sixteenth of max HP every turn.' },
+  storm_core: { name: 'Storm Core', desc: 'Electric moves hit 1.3x harder. Cannot be paralyzed; Speed rises on entry.' },
+  frost_core: { name: 'Frost Core', desc: 'Ice moves hit 1.3x harder. Cannot be frozen; contact has a 30% chance to chill the attacker\u2019s Speed.' },
+  verdant_core: { name: 'Verdant Core', desc: 'Grass moves hit 1.3x harder. Cannot be poisoned; Grass moves heal a quarter of max HP instead of damaging.' },
+  umbral_core: { name: 'Umbral Core', desc: 'Dark and Ghost moves hit 1.3x harder. Lowers the foe\u2019s Sp. Atk on entry.' },
+  radiant_core: { name: 'Radiant Core', desc: 'Fairy and Psychic moves hit 1.3x harder. Immune to Dark moves.' },
+  quake_core: { name: 'Quake Core', desc: 'Ground and Rock moves hit 1.3x harder. Takes three quarters damage from physical moves.' },
 };
 
 export const ABILITY_IDS = Object.keys(ABILITIES);

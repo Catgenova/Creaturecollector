@@ -1,7 +1,7 @@
 // Fusion Lab: pick two creatures from a pool, fuse them, read the inheritance
 // report, feed children back into the pool, and stress-test five generations.
 import { h, clear, copyText, toast } from './dom.js';
-import { typeChips, creatureEl, section } from './common.js';
+import { typeChips, creatureEl, section, elementalBadge } from './common.js';
 import { makeRng, freshSeed } from '../core/rng.js';
 import { randomGenome, decodeGenome, encodeGenome, resolveParts, rigOf } from '../creature/genome.js';
 import { fuse, fuseChain, canFuse } from '../creature/fusion.js';
@@ -126,7 +126,7 @@ function resultPanel(child, report, a, b, actions) {
     child.types[1] ? [typeChips([child.types[1]]), badge(report.types.secondary)] : h('span', { class: 'hint', style: { margin: 0 } }, 'no second type'));
 
   const panel = h('div', { class: 'result' },
-    h('div', { class: 'sheet-head' }, h('h2', {}, child.name, child.shiny ? ' ✦' : ''), typeChips(child.types)),
+    h('div', { class: 'sheet-head' }, h('h2', {}, child.name, child.shiny ? ' ✦' : ''), typeChips(child.types), elementalBadge(child)),
     h('p', { class: 'meta' }, `${cladeName(cladeOf(child))} · gen ${child.gen} · ${a.name} × ${b.name} · face from ${parents[report.identity].name}`),
     h('div', { class: 'hero' }, creatureEl(child, { size: 240, fit: true })),
     h('div', { class: 'row wrap' },

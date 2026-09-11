@@ -57,6 +57,13 @@ button, input, select, textarea { font: inherit; }
 .card svg { width: 100%; height: auto; }
 .card-name { font-weight: 700; }
 .shiny { color: var(--acc); }
+.elem-badge { display: inline-block; margin-left: 6px; padding: 1px 8px; border-radius: 999px; font-size: 11px; font-weight: 700; color: #14151c; background: var(--elem, #ccc); vertical-align: middle; white-space: nowrap; }
+.elem-fire { --elem: #ff7a1a; } .elem-water { --elem: #4fd6ff; } .elem-storm { --elem: #ffe14a; } .elem-frost { --elem: #9fe8ff; }
+.elem-bloom { --elem: #7ded6a; } .elem-shadow { --elem: #b98cff; } .elem-light { --elem: #fff1a8; } .elem-earth { --elem: #d9a45a; }
+.encounter.elemental { border-color: var(--elem); box-shadow: 0 0 22px -8px var(--elem), inset 0 0 40px -30px var(--elem); }
+.kind-badge.elemental { background: var(--elem); color: #14151c; }
+.elem-hint { color: var(--elem); }
+.elem-preview { max-width: 100%; }
 .chips { display: flex; gap: 4px; flex-wrap: wrap; justify-content: center; }
 .chip { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 999px; color: #111; background: var(--chip, #999); }
 .chip b { font-size: 10px; opacity: .7; }
@@ -324,228 +331,6 @@ function toast(msg) {
   const mine = toastEl;
   setTimeout(() => { if (toastEl === mine) { mine.remove(); toastEl = null; } }, 1900);
 }
-
-// ---- src/data/types.js ----
-// The classic 18-type chart. Attacker -> defender multipliers.
-// Colors are ours; each type also gets a one-letter glyph so type is never color-only.
-
-const TYPE_LIST = [
-  'Normal', 'Fire', 'Water', 'Electric', 'Grass', 'Ice', 'Fighting', 'Poison', 'Ground',
-  'Flying', 'Psychic', 'Bug', 'Rock', 'Ghost', 'Dragon', 'Dark', 'Steel', 'Fairy',
-];
-
-const TYPE_INFO = {
-  Normal:   { color: '#a8a290', glyph: 'N' },
-  Fire:     { color: '#f0762e', glyph: 'F' },
-  Water:    { color: '#4f8ef7', glyph: 'W' },
-  Electric: { color: '#f5c518', glyph: 'E' },
-  Grass:    { color: '#5fbf4a', glyph: 'G' },
-  Ice:      { color: '#7fd6e6', glyph: 'I' },
-  Fighting: { color: '#c23b3b', glyph: 'T' },
-  Poison:   { color: '#a349b8', glyph: 'P' },
-  Ground:   { color: '#d6a95a', glyph: 'R' },
-  Flying:   { color: '#9aa8f0', glyph: 'Y' },
-  Psychic:  { color: '#f26aa3', glyph: 'S' },
-  Bug:      { color: '#9fb52a', glyph: 'B' },
-  Rock:     { color: '#b09a5c', glyph: 'K' },
-  Ghost:    { color: '#6d5aa6', glyph: 'H' },
-  Dragon:   { color: '#6a4de8', glyph: 'D' },
-  Dark:     { color: '#5b4a42', glyph: 'A' },
-  Steel:    { color: '#9fa6b8', glyph: 'M' },
-  Fairy:    { color: '#f096b8', glyph: 'X' },
-};
-
-// se = super effective (2x), nve = not very effective (0.5x), imm = immune (0x)
-const RULES = {
-  Normal:   { nve: ['Rock', 'Steel'], imm: ['Ghost'] },
-  Fire:     { se: ['Grass', 'Ice', 'Bug', 'Steel'], nve: ['Fire', 'Water', 'Rock', 'Dragon'] },
-  Water:    { se: ['Fire', 'Ground', 'Rock'], nve: ['Water', 'Grass', 'Dragon'] },
-  Electric: { se: ['Water', 'Flying'], nve: ['Electric', 'Grass', 'Dragon'], imm: ['Ground'] },
-  Grass:    { se: ['Water', 'Ground', 'Rock'], nve: ['Fire', 'Grass', 'Poison', 'Flying', 'Bug', 'Dragon', 'Steel'] },
-  Ice:      { se: ['Grass', 'Ground', 'Flying', 'Dragon'], nve: ['Fire', 'Water', 'Ice', 'Steel'] },
-  Fighting: { se: ['Normal', 'Ice', 'Rock', 'Dark', 'Steel'], nve: ['Poison', 'Flying', 'Psychic', 'Bug', 'Fairy'], imm: ['Ghost'] },
-  Poison:   { se: ['Grass', 'Fairy'], nve: ['Poison', 'Ground', 'Rock', 'Ghost'], imm: ['Steel'] },
-  Ground:   { se: ['Fire', 'Electric', 'Poison', 'Rock', 'Steel'], nve: ['Grass', 'Bug'], imm: ['Flying'] },
-  Flying:   { se: ['Grass', 'Fighting', 'Bug'], nve: ['Electric', 'Rock', 'Steel'] },
-  Psychic:  { se: ['Fighting', 'Poison'], nve: ['Psychic', 'Steel'], imm: ['Dark'] },
-  Bug:      { se: ['Grass', 'Psychic', 'Dark'], nve: ['Fire', 'Fighting', 'Poison', 'Flying', 'Ghost', 'Steel', 'Fairy'] },
-  Rock:     { se: ['Fire', 'Ice', 'Flying', 'Bug'], nve: ['Fighting', 'Ground', 'Steel'] },
-  Ghost:    { se: ['Psychic', 'Ghost'], nve: ['Dark'], imm: ['Normal'] },
-  Dragon:   { se: ['Dragon'], nve: ['Steel'], imm: ['Fairy'] },
-  Dark:     { se: ['Psychic', 'Ghost'], nve: ['Fighting', 'Dark', 'Fairy'] },
-  Steel:    { se: ['Ice', 'Rock', 'Fairy'], nve: ['Fire', 'Water', 'Electric', 'Steel'] },
-  Fairy:    { se: ['Fighting', 'Dragon', 'Dark'], nve: ['Fire', 'Poison', 'Steel'] },
-};
-
-/** Multiplier for a single attacking type against a single defending type. */
-function typeMultiplier(attacker, defender) {
-  const r = RULES[attacker];
-  if (!r) return 1;
-  if (r.imm && r.imm.includes(defender)) return 0;
-  if (r.se && r.se.includes(defender)) return 2;
-  if (r.nve && r.nve.includes(defender)) return 0.5;
-  return 1;
-}
-
-/** Multiplier against a creature with one or two types (second may be null). */
-function typeEffectiveness(attacker, defenderTypes) {
-  let m = 1;
-  for (const t of defenderTypes) if (t) m *= typeMultiplier(attacker, t);
-  return m;
-}
-
-function isType(t) { return TYPE_LIST.includes(t); }
-
-// ---- src/core/util.js ----
-// Small shared helpers. No game logic here.
-
-const clamp = (v, lo, hi) => (v < lo ? lo : v > hi ? hi : v);
-const clamp01 = (v) => clamp(v, 0, 1);
-const lerp = (a, b, t) => a + (b - a) * t;
-const round1 = (v) => Math.round(v * 10) / 10;
-const round3 = (v) => Math.round(v * 1000) / 1000;
-const sum = (arr) => arr.reduce((a, b) => a + b, 0);
-
-/** Wrap a hue into [0,360). */
-const wrapHue = (h) => ((h % 360) + 360) % 360;
-
-/** Shortest signed distance from hue a to hue b, in (-180, 180]. */
-function hueDelta(a, b) {
-  let d = wrapHue(b) - wrapHue(a);
-  if (d > 180) d -= 360;
-  if (d <= -180) d += 360;
-  return d;
-}
-
-/** Move hue h toward target by fraction t along the shortest arc. */
-function mixHue(h, target, t) { return wrapHue(h + hueDelta(h, target) * t); }
-
-const hsl = (h, s, l) => `hsl(${Math.round(wrapHue(h))} ${Math.round(clamp(s, 0, 100))}% ${Math.round(clamp(l, 0, 100))}%)`;
-
-/** Normalize an object of positive weights so its values sum to 1. */
-function normalizeWeights(obj) {
-  const keys = Object.keys(obj);
-  const total = sum(keys.map((k) => Math.max(0, obj[k])));
-  const out = {};
-  for (const k of keys) out[k] = total > 0 ? Math.max(0, obj[k]) / total : 1 / keys.length;
-  return out;
-}
-
-function escapeHtml(s) {
-  return String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
-}
-
-/** Format a number for SVG attributes: short, stable, never "-0". */
-function num(v) {
-  const r = Math.round(v * 100) / 100;
-  return (Object.is(r, -0) ? 0 : r).toString();
-}
-
-let uidCounter = 0;
-/** Unique id fragment for DOM/SVG ids within a page lifetime. */
-function uid(prefix = 'u') { return `${prefix}${(++uidCounter).toString(36)}`; }
-
-// base64url of UTF-8 text, works in browsers and Node.
-function b64uEncode(str) {
-  const bytes = new TextEncoder().encode(str);
-  let bin = '';
-  for (const b of bytes) bin += String.fromCharCode(b);
-  const b64 = typeof btoa === 'function' ? btoa(bin) : Buffer.from(bin, 'binary').toString('base64');
-  return b64.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
-}
-function b64uDecode(s) {
-  let b64 = s.replace(/-/g, '+').replace(/_/g, '/');
-  while (b64.length % 4) b64 += '=';
-  const bin = typeof atob === 'function' ? atob(b64) : Buffer.from(b64, 'base64').toString('binary');
-  const bytes = new Uint8Array(bin.length);
-  for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
-  return new TextDecoder().decode(bytes);
-}
-
-function deepFreeze(o) {
-  if (o && typeof o === 'object' && !Object.isFrozen(o)) {
-    Object.freeze(o);
-    for (const k of Object.keys(o)) deepFreeze(o[k]);
-  }
-  return o;
-}
-
-function titleCase(s) { return s.charAt(0).toUpperCase() + s.slice(1); }
-
-// ---- src/creature/palette.js ----
-// Palette genes -> CSS custom properties. Every part references abstract roles
-// (p/s/a and their shades); the per-slot paint gene decides which of the
-// creature's three colours each role maps to. That is how one part gets
-// recoloured differently on different creatures.
-
-
-const COLOR_KEYS = ['c1', 'c2', 'c3'];
-
-/** Root CSS variables for a creature: the three colour families, eye colour, outline and whites. */
-function paletteVars(pal) {
-  const v = [];
-  for (const k of COLOR_KEYS) {
-    const [h, s, l] = pal[k];
-    v.push(`--${k}:${hsl(h, s, l)}`, `--${k}d:${hsl(h, Math.min(100, s + 6), l - 14)}`, `--${k}l:${hsl(h, Math.max(0, s - 8), Math.min(96, l + 14))}`);
-  }
-  const [eh, es, el] = pal.eye;
-  v.push(`--e:${hsl(eh, es, el)}`, `--ed:${hsl(eh, es, el - 16)}`);
-  const [h1, s1] = pal.c1;
-  const ol = hsl(h1, Math.min(s1, 45), 13);
-  const hue = Math.round(wrapHue(h1));
-  v.push(`--ol:${ol}`, `--k:${ol}`, `--w:hsl(${hue} 20% 97%)`, `--wd:hsl(${hue} 15% 80%)`);
-  return v.join(';');
-}
-
-/** Per-slot role mapping. perm = indexes into [c1,c2,c3] for roles [p,s,a]. */
-function slotPaintVars(perm) {
-  const [p, s, a] = perm.map((i) => COLOR_KEYS[i]);
-  return `--p:var(--${p});--pd:var(--${p}d);--pl:var(--${p}l);--s:var(--${s});--sd:var(--${s}d);--sl:var(--${s}l);--a:var(--${a});--ad:var(--${a}d);--al:var(--${a}l)`;
-}
-
-/** Applied to far-side copies (far legs, far wing, far eye): everything one shade darker. */
-const FAR_VARS = '--p:var(--pd);--pl:var(--pd);--s:var(--sd);--sl:var(--sd);--a:var(--ad);--al:var(--ad);--w:var(--wd);--e:var(--ed)';
-
-function jitterColor([h, s, l], vary, rng, sharedHue) {
-  return [
-    wrapHue(h + sharedHue + rng.gauss() * vary.h * 0.5),
-    clamp(s + rng.gauss() * vary.s, 8, 100),
-    clamp(l + rng.gauss() * vary.l, 12, 92),
-  ].map((x) => Math.round(x * 10) / 10);
-}
-
-/** Genetic roll on a species palette: a shared hue drift plus small independent wobble per colour. */
-function jitterPalette(base, vary, rng) {
-  const v = { h: 10, s: 8, l: 6, ...(vary || {}) };
-  const sharedHue = rng.gauss() * v.h;
-  return {
-    c1: jitterColor(base.c1, v, rng, sharedHue),
-    c2: jitterColor(base.c2, v, rng, sharedHue),
-    c3: jitterColor(base.c3, v, rng, sharedHue),
-    eye: jitterColor(base.eye, v, rng, 0),
-  };
-}
-
-/** Rare recolour: rotate the whole palette to a new harmony. */
-function shinyPalette(pal, rng) {
-  const rot = rng.range(140, 220);
-  const out = {};
-  for (const k of ['c1', 'c2', 'c3', 'eye']) {
-    const [h, s, l] = pal[k];
-    out[k] = [wrapHue(h + rot), clamp(s + 5, 8, 100), l].map((x) => Math.round(x * 10) / 10);
-  }
-  return out;
-}
-
-/** Blend two palettes colour by colour. t=0 -> a, t=1 -> b. Hues take the short way round. */
-function blendColor(a, b, t) {
-  let dh = wrapHue(b[0]) - wrapHue(a[0]);
-  if (dh > 180) dh -= 360;
-  if (dh < -180) dh += 360;
-  return [wrapHue(a[0] + dh * t), a[1] + (b[1] - a[1]) * t, a[2] + (b[2] - a[2]) * t].map((x) => Math.round(x * 10) / 10);
-}
-
-function swatchCss([h, s, l]) { return hsl(h, s, l); }
 
 // ---- src/data/rigs.js ----
 // Rigs: the skeletons creatures are assembled on. Each class (clade) gets its
@@ -4352,6 +4137,123 @@ function partsFor(rig, slot, bodyKind) {
 
 function partCount() { return PARTS.size; }
 
+// ---- src/data/elements.js ----
+// Elementals. One wild creature in a thousand is born of an element: every part it has carries
+// that element as an animated SVG filter (one filter per element), and it knows the element's
+// core ability. Parts keep their element when they are passed down in fusion; the ability has a
+// chance to follow. `aura` on a genome maps slot -> element id.
+const ELEMENTAL_CHANCE = 1 / 1000;
+
+const ELEMENTS = {
+  fire:   { id: 'fire',   name: 'Fire',   ability: 'inferno_core', types: ['Fire'],             color: '#ff7a1a' },
+  water:  { id: 'water',  name: 'Water',  ability: 'tide_core',    types: ['Water'],            color: '#4fd6ff' },
+  storm:  { id: 'storm',  name: 'Storm',  ability: 'storm_core',   types: ['Electric'],         color: '#ffe14a' },
+  frost:  { id: 'frost',  name: 'Frost',  ability: 'frost_core',   types: ['Ice'],              color: '#9fe8ff' },
+  bloom:  { id: 'bloom',  name: 'Bloom',  ability: 'verdant_core', types: ['Grass'],            color: '#7ded6a' },
+  shadow: { id: 'shadow', name: 'Shadow', ability: 'umbral_core',  types: ['Dark', 'Ghost'],    color: '#9d5cf0' },
+  light:  { id: 'light',  name: 'Light',  ability: 'radiant_core', types: ['Fairy', 'Psychic'], color: '#fff1a8' },
+  earth:  { id: 'earth',  name: 'Earth',  ability: 'quake_core',   types: ['Ground', 'Rock'],   color: '#c8913a' },
+};
+const ELEMENT_IDS = Object.keys(ELEMENTS);
+
+/** core ability id -> element id */
+const CORE_ABILITIES = Object.fromEntries(ELEMENT_IDS.map((id) => [ELEMENTS[id].ability, id]));
+function isCoreAbility(ability) { return Boolean(CORE_ABILITIES[ability]); }
+/** The move types a core ability empowers, or null for an ordinary ability. */
+function coreTypes(ability) { const e = CORE_ABILITIES[ability]; return e ? ELEMENTS[e].types : null; }
+function elementName(id) { return ELEMENTS[id] ? ELEMENTS[id].name : 'Unknown'; }
+
+// ---- filters -------------------------------------------------------------------------------
+// Each element is one SVG filter. The filter region is generous so glows and displacement are
+// not clipped at the part's bounding box. `live` adds the SMIL animation; static renders (card
+// lists, screenshots, reduced motion) get the same look frozen.
+
+const anim = (live, attr, values, dur, extra = '') => (live ? `<animate attributeName="${attr}" values="${values}" dur="${dur}" repeatCount="indefinite"${extra}/>` : '');
+const discrete = ' calcMode="discrete"';
+const IDENT = '1 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 1 0';
+const BRIGHT = '1.3 0 0 0 0.04 0 1.3 0 0 0.04 0 0 1.3 0 0.02 0 0 0 1 0';
+const WHITE = '0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 1 0';
+
+/** Soft coloured glow around the source alpha, as filter primitives producing `result`. */
+const glow = (live, result, color, radius, blur, opacity, pulse, dur) =>
+  `<feMorphology in="SourceAlpha" operator="dilate" radius="${radius}" result="${result}A"/>` +
+  `<feGaussianBlur in="${result}A" stdDeviation="${blur}" result="${result}B"/>` +
+  `<feFlood flood-color="${color}" flood-opacity="${opacity}" result="${result}C">${pulse ? anim(live, 'flood-opacity', pulse, dur) : ''}</feFlood>` +
+  `<feComposite in="${result}C" in2="${result}B" operator="in" result="${result}"/>`;
+
+const FILTERS = {
+  fire: (live) =>
+    `<feTurbulence type="fractalNoise" baseFrequency="0.03 0.09" numOctaves="2" seed="3" result="n">${anim(live, 'baseFrequency', '0.03 0.09;0.045 0.12;0.03 0.09', '1.4s')}</feTurbulence>` +
+    `<feDisplacementMap in="SourceGraphic" in2="n" scale="5" xChannelSelector="R" yChannelSelector="G" result="d"/>` +
+    glow(live, 'glow', '#ff7a1a', 2, 3, 0.8, '0.55;0.95;0.6;0.9;0.55', '0.9s') +
+    `<feMerge><feMergeNode in="glow"/><feMergeNode in="d"/></feMerge>`,
+
+  water: (live) =>
+    `<feTurbulence type="turbulence" baseFrequency="0.02 0.06" numOctaves="2" seed="7" result="n">${anim(live, 'baseFrequency', '0.02 0.06;0.03 0.05;0.02 0.06', '3.2s')}</feTurbulence>` +
+    `<feDisplacementMap in="SourceGraphic" in2="n" scale="6" xChannelSelector="R" yChannelSelector="B" result="d"/>` +
+    glow(live, 'glow', '#4fd6ff', 1.5, 3, 0.7, '0.45;0.85;0.45', '2.4s') +
+    `<feMerge><feMergeNode in="glow"/><feMergeNode in="d"/></feMerge>`,
+
+  storm: (live) =>
+    `<feColorMatrix in="SourceGraphic" type="matrix" values="${IDENT}" result="b">${anim(live, 'values', `${IDENT};${BRIGHT};${IDENT};${IDENT};${BRIGHT};${IDENT};${IDENT}`, '0.7s', discrete)}</feColorMatrix>` +
+    `<feOffset in="b" dx="0" dy="0" result="j">${anim(live, 'dx', '0;1.5;-1.5;0;0;0;0;0', '0.6s', discrete)}</feOffset>` +
+    glow(live, 'glow', '#ffe14a', 2, 2.5, 0.8, '0.3;0.95;0.4;0.3;0.9;0.3', '0.7s') +
+    `<feMerge><feMergeNode in="glow"/><feMergeNode in="j"/></feMerge>`,
+
+  frost: (live) =>
+    glow(live, 'glow', '#7fd8ff', 3, 3, 0.6, '0.35;0.7;0.35', '3s') +
+    `<feMorphology in="SourceAlpha" operator="dilate" radius="1.2" result="r"/>` +
+    `<feFlood flood-color="#e8fbff" flood-opacity="0.9" result="rc"/><feComposite in="rc" in2="r" operator="in" result="rim"/>` +
+    `<feTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="1" seed="1" result="n">${anim(live, 'seed', '1;2;3;4;5;6', '1.2s', discrete)}</feTurbulence>` +
+    `<feComponentTransfer in="n" result="t"><feFuncA type="linear" slope="7" intercept="-5"/></feComponentTransfer>` +
+    `<feColorMatrix in="t" type="matrix" values="${WHITE}" result="w"/>` +
+    `<feComposite in="w" in2="SourceAlpha" operator="in" result="spk"/>` +
+    `<feMerge><feMergeNode in="glow"/><feMergeNode in="rim"/><feMergeNode in="SourceGraphic"/><feMergeNode in="spk"/></feMerge>`,
+
+  bloom: (live) =>
+    `<feTurbulence type="fractalNoise" baseFrequency="0.012 0.03" numOctaves="1" seed="5" result="n">${anim(live, 'baseFrequency', '0.012 0.03;0.016 0.036;0.012 0.03', '3.6s')}</feTurbulence>` +
+    `<feDisplacementMap in="SourceGraphic" in2="n" scale="3" xChannelSelector="R" yChannelSelector="G" result="d"/>` +
+    glow(live, 'glow', '#7ded6a', 2, 3.5, 0.6, '0.35;0.75;0.35', '2.6s') +
+    `<feTurbulence type="fractalNoise" baseFrequency="0.3" numOctaves="1" seed="9" result="sn"/>` +
+    `<feComponentTransfer in="sn" result="st"><feFuncA type="linear" slope="8" intercept="-6.2"/></feComponentTransfer>` +
+    `<feColorMatrix in="st" type="matrix" values="0 0 0 0 0.9 0 0 0 0 1 0 0 0 0 0.5 0 0 0 1 0" result="sc"/>` +
+    `<feOffset in="sc" dx="0" dy="0" result="so">${anim(live, 'dy', '10;-10', '4s')}</feOffset>` +
+    `<feComposite in="so" in2="glowA" operator="in" result="spores"/>` +
+    `<feMerge><feMergeNode in="glow"/><feMergeNode in="d"/><feMergeNode in="spores"/></feMerge>`,
+
+  shadow: (live) =>
+    `<feColorMatrix in="SourceGraphic" type="matrix" values="0.55 0.2 0.15 0 -0.03 0.12 0.6 0.15 0 -0.03 0.16 0.2 0.7 0 0 0 0 0 1 0" result="dk"/>` +
+    `<feTurbulence type="fractalNoise" baseFrequency="0.012 0.03" numOctaves="1" seed="4" result="n">${anim(live, 'baseFrequency', '0.012 0.03;0.018 0.04;0.012 0.03', '3s')}</feTurbulence>` +
+    `<feDisplacementMap in="dk" in2="n" scale="4" xChannelSelector="R" yChannelSelector="G" result="d"/>` +
+    `<feMorphology in="SourceAlpha" operator="dilate" radius="3" result="a"/>` +
+    `<feGaussianBlur in="a" stdDeviation="4" result="ab">${anim(live, 'stdDeviation', '3;6;3', '2.8s')}</feGaussianBlur>` +
+    `<feOffset in="ab" dx="0" dy="-2" result="ao">${anim(live, 'dy', '0;-4;0', '2.8s')}</feOffset>` +
+    `<feFlood flood-color="#5a2d8a" flood-opacity="0.85" result="c"/><feComposite in="c" in2="ao" operator="in" result="smoke"/>` +
+    `<feMerge><feMergeNode in="smoke"/><feMergeNode in="d"/></feMerge>`,
+
+  light: (live) =>
+    `<feColorMatrix in="SourceGraphic" type="hueRotate" values="0" result="h">${anim(live, 'values', '0;12;0;-12;0', '5s')}</feColorMatrix>` +
+    `<feComponentTransfer in="h" result="br"><feFuncR type="linear" slope="1.08"/><feFuncG type="linear" slope="1.08"/><feFuncB type="linear" slope="1.06"/></feComponentTransfer>` +
+    glow(live, 'halo', '#fff1a8', 2.5, 5, 0.8, '0.45;0.95;0.45', '1.8s') +
+    `<feMerge><feMergeNode in="halo"/><feMergeNode in="br"/></feMerge>`,
+
+  earth: (live) =>
+    `<feTurbulence type="fractalNoise" baseFrequency="0.55" numOctaves="2" seed="11" result="n"/>` +
+    `<feColorMatrix in="n" type="matrix" values="0 0 0 0 0.25 0 0 0 0 0.18 0 0 0 0 0.1 0 0 0 0.5 0" result="grit"/>` +
+    `<feComposite in="grit" in2="SourceAlpha" operator="in" result="g2"/>` +
+    `<feBlend in="g2" in2="SourceGraphic" mode="multiply" result="tex"/>` +
+    `<feOffset in="tex" dx="0" dy="0" result="rum">${anim(live, 'dx', '0;0;1.2;-1.2;0.8;-0.8;0;0', '3s', `${discrete} keyTimes="0;0.7;0.74;0.78;0.82;0.86;0.9;1"`)}</feOffset>` +
+    glow(live, 'glow', '#c8913a', 1.5, 2, 0.55, null, null) +
+    `<feMerge><feMergeNode in="glow"/><feMergeNode in="rum"/></feMerge>`,
+};
+
+/** The <filter> element for an element, with the given id attribute. */
+function elementFilterSvg(elem, fid, live = true) {
+  const body = FILTERS[elem];
+  if (!body) return '';
+  return `<filter id="${fid}" x="-30%" y="-30%" width="160%" height="160%" color-interpolation-filters="sRGB">${body(live)}</filter>`;
+}
+
 // ---- src/data/species.js ----
 // Base species: recipes of parts, a palette, trait ranges and stat weights.
 // Recipe entries are a part id, or [expressed, carried] to give the species a
@@ -5030,6 +4932,153 @@ const TIER_WEIGHT = { common: 1, uncommon: 0.55, rare: 0.25 };
 /** Species that can appear in the wild, as starters and in tournaments. */
 const WILD_SPECIES = SPECIES.filter((s) => !s.hidden);
 
+// ---- src/data/types.js ----
+// The classic 18-type chart. Attacker -> defender multipliers.
+// Colors are ours; each type also gets a one-letter glyph so type is never color-only.
+
+const TYPE_LIST = [
+  'Normal', 'Fire', 'Water', 'Electric', 'Grass', 'Ice', 'Fighting', 'Poison', 'Ground',
+  'Flying', 'Psychic', 'Bug', 'Rock', 'Ghost', 'Dragon', 'Dark', 'Steel', 'Fairy',
+];
+
+const TYPE_INFO = {
+  Normal:   { color: '#a8a290', glyph: 'N' },
+  Fire:     { color: '#f0762e', glyph: 'F' },
+  Water:    { color: '#4f8ef7', glyph: 'W' },
+  Electric: { color: '#f5c518', glyph: 'E' },
+  Grass:    { color: '#5fbf4a', glyph: 'G' },
+  Ice:      { color: '#7fd6e6', glyph: 'I' },
+  Fighting: { color: '#c23b3b', glyph: 'T' },
+  Poison:   { color: '#a349b8', glyph: 'P' },
+  Ground:   { color: '#d6a95a', glyph: 'R' },
+  Flying:   { color: '#9aa8f0', glyph: 'Y' },
+  Psychic:  { color: '#f26aa3', glyph: 'S' },
+  Bug:      { color: '#9fb52a', glyph: 'B' },
+  Rock:     { color: '#b09a5c', glyph: 'K' },
+  Ghost:    { color: '#6d5aa6', glyph: 'H' },
+  Dragon:   { color: '#6a4de8', glyph: 'D' },
+  Dark:     { color: '#5b4a42', glyph: 'A' },
+  Steel:    { color: '#9fa6b8', glyph: 'M' },
+  Fairy:    { color: '#f096b8', glyph: 'X' },
+};
+
+// se = super effective (2x), nve = not very effective (0.5x), imm = immune (0x)
+const RULES = {
+  Normal:   { nve: ['Rock', 'Steel'], imm: ['Ghost'] },
+  Fire:     { se: ['Grass', 'Ice', 'Bug', 'Steel'], nve: ['Fire', 'Water', 'Rock', 'Dragon'] },
+  Water:    { se: ['Fire', 'Ground', 'Rock'], nve: ['Water', 'Grass', 'Dragon'] },
+  Electric: { se: ['Water', 'Flying'], nve: ['Electric', 'Grass', 'Dragon'], imm: ['Ground'] },
+  Grass:    { se: ['Water', 'Ground', 'Rock'], nve: ['Fire', 'Grass', 'Poison', 'Flying', 'Bug', 'Dragon', 'Steel'] },
+  Ice:      { se: ['Grass', 'Ground', 'Flying', 'Dragon'], nve: ['Fire', 'Water', 'Ice', 'Steel'] },
+  Fighting: { se: ['Normal', 'Ice', 'Rock', 'Dark', 'Steel'], nve: ['Poison', 'Flying', 'Psychic', 'Bug', 'Fairy'], imm: ['Ghost'] },
+  Poison:   { se: ['Grass', 'Fairy'], nve: ['Poison', 'Ground', 'Rock', 'Ghost'], imm: ['Steel'] },
+  Ground:   { se: ['Fire', 'Electric', 'Poison', 'Rock', 'Steel'], nve: ['Grass', 'Bug'], imm: ['Flying'] },
+  Flying:   { se: ['Grass', 'Fighting', 'Bug'], nve: ['Electric', 'Rock', 'Steel'] },
+  Psychic:  { se: ['Fighting', 'Poison'], nve: ['Psychic', 'Steel'], imm: ['Dark'] },
+  Bug:      { se: ['Grass', 'Psychic', 'Dark'], nve: ['Fire', 'Fighting', 'Poison', 'Flying', 'Ghost', 'Steel', 'Fairy'] },
+  Rock:     { se: ['Fire', 'Ice', 'Flying', 'Bug'], nve: ['Fighting', 'Ground', 'Steel'] },
+  Ghost:    { se: ['Psychic', 'Ghost'], nve: ['Dark'], imm: ['Normal'] },
+  Dragon:   { se: ['Dragon'], nve: ['Steel'], imm: ['Fairy'] },
+  Dark:     { se: ['Psychic', 'Ghost'], nve: ['Fighting', 'Dark', 'Fairy'] },
+  Steel:    { se: ['Ice', 'Rock', 'Fairy'], nve: ['Fire', 'Water', 'Electric', 'Steel'] },
+  Fairy:    { se: ['Fighting', 'Dragon', 'Dark'], nve: ['Fire', 'Poison', 'Steel'] },
+};
+
+/** Multiplier for a single attacking type against a single defending type. */
+function typeMultiplier(attacker, defender) {
+  const r = RULES[attacker];
+  if (!r) return 1;
+  if (r.imm && r.imm.includes(defender)) return 0;
+  if (r.se && r.se.includes(defender)) return 2;
+  if (r.nve && r.nve.includes(defender)) return 0.5;
+  return 1;
+}
+
+/** Multiplier against a creature with one or two types (second may be null). */
+function typeEffectiveness(attacker, defenderTypes) {
+  let m = 1;
+  for (const t of defenderTypes) if (t) m *= typeMultiplier(attacker, t);
+  return m;
+}
+
+function isType(t) { return TYPE_LIST.includes(t); }
+
+// ---- src/core/util.js ----
+// Small shared helpers. No game logic here.
+
+const clamp = (v, lo, hi) => (v < lo ? lo : v > hi ? hi : v);
+const clamp01 = (v) => clamp(v, 0, 1);
+const lerp = (a, b, t) => a + (b - a) * t;
+const round1 = (v) => Math.round(v * 10) / 10;
+const round3 = (v) => Math.round(v * 1000) / 1000;
+const sum = (arr) => arr.reduce((a, b) => a + b, 0);
+
+/** Wrap a hue into [0,360). */
+const wrapHue = (h) => ((h % 360) + 360) % 360;
+
+/** Shortest signed distance from hue a to hue b, in (-180, 180]. */
+function hueDelta(a, b) {
+  let d = wrapHue(b) - wrapHue(a);
+  if (d > 180) d -= 360;
+  if (d <= -180) d += 360;
+  return d;
+}
+
+/** Move hue h toward target by fraction t along the shortest arc. */
+function mixHue(h, target, t) { return wrapHue(h + hueDelta(h, target) * t); }
+
+const hsl = (h, s, l) => `hsl(${Math.round(wrapHue(h))} ${Math.round(clamp(s, 0, 100))}% ${Math.round(clamp(l, 0, 100))}%)`;
+
+/** Normalize an object of positive weights so its values sum to 1. */
+function normalizeWeights(obj) {
+  const keys = Object.keys(obj);
+  const total = sum(keys.map((k) => Math.max(0, obj[k])));
+  const out = {};
+  for (const k of keys) out[k] = total > 0 ? Math.max(0, obj[k]) / total : 1 / keys.length;
+  return out;
+}
+
+function escapeHtml(s) {
+  return String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
+}
+
+/** Format a number for SVG attributes: short, stable, never "-0". */
+function num(v) {
+  const r = Math.round(v * 100) / 100;
+  return (Object.is(r, -0) ? 0 : r).toString();
+}
+
+let uidCounter = 0;
+/** Unique id fragment for DOM/SVG ids within a page lifetime. */
+function uid(prefix = 'u') { return `${prefix}${(++uidCounter).toString(36)}`; }
+
+// base64url of UTF-8 text, works in browsers and Node.
+function b64uEncode(str) {
+  const bytes = new TextEncoder().encode(str);
+  let bin = '';
+  for (const b of bytes) bin += String.fromCharCode(b);
+  const b64 = typeof btoa === 'function' ? btoa(bin) : Buffer.from(bin, 'binary').toString('base64');
+  return b64.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+}
+function b64uDecode(s) {
+  let b64 = s.replace(/-/g, '+').replace(/_/g, '/');
+  while (b64.length % 4) b64 += '=';
+  const bin = typeof atob === 'function' ? atob(b64) : Buffer.from(b64, 'base64').toString('binary');
+  const bytes = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+  return new TextDecoder().decode(bytes);
+}
+
+function deepFreeze(o) {
+  if (o && typeof o === 'object' && !Object.isFrozen(o)) {
+    Object.freeze(o);
+    for (const k of Object.keys(o)) deepFreeze(o[k]);
+  }
+  return o;
+}
+
+function titleCase(s) { return s.charAt(0).toUpperCase() + s.slice(1); }
+
 // ---- src/creature/naming.js ----
 // Names. Species carry hand-picked [prefix, suffix] halves; a fusion takes the
 // prefix of the parent that gives its face and the suffix of the other one.
@@ -5297,6 +5346,15 @@ const ABILITIES = {
   thick_skull: { name: 'Thick Skull', desc: 'Takes no recoil damage.' },
   daredevil: { name: 'Daredevil', desc: 'Recoil moves hit 1.2x harder.' },
   lucky_streak: { name: 'Lucky Streak', desc: 'Secondary effects are twice as likely.' },
+  // Elemental cores: only born on Elementals, and passed down through fusion by chance.
+  inferno_core: { name: 'Inferno Core', desc: 'Fire moves hit 1.3x harder. Cannot be burned; contact has a 30% chance to burn the attacker.' },
+  tide_core: { name: 'Tide Core', desc: 'Water moves hit 1.3x harder. Restores a sixteenth of max HP every turn.' },
+  storm_core: { name: 'Storm Core', desc: 'Electric moves hit 1.3x harder. Cannot be paralyzed; Speed rises on entry.' },
+  frost_core: { name: 'Frost Core', desc: 'Ice moves hit 1.3x harder. Cannot be frozen; contact has a 30% chance to chill the attacker\u2019s Speed.' },
+  verdant_core: { name: 'Verdant Core', desc: 'Grass moves hit 1.3x harder. Cannot be poisoned; Grass moves heal a quarter of max HP instead of damaging.' },
+  umbral_core: { name: 'Umbral Core', desc: 'Dark and Ghost moves hit 1.3x harder. Lowers the foe\u2019s Sp. Atk on entry.' },
+  radiant_core: { name: 'Radiant Core', desc: 'Fairy and Psychic moves hit 1.3x harder. Immune to Dark moves.' },
+  quake_core: { name: 'Quake Core', desc: 'Ground and Rock moves hit 1.3x harder. Takes three quarters damage from physical moves.' },
 };
 
 const ABILITY_IDS = Object.keys(ABILITIES);
@@ -5334,6 +5392,81 @@ const BIOMES = [
   { id: 'peaks', name: 'Peaks', clades: ['bird', 'reptile', 'amphibian'] },
 ];
 
+// ---- src/creature/palette.js ----
+// Palette genes -> CSS custom properties. Every part references abstract roles
+// (p/s/a and their shades); the per-slot paint gene decides which of the
+// creature's three colours each role maps to. That is how one part gets
+// recoloured differently on different creatures.
+
+
+const COLOR_KEYS = ['c1', 'c2', 'c3'];
+
+/** Root CSS variables for a creature: the three colour families, eye colour, outline and whites. */
+function paletteVars(pal) {
+  const v = [];
+  for (const k of COLOR_KEYS) {
+    const [h, s, l] = pal[k];
+    v.push(`--${k}:${hsl(h, s, l)}`, `--${k}d:${hsl(h, Math.min(100, s + 6), l - 14)}`, `--${k}l:${hsl(h, Math.max(0, s - 8), Math.min(96, l + 14))}`);
+  }
+  const [eh, es, el] = pal.eye;
+  v.push(`--e:${hsl(eh, es, el)}`, `--ed:${hsl(eh, es, el - 16)}`);
+  const [h1, s1] = pal.c1;
+  const ol = hsl(h1, Math.min(s1, 45), 13);
+  const hue = Math.round(wrapHue(h1));
+  v.push(`--ol:${ol}`, `--k:${ol}`, `--w:hsl(${hue} 20% 97%)`, `--wd:hsl(${hue} 15% 80%)`);
+  return v.join(';');
+}
+
+/** Per-slot role mapping. perm = indexes into [c1,c2,c3] for roles [p,s,a]. */
+function slotPaintVars(perm) {
+  const [p, s, a] = perm.map((i) => COLOR_KEYS[i]);
+  return `--p:var(--${p});--pd:var(--${p}d);--pl:var(--${p}l);--s:var(--${s});--sd:var(--${s}d);--sl:var(--${s}l);--a:var(--${a});--ad:var(--${a}d);--al:var(--${a}l)`;
+}
+
+/** Applied to far-side copies (far legs, far wing, far eye): everything one shade darker. */
+const FAR_VARS = '--p:var(--pd);--pl:var(--pd);--s:var(--sd);--sl:var(--sd);--a:var(--ad);--al:var(--ad);--w:var(--wd);--e:var(--ed)';
+
+function jitterColor([h, s, l], vary, rng, sharedHue) {
+  return [
+    wrapHue(h + sharedHue + rng.gauss() * vary.h * 0.5),
+    clamp(s + rng.gauss() * vary.s, 8, 100),
+    clamp(l + rng.gauss() * vary.l, 12, 92),
+  ].map((x) => Math.round(x * 10) / 10);
+}
+
+/** Genetic roll on a species palette: a shared hue drift plus small independent wobble per colour. */
+function jitterPalette(base, vary, rng) {
+  const v = { h: 10, s: 8, l: 6, ...(vary || {}) };
+  const sharedHue = rng.gauss() * v.h;
+  return {
+    c1: jitterColor(base.c1, v, rng, sharedHue),
+    c2: jitterColor(base.c2, v, rng, sharedHue),
+    c3: jitterColor(base.c3, v, rng, sharedHue),
+    eye: jitterColor(base.eye, v, rng, 0),
+  };
+}
+
+/** Rare recolour: rotate the whole palette to a new harmony. */
+function shinyPalette(pal, rng) {
+  const rot = rng.range(140, 220);
+  const out = {};
+  for (const k of ['c1', 'c2', 'c3', 'eye']) {
+    const [h, s, l] = pal[k];
+    out[k] = [wrapHue(h + rot), clamp(s + 5, 8, 100), l].map((x) => Math.round(x * 10) / 10);
+  }
+  return out;
+}
+
+/** Blend two palettes colour by colour. t=0 -> a, t=1 -> b. Hues take the short way round. */
+function blendColor(a, b, t) {
+  let dh = wrapHue(b[0]) - wrapHue(a[0]);
+  if (dh > 180) dh -= 360;
+  if (dh < -180) dh += 360;
+  return [wrapHue(a[0] + dh * t), a[1] + (b[1] - a[1]) * t, a[2] + (b[2] - a[2]) * t].map((x) => Math.round(x * 10) / 10);
+}
+
+function swatchCss([h, s, l]) { return hsl(h, s, l); }
+
 // ---- src/creature/genome.js ----
 // The genome is the single source of truth for a creature. It is a plain JSON
 // object with a fixed shape, so fusing two genomes always yields another valid
@@ -5341,6 +5474,7 @@ const BIOMES = [
 //
 // Diploid part genes: every slot holds [expressed, carried]. Only the expressed
 // allele is drawn; the carried one can resurface in offspring.
+
 
 
 
@@ -5367,6 +5501,7 @@ const ROLL = {
   bodyCarriedMutation: 0.05,
   paintSwap: 0.12,        // a slot's colour roles get permuted
   shiny: 1 / 64,
+  elemental: ELEMENTAL_CHANCE, // wild creatures born of an element
 };
 
 function allelesFromRecipe(entry, slot, rig) {
@@ -5461,6 +5596,43 @@ function speciesGenome(species, rng) {
   };
 }
 
+/** Turn a genome into an Elemental of `elem`: every slot carries the element's aura and it knows the element's core ability. */
+function makeElemental(g, elem) {
+  if (!ELEMENTS[elem]) throw new Error(`unknown element ${elem}`);
+  g.aura = {};
+  for (const slot of slotsFor(rigOf(g))) g.aura[slot] = elem;
+  g.ability = ELEMENTS[elem].ability;
+  return g;
+}
+
+/**
+ * Roll the Elemental chance for a wild creature. On a hit it becomes an Elemental of a random
+ * element (half the time one that matches its own types, when there is one) and the element
+ * id is returned; otherwise null and the genome is untouched.
+ */
+function rollElemental(g, rng, chance = ROLL.elemental) {
+  if (!rng.chance(chance)) return null;
+  const own = ELEMENT_IDS.filter((e) => ELEMENTS[e].types.some((t) => g.types.includes(t)));
+  const elem = own.length && rng.chance(0.5) ? rng.pick(own) : rng.pick(ELEMENT_IDS);
+  makeElemental(g, elem);
+  return elem;
+}
+
+/**
+ * The element a creature is made of: the aura carried by the most of its slots, with the share
+ * of slots that carry it (`pure` when every slot does). Null for ordinary creatures.
+ */
+function elementalOf(g) {
+  if (!g || !g.aura || typeof g.aura !== 'object') return null;
+  const slots = slotsFor(rigOf(g));
+  const counts = {};
+  let total = 0;
+  for (const slot of slots) { const e = g.aura[slot]; if (ELEMENTS[e]) { counts[e] = (counts[e] || 0) + 1; total++; } }
+  if (!total) return null;
+  const id = Object.keys(counts).sort((p, q) => counts[q] - counts[p])[0];
+  return { id, name: ELEMENTS[id].name, share: counts[id] / slots.length, pure: counts[id] === slots.length, ability: ELEMENTS[id].ability };
+}
+
 /** The learnset a genome battles with: its own, else its species', else the universal fallback. */
 function learnsetOf(g) {
   if (Array.isArray(g.learnset) && g.learnset.length) return g.learnset;
@@ -5549,6 +5721,9 @@ function validateGenome(g) {
   for (const k of TRAIT_KEYS) g.traits[k] = clamp01(Number(g.traits[k]) || 0.5);
   g.paint = g.paint && typeof g.paint === 'object' ? g.paint : {};
   for (const slot of paintSlotsFor(g.rig)) g.paint[slot] = PAINT_PERMS[g.paint[slot]] ? g.paint[slot] : 0;
+  const aura = {};
+  if (g.aura && typeof g.aura === 'object') for (const slot of slotsFor(g.rig)) if (ELEMENTS[g.aura[slot]]) aura[slot] = g.aura[slot];
+  if (Object.keys(aura).length) g.aura = aura; else delete g.aura;
   if (!g.stats || typeof g.stats !== 'object') g.stats = Object.fromEntries(STAT_KEYS.map((k) => [k, 1]));
   if (!g.vigor || typeof g.vigor !== 'object') g.vigor = Object.fromEntries(STAT_KEYS.map((k) => [k, 0.5]));
   g.bst = Number.isFinite(g.bst) ? g.bst : 400;
@@ -5591,6 +5766,7 @@ function validateGenome(g) {
 
 
 
+
 const FRAME = { w: 200, h: 230, ground: 208 };
 const FAR_DEFAULT = { dx: -6, dy: -4 };
 
@@ -5604,6 +5780,9 @@ const STYLE = {
 };
 let renderStyle = 'classic';
 function setRenderStyle(s) { renderStyle = RENDER_STYLES.includes(s) ? s : 'classic'; return renderStyle; }
+/** Honour prefers-reduced-motion: element filters render frozen instead of animated. */
+let reducedMotion = false;
+function setReducedMotion(v) { reducedMotion = Boolean(v); }
 function getRenderStyle() { return renderStyle; }
 
 // ---- primitives ---------------------------------------------------------------
@@ -5853,7 +6032,16 @@ function renderSetup(g, id, styleName) {
   };
   const wrap = (slot, inner) => (styled ? `<g>${inner}</g>` : `<g style="${paintOf(g, slot)}">${inner}</g>`);
   const farWrap = (inner) => (styled ? inner : `<g style="${FAR_VARS}">${inner}</g>`);
-  return { st, styled, shared, ol, ctxFor, wrap, farWrap };
+  // Elemental auras: the element each drawn slot carries. When every drawn slot shares one
+  // element the whole creature gets a single filter (cheaper); otherwise each part gets its own.
+  const aura = {};
+  const P = resolveParts(g);
+  for (const slot of Object.keys(P)) if (P[slot] && g.aura && ELEMENTS[g.aura[slot]]) aura[slot] = g.aura[slot];
+  const drawn = Object.keys(P).filter((slot) => P[slot]);
+  const elems = new Set(Object.values(aura));
+  const wholeAura = elems.size === 1 && drawn.every((slot) => aura[slot]) ? [...elems][0] : null;
+  const fxWrap = (slot, inner) => (aura[slot] && !wholeAura ? `<g filter="url(#${id}-fx-${aura[slot]})">${inner}</g>` : inner);
+  return { st, styled, shared, ol, ctxFor, wrap, farWrap, aura, elems, wholeAura, fxWrap };
 }
 
 /** Gloss spot for the styled renderers, clipped to the body. */
@@ -5878,7 +6066,7 @@ const FIT_FRAME = { w: 100, h: 60 };
  */
 function buildRigged(g, id, styleName, rig) {
   const R = renderSetup(g, id, styleName);
-  const { st, styled, shared, ctxFor, wrap, farWrap } = R;
+  const { st, styled, shared, ctxFor, wrap, farWrap, fxWrap } = R;
   const P = resolveParts(g);
   const body = P.body;
   const K = traitScales(g.traits);
@@ -5903,7 +6091,7 @@ function buildRigged(g, id, styleName, rig) {
       if (!part) continue;
       const sx = (bodyBox[2] - bodyBox[0]) / FIT_FRAME.w, sy = (bodyBox[3] - bodyBox[1]) / FIT_FRAME.h;
       const t = { x: (bodyBox[0] + bodyBox[2]) / 2, y: (bodyBox[1] + bodyBox[3]) / 2, a: 0, sx: part.fitBox === false ? 1 : sx, sy: part.fitBox === false ? 1 : sy };
-      out += wrap(slot, `<g clip-path="url(#${id}-clip)"><g transform="${tf(t)}">${pp(part, slot, false, { small: true })}</g></g>`);
+      out += wrap(slot, fxWrap(slot, `<g clip-path="url(#${id}-clip)"><g transform="${tf(t)}">${pp(part, slot, false, { small: true })}</g></g>`));
     }
     if (st.gloss) out += glossSvg(body, id);
     return out;
@@ -5932,7 +6120,7 @@ function buildRigged(g, id, styleName, rig) {
       for (const c of node.behind || []) inner += drawNode(c, part, chain);
       let own = pp(part, node.slot, Boolean(node.far), { small: node.small, noOutline: node.noOutline });
       if (node.far) own = farWrap(own);
-      inner += own;
+      inner += fxWrap(node.slot, own);
       if (node.slot === 'body') inner += clippedSvg(mode, pp);
       for (const c of node.front || []) inner += drawNode(c, part, chain);
       const cls = node.anim && ANIM_CLASS[node.anim] ? ANIM_CLASS[node.anim] : '';
@@ -5946,7 +6134,7 @@ function buildRigged(g, id, styleName, rig) {
   const layers = assemble('normal');
   if (!Number.isFinite(feet)) feet = bodyBox[3];
   if (typeof body.bottom === 'number') feet = Math.max(feet, body.bottom);
-  return { layers: [...outline, ...layers], defs: shared.defs.join(''), box: box || [-40, -40, 40, 40], feet, hover, K, body, clip: body.clip || [] };
+  return { layers: [...outline, ...layers], defs: shared.defs.join(''), box: box || [-40, -40, 40, 40], feet, hover, K, body, clip: body.clip || [], elems: R.elems, wholeAura: R.wholeAura };
 }
 
 function buildCreature(g, id, styleName) {
@@ -6000,12 +6188,14 @@ function renderCreatureSvg(g, opts = {}) {
   const delay = live ? ` style="animation-delay:-${num(((g.seed || '').length * 0.37 + (g.traits ? g.traits.size * 3 : 0)) % 3)}s"` : '';
   const clip = built.clip.map((d) => `<path d="${d}"/>`).join('');
   const shadowFill = styleName === 'classic' ? 'var(--k)' : hsl(g.palette.c1[0], 30, 10);
+  const fxDefs = [...(built.elems || [])].map((e) => elementFilterSvg(e, `${id}-fx-${e}`, live && !reducedMotion)).join('');
+  const layers = built.wholeAura ? `<g filter="url(#${id}-fx-${built.wholeAura})">${built.layers.join('')}</g>` : built.layers.join('');
 
   return `<svg class="cr cr-${styleName}${live ? ' cr-live' : ''}" xmlns="http://www.w3.org/2000/svg" viewBox="${vb.map(num).join(' ')}" width="${size}" height="${height}" role="img" aria-label="${escapeHtml(label)}" style="${paletteVars(g.palette)}">` +
-    `<defs><clipPath id="${id}-clip">${clip}</clipPath>${built.defs}</defs>` +
+    `<defs><clipPath id="${id}-clip">${clip}</clipPath>${built.defs}${fxDefs}</defs>` +
     `<ellipse class="cr-shadow" cx="${num(FRAME.w / 2)}" cy="${FRAME.ground}" rx="${num(shadowRx)}" ry="${num(shadowRy)}" fill="${shadowFill}" opacity="0.18"/>` +
     `<g transform="${tf(chain[1])} translate(0 ${num(chain[0].y)})">` +
-    `<g class="cr-anim"${delay}>${built.layers.join('')}</g></g></svg>`;
+    `<g class="cr-anim"${delay}>${layers}</g></g></svg>`;
 }
 
 /** A neutral mannequin genome used by the Part Lab to preview any single part. */
@@ -6033,6 +6223,7 @@ function mannequinGenome(part) {
 
 
 
+
 function typeChip(type) {
   const info = TYPE_INFO[type] || { color: '#999', glyph: '?' };
   return h('span', { class: 'chip', style: { '--chip': info.color } }, h('b', {}, info.glyph), type);
@@ -6040,6 +6231,14 @@ function typeChip(type) {
 
 function typeChips(types) {
   return h('div', { class: 'chips' }, types.filter(Boolean).map(typeChip));
+}
+
+/** '◆ Fire Elemental' (or 'Fire-touched' for a fused descendant that kept some elemental parts), or null. */
+function elementalBadge(g) {
+  const e = elementalOf(g);
+  if (!e) return null;
+  const label = e.pure ? `${e.name} Elemental` : `${e.name}-touched`;
+  return h('span', { class: `elem-badge elem-${e.id}`, title: `${label}: its parts carry the ${e.name.toLowerCase()} element` }, `◆ ${label}`);
 }
 
 function creatureEl(genome, opts) {
@@ -6179,6 +6378,7 @@ function removeFromPool(g) {
 
 
 
+
 const labState = { seed: null, species: 'random', count: 12 };
 
 function seedFromUrl() {
@@ -6235,7 +6435,7 @@ function renderLabScreen(root) {
     for (const g of rollGenomes()) {
       grid.append(h('button', { class: 'card', type: 'button', onclick: () => openSheet(g) },
         creatureEl(g, { size: 160 }),
-        h('div', { class: 'card-name' }, g.name, g.shiny ? h('span', { class: 'shiny', title: 'Rare colours' }, ' ✦') : null),
+        h('div', { class: 'card-name' }, g.name, g.shiny ? h('span', { class: 'shiny', title: 'Rare colours' }, ' ✦') : null, elementalBadge(g)),
         typeChips(g.types)));
     }
   }
@@ -6290,7 +6490,9 @@ function openSheet(g) {
   const sp = speciesOf(g);
   const code = encodeGenome(g);
   let facing = 'right';
+  let shown = g; // the sheet can preview the creature as an Elemental without changing it
   const hero = h('div', { class: 'hero' }, creatureEl(g, { size: 260, facing, fit: true }));
+  const redraw = () => clear(hero).append(creatureEl(shown, { size: 260, facing, fit: true }));
   const close = () => { backdrop.remove(); sheet.remove(); document.removeEventListener('keydown', onKey); if (activeSheet === close) activeSheet = null; };
   activeSheet = close;
   const onKey = (e) => { if (e.key === 'Escape') close(); };
@@ -6300,18 +6502,24 @@ function openSheet(g) {
     h('div', { class: 'sheet-head' },
       h('h2', {}, g.name, g.shiny ? ' ✦' : ''),
       typeChips(g.types),
+      elementalBadge(g),
       h('button', { class: 'btn close', onclick: close, 'aria-label': 'Close' }, '✕')),
     h('p', { class: 'meta' }, sp ? `${sp.name} · ${sp.tier}` : 'Fusion', ` · ${cladeName(cladeOf(g))} · gen ${g.gen} · seed ${g.seed}`),
     hero,
     h('div', { class: 'row' },
-      h('button', { class: 'btn', onclick: () => { facing = facing === 'right' ? 'left' : 'right'; clear(hero).append(creatureEl(g, { size: 260, facing, fit: true })); } }, 'Flip'),
+      h('button', { class: 'btn', onclick: () => { facing = facing === 'right' ? 'left' : 'right'; redraw(); } }, 'Flip'),
       h('button', { class: 'btn', onclick: async () => toast((await copyText(code)) ? 'Code copied' : 'Copy failed, select the text below') }, 'Copy code'),
       h('button', { class: 'btn', onclick: () => {
         toast(addToPool(g) ? 'Added to the fusion pool' : 'Already in the pool');
         close();
         if (location.hash === '#fusion') window.dispatchEvent(new CustomEvent('pool-changed'));
         else location.hash = 'fusion';
-      } }, 'Fuse')),
+      } }, 'Fuse'),
+      elementalOf(g) ? null : h('select', { class: 'btn elem-preview', title: 'Preview this creature as an Elemental (one wild creature in a thousand is born as one)', onchange: (e) => {
+        const elem = e.target.value;
+        shown = elem ? makeElemental(JSON.parse(JSON.stringify(g)), elem) : g;
+        redraw();
+      } }, h('option', { value: '' }, 'Elemental preview'), ...ELEMENT_IDS.map((id) => h('option', { value: id }, `${ELEMENTS[id].name} Elemental`)))),
     sp ? h('p', { class: 'desc' }, sp.desc) : null,
     ...section('Base stats', statRows(g)),
     ...section('Parts', partRows(g)),
@@ -6374,12 +6582,14 @@ function renderPartsScreen(root) {
 
 
 
+
 const FUSE = {
   dominanceNoise: 0.15,   // +/- added to each allele's dominance before comparing
   expressedMutation: 0.03,
   carriedMutation: 0.06,
   bodyMutation: 0.01,
   paintSwap: 0.05,
+  elementalAbility: 0.5,  // chance an Elemental parent's core ability passes to the child
   genBonusPerGen: 4,      // bst bonus per generation
   genBonusCap: 5,         // generations that count toward the bonus
   maxLineage: 16,
@@ -6474,6 +6684,14 @@ function fuse(a, b, rng) {
     }
   }
 
+  // An Elemental's aura travels with the part it was expressed on; a mutated part is born plain.
+  const aura = {};
+  for (const slot of slotsFor(rig)) {
+    if (mutated[slot] || from[slot] == null) continue;
+    const src = parents[from[slot]];
+    if (src.aura && ELEMENTS[src.aura[slot]]) aura[slot] = src.aura[slot];
+  }
+
   const headPart = parts.head ? getPart(parts.head[0]) : null;
   const identity = headPart && !headPart.none && !mutated.head ? from.head : from.body;
   const P1 = parents[identity], P2 = parents[1 - identity];
@@ -6529,6 +6747,17 @@ function fuse(a, b, rng) {
     vigor[k] = round3(clamp01(base + rStats.gauss() * 0.03));
   }
 
+  // Core abilities (born on Elementals) each get a chance to pass down; otherwise the usual
+  // draw between the parents' ordinary abilities, falling back to the identity species' own.
+  let ability = null;
+  for (const p of [P1, P2]) if (isCoreAbility(p.ability) && rAbility.chance(FUSE.elementalAbility)) { ability = p.ability; break; }
+  if (!ability) {
+    const plain = [P1, P2].filter((p) => !isCoreAbility(p.ability)).map((p) => p.ability);
+    if (plain.length === 2) ability = rAbility.chance(0.6) ? plain[0] : plain[1];
+    else if (plain.length === 1) ability = plain[0];
+    else { const sp = speciesOf(P1) || speciesOf(P2); ability = (sp && sp.abilities && sp.abilities[0]) || 'lucky_streak'; }
+  }
+
   const nameParts = [namePartsOf(P1)[0], namePartsOf(P2)[1]];
   const lineage = [...(a.lineage || []), ...(b.lineage || [])].filter((x, i, arr) => arr.indexOf(x) === i).slice(-FUSE.maxLineage);
 
@@ -6546,8 +6775,9 @@ function fuse(a, b, rng) {
     parts, paint, palette, traits, stats, vigor, bst, lineage,
     parents: [a.name, b.name],
     learnset: fuseLearnsets(a, b, [primary, secondary]),
-    ability: rAbility.chance(0.6) ? P1.ability : P2.ability,
+    ability,
   };
+  if (Object.keys(aura).length) child.aura = aura;
   return {
     child,
     report: { from, mutated, identity, palette: palFrom, types: { primary: identity, secondary: secondaryFrom } },
@@ -6713,7 +6943,7 @@ function resultPanel(child, report, a, b, actions) {
     child.types[1] ? [typeChips([child.types[1]]), badge(report.types.secondary)] : h('span', { class: 'hint', style: { margin: 0 } }, 'no second type'));
 
   const panel = h('div', { class: 'result' },
-    h('div', { class: 'sheet-head' }, h('h2', {}, child.name, child.shiny ? ' ✦' : ''), typeChips(child.types)),
+    h('div', { class: 'sheet-head' }, h('h2', {}, child.name, child.shiny ? ' ✦' : ''), typeChips(child.types), elementalBadge(child)),
     h('p', { class: 'meta' }, `${cladeName(cladeOf(child))} · gen ${child.gen} · ${a.name} × ${b.name} · face from ${parents[report.identity].name}`),
     h('div', { class: 'hero' }, creatureEl(child, { size: 240, fit: true })),
     h('div', { class: 'row wrap' },
@@ -6776,6 +7006,7 @@ function movesAtLevel(learnset, level) {
 // Shape: two sides, each with a party (up to 5) and one active battler.
 // Phases: 'choose' (both sides act), 'replace' (a side whose active fainted
 // must send in another, free), 'over'.
+
 
 
 
@@ -6999,6 +7230,14 @@ function entryHooks(state, i, events) {
     events.push({ t: 'ability', side: i, name: me.name, ability: abilityName(me.ability) });
     changeStages(state, 1 - i, { atk: -1 }, events);
   }
+  if (me.ability === 'umbral_core' && !foe.fainted) {
+    events.push({ t: 'ability', side: i, name: me.name, ability: abilityName(me.ability) });
+    changeStages(state, 1 - i, { spa: -1 }, events);
+  }
+  if (me.ability === 'storm_core' && me.stages.spe < 6) {
+    events.push({ t: 'ability', side: i, name: me.name, ability: abilityName(me.ability) });
+    changeStages(state, i, { spe: 1 }, events);
+  }
 }
 
 function canHaveStatus(b, status, mv) {
@@ -7006,11 +7245,11 @@ function canHaveStatus(b, status, mv) {
   const t = b.types;
   if (mv && mv.flags.includes('powder') && t.includes('Grass')) return false;
   switch (status) {
-    case 'brn': return !t.includes('Fire') && b.ability !== 'damp_coat';
-    case 'psn': return !t.includes('Poison') && !t.includes('Steel') && b.ability !== 'antitoxin';
-    case 'par': return !t.includes('Electric') && b.ability !== 'loose_joints';
+    case 'brn': return !t.includes('Fire') && b.ability !== 'damp_coat' && b.ability !== 'inferno_core';
+    case 'psn': return !t.includes('Poison') && !t.includes('Steel') && b.ability !== 'antitoxin' && b.ability !== 'verdant_core';
+    case 'par': return !t.includes('Electric') && b.ability !== 'loose_joints' && b.ability !== 'storm_core';
     case 'slp': return b.ability !== 'restless';
-    case 'frz': return !t.includes('Ice') && b.ability !== 'warm_core';
+    case 'frz': return !t.includes('Ice') && b.ability !== 'warm_core' && b.ability !== 'frost_core';
     default: return false;
   }
 }
@@ -7087,6 +7326,8 @@ function calcDamage(user, target, mv, eff, roll, crit) {
   if (user.ability === 'vice_jaw' && mv.flags.includes('bite')) power *= 1.5;
   if (user.ability === 'daredevil' && moveFx(mv, 'recoil')) power *= 1.2;
   if (SURGE[user.ability] === mv.type && user.hp <= user.maxHp / 3) power *= 1.5;
+  const core = coreTypes(user.ability);
+  if (core && core.includes(mv.type)) power *= 1.3;
   let dmg = Math.floor(Math.floor((Math.floor((2 * user.level) / 5) + 2) * power * A / D) / 50) + 2;
   if (crit) dmg = Math.floor(dmg * 1.5);
   dmg = Math.floor(dmg * roll);
@@ -7094,6 +7335,7 @@ function calcDamage(user, target, mv, eff, roll, crit) {
   dmg = Math.floor(dmg * eff);
   if (user.status === 'brn' && mv.cat === 'phys' && user.ability !== 'grit') dmg = Math.floor(dmg / 2);
   if (target.ability === 'blubber' && (mv.type === 'Fire' || mv.type === 'Ice')) dmg = Math.floor(dmg / 2);
+  if (target.ability === 'quake_core' && mv.cat === 'phys') dmg = Math.floor(dmg * 0.75);
   return Math.max(1, dmg);
 }
 
@@ -7102,6 +7344,7 @@ function moveEffectiveness(mv, target) {
   if (mv.typeless) return 1;
   if (mv.type === 'Ground' && target.ability === 'hover') return 0;
   if ((mv.type === 'Water' && target.ability === 'sponge') || (mv.type === 'Electric' && target.ability === 'capacitor')) return 0;
+  if ((mv.type === 'Grass' && target.ability === 'verdant_core') || (mv.type === 'Dark' && target.ability === 'radiant_core')) return 0;
   return typeEffectiveness(mv.type, target.types);
 }
 
@@ -7146,8 +7389,8 @@ function executeMove(state, i, action, events, rng) {
 
   const eff = moveEffectiveness(mv, target);
   if (eff === 0) {
-    if (target.ability === 'hover' && mv.type === 'Ground') events.push({ t: 'ability', side: foeSide, name: target.name, ability: abilityName(target.ability) });
-    if ((target.ability === 'sponge' && mv.type === 'Water') || (target.ability === 'capacitor' && mv.type === 'Electric')) {
+    if ((target.ability === 'hover' && mv.type === 'Ground') || (target.ability === 'radiant_core' && mv.type === 'Dark')) events.push({ t: 'ability', side: foeSide, name: target.name, ability: abilityName(target.ability) });
+    if ((target.ability === 'sponge' && mv.type === 'Water') || (target.ability === 'capacitor' && mv.type === 'Electric') || (target.ability === 'verdant_core' && mv.type === 'Grass')) {
       events.push({ t: 'ability', side: foeSide, name: target.name, ability: abilityName(target.ability) });
       if (!healBattler(state, foeSide, target.maxHp / 4, events, 'absorb')) events.push({ t: 'immune', side: foeSide, name: target.name });
       return;
@@ -7207,8 +7450,11 @@ function contactEffects(state, i, events, rng) {
   if (ab === 'thorn_hide') {
     events.push({ t: 'ability', side: foeSide, name: target.name, ability: abilityName(ab) });
     hurtBattler(state, i, Math.max(1, user.maxHp / 8), events, 'thorns');
-  } else if ((ab === 'live_fur' || ab === 'hot_blooded' || ab === 'venom_barbs') && rng.chance(0.3)) {
-    const status = ab === 'live_fur' ? 'par' : ab === 'hot_blooded' ? 'brn' : 'psn';
+  } else if (ab === 'frost_core' && rng.chance(0.3) && user.stages.spe > -6) {
+    events.push({ t: 'ability', side: foeSide, name: target.name, ability: abilityName(ab) });
+    changeStages(state, i, { spe: -1 }, events);
+  } else if ((ab === 'live_fur' || ab === 'hot_blooded' || ab === 'venom_barbs' || ab === 'inferno_core') && rng.chance(0.3)) {
+    const status = ab === 'live_fur' ? 'par' : (ab === 'hot_blooded' || ab === 'inferno_core') ? 'brn' : 'psn';
     if (canHaveStatus(user, status)) {
       events.push({ t: 'ability', side: foeSide, name: target.name, ability: abilityName(ab) });
       setStatus(state, i, status, events, rng);
@@ -7251,6 +7497,10 @@ function endOfTurn(state, events, rng) {
     if (!b.fainted && b.ability === 'momentum' && b.stages.spe < 6) {
       events.push({ t: 'ability', side: i, name: b.name, ability: abilityName(b.ability) });
       changeStages(state, i, { spe: 1 }, events);
+    }
+    if (!b.fainted && b.ability === 'tide_core' && b.hp < b.maxHp) {
+      events.push({ t: 'ability', side: i, name: b.name, ability: abilityName(b.ability) });
+      healBattler(state, i, Math.max(1, b.maxHp / 16), events, 'ability');
     }
   }
 }
@@ -8037,6 +8287,7 @@ function endRun(save) {
 
 
 
+
 const ARENA = {
   partyMax: MAX_PARTY,
   starterLevel: 8,
@@ -8050,6 +8301,7 @@ const ARENA = {
   wildFusionFrom: 8,
   rareFrom: 4,
   gentleFloors: 3,
+  elementalChance: ELEMENTAL_CHANCE, // a capturable wild creature born of an element
 };
 
 const TRAINER_NAMES = ['Ranger Ivy', 'Scout Bram', 'Herder Tobin', 'Keeper Sable', 'Drifter Wren', 'Tamer Oakes', 'Courier Pim', 'Warden’s Aide Lise'];
@@ -8181,7 +8433,8 @@ function encounterFor(run, floor) {
     const counters = (w) => w.types.some((t) => t && typeEffectiveness(t, leadTypes) >= 2);
     for (let i = 0; i < 8 && counters(g); i++) g = wildOrFusion(rng.fork(`wild${i}`), floor);
   }
-  return { kind: 'wild', name: `Wild ${g.name}`, foes: [{ genome: g, level: cap(L + rng.between(-1, 1)) }], capturable: true, biome: biomeFor(floor).id };
+  const elemental = rollElemental(g, rng.fork('elemental'), ARENA.elementalChance);
+  return { kind: 'wild', name: `Wild ${g.name}`, foes: [{ genome: g, level: cap(L + rng.between(-1, 1)) }], capturable: true, biome: biomeFor(floor).id, elemental };
 }
 
 /** Build the engine state for the current floor. Rotates a fainted lead out of the first slot. */
@@ -8483,7 +8736,8 @@ function floorView(root, run) {
   const rerender = () => renderArenaScreen(root);
   const enc = run.encounter;
   const L = floorLevel(run.floor);
-  const kindLabel = { wild: 'Wild encounter', trainer: 'Trainer battle', boss: 'Warden' }[enc.kind];
+  const elem = enc.foes.map((f) => elementalOf(f.genome)).find((e) => e && e.pure) || null;
+  const kindLabel = elem ? `${elem.name} Elemental!` : { wild: 'Wild encounter', trainer: 'Trainer battle', boss: 'Warden' }[enc.kind];
   const foesRow = h('div', { class: 'foes' }, enc.foes.map((f) => h('div', { class: 'foe-card' },
     creatureEl(f.genome, { size: enc.foes.length > 2 ? 78 : 120, facing: 'left', animate: enc.foes.length <= 2 }),
     h('span', {}, `${f.genome.name} · Lv ${f.level}`))));
@@ -8493,9 +8747,10 @@ function floorView(root, run) {
       h('button', { class: 'btn small', type: 'button', onclick: () => { if (confirm('Abandon this run? Your party retires to the collection.')) { run.phase = 'gameover'; endRun(ar.save); save(); rerender(); } } }, 'Abandon')),
     ar.showReport ? reportCard(run.lastReport) : null,
     learnCard(run),
-    h('div', { class: `encounter ${enc.kind}` },
-      h('div', { class: 'enc-head' }, h('span', { class: `kind-badge ${enc.kind}` }, kindLabel), h('b', {}, enc.name)),
+    h('div', { class: `encounter ${enc.kind}${elem ? ` elemental elem-${elem.id}` : ''}` },
+      h('div', { class: 'enc-head' }, h('span', { class: `kind-badge ${enc.kind}${elem ? ' elemental' : ''}` }, kindLabel), h('b', {}, enc.name)),
       foesRow,
+      elem ? h('p', { class: 'hint elem-hint' }, `One in a thousand: a creature born of ${elem.name.toLowerCase()}. Every part it has carries the element, and its parts keep it when passed down in fusion.`) : null,
       enc.capturable ? h('p', { class: 'hint' }, 'Wild creatures can be captured during the fight. Weaken them first.') : null,
       h('div', { class: 'row wrap' },
         h('button', { class: 'btn primary fuse-btn', type: 'button', disabled: !canFight(run), onclick: () => startArenaBattle(root, run) }, canFight(run) ? 'Fight' : 'Nobody can fight'),
@@ -8616,6 +8871,7 @@ function bootApp() {
   const app = document.getElementById('app');
   clear(app);
   try { const s = new URLSearchParams(location.search).get('style'); if (s) setRenderStyle(s); } catch { /* ignore */ }
+  try { const mq = matchMedia('(prefers-reduced-motion: reduce)'); setReducedMotion(mq.matches); mq.addEventListener('change', (e) => setReducedMotion(e.matches)); } catch { /* ignore */ }
   const nav = h('nav', { class: 'tabs', role: 'tablist' });
   const main = h('main', { class: 'screen' });
   try { setSfxEnabled(localStorage.getItem('creaturecollector.sfx') !== 'off'); } catch { /* default on */ }

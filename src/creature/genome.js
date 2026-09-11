@@ -6,6 +6,7 @@
 // allele is drawn; the carried one can resurface in offspring.
 import { getPart, partsFor, partsOf, partFits } from '../data/parts/index.js';
 import { RIGS, getRig, slotsFor, paintSlotsFor, swappableSlotsFor, noneId, DEFAULT_RIG } from '../data/rigs.js';
+import { ELEMENTS, ELEMENT_IDS, ELEMENTAL_CHANCE } from '../data/elements.js';
 import { SPECIES, SPECIES_BY_ID, TIER_WEIGHT, WILD_SPECIES } from '../data/species.js';
 import { isType } from '../data/types.js';
 import { clamp01, round3, normalizeWeights, b64uEncode, b64uDecode } from '../core/util.js';
@@ -30,6 +31,7 @@ export const ROLL = {
   bodyCarriedMutation: 0.05,
   paintSwap: 0.12,        // a slot's colour roles get permuted
   shiny: 1 / 64,
+  elemental: ELEMENTAL_CHANCE, // wild creatures born of an element
 };
 
 function allelesFromRecipe(entry, slot, rig) {
@@ -124,6 +126,43 @@ export function speciesGenome(species, rng) {
   };
 }
 
+/** Turn a genome into an Elemental of `elem`: every slot carries the element's aura and it knows the element's core ability. */
+export function makeElemental(g, elem) {
+  if (!ELEMENTS[elem]) throw new Error(`unknown element ${elem}`);
+  g.aura = {};
+  for (const slot of slotsFor(rigOf(g))) g.aura[slot] = elem;
+  g.ability = ELEMENTS[elem].ability;
+  return g;
+}
+
+/**
+ * Roll the Elemental chance for a wild creature. On a hit it becomes an Elemental of a random
+ * element (half the time one that matches its own types, when there is one) and the element
+ * id is returned; otherwise null and the genome is untouched.
+ */
+export function rollElemental(g, rng, chance = ROLL.elemental) {
+  if (!rng.chance(chance)) return null;
+  const own = ELEMENT_IDS.filter((e) => ELEMENTS[e].types.some((t) => g.types.includes(t)));
+  const elem = own.length && rng.chance(0.5) ? rng.pick(own) : rng.pick(ELEMENT_IDS);
+  makeElemental(g, elem);
+  return elem;
+}
+
+/**
+ * The element a creature is made of: the aura carried by the most of its slots, with the share
+ * of slots that carry it (`pure` when every slot does). Null for ordinary creatures.
+ */
+export function elementalOf(g) {
+  if (!g || !g.aura || typeof g.aura !== 'object') return null;
+  const slots = slotsFor(rigOf(g));
+  const counts = {};
+  let total = 0;
+  for (const slot of slots) { const e = g.aura[slot]; if (ELEMENTS[e]) { counts[e] = (counts[e] || 0) + 1; total++; } }
+  if (!total) return null;
+  const id = Object.keys(counts).sort((p, q) => counts[q] - counts[p])[0];
+  return { id, name: ELEMENTS[id].name, share: counts[id] / slots.length, pure: counts[id] === slots.length, ability: ELEMENTS[id].ability };
+}
+
 /** The learnset a genome battles with: its own, else its species', else the universal fallback. */
 export function learnsetOf(g) {
   if (Array.isArray(g.learnset) && g.learnset.length) return g.learnset;
@@ -212,6 +251,9 @@ export function validateGenome(g) {
   for (const k of TRAIT_KEYS) g.traits[k] = clamp01(Number(g.traits[k]) || 0.5);
   g.paint = g.paint && typeof g.paint === 'object' ? g.paint : {};
   for (const slot of paintSlotsFor(g.rig)) g.paint[slot] = PAINT_PERMS[g.paint[slot]] ? g.paint[slot] : 0;
+  const aura = {};
+  if (g.aura && typeof g.aura === 'object') for (const slot of slotsFor(g.rig)) if (ELEMENTS[g.aura[slot]]) aura[slot] = g.aura[slot];
+  if (Object.keys(aura).length) g.aura = aura; else delete g.aura;
   if (!g.stats || typeof g.stats !== 'object') g.stats = Object.fromEntries(STAT_KEYS.map((k) => [k, 1]));
   if (!g.vigor || typeof g.vigor !== 'object') g.vigor = Object.fromEntries(STAT_KEYS.map((k) => [k, 0.5]));
   g.bst = Number.isFinite(g.bst) ? g.bst : 400;

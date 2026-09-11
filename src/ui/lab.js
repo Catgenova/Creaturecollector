@@ -1,8 +1,9 @@
 // Creature Lab: roll seeded creatures, inspect genes, copy and load creature codes.
 import { h, clear, copyText, toast } from './dom.js';
-import { typeChips, creatureEl, section } from './common.js';
+import { typeChips, creatureEl, section, elementalBadge } from './common.js';
 import { makeRng, freshSeed } from '../core/rng.js';
-import { randomGenome, speciesGenome, baseStats, encodeGenome, decodeGenome, resolveParts, STAT_KEYS, STAT_NAMES, TRAIT_KEYS, speciesOf, rigOf } from '../creature/genome.js';
+import { randomGenome, speciesGenome, baseStats, encodeGenome, decodeGenome, resolveParts, STAT_KEYS, STAT_NAMES, TRAIT_KEYS, speciesOf, rigOf, makeElemental, elementalOf } from '../creature/genome.js';
+import { ELEMENT_IDS, ELEMENTS } from '../data/elements.js';
 import { swatchCss } from '../creature/palette.js';
 import { SPECIES, SPECIES_BY_ID } from '../data/species.js';
 import { getPart } from '../data/parts/index.js';
@@ -67,7 +68,7 @@ export function renderLabScreen(root) {
     for (const g of rollGenomes()) {
       grid.append(h('button', { class: 'card', type: 'button', onclick: () => openSheet(g) },
         creatureEl(g, { size: 160 }),
-        h('div', { class: 'card-name' }, g.name, g.shiny ? h('span', { class: 'shiny', title: 'Rare colours' }, ' ✦') : null),
+        h('div', { class: 'card-name' }, g.name, g.shiny ? h('span', { class: 'shiny', title: 'Rare colours' }, ' ✦') : null, elementalBadge(g)),
         typeChips(g.types)));
     }
   }
@@ -122,7 +123,9 @@ export function openSheet(g) {
   const sp = speciesOf(g);
   const code = encodeGenome(g);
   let facing = 'right';
+  let shown = g; // the sheet can preview the creature as an Elemental without changing it
   const hero = h('div', { class: 'hero' }, creatureEl(g, { size: 260, facing, fit: true }));
+  const redraw = () => clear(hero).append(creatureEl(shown, { size: 260, facing, fit: true }));
   const close = () => { backdrop.remove(); sheet.remove(); document.removeEventListener('keydown', onKey); if (activeSheet === close) activeSheet = null; };
   activeSheet = close;
   const onKey = (e) => { if (e.key === 'Escape') close(); };
@@ -132,18 +135,24 @@ export function openSheet(g) {
     h('div', { class: 'sheet-head' },
       h('h2', {}, g.name, g.shiny ? ' ✦' : ''),
       typeChips(g.types),
+      elementalBadge(g),
       h('button', { class: 'btn close', onclick: close, 'aria-label': 'Close' }, '✕')),
     h('p', { class: 'meta' }, sp ? `${sp.name} · ${sp.tier}` : 'Fusion', ` · ${cladeName(cladeOf(g))} · gen ${g.gen} · seed ${g.seed}`),
     hero,
     h('div', { class: 'row' },
-      h('button', { class: 'btn', onclick: () => { facing = facing === 'right' ? 'left' : 'right'; clear(hero).append(creatureEl(g, { size: 260, facing, fit: true })); } }, 'Flip'),
+      h('button', { class: 'btn', onclick: () => { facing = facing === 'right' ? 'left' : 'right'; redraw(); } }, 'Flip'),
       h('button', { class: 'btn', onclick: async () => toast((await copyText(code)) ? 'Code copied' : 'Copy failed, select the text below') }, 'Copy code'),
       h('button', { class: 'btn', onclick: () => {
         toast(addToPool(g) ? 'Added to the fusion pool' : 'Already in the pool');
         close();
         if (location.hash === '#fusion') window.dispatchEvent(new CustomEvent('pool-changed'));
         else location.hash = 'fusion';
-      } }, 'Fuse')),
+      } }, 'Fuse'),
+      elementalOf(g) ? null : h('select', { class: 'btn elem-preview', title: 'Preview this creature as an Elemental (one wild creature in a thousand is born as one)', onchange: (e) => {
+        const elem = e.target.value;
+        shown = elem ? makeElemental(JSON.parse(JSON.stringify(g)), elem) : g;
+        redraw();
+      } }, h('option', { value: '' }, 'Elemental preview'), ...ELEMENT_IDS.map((id) => h('option', { value: id }, `${ELEMENTS[id].name} Elemental`)))),
     sp ? h('p', { class: 'desc' }, sp.desc) : null,
     ...section('Base stats', statRows(g)),
     ...section('Parts', partRows(g)),

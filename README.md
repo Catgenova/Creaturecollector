@@ -43,6 +43,11 @@ classes are on rigs and the old shared skeleton is gone. A fantasy pass then
 pushed every slot away from field-guide realism: forehead sigils, tufted and
 leaf ears, orb and flame tails, glowing tips and bold markings. See `DESIGN.md`.
 
+Elementals: one wild creature in a thousand is born of one of eight elements.
+Every part it has carries an animated element filter and it knows the element's
+core ability; parts keep their element when passed down in fusion, and the
+ability follows by chance.
+
 ## Develop
 
 ```

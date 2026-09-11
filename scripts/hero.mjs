@@ -1,12 +1,12 @@
 // Creatures very large, for close inspection. Usage: node scripts/hero.mjs <ids> [style]
 // ids: comma-separated species ids or preset names (see scripts/_samples.mjs), each optionally
-// followed by +slot=part overrides, e.g. fox+eyes=slit or wolf+back=flame
+// followed by +slot=part overrides, e.g. fox+eyes=slit or wolf+back=flame, or +elemental=fire
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { makeRng } from '../src/core/rng.js';
 import { SPECIES_BY_ID } from '../src/data/species.js';
-import { speciesGenome } from '../src/creature/genome.js';
+import { speciesGenome, makeElemental } from '../src/creature/genome.js';
 import { renderCreatureSvg } from '../src/creature/render.js';
 import { getRig } from '../src/data/rigs.js';
 import { PRESETS, presetGenome } from './_samples.mjs';
@@ -23,7 +23,11 @@ function genomeFor(id) {
   else if (PRESETS[base]) g = presetGenome(base);
   else throw new Error(`unknown creature ${base}`);
   const prefix = getRig(g.rig).prefix;
-  for (const r of rest) { const [slot, name] = r.split('='); g.parts[slot] = [`${prefix}${slot}.${name}`, `${prefix}${slot}.${name}`]; }
+  for (const r of rest) {
+    const [slot, name] = r.split('=');
+    if (slot === 'elemental') { makeElemental(g, name); continue; }
+    g.parts[slot] = [`${prefix}${slot}.${name}`, `${prefix}${slot}.${name}`];
+  }
   return g;
 }
 let html = `<!doctype html><meta charset="utf-8"><style>${css} body{background:#1a1b24;padding:10px;display:flex;flex-wrap:wrap;gap:20px;align-items:flex-end}</style>`;

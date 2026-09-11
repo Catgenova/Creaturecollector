@@ -46,6 +46,13 @@ button, input, select, textarea { font: inherit; }
 .card svg { width: 100%; height: auto; }
 .card-name { font-weight: 700; }
 .shiny { color: var(--acc); }
+.elem-badge { display: inline-block; margin-left: 6px; padding: 1px 8px; border-radius: 999px; font-size: 11px; font-weight: 700; color: #14151c; background: var(--elem, #ccc); vertical-align: middle; white-space: nowrap; }
+.elem-fire { --elem: #ff7a1a; } .elem-water { --elem: #4fd6ff; } .elem-storm { --elem: #ffe14a; } .elem-frost { --elem: #9fe8ff; }
+.elem-bloom { --elem: #7ded6a; } .elem-shadow { --elem: #b98cff; } .elem-light { --elem: #fff1a8; } .elem-earth { --elem: #d9a45a; }
+.encounter.elemental { border-color: var(--elem); box-shadow: 0 0 22px -8px var(--elem), inset 0 0 40px -30px var(--elem); }
+.kind-badge.elemental { background: var(--elem); color: #14151c; }
+.elem-hint { color: var(--elem); }
+.elem-preview { max-width: 100%; }
 .chips { display: flex; gap: 4px; flex-wrap: wrap; justify-content: center; }
 .chip { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 999px; color: #111; background: var(--chip, #999); }
 .chip b { font-size: 10px; opacity: .7; }
