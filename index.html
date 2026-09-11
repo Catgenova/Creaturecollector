@@ -200,6 +200,7 @@ h3.sec { font-size: 12px; text-transform: uppercase; letter-spacing: .1em; color
 .mv-tags em { font-style: normal; }
 .mv-tags .good { color: #7fe38a; }
 .mv-tags .bad { color: #ff9b7a; }
+.mv-tags .bonus { color: var(--acc); }
 .move-btn .chip.dt-chip, .chip.style-chip { background: var(--chip); color: #14151c; border-color: transparent; }
 .panel-head .style-chip { font-size: 11px; padding: 1px 7px; }
 .chips { display: flex; flex-wrap: wrap; gap: 4px; justify-content: center; }
@@ -5382,7 +5383,7 @@ const ABILITIES = {
   venom_barbs: { name: 'Venom Barbs', desc: 'Contact has a 30% chance to poison the attacker.' },
   sponge: { name: 'Sponge', desc: 'Water moves heal a quarter of max HP instead of damaging.' },
   capacitor: { name: 'Capacitor', desc: 'Electric moves heal a quarter of max HP instead of damaging.' },
-  purebred: { name: 'Purebred', desc: 'Same-type moves get a 2x bonus instead of 1.5x.' },
+  purebred: { name: 'Purebred', desc: 'Same-type moves get +50% instead of +25%.' },
   finesse: { name: 'Finesse', desc: 'Moves with 60 power or less hit 1.5x harder.' },
   hawkeye: { name: 'Hawkeye', desc: 'Accuracy cannot be lowered.' },
   restless: { name: 'Restless', desc: 'Cannot fall asleep.' },
@@ -7482,13 +7483,25 @@ function calcDamage(user, target, mv, eff, roll, crit) {
   let dmg = Math.floor(Math.floor((Math.floor((2 * user.level) / 5) + 2) * power * A / D) / 50) + 2;
   if (crit) dmg = Math.floor(dmg * 1.5);
   dmg = Math.floor(dmg * roll);
-  if (!mv.typeless && user.types.includes(mv.type)) dmg = Math.floor(dmg * (user.ability === 'purebred' ? 2 : 1.5));
+  dmg = Math.floor(dmg * affinityBonus(user, mv));
   dmg = Math.floor(dmg * eff);
   dmg = Math.floor(dmg * triangleMul(mv.cat, target.style)); // Magic > Ranged > Melee > Magic
   if (user.status === 'brn' && mv.cat !== 'magic' && user.ability !== 'grit') dmg = Math.floor(dmg / 2);
   if (target.ability === 'blubber' && (mv.type === 'Fire' || mv.type === 'Ice')) dmg = Math.floor(dmg / 2);
   if (target.ability === 'quake_core' && mv.cat === 'melee') dmg = Math.floor(dmg * 0.75);
   return Math.max(1, dmg);
+}
+
+/**
+ * Affinity: a move that matches one of the user's types earns +25% (+50% with Purebred), and a
+ * move whose damage type matches the user's style earns another +25%, so a Magic-style Fairy
+ * using a Magic Fairy move hits for +50%. Returns the multiplier.
+ */
+function affinityBonus(user, mv) {
+  let bonus = 1;
+  if (!mv.typeless && user.types.includes(mv.type)) bonus += user.ability === 'purebred' ? 0.5 : 0.25;
+  if (mv.cat === user.style) bonus += 0.25;
+  return bonus;
 }
 
 /** Type effectiveness of a move against a battler, including ability immunities. 0 means no effect. */
@@ -7718,7 +7731,7 @@ function bestEffVs(attacker, defender) {
   for (const m of attacker.moves) {
     const mv = getMove(m.id);
     if (!mv || !isDamaging(mv) || m.pp <= 0) continue;
-    best = Math.max(best, moveEffectiveness(mv, defender) * (attacker.types.includes(mv.type) ? 1.5 : 1));
+    best = Math.max(best, moveEffectiveness(mv, defender) * affinityBonus(attacker, mv));
   }
   return best;
 }
@@ -8132,6 +8145,15 @@ function triangleText(mv, foe) {
   return edge === 'edge' ? `Strong vs ${vs}` : edge === 'weak' ? `Weak vs ${vs}` : '';
 }
 
+/** Affinity tag for a move card: '+25% type', '+25% style' or '+50% type & style' (Purebred shows its larger share). */
+function bonusText(mv, me) {
+  if (!DAMAGE_TYPES[mv.cat]) return '';
+  const type = !mv.typeless && me.types.includes(mv.type) ? (me.ability === 'purebred' ? 50 : 25) : 0;
+  const style = mv.cat === me.style ? 25 : 0;
+  if (!type && !style) return '';
+  return `+${type + style}% ${type && style ? 'type & style' : type ? 'type' : 'style'}`;
+}
+
 /** rgba() tint of a hex colour. */
 function tintOf(hex, alpha) {
   const n = parseInt(hex.slice(1), 16);
@@ -8162,15 +8184,16 @@ function renderFightControls(f) {
     const info = TYPE_INFO[mv.type];
     const ok = legal.some((a) => a.type === 'move' && a.index === i);
     const dt = DAMAGE_TYPES[mv.cat];
-    const eff = effText(mv, foe), tri = triangleText(mv, foe);
+    const eff = effText(mv, foe), tri = triangleText(mv, foe), bonus = bonusText(mv, me);
     grid.append(h('button', { class: `move-btn cat-${mv.cat}`, type: 'button', disabled: !ok, style: { '--chip': info.color, '--tint': tintOf(info.color, 0.42) }, onclick: () => doFightStep(f, { type: 'move', index: i }) },
       h('span', { class: 'mv-name' }, mv.name, h('span', { class: 'pp' }, `${m.pp}/${m.maxPp}`)),
       h('span', { class: 'mv-meta' },
         h('span', { class: 'chip' }, h('b', {}, info.glyph), mv.type),
         h('span', { class: `chip dt-chip dt-${mv.cat}`, style: dt ? { '--chip': dt.color } : null }, dt ? h('b', {}, dt.icon) : null, dt ? `${dt.name}${mv.power ? ` ${mv.power}` : ''}` : 'Status')),
-      eff || tri ? h('span', { class: 'mv-tags' },
+      eff || tri || bonus ? h('span', { class: 'mv-tags' },
         eff ? h('em', { class: `eff ${eff === 'Super effective' ? 'good' : 'bad'}` }, eff) : null,
-        tri ? h('em', { class: `tri ${tri.startsWith('Strong') ? 'good' : 'bad'}` }, tri) : null) : null));
+        tri ? h('em', { class: `tri ${tri.startsWith('Strong') ? 'good' : 'bad'}` }, tri) : null,
+        bonus ? h('em', { class: 'bonus' }, bonus) : null) : null));
   });
   const struggle = legal.find((a) => a.struggle);
   if (struggle) grid.append(h('button', { class: 'move-btn cat-melee', type: 'button', onclick: () => doFightStep(f, struggle) }, h('span', { class: 'mv-name' }, 'Struggle'), h('span', { class: 'mv-meta' }, 'No PP left')));

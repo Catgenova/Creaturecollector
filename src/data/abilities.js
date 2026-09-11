@@ -16,7 +16,7 @@ export const ABILITIES = {
   venom_barbs: { name: 'Venom Barbs', desc: 'Contact has a 30% chance to poison the attacker.' },
   sponge: { name: 'Sponge', desc: 'Water moves heal a quarter of max HP instead of damaging.' },
   capacitor: { name: 'Capacitor', desc: 'Electric moves heal a quarter of max HP instead of damaging.' },
-  purebred: { name: 'Purebred', desc: 'Same-type moves get a 2x bonus instead of 1.5x.' },
+  purebred: { name: 'Purebred', desc: 'Same-type moves get +50% instead of +25%.' },
   finesse: { name: 'Finesse', desc: 'Moves with 60 power or less hit 1.5x harder.' },
   hawkeye: { name: 'Hawkeye', desc: 'Accuracy cannot be lowered.' },
   restless: { name: 'Restless', desc: 'Cannot fall asleep.' },

@@ -1,13 +1,13 @@
 // Opponent AI: a scored heuristic. Deterministic given its rng.
 import { STRUGGLE, getMove, isDamaging, moveFx } from '../data/moves.js';
-import { legalActions, activeOf, calcDamage, moveEffectiveness, effectiveStat } from './engine.js';
+import { legalActions, activeOf, calcDamage, moveEffectiveness, effectiveStat, affinityBonus } from './engine.js';
 
 function bestEffVs(attacker, defender) {
   let best = 0;
   for (const m of attacker.moves) {
     const mv = getMove(m.id);
     if (!mv || !isDamaging(mv) || m.pp <= 0) continue;
-    best = Math.max(best, moveEffectiveness(mv, defender) * (attacker.types.includes(mv.type) ? 1.5 : 1));
+    best = Math.max(best, moveEffectiveness(mv, defender) * affinityBonus(attacker, mv));
   }
   return best;
 }

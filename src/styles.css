@@ -189,6 +189,7 @@ h3.sec { font-size: 12px; text-transform: uppercase; letter-spacing: .1em; color
 .mv-tags em { font-style: normal; }
 .mv-tags .good { color: #7fe38a; }
 .mv-tags .bad { color: #ff9b7a; }
+.mv-tags .bonus { color: var(--acc); }
 .move-btn .chip.dt-chip, .chip.style-chip { background: var(--chip); color: #14151c; border-color: transparent; }
 .panel-head .style-chip { font-size: 11px; padding: 1px 7px; }
 .chips { display: flex; flex-wrap: wrap; gap: 4px; justify-content: center; }

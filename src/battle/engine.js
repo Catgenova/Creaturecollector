@@ -334,13 +334,25 @@ export function calcDamage(user, target, mv, eff, roll, crit) {
   let dmg = Math.floor(Math.floor((Math.floor((2 * user.level) / 5) + 2) * power * A / D) / 50) + 2;
   if (crit) dmg = Math.floor(dmg * 1.5);
   dmg = Math.floor(dmg * roll);
-  if (!mv.typeless && user.types.includes(mv.type)) dmg = Math.floor(dmg * (user.ability === 'purebred' ? 2 : 1.5));
+  dmg = Math.floor(dmg * affinityBonus(user, mv));
   dmg = Math.floor(dmg * eff);
   dmg = Math.floor(dmg * triangleMul(mv.cat, target.style)); // Magic > Ranged > Melee > Magic
   if (user.status === 'brn' && mv.cat !== 'magic' && user.ability !== 'grit') dmg = Math.floor(dmg / 2);
   if (target.ability === 'blubber' && (mv.type === 'Fire' || mv.type === 'Ice')) dmg = Math.floor(dmg / 2);
   if (target.ability === 'quake_core' && mv.cat === 'melee') dmg = Math.floor(dmg * 0.75);
   return Math.max(1, dmg);
+}
+
+/**
+ * Affinity: a move that matches one of the user's types earns +25% (+50% with Purebred), and a
+ * move whose damage type matches the user's style earns another +25%, so a Magic-style Fairy
+ * using a Magic Fairy move hits for +50%. Returns the multiplier.
+ */
+export function affinityBonus(user, mv) {
+  let bonus = 1;
+  if (!mv.typeless && user.types.includes(mv.type)) bonus += user.ability === 'purebred' ? 0.5 : 0.25;
+  if (mv.cat === user.style) bonus += 0.25;
+  return bonus;
 }
 
 /** Type effectiveness of a move against a battler, including ability immunities. 0 means no effect. */

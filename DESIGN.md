@@ -191,8 +191,10 @@ events back, so a battle is replayable from its start state and action log.
   Pre-move checks: flinch, sleep (1–3 turns), freeze (20% thaw, Fire moves
   thaw), paralysis (25% skip). Accuracy uses the accuracy/evasion stage table.
 - **Damage.** `((2L/5+2) · P · A/D)/50 + 2`, crit 1.5 (1/24, 1/8 for high-crit
-  moves), random 85–100%, STAB 1.5, chart effectiveness, the damage triangle
-  (below), burn halves Melee and Ranged.
+  moves), random 85–100%, affinity (+25% when the move matches one of the
+  user's types, +50% with Purebred; another +25% when its damage type matches
+  the user's style), chart effectiveness, the damage triangle (below), burn
+  halves Melee and Ranged.
   Multi-hit, drain, recoil, fixed damage, and secondary effects are data on the
   move (`src/data/moves.js`, 157 moves, original names).
 - **Status:** burn, poison, paralysis, sleep, freeze with the usual type
@@ -444,7 +446,10 @@ eight stats; species weights sum to 1 as before. A creature's **style** is the
 damage type of its highest attack stat (`combatStyle`), shown as a chip on
 cards, sheets and in the fight. The triangle is Magic > Ranged > Melee >
 Magic: a hit whose type beats the target's style does 1.25×, a hit the
-target's style beats does 0.8× (`triangleMul`). Burn halves Melee and Ranged
+target's style beats does 0.8× (`triangleMul`). Style also pays on offence:
+a move whose damage type matches the user's own style earns +25%, on top of
+the +25% for matching one of its types (`affinityBonus`), so a Magic-style
+Fairy using a Magic Fairy move hits for +50%. The move card shows the bonus. Burn halves Melee and Ranged
 damage; Grit and Quake Core follow the same split. Stat-changing moves that
 used to touch Attack or Defense now touch both Melee and Ranged (Attack and
 Defense were the old "physical" pair); Sp. Atk and Sp. Def became Magic Atk

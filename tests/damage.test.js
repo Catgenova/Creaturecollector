@@ -124,3 +124,30 @@ test('creatures saved with the old six stats migrate onto the eight', () => {
   // and codes round-trip in the new layout
   assert.deepEqual(decodeGenome(encodeGenome(v)).stats, v.stats);
 });
+
+test('affinity: +25% for a matching type, +25% for a matching style, +50% for both', async () => {
+  const { affinityBonus } = await import('../src/battle/engine.js');
+  const { bonusText } = await import('../src/ui/fight.js');
+  const fairy = makeBattler(speciesGenome(SPECIES_BY_ID.twinklet, makeRng('aff')), 50, { ability: 'lucky_streak' }); // Fairy, magic style
+  assert.equal(fairy.style, 'magic');
+  const magicFairy = getMove('dazzle'), meleeFairy = getMove('spirit_crack'), magicOther = getMove('psi_shock'), meleeOther = getMove('bump');
+  assert.equal(affinityBonus(fairy, magicFairy), 1.5);
+  assert.equal(affinityBonus(fairy, meleeFairy), 1.25);
+  assert.equal(affinityBonus(fairy, magicOther), 1.25);
+  assert.equal(affinityBonus(fairy, meleeOther), 1);
+  const pure = { ...fairy, ability: 'purebred' };
+  assert.equal(affinityBonus(pure, magicFairy), 1.75);
+  assert.equal(affinityBonus(pure, meleeFairy), 1.5);
+  assert.equal(affinityBonus(fairy, getMove('glare')), 1, 'status moves carry no bonus');
+  // the bonus reaches the damage formula
+  const foe = makeBattler(speciesGenome(SPECIES_BY_ID.bruxor, makeRng('aff2')), 50);
+  const plain = { ...fairy, types: ['Normal', null], style: 'melee' };
+  const base = calcDamage(plain, foe, magicFairy, 1, 1, false);
+  const boosted = calcDamage(fairy, foe, magicFairy, 1, 1, false);
+  assert.ok(Math.abs(boosted / base - 1.5) < 0.05, `${boosted}/${base}`);
+  assert.equal(bonusText(magicFairy, fairy), '+50% type & style');
+  assert.equal(bonusText(meleeFairy, fairy), '+25% type');
+  assert.equal(bonusText(magicOther, fairy), '+25% style');
+  assert.equal(bonusText(meleeOther, fairy), '');
+  assert.equal(bonusText(magicFairy, pure), '+75% type & style');
+});

@@ -236,6 +236,15 @@ export function triangleText(mv, foe) {
   return edge === 'edge' ? `Strong vs ${vs}` : edge === 'weak' ? `Weak vs ${vs}` : '';
 }
 
+/** Affinity tag for a move card: '+25% type', '+25% style' or '+50% type & style' (Purebred shows its larger share). */
+export function bonusText(mv, me) {
+  if (!DAMAGE_TYPES[mv.cat]) return '';
+  const type = !mv.typeless && me.types.includes(mv.type) ? (me.ability === 'purebred' ? 50 : 25) : 0;
+  const style = mv.cat === me.style ? 25 : 0;
+  if (!type && !style) return '';
+  return `+${type + style}% ${type && style ? 'type & style' : type ? 'type' : 'style'}`;
+}
+
 /** rgba() tint of a hex colour. */
 function tintOf(hex, alpha) {
   const n = parseInt(hex.slice(1), 16);
@@ -266,15 +275,16 @@ function renderFightControls(f) {
     const info = TYPE_INFO[mv.type];
     const ok = legal.some((a) => a.type === 'move' && a.index === i);
     const dt = DAMAGE_TYPES[mv.cat];
-    const eff = effText(mv, foe), tri = triangleText(mv, foe);
+    const eff = effText(mv, foe), tri = triangleText(mv, foe), bonus = bonusText(mv, me);
     grid.append(h('button', { class: `move-btn cat-${mv.cat}`, type: 'button', disabled: !ok, style: { '--chip': info.color, '--tint': tintOf(info.color, 0.42) }, onclick: () => doFightStep(f, { type: 'move', index: i }) },
       h('span', { class: 'mv-name' }, mv.name, h('span', { class: 'pp' }, `${m.pp}/${m.maxPp}`)),
       h('span', { class: 'mv-meta' },
         h('span', { class: 'chip' }, h('b', {}, info.glyph), mv.type),
         h('span', { class: `chip dt-chip dt-${mv.cat}`, style: dt ? { '--chip': dt.color } : null }, dt ? h('b', {}, dt.icon) : null, dt ? `${dt.name}${mv.power ? ` ${mv.power}` : ''}` : 'Status')),
-      eff || tri ? h('span', { class: 'mv-tags' },
+      eff || tri || bonus ? h('span', { class: 'mv-tags' },
         eff ? h('em', { class: `eff ${eff === 'Super effective' ? 'good' : 'bad'}` }, eff) : null,
-        tri ? h('em', { class: `tri ${tri.startsWith('Strong') ? 'good' : 'bad'}` }, tri) : null) : null));
+        tri ? h('em', { class: `tri ${tri.startsWith('Strong') ? 'good' : 'bad'}` }, tri) : null,
+        bonus ? h('em', { class: 'bonus' }, bonus) : null) : null));
   });
   const struggle = legal.find((a) => a.struggle);
   if (struggle) grid.append(h('button', { class: 'move-btn cat-melee', type: 'button', onclick: () => doFightStep(f, struggle) }, h('span', { class: 'mv-name' }, 'Struggle'), h('span', { class: 'mv-meta' }, 'No PP left')));

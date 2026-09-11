@@ -45,7 +45,8 @@ leaf ears, orb and flame tails, glowing tips and bold markings. See `DESIGN.md`.
 
 Damage triangle: every attack is Melee, Ranged or Magic with its own attack and
 defense stat; Magic beats Ranged beats Melee beats Magic against a creature's
-style, and move cards say so in words.
+style, and move cards say so in words. A move matching one of the creature's
+types earns +25%, one matching its style another +25%.
 
 Elementals: one wild creature in a thousand is born of one of eight elements.
 Every part it has carries an animated element filter and it knows the element's
