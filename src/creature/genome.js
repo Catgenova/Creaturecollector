@@ -18,8 +18,7 @@ import { jitterPalette, shinyPalette } from './palette.js';
 
 export const GENOME_VERSION = 1;
 export const CODE_PREFIX = 'CC1.';
-export const STAT_KEYS = ['hp', 'atk', 'def', 'spa', 'spd', 'spe'];
-export const STAT_NAMES = { hp: 'HP', atk: 'Attack', def: 'Defense', spa: 'Sp. Atk', spd: 'Sp. Def', spe: 'Speed' };
+import { STAT_KEYS, combatStyle, migrateStatWeights, migrateVigor, isOldStatLayout } from '../data/damage.js';
 export const TRAIT_KEYS = ['size', 'bulk', 'headScale', 'limbScale', 'tailScale', 'wingScale', 'eyeScale'];
 /** Role order [p, s, a] -> colour index into [c1, c2, c3]. */
 export const PAINT_PERMS = [[0, 1, 2], [0, 2, 1], [1, 0, 2], [1, 2, 0], [2, 0, 1], [2, 1, 0]];
@@ -163,6 +162,9 @@ export function elementalOf(g) {
   return { id, name: ELEMENTS[id].name, share: counts[id] / slots.length, pure: counts[id] === slots.length, ability: ELEMENTS[id].ability };
 }
 
+/** A creature's combat style: the damage type of its highest attack stat (melee, ranged or magic). */
+export function combatStyleOf(g) { return combatStyle(g && g.stats ? g.stats : {}); }
+
 /** The learnset a genome battles with: its own, else its species', else the universal fallback. */
 export function learnsetOf(g) {
   if (Array.isArray(g.learnset) && g.learnset.length) return g.learnset;
@@ -254,8 +256,15 @@ export function validateGenome(g) {
   const aura = {};
   if (g.aura && typeof g.aura === 'object') for (const slot of slotsFor(g.rig)) if (ELEMENTS[g.aura[slot]]) aura[slot] = g.aura[slot];
   if (Object.keys(aura).length) g.aura = aura; else delete g.aura;
+  // Creatures saved before the damage triangle carry six stats; split them onto the eight.
+  if (isOldStatLayout(g.stats)) {
+    const sp0 = g.species && SPECIES_BY_ID[g.species];
+    g.stats = migrateStatWeights(g.stats, sp0 ? combatStyle(sp0.stats) : (g.stats.atk || 0) >= (g.stats.spa || 0) ? 'melee' : 'magic');
+    if (g.vigor && typeof g.vigor === 'object' && g.vigor.melee == null) g.vigor = migrateVigor(g.vigor);
+  }
   if (!g.stats || typeof g.stats !== 'object') g.stats = Object.fromEntries(STAT_KEYS.map((k) => [k, 1]));
   if (!g.vigor || typeof g.vigor !== 'object') g.vigor = Object.fromEntries(STAT_KEYS.map((k) => [k, 0.5]));
+  for (const k of STAT_KEYS) { if (!Number.isFinite(g.stats[k])) g.stats[k] = 0.05; if (!Number.isFinite(g.vigor[k])) g.vigor[k] = 0.5; }
   g.bst = Number.isFinite(g.bst) ? g.bst : 400;
   g.gen = Number.isFinite(g.gen) ? g.gen : 0;
   g.name = typeof g.name === 'string' && g.name.trim() ? g.name.trim().slice(0, 24) : 'Unknown';

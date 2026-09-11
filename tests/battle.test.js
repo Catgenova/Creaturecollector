@@ -19,7 +19,7 @@ test('move and ability tables are well formed', () => {
   for (const mv of MOVES) {
     assert.ok(!ids.has(mv.id), `duplicate move ${mv.id}`); ids.add(mv.id);
     assert.ok(TYPE_LIST.includes(mv.type), mv.id);
-    assert.ok(['phys', 'spec', 'status'].includes(mv.cat), mv.id);
+    assert.ok(['melee', 'ranged', 'magic', 'status'].includes(mv.cat), mv.id);
     if (mv.cat === 'status') assert.equal(mv.power, 0, mv.id);
     else assert.ok(mv.power > 0 || moveFx(mv, 'fixed'), mv.id);
     assert.ok(mv.pp > 0 && (mv.acc == null || (mv.acc > 0 && mv.acc <= 100)), mv.id);
@@ -50,7 +50,7 @@ test('level stats and move picks are sane', () => {
     const g = speciesGenome(s, makeRng('st'));
     const st = statsAtLevel(g, 50);
     assert.ok(st.hp > 80 && st.hp < 260, `${s.id} hp ${st.hp}`);
-    for (const k of ['atk', 'def', 'spa', 'spd', 'spe']) assert.ok(st[k] > 20 && st[k] < 220, `${s.id} ${k} ${st[k]}`);
+    for (const k of ['melee', 'ranged', 'magic', 'meleeDef', 'rangedDef', 'magicDef', 'spe']) assert.ok(st[k] > 10 && st[k] < 220, `${s.id} ${k} ${st[k]}`);
     const l1 = statsAtLevel(g, 1), l100 = statsAtLevel(g, 100);
     assert.ok(l1.hp < st.hp && st.hp < l100.hp);
     for (const L of [1, 5, 20, 50, 100]) {

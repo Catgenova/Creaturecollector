@@ -1,8 +1,9 @@
 // Creature Lab: roll seeded creatures, inspect genes, copy and load creature codes.
 import { h, clear, copyText, toast } from './dom.js';
-import { typeChips, creatureEl, section, elementalBadge } from './common.js';
+import { typeChips, creatureEl, section, elementalBadge, styleChip } from './common.js';
 import { makeRng, freshSeed } from '../core/rng.js';
-import { randomGenome, speciesGenome, baseStats, encodeGenome, decodeGenome, resolveParts, STAT_KEYS, STAT_NAMES, TRAIT_KEYS, speciesOf, rigOf, makeElemental, elementalOf } from '../creature/genome.js';
+import { randomGenome, speciesGenome, baseStats, encodeGenome, decodeGenome, resolveParts, TRAIT_KEYS, speciesOf, rigOf, makeElemental, elementalOf } from '../creature/genome.js';
+import { STAT_KEYS, STAT_NAMES } from '../data/damage.js';
 import { ELEMENT_IDS, ELEMENTS } from '../data/elements.js';
 import { swatchCss } from '../creature/palette.js';
 import { SPECIES, SPECIES_BY_ID } from '../data/species.js';
@@ -69,7 +70,7 @@ export function renderLabScreen(root) {
       grid.append(h('button', { class: 'card', type: 'button', onclick: () => openSheet(g) },
         creatureEl(g, { size: 160 }),
         h('div', { class: 'card-name' }, g.name, g.shiny ? h('span', { class: 'shiny', title: 'Rare colours' }, ' ✦') : null, elementalBadge(g)),
-        typeChips(g.types)));
+        h('div', { class: 'chips' }, typeChips(g.types), styleChip(g))));
     }
   }
 
@@ -135,6 +136,7 @@ export function openSheet(g) {
     h('div', { class: 'sheet-head' },
       h('h2', {}, g.name, g.shiny ? ' ✦' : ''),
       typeChips(g.types),
+      styleChip(g),
       elementalBadge(g),
       h('button', { class: 'btn close', onclick: close, 'aria-label': 'Close' }, '✕')),
     h('p', { class: 'meta' }, sp ? `${sp.name} · ${sp.tier}` : 'Fusion', ` · ${cladeName(cladeOf(g))} · gen ${g.gen} · seed ${g.seed}`),

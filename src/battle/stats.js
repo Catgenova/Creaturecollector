@@ -1,5 +1,6 @@
 // Level scaling and move selection. Pure functions over genomes.
-import { baseStats, STAT_KEYS } from '../creature/genome.js';
+import { baseStats } from '../creature/genome.js';
+import { STAT_KEYS } from '../data/damage.js';
 import { getMove, isDamaging } from '../data/moves.js';
 
 /** HP gets a global lift so battles last a hit or two longer than the raw formula gives. */

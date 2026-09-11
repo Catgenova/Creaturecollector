@@ -180,11 +180,19 @@ h3.sec { font-size: 12px; text-transform: uppercase; letter-spacing: .1em; color
 .battle-log .line:last-child { opacity: 1; font-weight: 600; }
 .controls { display: flex; flex-direction: column; gap: 8px; }
 .moves { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-.move-btn { display: flex; flex-direction: column; align-items: flex-start; gap: 4px; min-height: 60px; padding: 8px 10px; border-radius: 12px; border: 1px solid var(--line); border-left: 6px solid var(--chip, var(--line)); background: var(--bg2); color: var(--fg); text-align: left; cursor: pointer; }
+.move-btn { display: flex; flex-direction: column; align-items: flex-start; gap: 4px; min-height: 60px; padding: 8px 10px; border-radius: 12px; border: 1px solid var(--chip, var(--line)); border-left: 6px solid var(--chip, var(--line)); background: linear-gradient(120deg, var(--tint, transparent), var(--bg2) 78%); color: var(--fg); text-align: left; cursor: pointer; }
 .move-btn:disabled { opacity: .4; cursor: default; }
 .move-btn:active { transform: translateY(1px); }
 .mv-name { font-weight: 700; display: flex; justify-content: space-between; width: 100%; }
-.mv-name .eff { font-style: normal; color: var(--acc); font-size: 12px; }
+.mv-name .pp { font-weight: 400; font-size: 12px; color: var(--fg2); }
+.mv-tags { display: flex; flex-wrap: wrap; gap: 4px 10px; font-size: 11px; font-weight: 700; letter-spacing: .02em; text-transform: uppercase; }
+.mv-tags em { font-style: normal; }
+.mv-tags .good { color: #7fe38a; }
+.mv-tags .bad { color: #ff9b7a; }
+.move-btn .chip.dt-chip, .chip.style-chip { background: var(--chip); color: #14151c; border-color: transparent; }
+.panel-head .style-chip { font-size: 11px; padding: 1px 7px; }
+.chips { display: flex; flex-wrap: wrap; gap: 4px; justify-content: center; }
+.fighter-style { margin-left: 6px; }
 .mv-meta { display: flex; justify-content: space-between; width: 100%; font-size: 12px; color: var(--fg2); }
 .util-row { display: flex; gap: 8px; justify-content: flex-end; }
 .waiting { color: var(--fg2); text-align: center; padding: 10px; }

@@ -115,7 +115,7 @@ test('core abilities work in battle', () => {
   const plainTarget = makeBattler(foe, 50, { ability: 'lucky_streak' }), quake = makeBattler(foe, 50, { ability: 'quake_core' });
   assert.ok(calcDamage(coreUser, plainTarget, fire, 1, 1, false) > calcDamage(plainUser, plainTarget, fire, 1, 1, false), 'Inferno Core boosts Fire');
   assert.equal(calcDamage(coreUser, plainTarget, phys, 1, 1, false), calcDamage(plainUser, plainTarget, phys, 1, 1, false), 'but not Normal');
-  assert.ok(calcDamage(plainUser, quake, phys, 1, 1, false) < calcDamage(plainUser, plainTarget, phys, 1, 1, false), 'Quake Core softens physical hits');
+  assert.ok(calcDamage(plainUser, quake, phys, 1, 1, false) < calcDamage(plainUser, plainTarget, phys, 1, 1, false), 'Quake Core softens melee hits');
   // Tide Core heals at the end of the turn; Storm Core raises Speed on entry
   const tide = makeBattler(g, 50, { ability: 'tide_core', moves: ['glare'] });
   const storm = makeBattler(foe, 50, { ability: 'storm_core', moves: ['glare'] });

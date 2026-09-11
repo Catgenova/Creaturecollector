@@ -3,7 +3,8 @@ import assert from 'node:assert/strict';
 import { makeRng } from '../src/core/rng.js';
 import { SPECIES } from '../src/data/species.js';
 import { slotsFor } from '../src/data/rigs.js';
-import { speciesGenome, randomGenome, validateGenome, encodeGenome, decodeGenome, resolveParts, baseStats, STAT_KEYS, rigOf } from '../src/creature/genome.js';
+import { speciesGenome, randomGenome, validateGenome, encodeGenome, decodeGenome, resolveParts, baseStats, rigOf } from '../src/creature/genome.js';
+import { STAT_KEYS } from '../src/data/damage.js';
 
 test('species genomes are deterministic per seed', () => {
   for (const s of SPECIES) {

@@ -12,6 +12,7 @@ import { typeEffectiveness } from '../data/types.js';
 import { getMove, moveFx, isDamaging, STRUGGLE } from '../data/moves.js';
 import { abilityName } from '../data/abilities.js';
 import { coreTypes } from '../data/elements.js';
+import { DAMAGE_TYPES, STAGE_KEYS, STAT_NAMES, combatStyle, triangleMul } from '../data/damage.js';
 import { learnsetOf } from '../creature/genome.js';
 import { SPECIES_BY_ID } from '../data/species.js';
 import { statsAtLevel, movesAtLevel } from './stats.js';
@@ -23,7 +24,8 @@ export const STATUS_INFO = {
   slp: { name: 'Sleep', short: 'SLP', verb: 'fell asleep' },
   frz: { name: 'Freeze', short: 'FRZ', verb: 'was frozen solid' },
 };
-export const STAT_LABEL = { atk: 'Attack', def: 'Defense', spa: 'Sp. Atk', spd: 'Sp. Def', spe: 'Speed', acc: 'accuracy', eva: 'evasion' };
+export const STAT_LABEL = { ...STAT_NAMES, acc: 'accuracy', eva: 'evasion' };
+const freshStages = () => Object.fromEntries(STAGE_KEYS.map((k) => [k, 0]));
 export const MAX_PARTY = 5;
 
 const stageMul = (n) => (n >= 0 ? (2 + n) / 2 : 2 / (2 - n));
@@ -45,10 +47,11 @@ export function makeBattler(genome, level, opts = {}) {
     hp: stats.hp,
     moves: moveIds.map((id) => { const mv = getMove(id) || getMove('bump'); return { id: mv.id, pp: mv.pp, maxPp: mv.pp }; }),
     ability: opts.ability || genome.ability || 'lucky_streak',
+    style: combatStyle(stats), // melee | ranged | magic: the damage type of its best attack stat
     xp: opts.xp || null, // { cur, prev, next } progress toward the next level, for display only
     status: null,
     sleepTurns: 0,
-    stages: { atk: 0, def: 0, spa: 0, spd: 0, spe: 0, acc: 0, eva: 0 },
+    stages: freshStages(),
     flinch: false,
     moved: false,
     fainted: false,
@@ -214,7 +217,7 @@ function doSwitch(state, i, index, events, forced) {
       events.push({ t: 'heal', side: i, name: out.name, amount, hp: out.hp, maxHp: out.maxHp });
     }
   }
-  out.stages = { atk: 0, def: 0, spa: 0, spd: 0, spe: 0, acc: 0, eva: 0 };
+  out.stages = freshStages();
   out.flinch = false;
   side.active = index;
   const inn = side.party[index];
@@ -228,11 +231,11 @@ function entryHooks(state, i, events) {
   const foe = activeOf(state, 1 - i);
   if (me.ability === 'menace' && !foe.fainted) {
     events.push({ t: 'ability', side: i, name: me.name, ability: abilityName(me.ability) });
-    changeStages(state, 1 - i, { atk: -1 }, events);
+    changeStages(state, 1 - i, { melee: -1, ranged: -1 }, events);
   }
   if (me.ability === 'umbral_core' && !foe.fainted) {
     events.push({ t: 'ability', side: i, name: me.name, ability: abilityName(me.ability) });
-    changeStages(state, 1 - i, { spa: -1 }, events);
+    changeStages(state, 1 - i, { magic: -1 }, events);
   }
   if (me.ability === 'storm_core' && me.stages.spe < 6) {
     events.push({ t: 'ability', side: i, name: me.name, ability: abilityName(me.ability) });
@@ -311,13 +314,13 @@ function moveOfAction(b, a) { return a.struggle ? STRUGGLE : getMove(b.moves[a.i
 export function calcDamage(user, target, mv, eff, roll, crit) {
   const fixed = moveFx(mv, 'fixed');
   if (fixed) return user.level;
-  const atkKey = mv.cat === 'phys' ? 'atk' : 'spa';
-  const defKey = mv.cat === 'phys' ? 'def' : 'spd';
+  const dt = DAMAGE_TYPES[mv.cat] || DAMAGE_TYPES.melee;
+  const atkKey = dt.atk, defKey = dt.def;
   const aStage = crit ? Math.max(0, user.stages[atkKey]) : user.stages[atkKey];
   const dStage = crit ? Math.min(0, target.stages[defKey]) : target.stages[defKey];
   let A = user.stats[atkKey] * stageMul(aStage);
   const D = Math.max(1, target.stats[defKey] * stageMul(dStage));
-  if (user.ability === 'grit' && user.status && mv.cat === 'phys') A *= 1.5;
+  if (user.ability === 'grit' && user.status && mv.cat !== 'magic') A *= 1.5;
   let power = mv.power;
   const bis = moveFx(mv, 'boostIfStatus');
   if (bis && target.status) power *= bis.m;
@@ -333,9 +336,10 @@ export function calcDamage(user, target, mv, eff, roll, crit) {
   dmg = Math.floor(dmg * roll);
   if (!mv.typeless && user.types.includes(mv.type)) dmg = Math.floor(dmg * (user.ability === 'purebred' ? 2 : 1.5));
   dmg = Math.floor(dmg * eff);
-  if (user.status === 'brn' && mv.cat === 'phys' && user.ability !== 'grit') dmg = Math.floor(dmg / 2);
+  dmg = Math.floor(dmg * triangleMul(mv.cat, target.style)); // Magic > Ranged > Melee > Magic
+  if (user.status === 'brn' && mv.cat !== 'magic' && user.ability !== 'grit') dmg = Math.floor(dmg / 2);
   if (target.ability === 'blubber' && (mv.type === 'Fire' || mv.type === 'Ice')) dmg = Math.floor(dmg / 2);
-  if (target.ability === 'quake_core' && mv.cat === 'phys') dmg = Math.floor(dmg * 0.75);
+  if (target.ability === 'quake_core' && mv.cat === 'melee') dmg = Math.floor(dmg * 0.75);
   return Math.max(1, dmg);
 }
 
@@ -428,7 +432,7 @@ function executeMove(state, i, action, events, rng) {
   if (mv.flags.includes('contact') && !user.fainted) contactEffects(state, i, events, rng);
   if (target.fainted && !user.fainted && user.ability === 'swagger') {
     events.push({ t: 'ability', side: i, name: user.name, ability: abilityName(user.ability) });
-    changeStages(state, i, { atk: 1 }, events);
+    changeStages(state, i, { melee: 1, ranged: 1 }, events);
   }
 }
 

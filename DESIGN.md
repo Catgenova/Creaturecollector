@@ -53,7 +53,7 @@ parts   { slot: [expressed, carried] }     diploid: only the expressed allele is
 paint   { slot: 0..5 }                      which of c1/c2/c3 each colour role maps to, per slot
 palette { c1, c2, c3, eye: [h, s, l] }
 traits  { size, bulk, headScale, limbScale, tailScale, wingScale, eyeScale: 0..1 }
-stats   { hp, atk, def, spa, spd, spe }     weights; base stats = weights normalised × bst
+stats   { hp, melee, ranged, magic, meleeDef, rangedDef, magicDef, spe }  weights; base stats = weights normalised × bst
 vigor   { same keys: 0..1 }                 per-creature quality, like IVs (used at level scaling)
 ```
 
@@ -191,7 +191,8 @@ events back, so a battle is replayable from its start state and action log.
   Pre-move checks: flinch, sleep (1–3 turns), freeze (20% thaw, Fire moves
   thaw), paralysis (25% skip). Accuracy uses the accuracy/evasion stage table.
 - **Damage.** `((2L/5+2) · P · A/D)/50 + 2`, crit 1.5 (1/24, 1/8 for high-crit
-  moves), random 85–100%, STAB 1.5, chart effectiveness, burn halves physical.
+  moves), random 85–100%, STAB 1.5, chart effectiveness, the damage triangle
+  (below), burn halves Melee and Ranged.
   Multi-hit, drain, recoil, fixed damage, and secondary effects are data on the
   move (`src/data/moves.js`, 157 moves, original names).
 - **Status:** burn, poison, paralysis, sleep, freeze with the usual type
@@ -434,6 +435,42 @@ All seven classes are now on rigs, so the legacy skeleton and its parts are
 retired: every species carries a `rig`, and the part registry, renderer and
 mannequins only know the seven class rigs.
 
+## Damage types and the triangle
+
+Every attack is **Melee**, **Ranged** or **Magic** (`src/data/damage.js`), and
+each has its own pair of stats: Melee Atk against Melee Def, Ranged Atk
+against Ranged Def, Magic Atk against Magic Def. With HP and Speed that is
+eight stats; species weights sum to 1 as before. A creature's **style** is the
+damage type of its highest attack stat (`combatStyle`), shown as a chip on
+cards, sheets and in the fight. The triangle is Magic > Ranged > Melee >
+Magic: a hit whose type beats the target's style does 1.25×, a hit the
+target's style beats does 0.8× (`triangleMul`). Burn halves Melee and Ranged
+damage; Grit and Quake Core follow the same split. Stat-changing moves that
+used to touch Attack or Defense now touch both Melee and Ranged (Attack and
+Defense were the old "physical" pair); Sp. Atk and Sp. Def became Magic Atk
+and Magic Def.
+
+The fight screen tints each move card with its type colour and replaces the
+old arrows with words: "Super effective", "Not very effective" or "No effect"
+from the type chart, and "Strong vs Magic" / "Weak vs Ranged" from the
+triangle against the foe's style. The card also names the move's damage type
+and power.
+
+Species styles were assigned by hand from each creature's concept (a bull is
+Melee, a spitting slug Ranged, a jellyfish Magic), then the species weights
+were derived from the old six with the style taking half of the attack pool
+and the rest split 30/20, old Defense feeding Melee Def (two thirds) and
+Ranged Def, old Sp. Def feeding Magic Def (two thirds) and Ranged Def. Forty
+moves were added so every type offers Melee, Ranged and Magic attacks at low,
+mid and high power, and learnsets were patched so every species has an
+on-style attack before level 23, between 23 and 40, and after 40 (a test
+guards both facts). The distribution is 25 Melee, 16 Ranged, 21 Magic.
+
+Creatures saved with the old six stats are migrated on load
+(`migrateStatWeights`, `migrateVigor`): the old attack pools are split three
+ways with the species' style taking half, old Defense feeds Melee Def and
+Ranged Def, old Sp. Def feeds Magic Def and Ranged Def.
+
 ## Elementals
 
 One capturable wild creature in a thousand (`ARENA.elementalChance`, rolled in
@@ -461,8 +498,8 @@ Shadow, Light and Earth, each with a core ability and one SVG filter.
   a passive: Inferno (burn immunity, contact burns), Tide (heals a sixteenth
   each turn), Storm (paralysis immunity, Speed on entry), Frost (freeze
   immunity, contact chills Speed), Verdant (poison immunity, absorbs Grass),
-  Umbral (lowers the foe's Sp. Atk on entry), Radiant (immune to Dark), Quake
-  (physical hits do three quarters).
+  Umbral (lowers the foe's Magic Atk on entry), Radiant (immune to Dark), Quake
+  (Melee hits do three quarters).
 - **UI.** The encounter card announces "Fire Elemental!" with the element's
   glow, cards and sheets carry a "◆ Fire Elemental" badge, and the Lab sheet
   has a preview selector so any creature can be seen as any Elemental

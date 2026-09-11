@@ -43,6 +43,10 @@ classes are on rigs and the old shared skeleton is gone. A fantasy pass then
 pushed every slot away from field-guide realism: forehead sigils, tufted and
 leaf ears, orb and flame tails, glowing tips and bold markings. See `DESIGN.md`.
 
+Damage triangle: every attack is Melee, Ranged or Magic with its own attack and
+defense stat; Magic beats Ranged beats Melee beats Magic against a creature's
+style, and move cards say so in words.
+
 Elementals: one wild creature in a thousand is born of one of eight elements.
 Every part it has carries an animated element filter and it knows the element's
 core ability; parts keep their element when passed down in fusion, and the

@@ -13,7 +13,8 @@
 import { getPart, partFits } from '../data/parts/index.js';
 import { getRig, slotsFor, paintSlotsFor, swappableSlotsFor } from '../data/rigs.js';
 import { clamp01, lerp, round3, normalizeWeights } from '../core/util.js';
-import { GENOME_VERSION, PAINT_PERMS, TRAIT_KEYS, STAT_KEYS, randomPartId, learnsetOf, cladeOf, rigOf, speciesOf } from './genome.js';
+import { GENOME_VERSION, PAINT_PERMS, TRAIT_KEYS, randomPartId, learnsetOf, cladeOf, rigOf, speciesOf } from './genome.js';
+import { STAT_KEYS } from '../data/damage.js';
 import { ELEMENTS, isCoreAbility } from '../data/elements.js';
 import { CLADES, cladeName } from '../data/clades.js';
 import { getMove, UNIVERSAL_LEARNSET } from '../data/moves.js';

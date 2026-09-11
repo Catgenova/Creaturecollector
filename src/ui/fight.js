@@ -2,13 +2,14 @@
 // events, takes the player's choices, asks the AI for the foe's, and reports
 // the final state. Used by the sandbox Battle tab and by the Arena.
 import { h, clear, toast, appendChildren } from './dom.js';
-import { typeChips, creatureEl } from './common.js';
+import { typeChips, creatureEl, styleChip } from './common.js';
 import { makeRng } from '../core/rng.js';
 import { step, legalActions, activeOf, describeEvent, moveEffectiveness, aliveCount, captureChance, STATUS_INFO } from '../battle/engine.js';
 import { chooseAction } from '../battle/ai.js';
 import { getMove } from '../data/moves.js';
 import { TYPE_INFO } from '../data/types.js';
 import { abilityName } from '../data/abilities.js';
+import { DAMAGE_TYPES, triangleEdge } from '../data/damage.js';
 import { openSheet } from './lab.js';
 import { sfx } from '../core/sfx.js';
 
@@ -59,7 +60,7 @@ function renderPanel(f, i) {
   const el = i === 0 ? f.els.mePanel : f.els.foePanel;
   const frac = b.hp / b.maxHp;
   appendChildren(clear(el), [
-    h('div', { class: 'panel-head' }, h('b', {}, b.name), h('span', { class: 'lvl' }, `Lv ${b.level}`),
+    h('div', { class: 'panel-head' }, h('b', {}, b.name), h('span', { class: 'lvl' }, `Lv ${b.level}`), styleChip(null, b.style),
       b.status ? h('span', { class: `status st-${b.status}` }, STATUS_INFO[b.status].short) : null),
     typeChips(b.types),
     h('div', { class: 'hpbar' }, h('i', { class: hpClass(frac), style: { width: `${Math.max(0, frac * 100)}%` } })),
@@ -216,16 +217,29 @@ async function afterFightStep(f) {
   if (f.auto) { await wait(f.fast ? 250 : 700); if (f.alive && f.auto && !f.busy && f.state.phase === 'choose') doFightStep(f, null); }
 }
 
-function effMarker(mv, foe) {
+/** Type-chart verdict for a move against the foe, as words. Empty when neutral or not applicable. */
+export function effText(mv, foe) {
   if (mv.cat === 'status' && !mv.fx.some((x) => x.k === 'status')) return '';
   const eff = moveEffectiveness(mv, foe);
-  if (mv.cat === 'status') return eff === 0 ? '✕' : '';
-  if (eff === 0) return '✕';
-  if (eff >= 4) return '▲▲';
-  if (eff >= 2) return '▲';
-  if (eff <= 0.25) return '▼▼';
-  if (eff < 1) return '▼';
+  if (eff === 0) return 'No effect';
+  if (mv.cat === 'status') return '';
+  if (eff >= 2) return 'Super effective';
+  if (eff < 1) return 'Not very effective';
   return '';
+}
+
+/** Damage-triangle verdict for a move against the foe's style. */
+export function triangleText(mv, foe) {
+  if (!DAMAGE_TYPES[mv.cat]) return '';
+  const edge = triangleEdge(mv.cat, foe.style);
+  const vs = DAMAGE_TYPES[foe.style] ? DAMAGE_TYPES[foe.style].name : '';
+  return edge === 'edge' ? `Strong vs ${vs}` : edge === 'weak' ? `Weak vs ${vs}` : '';
+}
+
+/** rgba() tint of a hex colour. */
+function tintOf(hex, alpha) {
+  const n = parseInt(hex.slice(1), 16);
+  return `rgba(${(n >> 16) & 255}, ${(n >> 8) & 255}, ${n & 255}, ${alpha})`;
 }
 
 function renderFightControls(f) {
@@ -251,12 +265,19 @@ function renderFightControls(f) {
     const mv = getMove(m.id);
     const info = TYPE_INFO[mv.type];
     const ok = legal.some((a) => a.type === 'move' && a.index === i);
-    grid.append(h('button', { class: 'move-btn', type: 'button', disabled: !ok, style: { '--chip': info.color }, onclick: () => doFightStep(f, { type: 'move', index: i }) },
-      h('span', { class: 'mv-name' }, mv.name, h('em', { class: 'eff' }, effMarker(mv, foe))),
-      h('span', { class: 'mv-meta' }, h('span', { class: 'chip' }, h('b', {}, info.glyph), mv.type), h('span', { class: 'pp' }, `${m.pp}/${m.maxPp}`))));
+    const dt = DAMAGE_TYPES[mv.cat];
+    const eff = effText(mv, foe), tri = triangleText(mv, foe);
+    grid.append(h('button', { class: `move-btn cat-${mv.cat}`, type: 'button', disabled: !ok, style: { '--chip': info.color, '--tint': tintOf(info.color, 0.42) }, onclick: () => doFightStep(f, { type: 'move', index: i }) },
+      h('span', { class: 'mv-name' }, mv.name, h('span', { class: 'pp' }, `${m.pp}/${m.maxPp}`)),
+      h('span', { class: 'mv-meta' },
+        h('span', { class: 'chip' }, h('b', {}, info.glyph), mv.type),
+        h('span', { class: `chip dt-chip dt-${mv.cat}`, style: dt ? { '--chip': dt.color } : null }, dt ? h('b', {}, dt.icon) : null, dt ? `${dt.name}${mv.power ? ` ${mv.power}` : ''}` : 'Status')),
+      eff || tri ? h('span', { class: 'mv-tags' },
+        eff ? h('em', { class: `eff ${eff === 'Super effective' ? 'good' : 'bad'}` }, eff) : null,
+        tri ? h('em', { class: `tri ${tri.startsWith('Strong') ? 'good' : 'bad'}` }, tri) : null) : null));
   });
   const struggle = legal.find((a) => a.struggle);
-  if (struggle) grid.append(h('button', { class: 'move-btn', type: 'button', onclick: () => doFightStep(f, struggle) }, h('span', { class: 'mv-name' }, 'Struggle'), h('span', { class: 'mv-meta' }, 'No PP left')));
+  if (struggle) grid.append(h('button', { class: 'move-btn cat-melee', type: 'button', onclick: () => doFightStep(f, struggle) }, h('span', { class: 'mv-name' }, 'Struggle'), h('span', { class: 'mv-meta' }, 'No PP left')));
   const row = h('div', { class: 'row wrap' },
     h('button', { class: 'btn', type: 'button', onclick: () => openFightParty(f, false) }, `Party (${aliveCount(st.sides[0])})`),
     h('button', { class: 'btn', type: 'button', onclick: () => openSheet(me.genome) }, 'Info'));

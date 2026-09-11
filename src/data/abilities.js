@@ -9,7 +9,7 @@ export const ABILITIES = {
   blubber: { name: 'Blubber', desc: 'Takes half damage from Fire and Ice moves.' },
   hover: { name: 'Hover', desc: 'Immune to Ground moves.' },
   second_wind: { name: 'Second Wind', desc: 'Restores a third of max HP when switched out.' },
-  grit: { name: 'Grit', desc: 'Attack is 1.5x while statused, and burns do not weaken it.' },
+  grit: { name: 'Grit', desc: 'Melee and Ranged attacks are 1.5x while statused, and burns do not weaken them.' },
   thorn_hide: { name: 'Thorn Hide', desc: 'Attackers that make contact lose an eighth of their HP.' },
   live_fur: { name: 'Live Fur', desc: 'Contact has a 30% chance to paralyze the attacker.' },
   hot_blooded: { name: 'Hot Blooded', desc: 'Contact has a 30% chance to burn the attacker.' },
@@ -38,7 +38,7 @@ export const ABILITIES = {
   verdant_core: { name: 'Verdant Core', desc: 'Grass moves hit 1.3x harder. Cannot be poisoned; Grass moves heal a quarter of max HP instead of damaging.' },
   umbral_core: { name: 'Umbral Core', desc: 'Dark and Ghost moves hit 1.3x harder. Lowers the foe\u2019s Sp. Atk on entry.' },
   radiant_core: { name: 'Radiant Core', desc: 'Fairy and Psychic moves hit 1.3x harder. Immune to Dark moves.' },
-  quake_core: { name: 'Quake Core', desc: 'Ground and Rock moves hit 1.3x harder. Takes three quarters damage from physical moves.' },
+  quake_core: { name: 'Quake Core', desc: 'Ground and Rock moves hit 1.3x harder. Takes three quarters damage from Melee moves.' },
 };
 
 export const ABILITY_IDS = Object.keys(ABILITIES);

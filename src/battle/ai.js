@@ -40,7 +40,7 @@ function scoreMove(state, side, action, rng) {
   for (const f of mv.fx) {
     if (f.k === 'status') {
       if (foe.status) s -= 25;
-      else s += (f.s === 'slp' ? 50 : f.s === 'par' ? 38 : f.s === 'brn' ? (foe.stats.atk > foe.stats.spa ? 42 : 24) : f.s === 'psn' ? 30 : 30) * acc;
+      else s += (f.s === 'slp' ? 50 : f.s === 'par' ? 38 : f.s === 'brn' ? (foe.style !== 'magic' ? 42 : 24) : f.s === 'psn' ? 30 : 30) * acc;
     } else if (f.k === 'stat' && f.who === 'self') {
       // Boosts are worth it early and healthy, and not past +2 in a stat we already raised.
       const room = Object.entries(f.stats).reduce((a, [k, n]) => a + Math.max(0, Math.min(n, 2 - me.stages[k])), 0);
@@ -53,10 +53,8 @@ function scoreMove(state, side, action, rng) {
         const room = Math.max(0, Math.min(-n, 6 - already));
         let use = 1;
         if (k === 'spe') use = faster ? 0 : 1;
-        else if (k === 'atk') use = foe.stats.atk >= foe.stats.spa ? 1 : 0.2;
-        else if (k === 'spa') use = foe.stats.spa >= foe.stats.atk ? 1 : 0.2;
-        else if (k === 'def') use = me.stats.atk >= me.stats.spa ? 0.8 : 0.2;
-        else if (k === 'spd') use = me.stats.spa >= me.stats.atk ? 0.8 : 0.2;
+        else if (k === 'melee' || k === 'ranged' || k === 'magic') use = foe.style === k ? 1 : 0.2;
+        else if (k === 'meleeDef' || k === 'rangedDef' || k === 'magicDef') use = `${me.style}Def` === k ? 0.8 : 0.2;
         else if (k === 'acc') use = 0.6;
         v += 9 * room * use * (already >= 2 ? 0.3 : 1);
       }
