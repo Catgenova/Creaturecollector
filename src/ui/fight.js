@@ -11,7 +11,7 @@ import { TYPE_INFO } from '../data/types.js';
 import { abilityName } from '../data/abilities.js';
 import { DAMAGE_TYPES, triangleEdge } from '../data/damage.js';
 import { STAGE_LEVELS, stageOf, stageName } from '../data/evolution.js';
-import { openSheet } from './lab.js';
+import { openSheet } from './sheet.js';
 import { sfx } from '../core/sfx.js';
 
 const wait = (ms) => new Promise((r) => setTimeout(r, ms));

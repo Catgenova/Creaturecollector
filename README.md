@@ -10,7 +10,9 @@ deployed from `main` on every push). Or open `index.html` locally.
 
 Phase 1 — Creature Lab: seeded procedural creatures assembled from a part
 library, with recolouring, diploid part genes, species, stats and shareable
-creature codes.
+creature codes. The Lab and Parts tabs have since been folded away; the
+creature sheet (stats, parts, palette, stages, Elemental preview, code) opens
+from anywhere in the overworld.
 
 Phase 2 — Fusion: fuse any two creatures of a class into one, with an
 inheritance report; stress-tested over five generations. It shipped as a
@@ -55,7 +57,7 @@ ability follows by chance.
 
 Evolutions: every species evolves at level 33 and again at 66, growing larger
 with its features more pronounced, then exaggerated. Nothing is stored; the
-level decides, and the Lab sheet previews any creature at any stage. Every part
+level decides, and the creature sheet previews any creature at any stage. Every part
 of every class has hand-drawn stage 2 and stage 3 art, with a procedural growth
 pass as the fallback for anything new.
 
@@ -98,8 +100,8 @@ engine are testable headlessly.
 Balance reports: `node scripts/sim.mjs [games] [level] [partySize] [seed]` runs
 AI-vs-AI tournaments and prints win rates by species and type.
 
-Visual review: `node scripts/shot.mjs [seed]` screenshots the Lab, a detail
-sheet and the Parts tab at phone size into
-`shots/`, and `node scripts/shot-world.mjs [seed]` walks the overworld into an
-encounter and back (both need Playwright installed globally or locally; dev
-only).
+Visual review: `node scripts/shot.mjs [seed]` walks the overworld at phone size
+into an encounter, a fight, the map and the party, screenshotting into
+`shots/` (needs Playwright installed globally or locally; dev only). Library
+boards: `node scripts/evolutions.mjs <rig>` and `node scripts/hero.mjs <ids>`
+with `scripts/shot-board.mjs` to render them.

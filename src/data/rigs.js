@@ -21,7 +21,7 @@
 //             parts that skip the heavy outline treatment; `fitBox` scales the
 //             part from its 100x60 authoring frame onto the parent's box.
 //   clipped   slots drawn right after the body's shapes, clipped to the body
-//   mannequin parts and tweaks used by the Part Lab preview
+//   mannequin parts and tweaks used to preview a single part (review boards, tests)
 //
 export const RIGS = {
   mammal: {

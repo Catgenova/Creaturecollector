@@ -29,11 +29,6 @@ button, input, select, textarea { font: inherit; }
 .topbar { display: flex; align-items: center; gap: 10px; padding: 10px 16px 6px; flex-wrap: nowrap; }
 .topbar h1 { font-size: 17px; margin: 0; letter-spacing: .2px; white-space: nowrap; }
 .ver { color: var(--fg2); font-size: 11px; margin-left: auto; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
-.tabs { display: flex; gap: 6px; padding: 6px 12px; border-bottom: 1px solid var(--line); position: sticky; top: 0; background: var(--bg); z-index: 5; }
-.tab { flex: 1; min-height: var(--tap); border: 0; border-radius: 10px; background: transparent; color: var(--fg2); font-weight: 600; cursor: pointer; }
-.tab[aria-selected="true"] { background: var(--bg3); color: var(--fg); }
-.tab:disabled { opacity: .45; cursor: default; }
-.tab small { display: block; font-size: 10px; font-weight: 400; line-height: 1; }
 .screen { flex: 1; padding: 12px 16px calc(32px + env(safe-area-inset-bottom)); }
 .hint, .meta, .desc { color: var(--fg2); font-size: 13px; margin: 0 0 12px; }
 .desc { color: var(--fg); font-style: italic; }
@@ -48,15 +43,6 @@ button, input, select, textarea { font: inherit; }
 .btn { font-weight: 600; cursor: pointer; }
 .btn:active { transform: translateY(1px); }
 .btn.primary { background: var(--acc); color: #1a1400; border-color: transparent; }
-.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; }
-.card {
-  display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 6px 6px 10px; border: 1px solid var(--line);
-  border-radius: var(--radius); background: var(--bg2); color: inherit; cursor: pointer; text-align: center;
-}
-.card:active { transform: scale(.98); }
-.card svg { width: 100%; height: auto; }
-.card-name { font-weight: 700; }
-.shiny { color: var(--acc); }
 .elem-badge { display: inline-block; margin-left: 6px; padding: 1px 8px; border-radius: 999px; font-size: 11px; font-weight: 700; color: #14151c; background: var(--elem, #ccc); vertical-align: middle; white-space: nowrap; }
 .elem-fire { --elem: #ff7a1a; } .elem-water { --elem: #4fd6ff; } .elem-storm { --elem: #ffe14a; } .elem-frost { --elem: #9fe8ff; }
 .elem-bloom { --elem: #7ded6a; } .elem-shadow { --elem: #b98cff; } .elem-light { --elem: #fff1a8; } .elem-earth { --elem: #d9a45a; }
@@ -96,11 +82,6 @@ h3.sec { font-size: 12px; text-transform: uppercase; letter-spacing: .1em; color
 .toast { position: fixed; left: 50%; bottom: calc(24px + env(safe-area-inset-bottom)); transform: translateX(-50%); background: var(--fg); color: var(--bg); padding: 8px 14px; border-radius: 999px; font-weight: 600; z-index: 50; animation: toast 1.9s forwards; }
 @keyframes toast { 0% { opacity: 0; transform: translate(-50%, 10px); } 12%, 80% { opacity: 1; transform: translate(-50%, 0); } 100% { opacity: 0; } }
 
-/* Part Lab */
-.slot-sec { margin-bottom: 14px; }
-.slot-row { display: grid; grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); gap: 6px; }
-.part { display: flex; flex-direction: column; align-items: center; font-size: 11px; color: var(--fg2); background: var(--bg2); border: 1px solid var(--line); border-radius: 10px; padding: 4px; text-align: center; }
-.part svg { width: 100%; height: auto; }
 
 /* Creature SVG */
 .cr { display: block; overflow: visible; }
@@ -120,7 +101,6 @@ h3.sec { font-size: 12px; text-transform: uppercase; letter-spacing: .1em; color
 
 @media (min-width: 720px) {
   .toolbar select { flex: 1 1 220px; }
-  .grid { grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); }
 }
 
 /* Fusion Lab */
@@ -402,7 +382,7 @@ function toast(msg) {
 //             parts that skip the heavy outline treatment; `fitBox` scales the
 //             part from its 100x60 authoring frame onto the parent's box.
 //   clipped   slots drawn right after the body's shapes, clipped to the body
-//   mannequin parts and tweaks used by the Part Lab preview
+//   mannequin parts and tweaks used to preview a single part (review boards, tests)
 //
 const RIGS = {
   mammal: {
@@ -8622,7 +8602,7 @@ function partPrims(part) { return part.prims.map(classicPrim).join(''); }
 
 // ---- level of detail ------------------------------------------------------------
 //
-// Below about half a pixel per creature unit (party rows, pool grids, the Part Lab) fine
+// Below about half a pixel per creature unit (party rows, collection grids) fine
 // detail is noise: hairline strokes, dots and faint washes blur into the fill and only cost
 // clip paths. Such prims are tagged once per part and skipped at low detail, so small
 // renders keep the silhouette and the big shapes. Eyes are never thinned.
@@ -9037,7 +9017,7 @@ function renderCreatureSvg(g, opts = {}) {
     `<g class="cr-anim"${delay}>${layers}</g></g></svg>`;
 }
 
-/** A neutral mannequin genome used by the Part Lab to preview any single part. */
+/** A neutral mannequin genome used by the review boards and tests to preview any single part. */
 function mannequinGenome(part) {
   const rig = getRig(part.rig);
   const m = rig.mannequin;
@@ -9199,8 +9179,10 @@ function freshSeed() {
   return s;
 }
 
-// ---- src/ui/lab.js ----
-// Creature Lab: roll seeded creatures, inspect genes, copy and load creature codes.
+// ---- src/ui/sheet.js ----
+// The creature sheet: a bottom sheet with the hero render (flip, stage, Elemental preview),
+// base stats, parts, palette, traits and the shareable creature code. Opened from party rows,
+// the collection, fusion previews and the fight view.
 
 
 
@@ -9211,79 +9193,6 @@ function freshSeed() {
 
 
 
-
-
-
-
-const labState = { seed: null, species: 'random', count: 12 };
-
-function seedFromUrl() {
-  try { return new URLSearchParams(location.search).get('seed'); } catch { return null; }
-}
-
-function rollGenomes() {
-  const out = [];
-  for (let i = 0; i < labState.count; i++) {
-    const rng = makeRng(`${labState.seed}:${i}`);
-    const sp = SPECIES_BY_ID[labState.species];
-    out.push(sp ? speciesGenome(sp, rng) : randomGenome(rng));
-  }
-  return out;
-}
-
-function renderLabScreen(root) {
-  if (!labState.seed) labState.seed = (seedFromUrl() || freshSeed()).toUpperCase();
-  clear(root);
-
-  const seedInput = h('input', { class: 'seed', type: 'text', value: labState.seed, spellcheck: 'false', autocapitalize: 'characters', autocomplete: 'off', 'aria-label': 'Seed', placeholder: 'Seed' });
-  const speciesSel = h('select', { 'aria-label': 'Species' },
-    h('option', { value: 'random' }, 'Any species'),
-    SPECIES.map((s) => h('option', { value: s.id, selected: labState.species === s.id }, `${s.name}  (${s.types.join(' / ')})`)));
-  speciesSel.addEventListener('change', () => { labState.species = speciesSel.value; draw(); });
-
-  const grid = h('div', { class: 'grid' });
-  const codeInput = h('input', { class: 'seed code-in', type: 'text', placeholder: 'Paste a creature code (CC1....)', 'aria-label': 'Creature code', autocapitalize: 'off', autocomplete: 'off', spellcheck: 'false' });
-
-  const applySeed = (seed) => {
-    labState.seed = (seed || freshSeed()).toUpperCase();
-    seedInput.value = labState.seed;
-    draw();
-  };
-
-  const toolbar = h('div', { class: 'toolbar' },
-    seedInput,
-    h('button', { class: 'btn', onclick: () => applySeed(seedInput.value.trim()) }, 'Go'),
-    h('button', { class: 'btn primary', onclick: () => applySeed(null) }, 'Roll'),
-    speciesSel,
-  );
-  seedInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') applySeed(seedInput.value.trim()); });
-
-  const loader = h('div', { class: 'toolbar' },
-    codeInput,
-    h('button', { class: 'btn', onclick: () => {
-      try { openSheet(decodeGenome(codeInput.value)); codeInput.value = ''; }
-      catch (e) { toast(e.message); }
-    } }, 'Load'),
-  );
-
-  function draw() {
-    clear(grid);
-    for (const g of rollGenomes()) {
-      grid.append(h('button', { class: 'card', type: 'button', onclick: () => openSheet(g) },
-        creatureEl(g, { size: 160 }),
-        h('div', { class: 'card-name' }, g.name, g.shiny ? h('span', { class: 'shiny', title: 'Rare colours' }, ' ✦') : null, elementalBadge(g)),
-        h('div', { class: 'chips' }, typeChips(g.types), styleChip(g))));
-    }
-  }
-
-  root.append(
-    toolbar,
-    h('p', { class: 'hint' }, 'Same seed, same creatures, on any device. Tap a creature to see its genes.'),
-    grid,
-    ...section('Load a creature', loader),
-  );
-  draw();
-}
 
 function statRows(g) {
   const base = baseStats(g);
@@ -9363,35 +9272,6 @@ function openSheet(g, sheetOpts = {}) {
   );
   document.body.append(backdrop, sheet);
   document.addEventListener('keydown', onKey);
-}
-
-// ---- src/ui/parts.js ----
-// Part Lab: every part in the library on a neutral mannequin, grouped by rig and slot.
-
-
-
-
-
-
-function renderPartsScreen(root) {
-  clear(root);
-  root.append(h('p', { class: 'hint' }, 'Every part, drawn on a neutral mannequin of its class with the part in orange. Add parts in src/data/parts and they show up here.'));
-  for (const rigId of Object.keys(RIG_PARTS)) {
-    const rig = RIGS[rigId];
-    const total = slotsFor(rigId).reduce((n, slot) => n + partsOf(rigId, slot).filter((p) => !p.none).length, 0);
-    root.append(h('h2', { class: 'rig-title' }, `${rig.name} skeleton · ${total} parts`));
-    for (const slot of slotsFor(rigId)) {
-      const parts = partsOf(rigId, slot).filter((p) => !p.none);
-      if (!parts.length) continue;
-      const row = h('div', { class: 'slot-row' });
-      for (const part of parts) {
-        row.append(h('div', { class: 'part', title: part.id },
-          creatureEl(mannequinGenome(part), { size: 96, animate: false }),
-          h('span', {}, part.name)));
-      }
-      root.append(h('section', { class: 'slot-sec' }, h('h3', { class: 'sec' }, `${slotName(rigId, slot)} · ${parts.length}`), row));
-    }
-  }
 }
 
 // ---- src/battle/stats.js ----
@@ -12461,7 +12341,7 @@ function owDraw(ts) {
 }
 
 // ---- src/ui/main.js ----
-// App shell: header, tabs, hash routing between screens.
+// App shell: the header and the one screen, the overworld.
 
 
 
@@ -12469,20 +12349,12 @@ function owDraw(ts) {
 
 
 
-
-
-const SCREENS = [
-  { id: 'world', title: 'World', render: renderWorldScreen },
-  { id: 'lab', title: 'Lab', render: renderLabScreen },
-  { id: 'parts', title: 'Parts', render: renderPartsScreen },
-];
 
 function bootApp() {
   const app = document.getElementById('app');
   clear(app);
   try { const s = new URLSearchParams(location.search).get('style'); if (s) setRenderStyle(s); } catch { /* ignore */ }
   try { const mq = matchMedia('(prefers-reduced-motion: reduce)'); setReducedMotion(mq.matches); mq.addEventListener('change', (e) => setReducedMotion(e.matches)); } catch { /* ignore */ }
-  const nav = h('nav', { class: 'tabs', role: 'tablist' });
   const main = h('main', { class: 'screen' });
   try { setSfxEnabled(localStorage.getItem('creaturecollector.sfx') !== 'off'); } catch { /* default on */ }
   const soundBtn = h('button', { class: 'btn small sound', type: 'button', 'aria-label': 'Toggle sound', onclick: () => {
@@ -12493,26 +12365,12 @@ function bootApp() {
   } }, sfxEnabled() ? '🔊' : '🔇');
   app.append(
     h('header', { class: 'topbar' }, h('h1', {}, 'Creature Collector'), h('span', { class: 'ver' }, `${SPECIES.length} species · ${partCount()} parts${getRenderStyle() !== 'classic' ? ` · ${getRenderStyle()} style` : ''}`), soundBtn),
-    nav, main,
+    main,
   );
   document.addEventListener('click', (e) => { if (e.target.closest('button') && !e.target.closest('.sound')) sfx.tap(); }, { capture: true });
-
-  function go(id) {
-    const screen = SCREENS.find((s) => s.id === id && !s.soon) || SCREENS[0];
-    closeSheet();
-    clear(nav);
-    for (const s of SCREENS) {
-      nav.append(h('button', {
-        class: 'tab', role: 'tab', type: 'button', disabled: s.soon, 'aria-selected': String(s === screen),
-        onclick: () => { location.hash = s.id; },
-      }, s.title, s.soon ? h('small', {}, 'soon') : null));
-    }
-    screen.render(main);
-    window.scrollTo(0, 0);
-  }
-
-  window.addEventListener('hashchange', () => go(location.hash.slice(1)));
-  go(location.hash.slice(1));
+  const show = () => { closeSheet(); renderWorldScreen(main); window.scrollTo(0, 0); };
+  window.addEventListener('hashchange', show);
+  show();
 }
 
 if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', bootApp);

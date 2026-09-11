@@ -5,7 +5,7 @@
 import { h, clear, toast, copyText, appendChildren } from './dom.js';
 import { creatureEl, typeChips, section, stageBadge } from './common.js';
 import { freshSeed } from '../core/rng.js';
-import { openSheet } from './lab.js';
+import { openSheet } from './sheet.js';
 import { mountFight, xpRow } from './fight.js';
 import { STATUS_INFO } from '../battle/engine.js';
 import { stageOf, stageName } from '../data/evolution.js';

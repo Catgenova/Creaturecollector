@@ -32,10 +32,10 @@ src/data/species.js   base species recipes
 src/data/elements.js  Elementals: the eight elements, their core abilities and one SVG filter each
 src/creature/         genome (schema, rolls, codes), palette, render (SVG)
 src/game/             world (map generation and content), journey (rules), party (members, xp), save
-src/ui/               dom helpers, screens (world, lab, parts), the fight view, app shell (main.js = build entry)
+src/ui/               dom helpers, the overworld screen, the creature sheet, the fight view, app shell (main.js = build entry)
 tests/                node:test suites
 scripts/              screenshot helpers for visual review (Playwright, dev only):
-                      shot.mjs (app flow), shot-world.mjs (overworld flow), board.mjs <rig> + shot-board.mjs (library board), hero.mjs (close-ups)
+                      shot.mjs (app flow through the overworld), board.mjs <rig> + shot-board.mjs (library board), hero.mjs (close-ups)
 ```
 
 Bundle conventions the build enforces: named exports only, relative imports on
@@ -102,7 +102,7 @@ the proportion the body's own species were drawn with (the mean over species
 built on that body, else over the class): the ratio is clamped to 0.78–1.25 and
 eased with an exponent of 0.6, so a wolf head on a rabbit shrinks about a tenth
 and a turtle head on a raptor grows about a seventh. Species wearing their own
-head and Part Lab mannequins are left alone.
+head and mannequins (review boards) are left alone.
 
 **Accent contrast.** `harmonizePalette` (`palette.js`) measures the three colours
 in CIE Lab and, when the accent sits within ΔE 30 of the primary or ΔE 24 of the
@@ -128,7 +128,7 @@ or a shade upper-left. Dots and eyespots drawn in the same roles are pattern,
 not lighting, and are exempt.
 
 **Level of detail.** Below about half a pixel per creature unit (`LOD.minPx`:
-party rows, pool grids, the Part Lab) hairline strokes (width ≤ 1.2), dots
+party rows, collection grids) hairline strokes (width ≤ 1.2), dots
 (radius < 1.8), tiny unstroked marks and faint clipped washes (opacity ≤ 0.14)
 only blur the fill and cost clip paths, so `renderCreatureSvg` drops them;
 `isFinePrim` tags them once per part. Eyes are never thinned, and the styled
@@ -228,7 +228,7 @@ per seed; the shrine seeds it from the journey, its fusion count and both parent
 - **Name** = identity prefix + other suffix, joined at a clean boundary
   (`naming.js`). `gen` = max + 1; `lineage` merged and deduped, most recent 16;
   `parents` = the two names.
-- Fusion consumes both parents in the game (the Lab keeps them for experiments).
+- Fusion consumes both parents.
 
 The report lists, per slot, which parent supplied the expressed part and whether
 it mutated, where each colour came from, and where each type came from. The
@@ -545,7 +545,7 @@ announce it.
   Umbral (lowers the foe's Magic Atk on entry), Radiant (immune to Dark), Quake
   (Melee hits do three quarters).
 - **UI.** The encounter card announces "Fire Elemental!" with the element's
-  glow, cards and sheets carry a "◆ Fire Elemental" badge, and the Lab sheet
+  glow, cards and sheets carry a "◆ Fire Elemental" badge, and the creature sheet
   has a preview selector so any creature can be seen as any Elemental
   without changing it. `node scripts/elementals.mjs` renders one creature per
   element plus fused descendants; `scripts/hero.mjs fox+elemental=fire`
@@ -609,7 +609,7 @@ already carries the power.
   all seven classes has hand-authored stages (590 parts).
 - **UI.** Cards and sheets show a II / III chip (`stageBadge`), sprites in the
   overworld, fights and battle setup draw at their level, level-up reports and the
-  fight log announce evolutions, and the Lab sheet has Stage 1 / 2 / 3
+  fight log announce evolutions, and the creature sheet has Stage 1 / 2 / 3
   buttons to preview any creature at any stage. `node scripts/evolutions.mjs
   <rig>` renders every species of a class at all three stages;
   `scripts/hero.mjs fox+stage=3` previews one.

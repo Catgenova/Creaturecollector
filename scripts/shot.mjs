@@ -1,34 +1,63 @@
-// Screenshot the built index.html at phone size for visual checks.
-// Usage: node scripts/shot.mjs [seed]   -> shots/lab.png, sheet.png, parts.png (the overworld and its fights are covered by scripts/shot-world.mjs)
+// Headless check of the app: start a journey, pick a starter, walk into an encounter, fight, open the map and the party.
+// Usage: PLAYWRIGHT_BROWSERS_PATH=/opt/pw-browsers node scripts/shot.mjs [seed] -> shots/world-*.png
 import { createRequire } from 'node:module';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-
 const require = createRequire(import.meta.url);
 let chromium;
-try { ({ chromium } = require('playwright')); }
-catch { ({ chromium } = require('/opt/node22/lib/node_modules/playwright')); }
-
+try { ({ chromium } = require('playwright')); } catch { ({ chromium } = require('/opt/node22/lib/node_modules/playwright')); }
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-const seed = process.argv[2] || 'SHOWCASE';
+const seed = process.argv[2] || 'demo';
 const out = path.join(root, 'shots');
 fs.mkdirSync(out, { recursive: true });
-const url = `file://${path.join(root, 'index.html')}?seed=${encodeURIComponent(seed)}`;
-
+const url = `file://${path.join(root, 'index.html')}?seed=${encodeURIComponent(seed)}#world`;
 const browser = await chromium.launch();
 const page = await browser.newPage({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 2, reducedMotion: 'reduce' });
-page.on('pageerror', (e) => console.error('PAGE ERROR', e.message));
-page.on('console', (m) => { if (m.type() === 'error') console.error('CONSOLE', m.text()); });
-
-await page.goto(`${url}#lab`);
-await page.waitForSelector('.card svg');
-await page.screenshot({ path: path.join(out, 'lab.png'), fullPage: true });
-await page.click('.card');
-await page.waitForSelector('.sheet');
-await page.screenshot({ path: path.join(out, 'sheet.png') });
-await page.goto(`${url}#parts`);
-await page.waitForSelector('.part svg');
-await page.screenshot({ path: path.join(out, 'parts.png'), fullPage: true });
+const errors = [];
+page.on('pageerror', (e) => errors.push('pageerror: ' + e.message));
+page.on('console', (m) => { if (m.type() === 'error') errors.push('console: ' + m.text()); });
+await page.goto(url);
+await page.waitForSelector('text=Set out');
+await page.screenshot({ path: path.join(out, 'world-intro.png'), fullPage: true });
+await page.click('text=Set out');
+await page.waitForSelector('.starters .pslot');
+await page.locator('.starters .pslot').first().click();
+await page.click('text=Set out with');
+await page.waitForSelector('canvas.ow-map');
+await page.waitForTimeout(400);
+await page.screenshot({ path: path.join(out, 'world-map.png'), fullPage: true });
+// walk south with the keyboard until something happens or 40 steps pass
+for (let i = 0; i < 40; i++) {
+  await page.keyboard.press('ArrowDown');
+  await page.waitForTimeout(180);
+  if (await page.locator('.encounter').count()) break;
+  if (await page.locator('.ow-dialog').count()) break;
+}
+const state = await page.evaluate(() => ({ encounter: document.querySelector('.encounter') ? document.querySelector('.enc-head').textContent : null, dialog: document.querySelector('.ow-dialog') ? document.querySelector('.ow-dialog .txt').textContent : null, place: document.querySelector('.ow-place') ? document.querySelector('.ow-place').textContent : null }));
+console.log('after walk:', JSON.stringify(state));
+await page.screenshot({ path: path.join(out, 'world-walk.png'), fullPage: true });
+if (state.encounter) {
+  await page.click('.encounter .btn.primary');
+  await page.waitForSelector('.move-btn', { timeout: 20000 });
+  await page.screenshot({ path: path.join(out, 'world-fight.png'), fullPage: true });
+  await page.click('text=Fast');
+  await page.click('text=Auto');
+  await page.waitForSelector('.result-card', { timeout: 90000 });
+  await page.click('text=Continue');
+  await page.waitForSelector('canvas.ow-map');
+  console.log('back on the map after the fight');
+}
+await page.click('text=Map');
+await page.waitForSelector('.ow-minimap');
+await page.screenshot({ path: path.join(out, 'world-minimap.png'), fullPage: true });
+await page.click('.sheet .close');
+await page.click('text=Party');
+await page.waitForSelector('.party-row');
+await page.screenshot({ path: path.join(out, 'world-party.png'), fullPage: true });
+await page.click('.sheet .close');
+const saved = await page.evaluate(() => { const s = JSON.parse(localStorage.getItem('creaturecollector.save')); return s && s.journey ? { steps: s.journey.stats.steps, battles: s.journey.stats.battles, pos: s.journey.player } : null; });
+console.log('saved journey:', JSON.stringify(saved));
+console.log('errors:', errors.length ? errors.join('\n') : 'none');
 await browser.close();
-console.log('shots written to', out);
+if (errors.length) process.exit(1);

@@ -128,7 +128,7 @@ export function partPrims(part) { return part.prims.map(classicPrim).join(''); }
 
 // ---- level of detail ------------------------------------------------------------
 //
-// Below about half a pixel per creature unit (party rows, pool grids, the Part Lab) fine
+// Below about half a pixel per creature unit (party rows, collection grids) fine
 // detail is noise: hairline strokes, dots and faint washes blur into the fill and only cost
 // clip paths. Such prims are tagged once per part and skipped at low detail, so small
 // renders keep the silhouette and the big shapes. Eyes are never thinned.
@@ -543,7 +543,7 @@ export function renderCreatureSvg(g, opts = {}) {
     `<g class="cr-anim"${delay}>${layers}</g></g></svg>`;
 }
 
-/** A neutral mannequin genome used by the Part Lab to preview any single part. */
+/** A neutral mannequin genome used by the review boards and tests to preview any single part. */
 export function mannequinGenome(part) {
   const rig = getRig(part.rig);
   const m = rig.mannequin;

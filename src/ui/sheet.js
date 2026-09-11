@@ -1,87 +1,16 @@
-// Creature Lab: roll seeded creatures, inspect genes, copy and load creature codes.
+// The creature sheet: a bottom sheet with the hero render (flip, stage, Elemental preview),
+// base stats, parts, palette, traits and the shareable creature code. Opened from party rows,
+// the collection, fusion previews and the fight view.
 import { h, clear, copyText, toast } from './dom.js';
 import { typeChips, creatureEl, section, elementalBadge, styleChip } from './common.js';
-import { makeRng, freshSeed } from '../core/rng.js';
-import { randomGenome, speciesGenome, baseStats, encodeGenome, decodeGenome, resolveParts, TRAIT_KEYS, speciesOf, rigOf, makeElemental, elementalOf } from '../creature/genome.js';
+import { baseStats, encodeGenome, resolveParts, TRAIT_KEYS, speciesOf, rigOf, makeElemental, elementalOf, cladeOf } from '../creature/genome.js';
 import { STAT_KEYS, STAT_NAMES } from '../data/damage.js';
 import { ELEMENT_IDS, ELEMENTS } from '../data/elements.js';
 import { stageOf, stageName } from '../data/evolution.js';
 import { swatchCss } from '../creature/palette.js';
-import { SPECIES, SPECIES_BY_ID } from '../data/species.js';
 import { getPart } from '../data/parts/index.js';
 import { slotsFor, slotName } from '../data/rigs.js';
 import { cladeName } from '../data/clades.js';
-import { cladeOf } from '../creature/genome.js';
-
-const labState = { seed: null, species: 'random', count: 12 };
-
-function seedFromUrl() {
-  try { return new URLSearchParams(location.search).get('seed'); } catch { return null; }
-}
-
-function rollGenomes() {
-  const out = [];
-  for (let i = 0; i < labState.count; i++) {
-    const rng = makeRng(`${labState.seed}:${i}`);
-    const sp = SPECIES_BY_ID[labState.species];
-    out.push(sp ? speciesGenome(sp, rng) : randomGenome(rng));
-  }
-  return out;
-}
-
-export function renderLabScreen(root) {
-  if (!labState.seed) labState.seed = (seedFromUrl() || freshSeed()).toUpperCase();
-  clear(root);
-
-  const seedInput = h('input', { class: 'seed', type: 'text', value: labState.seed, spellcheck: 'false', autocapitalize: 'characters', autocomplete: 'off', 'aria-label': 'Seed', placeholder: 'Seed' });
-  const speciesSel = h('select', { 'aria-label': 'Species' },
-    h('option', { value: 'random' }, 'Any species'),
-    SPECIES.map((s) => h('option', { value: s.id, selected: labState.species === s.id }, `${s.name}  (${s.types.join(' / ')})`)));
-  speciesSel.addEventListener('change', () => { labState.species = speciesSel.value; draw(); });
-
-  const grid = h('div', { class: 'grid' });
-  const codeInput = h('input', { class: 'seed code-in', type: 'text', placeholder: 'Paste a creature code (CC1....)', 'aria-label': 'Creature code', autocapitalize: 'off', autocomplete: 'off', spellcheck: 'false' });
-
-  const applySeed = (seed) => {
-    labState.seed = (seed || freshSeed()).toUpperCase();
-    seedInput.value = labState.seed;
-    draw();
-  };
-
-  const toolbar = h('div', { class: 'toolbar' },
-    seedInput,
-    h('button', { class: 'btn', onclick: () => applySeed(seedInput.value.trim()) }, 'Go'),
-    h('button', { class: 'btn primary', onclick: () => applySeed(null) }, 'Roll'),
-    speciesSel,
-  );
-  seedInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') applySeed(seedInput.value.trim()); });
-
-  const loader = h('div', { class: 'toolbar' },
-    codeInput,
-    h('button', { class: 'btn', onclick: () => {
-      try { openSheet(decodeGenome(codeInput.value)); codeInput.value = ''; }
-      catch (e) { toast(e.message); }
-    } }, 'Load'),
-  );
-
-  function draw() {
-    clear(grid);
-    for (const g of rollGenomes()) {
-      grid.append(h('button', { class: 'card', type: 'button', onclick: () => openSheet(g) },
-        creatureEl(g, { size: 160 }),
-        h('div', { class: 'card-name' }, g.name, g.shiny ? h('span', { class: 'shiny', title: 'Rare colours' }, ' ✦') : null, elementalBadge(g)),
-        h('div', { class: 'chips' }, typeChips(g.types), styleChip(g))));
-    }
-  }
-
-  root.append(
-    toolbar,
-    h('p', { class: 'hint' }, 'Same seed, same creatures, on any device. Tap a creature to see its genes.'),
-    grid,
-    ...section('Load a creature', loader),
-  );
-  draw();
-}
 
 function statRows(g) {
   const base = baseStats(g);
