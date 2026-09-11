@@ -412,6 +412,9 @@ function hueDelta(a, b) {
   return d;
 }
 
+/** Move hue h toward target by fraction t along the shortest arc. */
+function mixHue(h, target, t) { return wrapHue(h + hueDelta(h, target) * t); }
+
 const hsl = (h, s, l) => `hsl(${Math.round(wrapHue(h))} ${Math.round(clamp(s, 0, 100))}% ${Math.round(clamp(l, 0, 100))}%)`;
 
 /** Normalize an object of positive weights so its values sum to 1. */
@@ -1852,6 +1855,11 @@ function validateGenome(g) {
 // The frame is fixed so creatures are comparable in size: the ground line sits
 // at the same height in every render. opts.fit crops the viewBox to the
 // creature's bounds instead, for hero shots.
+//
+// Render styles. 'classic' is the flat sticker look drawn with CSS variables.
+// The others compute literal colours per slot and add volume procedurally from
+// the same part data: gradient fills, clipped shadow/highlight rims along the
+// edges, a thick silhouette pass under thin interior lines, and a gloss spot.
 
 
 
@@ -1859,22 +1867,98 @@ function validateGenome(g) {
 const FRAME = { w: 200, h: 230, ground: 208 };
 const FAR_DEFAULT = { dx: -6, dy: -4 };
 
+const RENDER_STYLES = ['classic', 'soft', 'cel', 'studio', 'sticker'];
+const STYLE = {
+  classic: { grad: false, rims: false, outlinePass: false, gloss: false, eye: 1, lineIn: 4, lineOut: 4, olL: 13, olS: 45 },
+  soft:    { grad: true, rims: false, outlinePass: false, gloss: false, eye: 1.05, lineIn: 3.4, lineOut: 3.4, olL: 18, olS: 50 },
+  cel:     { grad: false, rims: 'cel', outlinePass: true, gloss: false, eye: 1.15, lineIn: 2.2, lineOut: 8, olL: 20, olS: 55 },
+  studio:  { grad: true, rims: 'cel', outlinePass: true, gloss: true, eye: 1.15, lineIn: 2.2, lineOut: 8, olL: 20, olS: 55 },
+  sticker: { grad: false, rims: 'white', outlinePass: true, gloss: true, eye: 1.3, lineIn: 2.6, lineOut: 10, olL: 8, olS: 10 },
+};
+let renderStyle = 'classic';
+function setRenderStyle(s) { renderStyle = RENDER_STYLES.includes(s) ? s : 'classic'; return renderStyle; }
+function getRenderStyle() { return renderStyle; }
+
+// ---- primitives ---------------------------------------------------------------
+
 function fillAttr(f) { return f === 'none' ? 'none' : `var(--${f})`; }
 
-function primSvg(pr) {
-  const cls = pr.ns ? '' : ' class="o"';
-  const style = pr.sw != null && !pr.ns ? ` style="stroke-width:${num(pr.sw)}"` : '';
-  const op = pr.op != null ? ` opacity="${num(pr.op)}"` : '';
+/** The bare shape tag for a primitive with the given attribute string. */
+function shapeTag(pr, attrs) {
+  const a = attrs ? ` ${attrs}` : '';
   switch (pr.t) {
-    case 'path': return `<path${cls} d="${pr.d}" fill="${fillAttr(pr.f)}"${style}${op}/>`;
-    case 'ellipse': return `<ellipse${cls} cx="${num(pr.cx)}" cy="${num(pr.cy)}" rx="${num(pr.rx)}" ry="${num(pr.ry)}" fill="${fillAttr(pr.f)}"${style}${op}/>`;
-    case 'circle': return `<circle${cls} cx="${num(pr.cx)}" cy="${num(pr.cy)}" r="${num(pr.r)}" fill="${fillAttr(pr.f)}"${style}${op}/>`;
-    case 'line': return `<path d="${pr.d}" fill="none" stroke="var(--${pr.f})" stroke-width="${num(pr.w)}" stroke-linecap="round" stroke-linejoin="round"${op}/>`;
+    case 'path': case 'line': return `<path d="${pr.d}"${a}/>`;
+    case 'ellipse': return `<ellipse cx="${num(pr.cx)}" cy="${num(pr.cy)}" rx="${num(pr.rx)}" ry="${num(pr.ry)}"${a}/>`;
+    case 'circle': return `<circle cx="${num(pr.cx)}" cy="${num(pr.cy)}" r="${num(pr.r)}"${a}/>`;
     default: return '';
   }
 }
 
-function partPrims(part) { return part.prims.map(primSvg).join(''); }
+function classicPrim(pr) {
+  const cls = pr.ns ? '' : ' class="o"';
+  const style = pr.sw != null && !pr.ns ? ` style="stroke-width:${num(pr.sw)}"` : '';
+  const op = pr.op != null ? ` opacity="${num(pr.op)}"` : '';
+  if (pr.t === 'line') return `<path d="${pr.d}" fill="none" stroke="var(--${pr.f})" stroke-width="${num(pr.w)}" stroke-linecap="round" stroke-linejoin="round"${op}/>`;
+  return shapeTag(pr, `${cls.trim()} fill="${fillAttr(pr.f)}"${style}${op}`.trim());
+}
+
+function primSvg(pr, ctx) {
+  const st = ctx.st;
+  if (ctx.mode === 'outline') {
+    if (pr.ns || pr.t === 'line' || pr.f === 'none' || ctx.noOutline) return '';
+    return shapeTag(pr, `fill="none" stroke="${ctx.ol}" stroke-width="${num(st.lineOut)}" stroke-linejoin="round" stroke-linecap="round"`);
+  }
+  if (!ctx.colors) return classicPrim(pr);
+  const fam = ctx.colors[pr.f] || ctx.colors.p;
+  const op = pr.op != null ? ` opacity="${num(pr.op)}"` : '';
+  if (pr.t === 'line') return `<path d="${pr.d}" fill="none" stroke="${hsl(...fam.base)}" stroke-width="${num(pr.w)}" stroke-linecap="round" stroke-linejoin="round"${op}/>`;
+  let fill;
+  if (pr.f === 'none') fill = 'none';
+  else if (st.grad && !pr.ns && pr.f !== 'k') fill = `url(#${ctx.grad(pr.f)})`;
+  else fill = hsl(...fam.base);
+  const stroke = pr.ns ? ' stroke="none"' : ` stroke="${ctx.ol}" stroke-width="${num(pr.sw != null ? pr.sw : st.lineIn)}" stroke-linejoin="round" stroke-linecap="round" paint-order="stroke"`;
+  let out = shapeTag(pr, `fill="${fill}"${stroke}${op}`);
+  if (st.rims && !pr.ns && pr.f !== 'none' && pr.f !== 'k' && !ctx.small) {
+    const id = `${ctx.uid}-c${ctx.shared.n++}`;
+    out += `<clipPath id="${id}">${shapeTag(pr, '')}</clipPath><g clip-path="url(#${id})">`;
+    if (st.rims === 'white') {
+      out += shapeTag(pr, 'fill="none" stroke="rgba(255,255,255,0.4)" stroke-width="4"');
+    } else {
+      out += shapeTag(pr, `fill="none" stroke="${hsl(...fam.shade)}" stroke-width="7" transform="translate(-2 -3)" opacity="0.85"`);
+      out += shapeTag(pr, `fill="none" stroke="${hsl(...fam.light)}" stroke-width="3" transform="translate(1.6 2.2)" opacity="0.8"`);
+    }
+    out += '</g>';
+  }
+  return out;
+}
+
+function partPrimsCtx(part, ctx) { return part.prims.map((pr) => primSvg(pr, ctx)).join(''); }
+/** Classic-style primitives for a part (used by tests and tools). */
+function partPrims(part) { return part.prims.map(classicPrim).join(''); }
+
+// ---- colours for the styled renderers ------------------------------------------
+
+const shadeOf = (c) => [mixHue(c[0], 250, 0.12), Math.min(100, c[1] + 8), Math.max(6, c[2] - 14)];
+const lightOf = (c) => [mixHue(c[0], 55, 0.1), Math.max(0, c[1] - 6), Math.min(96, c[2] + 12)];
+const family = (c) => ({ base: c, shade: shadeOf(c), light: lightOf(c) });
+
+/** Literal role colours for one slot (and its far copy) in a styled render. */
+function styledColors(g, slot, far, st) {
+  const perm = PAINT_PERMS[(g.paint && g.paint[slot]) || 0] || PAINT_PERMS[0];
+  const cs = ['c1', 'c2', 'c3'].map((k) => g.palette[k]);
+  const hue0 = g.palette.c1[0];
+  const roles = { p: family(cs[perm[0]]), s: family(cs[perm[1]]), a: family(cs[perm[2]]), w: family([hue0, 20, 97]), e: family(g.palette.eye) };
+  if (far) for (const r of Object.keys(roles)) { const f = roles[r]; roles[r] = { base: f.shade, shade: shadeOf(f.shade), light: f.base }; }
+  const out = {};
+  for (const [r, f] of Object.entries(roles)) {
+    out[r] = f;
+    out[`${r}d`] = { base: f.shade, shade: shadeOf(f.shade), light: f.base };
+    out[`${r}l`] = { base: f.light, shade: f.base, light: lightOf(f.light) };
+  }
+  const k = [hue0, Math.min(g.palette.c1[1], st.olS), st.olL];
+  out.k = { base: k, shade: k, light: k };
+  return out;
+}
 
 // ---- bounds -----------------------------------------------------------------
 
@@ -1957,114 +2041,151 @@ function traitScales(traits = {}) {
 }
 
 /**
- * Build the layered markup and measure it. Returns { layers, box, feet, hover, K, body, clip }
+ * Build the layered markup and measure it. Returns { layers, defs, box, feet, hover, K, body, clip }
  * where box is the creature's bounds in creature space (body centre = 0,0).
  */
-function buildCreature(g, id) {
+function buildCreature(g, id, styleName) {
+  const st = STYLE[styleName] || STYLE.classic;
+  const styled = st !== STYLE.classic;
   const P = resolveParts(g);
   const body = P.body;
   const S = body.sockets;
   const K = traitScales(g.traits);
+  K.eye *= st.eye;
 
   let feet = body.bottom;
   if (P.legs && S.legs) for (const ls of S.legs) feet = Math.max(feet, ls.y + (P.legs.len || 40) * K.leg);
   const hover = body.hover || 0;
 
-  const L = [];
+  const shared = { n: 0, defs: [], grads: new Map() };
+  const ol = styled ? hsl(g.palette.c1[0], Math.min(g.palette.c1[1], st.olS), st.olL) : 'var(--ol)';
+  const ctxCache = new Map();
+  const ctxFor = (slot, far, mode, extra = {}) => {
+    const key = `${slot}|${far}|${mode}|${extra.small ? 1 : 0}|${extra.noOutline ? 1 : 0}`;
+    if (ctxCache.has(key)) return ctxCache.get(key);
+    const colors = styled ? styledColors(g, slot, far, st) : null;
+    const ctx = {
+      st, uid: id, slot, far, mode, ol, shared, colors, small: Boolean(extra.small), noOutline: Boolean(extra.noOutline),
+      grad(role) {
+        const gid = `${id}-g-${slot}${far ? 'f' : ''}-${role}`;
+        if (!shared.grads.has(gid)) {
+          const fam = colors[role] || colors.p;
+          shared.defs.push(`<linearGradient id="${gid}" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="${hsl(...fam.light)}"/><stop offset="0.5" stop-color="${hsl(...fam.base)}"/><stop offset="1" stop-color="${hsl(...fam.shade)}"/></linearGradient>`);
+          shared.grads.set(gid, true);
+        }
+        return gid;
+      },
+    };
+    ctxCache.set(key, ctx);
+    return ctx;
+  };
+
   let box = null;
   const grow = (part, chain) => { box = union(box, boxThrough(partBounds(part), chain)); };
 
-  if (P.wings && S.wing) {
-    const w = partPrims(P.wings);
-    const tn = xf(S.wing.x, S.wing.y, 0, K.wing), tfar = xf(S.wing.x - 6, S.wing.y - 6, 0, K.wing);
-    grow(P.wings, [tn]); grow(P.wings, [tfar]);
-    L.push(`<g style="${paintOf(g, 'wings')}">` +
-      `<g transform="${tf(tfar)}"><g class="g-wing" style="${FAR_VARS}">${w}</g></g>` +
-      `<g transform="${tf(tn)}"><g class="g-wing">${w}</g></g></g>`);
-  }
-  if (P.tail && S.tail) {
-    const t = xf(S.tail.x, S.tail.y, S.tail.a, K.tail);
-    grow(P.tail, [t]);
-    L.push(`<g style="${paintOf(g, 'tail')}"><g transform="${tf(t)}"><g class="g-tail">${partPrims(P.tail)}</g></g></g>`);
-  }
-  if (P.back && S.back) {
-    const t = xf(S.back.x, S.back.y, S.back.a);
-    grow(P.back, [t]);
-    L.push(`<g style="${paintOf(g, 'back')}"><g transform="${tf(t)}">${partPrims(P.back)}</g></g>`);
-  }
-  if (P.legs && S.legs && S.legs.length) {
-    const lp = partPrims(P.legs);
-    let far = '', near = '';
-    for (const ls of S.legs) {
-      const f = ls.far || FAR_DEFAULT;
-      const tfar = xf(ls.x + f.dx, ls.y + f.dy, 0, K.leg), tn = xf(ls.x, ls.y, 0, K.leg);
-      grow(P.legs, [tfar]); grow(P.legs, [tn]);
-      far += `<g transform="${tf(tfar)}" style="${FAR_VARS}">${lp}</g>`;
-      near += `<g transform="${tf(tn)}">${lp}</g>`;
-    }
-    L.push(`<g style="${paintOf(g, 'legs')}">${far}${near}</g>`);
-  }
-  const armsFront = Boolean(body.armsFront);
-  const armSvg = () => {
-    const ap = partPrims(P.arms);
-    const tn = xf(S.arm.x, S.arm.y), tfar = xf(S.arm.x - 14, S.arm.y - 3);
-    grow(P.arms, [tn]);
-    let s = `<g style="${paintOf(g, 'arms')}">`;
-    if (!armsFront) { grow(P.arms, [tfar]); s += `<g transform="${tf(tfar)}" style="${FAR_VARS}">${ap}</g>`; }
-    return s + `<g transform="${tf(tn)}">${ap}</g></g>`;
-  };
-  if (P.arms && S.arm && !armsFront) L.push(armSvg());
+  const assemble = (mode) => {
+    const L = [];
+    const pp = (part, slot, far = false, extra) => partPrimsCtx(part, ctxFor(slot, far, mode, extra));
+    const wrap = (slot, inner) => (styled ? `<g>${inner}</g>` : `<g style="${paintOf(g, slot)}">${inner}</g>`);
+    const farWrap = (inner) => (styled ? inner : `<g style="${FAR_VARS}">${inner}</g>`);
 
-  // Face: crown behind the skull, then far eye, near eye, mouth. `outer` is the
-  // transform chain of whatever the face sits on (head or body).
-  const face = (F, outer) => {
-    let behind = '', front = '';
-    if (P.crown && F.crown) {
-      const t = xf(F.crown.x, F.crown.y, F.crown.a, F.crown.s == null ? 1 : F.crown.s);
-      grow(P.crown, [t, ...outer]);
-      behind += `<g style="${paintOf(g, 'crown')}"><g transform="${tf(t)}">${partPrims(P.crown)}</g></g>`;
+    if (P.wings && S.wing) {
+      const tn = xf(S.wing.x, S.wing.y, 0, K.wing), tfar = xf(S.wing.x - 6, S.wing.y - 6, 0, K.wing);
+      grow(P.wings, [tn]); grow(P.wings, [tfar]);
+      L.push(wrap('wings',
+        `<g transform="${tf(tfar)}"><g class="g-wing">${farWrap(pp(P.wings, 'wings', true))}</g></g>` +
+        `<g transform="${tf(tn)}"><g class="g-wing">${pp(P.wings, 'wings')}</g></g>`));
     }
-    if (P.eyes) {
-      const ep = partPrims(P.eyes);
-      if (F.eye2) {
-        const t = xf(F.eye2.x, F.eye2.y, 0, (F.eye2.s == null ? 0.85 : F.eye2.s) * K.eye);
-        grow(P.eyes, [t, ...outer]);
-        front += `<g transform="${tf(t)}" style="${FAR_VARS}">${ep}</g>`;
+    if (P.tail && S.tail) {
+      const t = xf(S.tail.x, S.tail.y, S.tail.a, K.tail);
+      grow(P.tail, [t]);
+      L.push(wrap('tail', `<g transform="${tf(t)}"><g class="g-tail">${pp(P.tail, 'tail')}</g></g>`));
+    }
+    if (P.back && S.back) {
+      const t = xf(S.back.x, S.back.y, S.back.a);
+      grow(P.back, [t]);
+      L.push(wrap('back', `<g transform="${tf(t)}">${pp(P.back, 'back')}</g>`));
+    }
+    if (P.legs && S.legs && S.legs.length) {
+      let far = '', near = '';
+      for (const ls of S.legs) {
+        const f = ls.far || FAR_DEFAULT;
+        const tfar = xf(ls.x + f.dx, ls.y + f.dy, 0, K.leg), tn = xf(ls.x, ls.y, 0, K.leg);
+        grow(P.legs, [tfar]); grow(P.legs, [tn]);
+        far += `<g transform="${tf(tfar)}">${farWrap(pp(P.legs, 'legs', true))}</g>`;
+        near += `<g transform="${tf(tn)}">${pp(P.legs, 'legs')}</g>`;
       }
-      if (F.eye) {
-        const t = xf(F.eye.x, F.eye.y, 0, (F.eye.s == null ? 1 : F.eye.s) * K.eye);
-        grow(P.eyes, [t, ...outer]);
-        front += `<g transform="${tf(t)}">${ep}</g>`;
+      L.push(wrap('legs', far + near));
+    }
+    const armsFront = Boolean(body.armsFront);
+    const armSvg = () => {
+      const tn = xf(S.arm.x, S.arm.y), tfar = xf(S.arm.x - 14, S.arm.y - 3);
+      grow(P.arms, [tn]);
+      let s = '';
+      if (!armsFront) { grow(P.arms, [tfar]); s += `<g transform="${tf(tfar)}">${farWrap(pp(P.arms, 'arms', true))}</g>`; }
+      return wrap('arms', s + `<g transform="${tf(tn)}">${pp(P.arms, 'arms')}</g>`);
+    };
+    if (P.arms && S.arm && !armsFront) L.push(armSvg());
+
+    const face = (F, outer) => {
+      let behind = '', front = '';
+      if (P.crown && F.crown) {
+        const t = xf(F.crown.x, F.crown.y, F.crown.a, F.crown.s == null ? 1 : F.crown.s);
+        grow(P.crown, [t, ...outer]);
+        behind += wrap('crown', `<g transform="${tf(t)}">${pp(P.crown, 'crown')}</g>`);
+      }
+      if (P.eyes) {
+        if (F.eye2) {
+          const t = xf(F.eye2.x, F.eye2.y, 0, (F.eye2.s == null ? 0.85 : F.eye2.s) * K.eye);
+          grow(P.eyes, [t, ...outer]);
+          front += `<g transform="${tf(t)}">${farWrap(pp(P.eyes, 'eyes', true, { small: true, noOutline: true }))}</g>`;
+        }
+        if (F.eye) {
+          const t = xf(F.eye.x, F.eye.y, 0, (F.eye.s == null ? 1 : F.eye.s) * K.eye);
+          grow(P.eyes, [t, ...outer]);
+          front += `<g transform="${tf(t)}">${pp(P.eyes, 'eyes', false, { small: true, noOutline: true })}</g>`;
+        }
+      }
+      if (P.mouth && F.mouth) {
+        const t = xf(F.mouth.x, F.mouth.y, 0, F.mouth.s == null ? 1 : F.mouth.s);
+        grow(P.mouth, [t, ...outer]);
+        front += `<g transform="${tf(t)}">${pp(P.mouth, 'mouth', false, { small: true, noOutline: true })}</g>`;
+      }
+      return { behind, front };
+    };
+
+    const headless = !P.head || !S.head;
+    const bodyFace = headless && S.face ? face(S.face, []) : null;
+    grow(body, []);
+    let bodyInner = bodyFace ? bodyFace.behind : '';
+    bodyInner += pp(body, 'body');
+    if (mode !== 'outline') {
+      if (P.pattern) bodyInner += `<g clip-path="url(#${id}-clip)">${pp(P.pattern, 'body', false, { small: true })}</g>`;
+      if (st.gloss) {
+        const b = partBounds(body);
+        const w = b[2] - b[0], hh = b[3] - b[1];
+        const cx = b[0] + w * 0.34, cy = b[1] + hh * 0.26;
+        bodyInner += `<g clip-path="url(#${id}-clip)"><ellipse cx="${num(cx)}" cy="${num(cy)}" rx="${num(w * 0.17)}" ry="${num(hh * 0.09)}" fill="#fff" opacity="0.22" transform="rotate(-24 ${num(cx)} ${num(cy)})"/></g>`;
       }
     }
-    if (P.mouth && F.mouth) {
-      const t = xf(F.mouth.x, F.mouth.y, 0, F.mouth.s == null ? 1 : F.mouth.s);
-      grow(P.mouth, [t, ...outer]);
-      front += `<g transform="${tf(t)}">${partPrims(P.mouth)}</g>`;
+    if (bodyFace) bodyInner += bodyFace.front;
+    L.push(`<g class="g-body">${styled ? bodyInner : `<g style="${paintOf(g, 'body')}">${bodyInner}</g>`}</g>`);
+
+    if (P.arms && S.arm && armsFront) L.push(armSvg());
+
+    if (!headless) {
+      const hs = S.head;
+      const th = xf(hs.x, hs.y, hs.a, (hs.s == null ? 1 : hs.s) * K.head);
+      grow(P.head, [th]);
+      const hf = face(P.head.sockets, [th]);
+      L.push(wrap('head', `<g transform="${tf(th)}"><g class="g-head">${hf.behind}${pp(P.head, 'head')}${hf.front}</g></g>`));
     }
-    return { behind, front };
+    return L;
   };
 
-  const headless = !P.head || !S.head;
-  const bodyFace = headless && S.face ? face(S.face, []) : null;
-  grow(body, []);
-  let bodyInner = bodyFace ? bodyFace.behind : '';
-  bodyInner += partPrims(body);
-  if (P.pattern) bodyInner += `<g clip-path="url(#${id}-clip)">${partPrims(P.pattern)}</g>`;
-  if (bodyFace) bodyInner += bodyFace.front;
-  L.push(`<g class="g-body" style="${paintOf(g, 'body')}">${bodyInner}</g>`);
-
-  if (P.arms && S.arm && armsFront) L.push(armSvg());
-
-  if (!headless) {
-    const hs = S.head;
-    const th = xf(hs.x, hs.y, hs.a, (hs.s == null ? 1 : hs.s) * K.head);
-    grow(P.head, [th]);
-    const hf = face(P.head.sockets, [th]);
-    L.push(`<g style="${paintOf(g, 'head')}"><g transform="${tf(th)}"><g class="g-head">${hf.behind}${partPrims(P.head)}${hf.front}</g></g></g>`);
-  }
-
-  return { layers: L, box: box || [-40, -40, 40, 40], feet, hover, K, body, clip: body.clip || [] };
+  const outline = st.outlinePass ? assemble('outline') : [];
+  const layers = assemble('normal');
+  return { layers: [...outline, ...layers], defs: shared.defs.join(''), box: box || [-40, -40, 40, 40], feet, hover, K, body, clip: body.clip || [] };
 }
 
 /** Canvas-space transform that places a built creature on the ground line. */
@@ -2079,7 +2200,7 @@ function placement(built, facing) {
 
 /** Bounding box of a creature in canvas coordinates, shadow included. */
 function measureCreature(g, facing = 'right') {
-  const built = buildCreature(g, 'm');
+  const built = buildCreature(g, 'm', 'classic');
   const chain = placement(built, facing);
   const box = boxThrough(built.box, chain);
   const sc = built.K.size;
@@ -2090,12 +2211,14 @@ function measureCreature(g, facing = 'right') {
 /**
  * Render a creature.
  * opts: size (px width), facing ('right' | 'left'), animate (bool), id (svg id prefix),
- *       label (aria), fit (crop the viewBox to the creature instead of the fixed frame)
+ *       label (aria), fit (crop the viewBox to the creature instead of the fixed frame),
+ *       style (one of RENDER_STYLES; defaults to the global render style)
  */
 function renderCreatureSvg(g, opts = {}) {
   const { size = 200, facing = 'right', animate = true, fit = false } = opts;
+  const styleName = RENDER_STYLES.includes(opts.style) ? opts.style : renderStyle;
   const id = opts.id || uid('cr');
-  const built = buildCreature(g, id);
+  const built = buildCreature(g, id, styleName);
   const chain = placement(built, facing);
   const sc = built.K.size;
   const shadowRx = 36 * sc * (built.hover ? 0.7 : 1), shadowRy = 7 * sc;
@@ -2110,10 +2233,11 @@ function renderCreatureSvg(g, opts = {}) {
   const label = opts.label || `${g.name}, ${typeLabel(g)}`;
   const delay = animate ? ` style="animation-delay:-${num(((g.seed || '').length * 0.37 + (g.traits ? g.traits.size * 3 : 0)) % 3)}s"` : '';
   const clip = built.clip.map((d) => `<path d="${d}"/>`).join('');
+  const shadowFill = styleName === 'classic' ? 'var(--k)' : hsl(g.palette.c1[0], 30, 10);
 
-  return `<svg class="cr${animate ? ' cr-live' : ''}" xmlns="http://www.w3.org/2000/svg" viewBox="${vb.map(num).join(' ')}" width="${size}" height="${height}" role="img" aria-label="${escapeHtml(label)}" style="${paletteVars(g.palette)}">` +
-    `<defs><clipPath id="${id}-clip">${clip}</clipPath></defs>` +
-    `<ellipse class="cr-shadow" cx="${num(FRAME.w / 2)}" cy="${FRAME.ground}" rx="${num(shadowRx)}" ry="${num(shadowRy)}" fill="var(--k)" opacity="0.18"/>` +
+  return `<svg class="cr cr-${styleName}${animate ? ' cr-live' : ''}" xmlns="http://www.w3.org/2000/svg" viewBox="${vb.map(num).join(' ')}" width="${size}" height="${height}" role="img" aria-label="${escapeHtml(label)}" style="${paletteVars(g.palette)}">` +
+    `<defs><clipPath id="${id}-clip">${clip}</clipPath>${built.defs}</defs>` +
+    `<ellipse class="cr-shadow" cx="${num(FRAME.w / 2)}" cy="${FRAME.ground}" rx="${num(shadowRx)}" ry="${num(shadowRy)}" fill="${shadowFill}" opacity="0.18"/>` +
     `<g transform="${tf(chain[1])} translate(0 ${num(chain[0].y)})">` +
     `<g class="cr-anim"${delay}>${built.layers.join('')}</g></g></svg>`;
 }
@@ -4607,6 +4731,7 @@ function gameOverView(root, run) {
 
 
 
+
 const SCREENS = [
   { id: 'arena', title: 'Arena', render: renderArenaScreen },
   { id: 'battle', title: 'Battle', render: renderBattleScreen },
@@ -4618,6 +4743,7 @@ const SCREENS = [
 function bootApp() {
   const app = document.getElementById('app');
   clear(app);
+  try { const s = new URLSearchParams(location.search).get('style'); if (s) setRenderStyle(s); } catch { /* ignore */ }
   const nav = h('nav', { class: 'tabs', role: 'tablist' });
   const main = h('main', { class: 'screen' });
   try { setSfxEnabled(localStorage.getItem('creaturecollector.sfx') !== 'off'); } catch { /* default on */ }
@@ -4628,7 +4754,7 @@ function bootApp() {
     if (sfxEnabled()) sfx.tap();
   } }, sfxEnabled() ? '🔊' : '🔇');
   app.append(
-    h('header', { class: 'topbar' }, h('h1', {}, 'Creature Collector'), h('span', { class: 'ver' }, `${SPECIES.length} species · ${partCount()} parts`), soundBtn),
+    h('header', { class: 'topbar' }, h('h1', {}, 'Creature Collector'), h('span', { class: 'ver' }, `${SPECIES.length} species · ${partCount()} parts${getRenderStyle() !== 'classic' ? ` · ${getRenderStyle()} style` : ''}`), soundBtn),
     nav, main,
   );
   document.addEventListener('click', (e) => { if (e.target.closest('button') && !e.target.closest('.sound')) sfx.tap(); }, { capture: true });

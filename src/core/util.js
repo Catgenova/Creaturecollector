@@ -18,6 +18,9 @@ export function hueDelta(a, b) {
   return d;
 }
 
+/** Move hue h toward target by fraction t along the shortest arc. */
+export function mixHue(h, target, t) { return wrapHue(h + hueDelta(h, target) * t); }
+
 export const hsl = (h, s, l) => `hsl(${Math.round(wrapHue(h))} ${Math.round(clamp(s, 0, 100))}% ${Math.round(clamp(l, 0, 100))}%)`;
 
 /** Normalize an object of positive weights so its values sum to 1. */

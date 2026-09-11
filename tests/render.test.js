@@ -49,3 +49,16 @@ test('left-facing creatures mirror only the x axis', () => {
   assert.ok(Number(m[1]) < 0 && Number(m[2]) > 0, `scale ${m[1]} ${m[2]}`);
   assert.ok(!/scale\(-[\d.]+\)/.test(left), 'no single negative scale');
 });
+
+test('every render style draws every species cleanly', async () => {
+  const { RENDER_STYLES } = await import('../src/creature/render.js');
+  for (const style of RENDER_STYLES) {
+    for (const s of SPECIES) {
+      const g = speciesGenome(s, makeRng('style'));
+      const svg = renderCreatureSvg(g, { id: 't', style, animate: false });
+      checkSvg(svg, `${style}/${s.id}`);
+      const clipOpen = (svg.match(/<clipPath/g) || []).length, clipClose = (svg.match(/<\/clipPath>/g) || []).length;
+      assert.equal(clipOpen, clipClose, `${style}/${s.id} clipPaths`);
+    }
+  }
+});

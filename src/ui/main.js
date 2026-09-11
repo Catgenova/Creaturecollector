@@ -8,6 +8,7 @@ import { renderArenaScreen } from './arena.js';
 import { partCount } from '../data/parts/index.js';
 import { SPECIES } from '../data/species.js';
 import { sfx, setSfxEnabled, sfxEnabled } from '../core/sfx.js';
+import { setRenderStyle, getRenderStyle } from '../creature/render.js';
 
 const SCREENS = [
   { id: 'arena', title: 'Arena', render: renderArenaScreen },
@@ -20,6 +21,7 @@ const SCREENS = [
 function bootApp() {
   const app = document.getElementById('app');
   clear(app);
+  try { const s = new URLSearchParams(location.search).get('style'); if (s) setRenderStyle(s); } catch { /* ignore */ }
   const nav = h('nav', { class: 'tabs', role: 'tablist' });
   const main = h('main', { class: 'screen' });
   try { setSfxEnabled(localStorage.getItem('creaturecollector.sfx') !== 'off'); } catch { /* default on */ }
@@ -30,7 +32,7 @@ function bootApp() {
     if (sfxEnabled()) sfx.tap();
   } }, sfxEnabled() ? '🔊' : '🔇');
   app.append(
-    h('header', { class: 'topbar' }, h('h1', {}, 'Creature Collector'), h('span', { class: 'ver' }, `${SPECIES.length} species · ${partCount()} parts`), soundBtn),
+    h('header', { class: 'topbar' }, h('h1', {}, 'Creature Collector'), h('span', { class: 'ver' }, `${SPECIES.length} species · ${partCount()} parts${getRenderStyle() !== 'classic' ? ` · ${getRenderStyle()} style` : ''}`), soundBtn),
     nav, main,
   );
   document.addEventListener('click', (e) => { if (e.target.closest('button') && !e.target.closest('.sound')) sfx.tap(); }, { capture: true });
