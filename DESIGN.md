@@ -840,6 +840,38 @@ Mantislash 362). Rerun the tuner after any change to moves, abilities, the
 type chart or the roster; the roster-expansion pass (three attacks in every
 level-50 move set) stays in place underneath it.
 
+## Mobile view (implemented)
+
+The game was drawn for a phone from the start (portrait layout, 44px targets,
+safe-area insets, a pad and an A button, bottom sheets); this pass made it fit
+every phone in either orientation and made it installable.
+
+- **Fit.** The fight arena is capped by the viewport height (stage height and
+  creature size in `dvh`), the log shrinks, and on screens under 720px tall
+  the panels lose their passive line and tighten their chips. The move buttons
+  and the Party / Info / Items and Fast / Auto rows sit in a sticky block pinned
+  to the bottom of the screen, so a fight never needs a scroll to act. Short
+  landscape screens (a phone on its side, under 520px tall) lay the arena beside
+  the log and moves, and the map beside its pad, party strip and A button, with
+  the map taking most of the height. The encounter card lays foes out in a
+  grid (three across for a six-strong tower team) and the whole game sits in a
+  760px column on tablets and desktops.
+- **Touch.** Every button uses `touch-action: manipulation` (no double-tap
+  zoom delay), the map, pad and A button suppress the long-press callout, and
+  inputs are 16px on coarse pointers so iOS does not zoom into them.
+- **Install.** `manifest.webmanifest` (standalone, any orientation, dark
+  theme) with `icons/` rendered by `scripts/icons.mjs` from the game's own
+  creature SVG (192, 512, a maskable 512 and an Apple touch icon), plus
+  `sw.js`, a network-first service worker that keeps the page, manifest and
+  icons for offline play and is registered only over http(s). The single-file
+  build still runs on its own from `file:`; the extras only add the home-screen
+  install.
+- **Check.** `node scripts/mobile-audit.mjs` drives the intro, starters, map,
+  tower, encounter, fight (with its Info sheet), party, creature sheet, minimap
+  and market at 360×640, 390×844, 430×932, 844×390 and 1024×768, fails on any
+  sideways scroll or if the map with its pad, or a fight's move buttons, fall
+  outside the first screen, and writes `shots/mobile/*.png` for review.
+
 ## Polish and balance (Phase 5 — implemented)
 
 Balance was done with the two simulators, not by feel:

@@ -82,7 +82,8 @@ creatures that fought and reaches the rest of the party at half rate; move
 cards show accuracy and every side effect's odds, and PP follows power (the
 harder a move hits or the nastier its status, the fewer uses); and with every badge the Council
 Spire opens to four fights back to back. Walk with the
-keyboard, the on-screen pad or a tap on the ground. The endless arena is gone;
+keyboard, the on-screen pad or a tap on the ground. It fits a phone in either
+orientation, and the page installs to the home screen and plays offline. The endless arena is gone;
 its capture, XP, party and collection systems live on here, and an old save's
 arena creatures join the collection.
 

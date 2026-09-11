@@ -46,6 +46,7 @@ function buildFight(f) {
     controls: h('div', { class: 'controls' }),
   };
   f.els = els;
+  f.root.classList.add('fight-view');
   clear(f.root).append(
     h('div', { class: 'arena' },
       h('div', { class: 'arena-row' }, els.foePanel, els.foeStage),

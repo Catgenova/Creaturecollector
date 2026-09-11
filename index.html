@@ -5,7 +5,12 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#12131a">
+<meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Creatures">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <title>Creature Collector</title>
 <style>
@@ -145,8 +150,8 @@ h3.sec { font-size: 12px; text-transform: uppercase; letter-spacing: .1em; color
 .pcard.is-on { outline: 2px solid var(--acc); }
 .arena { display: flex; flex-direction: column; gap: 4px; background: radial-gradient(ellipse at 50% 120%, #2a3350 0%, var(--bg) 70%); border: 1px solid var(--line); border-radius: var(--radius); padding: 8px; }
 .arena-row { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; align-items: end; }
-.stage { display: flex; justify-content: center; align-items: flex-end; min-height: 150px; }
-.stage svg { width: min(46vw, 210px); height: auto; }
+.stage { display: flex; justify-content: center; align-items: flex-end; min-height: min(150px, 20dvh); }
+.stage svg { width: min(46vw, 210px); height: auto; max-height: 24dvh; }
 .panel { background: rgba(18, 19, 26, .85); border: 1px solid var(--line); border-radius: 12px; padding: 8px 10px; font-size: 13px; align-self: start; }
 .panel-me { align-self: end; }
 .panel-head { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; margin-bottom: 4px; }
@@ -172,7 +177,7 @@ h3.sec { font-size: 12px; text-transform: uppercase; letter-spacing: .1em; color
 @keyframes shake { 0%, 100% { transform: translateX(0); filter: none; } 20% { transform: translateX(-8px); filter: brightness(1.8); } 40% { transform: translateX(8px); } 60% { transform: translateX(-6px); filter: brightness(1.8); } 80% { transform: translateX(6px); } }
 @keyframes lunge-r { 0%, 100% { transform: translate(0, 0); } 40% { transform: translate(28px, -10px); } }
 @keyframes lunge-l { 0%, 100% { transform: translate(0, 0); } 40% { transform: translate(-28px, -10px); } }
-.battle-log { min-height: 84px; margin: 8px 0; padding: 8px 12px; background: var(--bg2); border: 1px solid var(--line); border-radius: 12px; font-size: 14px; line-height: 1.35; }
+.battle-log { min-height: 56px; margin: 8px 0; padding: 8px 12px; background: var(--bg2); border: 1px solid var(--line); border-radius: 12px; font-size: 14px; line-height: 1.35; }
 .battle-log .line { opacity: .6; }
 .battle-log .line:last-child { opacity: 1; font-weight: 600; }
 .controls { display: flex; flex-direction: column; gap: 8px; }
@@ -246,7 +251,8 @@ h3.sec { font-size: 12px; text-transform: uppercase; letter-spacing: .1em; color
 .tower-info { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
 .tower-info .hint { margin: 0; }
 .tower-meta { font-size: 12px; color: var(--fg2); }
-.foes { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; margin: 4px 0 8px; }
+.foes { display: grid; grid-template-columns: repeat(auto-fit, minmax(92px, 1fr)); gap: 8px; justify-items: center; margin: 4px 0 8px; }
+.foes.few { display: flex; flex-wrap: wrap; justify-content: center; }
 .foe-card { display: flex; flex-direction: column; align-items: center; font-size: 12px; color: var(--fg2); }
 .foe-card svg { height: auto; }
 .party-row.static { cursor: default; }
@@ -332,6 +338,46 @@ h3.sec { font-size: 12px; text-transform: uppercase; letter-spacing: .1em; color
 .teach-row { display: grid; grid-template-columns: 44px 1fr auto; gap: 8px; align-items: center; padding: 6px 8px; border: 1px solid var(--line); border-radius: 10px; background: var(--bg); margin-top: 6px; }
 .teach-row svg { width: 44px; height: auto; }
 .teach-row .move-chips { margin-top: 2px; }
+
+/* Mobile view: the game fits a phone in either orientation, the fight controls stay within reach, and taps
+   never zoom or select. Portrait phones get a compact arena; short landscape screens put the arena beside the
+   log and moves, and the map beside its pad. */
+button, .btn { touch-action: manipulation; }
+.ow-view canvas, .dpad, .act { -webkit-touch-callout: none; }
+@media (pointer: coarse) { .toolbar input, .toolbar select, .sheet input, .sheet select { font-size: 16px; } }
+.screen { width: 100%; max-width: 760px; margin: 0 auto; }
+.controls { position: sticky; bottom: 0; z-index: 5; padding: 6px 0 calc(6px + env(safe-area-inset-bottom)); background: linear-gradient(to bottom, transparent, var(--bg) 12px); }
+.util-row { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; }
+.controls .row { margin: 0; }
+@media (max-height: 720px) {
+  .panel { font-size: 12px; padding: 6px 8px; }
+  .panel-head b { font-size: 14px; }
+  .panel .passive { display: none; }
+  .panel-head { gap: 4px; }
+  .panel .chip { font-size: 10px; padding: 1px 6px; }
+  .floor-head.compact { margin-bottom: 4px; font-size: 13px; }
+  .battle-log { min-height: 46px; font-size: 13px; padding: 6px 10px; margin: 6px 0; }
+  .move-btn { min-height: 52px; padding: 6px 8px; gap: 2px; }
+  .moves { gap: 6px; }
+}
+@media (orientation: landscape) and (max-height: 520px) {
+  .topbar { padding: 4px 16px 2px; }
+  .screen { padding-top: 6px; max-width: none; }
+  .fight-view { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); grid-template-rows: auto 1fr; gap: 6px 10px; align-items: start; }
+  .fight-view .arena { grid-row: 1 / 3; }
+  .fight-view .battle-log { margin: 0; min-height: 44px; }
+  .fight-view .controls { position: static; padding: 0; background: none; }
+  .stage { min-height: min(150px, 28dvh); }
+  .stage svg { width: min(24vw, 210px); max-height: 30dvh; }
+  .ow { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 6px 12px; align-items: start; }
+  .ow > .ow-hud, .ow > .result-card, .ow > .encounter, .ow > .ow-help { grid-column: 1 / -1; }
+  .ow > .ow-view { grid-column: 1; }
+  .ow-ctl { grid-column: 2; grid-template-columns: 1fr; grid-auto-rows: auto; justify-items: center; gap: 10px; align-self: stretch; align-content: space-between; }
+  .dpad { grid-template-columns: repeat(3, 36px); grid-template-rows: repeat(3, 36px); }
+  .act { width: 56px; height: 56px; }
+  .ow-party-mini { width: 140px; }
+  .ow-help { display: none; }
+}
 </style>
 </head>
 <body>
@@ -13588,6 +13634,7 @@ function buildFight(f) {
     controls: h('div', { class: 'controls' }),
   };
   f.els = els;
+  f.root.classList.add('fight-view');
   clear(f.root).append(
     h('div', { class: 'arena' },
       h('div', { class: 'arena-row' }, els.foePanel, els.foeStage),
@@ -15767,7 +15814,10 @@ function owSizeCanvas() {
   const c = ow.canvas;
   if (!c || !c.isConnected) return;
   const cssW = Math.max(240, Math.min(720, c.parentElement.clientWidth || 360));
-  const cssH = Math.max(240, Math.min(460, Math.round(Math.min(cssW * 0.78, (window.innerHeight || 800) * 0.46))));
+  const innerH = window.innerHeight || 800;
+  // short landscape screens (a phone on its side) give the map most of the height; the pad sits beside it
+  const landscape = (window.innerWidth || 0) > innerH && innerH <= 520;
+  const cssH = landscape ? Math.max(180, Math.min(460, innerH - 130)) : Math.max(240, Math.min(460, Math.round(Math.min(cssW * 0.78, innerH * 0.46))));
   ow.tilePx = cssW < 480 ? 28 : 36;
   const dpr = Math.min(2, window.devicePixelRatio || 1);
   c.width = Math.round(cssW * dpr); c.height = Math.round(cssH * dpr);
@@ -15934,8 +15984,8 @@ function owEncounterView(root, j) {
   const enc = j.encounter;
   const kind = owKindLabel(enc);
   const elem = enc.kind === 'wild' ? elementalOf(enc.foes[0].genome) : null;
-  const foes = h('div', { class: 'foes' }, enc.foes.map((f) => h('div', { class: 'foe-card' },
-    creatureEl(f.genome, { size: enc.foes.length > 2 ? 78 : 120, facing: 'left', animate: enc.foes.length <= 2, level: f.level }),
+  const foes = h('div', { class: `foes${enc.foes.length <= 2 ? ' few' : ''}` }, enc.foes.map((f) => h('div', { class: 'foe-card' },
+    creatureEl(f.genome, { size: enc.foes.length > 4 ? 70 : enc.foes.length > 2 ? 78 : 120, facing: 'left', animate: enc.foes.length <= 2, level: f.level }),
     h('span', {}, `${f.genome.name} · Lv ${f.level}`, stageBadge(f.level)))));
   const back = enc.kind === 'wild' ? 'Run' : enc.kind === 'council' ? 'Retreat (forfeits the run)' : enc.kind === 'tower' ? 'Back down' : 'Back out';
   const intro = enc.kind === 'wild' ? (enc.alpha ? 'An alpha, well above the local level. Worth more, and harder to catch.' : `A wild creature from the ${enc.type ? `${enc.type} ` : ''}patch. Weaken it to capture it.`)
@@ -16648,6 +16698,8 @@ function bootApp() {
   const show = () => { closeSheet(); renderWorldScreen(main); window.scrollTo(0, 0); };
   window.addEventListener('hashchange', show);
   show();
+  // installable: the service worker keeps the page, manifest and icons for offline play when served over http(s)
+  if ('serviceWorker' in navigator && /^https?:$/.test(location.protocol)) navigator.serviceWorker.register('sw.js').catch(() => { /* optional */ });
 }
 
 if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', bootApp);

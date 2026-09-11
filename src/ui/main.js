@@ -28,6 +28,8 @@ function bootApp() {
   const show = () => { closeSheet(); renderWorldScreen(main); window.scrollTo(0, 0); };
   window.addEventListener('hashchange', show);
   show();
+  // installable: the service worker keeps the page, manifest and icons for offline play when served over http(s)
+  if ('serviceWorker' in navigator && /^https?:$/.test(location.protocol)) navigator.serviceWorker.register('sw.js').catch(() => { /* optional */ });
 }
 
 if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', bootApp);

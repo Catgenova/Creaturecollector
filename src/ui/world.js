@@ -188,7 +188,10 @@ function owSizeCanvas() {
   const c = ow.canvas;
   if (!c || !c.isConnected) return;
   const cssW = Math.max(240, Math.min(720, c.parentElement.clientWidth || 360));
-  const cssH = Math.max(240, Math.min(460, Math.round(Math.min(cssW * 0.78, (window.innerHeight || 800) * 0.46))));
+  const innerH = window.innerHeight || 800;
+  // short landscape screens (a phone on its side) give the map most of the height; the pad sits beside it
+  const landscape = (window.innerWidth || 0) > innerH && innerH <= 520;
+  const cssH = landscape ? Math.max(180, Math.min(460, innerH - 130)) : Math.max(240, Math.min(460, Math.round(Math.min(cssW * 0.78, innerH * 0.46))));
   ow.tilePx = cssW < 480 ? 28 : 36;
   const dpr = Math.min(2, window.devicePixelRatio || 1);
   c.width = Math.round(cssW * dpr); c.height = Math.round(cssH * dpr);
@@ -355,8 +358,8 @@ function owEncounterView(root, j) {
   const enc = j.encounter;
   const kind = owKindLabel(enc);
   const elem = enc.kind === 'wild' ? elementalOf(enc.foes[0].genome) : null;
-  const foes = h('div', { class: 'foes' }, enc.foes.map((f) => h('div', { class: 'foe-card' },
-    creatureEl(f.genome, { size: enc.foes.length > 2 ? 78 : 120, facing: 'left', animate: enc.foes.length <= 2, level: f.level }),
+  const foes = h('div', { class: `foes${enc.foes.length <= 2 ? ' few' : ''}` }, enc.foes.map((f) => h('div', { class: 'foe-card' },
+    creatureEl(f.genome, { size: enc.foes.length > 4 ? 70 : enc.foes.length > 2 ? 78 : 120, facing: 'left', animate: enc.foes.length <= 2, level: f.level }),
     h('span', {}, `${f.genome.name} · Lv ${f.level}`, stageBadge(f.level)))));
   const back = enc.kind === 'wild' ? 'Run' : enc.kind === 'council' ? 'Retreat (forfeits the run)' : enc.kind === 'tower' ? 'Back down' : 'Back out';
   const intro = enc.kind === 'wild' ? (enc.alpha ? 'An alpha, well above the local level. Worth more, and harder to catch.' : `A wild creature from the ${enc.type ? `${enc.type} ` : ''}patch. Weaken it to capture it.`)
