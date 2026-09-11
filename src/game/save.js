@@ -74,7 +74,9 @@ export function normalizeJourney(r) {
     lastCamp: cleanPoint(r.lastCamp, { x: hub.x - 3, y: hub.y }), cooldown: Math.max(0, Number(r.cooldown) || 0),
     gauntlet: r.gauntlet && Number.isFinite(r.gauntlet.stage) && r.gauntlet.stage >= 0 && r.gauntlet.stage < 4 ? { stage: Math.round(r.gauntlet.stage) } : null,
     champion: Boolean(r.champion), encounter: null, lastReport: r.lastReport || null,
+    gold: Math.max(0, Math.floor(Number(r.gold) || 0)), bag: {},
   };
+  if (r.bag && typeof r.bag === 'object') for (const [id, q] of Object.entries(r.bag)) { const n = Math.min(99, Math.floor(Number(q) || 0)); if (n > 0 && getMove(id) && id !== 'struggle') j.bag[id] = n; }
   if (r.stats && typeof r.stats === 'object') for (const k of Object.keys(j.stats)) j.stats[k] = Math.max(0, Number(r.stats[k]) || 0);
   if (r.beaten && typeof r.beaten === 'object') for (const [k, v] of Object.entries(r.beaten)) if (v) j.beaten[k] = true;
   if (r.encounter && typeof r.encounter === 'object' && ['wild', 'trainer', 'boss', 'council'].includes(r.encounter.kind)) {

@@ -286,6 +286,20 @@ h3.sec { font-size: 12px; text-transform: uppercase; letter-spacing: .1em; color
 .ow-legend { display: grid; grid-template-columns: 1fr 1fr; gap: 4px 10px; font-size: 13px; margin-top: 8px; }
 .ow-legend i { display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 6px; vertical-align: middle; }
 @media (max-width: 380px) { .ow-ctl { grid-template-columns: 132px 1fr 56px; } .act { width: 56px; height: 56px; } }
+
+.ow-gold { font-weight: 700; color: var(--acc); white-space: nowrap; font-variant-numeric: tabular-nums; }
+.type-filter { display: flex; gap: 6px; overflow-x: auto; padding: 4px 0 8px; -webkit-overflow-scrolling: touch; }
+.type-filter .btn { flex: 0 0 auto; }
+.type-filter .btn.on { border-color: var(--chip, var(--acc2)); box-shadow: inset 0 0 0 1px var(--chip, var(--acc2)); }
+.shop-list { display: flex; flex-direction: column; gap: 6px; }
+.shop-row { display: grid; grid-template-columns: 1fr auto; gap: 8px; align-items: center; padding: 6px 8px; border: 1px solid var(--line); border-radius: 10px; background: var(--bg); }
+.shop-info b { display: block; }
+.shop-meta { display: flex; flex-wrap: wrap; gap: 4px 8px; align-items: center; font-size: 11px; color: var(--fg2); margin-top: 2px; }
+.shop-meta .dt-chip { background: var(--chip); color: #14151c; }
+.shop-tag { color: var(--acc); font-weight: 700; }
+.teach-row { display: grid; grid-template-columns: 44px 1fr auto; gap: 8px; align-items: center; padding: 6px 8px; border: 1px solid var(--line); border-radius: 10px; background: var(--bg); margin-top: 6px; }
+.teach-row svg { width: 44px; height: auto; }
+.teach-row .move-chips { margin-top: 2px; }
 </style>
 </head>
 <body>
@@ -10684,7 +10698,8 @@ function fuseChain(first, partners, rng) {
 // turns up on scorched downs and a Water fish in the lagoon shallows. Difficulty rises
 // around the ring, so the recommended order is a lap. Every biome has a camp that heals,
 // a lair where its Warden waits with a badge, and a few trainers on the paths who fight
-// when asked. The Council Spire in the hub opens with seven badges: four fights in a row.
+// when asked. The hub also has a fusion
+// shrine and a Market selling moves for the gold trainers pay. The Council Spire in the hub opens with seven badges: four fights in a row.
 //
 // Everything here is pure data derived from the seed. The map is three Uint8Arrays
 // (tile kind, biome index, habitat type) plus placed content.
@@ -10699,8 +10714,8 @@ function fuseChain(first, partners, rng) {
 const WORLD = { w: 112, h: 96, hubR: 6, ringR: 30, lairR: 43, trainersPerBiome: 4, encounterChance: 0.12, encounterCooldown: 4 };
 
 /** Tile kinds. */
-const TILE = { grass: 0, habitat: 1, path: 2, wall: 3, water: 4, hub: 5, lair: 6, door: 7, camp: 8, spire: 9, spireDoor: 10, shrine: 11 };
-const WALKABLE_TILES = new Set([TILE.grass, TILE.habitat, TILE.path, TILE.hub, TILE.door, TILE.camp, TILE.spireDoor, TILE.shrine]);
+const TILE = { grass: 0, habitat: 1, path: 2, wall: 3, water: 4, hub: 5, lair: 6, door: 7, camp: 8, spire: 9, spireDoor: 10, shrine: 11, market: 12, marketDoor: 13 };
+const WALKABLE_TILES = new Set([TILE.grass, TILE.habitat, TILE.path, TILE.hub, TILE.door, TILE.camp, TILE.spireDoor, TILE.shrine, TILE.marketDoor]);
 
 /** Biomes in difficulty order, clockwise from the south of the hub. */
 const BIOME_ORDER = ['mammal', 'amphibian', 'insect', 'bird', 'fish', 'invertebrate', 'reptile'];
@@ -10991,7 +11006,7 @@ function generateWorld(seed) {
       }
     }
   }
-  const world = { seed: String(seed), w, h, tiles, bio, hab, hub, biomes, trainers: [], trainerAt: new Map(), wardens: {}, council: [], start: { x: hub.x, y: hub.y + 1 }, spireDoor: { x: hub.x, y: hub.y - 5 }, shrine: { x: hub.x + 3, y: hub.y }, hubCamp: { x: hub.x - 3, y: hub.y } };
+  const world = { seed: String(seed), w, h, tiles, bio, hab, hub, biomes, trainers: [], trainerAt: new Map(), wardens: {}, council: [], start: { x: hub.x, y: hub.y + 1 }, spireDoor: { x: hub.x, y: hub.y - 5 }, shrine: { x: hub.x + 3, y: hub.y }, hubCamp: { x: hub.x - 3, y: hub.y }, market: { x: hub.x + 4, y: hub.y - 4 }, marketDoor: { x: hub.x + 4, y: hub.y - 2 } };
 
   // the hub disc, its spire, shrine and camp
   for (let y = hub.y - WORLD.hubR; y <= hub.y + WORLD.hubR; y++) for (let x = hub.x - WORLD.hubR; x <= hub.x + WORLD.hubR; x++) if (isHubTile(world, x, y)) tiles[idx(x, y)] = TILE.hub;
@@ -10999,6 +11014,9 @@ function generateWorld(seed) {
   tiles[idx(world.spireDoor.x, world.spireDoor.y)] = TILE.spireDoor;
   tiles[idx(world.shrine.x, world.shrine.y)] = TILE.shrine;
   tiles[idx(world.hubCamp.x, world.hubCamp.y)] = TILE.camp;
+  // the Market: a 3 x 2 shop on the hub's north-east edge, door facing the square
+  for (let y = world.market.y; y <= world.market.y + 1; y++) for (let x = world.market.x - 1; x <= world.market.x + 1; x++) tiles[idx(x, y)] = TILE.market;
+  tiles[idx(world.marketDoor.x, world.marketDoor.y)] = TILE.marketDoor;
 
   const carvable = (t) => t === TILE.grass || t === TILE.habitat || t === TILE.wall || t === TILE.water;
   const carve = (ax, ay, bx, by) => {
@@ -11052,7 +11070,7 @@ function generateWorld(seed) {
   world.council = councilFor(rng.fork('council'));
 
   // guarantee: every camp, lair front, the spire door and the shrine are reachable from the start
-  const targets = [world.spireDoor, world.shrine, world.hubCamp, ...biomes.map((b) => b.camp), ...biomes.map((b) => b.lair.front)];
+  const targets = [world.spireDoor, world.shrine, world.hubCamp, world.marketDoor, ...biomes.map((b) => b.camp), ...biomes.map((b) => b.lair.front)];
   for (let round = 0; round < 3; round++) {
     const reach = reachableFrom(world, world.start);
     const missing = targets.filter((t) => !reach.has(idx(t.x, t.y)));
@@ -11165,7 +11183,9 @@ function normalizeJourney(r) {
     lastCamp: cleanPoint(r.lastCamp, { x: hub.x - 3, y: hub.y }), cooldown: Math.max(0, Number(r.cooldown) || 0),
     gauntlet: r.gauntlet && Number.isFinite(r.gauntlet.stage) && r.gauntlet.stage >= 0 && r.gauntlet.stage < 4 ? { stage: Math.round(r.gauntlet.stage) } : null,
     champion: Boolean(r.champion), encounter: null, lastReport: r.lastReport || null,
+    gold: Math.max(0, Math.floor(Number(r.gold) || 0)), bag: {},
   };
+  if (r.bag && typeof r.bag === 'object') for (const [id, q] of Object.entries(r.bag)) { const n = Math.min(99, Math.floor(Number(q) || 0)); if (n > 0 && getMove(id) && id !== 'struggle') j.bag[id] = n; }
   if (r.stats && typeof r.stats === 'object') for (const k of Object.keys(j.stats)) j.stats[k] = Math.max(0, Number(r.stats[k]) || 0);
   if (r.beaten && typeof r.beaten === 'object') for (const [k, v] of Object.entries(r.beaten)) if (v) j.beaten[k] = true;
   if (r.encounter && typeof r.encounter === 'object' && ['wild', 'trainer', 'boss', 'council'].includes(r.encounter.kind)) {
@@ -11336,11 +11356,93 @@ function setLead(owner, uid) {
 
 function canFight(owner) { return owner.party.some((m) => m.hp > 0); }
 
+// ---- src/game/market.js ----
+// Gold, the Market and the Bag. Trainers pay gold when beaten; the Market at the Crossroads
+// sells every move as a single-use scroll priced by power; scrolls sit in the Bag until they
+// are taught to a creature. Pure functions over the journey object.
+
+
+/** A thousand gold per twenty points of power beyond the first forty; status and weak moves cost the base. */
+const MARKET = { unit: 1000, powerPerUnit: 20, maxStack: 99 };
+/** Gold for beating a trainer: per creature, per level of their team's average; Wardens and the Council pay double, rematches a quarter. */
+const GOLD = { perLevelPerCreature: 30, bossMultiplier: 2, rematchShare: 0.25 };
+
+function moveCost(mv) {
+  const m = typeof mv === 'string' ? getMove(mv) : mv;
+  if (!m || m.struggle) return 0;
+  return MARKET.unit * Math.max(1, Math.ceil((m.power || 0) / MARKET.powerPerUnit) - 1);
+}
+
+/** Everything the Market sells: every move, cheapest first, then by name. */
+function marketCatalogue() {
+  return MOVES.filter((m) => !m.struggle).map((move) => ({ move, cost: moveCost(move) })).sort((a, b) => a.cost - b.cost || (a.move.name < b.move.name ? -1 : 1));
+}
+
+/** Gold for a beaten team: creature count times average level, scaled for bosses and rematches, rounded to tens. */
+function goldReward(foes, kind = 'trainer', rematch = false) {
+  if (!foes || !foes.length) return 0;
+  const avg = foes.reduce((s, f) => s + f.level, 0) / foes.length;
+  let gold = GOLD.perLevelPerCreature * foes.length * avg;
+  if (kind === 'boss' || kind === 'council') gold *= GOLD.bossMultiplier;
+  if (rematch) gold *= GOLD.rematchShare;
+  return Math.max(10, Math.round(gold / 10) * 10);
+}
+
+function bagCount(j, moveId) { return (j.bag && j.bag[moveId]) || 0; }
+
+/** The Bag's contents, one line per move: [{ move, qty }], by type then name. */
+function bagList(j) {
+  return Object.entries(j.bag || {}).filter(([id, qty]) => qty > 0 && getMove(id)).map(([id, qty]) => ({ move: getMove(id), qty }))
+    .sort((a, b) => (a.move.type < b.move.type ? -1 : a.move.type > b.move.type ? 1 : a.move.name < b.move.name ? -1 : 1));
+}
+
+/** Buy one scroll of a move. Returns { ok, reason?, cost }. */
+function buyMove(j, moveId) {
+  const mv = getMove(moveId);
+  if (!mv || mv.struggle) return { ok: false, reason: 'The Market does not sell that.', cost: 0 };
+  const cost = moveCost(mv);
+  if (bagCount(j, moveId) >= MARKET.maxStack) return { ok: false, reason: 'Your bag cannot hold more of those.', cost };
+  if ((j.gold || 0) < cost) return { ok: false, reason: `Not enough gold: ${mv.name} costs ${cost}.`, cost };
+  j.gold -= cost;
+  j.bag = j.bag || {};
+  j.bag[moveId] = bagCount(j, moveId) + 1;
+  return { ok: true, cost };
+}
+
+function bagMember(j, uid) { return [...j.party, ...j.box].find((m) => m.uid === uid) || null; }
+
+/** Can this scroll be taught to this creature? { ok, reason?, needsReplace } */
+function canTeach(j, uid, moveId) {
+  const mv = getMove(moveId);
+  if (!mv || bagCount(j, moveId) <= 0) return { ok: false, reason: 'No such scroll in the bag.', needsReplace: false };
+  const m = bagMember(j, uid);
+  if (!m) return { ok: false, reason: 'No such creature.', needsReplace: false };
+  if (m.moves.includes(moveId)) return { ok: false, reason: `${m.genome.name} already knows ${mv.name}.`, needsReplace: false };
+  return { ok: true, needsReplace: m.moves.length >= 4 };
+}
+
+/** Teach a scroll to a creature, replacing the move at replaceIndex when it already knows four. Consumes the scroll. */
+function teachMove(j, uid, moveId, replaceIndex) {
+  const check = canTeach(j, uid, moveId);
+  if (!check.ok) return check;
+  const m = bagMember(j, uid);
+  let replaced = null;
+  if (check.needsReplace) {
+    if (!(replaceIndex >= 0 && replaceIndex < m.moves.length)) return { ok: false, reason: 'Choose a move to replace.', needsReplace: true };
+    replaced = m.moves[replaceIndex];
+    m.moves[replaceIndex] = moveId;
+  } else m.moves.push(moveId);
+  j.bag[moveId] -= 1;
+  if (j.bag[moveId] <= 0) delete j.bag[moveId];
+  return { ok: true, replaced, needsReplace: check.needsReplace };
+}
+
 // ---- src/game/journey.js ----
 // The journey: the player's state in the overworld and the rules that move it. Pure game
 // logic over a plain `journey` object (party, box, position, badges, beaten trainers, the
 // pending encounter); the UI calls these and persists the result. Members, XP and healing
 // are the shared party helpers in party.js.
+
 
 
 
@@ -11370,6 +11472,7 @@ function newJourney(seed) {
     stats: { steps: 0, battles: 0, captures: 0, fusions: 0, trainers: 0, bosses: 0, wipes: 0 },
     player: { x: world.start.x, y: world.start.y, dir: 'down' },
     badges: [], beaten: {}, camps: [], lastCamp: { x: world.hubCamp.x, y: world.hubCamp.y }, cooldown: 0,
+    gold: 0, bag: {},
     gauntlet: null, champion: false, encounter: null, lastReport: null,
   };
 }
@@ -11396,8 +11499,8 @@ function journeyPlace(j) {
 /**
  * Take one step. Always turns the player; moves when the tile is free. Returns
  * { moved, blocked?: 'wall'|'trainer', trainer?, event? } where event is one of
- * camp (healed), lair (a Warden's door), spire (the Council), shrine (fusion) or
- * encounter (a wild creature is waiting in j.encounter).
+ * camp (healed), lair (a Warden's door), spire (the Council), shrine (fusion), market
+ * (the shop) or encounter (a wild creature is waiting in j.encounter).
  */
 function tryMove(j, dir) {
   const world = worldFor(j.seed);
@@ -11426,6 +11529,7 @@ function tryMove(j, dir) {
   }
   if (tile === TILE.spireDoor) return { moved: true, event: { kind: 'spire', open: j.badges.length >= JOURNEY.badgesForSpire, champion: j.champion } };
   if (tile === TILE.shrine) return { moved: true, event: { kind: 'shrine' } };
+  if (tile === TILE.marketDoor) return { moved: true, event: { kind: 'market' } };
   if (tile === TILE.habitat && j.cooldown <= 0) {
     const rng = makeRng(`${j.seed}:step:${j.stats.steps}`);
     if (rng.chance(WORLD.encounterChance)) {
@@ -11537,7 +11641,7 @@ function applyJourneyBattle(j, state) {
   const capturedBattler = state.captured ? foes.find((f) => f.uid === state.captured) : null;
   const won = state.winner === 0 || Boolean(capturedBattler);
   j.stats.battles++;
-  const report = { won, kind: enc.kind, foe: enc.name, xp: 0, xpGains: [], levelUps: [], learned: [], captured: null, toBox: false, badge: null, champion: false, nextStage: null, wiped: false, alpha: Boolean(enc.alpha) };
+  const report = { won, kind: enc.kind, foe: enc.name, xp: 0, gold: 0, xpGains: [], levelUps: [], learned: [], captured: null, toBox: false, badge: null, champion: false, nextStage: null, wiped: false, alpha: Boolean(enc.alpha) };
   if (!won) {
     if (!canFight(j)) { report.wiped = true; j.stats.wipes++; respawnJourney(j); }
     else { j.encounter = null; j.gauntlet = null; j.cooldown = WORLD.encounterCooldown; }
@@ -11565,6 +11669,12 @@ function applyJourneyBattle(j, state) {
     j.stats.captures++;
     report.captured = nm;
     report.toBox = !j.party.includes(nm);
+  }
+  // trainers pay gold: by team size and average level, double for Wardens and the Council, a quarter on rematches
+  if (enc.kind !== 'wild') {
+    const rematch = enc.kind === 'boss' ? j.badges.includes(enc.biome) : enc.kind === 'council' ? j.champion : false;
+    report.gold = goldReward(enc.foes, enc.kind, rematch);
+    j.gold = (j.gold || 0) + report.gold;
   }
   if (enc.kind === 'trainer') { j.beaten[enc.trainerId] = true; j.stats.trainers++; }
   if (enc.kind === 'boss') { j.stats.bosses++; if (!j.badges.includes(enc.biome)) { j.badges.push(enc.biome); report.badge = enc.badge; } }
@@ -11634,6 +11744,8 @@ function partyHealth(j) {
 // tap on the ground; wild encounters on habitat tiles, trainers who fight when asked,
 // Wardens in their lairs, the Council Spire, camps that heal and a shrine that fuses.
 // Fights hand off to the shared fight view and come back to the same spot.
+
+
 
 
 
@@ -11740,7 +11852,7 @@ function owReportCard(j) {
   if (r.wiped) lines.push(`Your party was overwhelmed by ${r.foe}. You come to at the last camp, rested.`);
   else if (!r.won) lines.push(`${r.foe} got away.`);
   else {
-    lines.push(`Beat ${r.foe}. +${r.xp} XP each.`);
+    lines.push(`Beat ${r.foe}. +${r.xp} XP each${r.gold ? `, +${r.gold.toLocaleString()} gold` : ''}.`);
     for (const l of r.levelUps) { lines.push(`${l.name} grew to Lv ${l.to}!`); if (stageOf(l.to) > stageOf(l.from)) lines.push(`${l.name} evolved! ${stageName(stageOf(l.to))}.`); }
     for (const l of r.learned || []) { const mv = getMove(l.move); lines.push(`${l.name} learned ${mv ? mv.name : l.move}!`); }
     if (r.captured) lines.push(`${r.captured.genome.name} joined ${r.toBox ? 'the box' : 'the party'}.`);
@@ -11771,8 +11883,10 @@ function owHud(j) {
   return h('div', { class: 'ow-hud' },
     h('div', { class: 'ow-place' }, h('b', {}, place.name), h('span', {}, place.level ? `wild Lv ${place.level}` : j.champion ? 'Champion' : `${j.badges.length}/7 badges`)),
     badges,
+    h('span', { class: 'ow-gold', title: 'Gold' }, `◆ ${(j.gold || 0).toLocaleString()}`),
     h('div', { class: 'ow-tools' },
       h('button', { class: 'btn small', type: 'button', onclick: () => owPartySheet(j) }, 'Party'),
+      h('button', { class: 'btn small', type: 'button', onclick: () => owBagSheet(j) }, 'Bag'),
       h('button', { class: 'btn small', type: 'button', onclick: () => owMapSheet(j) }, 'Map'),
       h('button', { class: 'btn small', type: 'button', onclick: () => owMenuSheet(j) }, 'Menu')));
 }
@@ -11890,6 +12004,7 @@ function owAfterStep(event) {
   if (event.kind === 'lair') { owLairDialog(event); return; }
   if (event.kind === 'spire') { owSpireDialog(event); return; }
   if (event.kind === 'shrine') { owShrineSheet(j); return; }
+  if (event.kind === 'market') { owMarketSheet(j); return; }
 }
 
 function owRefreshHud() {
@@ -11909,6 +12024,7 @@ function owInteract() {
   if (here === TILE.door) { const b = biomeAt(world, j.player.x, j.player.y); owLairDialog({ biome: b.id, warden: world.wardens[b.clade], owned: j.badges.includes(b.id) }); return; }
   if (here === TILE.spireDoor) { owSpireDialog({ open: j.badges.length >= JOURNEY.badgesForSpire, champion: j.champion }); return; }
   if (here === TILE.shrine) { owShrineSheet(j); return; }
+  if (here === TILE.marketDoor) { owMarketSheet(j); return; }
   if (here === TILE.camp) { toast('The fire is warm. Your party is rested.'); return; }
   const ht = habitatTypeAt(world, f.x, f.y);
   if (tileAt(world, f.x, f.y) === TILE.habitat && ht) { toast(`${ht}-type creatures live in this ${biomeAt(world, f.x, f.y).name.toLowerCase()} patch.`); return; }
@@ -12082,10 +12198,11 @@ function owMapSheet(j) {
   const dot = (p, color, rad) => { ctx.fillStyle = color; ctx.beginPath(); ctx.arc(p.x * S + S / 2, p.y * S + S / 2, rad, 0, Math.PI * 2); ctx.fill(); };
   for (const b of world.biomes) { dot(b.camp, '#ffffff', 4); dot(b.lair, j.badges.includes(b.id) ? '#ffd166' : '#ff5a5a', 5); }
   dot(world.spireDoor, '#b98cff', 5);
+  dot(world.marketDoor, '#7fe38a', 5);
   for (const t of world.trainers) dot({ x: t.x, y: t.y }, j.beaten[t.id] ? '#8f96a8' : '#4f8ef7', 2.5);
   dot(j.player, '#f5c518', 6); ctx.strokeStyle = '#000'; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.arc(j.player.x * S + S / 2, j.player.y * S + S / 2, 6, 0, Math.PI * 2); ctx.stroke();
   const legend = h('div', { class: 'ow-legend' }, world.biomes.map((b) => h('div', {}, h('i', { style: { background: REGIONS[b.clade].ground } }), `${b.name} · to Lv ${b.level}${j.badges.includes(b.id) ? ' · badge ✓' : ''}`)));
-  owSheet('World map', h('div', {}, c, legend, h('p', { class: 'hint', style: { marginTop: '8px' } }, 'You are the gold dot. White: camps. Red: Wardens (gold once beaten). Blue: trainers. Purple: the Council Spire.')));
+  owSheet('World map', h('div', {}, c, legend, h('p', { class: 'hint', style: { marginTop: '8px' } }, 'You are the gold dot. White: camps. Red: Wardens (gold once beaten). Blue: trainers. Purple: the Council Spire. Green: the Market.')));
 }
 
 function owMenuSheet(j) {
@@ -12110,6 +12227,93 @@ function owMenuSheet(j) {
   };
   render();
   const sheetRef = owSheet('Menu', body);
+}
+
+/** A move's name with its type, damage type and power, accuracy and PP, plus an optional tag. */
+function owMoveInfo(move, tag) {
+  const dt = DAMAGE_TYPES[move.cat];
+  return h('div', { class: 'shop-info' }, h('b', {}, move.name),
+    h('div', { class: 'shop-meta' },
+      h('span', { class: 'chip', style: { '--chip': TYPE_INFO[move.type].color } }, move.type),
+      h('span', { class: 'chip dt-chip', style: { '--chip': dt ? dt.color : '#9aa0b4' } }, dt ? `${dt.name}${move.power ? ` ${move.power}` : ''}` : 'Status'),
+      h('span', {}, `${move.acc == null ? 'never misses' : `${move.acc}% acc`} · ${move.pp} PP`),
+      tag ? h('span', { class: 'shop-tag' }, tag) : null));
+}
+
+/** The Bag: move scrolls, each taught once to any creature. */
+function owBagSheet(j) {
+  const body = h('div');
+  let teaching = null;
+  const render = () => {
+    clear(body);
+    const items = bagList(j);
+    if (teaching) { body.append(owTeachPanel(j, teaching, () => { teaching = null; render(); })); return; }
+    body.append(h('p', { class: 'hint' }, `◆ ${(j.gold || 0).toLocaleString()} gold. ${items.length ? 'A scroll teaches its move to one creature and is used up. Any creature can learn any move.' : 'The bag is empty. The Market at the Crossroads sells move scrolls.'}`));
+    const list = h('div', { class: 'shop-list' });
+    for (const { move, qty } of items) list.append(h('div', { class: 'shop-row' }, owMoveInfo(move, `×${qty}`), h('button', { class: 'btn small primary', type: 'button', onclick: () => { teaching = { moveId: move.id, uid: null }; render(); } }, 'Teach')));
+    body.append(list);
+  };
+  render();
+  owSheet('Bag', body, () => owRefreshHud());
+}
+
+/** Pick a creature for a scroll, then (with four moves) the move it replaces. */
+function owTeachPanel(j, teaching, back) {
+  const move = getMove(teaching.moveId);
+  const panel = h('div');
+  const render = () => {
+    clear(panel);
+    panel.append(h('div', { class: 'row', style: { justifyContent: 'flex-start' } }, h('button', { class: 'btn small', type: 'button', onclick: back }, '‹ Bag'), h('span', { class: 'hint', style: { margin: 0 } }, `Teach ${move.name} to…`)));
+    const done = (uid, index) => {
+      const m = [...j.party, ...j.box].find((x) => x.uid === uid);
+      const r = teachMove(j, uid, move.id, index);
+      if (!r.ok) { toast(r.reason); return; }
+      owSave(); sfx.levelUp();
+      toast(`${m.genome.name} learned ${move.name}!${r.replaced ? ` (forgot ${getMove(r.replaced).name})` : ''}`);
+      back();
+    };
+    for (const m of [...j.party, ...j.box]) {
+      const c = canTeach(j, m.uid, move.id);
+      const picked = teaching.uid === m.uid;
+      panel.append(h('div', { class: 'teach-row' }, creatureEl(m.genome, { size: 44, animate: false, level: m.level }),
+        h('div', {}, h('b', {}, m.genome.name), ' ', h('span', { class: 'lvl' }, `Lv ${m.level}`),
+          h('div', { class: 'move-chips' }, m.moves.map((id) => { const mv = getMove(id); return mv ? h('span', { class: 'chip', style: { '--chip': TYPE_INFO[mv.type].color } }, mv.name) : null; }))),
+        h('button', { class: 'btn small', type: 'button', disabled: !c.ok, title: c.ok ? '' : c.reason, onclick: () => { if (!c.needsReplace) done(m.uid, null); else { teaching.uid = picked ? null : m.uid; render(); } } }, c.ok ? (c.needsReplace ? (picked ? 'Cancel' : 'Replace…') : 'Teach') : 'Knows it')));
+      if (picked && c.ok && c.needsReplace) {
+        panel.append(h('div', { class: 'moves' }, m.moves.map((id, i) => { const mv = getMove(id); return h('button', { class: 'move-btn', type: 'button', style: { '--chip': TYPE_INFO[mv.type].color }, onclick: () => done(m.uid, i) }, h('span', { class: 'mv-name' }, `Forget ${mv.name}`), h('span', { class: 'mv-meta' }, `${mv.type}${mv.power ? ` · ${mv.power}` : ''}`)); })));
+      }
+    }
+  };
+  render();
+  return panel;
+}
+
+/** The Market: every move as a single-use scroll, priced by power. */
+function owMarketSheet(j) {
+  const body = h('div');
+  let filter = 'All';
+  const catalogue = marketCatalogue();
+  const render = () => {
+    clear(body);
+    const chips = h('div', { class: 'type-filter' }, ['All', ...TYPE_LIST].map((t) => h('button', { class: `btn small${filter === t ? ' on' : ''}`, type: 'button', style: t !== 'All' ? { '--chip': TYPE_INFO[t].color } : null, onclick: () => { filter = t; render(); } }, t)));
+    const list = h('div', { class: 'shop-list' });
+    for (const { move, cost } of catalogue) {
+      if (filter !== 'All' && move.type !== filter) continue;
+      const owned = bagCount(j, move.id);
+      list.append(h('div', { class: 'shop-row' }, owMoveInfo(move, owned ? `in bag ×${owned}` : ''),
+        h('button', { class: `btn small${(j.gold || 0) >= cost ? ' primary' : ''}`, type: 'button', disabled: (j.gold || 0) < cost, onclick: () => {
+          const r = buyMove(j, move.id);
+          if (!r.ok) { toast(r.reason); return; }
+          owSave(); sfx.heal(); toast(`Bought ${move.name} for ${cost.toLocaleString()} gold`); render();
+        } }, `${cost.toLocaleString()} ◆`)));
+    }
+    appendChildren(body, [
+      h('p', { class: 'hint' }, `◆ ${(j.gold || 0).toLocaleString()} gold. Every move is sold as a single-use scroll and goes to your Bag; prices rise with power in steps of 1000. Trainers pay gold when beaten.`),
+      chips, list,
+    ]);
+  };
+  render();
+  owSheet('Market', body, () => owRefreshHud());
 }
 
 /** Grid of everything caught, chosen or fused, newest first. */
@@ -12258,7 +12462,7 @@ function owDraw(ts) {
       else if (t === TILE.path || t === TILE.door) ground = region.path;
       else if (t === TILE.water) ground = region.water;
       else if (t === TILE.habitat) ground = region.habitat;
-      else if (t === TILE.lair || t === TILE.spire) ground = '#2a2731';
+      else if (t === TILE.lair || t === TILE.spire || t === TILE.market) ground = '#2a2731';
       ctx.fillStyle = ground; ctx.fillRect(px, py, T + 0.5, T + 0.5);
       if (t === TILE.grass && hsh > 0.6) { ctx.strokeStyle = 'rgba(0,0,0,.12)'; ctx.lineWidth = 1.5 * s; ctx.beginPath(); ctx.moveTo(px + T * 0.3, py + T * 0.7); ctx.lineTo(px + T * 0.35, py + T * 0.5); ctx.moveTo(px + T * 0.62, py + T * 0.6); ctx.lineTo(px + T * 0.66, py + T * 0.42); ctx.stroke(); }
       else if (t === TILE.habitat) {
@@ -12278,7 +12482,7 @@ function owDraw(ts) {
       } else if (t === TILE.shrine) {
         ctx.fillStyle = '#f5c518'; ctx.beginPath(); ctx.moveTo(px + T / 2, py + T * 0.12); ctx.lineTo(px + T * 0.78, py + T / 2); ctx.lineTo(px + T / 2, py + T * 0.88); ctx.lineTo(px + T * 0.22, py + T / 2); ctx.closePath(); ctx.fill();
         ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(px + T / 2, py + T / 2, T * 0.1, 0, Math.PI * 2); ctx.fill();
-      } else if (t === TILE.door || t === TILE.spireDoor) { ctx.fillStyle = 'rgba(0,0,0,.25)'; ctx.fillRect(px + T * 0.2, py + T * 0.3, T * 0.6, T * 0.4); }
+      } else if (t === TILE.door || t === TILE.spireDoor || t === TILE.marketDoor) { ctx.fillStyle = 'rgba(0,0,0,.25)'; ctx.fillRect(px + T * 0.2, py + T * 0.3, T * 0.6, T * 0.4); }
       if (t === TILE.lair || t === TILE.spire) deferred.push({ x, y, t, region, px, py });
     }
   }
@@ -12308,6 +12512,19 @@ function owDraw(ts) {
       ctx.fillStyle = '#b98cff'; ctx.beginPath(); ctx.moveTo(sx + T * 0.7, sy - T * 1.6); ctx.lineTo(sx + 1.5 * T, sy - T * 2.6); ctx.lineTo(sx + T * 2.3, sy - T * 1.6); ctx.closePath(); ctx.fill();
       const glow = 0.5 + 0.5 * Math.sin(ts / 600); ctx.fillStyle = `rgba(255,241,168,${0.5 + glow * 0.5})`; ctx.beginPath(); ctx.arc(sx + 1.5 * T, sy - T * 2.5, 3 * s, 0, Math.PI * 2); ctx.fill();
       for (let k = 0; k < 3; k++) { ctx.fillStyle = '#ffe9a8'; ctx.fillRect(sx + T * (0.5 + k * 0.9), sy + T * 0.3, 5 * s, 8 * s); }
+    }
+  }
+  {
+    // the Market: a timber shop with a striped awning over the square-side door and a coin sign
+    const m = world.market, mx = (m.x - 1) * T - cam.x, my = m.y * T - cam.y, W = 3 * T, H = 2 * T;
+    if (mx + W > 0 && mx < ow.cssW && my + H + T > 0 && my < ow.cssH) {
+      ctx.fillStyle = '#7a5230'; ctx.fillRect(mx + 2 * s, my + 2 * s, W - 4 * s, H - 2 * s);
+      ctx.fillStyle = '#5b3a22'; ctx.fillRect(mx + 2 * s, my + 2 * s, W - 4 * s, T * 0.5);
+      for (let k = 0; k < 6; k++) { ctx.fillStyle = k % 2 ? '#f4e7c9' : '#d94f4f'; ctx.fillRect(mx + (W * k) / 6, my + H - T * 0.45, W / 6 + 0.5, T * 0.55); }
+      ctx.fillStyle = 'rgba(0,0,0,.25)'; ctx.fillRect(mx, my + H + T * 0.1, W, 3 * s);
+      ctx.fillStyle = '#ffe9a8'; ctx.fillRect(mx + T * 0.45, my + T * 0.75, 7 * s, 8 * s); ctx.fillRect(mx + W - T * 0.45 - 7 * s, my + T * 0.75, 7 * s, 8 * s);
+      ctx.fillStyle = '#f5c518'; ctx.beginPath(); ctx.arc(mx + W / 2, my + T * 0.3, T * 0.22, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = '#7a5230'; ctx.font = `bold ${Math.round(T * 0.3)}px system-ui, sans-serif`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText('◆', mx + W / 2, my + T * 0.31);
     }
   }
   // tap target

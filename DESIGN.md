@@ -662,11 +662,23 @@ into the collection on load.
   Selene (ranged), Oracle Vesh (magic) and Champion Aurel (two gen-2 fusions
   and three rares). Only a 35% heal between fights; a loss ends the run and
   the wipe rule applies. Beating all four sets `champion`; rematches allowed.
+- **Gold, Market and Bag** (`src/game/market.js`). Trainers pay gold when
+  beaten: 30 per creature per level of their team's average, double for
+  Wardens and the Council, a quarter on rematches, rounded to tens (a first
+  biome's four trainers pay about 1,300 together; a late Warden pays over
+  15,000). Wild fights pay nothing. The Market, a shop on the hub's north-east
+  edge, sells every move as a single-use scroll priced by power in steps of
+  1,000 (`moveCost`: 1,000 up to 40 power, 2,000 at 60, 3,000 at 70–80, 4,000
+  at 85–100, 5,000 at 120, 6,000 at 130; status moves 1,000), filterable by
+  type. Scrolls stack in the Bag (`journey.bag`, up to 99 each); teaching one
+  to any creature, party or box, adds the move or replaces a chosen one when it
+  already knows four, and uses the scroll up. Gold and the bag are saved and
+  normalised with the journey.
 - **Wipe.** When nobody can fight after a loss the party returns to the last
   camp at full health (`respawnJourney`). No other penalty.
 - **Journey state.** `{ seed, phase: starter|roam|champion, party, box,
   player {x,y,dir}, badges, beaten, camps, lastCamp, cooldown, gauntlet,
-  encounter, stats }`. Members, XP, level-ups, move learning and healing are
+  encounter, stats, gold, bag }`. Members, XP, level-ups, move learning and healing are
   the shared party helpers in `src/game/party.js`. Saved as
   `save.journey` and normalised on load like the run.
 - **UI.** Canvas map with a camera on the player (28 px tiles on phones, 36
@@ -677,7 +689,7 @@ into the collection on load.
   "!" when adjacent; the player walks with a bob. Controls: arrows/WASD, an
   on-screen pad (hold to keep walking), tap the ground to path there (BFS,
   stops on any event) and A / Space to talk. HUD shows the place, its wild
-  level, seven badge dots and Party / Map / Menu sheets (party and box
+  level, seven badge dots, gold and Party / Bag / Map / Menu sheets (party and box
   management with the learn-move prompt, a minimap with camps, lairs, trainers
   and the spire, fast battles, return to camp, export/import, abandon). An
   encounter shows a card with the foes and Fight / Run before the fight view.

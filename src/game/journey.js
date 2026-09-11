@@ -9,6 +9,7 @@ import { fuse, canFuse } from '../creature/fusion.js';
 import { createBattle, makeBattler } from '../battle/engine.js';
 import { PARTY, makeMember, gainXp, healParty, xpProgress, xpReward, memberMaxHp, canFight } from './party.js';
 import { WORLD, TILE, REGIONS, BIOME_ORDER, worldFor, tileAt, biomeAt, trainerAt, isWalkable, inBounds, wildSpawn, levelAt } from './world.js';
+import { goldReward } from './market.js';
 
 export const JOURNEY = { starterLevel: PARTY.starterLevel, maxLevel: PARTY.maxLevel, partyMax: PARTY.max, gauntletHeal: 0.35, badgesForSpire: BIOME_ORDER.length, councilFights: 4 };
 export const DIRS = { up: [0, -1], down: [0, 1], left: [-1, 0], right: [1, 0] };
@@ -31,6 +32,7 @@ export function newJourney(seed) {
     stats: { steps: 0, battles: 0, captures: 0, fusions: 0, trainers: 0, bosses: 0, wipes: 0 },
     player: { x: world.start.x, y: world.start.y, dir: 'down' },
     badges: [], beaten: {}, camps: [], lastCamp: { x: world.hubCamp.x, y: world.hubCamp.y }, cooldown: 0,
+    gold: 0, bag: {},
     gauntlet: null, champion: false, encounter: null, lastReport: null,
   };
 }
@@ -57,8 +59,8 @@ export function journeyPlace(j) {
 /**
  * Take one step. Always turns the player; moves when the tile is free. Returns
  * { moved, blocked?: 'wall'|'trainer', trainer?, event? } where event is one of
- * camp (healed), lair (a Warden's door), spire (the Council), shrine (fusion) or
- * encounter (a wild creature is waiting in j.encounter).
+ * camp (healed), lair (a Warden's door), spire (the Council), shrine (fusion), market
+ * (the shop) or encounter (a wild creature is waiting in j.encounter).
  */
 export function tryMove(j, dir) {
   const world = worldFor(j.seed);
@@ -87,6 +89,7 @@ export function tryMove(j, dir) {
   }
   if (tile === TILE.spireDoor) return { moved: true, event: { kind: 'spire', open: j.badges.length >= JOURNEY.badgesForSpire, champion: j.champion } };
   if (tile === TILE.shrine) return { moved: true, event: { kind: 'shrine' } };
+  if (tile === TILE.marketDoor) return { moved: true, event: { kind: 'market' } };
   if (tile === TILE.habitat && j.cooldown <= 0) {
     const rng = makeRng(`${j.seed}:step:${j.stats.steps}`);
     if (rng.chance(WORLD.encounterChance)) {
@@ -198,7 +201,7 @@ export function applyJourneyBattle(j, state) {
   const capturedBattler = state.captured ? foes.find((f) => f.uid === state.captured) : null;
   const won = state.winner === 0 || Boolean(capturedBattler);
   j.stats.battles++;
-  const report = { won, kind: enc.kind, foe: enc.name, xp: 0, xpGains: [], levelUps: [], learned: [], captured: null, toBox: false, badge: null, champion: false, nextStage: null, wiped: false, alpha: Boolean(enc.alpha) };
+  const report = { won, kind: enc.kind, foe: enc.name, xp: 0, gold: 0, xpGains: [], levelUps: [], learned: [], captured: null, toBox: false, badge: null, champion: false, nextStage: null, wiped: false, alpha: Boolean(enc.alpha) };
   if (!won) {
     if (!canFight(j)) { report.wiped = true; j.stats.wipes++; respawnJourney(j); }
     else { j.encounter = null; j.gauntlet = null; j.cooldown = WORLD.encounterCooldown; }
@@ -226,6 +229,12 @@ export function applyJourneyBattle(j, state) {
     j.stats.captures++;
     report.captured = nm;
     report.toBox = !j.party.includes(nm);
+  }
+  // trainers pay gold: by team size and average level, double for Wardens and the Council, a quarter on rematches
+  if (enc.kind !== 'wild') {
+    const rematch = enc.kind === 'boss' ? j.badges.includes(enc.biome) : enc.kind === 'council' ? j.champion : false;
+    report.gold = goldReward(enc.foes, enc.kind, rematch);
+    j.gold = (j.gold || 0) + report.gold;
   }
   if (enc.kind === 'trainer') { j.beaten[enc.trainerId] = true; j.stats.trainers++; }
   if (enc.kind === 'boss') { j.stats.bosses++; if (!j.badges.includes(enc.biome)) { j.badges.push(enc.biome); report.badge = enc.badge; } }

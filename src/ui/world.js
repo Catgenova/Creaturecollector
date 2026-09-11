@@ -13,7 +13,9 @@ import { loadSave, persistSave, exportSave, importSave, recordCollection, retire
 import { memberMaxHp, xpProgress, learnMove, moveMember, setLead, canFight } from '../game/party.js';
 import { JOURNEY, newJourney, chooseJourneyStarter, tryMove, facing, talkTo, acceptChallenge, challengeWarden, enterSpire, fleeEncounter, buildJourneyBattle, applyJourneyBattle, journeyPlace, badgeList, canFuseJourney, previewShrineFusion, shrineFuse, respawnJourney } from '../game/journey.js';
 import { WORLD, TILE, REGIONS, HUB, worldFor, tileAt, biomeAt, habitatTypeAt, trainerAt, findPath, isHubTile } from '../game/world.js';
-import { TYPE_INFO } from '../data/types.js';
+import { TYPE_INFO, TYPE_LIST } from '../data/types.js';
+import { DAMAGE_TYPES } from '../data/damage.js';
+import { marketCatalogue, buyMove, bagList, bagCount, canTeach, teachMove } from '../game/market.js';
 import { getMove } from '../data/moves.js';
 import { cladeName } from '../data/clades.js';
 import { cladeOf, elementalOf } from '../creature/genome.js';
@@ -108,7 +110,7 @@ function owReportCard(j) {
   if (r.wiped) lines.push(`Your party was overwhelmed by ${r.foe}. You come to at the last camp, rested.`);
   else if (!r.won) lines.push(`${r.foe} got away.`);
   else {
-    lines.push(`Beat ${r.foe}. +${r.xp} XP each.`);
+    lines.push(`Beat ${r.foe}. +${r.xp} XP each${r.gold ? `, +${r.gold.toLocaleString()} gold` : ''}.`);
     for (const l of r.levelUps) { lines.push(`${l.name} grew to Lv ${l.to}!`); if (stageOf(l.to) > stageOf(l.from)) lines.push(`${l.name} evolved! ${stageName(stageOf(l.to))}.`); }
     for (const l of r.learned || []) { const mv = getMove(l.move); lines.push(`${l.name} learned ${mv ? mv.name : l.move}!`); }
     if (r.captured) lines.push(`${r.captured.genome.name} joined ${r.toBox ? 'the box' : 'the party'}.`);
@@ -139,8 +141,10 @@ function owHud(j) {
   return h('div', { class: 'ow-hud' },
     h('div', { class: 'ow-place' }, h('b', {}, place.name), h('span', {}, place.level ? `wild Lv ${place.level}` : j.champion ? 'Champion' : `${j.badges.length}/7 badges`)),
     badges,
+    h('span', { class: 'ow-gold', title: 'Gold' }, `◆ ${(j.gold || 0).toLocaleString()}`),
     h('div', { class: 'ow-tools' },
       h('button', { class: 'btn small', type: 'button', onclick: () => owPartySheet(j) }, 'Party'),
+      h('button', { class: 'btn small', type: 'button', onclick: () => owBagSheet(j) }, 'Bag'),
       h('button', { class: 'btn small', type: 'button', onclick: () => owMapSheet(j) }, 'Map'),
       h('button', { class: 'btn small', type: 'button', onclick: () => owMenuSheet(j) }, 'Menu')));
 }
@@ -258,6 +262,7 @@ function owAfterStep(event) {
   if (event.kind === 'lair') { owLairDialog(event); return; }
   if (event.kind === 'spire') { owSpireDialog(event); return; }
   if (event.kind === 'shrine') { owShrineSheet(j); return; }
+  if (event.kind === 'market') { owMarketSheet(j); return; }
 }
 
 function owRefreshHud() {
@@ -277,6 +282,7 @@ function owInteract() {
   if (here === TILE.door) { const b = biomeAt(world, j.player.x, j.player.y); owLairDialog({ biome: b.id, warden: world.wardens[b.clade], owned: j.badges.includes(b.id) }); return; }
   if (here === TILE.spireDoor) { owSpireDialog({ open: j.badges.length >= JOURNEY.badgesForSpire, champion: j.champion }); return; }
   if (here === TILE.shrine) { owShrineSheet(j); return; }
+  if (here === TILE.marketDoor) { owMarketSheet(j); return; }
   if (here === TILE.camp) { toast('The fire is warm. Your party is rested.'); return; }
   const ht = habitatTypeAt(world, f.x, f.y);
   if (tileAt(world, f.x, f.y) === TILE.habitat && ht) { toast(`${ht}-type creatures live in this ${biomeAt(world, f.x, f.y).name.toLowerCase()} patch.`); return; }
@@ -450,10 +456,11 @@ function owMapSheet(j) {
   const dot = (p, color, rad) => { ctx.fillStyle = color; ctx.beginPath(); ctx.arc(p.x * S + S / 2, p.y * S + S / 2, rad, 0, Math.PI * 2); ctx.fill(); };
   for (const b of world.biomes) { dot(b.camp, '#ffffff', 4); dot(b.lair, j.badges.includes(b.id) ? '#ffd166' : '#ff5a5a', 5); }
   dot(world.spireDoor, '#b98cff', 5);
+  dot(world.marketDoor, '#7fe38a', 5);
   for (const t of world.trainers) dot({ x: t.x, y: t.y }, j.beaten[t.id] ? '#8f96a8' : '#4f8ef7', 2.5);
   dot(j.player, '#f5c518', 6); ctx.strokeStyle = '#000'; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.arc(j.player.x * S + S / 2, j.player.y * S + S / 2, 6, 0, Math.PI * 2); ctx.stroke();
   const legend = h('div', { class: 'ow-legend' }, world.biomes.map((b) => h('div', {}, h('i', { style: { background: REGIONS[b.clade].ground } }), `${b.name} · to Lv ${b.level}${j.badges.includes(b.id) ? ' · badge ✓' : ''}`)));
-  owSheet('World map', h('div', {}, c, legend, h('p', { class: 'hint', style: { marginTop: '8px' } }, 'You are the gold dot. White: camps. Red: Wardens (gold once beaten). Blue: trainers. Purple: the Council Spire.')));
+  owSheet('World map', h('div', {}, c, legend, h('p', { class: 'hint', style: { marginTop: '8px' } }, 'You are the gold dot. White: camps. Red: Wardens (gold once beaten). Blue: trainers. Purple: the Council Spire. Green: the Market.')));
 }
 
 function owMenuSheet(j) {
@@ -478,6 +485,93 @@ function owMenuSheet(j) {
   };
   render();
   const sheetRef = owSheet('Menu', body);
+}
+
+/** A move's name with its type, damage type and power, accuracy and PP, plus an optional tag. */
+function owMoveInfo(move, tag) {
+  const dt = DAMAGE_TYPES[move.cat];
+  return h('div', { class: 'shop-info' }, h('b', {}, move.name),
+    h('div', { class: 'shop-meta' },
+      h('span', { class: 'chip', style: { '--chip': TYPE_INFO[move.type].color } }, move.type),
+      h('span', { class: 'chip dt-chip', style: { '--chip': dt ? dt.color : '#9aa0b4' } }, dt ? `${dt.name}${move.power ? ` ${move.power}` : ''}` : 'Status'),
+      h('span', {}, `${move.acc == null ? 'never misses' : `${move.acc}% acc`} · ${move.pp} PP`),
+      tag ? h('span', { class: 'shop-tag' }, tag) : null));
+}
+
+/** The Bag: move scrolls, each taught once to any creature. */
+function owBagSheet(j) {
+  const body = h('div');
+  let teaching = null;
+  const render = () => {
+    clear(body);
+    const items = bagList(j);
+    if (teaching) { body.append(owTeachPanel(j, teaching, () => { teaching = null; render(); })); return; }
+    body.append(h('p', { class: 'hint' }, `◆ ${(j.gold || 0).toLocaleString()} gold. ${items.length ? 'A scroll teaches its move to one creature and is used up. Any creature can learn any move.' : 'The bag is empty. The Market at the Crossroads sells move scrolls.'}`));
+    const list = h('div', { class: 'shop-list' });
+    for (const { move, qty } of items) list.append(h('div', { class: 'shop-row' }, owMoveInfo(move, `×${qty}`), h('button', { class: 'btn small primary', type: 'button', onclick: () => { teaching = { moveId: move.id, uid: null }; render(); } }, 'Teach')));
+    body.append(list);
+  };
+  render();
+  owSheet('Bag', body, () => owRefreshHud());
+}
+
+/** Pick a creature for a scroll, then (with four moves) the move it replaces. */
+function owTeachPanel(j, teaching, back) {
+  const move = getMove(teaching.moveId);
+  const panel = h('div');
+  const render = () => {
+    clear(panel);
+    panel.append(h('div', { class: 'row', style: { justifyContent: 'flex-start' } }, h('button', { class: 'btn small', type: 'button', onclick: back }, '‹ Bag'), h('span', { class: 'hint', style: { margin: 0 } }, `Teach ${move.name} to…`)));
+    const done = (uid, index) => {
+      const m = [...j.party, ...j.box].find((x) => x.uid === uid);
+      const r = teachMove(j, uid, move.id, index);
+      if (!r.ok) { toast(r.reason); return; }
+      owSave(); sfx.levelUp();
+      toast(`${m.genome.name} learned ${move.name}!${r.replaced ? ` (forgot ${getMove(r.replaced).name})` : ''}`);
+      back();
+    };
+    for (const m of [...j.party, ...j.box]) {
+      const c = canTeach(j, m.uid, move.id);
+      const picked = teaching.uid === m.uid;
+      panel.append(h('div', { class: 'teach-row' }, creatureEl(m.genome, { size: 44, animate: false, level: m.level }),
+        h('div', {}, h('b', {}, m.genome.name), ' ', h('span', { class: 'lvl' }, `Lv ${m.level}`),
+          h('div', { class: 'move-chips' }, m.moves.map((id) => { const mv = getMove(id); return mv ? h('span', { class: 'chip', style: { '--chip': TYPE_INFO[mv.type].color } }, mv.name) : null; }))),
+        h('button', { class: 'btn small', type: 'button', disabled: !c.ok, title: c.ok ? '' : c.reason, onclick: () => { if (!c.needsReplace) done(m.uid, null); else { teaching.uid = picked ? null : m.uid; render(); } } }, c.ok ? (c.needsReplace ? (picked ? 'Cancel' : 'Replace…') : 'Teach') : 'Knows it')));
+      if (picked && c.ok && c.needsReplace) {
+        panel.append(h('div', { class: 'moves' }, m.moves.map((id, i) => { const mv = getMove(id); return h('button', { class: 'move-btn', type: 'button', style: { '--chip': TYPE_INFO[mv.type].color }, onclick: () => done(m.uid, i) }, h('span', { class: 'mv-name' }, `Forget ${mv.name}`), h('span', { class: 'mv-meta' }, `${mv.type}${mv.power ? ` · ${mv.power}` : ''}`)); })));
+      }
+    }
+  };
+  render();
+  return panel;
+}
+
+/** The Market: every move as a single-use scroll, priced by power. */
+function owMarketSheet(j) {
+  const body = h('div');
+  let filter = 'All';
+  const catalogue = marketCatalogue();
+  const render = () => {
+    clear(body);
+    const chips = h('div', { class: 'type-filter' }, ['All', ...TYPE_LIST].map((t) => h('button', { class: `btn small${filter === t ? ' on' : ''}`, type: 'button', style: t !== 'All' ? { '--chip': TYPE_INFO[t].color } : null, onclick: () => { filter = t; render(); } }, t)));
+    const list = h('div', { class: 'shop-list' });
+    for (const { move, cost } of catalogue) {
+      if (filter !== 'All' && move.type !== filter) continue;
+      const owned = bagCount(j, move.id);
+      list.append(h('div', { class: 'shop-row' }, owMoveInfo(move, owned ? `in bag ×${owned}` : ''),
+        h('button', { class: `btn small${(j.gold || 0) >= cost ? ' primary' : ''}`, type: 'button', disabled: (j.gold || 0) < cost, onclick: () => {
+          const r = buyMove(j, move.id);
+          if (!r.ok) { toast(r.reason); return; }
+          owSave(); sfx.heal(); toast(`Bought ${move.name} for ${cost.toLocaleString()} gold`); render();
+        } }, `${cost.toLocaleString()} ◆`)));
+    }
+    appendChildren(body, [
+      h('p', { class: 'hint' }, `◆ ${(j.gold || 0).toLocaleString()} gold. Every move is sold as a single-use scroll and goes to your Bag; prices rise with power in steps of 1000. Trainers pay gold when beaten.`),
+      chips, list,
+    ]);
+  };
+  render();
+  owSheet('Market', body, () => owRefreshHud());
 }
 
 /** Grid of everything caught, chosen or fused, newest first. */
@@ -626,7 +720,7 @@ function owDraw(ts) {
       else if (t === TILE.path || t === TILE.door) ground = region.path;
       else if (t === TILE.water) ground = region.water;
       else if (t === TILE.habitat) ground = region.habitat;
-      else if (t === TILE.lair || t === TILE.spire) ground = '#2a2731';
+      else if (t === TILE.lair || t === TILE.spire || t === TILE.market) ground = '#2a2731';
       ctx.fillStyle = ground; ctx.fillRect(px, py, T + 0.5, T + 0.5);
       if (t === TILE.grass && hsh > 0.6) { ctx.strokeStyle = 'rgba(0,0,0,.12)'; ctx.lineWidth = 1.5 * s; ctx.beginPath(); ctx.moveTo(px + T * 0.3, py + T * 0.7); ctx.lineTo(px + T * 0.35, py + T * 0.5); ctx.moveTo(px + T * 0.62, py + T * 0.6); ctx.lineTo(px + T * 0.66, py + T * 0.42); ctx.stroke(); }
       else if (t === TILE.habitat) {
@@ -646,7 +740,7 @@ function owDraw(ts) {
       } else if (t === TILE.shrine) {
         ctx.fillStyle = '#f5c518'; ctx.beginPath(); ctx.moveTo(px + T / 2, py + T * 0.12); ctx.lineTo(px + T * 0.78, py + T / 2); ctx.lineTo(px + T / 2, py + T * 0.88); ctx.lineTo(px + T * 0.22, py + T / 2); ctx.closePath(); ctx.fill();
         ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(px + T / 2, py + T / 2, T * 0.1, 0, Math.PI * 2); ctx.fill();
-      } else if (t === TILE.door || t === TILE.spireDoor) { ctx.fillStyle = 'rgba(0,0,0,.25)'; ctx.fillRect(px + T * 0.2, py + T * 0.3, T * 0.6, T * 0.4); }
+      } else if (t === TILE.door || t === TILE.spireDoor || t === TILE.marketDoor) { ctx.fillStyle = 'rgba(0,0,0,.25)'; ctx.fillRect(px + T * 0.2, py + T * 0.3, T * 0.6, T * 0.4); }
       if (t === TILE.lair || t === TILE.spire) deferred.push({ x, y, t, region, px, py });
     }
   }
@@ -676,6 +770,19 @@ function owDraw(ts) {
       ctx.fillStyle = '#b98cff'; ctx.beginPath(); ctx.moveTo(sx + T * 0.7, sy - T * 1.6); ctx.lineTo(sx + 1.5 * T, sy - T * 2.6); ctx.lineTo(sx + T * 2.3, sy - T * 1.6); ctx.closePath(); ctx.fill();
       const glow = 0.5 + 0.5 * Math.sin(ts / 600); ctx.fillStyle = `rgba(255,241,168,${0.5 + glow * 0.5})`; ctx.beginPath(); ctx.arc(sx + 1.5 * T, sy - T * 2.5, 3 * s, 0, Math.PI * 2); ctx.fill();
       for (let k = 0; k < 3; k++) { ctx.fillStyle = '#ffe9a8'; ctx.fillRect(sx + T * (0.5 + k * 0.9), sy + T * 0.3, 5 * s, 8 * s); }
+    }
+  }
+  {
+    // the Market: a timber shop with a striped awning over the square-side door and a coin sign
+    const m = world.market, mx = (m.x - 1) * T - cam.x, my = m.y * T - cam.y, W = 3 * T, H = 2 * T;
+    if (mx + W > 0 && mx < ow.cssW && my + H + T > 0 && my < ow.cssH) {
+      ctx.fillStyle = '#7a5230'; ctx.fillRect(mx + 2 * s, my + 2 * s, W - 4 * s, H - 2 * s);
+      ctx.fillStyle = '#5b3a22'; ctx.fillRect(mx + 2 * s, my + 2 * s, W - 4 * s, T * 0.5);
+      for (let k = 0; k < 6; k++) { ctx.fillStyle = k % 2 ? '#f4e7c9' : '#d94f4f'; ctx.fillRect(mx + (W * k) / 6, my + H - T * 0.45, W / 6 + 0.5, T * 0.55); }
+      ctx.fillStyle = 'rgba(0,0,0,.25)'; ctx.fillRect(mx, my + H + T * 0.1, W, 3 * s);
+      ctx.fillStyle = '#ffe9a8'; ctx.fillRect(mx + T * 0.45, my + T * 0.75, 7 * s, 8 * s); ctx.fillRect(mx + W - T * 0.45 - 7 * s, my + T * 0.75, 7 * s, 8 * s);
+      ctx.fillStyle = '#f5c518'; ctx.beginPath(); ctx.arc(mx + W / 2, my + T * 0.3, T * 0.22, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = '#7a5230'; ctx.font = `bold ${Math.round(T * 0.3)}px system-ui, sans-serif`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText('◆', mx + W / 2, my + T * 0.31);
     }
   }
   // tap target
