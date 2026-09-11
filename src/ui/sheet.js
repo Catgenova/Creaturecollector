@@ -1,9 +1,9 @@
 // The creature sheet: a bottom sheet with the hero render (flip, stage, Elemental preview),
-// base stats, parts, palette, traits and the shareable creature code. Opened from party rows,
-// the collection, fusion previews and the fight view.
-import { h, clear, copyText, toast } from './dom.js';
+// base stats, parts, palette and traits. Opened from party rows, the collection, fusion previews
+// and the fight view.
+import { h, clear } from './dom.js';
 import { typeChips, creatureEl, section, elementalBadge, styleChip } from './common.js';
-import { baseStats, encodeGenome, resolveParts, TRAIT_KEYS, speciesOf, rigOf, makeElemental, elementalOf, cladeOf } from '../creature/genome.js';
+import { baseStats, resolveParts, TRAIT_KEYS, speciesOf, rigOf, makeElemental, elementalOf, cladeOf } from '../creature/genome.js';
 import { STAT_KEYS, STAT_NAMES } from '../data/damage.js';
 import { ELEMENT_IDS, ELEMENTS } from '../data/elements.js';
 import { stageOf, stageName } from '../data/evolution.js';
@@ -51,7 +51,6 @@ export function closeSheet() { if (activeSheet) { activeSheet(); activeSheet = n
 export function openSheet(g, sheetOpts = {}) {
   closeSheet();
   const sp = speciesOf(g);
-  const code = encodeGenome(g);
   let facing = 'right';
   let shown = g; // the sheet can preview the creature as an Elemental without changing it
   let stage = stageOf(sheetOpts.level); // and at any evolution stage
@@ -75,7 +74,6 @@ export function openSheet(g, sheetOpts = {}) {
     stageRow,
     h('div', { class: 'row' },
       h('button', { class: 'btn', onclick: () => { facing = facing === 'right' ? 'left' : 'right'; redraw(); } }, 'Flip'),
-      h('button', { class: 'btn', onclick: async () => toast((await copyText(code)) ? 'Code copied' : 'Copy failed, select the text below') }, 'Copy code'),
       elementalOf(g) ? null : h('select', { class: 'btn elem-preview', title: 'Preview this creature as an Elemental (one wild creature in a thousand is born as one)', onchange: (e) => {
         const elem = e.target.value;
         shown = elem ? makeElemental(JSON.parse(JSON.stringify(g)), elem) : g;
@@ -86,7 +84,6 @@ export function openSheet(g, sheetOpts = {}) {
     ...section('Parts', partRows(g)),
     ...section('Palette', h('div', { class: 'swatches' }, ['c1', 'c2', 'c3', 'eye'].map((k) => h('span', { class: 'sw', title: k, style: { background: swatchCss(g.palette[k]) } })))),
     ...section('Traits', traitRows(g)),
-    ...section('Creature code', h('textarea', { class: 'code', readonly: true, rows: 3, onclick: (e) => e.target.select() }, code)),
   );
   document.body.append(backdrop, sheet);
   document.addEventListener('keydown', onKey);

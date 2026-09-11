@@ -308,7 +308,7 @@ through `src/game/party.js` and `src/game/save.js`.
   the journey in progress and settings. Battles themselves are not persisted:
   a reload mid-fight returns you to the encounter card. Export and import as a
   `CCSAVE1.` code. Abandoning a journey retires the team into the collection,
-  where any creature can be inspected and its code copied. A save from
+  where any creature can be inspected. A save from
   the arena days folds its run's creatures into the collection on load.
 
 The fight view is a reusable component (`ui/fight.js`) mounted by the overworld.

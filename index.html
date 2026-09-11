@@ -77,7 +77,6 @@ button, input, select, textarea { font: inherit; }
 .kv .carried { color: var(--fg2); }
 .swatches { display: flex; gap: 8px; }
 .sw { width: 34px; height: 34px; border-radius: 9px; border: 1px solid rgba(255, 255, 255, .15); }
-.code { width: 100%; font: 11px/1.3 ui-monospace, Menlo, Consolas, monospace; background: var(--bg); color: var(--fg2); border: 1px solid var(--line); border-radius: 8px; padding: 8px; word-break: break-all; resize: none; }
 h3.sec { font-size: 12px; text-transform: uppercase; letter-spacing: .1em; color: var(--fg2); margin: 18px 0 6px; }
 .toast { position: fixed; left: 50%; bottom: calc(24px + env(safe-area-inset-bottom)); transform: translateX(-50%); background: var(--fg); color: var(--bg); padding: 8px 14px; border-radius: 999px; font-weight: 600; z-index: 50; animation: toast 1.9s forwards; }
 @keyframes toast { 0% { opacity: 0; transform: translate(-50%, 10px); } 12%, 80% { opacity: 1; transform: translate(-50%, 0); } 100% { opacity: 0; } }
@@ -9181,8 +9180,8 @@ function freshSeed() {
 
 // ---- src/ui/sheet.js ----
 // The creature sheet: a bottom sheet with the hero render (flip, stage, Elemental preview),
-// base stats, parts, palette, traits and the shareable creature code. Opened from party rows,
-// the collection, fusion previews and the fight view.
+// base stats, parts, palette and traits. Opened from party rows, the collection, fusion previews
+// and the fight view.
 
 
 
@@ -9233,7 +9232,6 @@ function closeSheet() { if (activeSheet) { activeSheet(); activeSheet = null; } 
 function openSheet(g, sheetOpts = {}) {
   closeSheet();
   const sp = speciesOf(g);
-  const code = encodeGenome(g);
   let facing = 'right';
   let shown = g; // the sheet can preview the creature as an Elemental without changing it
   let stage = stageOf(sheetOpts.level); // and at any evolution stage
@@ -9257,7 +9255,6 @@ function openSheet(g, sheetOpts = {}) {
     stageRow,
     h('div', { class: 'row' },
       h('button', { class: 'btn', onclick: () => { facing = facing === 'right' ? 'left' : 'right'; redraw(); } }, 'Flip'),
-      h('button', { class: 'btn', onclick: async () => toast((await copyText(code)) ? 'Code copied' : 'Copy failed, select the text below') }, 'Copy code'),
       elementalOf(g) ? null : h('select', { class: 'btn elem-preview', title: 'Preview this creature as an Elemental (one wild creature in a thousand is born as one)', onchange: (e) => {
         const elem = e.target.value;
         shown = elem ? makeElemental(JSON.parse(JSON.stringify(g)), elem) : g;
@@ -9268,7 +9265,6 @@ function openSheet(g, sheetOpts = {}) {
     ...section('Parts', partRows(g)),
     ...section('Palette', h('div', { class: 'swatches' }, ['c1', 'c2', 'c3', 'eye'].map((k) => h('span', { class: 'sw', title: k, style: { background: swatchCss(g.palette[k]) } })))),
     ...section('Traits', traitRows(g)),
-    ...section('Creature code', h('textarea', { class: 'code', readonly: true, rows: 3, onclick: (e) => e.target.select() }, code)),
   );
   document.body.append(backdrop, sheet);
   document.addEventListener('keydown', onKey);
