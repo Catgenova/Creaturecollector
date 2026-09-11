@@ -17,6 +17,7 @@ export const CLADES = {
   wyrm: { name: 'Wyrm', plural: 'Wyrms', linked: [['mane', 'tail']], desc: 'Serpentine dragons. Long coils, whiskers, small legs and long tails.' },
   draconic: { name: 'Draconic', plural: 'Draconic', linked: [['legsFront', 'legsBack']], desc: 'True dragons. Four legs, two wings, horns and a breath.' },
   skeletal: { name: 'Skeletal', plural: 'Skeletals', linked: [['legsFront', 'legsBack']], desc: 'Walking bone. Skulls, ribcages and a light where the heart was.' },
+  nightwing: { name: 'Nightwing', plural: 'Nightwings', linked: [['wings', 'thumbs']], desc: 'Bats of every size. Leathern wings, big ears and a taste for dusk.' },
 };
 
 export const CLADE_IDS = Object.keys(CLADES);

@@ -17,6 +17,7 @@ import { FUNGUS_PARTS } from './fungus/index.js';
 import { WYRM_PARTS } from './wyrm/index.js';
 import { DRACONIC_PARTS } from './draconic/index.js';
 import { SKELETAL_PARTS } from './skeletal/index.js';
+import { NIGHTWING_PARTS } from './nightwing/index.js';
 
 export const RIG_PARTS = {
   mammal: MAMMAL_PARTS,
@@ -32,6 +33,7 @@ export const RIG_PARTS = {
   wyrm: WYRM_PARTS,
   draconic: DRACONIC_PARTS,
   skeletal: SKELETAL_PARTS,
+  nightwing: NIGHTWING_PARTS,
 };
 
 export const PARTS = new Map();

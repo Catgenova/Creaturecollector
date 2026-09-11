@@ -116,8 +116,8 @@ test('type chart matches the classic rules', () => {
 });
 
 test('every class stands on its own rig with a biome of its own', () => {
-  assert.equal(CLADE_IDS.length, 13);
+  assert.equal(CLADE_IDS.length, 14);
   assert.deepEqual([...RIG_IDS].sort(), [...CLADE_IDS].sort());
   assert.deepEqual([...BIOME_ORDER].sort(), [...CLADE_IDS].sort());
-  assert.ok(SPECIES.length >= 181, `${SPECIES.length} species`);
+  assert.ok(SPECIES.length >= 209, `${SPECIES.length} species`);
 });

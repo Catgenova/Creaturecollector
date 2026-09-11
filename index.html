@@ -1099,6 +1099,41 @@ RIGS.skeletal = {
   },
 };
 
+RIGS.nightwing = {
+  id: 'nightwing', name: 'Nightwing', prefix: 'n.',
+  slots: ['body', 'head', 'ears', 'eyes', 'muzzle', 'wings', 'legs', 'tail', 'crest', 'ruff', 'thumbs', 'markings'],
+  names: { body: 'Body', head: 'Head', ears: 'Ears', eyes: 'Eyes', muzzle: 'Muzzle', wings: 'Wings', legs: 'Legs', tail: 'Tail', crest: 'Crest', ruff: 'Ruff', thumbs: 'Wing thumbs', markings: 'Markings' },
+  paint: ['body', 'head', 'ears', 'wings', 'legs', 'tail', 'crest', 'ruff', 'thumbs', 'markings'],
+  swappable: ['ears', 'tail', 'crest', 'ruff', 'thumbs', 'markings'],
+  required: ['body', 'head', 'ears', 'eyes', 'muzzle', 'wings', 'legs', 'tail'],
+  linked: [['wings', 'thumbs'], ['head', 'muzzle']],
+  ground: ['body', 'legs'],
+  clipped: ['markings'],
+  tree: {
+    slot: 'body', anim: 'body',
+    behind: [
+      { slot: 'wings', socket: 'wingFar', far: true, scale: 'wing', anim: 'flap', front: [{ slot: 'thumbs', socket: 'thumb', far: true, small: true }] },
+      { slot: 'tail', socket: 'tail', scale: 'tail', anim: 'tail' },
+      { slot: 'legs', socket: 'legFar', far: true, scale: 'leg' },
+      { slot: 'wings', socket: 'wing', scale: 'wing', anim: 'flap', front: [{ slot: 'thumbs', socket: 'thumb', small: true }] },
+    ],
+    front: [
+      { slot: 'legs', socket: 'leg', scale: 'leg' },
+      { slot: 'ruff', socket: 'ruff', anim: 'sway' },
+      {
+        slot: 'head', socket: 'head', scale: 'head', anim: 'head',
+        behind: [{ slot: 'ears', socket: 'earFar', far: true }, { slot: 'crest', socket: 'crest' }, { slot: 'ears', socket: 'ear' }],
+        front: [{ slot: 'eyes', socket: 'eyeFar', far: true, scale: 'eye', small: true }, { slot: 'eyes', socket: 'eye', scale: 'eye', small: true }, { slot: 'muzzle', socket: 'muzzle', small: true }],
+      },
+    ],
+  },
+  mannequin: {
+    parts: { body: 'n.body.round', head: 'n.head.snub', ears: 'n.ears.tall', eyes: 'n.eyes.bead', muzzle: 'n.muzzle.leaf', wings: 'n.wings.broad', legs: 'n.legs.hook', tail: 'n.tail.tuck', crest: 'n.crest.none', ruff: 'n.ruff.none', thumbs: 'n.thumbs.none', markings: 'n.markings.none' },
+    forSlot: {},
+    accentSlots: ['ears', 'wings', 'tail', 'crest', 'ruff', 'thumbs', 'markings'],
+  },
+};
+
 const RIG_IDS = Object.keys(RIGS);
 
 /** Rig used when a genome names none or an unknown one (old saves): the first class. */
@@ -8442,12 +8477,311 @@ const SKELETAL_PARTS = {
   tail: SK_TAILS, horns: SK_HORNS, wings: SK_WINGS, light: SK_LIGHTS, shroud: SK_SHROUDS, cracks: SK_CRACKS,
 };
 
+// ---- src/data/parts/nightwing/_shared.js ----
+// Nightwing builders: the shared constructors namespaced with "n." (night).
+// Bat torsos about 50 wide and 32 tall that hover above their shadow, a head reaching forward, membrane wings
+// spread from the shoulders behind the body, hooked legs hanging under the hips and a tail behind.
+
+
+const nightwingBuilders = partBuilders('n.');
+const nwBody = nightwingBuilders.body;
+const nwLeg = nightwingBuilders.leg;
+const nwPart = nightwingBuilders.part;
+
+// ---- src/data/parts/nightwing/bodies.js ----
+// Nightwing bodies (bat torsos). Origin = centre; every body hovers above its shadow. Sockets: head (front, up),
+// wing / wingFar on the shoulders, leg / legFar under the hips, tail (back), ruff (the neck).
+// kinds: 'bat.round', 'bat.slim', 'bat.fluffy', 'bat.long', 'bat.pear', 'bat.tiny', 'bat.broad'.
+// Evolutions: stage 2 grows and raises a fur ridge on the back; stage 3 grows more and lights a chest patch.
+
+
+
+
+const nwBodyStages = (x2, y2, x3, y3) => ({
+  2: { grow: [1.06, 1.06], addBehind: [evoFan(x2, y2, -130, -60, 4, 4, 12, { tip: 'c' })] },
+  3: { grow: [1.06, 1.07], addBehind: [evoFan(x3, y3, -135, -55, 5, 4, 14, { tip: 'c' })], add: [PATCH(spline(puff(8, 2, 7, 6, 2)), 'a')] },
+});
+const nwSockets = (o) => ({ head: { x: 20, y: -10, a: -10, s: 1 }, wing: { x: -4, y: -12, a: 0, s: 1 }, wingFar: { x: -10, y: -12, a: 0, s: 0.95 }, leg: { x: -12, y: 12, a: 0, s: 1 }, legFar: { x: -18, y: 10, a: 0, s: 0.95 }, tail: { x: -24, y: 4, a: 0, s: 1 }, ruff: { x: 10, y: -6, a: 0, s: 1 }, ...o });
+/** A pale belly, clipped to the torso, from x0 to x1 with its top at y. */
+const nwBelly = (x0, x1, y) => PATCH(`M${x0},${y} C${x0 + (x1 - x0) * 0.3},${y + 12} ${x0 + (x1 - x0) * 0.7},${y + 12} ${x1},${y - 2} L${x1},${y + 30} L${x0},${y + 30} Z`, 's', { op: 0.85 });
+/** Short fur ticks along the back. */
+const nwTicks = (d) => L(d, 'k', 1.2, { op: 0.28 });
+
+const NW_BODIES = [
+  nwBody({
+    id: 'round', name: 'Round', kind: 'bat.round', tags: ['plump'], dom: 0.5, w: 3, hover: 12,
+    pts: [[-24, -4], [-18, -13], [-4, -17], [12, -15], [24, -7], [26, 3], [20, 11], ...fur([20, 11], [-18, 12], 6, 2.5), [-22, 8]],
+    shade: torsoShade(-24, 26, -17, 12, { shadeFrac: 0.35 }),
+    extra: [nwBelly(-20, 24, 2), nwTicks('M-14,-10 L-12,-13 M-4,-14 L-2,-17 M8,-13 L10,-16'), HL('M-18,-8 C-12,-14 -2,-16 6,-15 C-2,-12 -10,-9 -14,-4 Z', 0.2)],
+    sockets: nwSockets({}), stages: nwBodyStages(6, -15, -12, -13),
+  }),
+  nwBody({
+    id: 'slim', name: 'Slim', kind: 'bat.slim', tags: ['lean'], dom: 0.5, w: 3, hover: 14,
+    pts: [[-28, -2], [-22, -10], [-8, -13], [10, -12], [24, -6], [28, 2], [22, 8], ...fur([22, 8], [-22, 8], 7, 2), [-28, 4]],
+    shade: torsoShade(-28, 28, -13, 8, { shadeFrac: 0.35 }),
+    extra: [nwBelly(-24, 26, 1), nwTicks('M-16,-8 L-14,-11 M-4,-11 L-2,-14 M10,-10 L12,-13'), HL('M-22,-6 C-14,-11 -4,-12 6,-12 C-4,-9 -12,-6 -18,-2 Z', 0.2)],
+    sockets: nwSockets({ head: { x: 22, y: -8, a: -12, s: 1 }, wing: { x: -6, y: -10, a: 0, s: 1 }, wingFar: { x: -12, y: -10, a: 0, s: 0.95 }, leg: { x: -14, y: 8, a: 0, s: 1 }, legFar: { x: -20, y: 6, a: 0, s: 0.95 }, tail: { x: -28, y: 2, a: 0, s: 1 }, ruff: { x: 12, y: -5, a: 0, s: 1 } }),
+    stages: nwBodyStages(4, -12, -14, -10),
+  }),
+  nwBody({
+    id: 'fluffy', name: 'Fluffy', kind: 'bat.fluffy', tags: ['fur'], dom: 0.5, w: 2, hover: 12,
+    pts: [[-22, -6], ...fur([-22, -6], [-6, -18], 3, 3), ...fur([-6, -18], [12, -16], 3, 3), [24, -8], [26, 2], [20, 12], ...fur([20, 12], [-18, 12], 6, 3), [-24, 6]],
+    shade: torsoShade(-24, 26, -18, 12, { shadeFrac: 0.35 }),
+    extra: [nwBelly(-20, 24, 2), nwTicks('M-12,-12 L-10,-16 M0,-14 L2,-18 M10,-13 L12,-17 M-16,4 L-18,7'), HL('M-16,-10 C-10,-16 0,-17 8,-16 C0,-13 -8,-10 -12,-5 Z', 0.2)],
+    sockets: nwSockets({}), stages: nwBodyStages(4, -17, -12, -14),
+  }),
+  nwBody({
+    id: 'long', name: 'Long', kind: 'bat.long', tags: ['long'], dom: 0.5, w: 2, hover: 13,
+    pts: [[-32, 0], [-26, -9], [-10, -12], [10, -11], [26, -6], [32, 2], [26, 8], ...fur([26, 8], [-26, 8], 8, 2), [-32, 4]],
+    shade: torsoShade(-32, 32, -12, 8, { shadeFrac: 0.35 }),
+    extra: [nwBelly(-28, 30, 1), nwTicks('M-20,-7 L-18,-10 M-6,-10 L-4,-13 M10,-9 L12,-12 M22,-5 L24,-8'), HL('M-26,-6 C-16,-10 -6,-11 6,-11 C-6,-8 -16,-5 -22,-1 Z', 0.2)],
+    sockets: nwSockets({ head: { x: 26, y: -8, a: -10, s: 1 }, wing: { x: -8, y: -10, a: 0, s: 1 }, wingFar: { x: -14, y: -10, a: 0, s: 0.95 }, leg: { x: -18, y: 8, a: 0, s: 1 }, legFar: { x: -24, y: 6, a: 0, s: 0.95 }, tail: { x: -32, y: 2, a: 0, s: 1 }, ruff: { x: 14, y: -5, a: 0, s: 1 } }),
+    stages: nwBodyStages(2, -11, -16, -9),
+  }),
+  nwBody({
+    id: 'pear', name: 'Pear', kind: 'bat.pear', tags: ['heavy'], dom: 0.5, w: 2, hover: 10,
+    pts: [[-20, -6], [-14, -14], [2, -16], [16, -12], [24, -2], [26, 8], [18, 16], ...fur([18, 16], [-16, 16], 6, 2.5), [-24, 6]],
+    shade: torsoShade(-24, 26, -16, 16, { shadeFrac: 0.35 }),
+    extra: [nwBelly(-20, 24, 4), nwTicks('M-10,-12 L-8,-15 M2,-13 L4,-16 M12,-10 L14,-13'), HL('M-14,-10 C-8,-15 0,-16 8,-14 C0,-11 -6,-8 -10,-4 Z', 0.2)],
+    sockets: nwSockets({ head: { x: 18, y: -11, a: -12, s: 1 }, wing: { x: -4, y: -12, a: 0, s: 1 }, wingFar: { x: -10, y: -12, a: 0, s: 0.95 }, leg: { x: -8, y: 16, a: 0, s: 1 }, legFar: { x: -14, y: 14, a: 0, s: 0.95 }, tail: { x: -22, y: 8, a: 0, s: 1 }, ruff: { x: 8, y: -8, a: 0, s: 1 } }),
+    stages: nwBodyStages(2, -15, -10, -13),
+  }),
+  nwBody({
+    id: 'tiny', name: 'Tiny', kind: 'bat.tiny', tags: ['small'], dom: 0.45, w: 2, hover: 12,
+    pts: [[-16, -2], [-12, -10], [-2, -13], [10, -11], [17, -5], [18, 3], [13, 9], ...fur([13, 9], [-12, 9], 4, 2), [-17, 4]],
+    shade: torsoShade(-17, 18, -13, 9, { shadeFrac: 0.35 }),
+    extra: [nwBelly(-14, 16, 1), nwTicks('M-8,-8 L-6,-11 M2,-10 L4,-13'), HL('M-12,-6 C-8,-10 -2,-12 4,-11 C-2,-9 -6,-6 -10,-2 Z', 0.2)],
+    sockets: nwSockets({ head: { x: 14, y: -8, a: -12, s: 1 }, wing: { x: -2, y: -10, a: 0, s: 0.9 }, wingFar: { x: -7, y: -10, a: 0, s: 0.85 }, leg: { x: -8, y: 9, a: 0, s: 0.9 }, legFar: { x: -12, y: 8, a: 0, s: 0.85 }, tail: { x: -16, y: 2, a: 0, s: 0.9 }, ruff: { x: 6, y: -5, a: 0, s: 0.9 } }),
+    stages: nwBodyStages(2, -12, -8, -10),
+  }),
+  nwBody({
+    id: 'broad', name: 'Broad', kind: 'bat.broad', tags: ['heavy'], dom: 0.55, w: 2, hover: 11,
+    pts: [[-26, -4], [-20, -14], [-4, -20], [14, -18], [28, -10], [30, 2], [24, 12], ...fur([24, 12], [-20, 12], 6, 2.5), [-28, 6]],
+    shade: torsoShade(-28, 30, -20, 12, { shadeFrac: 0.35 }),
+    extra: [nwBelly(-24, 28, 2), nwTicks('M-16,-12 L-14,-15 M-4,-17 L-2,-20 M10,-16 L12,-19 M20,-10 L22,-13'), HL('M-20,-10 C-12,-17 -2,-19 8,-18 C0,-15 -10,-11 -16,-5 Z', 0.2)],
+    sockets: nwSockets({ head: { x: 24, y: -12, a: -8, s: 1 }, wing: { x: -4, y: -15, a: 0, s: 1 }, wingFar: { x: -10, y: -15, a: 0, s: 0.95 }, leg: { x: -12, y: 12, a: 0, s: 1 }, legFar: { x: -18, y: 10, a: 0, s: 0.95 }, tail: { x: -26, y: 4, a: 0, s: 1 }, ruff: { x: 12, y: -8, a: 0, s: 1 } }),
+    stages: nwBodyStages(6, -18, -12, -16),
+  }),
+];
+
+// ---- src/data/parts/nightwing/heads.js ----
+// Nightwing heads. Origin = the neck point at the back; the face reaches right. Sockets: eye / eyeFar, muzzle
+// (the nose tip), ear / earFar (the top of the skull), crest (between the ears).
+// Evolutions: stage 2 marks the brow in the accent colour; stage 3 fans cheek fur out behind and streaks the brow.
+
+
+
+
+
+const nwHeadStages = {
+  2: { grow: [1.05, 1.05], add: [PATCH(crescentPath(5, -11, 4, -60), 'a')] },
+  3: { grow: [1.05, 1.06], addBehind: [evoFan(-2, 0, 120, 240, 4, 4, 12, { tip: 'c' })], add: [PATCH(crescentPath(5, -11, 5, -60), 'a'), L('M14,-12 L17,-16 M18,-10 L22,-13', 'a', 1.6, { ns: true })] },
+};
+const nwHeadSockets = (o = {}) => ({ eye: { x: 9, y: -6, s: 1 }, eyeFar: { x: 1, y: -7, s: 0.9 }, muzzle: { x: 20, y: 0, a: 0, s: 1 }, ear: { x: 8, y: -13, a: 6, s: 1 }, earFar: { x: 0, y: -13, a: -6, s: 0.92 }, crest: { x: 3, y: -15, a: 0, s: 1 }, ...o });
+const nwCheek = (d) => L(d, 'k', 1.2, { op: 0.3 });
+
+const NW_HEADS = [
+  nwPart({ id: 'snub', slot: 'head', name: 'Snub', tags: ['round'], dom: 0.5, w: 3, shapes: [[[-4, -12], [6, -16], [16, -14], [22, -6], [22, 2], [16, 8], [6, 10], [-4, 7]]], extra: [nwCheek('M-2,2 L-5,5 M0,5 L-3,8'), L('M14,-8 C17,-6 19,-3 20,0', 'k', 1.2, { op: 0.3 }), HL('M-2,-11 C2,-14 8,-15 12,-13 C8,-12 2,-10 -2,-8 Z', 0.2)], sockets: nwHeadSockets({ muzzle: { x: 18, y: 0, a: 0, s: 1 } }), stages: nwHeadStages }),
+  nwPart({ id: 'fox', slot: 'head', name: 'Flying fox', tags: ['long'], dom: 0.5, w: 3, shapes: [[[-4, -12], [6, -16], [16, -13], [26, -6], [30, 0], [24, 4], [14, 7], [4, 8], [-4, 6]]], extra: [nwCheek('M-2,2 L-5,5 M0,5 L-3,8'), L('M14,-8 C19,-6 24,-3 28,-1', 'k', 1.2, { op: 0.3 }), HL('M-2,-11 C2,-14 8,-15 12,-13 C8,-12 2,-10 -2,-8 Z', 0.2)], sockets: nwHeadSockets({ eye: { x: 8, y: -7, s: 1 }, muzzle: { x: 26, y: -1, a: 0, s: 1 } }), stages: nwHeadStages }),
+  nwPart({ id: 'leaf', slot: 'head', name: 'Leaf-nosed', tags: ['broad'], dom: 0.5, w: 2, shapes: [[[-4, -13], [6, -18], [18, -16], [24, -8], [24, 4], [18, 10], [6, 12], [-4, 8]]], extra: [nwCheek('M-2,3 L-5,6 M0,6 L-3,9 M2,8 L0,11'), L('M14,-9 C17,-6 19,-3 19,0', 'k', 1.2, { op: 0.3 }), HL('M-2,-12 C2,-16 8,-17 12,-15 C8,-13 2,-11 -2,-9 Z', 0.2)], sockets: nwHeadSockets({ eye: { x: 9, y: -7, s: 1 }, muzzle: { x: 19, y: 0, a: 0, s: 1 }, ear: { x: 10, y: -15, a: 8, s: 1 }, earFar: { x: 0, y: -15, a: -8, s: 0.92 }, crest: { x: 4, y: -17, a: 0, s: 1 } }), stages: nwHeadStages }),
+  nwPart({ id: 'round', slot: 'head', name: 'Round', tags: ['round'], dom: 0.5, w: 2, shapes: [[[-4, -14], [8, -18], [18, -14], [22, -4], [20, 6], [12, 11], [2, 11], [-4, 6]]], extra: [nwCheek('M-2,3 L-5,6 M0,6 L-3,9'), L('M14,-6 C17,-4 18,-1 18,2', 'k', 1.2, { op: 0.3 }), HL('M-2,-13 C2,-16 8,-17 12,-15 C8,-13 2,-11 -2,-9 Z', 0.2)], sockets: nwHeadSockets({ eye: { x: 9, y: -6, s: 1.05 }, muzzle: { x: 18, y: 2, a: 0, s: 1 }, ear: { x: 9, y: -15, a: 6, s: 1 }, earFar: { x: 1, y: -15, a: -6, s: 0.92 }, crest: { x: 4, y: -17, a: 0, s: 1 } }), stages: nwHeadStages }),
+  nwPart({ id: 'long', slot: 'head', name: 'Long-nosed', tags: ['nectar'], dom: 0.5, w: 2, shapes: [[[-4, -11], [6, -15], [16, -13], [26, -8], [34, -2], [26, 2], [14, 6], [4, 7], [-4, 5]]], extra: [nwCheek('M-2,1 L-5,4 M0,4 L-3,7'), L('M14,-8 C20,-6 27,-4 32,-2', 'k', 1.2, { op: 0.3 }), HL('M-2,-10 C2,-13 8,-14 12,-12 C8,-11 2,-9 -2,-7 Z', 0.2)], sockets: nwHeadSockets({ eye: { x: 8, y: -6, s: 1 }, eyeFar: { x: 0, y: -7, s: 0.9 }, muzzle: { x: 30, y: -2, a: 0, s: 1 }, ear: { x: 7, y: -12, a: 6, s: 1 }, earFar: { x: -1, y: -12, a: -6, s: 0.92 }, crest: { x: 2, y: -14, a: 0, s: 1 } }), stages: nwHeadStages }),
+  nwPart({ id: 'wide', slot: 'head', name: 'Bulldog', tags: ['heavy'], dom: 0.55, w: 2, shapes: [[[-4, -13], [8, -17], [20, -15], [28, -8], [28, 4], [22, 10], [8, 12], [-4, 8]]], extra: [nwCheek('M-2,3 L-5,6 M0,6 L-3,9 M2,9 L0,12'), L('M16,-8 C20,-6 23,-2 22,2', 'k', 1.2, { op: 0.3 }), L('M10,6 L20,7', 'k', 1, { op: 0.3 }), HL('M-2,-12 C2,-15 8,-16 12,-14 C8,-12 2,-10 -2,-8 Z', 0.2)], sockets: nwHeadSockets({ eye: { x: 10, y: -7, s: 1.05 }, eyeFar: { x: 2, y: -8, s: 0.95 }, muzzle: { x: 22, y: 2, a: 0, s: 1 }, ear: { x: 10, y: -14, a: 6, s: 1 }, earFar: { x: 1, y: -14, a: -6, s: 0.92 }, crest: { x: 4, y: -16, a: 0, s: 1 } }), stages: nwHeadStages }),
+  nwPart({ id: 'pointed', slot: 'head', name: 'Pointed', tags: ['sharp'], dom: 0.5, w: 2, shapes: [[[-4, -14], [4, -18], [14, -16], [24, -8], [28, 0], [20, 4], [12, 8], [2, 9], [-4, 6]]], extra: [nwCheek('M-2,2 L-5,5 M0,5 L-3,8'), L('M14,-10 C19,-7 23,-4 26,0', 'k', 1.2, { op: 0.3 }), HL('M-2,-13 C2,-16 6,-17 10,-15 C6,-13 2,-11 -2,-9 Z', 0.2)], sockets: nwHeadSockets({ eye: { x: 8, y: -8, s: 1 }, eyeFar: { x: 0, y: -9, s: 0.9 }, muzzle: { x: 22, y: 0, a: 0, s: 1 }, ear: { x: 6, y: -15, a: 8, s: 1 }, earFar: { x: -2, y: -15, a: -8, s: 0.92 }, crest: { x: 2, y: -17, a: 0, s: 1 } }), stages: nwHeadStages }),
+];
+
+// ---- src/data/parts/nightwing/face.js ----
+// Nightwing ears (origin = the base, pointing up), eyes (origin = the eye centre) and muzzles (origin = the nose
+// tip on the head's muzzle socket).
+// Evolutions: ears grow and tip in the accent colour, then ring; eyes ring then glow; muzzles grow and glint.
+
+
+
+
+const nwEarStages = (tipY) => ({
+  2: { grow: [1.06, 1.1], add: [PATCH(`M-3,${tipY + 7} L0,${tipY - 2} L3,${tipY + 7} Z`, 'a')] },
+  3: { grow: [1.06, 1.1], add: [PATCH(`M-4,${tipY + 9} L0,${tipY - 3} L4,${tipY + 9} Z`, 'a'), evoRing(0, -7, 3, 'a', 1.2, { cl: true, op: 0.8 })] },
+});
+const nwInner = (pts) => S(pts, 's', { ns: true, cl: true });
+
+const NW_EARS = [
+  nwPart({ id: 'tall', slot: 'ears', name: 'Tall', tags: ['point'], dom: 0.55, w: 3, shapes: [[[-7, 2], [-7, -10], [-3, -24], [0, -32, 'c'], [3, -24], [7, -10], [7, 2]]], extra: [nwInner([[-3, 0], [-3, -10], [0, -22, 0.3], [3, -10], [3, 0]]), L('M-1,-6 L0,-16', 'k', 0.9, { op: 0.25 })], stages: nwEarStages(-32) }),
+  nwPart({ id: 'round', slot: 'ears', name: 'Round', tags: ['mouse'], dom: 0.5, w: 3, shapes: [[[-9, 2], [-10, -8], [-6, -16], [0, -19], [6, -16], [10, -8], [9, 2]]], extra: [E(0, -7, 5, 7, 's', { ns: true, cl: true }), L('M-3,-4 L-3,-10', 'k', 0.9, { op: 0.25 })], stages: nwEarStages(-19) }),
+  nwPart({ id: 'leaf', slot: 'ears', name: 'Leaf', tags: ['broad'], dom: 0.5, w: 2, shapes: [[[-8, 2], [-11, -8], [-8, -20], [0, -28, 'c'], [8, -20], [11, -8], [8, 2]]], extra: [nwInner([[-5, 0], [-6, -9], [0, -21, 0.3], [6, -9], [5, 0]]), L('M0,-2 L0,-18 M0,-8 L-3,-12 M0,-12 L3,-16', 'k', 0.9, { op: 0.3 })], stages: nwEarStages(-28) }),
+  nwPart({ id: 'tufted', slot: 'ears', name: 'Tufted', tags: ['fur'], dom: 0.5, w: 2, shapes: [[[-7, 2], [-8, -10], [-4, -22], ...fur([-4, -22], [4, -22], 3, 7, { tip: 'c' }), [8, -10], [7, 2]]], extra: [nwInner([[-3, 0], [-4, -9], [0, -19, 0.3], [4, -9], [3, 0]])], stages: nwEarStages(-28) }),
+  nwPart({ id: 'curled', slot: 'ears', name: 'Curled', tags: ['curl'], dom: 0.5, w: 2, shapes: [tube([[0, 2], [-1, -12], [2, -24], [8, -28], [12, -24]], 12, 4, { tipK: 'c' })], extra: [nwInner([[-2, 0], [-3, -12], [1, -22, 0.3], [4, -14], [3, 0]]), C(11, -24, 1.2, 'a', { ns: true })], stages: nwEarStages(-28) }),
+  nwPart({ id: 'huge', slot: 'ears', name: 'Huge', tags: ['long'], dom: 0.55, w: 2, shapes: [[[-8, 2], [-10, -14], [-6, -32], [0, -42, 'c'], [6, -32], [10, -14], [8, 2]]], extra: [nwInner([[-4, 0], [-5, -14], [0, -32, 0.3], [5, -14], [4, 0]]), L('M-5,-10 L5,-12 M-5,-18 L5,-20 M-4,-26 L4,-28', 'k', 0.9, { op: 0.25 })], stages: nwEarStages(-42) }),
+  nwPart({ id: 'notched', slot: 'ears', name: 'Notched', tags: ['torn'], dom: 0.5, w: 2, shapes: [[[-7, 2], [-8, -10], [-5, -22], [-1, -28], [1, -20], [4, -26, 'c'], [7, -10], [7, 2]]], extra: [nwInner([[-3, 0], [-4, -10], [-1, -20, 0.3], [3, -10], [3, 0]]), C(4, -14, 1.2, 'k', { ns: true, op: 0.5 })], stages: nwEarStages(-28) }),
+];
+
+const nwEyeStages = (r) => ({
+  2: { grow: [1.05, 1.05], add: [evoRing(0, 0, r * 0.7, 'a', 1.2, { op: 0.85 })] },
+  3: { grow: [1.05, 1.05], add: [evoGlow(0, 0, r * 1.5, 0.2, 'a', { cl: false }), C(-r * 0.4, -r * 0.5, r * 0.25, 'w', { ns: true, op: 0.9 })] },
+});
+const nwBall = (r, f = 'w') => C(0, 0, r, f);
+
+const NW_EYES = [
+  nwPart({ id: 'bead', slot: 'eyes', name: 'Bead', tags: ['dark'], dom: 0.5, w: 3, extra: [nwBall(3, 'k'), C(0.6, -0.8, 1, 'w', { ns: true, op: 0.9 })], stages: nwEyeStages(3) }),
+  nwPart({ id: 'big', slot: 'eyes', name: 'Big', tags: ['round'], dom: 0.55, w: 3, extra: [nwBall(4.4), C(0.6, 0.2, 3, 'e', { ns: true }), C(1, 0.4, 1.6, 'k', { ns: true }), C(-0.6, -1.4, 1, 'w', { ns: true, op: 0.9 })], stages: nwEyeStages(4.4) }),
+  nwPart({ id: 'slit', slot: 'eyes', name: 'Slit', tags: ['sharp'], dom: 0.5, w: 2, extra: [nwBall(3.8, 'e'), P('M0.6,-3.2 C1.6,-1 1.6,1 0.6,3.2 C-0.4,1 -0.4,-1 0.6,-3.2 Z', 'k', { ns: true }), C(-0.8, -1.2, 0.8, 'w', { ns: true, op: 0.9 })], stages: nwEyeStages(3.8) }),
+  nwPart({ id: 'glow', slot: 'eyes', name: 'Glowing', tags: ['light'], dom: 0.5, w: 2, extra: [C(0, 0, 5.4, 'a', { ns: true, op: 0.22 }), nwBall(3.6, 'a'), C(0.4, 0, 1.6, 'w', { ns: true, op: 0.9 })], stages: nwEyeStages(3.6) }),
+  nwPart({ id: 'sleepy', slot: 'eyes', name: 'Sleepy', tags: ['lid'], dom: 0.5, w: 2, extra: [nwBall(4), C(0.6, 0.4, 2.6, 'e', { ns: true }), C(1, 0.6, 1.3, 'k', { ns: true }), P('M-4,-0.4 C-2,-3.4 2,-3.4 4,-0.4 C3,-3 1.5,-4 0,-4 C-1.5,-4 -3,-3 -4,-0.4 Z', 'p', { ns: true }), L('M-4,-0.6 C-2,-2.8 2,-2.8 4,-0.6', 'k', 1.2, { ns: true })], stages: nwEyeStages(4) }),
+  nwPart({ id: 'wide', slot: 'eyes', name: 'Wide', tags: ['ring'], dom: 0.5, w: 2, extra: [nwBall(4.4), C(0.4, 0, 2.2, 'e', { ns: true }), C(0.8, 0.2, 1.2, 'k', { ns: true }), C(-0.8, -1.4, 0.8, 'w', { ns: true, op: 0.9 }), evoRing(0, 0, 3.4, 'a', 0.8, { op: 0.7 })], stages: nwEyeStages(4.4) }),
+  nwPart({ id: 'red', slot: 'eyes', name: 'Pinprick', tags: ['dark'], dom: 0.5, w: 2, extra: [nwBall(3.4, 'k'), C(0.4, 0, 2.6, 'e', { ns: true, op: 0.25 }), C(0.4, 0, 1.4, 'e', { ns: true }), C(-0.6, -1, 0.6, 'w', { ns: true, op: 0.8 })], stages: nwEyeStages(3.4) }),
+];
+
+const nwMuzzleStages = { 2: { grow: [1.06, 1.06] }, 3: { grow: [1.08, 1.08], add: [C(-2, -1, 0.8, 'w', { ns: true, op: 0.8 })] } };
+const nwMouth = (d = 'M-5,3 C-3,5 1,5 3,3') => L(d, 'k', 1.3);
+
+const NW_MUZZLES = [
+  nwPart({ id: 'leaf', slot: 'muzzle', name: 'Nose leaf', tags: ['leaf'], dom: 0.55, w: 3, extra: [P('M-3,-8 C-6,-4 -6,2 -2,4 C0,5 2,5 4,4 C6,0 4,-6 1,-8 Z', 'a', { sw: 1.2 }), C(-1, -1, 1.2, 'k', { ns: true, op: 0.7 }), nwMouth('M-5,5 C-3,7 1,7 3,5')], stages: nwMuzzleStages }),
+  nwPart({ id: 'snub', slot: 'muzzle', name: 'Snub', tags: ['pug'], dom: 0.5, w: 3, extra: [E(-1, -2, 3.2, 2.4, 'a', { sw: 1.2 }), C(-2.2, -2.2, 0.8, 'k', { ns: true, op: 0.6 }), C(0.4, -2.2, 0.8, 'k', { ns: true, op: 0.6 }), nwMouth('M-5,2 C-3,4 1,4 3,2')], stages: nwMuzzleStages }),
+  nwPart({ id: 'long', slot: 'muzzle', name: 'Pointed', tags: ['fox'], dom: 0.5, w: 2, extra: [P('M-3.6,-2 L2.4,-2 L-0.6,2 Z', 'a', { sw: 1.4 }), L('M-0.6,2 L-0.6,4 M-4,4 C-2,6 0,6 2,4', 'k', 1.3), L('M-8,-1 L-14,-2 M-8,1 L-14,2', 'k', 1, { op: 0.4 })], stages: nwMuzzleStages }),
+  nwPart({ id: 'fanged', slot: 'muzzle', name: 'Fanged', tags: ['vampire'], dom: 0.55, w: 2, extra: [P('M-6,0 C-4,5 2,5 4,0 Z', 'k', { ns: true, op: 0.85 }), P('M-4,0 L-3,4 L-2,0 Z M2,0 L3,4 L4,0 Z', 'w', { sw: 1 }), C(-1, -2.6, 1.6, 'a', { sw: 1 })], stages: nwMuzzleStages }),
+  nwPart({ id: 'tube', slot: 'muzzle', name: 'Tube-nosed', tags: ['tube'], dom: 0.5, w: 2, extra: [E(-2, -2, 2, 2.6, 'a', { sw: 1.2 }), E(2, -2, 2, 2.6, 'a', { sw: 1.2 }), C(-2, -2, 0.7, 'k', { ns: true, op: 0.7 }), C(2, -2, 0.7, 'k', { ns: true, op: 0.7 }), nwMouth('M-4,3 C-2,5 2,5 4,3')], stages: nwMuzzleStages }),
+  nwPart({ id: 'grin', slot: 'muzzle', name: 'Grin', tags: ['teeth'], dom: 0.5, w: 2, extra: [P('M-7,0 C-4,5 4,5 7,0 C4,2 -4,2 -7,0 Z', 'k', { ns: true, op: 0.85 }), L('M-4,0.6 L-4,2.6 M-1,1.4 L-1,3.4 M2,1.2 L2,3.2 M5,0.6 L5,2.4', 'w', 1.2), C(0, -2.6, 1.6, 'a', { sw: 1 })], stages: nwMuzzleStages }),
+  nwPart({ id: 'whiskered', slot: 'muzzle', name: 'Whiskered', tags: ['whisker'], dom: 0.5, w: 2, extra: [C(-0.6, -1.6, 1.8, 'a', { sw: 1.2 }), nwMouth('M-4,3 C-2,5 2,5 4,3'), L('M-6,-3 L-14,-6 M-6,0 L-15,0 M-6,3 L-14,6', 'k', 1, { op: 0.45 }), C(-14, -6, 0.9, 'a', { ns: true }), C(-15, 0, 0.9, 'a', { ns: true }), C(-14, 6, 0.9, 'a', { ns: true })], stages: nwMuzzleStages }),
+];
+
+// ---- src/data/parts/nightwing/wings.js ----
+// Nightwing wings (origin = the shoulder; the membrane spreads up and back, drawn behind the body) and thumbs
+// (the wrist claw, nested on the wing's thumb socket).
+// Evolutions: wings grow and light accent motes along the membrane; thumbs grow.
+
+
+
+const nwWingStages = {
+  2: { grow: [1.1, 1.1], add: [C(-26, -30, 1.6, 'a', { ns: true, op: 0.7 })] },
+  3: { grow: [1.15, 1.15], add: [C(-26, -30, 1.8, 'a', { ns: true, op: 0.7 }), C(-34, -12, 1.5, 'a', { ns: true, op: 0.7 }), C(-30, 2, 1.4, 'a', { ns: true, op: 0.7 })] },
+};
+const nwGrow = { 2: { grow: [1.1, 1.1] }, 3: { grow: [1.14, 1.14] } };
+const nwFingers = (d) => L(d, 'pd', 2.4);
+const nwArm = (d, w = 3.2) => L(d, 'p', w);
+const nwVeins = (d) => L(d, 'k', 1, { op: 0.3 });
+const nwWingSock = (x, y) => ({ thumb: { x, y, a: 0, s: 1 } });
+
+const NW_WINGS = [
+  nwPart({ id: 'broad', slot: 'wings', name: 'Broad', tags: ['round'], dom: 0.5, w: 3, shapes: [{ pts: [[0, 0], [-6, -16], [-14, -30], [-30, -40, 'c'], [-30, -26], [-40, -14, 'c'], [-32, -6], [-40, 6, 'c'], [-26, 4], [-12, 6]], f: 's' }], extra: [nwFingers('M0,0 L-14,-30 M-14,-30 L-30,-40 M-14,-30 L-40,-14 M-14,-30 L-40,6'), nwArm('M0,0 C-4,-10 -10,-22 -14,-30', 3.4), nwVeins('M-18,-24 L-26,-20 M-20,-14 L-30,-4')], sockets: nwWingSock(-14, -30), stages: nwWingStages }),
+  nwPart({ id: 'narrow', slot: 'wings', name: 'Narrow', tags: ['swift'], dom: 0.5, w: 2, shapes: [{ pts: [[0, 0], [-6, -14], [-12, -28], [-40, -46, 'c'], [-34, -30], [-44, -20, 'c'], [-34, -12], [-36, -2, 'c'], [-22, 0], [-10, 4]], f: 's' }], extra: [nwFingers('M0,0 L-12,-28 M-12,-28 L-40,-46 M-12,-28 L-44,-20 M-12,-28 L-36,-2'), nwArm('M0,0 C-4,-10 -8,-20 -12,-28'), nwVeins('M-20,-30 L-30,-32 M-22,-18 L-32,-10')], sockets: nwWingSock(-12, -28), stages: nwWingStages }),
+  nwPart({ id: 'scalloped', slot: 'wings', name: 'Scalloped', tags: ['frilled'], dom: 0.5, w: 2, shapes: [{ pts: [[0, 0], [-6, -16], [-14, -30], [-28, -40, 'c'], [-26, -30], [-36, -26, 'c'], [-30, -18], [-40, -12, 'c'], [-30, -6], [-38, 2, 'c'], [-26, 2], [-30, 10, 'c'], [-18, 4], [-10, 6]], f: 's' }], extra: [nwFingers('M0,0 L-14,-30 M-14,-30 L-28,-40 M-14,-30 L-36,-26 M-14,-30 L-40,-12 M-14,-30 L-38,2 M-14,-30 L-30,10'), nwArm('M0,0 C-4,-10 -10,-22 -14,-30')], sockets: nwWingSock(-14, -30), stages: nwWingStages }),
+  nwPart({ id: 'ragged', slot: 'wings', name: 'Ragged', tags: ['torn'], dom: 0.5, w: 2, shapes: [{ pts: [[0, 0], [-6, -16], [-14, -30], [-30, -38, 'c'], [-26, -28], [-36, -22, 'c'], [-28, -16], [-38, -10, 'c'], [-28, -6], [-36, 4, 'c'], [-24, 0], [-28, 8, 'c'], [-16, 4], [-10, 6]], f: 's' }], extra: [nwFingers('M0,0 L-14,-30 M-14,-30 L-30,-38 M-14,-30 L-38,-10 M-14,-30 L-36,4'), nwArm('M0,0 C-4,-10 -10,-22 -14,-30'), C(-22, -16, 2, 'k', { ns: true, op: 0.4 }), C(-28, -2, 1.6, 'k', { ns: true, op: 0.4 })], sockets: nwWingSock(-14, -30), stages: nwWingStages }),
+  nwPart({ id: 'short', slot: 'wings', name: 'Short', tags: ['small'], dom: 0.5, w: 2, shapes: [{ pts: [[0, 0], [-4, -10], [-10, -20], [-22, -26, 'c'], [-22, -16], [-28, -8, 'c'], [-22, -2], [-24, 6, 'c'], [-16, 4], [-8, 4]], f: 's' }], extra: [nwFingers('M0,0 L-10,-20 M-10,-20 L-22,-26 M-10,-20 L-28,-8 M-10,-20 L-24,6'), nwArm('M0,0 C-3,-7 -7,-14 -10,-20', 3)], sockets: nwWingSock(-10, -20), stages: nwWingStages }),
+  nwPart({ id: 'huge', slot: 'wings', name: 'Huge', tags: ['big'], dom: 0.55, w: 2, shapes: [{ pts: [[0, 0], [-8, -18], [-18, -36], [-40, -52, 'c'], [-38, -34], [-52, -22, 'c'], [-42, -10], [-50, 6, 'c'], [-34, 4], [-40, 16, 'c'], [-22, 8], [-12, 8]], f: 's' }], extra: [nwFingers('M0,0 L-18,-36 M-18,-36 L-40,-52 M-18,-36 L-52,-22 M-18,-36 L-50,6 M-18,-36 L-40,16'), nwArm('M0,0 C-6,-12 -12,-24 -18,-36', 3.6), nwVeins('M-24,-34 L-34,-32 M-28,-22 L-40,-12 M-28,-10 L-36,0')], sockets: nwWingSock(-18, -36), stages: nwWingStages }),
+  nwPart({ id: 'hooked', slot: 'wings', name: 'Hooked', tags: ['sharp'], dom: 0.5, w: 2, shapes: [{ pts: [[0, 0], [-6, -16], [-14, -32], [-22, -44, 'c'], [-26, -30], [-40, -16, 'c'], [-32, -8], [-40, 4, 'c'], [-26, 2], [-12, 6]], f: 's' }], extra: [nwFingers('M0,0 L-14,-32 M-14,-32 L-22,-44 M-14,-32 L-40,-16 M-14,-32 L-40,4'), nwArm('M0,0 C-4,-10 -10,-24 -14,-32'), P('M-14,-32 L-12,-40 L-9,-33 Z', 'w', { sw: 1 })], sockets: nwWingSock(-14, -32), stages: nwWingStages }),
+];
+
+const NW_THUMBS = [
+  NONE('thumbs', 0.3, 'n.'),
+  nwPart({ id: 'hook', slot: 'thumbs', name: 'Hook', tags: ['claw'], dom: 0.5, w: 3, extra: [P('M0,0 C-2,-4 -1,-8 3,-10 C1,-6 1,-3 2,0 Z', 'w', { sw: 1.2 })], stages: nwGrow }),
+  nwPart({ id: 'double', slot: 'thumbs', name: 'Double claw', tags: ['claw'], dom: 0.5, w: 2, extra: [P('M-1,0 C-3,-4 -2,-7 1,-9 C-1,-5 -1,-3 0,0 Z', 'w', { sw: 1 }), P('M2,0 C1,-4 2,-7 5,-8 C3,-5 3,-2 3,0 Z', 'w', { sw: 1 })], stages: nwGrow }),
+  nwPart({ id: 'long', slot: 'thumbs', name: 'Long claw', tags: ['claw'], dom: 0.5, w: 2, extra: [P('M0,0 C-3,-6 -2,-12 4,-16 C1,-10 1,-5 2,0 Z', 'w', { sw: 1.2 }), L('M0,-4 L1,-8', 'k', 0.8, { op: 0.3 })], stages: nwGrow }),
+  nwPart({ id: 'bony', slot: 'thumbs', name: 'Knuckle', tags: ['bone'], dom: 0.5, w: 2, extra: [C(0, 0, 2.6, 'p', { sw: 1.2 }), P('M1,-2 C0,-6 2,-9 5,-10 C3,-6 3,-3 3,-1 Z', 'w', { sw: 1 })], stages: nwGrow }),
+  nwPart({ id: 'glowing', slot: 'thumbs', name: 'Glowing', tags: ['light'], dom: 0.5, w: 2, extra: [C(0, 0, 3, 'a', { ns: true, op: 0.3 }), C(0, 0, 1.8, 'a', { ns: true }), C(-0.5, -0.5, 0.7, 'w', { ns: true, op: 0.8 })], stages: nwGrow }),
+  nwPart({ id: 'rings', slot: 'thumbs', name: 'Wrist rings', tags: ['ring'], dom: 0.5, w: 2, extra: [L('M-3,-2 L3,-2 M-3,1 L3,1', 'a', 1.4, { ns: true, op: 0.8 }), P('M0,-3 C-1,-6 0,-8 3,-9 C2,-6 2,-4 2,-3 Z', 'w', { sw: 1 })], stages: nwGrow }),
+  nwPart({ id: 'blunt', slot: 'thumbs', name: 'Blunt', tags: ['pad'], dom: 0.5, w: 2, extra: [P('M-2,0 C-3,-3 -2,-6 1,-7 C3,-6 3,-3 2,0 Z', 'pd', { sw: 1.2 })], stages: nwGrow }),
+];
+
+// ---- src/data/parts/nightwing/limbs.js ----
+// Nightwing legs (origin = the hip; short hanging legs with hooked feet, one part drawn at both hips) and tails
+// (origin = the tail socket, trailing behind).
+// Evolutions: legs grow and gain an accent ring; tails grow and spike.
+
+
+
+
+const nwLegStages = { 2: { grow: [1.06, 1.08] }, 3: { grow: [1.1, 1.14], add: [evoRing(0, 6, 3, 'a', 1, { op: 0.6 })] } };
+const nwTailStages = (x, y) => ({ 2: { grow: [1.1, 1.06] }, 3: { grow: [1.15, 1.1], addShapes: [{ pts: evoSpike(x, y, -100, 6, 3), f: 'a' }] } });
+const nwShin = (x1, y1, w) => tube([[0, 0], [x1, y1]], w, w * 0.8, { tipK: 1 });
+/** Two claws curving in toward each other under the nwAnkle at (x, y). */
+const nwHooks = (x, y) => [
+  P(`M${x - 2},${y - 1} C${x - 4},${y + 3} ${x - 3},${y + 6} ${x},${y + 7} C${x - 1},${y + 4} ${x - 1},${y + 1} ${x + 1},${y - 1} Z`, 'w', { sw: 1 }),
+  P(`M${x + 2},${y - 1} C${x + 4},${y + 3} ${x + 3},${y + 6} ${x},${y + 7} C${x + 1},${y + 4} ${x + 1},${y + 1} ${x - 1},${y - 1} Z`, 'w', { sw: 1 }),
+];
+const nwAnkle = (x, y, r = 1.8) => C(x, y, r, 'pd', { sw: 1 });
+
+const NW_LEGS = [
+  nwLeg({ id: 'hook', slot: 'legs', name: 'Hooked', tags: ['hang'], dom: 0.5, w: 3, shapes: [nwShin(1, 12, 4)], extra: [nwAnkle(1, 12, 2), ...nwHooks(1, 12)], stages: nwLegStages }),
+  nwLeg({ id: 'tucked', slot: 'legs', name: 'Tucked', tags: ['short'], dom: 0.5, w: 3, shapes: [tube([[0, 0], [3, 6], [0, 11]], 4, 3.2, { tipK: 1 })], extra: [nwAnkle(0, 11), ...nwHooks(0, 11)], stages: nwLegStages }),
+  nwLeg({ id: 'long', slot: 'legs', name: 'Long', tags: ['tall'], dom: 0.5, w: 2, shapes: [nwShin(1, 20, 3.6)], extra: [nwAnkle(1, 10), nwAnkle(1, 20), ...nwHooks(1, 20)], stages: nwLegStages }),
+  nwLeg({ id: 'clawed', slot: 'legs', name: 'Clawed', tags: ['claw'], dom: 0.5, w: 2, shapes: [nwShin(1, 14, 4.4)], extra: [nwAnkle(1, 14, 2), P('M-2,14 L-4,21 L1,15 Z', 'w', { sw: 1 }), P('M1,15 L2,22 L5,15 Z', 'w', { sw: 1 }), P('M4,13 L8,19 L7,13 Z', 'w', { sw: 1 })], stages: nwLegStages }),
+  nwLeg({ id: 'furred', slot: 'legs', name: 'Furred', tags: ['fur'], dom: 0.5, w: 2, shapes: [{ pts: [[-4, 0], [4, 0], [4, 6], ...fur([4, 6], [-4, 6], 3, 3)], f: 'p' }, nwShin(1, 14, 3.2)], extra: [nwAnkle(1, 14), ...nwHooks(1, 14)], stages: nwLegStages }),
+  nwLeg({ id: 'stubby', slot: 'legs', name: 'Stubby', tags: ['short'], dom: 0.5, w: 2, shapes: [nwShin(0, 8, 5)], extra: [nwAnkle(0, 8, 2.2), ...nwHooks(0, 8)], stages: nwLegStages }),
+  nwLeg({ id: 'splayed', slot: 'legs', name: 'Splayed', tags: ['wide'], dom: 0.5, w: 2, shapes: [tube([[0, 0], [-4, 8], [-6, 14]], 4, 3, { tipK: 1 })], extra: [nwAnkle(-4, 8), nwAnkle(-6, 14), ...nwHooks(-6, 14)], stages: nwLegStages }),
+];
+
+const NW_TAILS = [
+  nwPart({ id: 'tuck', slot: 'tail', name: 'Tucked', tags: ['membrane'], dom: 0.5, w: 3, shapes: [{ pts: [[0, -3], [-10, -2], [-16, 2], [-10, 6], [0, 4]], f: 's' }, tube([[0, 0], [-12, 2]], 3, 1.6, { tipK: 'c' })], extra: [L('M-2,-2 L-12,0 M-2,3 L-12,4', 'k', 0.9, { op: 0.3 })], stages: nwTailStages(-14, 2) }),
+  nwPart({ id: 'long', slot: 'tail', name: 'Free tail', tags: ['long'], dom: 0.5, w: 3, shapes: [tube([[0, 0], [-10, 3], [-20, 2], [-28, -4]], 3.2, 1.4, { tipK: 'c' })], extra: [L('M-8,2 L-8,4 M-16,2 L-16,4', 'k', 0.9, { op: 0.3 })], stages: nwTailStages(-26, -3) }),
+  nwPart({ id: 'stub', slot: 'tail', name: 'Stub', tags: ['short'], dom: 0.5, w: 2, shapes: [tube([[0, 0], [-7, 1]], 4, 2, { tipK: 'c' })], stages: nwTailStages(-7, 1) }),
+  nwPart({ id: 'tufted', slot: 'tail', name: 'Tufted', tags: ['fur'], dom: 0.5, w: 2, shapes: [tube([[0, 0], [-10, 2], [-18, 0]], 3, 1.6, { tipK: 1 }), { pts: puff(-21, 0, 4, 5, 2), f: 'a' }], stages: nwTailStages(-16, 0) }),
+  nwPart({ id: 'whip', slot: 'tail', name: 'Whip', tags: ['long'], dom: 0.5, w: 2, shapes: [tube([[0, 0], [-12, 4], [-24, 0], [-34, -8]], 2.6, 1, { tipK: 'c' })], extra: [C(-33, -7, 1.2, 'a', { ns: true })], stages: nwTailStages(-30, -5) }),
+  nwPart({ id: 'fan', slot: 'tail', name: 'Fan', tags: ['membrane'], dom: 0.5, w: 2, shapes: [{ pts: [[0, -4], [-12, -6], [-22, -2], [-24, 4, 'c'], [-18, 8], [-8, 8], [0, 4]], f: 's' }], extra: [L('M0,0 L-22,-2 M0,0 L-24,4 M0,0 L-18,8', 'pd', 1.6)], stages: nwTailStages(-22, 0) }),
+  nwPart({ id: 'forked', slot: 'tail', name: 'Forked', tags: ['fork'], dom: 0.5, w: 2, shapes: [tube([[0, 0], [-10, 1], [-16, -4]], 3, 1.4, { tipK: 'c' }), tube([[-8, 1], [-14, 4], [-18, 8]], 2.6, 1.2, { tipK: 'c' })], stages: nwTailStages(-15, -3) }),
+];
+
+// ---- src/data/parts/nightwing/dress.js ----
+// Nightwing crests (between the ears, behind the head), ruffs (around the neck, in front of the body) and
+// markings (a pattern clipped to the torso, 100 x 60 frame).
+// Evolutions: crests and ruffs grow; markings are flat.
+
+
+
+const nwGrowDress = { 2: { grow: [1.1, 1.1] }, 3: { grow: [1.12, 1.15] } };
+
+const NW_CRESTS = [
+  NONE('crest', 0.3, 'n.'),
+  nwPart({ id: 'tuft', slot: 'crest', name: 'Tuft', tags: ['fur'], dom: 0.5, w: 3, shapes: [{ pts: [[-6, 2], ...fur([-6, 2], [6, 2], 3, 10, { tip: 'c' }), [6, 4], [-6, 4]], f: 'p' }], extra: [L('M-2,0 L-3,-6 M2,0 L3,-6', 'k', 0.9, { op: 0.25 })], stages: nwGrowDress }),
+  nwPart({ id: 'mohawk', slot: 'crest', name: 'Mohawk', tags: ['punk'], dom: 0.5, w: 2, shapes: [{ pts: [[-10, 2], ...fur([-10, 2], [10, 2], 5, 12, { tip: 0.3, lean: 0.4 }), [10, 4], [-10, 4]], f: 'a' }], stages: nwGrowDress }),
+  nwPart({ id: 'horns', slot: 'crest', name: 'Horns', tags: ['horn'], dom: 0.5, w: 2, shapes: [[[-8, 2], [-11, -10, 'c'], [-4, 1]], [[4, 1], [9, -11, 'c'], [8, 2]]], extra: [L('M-8,-2 L-9,-6 M6,-3 L7,-7', 'k', 0.9, { op: 0.3 })], stages: nwGrowDress }),
+  nwPart({ id: 'spikes', slot: 'crest', name: 'Spikes', tags: ['sharp'], dom: 0.5, w: 2, shapes: [{ pts: [[-9, 2], ...fur([-9, 2], [9, 2], 4, 9, { tip: 1 }), [9, 4], [-9, 4]], f: 'pd' }], stages: nwGrowDress }),
+  nwPart({ id: 'crown', slot: 'crest', name: 'Fur crown', tags: ['royal'], dom: 0.5, w: 2, shapes: [{ pts: [[-8, 2], ...fur([-8, 2], [8, 2], 4, 7, { tip: 'c' }), [8, 4], [-8, 4]], f: 's' }], extra: [C(0, -3, 1.2, 'a', { ns: true })], stages: nwGrowDress }),
+  nwPart({ id: 'plume', slot: 'crest', name: 'Plume', tags: ['feather'], dom: 0.5, w: 2, shapes: [{ d: leaf([0, 2], [-6, -22], 4), f: 'a' }], extra: [L('M0,0 L-4,-16', 'k', 0.8, { op: 0.3 })], stages: nwGrowDress }),
+  nwPart({ id: 'leaf', slot: 'crest', name: 'Leaf', tags: ['plant'], dom: 0.5, w: 2, shapes: [{ d: leaf([0, 2], [2, -20], 5), f: 'a' }], extra: [L('M0,0 L1,-14', 'k', 0.8, { op: 0.35 })], stages: nwGrowDress }),
+];
+
+const NW_RUFFS = [
+  NONE('ruff', 0.3, 'n.'),
+  nwPart({ id: 'collar', slot: 'ruff', name: 'Collar', tags: ['fur'], dom: 0.5, w: 3, shapes: [{ pts: puff(0, 0, 9, 7, 3), f: 's' }], extra: [L('M-5,-4 L-7,-7 M4,-5 L6,-8', 'k', 1, { op: 0.3 })], stages: nwGrowDress }),
+  nwPart({ id: 'mane', slot: 'ruff', name: 'Mane', tags: ['fur'], dom: 0.5, w: 2, shapes: [{ pts: [[-4, 10], ...fur([-4, 10], [-4, -10], 5, 10, { tip: 'c' }), [-8, -10], [-8, 10]], f: 'p' }], extra: [L('M-8,-4 L-12,-6 M-8,2 L-12,4', 'k', 1, { op: 0.3 })], stages: nwGrowDress }),
+  nwPart({ id: 'fluff', slot: 'ruff', name: 'Fluff', tags: ['soft'], dom: 0.5, w: 2, shapes: [{ pts: puff(0, 0, 8, 9, 4, { tip: 'c' }), f: 'sl' }], extra: [C(-2, 2, 1, 'k', { ns: true, op: 0.2 })], stages: nwGrowDress }),
+  nwPart({ id: 'spiky', slot: 'ruff', name: 'Spiky', tags: ['sharp'], dom: 0.5, w: 2, shapes: [{ pts: puff(0, 0, 8, 7, 5, { tip: 1 }), f: 'pd' }], extra: [L('M-6,-2 L-9,-4 M5,-3 L8,-6', 'k', 1, { op: 0.3 })], stages: nwGrowDress }),
+  nwPart({ id: 'feathery', slot: 'ruff', name: 'Feathery', tags: ['down'], dom: 0.5, w: 2, shapes: [{ pts: puff(0, 0, 9, 6, 4, { tip: 'c' }), f: 's' }], extra: [L('M-6,-4 L-9,-8 M0,-7 L0,-11 M6,-4 L9,-8', 'k', 1, { op: 0.3 })], stages: nwGrowDress }),
+  nwPart({ id: 'beads', slot: 'ruff', name: 'Beads', tags: ['jewel'], dom: 0.5, w: 2, extra: [L('M-9,-2 C-6,6 6,6 9,-2', 'k', 1.2), ...[-7, -3.5, 0, 3.5, 7].map((x) => C(x, 3 - Math.abs(x) * 0.25, 1.8, 'a', { sw: 1 }))], stages: nwGrowDress }),
+  nwPart({ id: 'petals', slot: 'ruff', name: 'Petals', tags: ['flower'], dom: 0.5, w: 2, shapes: [{ pts: puff(0, 0, 8, 5, 5, { tip: 'c' }), f: 'a' }], extra: [C(0, 0, 2.4, 'w', { ns: true, op: 0.7 })], stages: nwGrowDress }),
+];
+
+const NW_MARKINGS = [
+  NONE('markings', 0.3, 'n.'),
+  nwPart({ id: 'belly', slot: 'markings', name: 'Pale belly', tags: ['belly'], dom: 0.5, w: 3, extra: [PATCH('M-50,8 C-25,2 25,2 50,8 L50,30 L-50,30 Z', 's')] }),
+  nwPart({ id: 'stripes', slot: 'markings', name: 'Stripes', tags: ['stripe'], dom: 0.5, w: 2, extra: [PATCH('M-30,-30 L-22,-30 L-10,30 L-18,30 Z M-6,-30 L2,-30 L14,30 L6,30 Z M18,-30 L26,-30 L38,30 L30,30 Z', 's', { op: 0.8 })] }),
+  nwPart({ id: 'spots', slot: 'markings', name: 'Spots', tags: ['spot'], dom: 0.5, w: 2, extra: [PATCH(spline(puff(-20, -6, 6, 6, 2)), 'a'), PATCH(spline(puff(4, 8, 5, 6, 2)), 'a'), PATCH(spline(puff(24, -8, 5, 6, 2)), 'a'), PATCH(spline(puff(-2, -18, 4, 5, 1.5)), 'a')] }),
+  nwPart({ id: 'blaze', slot: 'markings', name: 'Chest blaze', tags: ['blaze'], dom: 0.5, w: 2, extra: [PATCH('M20,-30 L50,-30 L50,10 C40,0 30,-10 20,-30 Z', 'a', { op: 0.85 })] }),
+  nwPart({ id: 'mottled', slot: 'markings', name: 'Mottled', tags: ['patch'], dom: 0.5, w: 2, extra: [PATCH(spline(puff(-16, 4, 10, 7, 4)), 's'), PATCH(spline(puff(14, -8, 9, 7, 4)), 's'), PATCH(spline(puff(30, 10, 7, 6, 3)), 's')] }),
+  nwPart({ id: 'saddle', slot: 'markings', name: 'Saddle', tags: ['back'], dom: 0.5, w: 2, extra: [PATCH('M-50,-30 L50,-30 L50,-8 C25,-2 -25,-2 -50,-8 Z', 's', { op: 0.8 })] }),
+  nwPart({ id: 'collar', slot: 'markings', name: 'Collar band', tags: ['band'], dom: 0.5, w: 2, extra: [PATCH('M14,-30 L22,-30 C24,-10 24,10 22,30 L14,30 C16,10 16,-10 14,-30 Z', 'a', { op: 0.85 })] }),
+];
+
+// ---- src/data/parts/nightwing/index.js ----
+// The nightwing library, one list per rig slot.
+
+
+
+
+
+
+
+const NIGHTWING_PARTS = {
+  body: NW_BODIES, head: NW_HEADS, ears: NW_EARS, eyes: NW_EYES, muzzle: NW_MUZZLES, wings: NW_WINGS,
+  legs: NW_LEGS, tail: NW_TAILS, crest: NW_CRESTS, ruff: NW_RUFFS, thumbs: NW_THUMBS, markings: NW_MARKINGS,
+};
+
 // ---- src/data/parts/index.js ----
 // Part registry. Part ids are stable forever: a saved creature must decode the
 // same way after the library grows, so never rename or reuse an id.
 //
 // Parts are grouped by rig, then slot. A part fits any body of its own rig
 // unless it lists the body kinds it accepts in `fit`.
+
 
 
 
@@ -8477,6 +8811,7 @@ const RIG_PARTS = {
   wyrm: WYRM_PARTS,
   draconic: DRACONIC_PARTS,
   skeletal: SKELETAL_PARTS,
+  nightwing: NIGHTWING_PARTS,
 };
 
 const PARTS = new Map();
@@ -10760,6 +11095,147 @@ const SPECIES = [
     abilities: ['purebred','menace'],
     desc: 'The dragon that the barrows were dug around. It does not sleep so much as wait, and it has been very patient.',
   },
+  // ---- Roster expansion: nightwings ----
+  {
+    id: 'duskit', name: 'Duskit', nameParts: ['Dusk', 'it'], clade: 'nightwing', rig: 'nightwing', types: ['Dark'], tier: 'common', bst: 395,
+    stats: { hp: 0.13, melee: 0.21, ranged: 0.08, magic: 0.08, meleeDef: 0.11, rangedDef: 0.1, magicDef: 0.1, spe: 0.19 },
+    recipe: { body: 'n.body.tiny', head: 'n.head.snub', ears: 'n.ears.round', eyes: 'n.eyes.big', muzzle: 'n.muzzle.snub', wings: 'n.wings.short', legs: 'n.legs.tucked', tail: 'n.tail.stub', crest: ['n.crest.tuft', 'n.crest.none'], ruff: 'n.ruff.none', thumbs: ['n.thumbs.hook', 'n.thumbs.none'], markings: ['n.markings.belly', 'n.markings.none'] },
+    palette: { c1: [265, 14, 44], c2: [275, 18, 32], c3: [35, 70, 72], eye: [45, 90, 60] }, vary: { h: 8, s: 6, l: 5 },
+    traits: T([0.2, 0.45], [0.55, 0.8], [0.3, 0.5], [0.3, 0.5], [0.4, 0.6], [0.6, 0.9]),
+    learnset: [[1,'bump'],[1,'glare'],[6,'cheap_shot'],[11,'wing_strike'],[16,'scheme'],[22,'chomp'],[28,'dusk_slash'],[34,'brace'],[40,'blur'],[46,'crush_bite'],[52,'dive_bomb']],
+    abilities: ['restless','finesse'],
+    desc: 'Fits in a pocket and bites anything that reaches in. Sleeps upside down in the lamp you were about to light.',
+  },
+  {
+    id: 'fangwing', name: 'Fangwing', nameParts: ['Fang', 'wing'], clade: 'nightwing', rig: 'nightwing', types: ['Dark', 'Flying'], tier: 'uncommon', bst: 435,
+    stats: { hp: 0.12, melee: 0.22, ranged: 0.08, magic: 0.07, meleeDef: 0.1, rangedDef: 0.1, magicDef: 0.09, spe: 0.22 },
+    recipe: { body: 'n.body.slim', head: 'n.head.fox', ears: 'n.ears.tall', eyes: 'n.eyes.red', muzzle: 'n.muzzle.fanged', wings: 'n.wings.narrow', legs: 'n.legs.hook', tail: 'n.tail.long', crest: 'n.crest.none', ruff: 'n.ruff.none', thumbs: ['n.thumbs.long', 'n.thumbs.none'], markings: ['n.markings.blaze', 'n.markings.none'] },
+    palette: { c1: [345, 15, 36], c2: [350, 45, 40], c3: [0, 80, 60], eye: [0, 90, 55] }, vary: { h: 6, s: 6, l: 5 },
+    traits: T([0.35, 0.6], [0.45, 0.65], [0.4, 0.6], [0.55, 0.85], [0.6, 0.9], [0.35, 0.6]),
+    learnset: [[1,'swipe'],[1,'glare'],[6,'cheap_shot'],[11,'wing_strike'],[16,'blindside'],[22,'scheme'],[28,'dusk_slash'],[34,'sky_strike'],[40,'preen'],[46,'crush_bite'],[52,'dive_bomb']],
+    abilities: ['second_wind','daredevil'],
+    desc: 'Drinks from anything warm and asleep. Fast enough that you only find out in the morning.',
+  },
+  {
+    id: 'echomaw', name: 'Echomaw', nameParts: ['Echo', 'maw'], clade: 'nightwing', rig: 'nightwing', types: ['Dark', 'Psychic'], tier: 'uncommon', bst: 440,
+    stats: { hp: 0.13, melee: 0.07, ranged: 0.08, magic: 0.23, meleeDef: 0.1, rangedDef: 0.11, magicDef: 0.13, spe: 0.15 },
+    recipe: { body: 'n.body.round', head: 'n.head.leaf', ears: 'n.ears.huge', eyes: 'n.eyes.wide', muzzle: 'n.muzzle.leaf', wings: 'n.wings.broad', legs: 'n.legs.hook', tail: 'n.tail.tuck', crest: 'n.crest.none', ruff: ['n.ruff.collar', 'n.ruff.none'], thumbs: ['n.thumbs.rings', 'n.thumbs.none'], markings: ['n.markings.spots', 'n.markings.none'] },
+    palette: { c1: [230, 12, 55], c2: [240, 25, 42], c3: [190, 80, 68], eye: [190, 90, 65] }, vary: { h: 8, s: 6, l: 5 },
+    traits: T([0.35, 0.6], [0.6, 0.85], [0.3, 0.5], [0.3, 0.5], [0.5, 0.75], [0.6, 0.9]),
+    learnset: [[1,'mind_jolt'],[1,'glare'],[6,'hex_glare'],[11,'air_whisper'],[16,'thought_beam'],[22,'meditate'],[28,'psi_shock'],[34,'dread_pulse'],[40,'lull'],[46,'mind_crush'],[52,'psystorm']],
+    abilities: ['hawkeye','umbral_core'],
+    desc: 'Its ears are bigger than its body and its squeak comes back with your thoughts in it. Unsettling at dinner.',
+  },
+  {
+    id: 'fruitflap', name: 'Fruitflap', nameParts: ['Fruit', 'flap'], clade: 'nightwing', rig: 'nightwing', types: ['Dark', 'Grass'], tier: 'common', bst: 400,
+    stats: { hp: 0.15, melee: 0.08, ranged: 0.21, magic: 0.08, meleeDef: 0.12, rangedDef: 0.12, magicDef: 0.1, spe: 0.14 },
+    recipe: { body: 'n.body.pear', head: 'n.head.fox', ears: 'n.ears.round', eyes: 'n.eyes.big', muzzle: 'n.muzzle.long', wings: 'n.wings.broad', legs: 'n.legs.clawed', tail: 'n.tail.stub', crest: 'n.crest.none', ruff: ['n.ruff.mane', 'n.ruff.none'], thumbs: ['n.thumbs.hook', 'n.thumbs.none'], markings: ['n.markings.collar', 'n.markings.none'] },
+    palette: { c1: [25, 45, 45], c2: [20, 35, 30], c3: [90, 55, 50], eye: [35, 80, 55] }, vary: { h: 8, s: 6, l: 5 },
+    traits: T([0.4, 0.65], [0.5, 0.75], [0.3, 0.5], [0.2, 0.4], [0.55, 0.8], [0.55, 0.85]),
+    learnset: [[1,'seed_volley'],[1,'glare'],[6,'gale'],[11,'leaf_razor'],[16,'sneer'],[22,'drowse_dust'],[28,'shadow_shot'],[34,'spore_burst'],[40,'photosynth'],[46,'night_volley'],[52,'leaf_tempest']],
+    abilities: ['bloom_heart','sponge'],
+    desc: 'Eats the orchard and spits the stones back at the farmer. Every tree in the chasm was planted by one.',
+  },
+  {
+    id: 'emberbat', name: 'Emberbat', nameParts: ['Ember', 'bat'], clade: 'nightwing', rig: 'nightwing', types: ['Dark', 'Fire'], tier: 'uncommon', bst: 435,
+    stats: { hp: 0.12, melee: 0.08, ranged: 0.09, magic: 0.23, meleeDef: 0.1, rangedDef: 0.1, magicDef: 0.11, spe: 0.17 },
+    recipe: { body: 'n.body.slim', head: 'n.head.pointed', ears: 'n.ears.tall', eyes: 'n.eyes.glow', muzzle: 'n.muzzle.fanged', wings: 'n.wings.hooked', legs: 'n.legs.long', tail: 'n.tail.whip', crest: ['n.crest.spikes', 'n.crest.none'], ruff: 'n.ruff.none', thumbs: ['n.thumbs.glowing', 'n.thumbs.none'], markings: ['n.markings.stripes', 'n.markings.none'] },
+    palette: { c1: [15, 30, 32], c2: [20, 80, 45], c3: [40, 100, 60], eye: [40, 100, 60] }, vary: { h: 6, s: 5, l: 5 },
+    traits: T([0.35, 0.6], MID, [0.45, 0.7], [0.55, 0.85], [0.55, 0.85], [0.5, 0.8]),
+    learnset: [[1,'flare'],[1,'glare'],[6,'hex_glare'],[11,'air_whisper'],[16,'cinder'],[22,'scheme'],[28,'heat_wave'],[34,'dread_pulse'],[40,'ghostflame'],[46,'cyclone'],[52,'meltdown']],
+    abilities: ['ember_heart','hot_blooded'],
+    desc: 'Roosts in chimneys and comes out glowing. The membranes of its wings are the colour of a banked fire.',
+  },
+  {
+    id: 'frostflit', name: 'Frostflit', nameParts: ['Frost', 'flit'], clade: 'nightwing', rig: 'nightwing', types: ['Dark', 'Ice'], tier: 'common', bst: 405,
+    stats: { hp: 0.14, melee: 0.07, ranged: 0.22, magic: 0.09, meleeDef: 0.11, rangedDef: 0.12, magicDef: 0.11, spe: 0.14 },
+    recipe: { body: 'n.body.fluffy', head: 'n.head.round', ears: 'n.ears.tufted', eyes: 'n.eyes.sleepy', muzzle: 'n.muzzle.tube', wings: 'n.wings.scalloped', legs: 'n.legs.furred', tail: 'n.tail.tufted', crest: ['n.crest.tuft', 'n.crest.none'], ruff: ['n.ruff.fluff', 'n.ruff.none'], thumbs: 'n.thumbs.none', markings: ['n.markings.mottled', 'n.markings.none'] },
+    palette: { c1: [205, 20, 80], c2: [210, 30, 60], c3: [190, 70, 70], eye: [210, 80, 45] }, vary: { h: 6, s: 6, l: 4 },
+    traits: T([0.3, 0.55], [0.55, 0.8], [0.3, 0.5], [0.35, 0.55], [0.5, 0.75], [0.45, 0.7]),
+    learnset: [[1,'sleet'],[1,'glare'],[6,'gale'],[11,'icicle_dart'],[16,'sneer'],[22,'scheme'],[28,'hail_volley'],[34,'shadow_shot'],[40,'brace'],[46,'glacier_toss'],[52,'night_volley']],
+    abilities: ['frost_heart','live_fur'],
+    desc: 'So fluffy it barely looks like a bat until it opens its wings. Breathes out little clouds even in summer.',
+  },
+  {
+    id: 'voltvamp', name: 'Voltvamp', nameParts: ['Volt', 'vamp'], clade: 'nightwing', rig: 'nightwing', types: ['Dark', 'Electric'], tier: 'uncommon', bst: 430,
+    stats: { hp: 0.12, melee: 0.08, ranged: 0.22, magic: 0.09, meleeDef: 0.09, rangedDef: 0.1, magicDef: 0.09, spe: 0.21 },
+    recipe: { body: 'n.body.slim', head: 'n.head.fox', ears: 'n.ears.notched', eyes: 'n.eyes.slit', muzzle: 'n.muzzle.grin', wings: 'n.wings.narrow', legs: 'n.legs.hook', tail: 'n.tail.forked', crest: ['n.crest.mohawk', 'n.crest.none'], ruff: 'n.ruff.none', thumbs: ['n.thumbs.double', 'n.thumbs.none'], markings: ['n.markings.stripes', 'n.markings.none'] },
+    palette: { c1: [55, 10, 34], c2: [50, 80, 55], c3: [55, 100, 65], eye: [55, 100, 60] }, vary: { h: 6, s: 5, l: 5 },
+    traits: T([0.3, 0.55], MID, [0.4, 0.6], [0.5, 0.75], [0.6, 0.9], [0.4, 0.65]),
+    learnset: [[1,'zap'],[1,'glare'],[6,'gale'],[11,'static_net'],[16,'sneer'],[22,'numb_pulse'],[28,'shadow_shot'],[34,'slipstream'],[40,'scheme'],[46,'skyfall_bolt'],[52,'night_volley']],
+    abilities: ['capacitor','quick_start'],
+    desc: 'Hangs from the lightning rod on purpose. Its bite leaves a numb patch and a smell of hot copper.',
+  },
+  {
+    id: 'gloomfang', name: 'Gloomfang', nameParts: ['Gloom', 'fang'], clade: 'nightwing', rig: 'nightwing', types: ['Dark', 'Poison'], tier: 'common', bst: 405,
+    stats: { hp: 0.14, melee: 0.21, ranged: 0.08, magic: 0.08, meleeDef: 0.12, rangedDef: 0.11, magicDef: 0.1, spe: 0.16 },
+    recipe: { body: 'n.body.long', head: 'n.head.wide', ears: 'n.ears.leaf', eyes: 'n.eyes.red', muzzle: 'n.muzzle.fanged', wings: 'n.wings.ragged', legs: 'n.legs.clawed', tail: 'n.tail.long', crest: 'n.crest.none', ruff: ['n.ruff.spiky', 'n.ruff.none'], thumbs: ['n.thumbs.bony', 'n.thumbs.none'], markings: ['n.markings.saddle', 'n.markings.none'] },
+    palette: { c1: [120, 15, 36], c2: [90, 40, 40], c3: [95, 90, 55], eye: [95, 90, 60] }, vary: { h: 8, s: 6, l: 5 },
+    traits: T([0.4, 0.65], [0.5, 0.75], [0.35, 0.55], [0.55, 0.85], [0.5, 0.75], [0.35, 0.6]),
+    learnset: [[1,'venom_prick'],[1,'glare'],[6,'cheap_shot'],[11,'blight'],[16,'chomp'],[22,'venom_slash'],[28,'dusk_slash'],[34,'scheme'],[40,'venom_stab'],[46,'crush_bite'],[52,'venom_gore']],
+    abilities: ['venom_heart','vice_jaw'],
+    desc: 'Lives in the deepest damp of the chasm and drips when it flies. Whatever it bites goes green by morning.',
+  },
+  {
+    id: 'wraithwing', name: 'Wraithwing', nameParts: ['Wraith', 'wing'], clade: 'nightwing', rig: 'nightwing', types: ['Dark', 'Ghost'], tier: 'rare', bst: 465,
+    stats: { hp: 0.12, melee: 0.06, ranged: 0.09, magic: 0.24, meleeDef: 0.1, rangedDef: 0.11, magicDef: 0.13, spe: 0.15 },
+    recipe: { body: 'n.body.long', head: 'n.head.pointed', ears: 'n.ears.curled', eyes: 'n.eyes.glow', muzzle: 'n.muzzle.whiskered', wings: 'n.wings.ragged', legs: 'n.legs.long', tail: 'n.tail.whip', crest: ['n.crest.plume', 'n.crest.none'], ruff: ['n.ruff.feathery', 'n.ruff.none'], thumbs: ['n.thumbs.glowing', 'n.thumbs.none'], markings: ['n.markings.blaze', 'n.markings.none'] },
+    palette: { c1: [260, 15, 70], c2: [265, 25, 45], c3: [280, 80, 72], eye: [280, 90, 70] }, vary: { h: 8, s: 6, l: 4 },
+    traits: T([0.4, 0.65], MID, [0.45, 0.7], [0.6, 0.9], [0.6, 0.9], [0.5, 0.8]),
+    learnset: [[1,'hex_glare'],[1,'glare'],[6,'cold_lick'],[11,'air_whisper'],[16,'curse_bolt'],[22,'haunt'],[28,'jet_wave'],[34,'dread_pulse'],[40,'scheme'],[46,'umbral_orb'],[52,'cyclone']],
+    abilities: ['umbral_core','menace'],
+    desc: 'You hear it before you see it and you see it after it has gone. The chasm folk leave a lamp out so it stays away.',
+  },
+  {
+    id: 'dustwing', name: 'Dustwing', nameParts: ['Dust', 'wing'], clade: 'nightwing', rig: 'nightwing', types: ['Dark', 'Bug'], tier: 'common', bst: 400,
+    stats: { hp: 0.13, melee: 0.08, ranged: 0.21, magic: 0.09, meleeDef: 0.11, rangedDef: 0.12, magicDef: 0.1, spe: 0.16 },
+    recipe: { body: 'n.body.fluffy', head: 'n.head.snub', ears: 'n.ears.tufted', eyes: 'n.eyes.bead', muzzle: 'n.muzzle.tube', wings: 'n.wings.scalloped', legs: 'n.legs.furred', tail: 'n.tail.fan', crest: ['n.crest.tuft', 'n.crest.none'], ruff: ['n.ruff.fluff', 'n.ruff.none'], thumbs: 'n.thumbs.none', markings: ['n.markings.spots', 'n.markings.none'] },
+    palette: { c1: [40, 25, 62], c2: [35, 20, 48], c3: [30, 60, 75], eye: [25, 60, 40] }, vary: { h: 8, s: 6, l: 5 },
+    traits: T([0.3, 0.55], [0.5, 0.75], [0.3, 0.5], [0.4, 0.6], [0.55, 0.8], [0.5, 0.75]),
+    learnset: [[1,'needle_volley'],[1,'glare'],[6,'gale'],[11,'swarm_buzz'],[16,'sneer'],[22,'web_shot'],[28,'shadow_shot'],[34,'wind_cutter'],[40,'scheme'],[46,'drone'],[52,'night_volley']],
+    abilities: ['live_fur','lucky_streak'],
+    desc: 'Half bat, half moth, all dust. Flutters at the window and leaves a powdery print shaped like itself.',
+  },
+  {
+    id: 'ironflit', name: 'Ironflit', nameParts: ['Iron', 'flit'], clade: 'nightwing', rig: 'nightwing', types: ['Dark', 'Steel'], tier: 'uncommon', bst: 445,
+    stats: { hp: 0.15, melee: 0.2, ranged: 0.07, magic: 0.06, meleeDef: 0.18, rangedDef: 0.14, magicDef: 0.1, spe: 0.1 },
+    recipe: { body: 'n.body.broad', head: 'n.head.wide', ears: 'n.ears.notched', eyes: 'n.eyes.slit', muzzle: 'n.muzzle.snub', wings: 'n.wings.hooked', legs: 'n.legs.stubby', tail: 'n.tail.stub', crest: ['n.crest.horns', 'n.crest.none'], ruff: ['n.ruff.beads', 'n.ruff.none'], thumbs: ['n.thumbs.blunt', 'n.thumbs.none'], markings: ['n.markings.saddle', 'n.markings.none'] },
+    palette: { c1: [210, 8, 48], c2: [215, 10, 35], c3: [45, 80, 60], eye: [45, 90, 60] }, vary: { h: 5, s: 5, l: 5 },
+    traits: T([0.45, 0.7], [0.5, 0.75], [0.3, 0.5], [0.2, 0.4], [0.45, 0.7], [0.3, 0.5]),
+    learnset: [[1,'bolt_jab'],[1,'plate_up'],[6,'cheap_shot'],[11,'iron_claw'],[16,'chomp'],[22,'brace'],[28,'steel_fin'],[34,'dusk_slash'],[40,'steel_ram'],[46,'crush_bite'],[52,'comet_fist']],
+    abilities: ['iron_hide','grit'],
+    desc: 'Roosts in the old mine works and has taken on their colour. Flies like a thrown anvil, and lands like one.',
+  },
+  {
+    id: 'boulderbat', name: 'Boulderbat', nameParts: ['Boulder', 'bat'], clade: 'nightwing', rig: 'nightwing', types: ['Dark', 'Rock'], tier: 'uncommon', bst: 445,
+    stats: { hp: 0.16, melee: 0.2, ranged: 0.07, magic: 0.06, meleeDef: 0.17, rangedDef: 0.14, magicDef: 0.1, spe: 0.1 },
+    recipe: { body: 'n.body.broad', head: 'n.head.round', ears: 'n.ears.round', eyes: 'n.eyes.sleepy', muzzle: 'n.muzzle.snub', wings: 'n.wings.short', legs: 'n.legs.stubby', tail: 'n.tail.stub', crest: ['n.crest.spikes', 'n.crest.none'], ruff: 'n.ruff.none', thumbs: ['n.thumbs.bony', 'n.thumbs.none'], markings: ['n.markings.mottled', 'n.markings.none'] },
+    palette: { c1: [30, 15, 50], c2: [25, 15, 35], c3: [90, 30, 55], eye: [40, 60, 60] }, vary: { h: 6, s: 5, l: 5 },
+    traits: T([0.5, 0.8], [0.5, 0.75], [0.3, 0.5], [0.2, 0.4], [0.35, 0.55], [0.3, 0.55]),
+    learnset: [[1,'bump'],[1,'brace'],[6,'cheap_shot'],[11,'rock_smash'],[16,'chomp'],[22,'smooth_stone'],[28,'dusk_slash'],[34,'headbonk'],[40,'scheme'],[46,'boulder_bash'],[52,'crush_bite']],
+    abilities: ['stone_heart','thick_skull'],
+    desc: 'Hangs from the cave roof so still that it grows lichen. When it drops, the floor remembers.',
+  },
+  {
+    id: 'nectarwing', name: 'Nectarwing', nameParts: ['Nectar', 'wing'], clade: 'nightwing', rig: 'nightwing', types: ['Dark', 'Fairy'], tier: 'uncommon', bst: 430,
+    stats: { hp: 0.13, melee: 0.06, ranged: 0.08, magic: 0.22, meleeDef: 0.1, rangedDef: 0.11, magicDef: 0.14, spe: 0.16 },
+    recipe: { body: 'n.body.tiny', head: 'n.head.long', ears: 'n.ears.leaf', eyes: 'n.eyes.big', muzzle: 'n.muzzle.whiskered', wings: 'n.wings.broad', legs: 'n.legs.splayed', tail: 'n.tail.fan', crest: ['n.crest.leaf', 'n.crest.none'], ruff: ['n.ruff.petals', 'n.ruff.none'], thumbs: ['n.thumbs.rings', 'n.thumbs.none'], markings: ['n.markings.belly', 'n.markings.none'] },
+    palette: { c1: [320, 35, 68], c2: [300, 30, 50], c3: [50, 90, 70], eye: [320, 80, 55] }, vary: { h: 8, s: 6, l: 5 },
+    traits: T([0.2, 0.45], [0.55, 0.8], [0.3, 0.5], [0.35, 0.55], [0.5, 0.75], [0.6, 0.9]),
+    learnset: [[1,'glitter_gust'],[1,'glare'],[6,'hex_glare'],[11,'air_whisper'],[16,'sweet_sip'],[22,'doe_eyes'],[28,'dazzle'],[34,'dread_pulse'],[40,'moonbathe'],[46,'lunar_burst'],[52,'cyclone']],
+    abilities: ['radiant_core','regrowth'],
+    desc: 'Drinks from the night flowers and pollinates the whole chasm by accident. Sneezes glitter.',
+  },
+  {
+    id: 'nightmaw', name: 'Nightmaw', nameParts: ['Night', 'maw'], clade: 'nightwing', rig: 'nightwing', types: ['Dark', 'Dragon'], tier: 'rare', bst: 470,
+    stats: { hp: 0.15, melee: 0.22, ranged: 0.08, magic: 0.08, meleeDef: 0.13, rangedDef: 0.11, magicDef: 0.1, spe: 0.13 },
+    recipe: { body: 'n.body.broad', head: 'n.head.long', ears: 'n.ears.curled', eyes: 'n.eyes.red', muzzle: 'n.muzzle.grin', wings: 'n.wings.huge', legs: 'n.legs.splayed', tail: 'n.tail.forked', crest: ['n.crest.horns', 'n.crest.none'], ruff: ['n.ruff.mane', 'n.ruff.none'], thumbs: ['n.thumbs.long', 'n.thumbs.none'], markings: ['n.markings.stripes', 'n.markings.none'] },
+    palette: { c1: [250, 15, 38], c2: [255, 25, 30], c3: [280, 90, 60], eye: [275, 95, 65] }, vary: { h: 6, s: 6, l: 5 },
+    traits: T([0.55, 0.85], [0.5, 0.75], [0.4, 0.6], [0.55, 0.85], [0.65, 0.95], [0.4, 0.65]),
+    learnset: [[1,'swipe'],[1,'glare'],[6,'cheap_shot'],[11,'wyrm_breath'],[16,'chomp'],[22,'scheme'],[28,'wyrm_claw'],[34,'dusk_slash'],[40,'wyrm_dance'],[46,'wyrm_rush'],[52,'rampage']],
+    abilities: ['menace','swagger'],
+    desc: 'The thing the other bats fly away from. Its wings blot out the chasm mouth and its grin has too many rows.',
+  },
 ];
 
 const SPECIES_BY_ID = Object.fromEntries(SPECIES.map((s) => [s.id, s]));
@@ -11429,6 +11905,7 @@ const CLADES = {
   wyrm: { name: 'Wyrm', plural: 'Wyrms', linked: [['mane', 'tail']], desc: 'Serpentine dragons. Long coils, whiskers, small legs and long tails.' },
   draconic: { name: 'Draconic', plural: 'Draconic', linked: [['legsFront', 'legsBack']], desc: 'True dragons. Four legs, two wings, horns and a breath.' },
   skeletal: { name: 'Skeletal', plural: 'Skeletals', linked: [['legsFront', 'legsBack']], desc: 'Walking bone. Skulls, ribcages and a light where the heart was.' },
+  nightwing: { name: 'Nightwing', plural: 'Nightwings', linked: [['wings', 'thumbs']], desc: 'Bats of every size. Leathern wings, big ears and a taste for dusk.' },
 };
 
 const CLADE_IDS = Object.keys(CLADES);
@@ -11932,6 +12409,8 @@ const SLOT_FAMILY = {
   breath: 'face',
   // skeletal
   light: 'face', shroud: 'fur', cracks: 'flat',
+  // nightwing
+  ruff: 'fur', thumbs: 'face',
 };
 function growthFor(slot) { return SLOT_GROWTH[SLOT_FAMILY[slot] || 'face']; }
 
@@ -12290,6 +12769,15 @@ function resolvePose(g, pose) {
   if (g && g.mannequin) return 'stand';
   return idlePoseFor(g);
 }
+
+POSES.nightwing = {
+  stand: {},
+  brace: { body: { da: 4, dx: 2 }, head: { dx: 2, da: 4 }, wings: { da: -6 }, legs: { da: -4 }, ears: { da: -4 }, tail: { da: 6 } },
+  crouch: { body: { dy: 4, da: 2 }, head: { dy: 2 }, wings: { da: 6, ds: 1.03 }, legs: { ds: 0.9 }, ears: { da: 6 }, tail: { da: 8 } },
+  poise: { body: { da: -5 }, head: { da: -6, dy: -2 }, wings: { da: -10 }, legs: { da: 4 }, ears: { da: -6 }, crest: { ds: 1.06 }, ruff: { ds: 1.04 } },
+  attack: { body: { da: 5, dx: 6 }, head: { dx: 4, da: 4 }, muzzle: { ds: 1.15 }, wings: { da: 24, far: { da: 14 } }, legs: { da: -10, far: { da: 6 } }, ears: { da: -14 }, tail: { da: 10 } },
+  hurt: { body: { da: -10, dx: -4 }, head: { da: -12 }, wings: { da: 30, far: { da: 18 } }, legs: { da: 12 }, ears: { da: -22 }, tail: { da: -8 } },
+};
 
 // ---- src/creature/render.js ----
 // Genome -> SVG string. Pure: no DOM access, so it runs in Node for tests.
@@ -15079,14 +15567,14 @@ function challengeTower(j, k, level) {
 
 
 /** Map size and ring geometry. `version` bumps whenever the layout changes, so saved positions from an older map reset to the Crossroads. */
-const WORLD = { version: 4, w: 224, h: 192, hubR: 6, ringR: 58, lairR: 84, trainersPerBiome: 6, encounterChance: 0.12, encounterCooldown: 4, homeSpawnShare: 0.72 };
+const WORLD = { version: 5, w: 224, h: 192, hubR: 6, ringR: 58, lairR: 84, trainersPerBiome: 6, encounterChance: 0.12, encounterCooldown: 4, homeSpawnShare: 0.72 };
 
 /** Tile kinds. */
 const TILE = { grass: 0, habitat: 1, path: 2, wall: 3, water: 4, hub: 5, lair: 6, door: 7, camp: 8, spire: 9, spireDoor: 10, shrine: 11, market: 12, marketDoor: 13, storage: 14, storageDoor: 15, tower: 16, towerDoor: 17 };
 const WALKABLE_TILES = new Set([TILE.grass, TILE.habitat, TILE.path, TILE.hub, TILE.door, TILE.camp, TILE.spireDoor, TILE.shrine, TILE.marketDoor, TILE.storageDoor, TILE.towerDoor]);
 
 /** Biomes in difficulty order, clockwise from the south of the hub. Levels climb 5 to the fifties; the gaps in the ladder are for classes still to come. */
-const BIOME_ORDER = ['mammal', 'amphibian', 'flora', 'insect', 'fungus', 'bird', 'ooze', 'fish', 'wyrm', 'invertebrate', 'skeletal', 'reptile', 'draconic'];
+const BIOME_ORDER = ['mammal', 'amphibian', 'flora', 'insect', 'nightwing', 'fungus', 'bird', 'ooze', 'fish', 'wyrm', 'invertebrate', 'skeletal', 'reptile', 'draconic'];
 
 /** Per-class region: name, wild level, palette and the look of its walls. */
 const REGIONS = {
@@ -15100,6 +15588,7 @@ const REGIONS = {
   fungus:       { name: 'Sporewood',      level: 23, ground: '#7a7f5c', ground2: '#70754f', habitat: '#5b5f47', path: '#c7b48a', water: '#4e7aa0', wall: 'tree',     wallColor: '#5a4a6a', accent: '#d9a3ff', waterT: 0.6,  warden: 'Warden Morel',  badge: 'Spore Badge' },
   wyrm:         { name: 'Coiling Gorge',  level: 41, ground: '#8a8570', ground2: '#807b66', habitat: '#6b6a52', path: '#d2c39a', water: '#4f8fb8', wall: 'rock',     wallColor: '#5c5548', accent: '#8fd3ff', waterT: 0.62, warden: 'Warden Tempest', badge: 'Gorge Badge' },
   ooze:         { name: 'Slurry Sump',    level: 32, ground: '#7a8a4c', ground2: '#707f45', habitat: '#55703a', path: '#c0b27e', water: '#7fb84f', wall: 'rock',     wallColor: '#4c4a3e', accent: '#b6f06a', waterT: 0.6,  warden: 'Warden Dreg',   badge: 'Sump Badge' },
+  nightwing:    { name: 'Echo Chasm',     level: 20, ground: '#4c5566', ground2: '#454e5e', habitat: '#38404f', path: '#98a0ad', water: '#3a6f8a', wall: 'rock',     wallColor: '#5c667a', accent: '#9fd8ff', waterT: 0.62, warden: 'Warden Vesper', badge: 'Echo Badge' },
   skeletal:     { name: 'Barrow Downs',   level: 47, ground: '#6f7466', ground2: '#666b5e', habitat: '#535a4c', path: '#bfb59a', water: '#4a6f88', wall: 'bone',     wallColor: '#e6dfc8', accent: '#9fe8b0', waterT: 0.6,  warden: 'Warden Ossa',   badge: 'Marrow Badge' },
   reptile:      { name: 'Ember Scar',     level: 50, ground: '#9c6b4a', ground2: '#906244', habitat: '#7a4d38', path: '#d0a878', water: '#e0562a', wall: 'rock',     wallColor: '#5a3a2c', accent: '#ff9a4a', waterT: 0.7,  warden: 'Warden Cinder', badge: 'Scar Badge' },
   draconic:     { name: 'Drakefell Peaks', level: 55, ground: '#7d7269', ground2: '#736960', habitat: '#5f5450', path: '#c9b79c', water: '#5a8fc0', wall: 'rock',     wallColor: '#4a3f3c', accent: '#ffb347', waterT: 0.6,  warden: 'Warden Ashfall', badge: 'Peak Badge' },
@@ -15254,6 +15743,7 @@ const TRAINER_TITLES = {
   wyrm: ['Storm Chaser', 'Ridge Runner', 'Kite Flyer'],
   draconic: ['Dragon Tamer', 'Egg Warmer', 'Sky Knight'],
   skeletal: ['Gravedigger', 'Bone Setter', 'Mourner'],
+  nightwing: ['Cave Guide', 'Night Watch', 'Guano Sweeper'],
 };
 const TRAINER_LINES = {
   mammal: ['My team was raised on these downs. Care for a bout?', 'Fur and fang against whatever you have. Fight?'],
@@ -15269,6 +15759,7 @@ const TRAINER_LINES = {
   wyrm: ['Feel that wind? That is my team breathing. Fight?', 'Up here the sky bites back. Battle?'],
   draconic: ['My team was hatched on this mountain. Yours was not. Fight?', 'Every dragon here answers to me. Let us see if yours answers to you.'],
   skeletal: ['Nothing down here stays buried for long. Fight?', 'My team has been dead for years and still beats most of the living.'],
+  nightwing: ['Mind your head in here. My team hangs from the ceiling. Fight?', 'They only come out at dusk, and so do I. Care for a bout?'],
 };
 const TRAINER_AFTER = ['Good match. Come back stronger.', 'Well fought. The Warden is another matter.', 'You earned that one.', 'My team will remember you.'];
 

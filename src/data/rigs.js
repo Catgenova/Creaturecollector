@@ -642,6 +642,41 @@ RIGS.skeletal = {
   },
 };
 
+RIGS.nightwing = {
+  id: 'nightwing', name: 'Nightwing', prefix: 'n.',
+  slots: ['body', 'head', 'ears', 'eyes', 'muzzle', 'wings', 'legs', 'tail', 'crest', 'ruff', 'thumbs', 'markings'],
+  names: { body: 'Body', head: 'Head', ears: 'Ears', eyes: 'Eyes', muzzle: 'Muzzle', wings: 'Wings', legs: 'Legs', tail: 'Tail', crest: 'Crest', ruff: 'Ruff', thumbs: 'Wing thumbs', markings: 'Markings' },
+  paint: ['body', 'head', 'ears', 'wings', 'legs', 'tail', 'crest', 'ruff', 'thumbs', 'markings'],
+  swappable: ['ears', 'tail', 'crest', 'ruff', 'thumbs', 'markings'],
+  required: ['body', 'head', 'ears', 'eyes', 'muzzle', 'wings', 'legs', 'tail'],
+  linked: [['wings', 'thumbs'], ['head', 'muzzle']],
+  ground: ['body', 'legs'],
+  clipped: ['markings'],
+  tree: {
+    slot: 'body', anim: 'body',
+    behind: [
+      { slot: 'wings', socket: 'wingFar', far: true, scale: 'wing', anim: 'flap', front: [{ slot: 'thumbs', socket: 'thumb', far: true, small: true }] },
+      { slot: 'tail', socket: 'tail', scale: 'tail', anim: 'tail' },
+      { slot: 'legs', socket: 'legFar', far: true, scale: 'leg' },
+      { slot: 'wings', socket: 'wing', scale: 'wing', anim: 'flap', front: [{ slot: 'thumbs', socket: 'thumb', small: true }] },
+    ],
+    front: [
+      { slot: 'legs', socket: 'leg', scale: 'leg' },
+      { slot: 'ruff', socket: 'ruff', anim: 'sway' },
+      {
+        slot: 'head', socket: 'head', scale: 'head', anim: 'head',
+        behind: [{ slot: 'ears', socket: 'earFar', far: true }, { slot: 'crest', socket: 'crest' }, { slot: 'ears', socket: 'ear' }],
+        front: [{ slot: 'eyes', socket: 'eyeFar', far: true, scale: 'eye', small: true }, { slot: 'eyes', socket: 'eye', scale: 'eye', small: true }, { slot: 'muzzle', socket: 'muzzle', small: true }],
+      },
+    ],
+  },
+  mannequin: {
+    parts: { body: 'n.body.round', head: 'n.head.snub', ears: 'n.ears.tall', eyes: 'n.eyes.bead', muzzle: 'n.muzzle.leaf', wings: 'n.wings.broad', legs: 'n.legs.hook', tail: 'n.tail.tuck', crest: 'n.crest.none', ruff: 'n.ruff.none', thumbs: 'n.thumbs.none', markings: 'n.markings.none' },
+    forSlot: {},
+    accentSlots: ['ears', 'wings', 'tail', 'crest', 'ruff', 'thumbs', 'markings'],
+  },
+};
+
 export const RIG_IDS = Object.keys(RIGS);
 
 /** Rig used when a genome names none or an unknown one (old saves): the first class. */

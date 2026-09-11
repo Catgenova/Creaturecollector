@@ -154,3 +154,12 @@ export function resolvePose(g, pose) {
   if (g && g.mannequin) return 'stand';
   return idlePoseFor(g);
 }
+
+POSES.nightwing = {
+  stand: {},
+  brace: { body: { da: 4, dx: 2 }, head: { dx: 2, da: 4 }, wings: { da: -6 }, legs: { da: -4 }, ears: { da: -4 }, tail: { da: 6 } },
+  crouch: { body: { dy: 4, da: 2 }, head: { dy: 2 }, wings: { da: 6, ds: 1.03 }, legs: { ds: 0.9 }, ears: { da: 6 }, tail: { da: 8 } },
+  poise: { body: { da: -5 }, head: { da: -6, dy: -2 }, wings: { da: -10 }, legs: { da: 4 }, ears: { da: -6 }, crest: { ds: 1.06 }, ruff: { ds: 1.04 } },
+  attack: { body: { da: 5, dx: 6 }, head: { dx: 4, da: 4 }, muzzle: { ds: 1.15 }, wings: { da: 24, far: { da: 14 } }, legs: { da: -10, far: { da: 6 } }, ears: { da: -14 }, tail: { da: 10 } },
+  hurt: { body: { da: -10, dx: -4 }, head: { da: -12 }, wings: { da: 30, far: { da: 18 } }, legs: { da: 12 }, ears: { da: -22 }, tail: { da: -8 } },
+};

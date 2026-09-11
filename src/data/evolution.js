@@ -54,5 +54,7 @@ export const SLOT_FAMILY = {
   breath: 'face',
   // skeletal
   light: 'face', shroud: 'fur', cracks: 'flat',
+  // nightwing
+  ruff: 'fur', thumbs: 'face',
 };
 export function growthFor(slot) { return SLOT_GROWTH[SLOT_FAMILY[slot] || 'face']; }
