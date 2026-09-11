@@ -15,8 +15,9 @@ import { JOURNEY, newJourney, chooseJourneyStarter, tryMove, facing, talkTo, acc
 import { WORLD, TILE, REGIONS, HUB, worldFor, tileAt, biomeAt, habitatTypeAt, trainerAt, findPath, isHubTile } from '../game/world.js';
 import { TYPE_INFO, TYPE_LIST } from '../data/types.js';
 import { DAMAGE_TYPES } from '../data/damage.js';
-import { marketCatalogue, buyMove, bagList, bagCount, canTeach, teachMove } from '../game/market.js';
+import { marketCatalogue, buyMove, bagList, bagCount, canTeach, teachMove, itemCatalogue, itemList, buyItem, useItem } from '../game/market.js';
 import { getMove } from '../data/moves.js';
+import { getItem } from '../data/items.js';
 import { cladeName } from '../data/clades.js';
 import { cladeOf, elementalOf } from '../creature/genome.js';
 import { sfx } from '../core/sfx.js';
@@ -381,7 +382,7 @@ function owStartFight() {
   ow.root.append(h('div', { class: 'floor-head compact' }, h('b', {}, `${enc.name}${enc.kind === 'council' ? ` · fight ${enc.stage + 1} of ${JOURNEY.councilFights}` : ''}`)), host);
   ow.fight = mountFight(host, {
     state: built.state, events: built.events, names: ['You', enc.name], wild: enc.capturable, fast: ow.save.settings.fast,
-    onQuit: enc.kind === 'wild' ? () => { fleeEncounter(j); owSave(); renderWorldScreen(ow.root); } : null,
+    onQuit: enc.kind === 'wild' ? (state) => { fleeEncounter(j, state); owSave(); renderWorldScreen(ow.root); } : null,
     onEnd: (state) => {
       const { report } = applyJourneyBattle(j, state);
       if (report.captured) recordCollection(ow.save, report.captured.genome);
@@ -495,21 +496,60 @@ function owMoveInfo(move, tag) {
       tag ? h('span', { class: 'shop-tag' }, tag) : null));
 }
 
-/** The Bag: move scrolls, each taught once to any creature. */
+/** A potion's name, effect and price or quantity. */
+function owItemInfo(item, tag) {
+  return h('div', { class: 'shop-info item-info' }, h('div', { class: 'item-icon small', style: { '--chip': item.color } }, '+'),
+    h('div', {}, h('b', {}, item.name),
+      h('div', { class: 'shop-meta' }, h('span', {}, item.desc), tag ? h('span', { class: 'shop-tag' }, tag) : null)));
+}
+
+/** The Bag: potions to use on the party, and move scrolls, each taught once to any creature. */
 function owBagSheet(j) {
   const body = h('div');
-  let teaching = null;
+  let teaching = null, using = null;
   const render = () => {
     clear(body);
-    const items = bagList(j);
+    const scrolls = bagList(j), potions = itemList(j);
     if (teaching) { body.append(owTeachPanel(j, teaching, () => { teaching = null; render(); })); return; }
-    body.append(h('p', { class: 'hint' }, `◆ ${(j.gold || 0).toLocaleString()} gold. ${items.length ? 'A scroll teaches its move to one creature and is used up. Any creature can learn any move.' : 'The bag is empty. The Market at the Crossroads sells move scrolls.'}`));
-    const list = h('div', { class: 'shop-list' });
-    for (const { move, qty } of items) list.append(h('div', { class: 'shop-row' }, owMoveInfo(move, `×${qty}`), h('button', { class: 'btn small primary', type: 'button', onclick: () => { teaching = { moveId: move.id, uid: null }; render(); } }, 'Teach')));
-    body.append(list);
+    if (using) { body.append(owUsePanel(j, using, () => { using = null; render(); })); return; }
+    body.append(h('p', { class: 'hint' }, `◆ ${(j.gold || 0).toLocaleString()} gold.${scrolls.length || potions.length ? '' : ' The bag is empty. The Market at the Crossroads sells potions and move scrolls.'}`));
+    if (potions.length) {
+      const list = h('div', { class: 'shop-list' });
+      for (const { item, qty } of potions) list.append(h('div', { class: 'shop-row' }, owItemInfo(item, `×${qty}`), h('button', { class: 'btn small primary', type: 'button', onclick: () => { using = item.id; render(); } }, 'Use')));
+      body.append(...section('Potions', h('p', { class: 'hint' }, 'Potions work on the party in and out of battle; in battle a potion takes your turn. They cannot revive a fainted creature.'), list));
+    }
+    if (scrolls.length) {
+      const list = h('div', { class: 'shop-list' });
+      for (const { move, qty } of scrolls) list.append(h('div', { class: 'shop-row' }, owMoveInfo(move, `×${qty}`), h('button', { class: 'btn small primary', type: 'button', onclick: () => { teaching = { moveId: move.id, uid: null }; render(); } }, 'Teach')));
+      body.append(...section('Move scrolls', h('p', { class: 'hint' }, 'A scroll teaches its move to one creature and is used up. Any creature can learn any move.'), list));
+    }
   };
   render();
   owSheet('Bag', body, () => owRefreshHud());
+}
+
+/** Pick the party member a potion is used on. */
+function owUsePanel(j, itemId, back) {
+  const item = getItem(itemId);
+  const panel = h('div');
+  const render = () => {
+    clear(panel);
+    const qty = bagCount(j, itemId);
+    panel.append(h('div', { class: 'row', style: { justifyContent: 'flex-start' } }, h('button', { class: 'btn small', type: 'button', onclick: back }, '‹ Bag'), h('span', { class: 'hint', style: { margin: 0 } }, `Use ${item.name} (×${qty}) on…`)));
+    const list = h('div', { class: 'party-list' });
+    for (const m of j.party) {
+      list.append(owMemberRow(j, m, [h('button', { class: 'btn small primary', type: 'button', disabled: qty <= 0, onclick: () => {
+        const r = useItem(j, m.uid, itemId);
+        if (!r.ok) { toast(r.reason); return; }
+        owSave(); sfx.heal();
+        toast(`${m.genome.name}${r.healed ? ` recovered ${r.healed} HP` : ''}${r.healed && r.cured ? ' and' : ''}${r.cured ? ` was cured of ${STATUS_INFO[r.cured].name.toLowerCase()}` : ''}.`);
+        if (bagCount(j, itemId) > 0) render(); else back();
+      } }, 'Use')]));
+    }
+    panel.append(list);
+  };
+  render();
+  return panel;
 }
 
 /** Pick a creature for a scroll, then (with four moves) the move it replaces. */
@@ -543,13 +583,24 @@ function owTeachPanel(j, teaching, back) {
   return panel;
 }
 
-/** The Market: every move as a single-use scroll, priced by power. */
+/** The Market: potions of rising strength, and every move as a single-use scroll priced by power. */
 function owMarketSheet(j) {
   const body = h('div');
   let filter = 'All';
   const catalogue = marketCatalogue();
+  const potions = itemCatalogue();
   const render = () => {
     clear(body);
+    const potionList = h('div', { class: 'shop-list' });
+    for (const { item, cost } of potions) {
+      const owned = bagCount(j, item.id);
+      potionList.append(h('div', { class: 'shop-row' }, owItemInfo(item, owned ? `in bag ×${owned}` : ''),
+        h('button', { class: `btn small${(j.gold || 0) >= cost ? ' primary' : ''}`, type: 'button', disabled: (j.gold || 0) < cost, onclick: () => {
+          const r = buyItem(j, item.id);
+          if (!r.ok) { toast(r.reason); return; }
+          owSave(); sfx.heal(); toast(`Bought a ${item.name} for ${cost.toLocaleString()} gold`); render();
+        } }, `${cost.toLocaleString()} ◆`)));
+    }
     const chips = h('div', { class: 'type-filter' }, ['All', ...TYPE_LIST].map((t) => h('button', { class: `btn small${filter === t ? ' on' : ''}`, type: 'button', style: t !== 'All' ? { '--chip': TYPE_INFO[t].color } : null, onclick: () => { filter = t; render(); } }, t)));
     const list = h('div', { class: 'shop-list' });
     for (const { move, cost } of catalogue) {
@@ -563,8 +614,9 @@ function owMarketSheet(j) {
         } }, `${cost.toLocaleString()} ◆`)));
     }
     appendChildren(body, [
-      h('p', { class: 'hint' }, `◆ ${(j.gold || 0).toLocaleString()} gold. Every move is sold as a single-use scroll and goes to your Bag; prices rise with power in steps of 1000. Trainers pay gold when beaten.`),
-      chips, list,
+      h('p', { class: 'hint' }, `◆ ${(j.gold || 0).toLocaleString()} gold. Everything goes to your Bag. Trainers pay gold when beaten.`),
+      ...section('Potions', potionList),
+      ...section('Move scrolls', h('p', { class: 'hint' }, 'Every move is sold as a single-use scroll; prices rise with power in steps of 1000.'), chips, list),
     ]);
   };
   render();

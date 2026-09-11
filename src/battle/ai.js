@@ -90,7 +90,7 @@ export function chooseAction(state, side, rng) {
   if (!legal.length) return null;
   let best = null, bestScore = -Infinity;
   for (const a of legal) {
-    if (a.type === 'capture') continue; // the AI never captures
+    if (a.type === 'capture' || a.type === 'item') continue; // the AI never captures or spends the bag
     let score;
     if (state.phase === 'replace') score = scoreReplacement(state, side, a);
     else if (a.type === 'switch') score = scoreSwitch(state, side, a);

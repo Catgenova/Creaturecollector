@@ -9,7 +9,7 @@ import { fuse, canFuse } from '../creature/fusion.js';
 import { createBattle, makeBattler } from '../battle/engine.js';
 import { PARTY, makeMember, gainXp, healParty, xpProgress, xpReward, memberMaxHp, canFight } from './party.js';
 import { WORLD, TILE, REGIONS, BIOME_ORDER, worldFor, tileAt, biomeAt, trainerAt, isWalkable, inBounds, wildSpawn, levelAt } from './world.js';
-import { goldReward } from './market.js';
+import { goldReward, battleItems, syncBagFromBattle } from './market.js';
 
 export const JOURNEY = { starterLevel: PARTY.starterLevel, maxLevel: PARTY.maxLevel, partyMax: PARTY.max, gauntletHeal: 0.35, badgesForSpire: BIOME_ORDER.length, councilFights: 4 };
 export const DIRS = { up: [0, -1], down: [0, 1], left: [-1, 0], right: [1, 0] };
@@ -151,8 +151,12 @@ export function enterSpire(j) {
   return { ok: true, encounter: j.encounter };
 }
 
-/** Walk away from a wild creature or an unstarted fight. */
-export function fleeEncounter(j) {
+/** Walk away from a wild creature or an unstarted fight. A fight state, when given, keeps what it did to the party and the bag. */
+export function fleeEncounter(j, state) {
+  if (state && state.sides) {
+    j.party.forEach((m, i) => { const b = state.sides[0].party[i]; if (b) { m.hp = Math.max(1, b.hp); m.status = b.status; } });
+    syncBagFromBattle(j, state);
+  }
   if (j.encounter && j.encounter.kind === 'council') { j.gauntlet = null; }
   j.encounter = null;
   j.cooldown = WORLD.encounterCooldown;
@@ -180,6 +184,7 @@ export function buildJourneyBattle(j) {
     sides: [{ name: 'You', party: mine }, { name: enc.name, ai: true, party: foes }],
     seed: `${j.seed}:battle:${j.stats.battles}:${enc.kind}`,
     capturable: enc.capturable,
+    items: battleItems(j),
   });
 }
 
@@ -199,6 +204,7 @@ export function applyJourneyBattle(j, state) {
   if (!enc) throw new Error('No encounter to resolve.');
   const mine = state.sides[0].party, foes = state.sides[1].party;
   j.party.forEach((m, i) => { const b = mine[i]; if (b) { m.hp = b.hp; m.status = b.status; } });
+  syncBagFromBattle(j, state);
   const capturedBattler = state.captured ? foes.find((f) => f.uid === state.captured) : null;
   const won = state.winner === 0 || Boolean(capturedBattler);
   j.stats.battles++;

@@ -1,7 +1,9 @@
 // Gold, the Market and the Bag. Trainers pay gold when beaten; the Market at the Crossroads
-// sells every move as a single-use scroll priced by power; scrolls sit in the Bag until they
-// are taught to a creature. Pure functions over the journey object.
+// sells potions and every move as a single-use scroll priced by power; both sit in the Bag
+// (keyed by item or move id) until used. Pure functions over the journey object.
 import { MOVES, getMove } from '../data/moves.js';
+import { ITEMS, ITEM_IDS, getItem, potionHeal, potionUseful } from '../data/items.js';
+import { memberMaxHp } from './party.js';
 
 /** A thousand gold per twenty points of power beyond the first forty; status and weak moves cost the base. */
 export const MARKET = { unit: 1000, powerPerUnit: 20, maxStack: 99 };
@@ -29,18 +31,74 @@ export function goldReward(foes, kind = 'trainer', rematch = false) {
   return Math.max(10, Math.round(gold / 10) * 10);
 }
 
-export function bagCount(j, moveId) { return (j.bag && j.bag[moveId]) || 0; }
+export function bagCount(j, id) { return (j.bag && j.bag[id]) || 0; }
+
+/** The potions on sale, weakest first. */
+export function itemCatalogue() { return ITEM_IDS.map((id) => ({ item: ITEMS[id], cost: ITEMS[id].cost })); }
+
+/** The Bag's potions: [{ item, qty }], weakest first. */
+export function itemList(j) {
+  return ITEM_IDS.filter((id) => (j.bag && j.bag[id]) > 0).map((id) => ({ item: ITEMS[id], qty: j.bag[id] }));
+}
+
+/** Buy one potion. Returns { ok, reason?, cost }. */
+export function buyItem(j, itemId) {
+  const item = getItem(itemId);
+  if (!item) return { ok: false, reason: 'The Market does not sell that.', cost: 0 };
+  if (bagCount(j, itemId) >= MARKET.maxStack) return { ok: false, reason: 'Your bag cannot hold more of those.', cost: item.cost };
+  if ((j.gold || 0) < item.cost) return { ok: false, reason: `Not enough gold: a ${item.name} costs ${item.cost}.`, cost: item.cost };
+  j.gold -= item.cost;
+  j.bag = j.bag || {};
+  j.bag[itemId] = bagCount(j, itemId) + 1;
+  return { ok: true, cost: item.cost };
+}
+
+/** Use a potion on a party member out of battle. Returns { ok, reason?, amount, cured }. */
+export function useItem(j, uid, itemId) {
+  const item = getItem(itemId);
+  if (!item || bagCount(j, itemId) <= 0) return { ok: false, reason: 'No such item in the bag.' };
+  const m = j.party.find((x) => x.uid === uid);
+  if (!m) return { ok: false, reason: 'Potions are used on party members.' };
+  const max = memberMaxHp(m);
+  if (m.hp <= 0) return { ok: false, reason: `${m.genome.name} has fainted; a camp will bring it round.` };
+  if (!potionUseful(item, m.hp, max, m.status)) return { ok: false, reason: `${m.genome.name} is already at full health.` };
+  const amount = potionHeal(item, m.hp, max);
+  m.hp += amount;
+  const cured = item.cure && m.status ? m.status : null;
+  if (cured) m.status = null;
+  j.bag[itemId] -= 1;
+  if (j.bag[itemId] <= 0) delete j.bag[itemId];
+  return { ok: true, amount, healed: amount, cured };
+}
+
+/** The potions to carry into a fight: { id: qty } for every stocked potion. */
+export function battleItems(j) {
+  const out = {};
+  for (const id of ITEM_IDS) if (bagCount(j, id) > 0) out[id] = bagCount(j, id);
+  return out;
+}
+
+/** After a fight, the bag keeps what the fight left: potions used in battle are gone. */
+export function syncBagFromBattle(j, state) {
+  if (!state || !state.items) return j;
+  j.bag = j.bag || {};
+  for (const id of ITEM_IDS) {
+    const left = Math.max(0, Math.floor(state.items[id] || 0));
+    if (left > 0) j.bag[id] = left; else delete j.bag[id];
+  }
+  return j;
+}
 
 /** The Bag's contents, one line per move: [{ move, qty }], by type then name. */
 export function bagList(j) {
-  return Object.entries(j.bag || {}).filter(([id, qty]) => qty > 0 && getMove(id)).map(([id, qty]) => ({ move: getMove(id), qty }))
+  return Object.entries(j.bag || {}).filter(([id, qty]) => qty > 0 && !getItem(id) && getMove(id)).map(([id, qty]) => ({ move: getMove(id), qty }))
     .sort((a, b) => (a.move.type < b.move.type ? -1 : a.move.type > b.move.type ? 1 : a.move.name < b.move.name ? -1 : 1));
 }
 
 /** Buy one scroll of a move. Returns { ok, reason?, cost }. */
 export function buyMove(j, moveId) {
   const mv = getMove(moveId);
-  if (!mv || mv.struggle) return { ok: false, reason: 'The Market does not sell that.', cost: 0 };
+  if (!mv || mv.struggle || getItem(moveId)) return { ok: false, reason: 'The Market does not sell that.', cost: 0 };
   const cost = moveCost(mv);
   if (bagCount(j, moveId) >= MARKET.maxStack) return { ok: false, reason: 'Your bag cannot hold more of those.', cost };
   if ((j.gold || 0) < cost) return { ok: false, reason: `Not enough gold: ${mv.name} costs ${cost}.`, cost };

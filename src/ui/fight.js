@@ -7,6 +7,7 @@ import { makeRng } from '../core/rng.js';
 import { step, legalActions, activeOf, describeEvent, moveEffectiveness, aliveCount, captureChance, STATUS_INFO } from '../battle/engine.js';
 import { chooseAction } from '../battle/ai.js';
 import { getMove } from '../data/moves.js';
+import { ITEM_IDS, getItem } from '../data/items.js';
 import { TYPE_INFO } from '../data/types.js';
 import { abilityName } from '../data/abilities.js';
 import { DAMAGE_TYPES, triangleEdge } from '../data/damage.js';
@@ -171,7 +172,8 @@ function applyFightEvent(f, e) {
     case 'move': logLine(f, text); animateStage(f, e.side, e.side === 0 ? 'lunge-r' : 'lunge-l', 450); poseStage(f, e.side, 'attack', 450); return 550;
     case 'damage': animateStage(f, e.side, 'hit', 450); poseStage(f, e.side, 'hurt', 450); setHp(f, e.side, e.hp, e.maxHp); logLine(f, text); sfx.hit(e.eff); return e.eff !== 1 || e.crit ? 750 : 550;
     case 'hurt': animateStage(f, e.side, 'hit', 350); poseStage(f, e.side, 'hurt', 350); setHp(f, e.side, e.hp, e.maxHp); logLine(f, text); sfx.hit(1); return 550;
-    case 'heal': setHp(f, e.side, e.hp, e.maxHp); logLine(f, text); sfx.heal(); return 550;
+    case 'heal': if (!e.uid || e.uid === activeOf(f.state, e.side).uid) setHp(f, e.side, e.hp, e.maxHp); logLine(f, text); sfx.heal(); return 550;
+    case 'item': logLine(f, text); return 500;
     case 'faint': animateStage(f, e.side, 'faint', 900); poseStage(f, e.side, 'hurt', 0); logLine(f, text); renderPanel(f, e.side); sfx.faint(); return 900;
     case 'status': renderPanel(f, e.side); logLine(f, text); sfx.status(); return 550;
     case 'cure': renderPanel(f, e.side); logLine(f, text); return 550;
@@ -275,7 +277,7 @@ function renderFightControls(f) {
   const util = h('div', { class: 'util-row' },
     h('button', { class: `btn small${f.fast ? ' on' : ''}`, type: 'button', onclick: () => { f.fast = !f.fast; renderFightControls(f); } }, f.fast ? 'Fast ✓' : 'Fast'),
     h('button', { class: `btn small${f.auto ? ' on' : ''}`, type: 'button', onclick: () => { f.auto = !f.auto; renderFightControls(f); if (f.auto && !f.busy && st.phase !== 'over') afterFightStep(f); } }, f.auto ? 'Auto ✓' : 'Auto'),
-    f.onQuit ? h('button', { class: 'btn small', type: 'button', onclick: () => { f.alive = false; f.token++; f.onQuit(); } }, 'Quit') : null,
+    f.onQuit ? h('button', { class: 'btn small', type: 'button', onclick: () => { f.alive = false; f.token++; f.onQuit(f.state); } }, 'Quit') : null,
   );
   if (st.phase === 'over') { el.append(util); return; }
   if (f.busy || f.auto) { el.append(h('div', { class: 'waiting' }, f.auto ? 'Auto battle running…' : '…'), util); return; }
@@ -307,11 +309,70 @@ function renderFightControls(f) {
   const row = h('div', { class: 'row wrap' },
     h('button', { class: 'btn', type: 'button', onclick: () => openFightParty(f, false) }, `Party (${aliveCount(st.sides[0])})`),
     h('button', { class: 'btn', type: 'button', onclick: () => openSheet(me.genome) }, 'Info'));
+  const stock = itemStock(st);
+  if (stock > 0) row.append(h('button', { class: 'btn', type: 'button', onclick: () => openFightItems(f) }, `Items (${stock})`));
   if (legal.some((a) => a.type === 'capture')) {
     const pct = Math.round(captureChance(foe) * 100);
     row.prepend(h('button', { class: 'btn capture', type: 'button', onclick: () => doFightStep(f, { type: 'capture' }) }, `Capture · ${pct}%`));
   }
   el.append(grid, row, util);
+}
+
+function itemStock(st) { return Object.values(st.items || {}).reduce((a, n) => a + (n > 0 ? n : 0), 0); }
+
+/** Bottom sheet listing the potions in the bag; picking one asks which party member to use it on. */
+function openFightItems(f) {
+  if (f.sheetClose) f.sheetClose();
+  const st = f.state;
+  const legal = legalActions(st, 0);
+  const close = () => { backdrop.remove(); sheet.remove(); f.sheetClose = null; };
+  f.sheetClose = close;
+  const backdrop = h('div', { class: 'sheet-backdrop', onclick: close });
+  const list = h('div', { class: 'party-list' });
+  for (const id of ITEM_IDS) {
+    const qty = st.items && st.items[id];
+    if (!(qty > 0)) continue;
+    const item = getItem(id);
+    const can = legal.some((a) => a.type === 'item' && a.id === id);
+    list.append(h('button', { class: 'party-row', type: 'button', disabled: !can, onclick: () => { close(); openFightTarget(f, id); } },
+      h('div', { class: 'item-icon', style: { '--chip': item.color } }, '+'),
+      h('div', { class: 'party-info' },
+        h('div', {}, h('b', {}, item.name), ' ', h('span', { class: 'lvl' }, `×${qty}`)),
+        h('div', { class: 'hint', style: { margin: 0 } }, can ? item.desc : `${item.desc} Nobody needs it right now.`))));
+  }
+  const sheet = h('section', { class: 'sheet', role: 'dialog', 'aria-modal': 'true', 'aria-label': 'Items' },
+    h('div', { class: 'grab' }),
+    h('div', { class: 'sheet-head' }, h('h2', {}, 'Items'), h('button', { class: 'btn close', onclick: close, 'aria-label': 'Close' }, '✕')),
+    h('p', { class: 'hint' }, 'Using an item takes your turn.'),
+    list);
+  document.body.append(backdrop, sheet);
+}
+
+/** Second step of the item flow: pick the party member to use the potion on. */
+function openFightTarget(f, itemId) {
+  if (f.sheetClose) f.sheetClose();
+  const st = f.state, side = st.sides[0], item = getItem(itemId);
+  const legal = legalActions(st, 0);
+  const close = () => { backdrop.remove(); sheet.remove(); f.sheetClose = null; };
+  f.sheetClose = close;
+  const backdrop = h('div', { class: 'sheet-backdrop', onclick: close });
+  const list = h('div', { class: 'party-list' });
+  side.party.forEach((b, i) => {
+    const can = legal.some((a) => a.type === 'item' && a.id === itemId && a.index === i);
+    const frac = b.hp / b.maxHp;
+    list.append(h('button', { class: `party-row${i === side.active ? ' active' : ''}${b.fainted ? ' fainted' : ''}`, type: 'button', disabled: !can, onclick: () => { close(); doFightStep(f, { type: 'item', id: itemId, index: i }); } },
+      creatureEl(b.genome, { size: 64, animate: false, level: b.level }),
+      h('div', { class: 'party-info' },
+        h('div', {}, h('b', {}, b.name), ' ', h('span', { class: 'lvl' }, `Lv ${b.level}`), ' ', b.status ? h('span', { class: `status st-${b.status}` }, STATUS_INFO[b.status].short) : null, i === side.active ? h('span', { class: 'status' }, 'ACTIVE') : null),
+        h('div', { class: 'hpbar' }, h('i', { class: hpClass(frac), style: { width: `${frac * 100}%` } })),
+        h('div', { class: 'hint', style: { margin: 0 } }, b.fainted ? 'Fainted — a potion cannot help.' : can ? `${b.hp} / ${b.maxHp}` : `${b.hp} / ${b.maxHp} · nothing to restore`))));
+  });
+  const sheet = h('section', { class: 'sheet', role: 'dialog', 'aria-modal': 'true', 'aria-label': 'Use item' },
+    h('div', { class: 'grab' }),
+    h('div', { class: 'sheet-head' }, h('h2', {}, `Use ${item.name} on…`), h('button', { class: 'btn close', onclick: close, 'aria-label': 'Close' }, '✕')),
+    h('p', { class: 'hint' }, item.desc),
+    list);
+  document.body.append(backdrop, sheet);
 }
 
 function openFightParty(f, forced) {

@@ -27,6 +27,11 @@ await page.click('text=Set out with');
 await page.waitForSelector('canvas.ow-map');
 await page.waitForTimeout(400);
 await page.screenshot({ path: path.join(out, 'world-map.png'), fullPage: true });
+// slip two potions into the bag and some gold into the purse so the item flows can be exercised
+await page.evaluate(() => { const s = JSON.parse(localStorage.getItem('creaturecollector.save')); s.journey.bag = { potion: 2 }; s.journey.gold = 5000; localStorage.setItem('creaturecollector.save', JSON.stringify(s)); });
+await page.reload();
+await page.waitForSelector('canvas.ow-map');
+await page.waitForTimeout(300);
 // walk south with the keyboard until something happens or 40 steps pass
 for (let i = 0; i < 40; i++) {
   await page.keyboard.press('ArrowDown');
@@ -41,6 +46,11 @@ if (state.encounter) {
   await page.click('.encounter .btn.primary');
   await page.waitForSelector('.move-btn', { timeout: 20000 });
   await page.screenshot({ path: path.join(out, 'world-fight.png'), fullPage: true });
+  await page.click('text=Items');
+  await page.waitForSelector('.sheet .item-icon', { timeout: 5000 });
+  await page.screenshot({ path: path.join(out, 'world-fight-items.png'), fullPage: true });
+  console.log('fight items:', JSON.stringify(await page.evaluate(() => [...document.querySelectorAll('.sheet .party-row')].map((r) => ({ text: r.textContent.trim().slice(0, 40), disabled: r.disabled })))));
+  await page.click('.sheet .close');
   await page.click('text=Fast');
   await page.click('text=Auto');
   await page.waitForSelector('.result-card', { timeout: 90000 });
@@ -68,8 +78,21 @@ await page.waitForTimeout(300);
 await page.keyboard.press('ArrowUp');
 await page.waitForSelector('.type-filter', { timeout: 5000 });
 await page.screenshot({ path: path.join(out, 'world-market.png'), fullPage: true });
-const market = await page.evaluate(() => ({ rows: document.querySelectorAll('.shop-row').length, gold: document.querySelector('.ow-gold') ? document.querySelector('.ow-gold').textContent : null }));
+const market = await page.evaluate(() => ({ rows: document.querySelectorAll('.shop-row').length, potions: document.querySelectorAll('.shop-row .item-icon').length, gold: document.querySelector('.ow-gold') ? document.querySelector('.ow-gold').textContent : null }));
 console.log('market:', JSON.stringify(market));
+await page.click('.shop-row:has(.item-icon) .btn.primary');
+await page.waitForTimeout(200);
+console.log('bought:', JSON.stringify(await page.evaluate(() => { const s = JSON.parse(localStorage.getItem('creaturecollector.save')); return { bag: s.journey.bag, gold: s.journey.gold }; })));
+await page.click('.sheet .close');
+await page.click('text=Bag');
+await page.waitForSelector('.sheet .item-icon', { timeout: 5000 });
+await page.screenshot({ path: path.join(out, 'world-bag-potions.png'), fullPage: true });
+await page.click('.shop-row:has(.item-icon) .btn.primary');
+await page.waitForSelector('.sheet .party-row', { timeout: 5000 });
+await page.screenshot({ path: path.join(out, 'world-bag-use.png'), fullPage: true });
+await page.click('.sheet .party-row .btn.primary');
+await page.waitForTimeout(200);
+console.log('use toast:', JSON.stringify(await page.evaluate(() => { const t = document.querySelector('.toast'); return t ? t.textContent : null; })));
 await page.click('.sheet .close');
 await page.evaluate(() => { const s = JSON.parse(localStorage.getItem('creaturecollector.save')); s.journey.player = { x: 52, y: 47, dir: 'up' }; localStorage.setItem('creaturecollector.save', JSON.stringify(s)); });
 await page.reload();

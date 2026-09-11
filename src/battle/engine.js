@@ -16,6 +16,7 @@ import { DAMAGE_TYPES, STAGE_KEYS, STAT_NAMES, combatStyle, triangleMul } from '
 import { learnsetOf } from '../creature/genome.js';
 import { SPECIES_BY_ID } from '../data/species.js';
 import { statsAtLevel, movesAtLevel } from './stats.js';
+import { ITEM_IDS, getItem, potionHeal, potionUseful } from '../data/items.js';
 
 export const STATUS_INFO = {
   brn: { name: 'Burn', short: 'BRN', verb: 'was burned' },
@@ -78,8 +79,9 @@ export function captureChance(b) {
 /**
  * Start a battle. sides: [{ name, party: [battler...], ai }, ...]. Returns { state, events }.
  * capturable: side 0 may try to capture side 1's active creature (wild encounters).
+ * items: { itemId: qty } — potions side 0 may use during the battle (a turn each).
  */
-export function createBattle({ sides, seed = 'battle', capturable = false }) {
+export function createBattle({ sides, seed = 'battle', capturable = false, items = null }) {
   if (!sides || sides.length !== 2) throw new Error('A battle needs exactly two sides.');
   const state = {
     seed: String(seed),
@@ -88,6 +90,7 @@ export function createBattle({ sides, seed = 'battle', capturable = false }) {
     winner: null,
     capturable: Boolean(capturable),
     captured: null,
+    items: Object.fromEntries(Object.entries(items || {}).filter(([id, n]) => getItem(id) && n > 0).map(([id, n]) => [id, Math.floor(n)])),
     sides: sides.map((s, si) => {
       if (!s.party || !s.party.length) throw new Error(`Side ${si} has an empty party.`);
       return {
@@ -116,10 +119,24 @@ export function legalActions(state, side) {
   if (state.phase === 'replace') return s.needsReplace ? switches : [];
   const moves = me.moves.map((mv, i) => ({ type: 'move', index: i })).filter((a) => me.moves[a.index].pp > 0);
   const capture = state.capturable && side === 0 && !activeOf(state, 1).fainted ? [{ type: 'capture' }] : [];
-  return [...(moves.length ? moves : [{ type: 'move', index: -1, struggle: true }]), ...capture, ...switches];
+  return [...(moves.length ? moves : [{ type: 'move', index: -1, struggle: true }]), ...capture, ...itemActions(state, side), ...switches];
 }
 
-function sameAction(a, b) { return a && b && a.type === b.type && a.index === b.index; }
+/** Potion uses open to a side: one action per (stocked item, party member it would help). Only side 0 carries a bag. */
+export function itemActions(state, side) {
+  if (side !== 0 || !state.items) return [];
+  const out = [];
+  for (const id of ITEM_IDS) {
+    if (!(state.items[id] > 0)) continue;
+    const item = getItem(id);
+    state.sides[side].party.forEach((b, index) => {
+      if (!b.fainted && potionUseful(item, b.hp, b.maxHp, b.status)) out.push({ type: 'item', id, index });
+    });
+  }
+  return out;
+}
+
+function sameAction(a, b) { return a && b && a.type === b.type && a.index === b.index && (a.type !== 'item' || a.id === b.id); }
 
 function speedOrder(state, rng) {
   const s0 = effectiveStat(activeOf(state, 0), 'spe'), s1 = effectiveStat(activeOf(state, 1), 'spe');
@@ -164,7 +181,7 @@ export function step(input, actions) {
   // Order: switches first, then moves by priority, then speed, ties random.
   const order = [0, 1].map((i) => {
     const a = actions[i];
-    const prio = a.type === 'switch' || a.type === 'capture' ? 100 : (a.struggle ? 0 : getMove(activeOf(state, i).moves[a.index].id).prio);
+    const prio = a.type === 'switch' || a.type === 'capture' || a.type === 'item' ? 100 : (a.struggle ? 0 : getMove(activeOf(state, i).moves[a.index].id).prio);
     return { i, a, prio, spe: effectiveStat(activeOf(state, i), 'spe'), tie: rng.next() };
   }).sort((x, y) => (y.prio - x.prio) || (y.spe - x.spe) || (y.tie - x.tie));
 
@@ -176,6 +193,8 @@ export function step(input, actions) {
     } else if (o.a.type === 'switch') {
       doSwitch(state, o.i, o.a.index, events, false);
       entryHooks(state, o.i, events);
+    } else if (o.a.type === 'item') {
+      useBattleItem(state, o.i, o.a, events);
     } else {
       executeMove(state, o.i, o.a, events, rng);
     }
@@ -204,6 +223,27 @@ function attemptCapture(state, events, rng) {
     events.push({ t: 'end', winner: 0, capture: true, name: target.name });
   } else {
     events.push({ t: 'capture', ok: false, side: 1, name: target.name, shakes });
+  }
+}
+
+/** Spend one potion on a party member (active or benched). Takes the side's turn. */
+function useBattleItem(state, i, action, events) {
+  const item = getItem(action.id);
+  const target = state.sides[i].party[action.index];
+  if (!item || !target || !(state.items[action.id] > 0)) return;
+  state.items[action.id]--;
+  if (state.items[action.id] <= 0) delete state.items[action.id];
+  events.push({ t: 'item', side: i, name: target.name, uid: target.uid, item: item.name, id: item.id });
+  const amount = potionHeal(item, target.hp, target.maxHp);
+  if (amount > 0) {
+    target.hp += amount;
+    events.push({ t: 'heal', side: i, name: target.name, uid: target.uid, amount, hp: target.hp, maxHp: target.maxHp, why: 'item' });
+  }
+  if (item.cure && target.status) {
+    const status = target.status;
+    target.status = null;
+    target.sleepTurns = 0;
+    events.push({ t: 'cure', side: i, name: target.name, uid: target.uid, status, why: 'item' });
   }
 }
 
@@ -556,7 +596,8 @@ export function describeEvent(e, names = ['You', 'Foe'], opts = {}) {
     case 'no_effect': return e.reason === 'already' ? `${who} is already affected.` : e.reason === 'full' ? `${who}'s HP is already full.` : e.reason === 'immune' ? `It doesn't affect ${who}…` : 'But it failed!';
     case 'status': return `${who} ${STATUS_INFO[e.status].verb}!`;
     case 'status_skip': return e.status === 'slp' ? `${who} is fast asleep.` : e.status === 'frz' ? `${who} is frozen solid!` : `${who} is paralyzed and can't move!`;
-    case 'cure': return e.status === 'slp' ? `${who} woke up!` : e.status === 'frz' ? `${who} thawed out!` : `${who} recovered.`;
+    case 'cure': return e.why === 'item' ? `${who} was cured of its ${STATUS_INFO[e.status].name.toLowerCase()}!` : e.status === 'slp' ? `${who} woke up!` : e.status === 'frz' ? `${who} thawed out!` : `${who} recovered.`;
+    case 'item': return `${foe ? names[1] : names[0]} used a ${e.item} on ${e.name}!`;
     case 'flinch': return `${who} flinched!`;
     case 'stat': {
       const label = STAT_LABEL[e.stat] || e.stat;

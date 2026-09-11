@@ -297,6 +297,9 @@ h3.sec { font-size: 12px; text-transform: uppercase; letter-spacing: .1em; color
 .shop-meta { display: flex; flex-wrap: wrap; gap: 4px 8px; align-items: center; font-size: 11px; color: var(--fg2); margin-top: 2px; }
 .shop-meta .dt-chip { background: var(--chip); color: #14151c; }
 .shop-tag { color: var(--acc); font-weight: 700; }
+.item-icon { width: 44px; height: 44px; margin: 0 auto; border-radius: 50%; display: grid; place-items: center; font-weight: 900; font-size: 22px; color: #14151c; background: radial-gradient(circle at 35% 30%, #fff8, transparent 55%), var(--chip, #9aa0b4); box-shadow: inset 0 -3px 0 #0003; }
+.item-icon.small { width: 30px; height: 30px; font-size: 16px; margin: 0; }
+.item-info { display: grid; grid-template-columns: 30px 1fr; gap: 8px; align-items: center; }
 .teach-row { display: grid; grid-template-columns: 44px 1fr auto; gap: 8px; align-items: center; padding: 6px 8px; border: 1px solid var(--line); border-radius: 10px; background: var(--bg); margin-top: 6px; }
 .teach-row svg { width: 44px; height: auto; }
 .teach-row .move-chips { margin-top: 2px; }
@@ -9315,6 +9318,30 @@ function movesAtLevel(learnset, level) {
   return picked.length ? picked : ['bump'];
 }
 
+// ---- src/data/items.js ----
+// Consumable items: potions of rising strength, sold at the Market, carried in the Bag and
+// used on the map or in a fight (a use costs the turn). Potions never revive.
+const ITEMS = {
+  potion: { id: 'potion', name: 'Potion', heal: 20, cost: 300, color: '#7fe38a', desc: 'Restores 20 HP.' },
+  super_potion: { id: 'super_potion', name: 'Super Potion', heal: 60, cost: 700, color: '#4fb7ff', desc: 'Restores 60 HP.' },
+  hyper_potion: { id: 'hyper_potion', name: 'Hyper Potion', heal: 150, cost: 1500, color: '#b98cff', desc: 'Restores 150 HP.' },
+  max_potion: { id: 'max_potion', name: 'Max Potion', full: true, cost: 2500, color: '#ffd166', desc: 'Restores all HP.' },
+  full_restore: { id: 'full_restore', name: 'Full Restore', full: true, cure: true, cost: 3000, color: '#ff7ab6', desc: 'Restores all HP and cures any status.' },
+};
+const ITEM_IDS = Object.keys(ITEMS);
+function getItem(id) { return ITEMS[id] || null; }
+
+/** HP a potion would restore on a creature with hp of maxHp (0 for a fainted or full one). */
+function potionHeal(item, hp, maxHp) {
+  if (!item || hp <= 0) return 0;
+  return Math.max(0, item.full ? maxHp - hp : Math.min(item.heal || 0, maxHp - hp));
+}
+
+/** Would using this potion do anything for this creature? */
+function potionUseful(item, hp, maxHp, status) {
+  return potionHeal(item, hp, maxHp) > 0 || Boolean(item && item.cure && status && hp > 0);
+}
+
 // ---- src/battle/engine.js ----
 // Battle engine. Pure and deterministic: step(state, actions) returns a new
 // state plus the list of events that happened, and never touches the input.
@@ -9324,6 +9351,7 @@ function movesAtLevel(learnset, level) {
 // Shape: two sides, each with a party (up to 5) and one active battler.
 // Phases: 'choose' (both sides act), 'replace' (a side whose active fainted
 // must send in another, free), 'over'.
+
 
 
 
@@ -9396,8 +9424,9 @@ function captureChance(b) {
 /**
  * Start a battle. sides: [{ name, party: [battler...], ai }, ...]. Returns { state, events }.
  * capturable: side 0 may try to capture side 1's active creature (wild encounters).
+ * items: { itemId: qty } — potions side 0 may use during the battle (a turn each).
  */
-function createBattle({ sides, seed = 'battle', capturable = false }) {
+function createBattle({ sides, seed = 'battle', capturable = false, items = null }) {
   if (!sides || sides.length !== 2) throw new Error('A battle needs exactly two sides.');
   const state = {
     seed: String(seed),
@@ -9406,6 +9435,7 @@ function createBattle({ sides, seed = 'battle', capturable = false }) {
     winner: null,
     capturable: Boolean(capturable),
     captured: null,
+    items: Object.fromEntries(Object.entries(items || {}).filter(([id, n]) => getItem(id) && n > 0).map(([id, n]) => [id, Math.floor(n)])),
     sides: sides.map((s, si) => {
       if (!s.party || !s.party.length) throw new Error(`Side ${si} has an empty party.`);
       return {
@@ -9434,10 +9464,24 @@ function legalActions(state, side) {
   if (state.phase === 'replace') return s.needsReplace ? switches : [];
   const moves = me.moves.map((mv, i) => ({ type: 'move', index: i })).filter((a) => me.moves[a.index].pp > 0);
   const capture = state.capturable && side === 0 && !activeOf(state, 1).fainted ? [{ type: 'capture' }] : [];
-  return [...(moves.length ? moves : [{ type: 'move', index: -1, struggle: true }]), ...capture, ...switches];
+  return [...(moves.length ? moves : [{ type: 'move', index: -1, struggle: true }]), ...capture, ...itemActions(state, side), ...switches];
 }
 
-function sameAction(a, b) { return a && b && a.type === b.type && a.index === b.index; }
+/** Potion uses open to a side: one action per (stocked item, party member it would help). Only side 0 carries a bag. */
+function itemActions(state, side) {
+  if (side !== 0 || !state.items) return [];
+  const out = [];
+  for (const id of ITEM_IDS) {
+    if (!(state.items[id] > 0)) continue;
+    const item = getItem(id);
+    state.sides[side].party.forEach((b, index) => {
+      if (!b.fainted && potionUseful(item, b.hp, b.maxHp, b.status)) out.push({ type: 'item', id, index });
+    });
+  }
+  return out;
+}
+
+function sameAction(a, b) { return a && b && a.type === b.type && a.index === b.index && (a.type !== 'item' || a.id === b.id); }
 
 function speedOrder(state, rng) {
   const s0 = effectiveStat(activeOf(state, 0), 'spe'), s1 = effectiveStat(activeOf(state, 1), 'spe');
@@ -9482,7 +9526,7 @@ function step(input, actions) {
   // Order: switches first, then moves by priority, then speed, ties random.
   const order = [0, 1].map((i) => {
     const a = actions[i];
-    const prio = a.type === 'switch' || a.type === 'capture' ? 100 : (a.struggle ? 0 : getMove(activeOf(state, i).moves[a.index].id).prio);
+    const prio = a.type === 'switch' || a.type === 'capture' || a.type === 'item' ? 100 : (a.struggle ? 0 : getMove(activeOf(state, i).moves[a.index].id).prio);
     return { i, a, prio, spe: effectiveStat(activeOf(state, i), 'spe'), tie: rng.next() };
   }).sort((x, y) => (y.prio - x.prio) || (y.spe - x.spe) || (y.tie - x.tie));
 
@@ -9494,6 +9538,8 @@ function step(input, actions) {
     } else if (o.a.type === 'switch') {
       doSwitch(state, o.i, o.a.index, events, false);
       entryHooks(state, o.i, events);
+    } else if (o.a.type === 'item') {
+      useBattleItem(state, o.i, o.a, events);
     } else {
       executeMove(state, o.i, o.a, events, rng);
     }
@@ -9522,6 +9568,27 @@ function attemptCapture(state, events, rng) {
     events.push({ t: 'end', winner: 0, capture: true, name: target.name });
   } else {
     events.push({ t: 'capture', ok: false, side: 1, name: target.name, shakes });
+  }
+}
+
+/** Spend one potion on a party member (active or benched). Takes the side's turn. */
+function useBattleItem(state, i, action, events) {
+  const item = getItem(action.id);
+  const target = state.sides[i].party[action.index];
+  if (!item || !target || !(state.items[action.id] > 0)) return;
+  state.items[action.id]--;
+  if (state.items[action.id] <= 0) delete state.items[action.id];
+  events.push({ t: 'item', side: i, name: target.name, uid: target.uid, item: item.name, id: item.id });
+  const amount = potionHeal(item, target.hp, target.maxHp);
+  if (amount > 0) {
+    target.hp += amount;
+    events.push({ t: 'heal', side: i, name: target.name, uid: target.uid, amount, hp: target.hp, maxHp: target.maxHp, why: 'item' });
+  }
+  if (item.cure && target.status) {
+    const status = target.status;
+    target.status = null;
+    target.sleepTurns = 0;
+    events.push({ t: 'cure', side: i, name: target.name, uid: target.uid, status, why: 'item' });
   }
 }
 
@@ -9874,7 +9941,8 @@ function describeEvent(e, names = ['You', 'Foe'], opts = {}) {
     case 'no_effect': return e.reason === 'already' ? `${who} is already affected.` : e.reason === 'full' ? `${who}'s HP is already full.` : e.reason === 'immune' ? `It doesn't affect ${who}…` : 'But it failed!';
     case 'status': return `${who} ${STATUS_INFO[e.status].verb}!`;
     case 'status_skip': return e.status === 'slp' ? `${who} is fast asleep.` : e.status === 'frz' ? `${who} is frozen solid!` : `${who} is paralyzed and can't move!`;
-    case 'cure': return e.status === 'slp' ? `${who} woke up!` : e.status === 'frz' ? `${who} thawed out!` : `${who} recovered.`;
+    case 'cure': return e.why === 'item' ? `${who} was cured of its ${STATUS_INFO[e.status].name.toLowerCase()}!` : e.status === 'slp' ? `${who} woke up!` : e.status === 'frz' ? `${who} thawed out!` : `${who} recovered.`;
+    case 'item': return `${foe ? names[1] : names[0]} used a ${e.item} on ${e.name}!`;
     case 'flinch': return `${who} flinched!`;
     case 'stat': {
       const label = STAT_LABEL[e.stat] || e.stat;
@@ -9985,7 +10053,7 @@ function chooseAction(state, side, rng) {
   if (!legal.length) return null;
   let best = null, bestScore = -Infinity;
   for (const a of legal) {
-    if (a.type === 'capture') continue; // the AI never captures
+    if (a.type === 'capture' || a.type === 'item') continue; // the AI never captures or spends the bag
     let score;
     if (state.phase === 'replace') score = scoreReplacement(state, side, a);
     else if (a.type === 'switch') score = scoreSwitch(state, side, a);
@@ -10081,6 +10149,7 @@ const sfx = {
 // Reusable interactive battle view. Mount it with an engine state and it plays
 // events, takes the player's choices, asks the AI for the foe's, and reports
 // the final state. Used by the sandbox Battle tab and by the Arena.
+
 
 
 
@@ -10251,7 +10320,8 @@ function applyFightEvent(f, e) {
     case 'move': logLine(f, text); animateStage(f, e.side, e.side === 0 ? 'lunge-r' : 'lunge-l', 450); poseStage(f, e.side, 'attack', 450); return 550;
     case 'damage': animateStage(f, e.side, 'hit', 450); poseStage(f, e.side, 'hurt', 450); setHp(f, e.side, e.hp, e.maxHp); logLine(f, text); sfx.hit(e.eff); return e.eff !== 1 || e.crit ? 750 : 550;
     case 'hurt': animateStage(f, e.side, 'hit', 350); poseStage(f, e.side, 'hurt', 350); setHp(f, e.side, e.hp, e.maxHp); logLine(f, text); sfx.hit(1); return 550;
-    case 'heal': setHp(f, e.side, e.hp, e.maxHp); logLine(f, text); sfx.heal(); return 550;
+    case 'heal': if (!e.uid || e.uid === activeOf(f.state, e.side).uid) setHp(f, e.side, e.hp, e.maxHp); logLine(f, text); sfx.heal(); return 550;
+    case 'item': logLine(f, text); return 500;
     case 'faint': animateStage(f, e.side, 'faint', 900); poseStage(f, e.side, 'hurt', 0); logLine(f, text); renderPanel(f, e.side); sfx.faint(); return 900;
     case 'status': renderPanel(f, e.side); logLine(f, text); sfx.status(); return 550;
     case 'cure': renderPanel(f, e.side); logLine(f, text); return 550;
@@ -10355,7 +10425,7 @@ function renderFightControls(f) {
   const util = h('div', { class: 'util-row' },
     h('button', { class: `btn small${f.fast ? ' on' : ''}`, type: 'button', onclick: () => { f.fast = !f.fast; renderFightControls(f); } }, f.fast ? 'Fast ✓' : 'Fast'),
     h('button', { class: `btn small${f.auto ? ' on' : ''}`, type: 'button', onclick: () => { f.auto = !f.auto; renderFightControls(f); if (f.auto && !f.busy && st.phase !== 'over') afterFightStep(f); } }, f.auto ? 'Auto ✓' : 'Auto'),
-    f.onQuit ? h('button', { class: 'btn small', type: 'button', onclick: () => { f.alive = false; f.token++; f.onQuit(); } }, 'Quit') : null,
+    f.onQuit ? h('button', { class: 'btn small', type: 'button', onclick: () => { f.alive = false; f.token++; f.onQuit(f.state); } }, 'Quit') : null,
   );
   if (st.phase === 'over') { el.append(util); return; }
   if (f.busy || f.auto) { el.append(h('div', { class: 'waiting' }, f.auto ? 'Auto battle running…' : '…'), util); return; }
@@ -10387,11 +10457,70 @@ function renderFightControls(f) {
   const row = h('div', { class: 'row wrap' },
     h('button', { class: 'btn', type: 'button', onclick: () => openFightParty(f, false) }, `Party (${aliveCount(st.sides[0])})`),
     h('button', { class: 'btn', type: 'button', onclick: () => openSheet(me.genome) }, 'Info'));
+  const stock = itemStock(st);
+  if (stock > 0) row.append(h('button', { class: 'btn', type: 'button', onclick: () => openFightItems(f) }, `Items (${stock})`));
   if (legal.some((a) => a.type === 'capture')) {
     const pct = Math.round(captureChance(foe) * 100);
     row.prepend(h('button', { class: 'btn capture', type: 'button', onclick: () => doFightStep(f, { type: 'capture' }) }, `Capture · ${pct}%`));
   }
   el.append(grid, row, util);
+}
+
+function itemStock(st) { return Object.values(st.items || {}).reduce((a, n) => a + (n > 0 ? n : 0), 0); }
+
+/** Bottom sheet listing the potions in the bag; picking one asks which party member to use it on. */
+function openFightItems(f) {
+  if (f.sheetClose) f.sheetClose();
+  const st = f.state;
+  const legal = legalActions(st, 0);
+  const close = () => { backdrop.remove(); sheet.remove(); f.sheetClose = null; };
+  f.sheetClose = close;
+  const backdrop = h('div', { class: 'sheet-backdrop', onclick: close });
+  const list = h('div', { class: 'party-list' });
+  for (const id of ITEM_IDS) {
+    const qty = st.items && st.items[id];
+    if (!(qty > 0)) continue;
+    const item = getItem(id);
+    const can = legal.some((a) => a.type === 'item' && a.id === id);
+    list.append(h('button', { class: 'party-row', type: 'button', disabled: !can, onclick: () => { close(); openFightTarget(f, id); } },
+      h('div', { class: 'item-icon', style: { '--chip': item.color } }, '+'),
+      h('div', { class: 'party-info' },
+        h('div', {}, h('b', {}, item.name), ' ', h('span', { class: 'lvl' }, `×${qty}`)),
+        h('div', { class: 'hint', style: { margin: 0 } }, can ? item.desc : `${item.desc} Nobody needs it right now.`))));
+  }
+  const sheet = h('section', { class: 'sheet', role: 'dialog', 'aria-modal': 'true', 'aria-label': 'Items' },
+    h('div', { class: 'grab' }),
+    h('div', { class: 'sheet-head' }, h('h2', {}, 'Items'), h('button', { class: 'btn close', onclick: close, 'aria-label': 'Close' }, '✕')),
+    h('p', { class: 'hint' }, 'Using an item takes your turn.'),
+    list);
+  document.body.append(backdrop, sheet);
+}
+
+/** Second step of the item flow: pick the party member to use the potion on. */
+function openFightTarget(f, itemId) {
+  if (f.sheetClose) f.sheetClose();
+  const st = f.state, side = st.sides[0], item = getItem(itemId);
+  const legal = legalActions(st, 0);
+  const close = () => { backdrop.remove(); sheet.remove(); f.sheetClose = null; };
+  f.sheetClose = close;
+  const backdrop = h('div', { class: 'sheet-backdrop', onclick: close });
+  const list = h('div', { class: 'party-list' });
+  side.party.forEach((b, i) => {
+    const can = legal.some((a) => a.type === 'item' && a.id === itemId && a.index === i);
+    const frac = b.hp / b.maxHp;
+    list.append(h('button', { class: `party-row${i === side.active ? ' active' : ''}${b.fainted ? ' fainted' : ''}`, type: 'button', disabled: !can, onclick: () => { close(); doFightStep(f, { type: 'item', id: itemId, index: i }); } },
+      creatureEl(b.genome, { size: 64, animate: false, level: b.level }),
+      h('div', { class: 'party-info' },
+        h('div', {}, h('b', {}, b.name), ' ', h('span', { class: 'lvl' }, `Lv ${b.level}`), ' ', b.status ? h('span', { class: `status st-${b.status}` }, STATUS_INFO[b.status].short) : null, i === side.active ? h('span', { class: 'status' }, 'ACTIVE') : null),
+        h('div', { class: 'hpbar' }, h('i', { class: hpClass(frac), style: { width: `${frac * 100}%` } })),
+        h('div', { class: 'hint', style: { margin: 0 } }, b.fainted ? 'Fainted — a potion cannot help.' : can ? `${b.hp} / ${b.maxHp}` : `${b.hp} / ${b.maxHp} · nothing to restore`))));
+  });
+  const sheet = h('section', { class: 'sheet', role: 'dialog', 'aria-modal': 'true', 'aria-label': 'Use item' },
+    h('div', { class: 'grab' }),
+    h('div', { class: 'sheet-head' }, h('h2', {}, `Use ${item.name} on…`), h('button', { class: 'btn close', onclick: close, 'aria-label': 'Close' }, '✕')),
+    h('p', { class: 'hint' }, item.desc),
+    list);
+  document.body.append(backdrop, sheet);
 }
 
 function openFightParty(f, forced) {
@@ -11120,6 +11249,7 @@ function worldStats(world) {
 
 
 
+
 const SAVE_KEY = 'creaturecollector.save';
 const SAVE_VERSION = 1;
 const SAVE_PREFIX = 'CCSAVE1.';
@@ -11190,7 +11320,7 @@ function normalizeJourney(r) {
     champion: Boolean(r.champion), encounter: null, lastReport: r.lastReport || null,
     gold: Math.max(0, Math.floor(Number(r.gold) || 0)), bag: {},
   };
-  if (r.bag && typeof r.bag === 'object') for (const [id, q] of Object.entries(r.bag)) { const n = Math.min(99, Math.floor(Number(q) || 0)); if (n > 0 && getMove(id) && id !== 'struggle') j.bag[id] = n; }
+  if (r.bag && typeof r.bag === 'object') for (const [id, q] of Object.entries(r.bag)) { const n = Math.min(99, Math.floor(Number(q) || 0)); if (n > 0 && (getItem(id) || getMove(id)) && id !== 'struggle') j.bag[id] = n; }
   if (r.stats && typeof r.stats === 'object') for (const k of Object.keys(j.stats)) j.stats[k] = Math.max(0, Number(r.stats[k]) || 0);
   if (r.beaten && typeof r.beaten === 'object') for (const [k, v] of Object.entries(r.beaten)) if (v) j.beaten[k] = true;
   if (r.encounter && typeof r.encounter === 'object' && ['wild', 'trainer', 'boss', 'council'].includes(r.encounter.kind)) {
@@ -11368,8 +11498,10 @@ function canFight(owner) { return owner.party.some((m) => m.hp > 0); }
 
 // ---- src/game/market.js ----
 // Gold, the Market and the Bag. Trainers pay gold when beaten; the Market at the Crossroads
-// sells every move as a single-use scroll priced by power; scrolls sit in the Bag until they
-// are taught to a creature. Pure functions over the journey object.
+// sells potions and every move as a single-use scroll priced by power; both sit in the Bag
+// (keyed by item or move id) until used. Pure functions over the journey object.
+
+
 
 
 /** A thousand gold per twenty points of power beyond the first forty; status and weak moves cost the base. */
@@ -11398,18 +11530,74 @@ function goldReward(foes, kind = 'trainer', rematch = false) {
   return Math.max(10, Math.round(gold / 10) * 10);
 }
 
-function bagCount(j, moveId) { return (j.bag && j.bag[moveId]) || 0; }
+function bagCount(j, id) { return (j.bag && j.bag[id]) || 0; }
+
+/** The potions on sale, weakest first. */
+function itemCatalogue() { return ITEM_IDS.map((id) => ({ item: ITEMS[id], cost: ITEMS[id].cost })); }
+
+/** The Bag's potions: [{ item, qty }], weakest first. */
+function itemList(j) {
+  return ITEM_IDS.filter((id) => (j.bag && j.bag[id]) > 0).map((id) => ({ item: ITEMS[id], qty: j.bag[id] }));
+}
+
+/** Buy one potion. Returns { ok, reason?, cost }. */
+function buyItem(j, itemId) {
+  const item = getItem(itemId);
+  if (!item) return { ok: false, reason: 'The Market does not sell that.', cost: 0 };
+  if (bagCount(j, itemId) >= MARKET.maxStack) return { ok: false, reason: 'Your bag cannot hold more of those.', cost: item.cost };
+  if ((j.gold || 0) < item.cost) return { ok: false, reason: `Not enough gold: a ${item.name} costs ${item.cost}.`, cost: item.cost };
+  j.gold -= item.cost;
+  j.bag = j.bag || {};
+  j.bag[itemId] = bagCount(j, itemId) + 1;
+  return { ok: true, cost: item.cost };
+}
+
+/** Use a potion on a party member out of battle. Returns { ok, reason?, amount, cured }. */
+function useItem(j, uid, itemId) {
+  const item = getItem(itemId);
+  if (!item || bagCount(j, itemId) <= 0) return { ok: false, reason: 'No such item in the bag.' };
+  const m = j.party.find((x) => x.uid === uid);
+  if (!m) return { ok: false, reason: 'Potions are used on party members.' };
+  const max = memberMaxHp(m);
+  if (m.hp <= 0) return { ok: false, reason: `${m.genome.name} has fainted; a camp will bring it round.` };
+  if (!potionUseful(item, m.hp, max, m.status)) return { ok: false, reason: `${m.genome.name} is already at full health.` };
+  const amount = potionHeal(item, m.hp, max);
+  m.hp += amount;
+  const cured = item.cure && m.status ? m.status : null;
+  if (cured) m.status = null;
+  j.bag[itemId] -= 1;
+  if (j.bag[itemId] <= 0) delete j.bag[itemId];
+  return { ok: true, amount, healed: amount, cured };
+}
+
+/** The potions to carry into a fight: { id: qty } for every stocked potion. */
+function battleItems(j) {
+  const out = {};
+  for (const id of ITEM_IDS) if (bagCount(j, id) > 0) out[id] = bagCount(j, id);
+  return out;
+}
+
+/** After a fight, the bag keeps what the fight left: potions used in battle are gone. */
+function syncBagFromBattle(j, state) {
+  if (!state || !state.items) return j;
+  j.bag = j.bag || {};
+  for (const id of ITEM_IDS) {
+    const left = Math.max(0, Math.floor(state.items[id] || 0));
+    if (left > 0) j.bag[id] = left; else delete j.bag[id];
+  }
+  return j;
+}
 
 /** The Bag's contents, one line per move: [{ move, qty }], by type then name. */
 function bagList(j) {
-  return Object.entries(j.bag || {}).filter(([id, qty]) => qty > 0 && getMove(id)).map(([id, qty]) => ({ move: getMove(id), qty }))
+  return Object.entries(j.bag || {}).filter(([id, qty]) => qty > 0 && !getItem(id) && getMove(id)).map(([id, qty]) => ({ move: getMove(id), qty }))
     .sort((a, b) => (a.move.type < b.move.type ? -1 : a.move.type > b.move.type ? 1 : a.move.name < b.move.name ? -1 : 1));
 }
 
 /** Buy one scroll of a move. Returns { ok, reason?, cost }. */
 function buyMove(j, moveId) {
   const mv = getMove(moveId);
-  if (!mv || mv.struggle) return { ok: false, reason: 'The Market does not sell that.', cost: 0 };
+  if (!mv || mv.struggle || getItem(moveId)) return { ok: false, reason: 'The Market does not sell that.', cost: 0 };
   const cost = moveCost(mv);
   if (bagCount(j, moveId) >= MARKET.maxStack) return { ok: false, reason: 'Your bag cannot hold more of those.', cost };
   if ((j.gold || 0) < cost) return { ok: false, reason: `Not enough gold: ${mv.name} costs ${cost}.`, cost };
@@ -11601,8 +11789,12 @@ function enterSpire(j) {
   return { ok: true, encounter: j.encounter };
 }
 
-/** Walk away from a wild creature or an unstarted fight. */
-function fleeEncounter(j) {
+/** Walk away from a wild creature or an unstarted fight. A fight state, when given, keeps what it did to the party and the bag. */
+function fleeEncounter(j, state) {
+  if (state && state.sides) {
+    j.party.forEach((m, i) => { const b = state.sides[0].party[i]; if (b) { m.hp = Math.max(1, b.hp); m.status = b.status; } });
+    syncBagFromBattle(j, state);
+  }
   if (j.encounter && j.encounter.kind === 'council') { j.gauntlet = null; }
   j.encounter = null;
   j.cooldown = WORLD.encounterCooldown;
@@ -11630,6 +11822,7 @@ function buildJourneyBattle(j) {
     sides: [{ name: 'You', party: mine }, { name: enc.name, ai: true, party: foes }],
     seed: `${j.seed}:battle:${j.stats.battles}:${enc.kind}`,
     capturable: enc.capturable,
+    items: battleItems(j),
   });
 }
 
@@ -11649,6 +11842,7 @@ function applyJourneyBattle(j, state) {
   if (!enc) throw new Error('No encounter to resolve.');
   const mine = state.sides[0].party, foes = state.sides[1].party;
   j.party.forEach((m, i) => { const b = mine[i]; if (b) { m.hp = b.hp; m.status = b.status; } });
+  syncBagFromBattle(j, state);
   const capturedBattler = state.captured ? foes.find((f) => f.uid === state.captured) : null;
   const won = state.winner === 0 || Boolean(capturedBattler);
   j.stats.battles++;
@@ -11761,6 +11955,7 @@ function partyHealth(j) {
 // tap on the ground; wild encounters on habitat tiles, trainers who fight when asked,
 // Wardens in their lairs, the Council Spire, camps that heal and a shrine that fuses.
 // Fights hand off to the shared fight view and come back to the same spot.
+
 
 
 
@@ -12140,7 +12335,7 @@ function owStartFight() {
   ow.root.append(h('div', { class: 'floor-head compact' }, h('b', {}, `${enc.name}${enc.kind === 'council' ? ` · fight ${enc.stage + 1} of ${JOURNEY.councilFights}` : ''}`)), host);
   ow.fight = mountFight(host, {
     state: built.state, events: built.events, names: ['You', enc.name], wild: enc.capturable, fast: ow.save.settings.fast,
-    onQuit: enc.kind === 'wild' ? () => { fleeEncounter(j); owSave(); renderWorldScreen(ow.root); } : null,
+    onQuit: enc.kind === 'wild' ? (state) => { fleeEncounter(j, state); owSave(); renderWorldScreen(ow.root); } : null,
     onEnd: (state) => {
       const { report } = applyJourneyBattle(j, state);
       if (report.captured) recordCollection(ow.save, report.captured.genome);
@@ -12254,21 +12449,60 @@ function owMoveInfo(move, tag) {
       tag ? h('span', { class: 'shop-tag' }, tag) : null));
 }
 
-/** The Bag: move scrolls, each taught once to any creature. */
+/** A potion's name, effect and price or quantity. */
+function owItemInfo(item, tag) {
+  return h('div', { class: 'shop-info item-info' }, h('div', { class: 'item-icon small', style: { '--chip': item.color } }, '+'),
+    h('div', {}, h('b', {}, item.name),
+      h('div', { class: 'shop-meta' }, h('span', {}, item.desc), tag ? h('span', { class: 'shop-tag' }, tag) : null)));
+}
+
+/** The Bag: potions to use on the party, and move scrolls, each taught once to any creature. */
 function owBagSheet(j) {
   const body = h('div');
-  let teaching = null;
+  let teaching = null, using = null;
   const render = () => {
     clear(body);
-    const items = bagList(j);
+    const scrolls = bagList(j), potions = itemList(j);
     if (teaching) { body.append(owTeachPanel(j, teaching, () => { teaching = null; render(); })); return; }
-    body.append(h('p', { class: 'hint' }, `◆ ${(j.gold || 0).toLocaleString()} gold. ${items.length ? 'A scroll teaches its move to one creature and is used up. Any creature can learn any move.' : 'The bag is empty. The Market at the Crossroads sells move scrolls.'}`));
-    const list = h('div', { class: 'shop-list' });
-    for (const { move, qty } of items) list.append(h('div', { class: 'shop-row' }, owMoveInfo(move, `×${qty}`), h('button', { class: 'btn small primary', type: 'button', onclick: () => { teaching = { moveId: move.id, uid: null }; render(); } }, 'Teach')));
-    body.append(list);
+    if (using) { body.append(owUsePanel(j, using, () => { using = null; render(); })); return; }
+    body.append(h('p', { class: 'hint' }, `◆ ${(j.gold || 0).toLocaleString()} gold.${scrolls.length || potions.length ? '' : ' The bag is empty. The Market at the Crossroads sells potions and move scrolls.'}`));
+    if (potions.length) {
+      const list = h('div', { class: 'shop-list' });
+      for (const { item, qty } of potions) list.append(h('div', { class: 'shop-row' }, owItemInfo(item, `×${qty}`), h('button', { class: 'btn small primary', type: 'button', onclick: () => { using = item.id; render(); } }, 'Use')));
+      body.append(...section('Potions', h('p', { class: 'hint' }, 'Potions work on the party in and out of battle; in battle a potion takes your turn. They cannot revive a fainted creature.'), list));
+    }
+    if (scrolls.length) {
+      const list = h('div', { class: 'shop-list' });
+      for (const { move, qty } of scrolls) list.append(h('div', { class: 'shop-row' }, owMoveInfo(move, `×${qty}`), h('button', { class: 'btn small primary', type: 'button', onclick: () => { teaching = { moveId: move.id, uid: null }; render(); } }, 'Teach')));
+      body.append(...section('Move scrolls', h('p', { class: 'hint' }, 'A scroll teaches its move to one creature and is used up. Any creature can learn any move.'), list));
+    }
   };
   render();
   owSheet('Bag', body, () => owRefreshHud());
+}
+
+/** Pick the party member a potion is used on. */
+function owUsePanel(j, itemId, back) {
+  const item = getItem(itemId);
+  const panel = h('div');
+  const render = () => {
+    clear(panel);
+    const qty = bagCount(j, itemId);
+    panel.append(h('div', { class: 'row', style: { justifyContent: 'flex-start' } }, h('button', { class: 'btn small', type: 'button', onclick: back }, '‹ Bag'), h('span', { class: 'hint', style: { margin: 0 } }, `Use ${item.name} (×${qty}) on…`)));
+    const list = h('div', { class: 'party-list' });
+    for (const m of j.party) {
+      list.append(owMemberRow(j, m, [h('button', { class: 'btn small primary', type: 'button', disabled: qty <= 0, onclick: () => {
+        const r = useItem(j, m.uid, itemId);
+        if (!r.ok) { toast(r.reason); return; }
+        owSave(); sfx.heal();
+        toast(`${m.genome.name}${r.healed ? ` recovered ${r.healed} HP` : ''}${r.healed && r.cured ? ' and' : ''}${r.cured ? ` was cured of ${STATUS_INFO[r.cured].name.toLowerCase()}` : ''}.`);
+        if (bagCount(j, itemId) > 0) render(); else back();
+      } }, 'Use')]));
+    }
+    panel.append(list);
+  };
+  render();
+  return panel;
 }
 
 /** Pick a creature for a scroll, then (with four moves) the move it replaces. */
@@ -12302,13 +12536,24 @@ function owTeachPanel(j, teaching, back) {
   return panel;
 }
 
-/** The Market: every move as a single-use scroll, priced by power. */
+/** The Market: potions of rising strength, and every move as a single-use scroll priced by power. */
 function owMarketSheet(j) {
   const body = h('div');
   let filter = 'All';
   const catalogue = marketCatalogue();
+  const potions = itemCatalogue();
   const render = () => {
     clear(body);
+    const potionList = h('div', { class: 'shop-list' });
+    for (const { item, cost } of potions) {
+      const owned = bagCount(j, item.id);
+      potionList.append(h('div', { class: 'shop-row' }, owItemInfo(item, owned ? `in bag ×${owned}` : ''),
+        h('button', { class: `btn small${(j.gold || 0) >= cost ? ' primary' : ''}`, type: 'button', disabled: (j.gold || 0) < cost, onclick: () => {
+          const r = buyItem(j, item.id);
+          if (!r.ok) { toast(r.reason); return; }
+          owSave(); sfx.heal(); toast(`Bought a ${item.name} for ${cost.toLocaleString()} gold`); render();
+        } }, `${cost.toLocaleString()} ◆`)));
+    }
     const chips = h('div', { class: 'type-filter' }, ['All', ...TYPE_LIST].map((t) => h('button', { class: `btn small${filter === t ? ' on' : ''}`, type: 'button', style: t !== 'All' ? { '--chip': TYPE_INFO[t].color } : null, onclick: () => { filter = t; render(); } }, t)));
     const list = h('div', { class: 'shop-list' });
     for (const { move, cost } of catalogue) {
@@ -12322,8 +12567,9 @@ function owMarketSheet(j) {
         } }, `${cost.toLocaleString()} ◆`)));
     }
     appendChildren(body, [
-      h('p', { class: 'hint' }, `◆ ${(j.gold || 0).toLocaleString()} gold. Every move is sold as a single-use scroll and goes to your Bag; prices rise with power in steps of 1000. Trainers pay gold when beaten.`),
-      chips, list,
+      h('p', { class: 'hint' }, `◆ ${(j.gold || 0).toLocaleString()} gold. Everything goes to your Bag. Trainers pay gold when beaten.`),
+      ...section('Potions', potionList),
+      ...section('Move scrolls', h('p', { class: 'hint' }, 'Every move is sold as a single-use scroll; prices rise with power in steps of 1000.'), chips, list),
     ]);
   };
   render();

@@ -6,9 +6,13 @@ import { SPECIES_BY_ID } from '../src/data/species.js';
 import { speciesGenome } from '../src/creature/genome.js';
 import { makeMember } from '../src/game/party.js';
 import { TILE, tileAt, worldFor, isWalkable, findPath, isHubTile } from '../src/game/world.js';
-import { newJourney, chooseJourneyStarter, tryMove, acceptChallenge, challengeWarden, buildJourneyBattle, applyJourneyBattle } from '../src/game/journey.js';
-import { MARKET, GOLD, moveCost, marketCatalogue, goldReward, buyMove, bagList, bagCount, canTeach, teachMove } from '../src/game/market.js';
+import { newJourney, chooseJourneyStarter, tryMove, acceptChallenge, challengeWarden, buildJourneyBattle, applyJourneyBattle, fleeEncounter } from '../src/game/journey.js';
+import { MARKET, GOLD, moveCost, marketCatalogue, goldReward, buyMove, bagList, bagCount, canTeach, teachMove, itemCatalogue, itemList, buyItem, useItem } from '../src/game/market.js';
 import { normalizeJourney } from '../src/game/save.js';
+import { ITEMS, ITEM_IDS, getItem, potionHeal, potionUseful } from '../src/data/items.js';
+import { memberMaxHp } from '../src/game/party.js';
+import { createBattle, legalActions, step, describeEvent, makeBattler } from '../src/battle/engine.js';
+import { chooseAction } from '../src/battle/ai.js';
 
 function fresh(seed = 'mk') { const j = newJourney(seed); chooseJourneyStarter(j, 0); return j; }
 function decided(j, winner) {
@@ -146,4 +150,122 @@ test('the Market stands at the crossroads and opens when you step on its door', 
   }
   assert.deepEqual(ev, { kind: 'market' });
   assert.deepEqual([j.player.x, j.player.y], [d.x, d.y]);
+});
+
+test('potions come in rising strengths and heal what they say, never reviving', () => {
+  const cat = itemCatalogue();
+  assert.deepEqual(cat.map((e) => e.item.id), ITEM_IDS);
+  for (let i = 1; i < cat.length; i++) assert.ok(cat[i].cost > cat[i - 1].cost, 'dearer as they get stronger');
+  assert.equal(potionHeal(ITEMS.potion, 10, 100), 20);
+  assert.equal(potionHeal(ITEMS.potion, 95, 100), 5);
+  assert.equal(potionHeal(ITEMS.potion, 100, 100), 0);
+  assert.equal(potionHeal(ITEMS.potion, 0, 100), 0, 'a fainted creature gets nothing');
+  assert.equal(potionHeal(ITEMS.hyper_potion, 1, 400), 150);
+  assert.equal(potionHeal(ITEMS.max_potion, 1, 250), 249);
+  assert.equal(potionUseful(ITEMS.full_restore, 100, 100, 'psn'), true, 'a cure alone is worth it');
+  assert.equal(potionUseful(ITEMS.max_potion, 100, 100, 'psn'), false);
+  assert.equal(potionUseful(ITEMS.full_restore, 0, 100, 'psn'), false);
+  assert.equal(getItem('nope'), null);
+});
+
+test('buying potions stacks them in the bag; using one heals a party member and is spent', () => {
+  const j = fresh('potion');
+  assert.equal(buyItem(j, 'potion').ok, false, 'no gold, no potion');
+  j.gold = 1000;
+  assert.deepEqual(buyItem(j, 'potion'), { ok: true, cost: 300 });
+  assert.deepEqual(buyItem(j, 'potion'), { ok: true, cost: 300 });
+  assert.equal(j.gold, 400);
+  assert.equal(buyItem(j, 'super_potion').ok, false, 'too poor');
+  assert.equal(buyItem(j, 'nope').ok, false);
+  assert.equal(buyMove(j, 'potion').ok, false, 'potions are not scrolls');
+  assert.deepEqual(itemList(j).map((e) => [e.item.id, e.qty]), [['potion', 2]]);
+  assert.deepEqual(bagList(j), [], 'the scroll list leaves potions out');
+  const m = j.party[0];
+  const max = memberMaxHp(m);
+  assert.equal(useItem(j, m.uid, 'potion').ok, false, 'full health refuses');
+  assert.equal(bagCount(j, 'potion'), 2, 'a refused use keeps the potion');
+  m.hp = max - 5;
+  assert.deepEqual(useItem(j, m.uid, 'potion'), { ok: true, amount: 5, healed: 5, cured: null });
+  assert.equal(m.hp, max);
+  assert.equal(bagCount(j, 'potion'), 1);
+  m.hp = 0;
+  assert.equal(useItem(j, m.uid, 'potion').ok, false, 'no reviving');
+  m.hp = 1; m.status = 'brn';
+  j.bag.full_restore = 1;
+  assert.deepEqual(useItem(j, m.uid, 'full_restore'), { ok: true, amount: max - 1, healed: max - 1, cured: 'brn' });
+  assert.equal(m.status, null);
+  assert.ok(!('full_restore' in j.bag), 'empty stacks disappear');
+  assert.equal(useItem(j, 'nobody', 'potion').ok, false);
+  assert.equal(useItem(j, m.uid, 'hyper_potion').ok, false, 'not in the bag');
+  const stored = makeMember(speciesGenome(SPECIES_BY_ID.emberox, makeRng('st')), 9, 'st1');
+  stored.hp = 1; j.box.push(stored);
+  assert.equal(useItem(j, 'st1', 'potion').ok, false, 'party members only');
+});
+
+test('in battle a potion is an action: it heals any standing member, is used up and costs the turn', () => {
+  const rng = makeRng('potbattle');
+  const a = makeBattler(speciesGenome(SPECIES_BY_ID.emberox, rng.fork('a')), 20);
+  const b = makeBattler(speciesGenome(SPECIES_BY_ID.emberox, rng.fork('b')), 20);
+  const c = makeBattler(speciesGenome(SPECIES_BY_ID.emberox, rng.fork('c')), 20);
+  b.hp = 1;
+  const { state } = createBattle({ sides: [{ name: 'You', party: [a, b] }, { name: 'Foe', ai: true, party: [c] }], seed: 'pot', items: { potion: 2, full_restore: 1, junk: 3, super_potion: 0 } });
+  assert.deepEqual(state.items, { potion: 2, full_restore: 1 }, 'unknown and empty stacks are dropped');
+  assert.deepEqual(legalActions(state, 0).filter((x) => x.type === 'item'), [{ type: 'item', id: 'potion', index: 1 }, { type: 'item', id: 'full_restore', index: 1 }], 'only the hurt bench member needs one');
+  assert.deepEqual(legalActions(state, 1).filter((x) => x.type === 'item'), [], 'the foe has no bag');
+  assert.throws(() => step(state, [{ type: 'item', id: 'potion', index: 0 }, { type: 'move', index: 0 }]), /Illegal/, 'a full member is not a target');
+  assert.throws(() => step(state, [{ type: 'item', id: 'hyper_potion', index: 1 }, { type: 'move', index: 0 }]), /Illegal/, 'not in the bag');
+  const r = step(state, [{ type: 'item', id: 'potion', index: 1 }, { type: 'move', index: 0 }]);
+  const bench = r.state.sides[0].party[1];
+  assert.equal(bench.hp, 21);
+  assert.equal(r.state.sides[0].active, 0, 'the active creature stays out');
+  assert.deepEqual(r.state.items, { potion: 1, full_restore: 1 });
+  const kinds = r.events.map((e) => e.t);
+  assert.ok(kinds.indexOf('item') >= 0 && kinds.indexOf('item') < kinds.indexOf('move'), 'the potion goes before the foe moves');
+  const heal = r.events.find((e) => e.t === 'heal');
+  assert.equal(heal.uid, bench.uid); assert.equal(heal.why, 'item'); assert.equal(heal.amount, 20);
+  assert.equal(describeEvent(r.events.find((e) => e.t === 'item'), ['You', 'Foe']), `You used a Potion on ${bench.name}!`);
+  assert.equal(r.state.turn, 1);
+  // a Full Restore also cures
+  const s2 = JSON.parse(JSON.stringify(r.state));
+  s2.sides[0].party[1].status = 'psn';
+  const r2 = step(s2, [{ type: 'item', id: 'full_restore', index: 1 }, { type: 'move', index: 0 }]);
+  const cured = r2.state.sides[0].party[1];
+  assert.equal(cured.hp, cured.maxHp); assert.equal(cured.status, null);
+  assert.ok(!('full_restore' in r2.state.items));
+  const cure = r2.events.find((e) => e.t === 'cure');
+  assert.equal(cure.status, 'psn'); assert.equal(cure.why, 'item');
+  assert.match(describeEvent(cure), /cured of its poison/);
+  assert.equal(chooseAction(r2.state, 0, makeRng('ai')).type !== 'item', true, 'the auto battler never spends potions');
+  assert.equal(createBattle({ sides: [{ party: [a] }, { party: [c] }] }).state.items && Object.keys(createBattle({ sides: [{ party: [a] }, { party: [c] }] }).state.items).length, 0, 'no bag by default');
+});
+
+test('potions spent in a fight leave the bag whether you win or flee', () => {
+  const j = fresh('potsync');
+  j.bag = { potion: 3 };
+  const world = worldFor(j.seed);
+  const foe = makeMember(speciesGenome(SPECIES_BY_ID.emberox, makeRng('wf')), 3, 'wf');
+  j.encounter = { kind: 'wild', name: foe.genome.name, foes: [{ genome: foe.genome, level: 3 }], capturable: true, biome: world.biomes[0].id };
+  const { state } = buildJourneyBattle(j);
+  assert.deepEqual(state.items, { potion: 3 });
+  const s = JSON.parse(JSON.stringify(state));
+  s.items = { potion: 1 };
+  s.phase = 'over'; s.winner = 0;
+  for (const f of s.sides[1].party) { f.hp = 0; f.fainted = true; }
+  applyJourneyBattle(j, s);
+  assert.deepEqual(j.bag, { potion: 1 });
+  // fleeing keeps the HP and bag as they were when you ran
+  const k = fresh('potflee');
+  k.bag = { potion: 1, super_potion: 2 };
+  k.encounter = { kind: 'wild', name: foe.genome.name, foes: [{ genome: foe.genome, level: 3 }], capturable: true, biome: world.biomes[0].id };
+  const built = buildJourneyBattle(k);
+  const f = JSON.parse(JSON.stringify(built.state));
+  f.items = { super_potion: 2 };
+  f.sides[0].party[0].hp = 0;
+  fleeEncounter(k, f);
+  assert.deepEqual(k.bag, { super_potion: 2 });
+  assert.equal(k.party[0].hp, 1, 'you never flee with a fainted lead');
+  assert.equal(k.encounter, null);
+  const back = normalizeJourney(JSON.parse(JSON.stringify(k)));
+  assert.deepEqual(back.bag, { super_potion: 2 }, 'item ids survive the save');
+  assert.deepEqual(normalizeJourney({ ...JSON.parse(JSON.stringify(k)), bag: { max_potion: 500, potion: 0, nope: 1 } }).bag, { max_potion: 99 });
 });

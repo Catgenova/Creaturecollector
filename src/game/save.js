@@ -5,6 +5,7 @@ import { validateGenome, learnsetOf } from '../creature/genome.js';
 import { getMove } from '../data/moves.js';
 import { movesAtLevel } from '../battle/stats.js';
 import { WORLD, BIOME_ORDER } from './world.js';
+import { getItem } from '../data/items.js';
 
 export const SAVE_KEY = 'creaturecollector.save';
 export const SAVE_VERSION = 1;
@@ -76,7 +77,7 @@ export function normalizeJourney(r) {
     champion: Boolean(r.champion), encounter: null, lastReport: r.lastReport || null,
     gold: Math.max(0, Math.floor(Number(r.gold) || 0)), bag: {},
   };
-  if (r.bag && typeof r.bag === 'object') for (const [id, q] of Object.entries(r.bag)) { const n = Math.min(99, Math.floor(Number(q) || 0)); if (n > 0 && getMove(id) && id !== 'struggle') j.bag[id] = n; }
+  if (r.bag && typeof r.bag === 'object') for (const [id, q] of Object.entries(r.bag)) { const n = Math.min(99, Math.floor(Number(q) || 0)); if (n > 0 && (getItem(id) || getMove(id)) && id !== 'struggle') j.bag[id] = n; }
   if (r.stats && typeof r.stats === 'object') for (const k of Object.keys(j.stats)) j.stats[k] = Math.max(0, Number(r.stats[k]) || 0);
   if (r.beaten && typeof r.beaten === 'object') for (const [k, v] of Object.entries(r.beaten)) if (v) j.beaten[k] = true;
   if (r.encounter && typeof r.encounter === 'object' && ['wild', 'trainer', 'boss', 'council'].includes(r.encounter.kind)) {

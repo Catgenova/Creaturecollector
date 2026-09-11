@@ -678,8 +678,17 @@ into the collection on load.
   at 85–100, 5,000 at 120, 6,000 at 130; status moves 1,000), filterable by
   type. Scrolls stack in the Bag (`journey.bag`, up to 99 each); teaching one
   to any creature, party or box, adds the move or replaces a chosen one when it
-  already knows four, and uses the scroll up. Gold and the bag are saved and
-  normalised with the journey.
+  already knows four, and uses the scroll up. The Market also sells potions
+  (`src/data/items.js`): Potion 20 HP for 300, Super Potion 60 for 700, Hyper
+  Potion 150 for 1,500, Max Potion full for 2,500, Full Restore full plus any
+  status cured for 3,000. A potion works on a standing party member from the
+  Bag or in battle, where it is an action with switch priority: it heals the
+  chosen member, active or benched, is used up, and costs the turn
+  (`createBattle({ items })`, `legalActions` lists one `{ type: 'item', id,
+  index }` per stocked potion and member it would help; the foe's AI never
+  uses items). Nothing revives a fainted creature; camps do that. Potions
+  spent in a fight leave the bag whether you win, lose or flee. Gold and the
+  bag are saved and normalised with the journey.
 - **Creature Storage.** The Market's twin on the hub's north-west edge holds
   the box. Deposit and withdraw happen only there (the Party sheet elsewhere
   reorders and inspects); a capture with a full party goes straight to
