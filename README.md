@@ -3,8 +3,8 @@
 A mobile-first HTML creature battler with procedural monster fusion. No
 dependencies; the whole game ships as a single `index.html`.
 
-**Play:** open `index.html` in a browser, or serve the repo root
-(GitHub Pages from `main` works as is).
+**Play it:** https://catgenova.github.io/Creaturecollector/ (GitHub Pages,
+deployed from `main` on every push). Or open `index.html` locally.
 
 ## Status
 

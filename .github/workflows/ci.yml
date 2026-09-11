@@ -1,0 +1,28 @@
+# Keeps the GitHub Pages deployment trustworthy: the committed index.html must
+# match what src/ builds, and the test suite must pass, on every push and PR.
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Build bundle
+        run: node build.js
+      - name: Bundle is committed and up to date
+        run: |
+          if ! git diff --quiet -- index.html; then
+            echo "::error::index.html is out of date. Run 'node build.js' and commit the result."
+            git --no-pager diff --stat -- index.html
+            exit 1
+          fi
+      - name: Tests
+        run: node --test tests/*.test.js
