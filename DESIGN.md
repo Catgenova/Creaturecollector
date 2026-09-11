@@ -13,7 +13,7 @@ fusion as the core progression system. Zero dependencies. Ships as one `index.ht
 | View | Side view, facing right. The enemy is mirrored. One part set serves both sides of a battle. |
 | Types | The classic 18-type chart. |
 | Battles | Turn-based, parties of up to 5, switching allowed. |
-| Game frame | Endless arena first. Overworld and story are the long-term goal and drive the architecture (screens, save format, event log). |
+| Game frame | The overworld: a seeded map with seven class biomes, trainers, Wardens and the Council. It started as an endless arena, which was removed once the overworld shipped; the capture, XP, party and collection systems carried over. |
 | Platform | Mobile-first portrait layout, touch targets ≥ 44px, works on desktop too. |
 
 ## Repository layout
@@ -31,10 +31,11 @@ src/data/parts/       the part library: one folder per class (mammal/, reptile/,
 src/data/species.js   base species recipes
 src/data/elements.js  Elementals: the eight elements, their core abilities and one SVG filter each
 src/creature/         genome (schema, rolls, codes), palette, render (SVG)
-src/ui/               dom helpers, screens (lab, parts), app shell (main.js = build entry)
+src/game/             world (map generation and content), journey (rules), party (members, xp), save
+src/ui/               dom helpers, screens (world, battle, fusion, lab, parts), app shell (main.js = build entry)
 tests/                node:test suites
 scripts/              screenshot helpers for visual review (Playwright, dev only):
-                      shot.mjs (app flow), board.mjs <rig> + shot-board.mjs (library board), hero.mjs (close-ups)
+                      shot.mjs (app flow), shot-world.mjs (overworld flow), board.mjs <rig> + shot-board.mjs (library board), hero.mjs (close-ups)
 ```
 
 Bundle conventions the build enforces: named exports only, relative imports on
@@ -282,20 +283,11 @@ effectiveness marker, party sheet for switching, Fast and Auto toggles, and a
 result card with rematch. Events play with lunge, hit-shake, HP transitions
 and faint animations.
 
-## Arena and save (Phase 4 — implemented)
+## Capture, XP and save
 
-`src/game/run.js` holds the rules as pure functions over a `run` object;
-`src/ui/arena.js` drives them and persists after every change through
-`src/game/save.js`.
+These began as the endless arena's rules and are now the overworld's, shared
+through `src/game/party.js` and `src/game/save.js`.
 
-- **Run.** Pick one of three seeded starters at level 5, then climb floors.
-  Wild level = 4 + 2 × floor, capped at 100. Every floor is one encounter,
-  generated deterministically from the run seed and floor number.
-- **Encounters.** Wild (one creature, capturable) by default; a trainer with
-  1 + floor/3 creatures every third floor; a Warden every fifth floor whose
-  leader is a gen-2 fusion three levels up, followed by the fusion altar. From
-  floor 6, wild fusions appear with rising odds (cap 35%). Rare species get
-  more common as floors climb.
 - **Capture** is an in-battle action (engine `{ type: 'capture' }`, wild only).
   Odds shown on the button: `0.08 + 0.72 × hpFactor × tier × status`, where
   hpFactor runs from 1/3 at full HP to 1 at none, tier is 1 / 0.7 / 0.45 for
@@ -303,27 +295,23 @@ and faint animations.
   capped at 95%. Three shake checks at the cube root of the odds. A capture
   costs the turn; success ends the battle as a win.
 - **XP and levels.** `xpForLevel(L) = L³`. Each defeated or caught foe gives
-  `5.5 × L² × bst/400` (× 1.5 for wardens) to every party member, tuned so a
-  floor is worth about two levels and the party keeps pace with the curve.
-  Levelling raises current HP by the max-HP gain. Movesets follow the learnset
-  automatically.
-- **Between floors** everyone recovers 40% HP and shakes off sleep and freeze;
-  other statuses stick until the altar, which heals fully.
-- **Party and box.** Five in the party, overflow in the box, swap freely
-  between floors, choose the lead. A fainted lead is rotated out
-  automatically. A run ends when the whole party faints in one battle.
-- **Altar.** After each warden: fuse any two of your creatures (party or box).
-  Both are consumed; the child takes the higher level. Preview before you
-  commit; the child also lands in the Fusion Lab pool.
+  `7 × L² × bst/400` (× 1.5 for Wardens, the Council and alphas) to every party
+  member. Levelling raises current HP by the max-HP gain. Members keep their
+  own four moves: levelling into a new one fills an empty slot or queues a
+  prompt asking which move to replace, with a skip.
+- **Party and box.** Five in the party, overflow in the box, swap freely on
+  the map, choose the lead. A fainted lead is rotated out automatically.
 - **Save.** One localStorage key, versioned, normalised on load so junk cannot
-  brick it. Holds best floor, totals, the collection (species deduped, fusions
-  by name and seed, capped at 200) and the run in progress. Battles themselves
-  are not persisted: a reload mid-fight returns you to the floor. Export and
-  import as a `CCSAVE1.` code. Ending a run retires the team into the
-  collection, where any creature can be inspected or sent to the Fusion Lab.
+  brick it. Holds totals (battles, captures, fusions, journeys, champions),
+  the collection (species deduped, fusions by name and seed, capped at 200),
+  the journey in progress and settings. Battles themselves are not persisted:
+  a reload mid-fight returns you to the encounter card. Export and import as a
+  `CCSAVE1.` code. Abandoning a journey retires the team into the collection,
+  where any creature can be inspected or sent to the Fusion Lab. A save from
+  the arena days folds its run's creatures into the collection on load.
 
-The fight view is a reusable component (`ui/fight.js`) shared by the Arena and
-the sandbox Battle tab.
+The fight view is a reusable component (`ui/fight.js`) shared by the overworld
+and the sandbox Battle tab.
 
 ## Classes and fusion locks (implemented)
 
@@ -331,18 +319,13 @@ Every species belongs to a **class** (`clade` in code): Mammal, Reptile, Fish,
 Bird, Insect, Invertebrate or Amphibian. Types stay elemental and independent.
 
 - **Fusion is same-class only.** `canFuse(a, b)` is the single rule; `fuse()`
-  throws otherwise. The Fusion Lab and the altar grey out incompatible partners
+  throws otherwise. The Fusion Lab and the shrine grey out incompatible partners
   and say why. Wild fusions and Warden leaders are built inside one class.
 - **Linked slots** keep each class's silhouette coherent: the second slot of a
   pair inherits from whichever parent supplied the first. Mammals and
   amphibians link legs and arms, reptiles back and tail, fish body and tail,
   birds wings and tail, insects wings and back, invertebrates arms and legs.
-- **Biomes.** Each Warden stretch of five floors has a biome (Meadow, Marsh,
-  Cavern, Reef, Canopy, Dunes, Peaks) whose two or three classes are four
-  times as common, so a party finds fusion partners. Biomes are the seed of the
-  overworld's regions.
-- Each class has its own skeleton (rig) and slot list; see the next section.
-  Creatures on different rigs never fuse.
+- **Biomes.** The overworld gives each class its own biome, so fusion partners of one class are found together (see Overworld).
 
 ## Class skeletons and the art rebuild (done)
 
@@ -535,10 +518,9 @@ Ranged Def, old Sp. Def feeds Magic Def and Ranged Def.
 
 ## Elementals
 
-One capturable wild creature in a thousand (`ARENA.elementalChance`, rolled in
-`encounterFor` for the plain wild encounter) is born of an element. The eight
-elements live in `src/data/elements.js`: Fire, Water, Storm, Frost, Bloom,
-Shadow, Light and Earth, each with a core ability and one SVG filter.
+One wild creature in a thousand (`WILD_ELEMENTAL.chance` in `world.js`, rolled in
+`wildSpawn`) is born of an element; the encounter card and the fight view
+announce it.
 
 - **Genome.** `g.aura` maps slot → element id. A wild Elemental carries its
   element on every slot (`makeElemental`), and `elementalOf(g)` reports the
@@ -626,7 +608,7 @@ already carries the power.
   gems and glows, armour bands, a second wing membrane). Every part of
   all seven classes has hand-authored stages (590 parts).
 - **UI.** Cards and sheets show a II / III chip (`stageBadge`), sprites in the
-  arena, fights and battle setup draw at their level, level-up reports and the
+  overworld, fights and battle setup draw at their level, level-up reports and the
   fight log announce evolutions, and the Lab sheet has Stage 1 / 2 / 3
   buttons to preview any creature at any stage. `node scripts/evolutions.mjs
   <rig>` renders every species of a class at all three stages;
@@ -636,8 +618,9 @@ already carries the power.
 
 The main mode. `src/game/world.js` generates one large map from a seed and
 `src/game/journey.js` holds the player's state and rules; `src/ui/world.js`
-draws it on a canvas and hands fights to the shared fight view. The endless
-Arena stays in its own tab on the same save.
+draws it on a canvas and hands fights to the shared fight view. It replaced
+the endless arena; a save that still holds an arena run folds its creatures
+into the collection on load.
 
 - **Map.** 112 × 96 tiles: grass, habitat, path, wall, water, hub, lair, door,
   camp, spire, spire door, shrine (`TILE`). The Crossroads hub sits in the
@@ -681,8 +664,8 @@ Arena stays in its own tab on the same save.
   camp at full health (`respawnJourney`). No other penalty.
 - **Journey state.** `{ seed, phase: starter|roam|champion, party, box,
   player {x,y,dir}, badges, beaten, camps, lastCamp, cooldown, gauntlet,
-  encounter, stats }`. Members, XP, level-ups, move learning and healing reuse
-  the arena's helpers, so creatures behave identically in both modes. Saved as
+  encounter, stats }`. Members, XP, level-ups, move learning and healing are
+  the shared party helpers in `src/game/party.js`. Saved as
   `save.journey` and normalised on load like the run.
 - **UI.** Canvas map with a camera on the player (28 px tiles on phones, 36
   wider), drawn every frame: biome grounds, typed tufts on habitat, animated
@@ -701,26 +684,18 @@ Arena stays in its own tab on the same save.
 
 Balance was done with the two simulators, not by feel:
 
-- `node scripts/sim-run.mjs` plays whole arena runs with the AI on the
-  player's side (capturing at decent odds, fusing the two weakest at altars).
-  The first study had a median run of floor 2 and a third of runs dying on the
-  first Warden. The causes were early learnsets full of 40-power moves against
-  fused bosses that inherit the best early moves of two parents, plus a party
-  arriving at the Warden half-healed. Fixes: every species learnset now follows
-  one curve (a real STAB move by level 6, four moves by 11, coverage in the
-  20s and 30s, nukes in the 50s); starters at level 8 with wild level
-  3 + 2 × floor; trainers and Wardens grow one floor later and Wardens fight
-  at floor level with a full rest before them; 50% recovery and a status cure
-  between floors; no rares before floor 4; XP constant raised so low levels
-  keep pace. Result: median run floor 8, a quarter past floor 39, Warden win
-  rate above 90%.
+- A whole-run simulator drove the first tuning while the game was an endless
+  arena (it went with the arena). What it settled stays: every species
+  learnset follows one curve (a real STAB move by level 6, four moves by 11,
+  coverage in the 20s and 30s, nukes in the 50s), starters at level 8, and an
+  XP constant that keeps low levels pacing the wild level.
 - `node scripts/sim.mjs` tournaments (800–1200 games, level 50, 3v3) gave a
   species spread of roughly 36%–67%. Extremes were compressed with base stat
   totals and a few stat weights; Grass and Bug species remain at the bottom
   because the type chart resists them widely, which is faithful to the source
   material. HP gets a global 1.15× lift so battles last about eight turns.
 - Move learning: members keep their own four moves. Levelling into a new move
-  fills an empty slot or queues a prompt on the floor screen asking which move
+  fills an empty slot or queues a prompt on the map screen asking which move
   to replace, with a skip.
 - Sound: procedural WebAudio effects for hits (louder when super effective),
   misses, heals, statuses, stat changes, faints, captures, wins and losses, and

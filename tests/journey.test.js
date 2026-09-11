@@ -6,12 +6,12 @@ import { chooseAction } from '../src/battle/ai.js';
 import { cladeOf } from '../src/creature/genome.js';
 import { BIOME_ORDER, TILE, tileAt, worldFor, trainerAt } from '../src/game/world.js';
 import { JOURNEY, DIRS, newJourney, chooseJourneyStarter, tryMove, facing, talkTo, acceptChallenge, challengeWarden, enterSpire, fleeEncounter, buildJourneyBattle, applyJourneyBattle, journeyPlace, badgeList, canFuseJourney, previewShrineFusion, shrineFuse, respawnJourney, partyHealth } from '../src/game/journey.js';
-import { memberMaxHp } from '../src/game/run.js';
+import { memberMaxHp } from '../src/game/party.js';
 import { emptySave, normalizeSave, exportSave, importSave, normalizeJourney } from '../src/game/save.js';
 import { findPath } from '../src/game/world.js';
 import { WILD_SPECIES } from '../src/data/species.js';
 import { speciesGenome } from '../src/creature/genome.js';
-import { makeMember } from '../src/game/run.js';
+import { makeMember } from '../src/game/party.js';
 
 function fresh(seed = 'jt') { const j = newJourney(seed); chooseJourneyStarter(j, 0); return j; }
 
@@ -229,4 +229,37 @@ test('journeys survive the save round trip and broken ones are dropped', () => {
   const n = normalizeJourney(broken);
   assert.ok(n.player.x >= 0 && n.player.y < 96); assert.deepEqual(n.badges, ['mammal']); assert.equal(n.gauntlet, null);
   assert.equal(normalizeSave({ v: 1, journey: j }).journey.seed, j.seed);
+});
+
+test('the save survives garbage, retires journeys and folds old arena runs into the collection', async () => {
+  const { loadSave, persistSave, retireJourney, SAVE_KEY } = await import('../src/game/save.js');
+  const m = new Map();
+  const storage = { getItem: (k) => (m.has(k) ? m.get(k) : null), setItem: (k, v) => m.set(k, String(v)), removeItem: (k) => m.delete(k) };
+  assert.deepEqual(loadSave(storage), emptySave());
+  const s = emptySave();
+  s.journey = fresh('persist');
+  assert.ok(persistSave(s, storage));
+  const back = loadSave(storage);
+  assert.equal(back.journey.seed, 'persist');
+  assert.equal(back.journey.party[0].genome.name, s.journey.party[0].genome.name);
+  storage.setItem(SAVE_KEY, '{not json');
+  assert.deepEqual(loadSave(storage), emptySave());
+  assert.deepEqual(normalizeSave({ v: 99 }), emptySave());
+  const junk = normalizeSave({ v: 1, journey: { phase: 'roam', party: [{ genome: { v: 1 } }] }, collection: [{ genome: null }] });
+  assert.equal(junk.journey, null); assert.equal(junk.collection.length, 0);
+  // retiring tallies and keeps the creatures
+  const t = emptySave();
+  t.journey = fresh('retire');
+  t.journey.stats.captures = 3; t.journey.stats.battles = 9; t.journey.champion = true;
+  retireJourney(t);
+  assert.equal(t.journey, null);
+  assert.equal(t.totals.journeys, 1); assert.equal(t.totals.captures, 3); assert.equal(t.totals.battles, 9); assert.equal(t.totals.champions, 1);
+  assert.equal(t.collection.length, 1);
+  // a save from the arena days: the run's creatures land in the collection and its tallies in the totals
+  const legacy = { v: 1, best: { floor: 12, runs: 3 }, totals: { battles: 4, captures: 1, fusions: 0 }, collection: [], run: { seed: 'old', floor: 5, phase: 'floor', party: [{ uid: 'a', genome: fresh('legacy').party[0].genome, level: 12, xp: 0, hp: 5, moves: [] }], box: [], stats: { battles: 6, captures: 2, fusions: 1 } } };
+  const migrated = normalizeSave(JSON.parse(JSON.stringify(legacy)));
+  assert.equal(migrated.run, undefined);
+  assert.equal(migrated.collection.length, 1);
+  assert.equal(migrated.totals.battles, 10); assert.equal(migrated.totals.captures, 3); assert.equal(migrated.totals.fusions, 1);
+  assert.equal(migrated.journey, null);
 });

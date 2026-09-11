@@ -10,7 +10,7 @@ import { speciesGenome, makeElemental, rollElemental, elementalOf, validateGenom
 import { fuse, FUSE } from '../src/creature/fusion.js';
 import { renderCreatureSvg } from '../src/creature/render.js';
 import { makeBattler, calcDamage, createBattle, step, activeOf } from '../src/battle/engine.js';
-import { ARENA, newRun, chooseStarter, encounterFor } from '../src/game/run.js';
+import { WILD_ELEMENTAL, worldFor, wildSpawn, tileAt, TILE } from '../src/game/world.js';
 
 const emberox = (seed) => speciesGenome(SPECIES_BY_ID.emberox, makeRng(seed));
 
@@ -129,23 +129,20 @@ test('core abilities work in battle', () => {
 });
 
 test('capturable wild encounters roll the Elemental chance', () => {
-  const old = ARENA.elementalChance;
+  const old = WILD_ELEMENTAL.chance;
+  const world = worldFor('elemental-world');
+  const spots = [];
+  for (let y = 0; y < world.h && spots.length < 8; y++) for (let x = 0; x < world.w && spots.length < 8; x++) if (tileAt(world, x, y) === TILE.habitat) spots.push([x, y]);
   try {
-    ARENA.elementalChance = 1;
-    const run = newRun('elemental-run');
-    chooseStarter(run, 0);
-    let seen = 0;
-    for (let floor = 1; floor <= 8; floor++) {
-      const enc = encounterFor(run, floor);
-      if (enc.kind !== 'wild') { assert.ok(!enc.elemental); continue; }
-      seen++;
-      assert.ok(ELEMENTS[enc.elemental], `floor ${floor}`);
-      const e = elementalOf(enc.foes[0].genome);
-      assert.ok(e && e.pure && e.id === enc.elemental);
-      assert.equal(enc.foes[0].genome.ability, ELEMENTS[enc.elemental].ability);
-    }
-    assert.ok(seen >= 3);
-    ARENA.elementalChance = 0;
-    for (let floor = 1; floor <= 8; floor++) assert.ok(!encounterFor(run, floor).elemental);
-  } finally { ARENA.elementalChance = old; }
+    WILD_ELEMENTAL.chance = 1;
+    spots.forEach(([x, y], i) => {
+      const s = wildSpawn(world, x, y, makeRng(`el${i}`));
+      assert.ok(ELEMENTS[s.elemental], `spot ${i}`);
+      const e = elementalOf(s.genome);
+      assert.ok(e && e.pure && e.id === s.elemental);
+      assert.equal(s.genome.ability, ELEMENTS[s.elemental].ability);
+    });
+    WILD_ELEMENTAL.chance = 0;
+    spots.forEach(([x, y], i) => assert.ok(!wildSpawn(world, x, y, makeRng(`el${i}`)).elemental));
+  } finally { WILD_ELEMENTAL.chance = old; }
 });

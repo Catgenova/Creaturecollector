@@ -16,14 +16,3 @@ export const CLADES = {
 export const CLADE_IDS = Object.keys(CLADES);
 
 export function cladeName(id) { return CLADES[id] ? CLADES[id].name : 'Unknown'; }
-
-/** Arena biomes: each Warden stretch of five floors favours a few classes, so parties can find fusion partners. */
-export const BIOMES = [
-  { id: 'meadow', name: 'Meadow', clades: ['mammal', 'bird', 'insect'] },
-  { id: 'marsh', name: 'Marsh', clades: ['amphibian', 'fish', 'invertebrate'] },
-  { id: 'cavern', name: 'Cavern', clades: ['reptile', 'invertebrate', 'mammal'] },
-  { id: 'reef', name: 'Reef', clades: ['fish', 'invertebrate', 'amphibian'] },
-  { id: 'canopy', name: 'Canopy', clades: ['bird', 'insect', 'mammal'] },
-  { id: 'dunes', name: 'Dunes', clades: ['reptile', 'insect', 'mammal'] },
-  { id: 'peaks', name: 'Peaks', clades: ['bird', 'reptile', 'amphibian'] },
-];

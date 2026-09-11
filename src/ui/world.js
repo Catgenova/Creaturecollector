@@ -9,8 +9,8 @@ import { openSheet } from './lab.js';
 import { mountFight, xpRow } from './fight.js';
 import { STATUS_INFO } from '../battle/engine.js';
 import { stageOf, stageName } from '../data/evolution.js';
-import { loadSave, persistSave, exportSave, importSave, recordCollection } from '../game/save.js';
-import { memberMaxHp, xpProgress, learnMove, moveMember, setLead, canFight } from '../game/run.js';
+import { loadSave, persistSave, exportSave, importSave, recordCollection, retireJourney } from '../game/save.js';
+import { memberMaxHp, xpProgress, learnMove, moveMember, setLead, canFight } from '../game/party.js';
 import { JOURNEY, newJourney, chooseJourneyStarter, tryMove, facing, talkTo, acceptChallenge, challengeWarden, enterSpire, fleeEncounter, buildJourneyBattle, applyJourneyBattle, journeyPlace, badgeList, canFuseJourney, previewShrineFusion, shrineFuse, respawnJourney } from '../game/journey.js';
 import { WORLD, TILE, REGIONS, HUB, worldFor, tileAt, biomeAt, habitatTypeAt, trainerAt, findPath, isHubTile } from '../game/world.js';
 import { TYPE_INFO } from '../data/types.js';
@@ -63,7 +63,7 @@ function owIntroView(root) {
     h('div', { class: 'hero-card' },
       h('h2', {}, 'The Overworld'),
       h('p', { class: 'hint' }, 'Seven biomes ring the Crossroads, one for each class of creature, each harder than the last. Walk the downs, the fen, the meadow, the crags, the lagoon, the hollow and the scar. Catch what lives there, ask trainers for a fight, take a badge from every Warden, and when you hold all seven the Council Spire opens: four fights, back to back.'),
-      h('div', { class: 'tiles' }, owTile('biomes', 7), owTile('wardens', 7), owTile('council', 4), owTile('caught', ow.save.totals.captures + (ow.save.collection ? ow.save.collection.length : 0))),
+      h('div', { class: 'tiles' }, owTile('biomes', 7), owTile('wardens', 7), owTile('journeys', ow.save.totals.journeys), owTile('collection', ow.save.collection.length)),
       h('button', { class: 'btn primary fuse-btn', type: 'button', onclick: () => {
         let seed = null;
         try { seed = new URLSearchParams(location.search).get('seed'); } catch { /* ignore */ }
@@ -72,7 +72,7 @@ function owIntroView(root) {
     ...section('Save',
       h('div', { class: 'toolbar' }, importInput,
         h('button', { class: 'btn', type: 'button', onclick: () => { try { ow.save = importSave(importInput.value); owSave(); toast('Save loaded'); rerender(); } catch (e) { toast(e.message); } } }, 'Import')),
-      h('p', { class: 'hint' }, 'The endless Arena lives in its own tab and shares this save. Progress autosaves in this browser.')),
+      h('p', { class: 'hint' }, 'Progress autosaves in this browser. Export gives you a code to move it elsewhere.')),
   );
 }
 
@@ -88,7 +88,7 @@ function owStarterView(root, j) {
     h('p', { class: 'hint' }, 'Three wild creatures wait at the Crossroads. Pick one to walk out with; the Heather Downs south of town are the gentlest start.'),
     cards,
     h('div', { class: 'row wrap' },
-      h('button', { class: 'btn primary fuse-btn', type: 'button', disabled: !pick, onclick: () => { chooseJourneyStarter(j, ow.starterPick); recordCollection(ow.save, j.party[0].genome, 0); owSave(); rerender(); } }, pick ? `Set out with ${pick.name}` : 'Pick a companion'),
+      h('button', { class: 'btn primary fuse-btn', type: 'button', disabled: !pick, onclick: () => { chooseJourneyStarter(j, ow.starterPick); recordCollection(ow.save, j.party[0].genome); owSave(); rerender(); } }, pick ? `Set out with ${pick.name}` : 'Pick a companion'),
       pick ? h('button', { class: 'btn', type: 'button', onclick: () => openSheet(pick) }, 'Details') : null,
       h('button', { class: 'btn', type: 'button', onclick: () => { ow.save.journey = null; owSave(); rerender(); } }, 'Cancel')),
   );
@@ -376,8 +376,8 @@ function owStartFight() {
     onQuit: enc.kind === 'wild' ? () => { fleeEncounter(j); owSave(); renderWorldScreen(ow.root); } : null,
     onEnd: (state) => {
       const { report } = applyJourneyBattle(j, state);
-      if (report.captured) recordCollection(ow.save, report.captured.genome, 0);
-      if (report.champion) sfx.win();
+      if (report.captured) recordCollection(ow.save, report.captured.genome);
+      if (report.champion) { sfx.win(); ow.save.totals.champions++; }
       ow.showReport = true;
       owSave();
       return { xp: report.xpGains || [] };
@@ -469,11 +469,10 @@ function owMenuSheet(j) {
         h('button', { class: 'btn', type: 'button', onclick: async () => toast((await copyText(exportSave(ow.save))) ? 'Save code copied' : 'Copy failed') }, 'Export'),
         h('button', { class: `btn${ow.confirmReset ? ' danger' : ''}`, type: 'button', onclick: () => {
           if (!ow.confirmReset) { ow.confirmReset = true; toast('Tap again to abandon this journey'); render(); setTimeout(() => { ow.confirmReset = false; if (body.isConnected) render(); }, 4000); return; }
-          for (const m of [...j.party, ...j.box]) recordCollection(ow.save, m.genome, 0);
-          ow.save.journey = null; ow.confirmReset = false; owSave(); toast('Journey abandoned'); sheetRef.close(); renderWorldScreen(ow.root);
+          retireJourney(ow.save); ow.confirmReset = false; owSave(); toast('Journey abandoned'); sheetRef.close(); renderWorldScreen(ow.root);
         } }, ow.confirmReset ? 'Really abandon?' : 'Abandon journey')),
       h('div', { class: 'toolbar' }, importInput, h('button', { class: 'btn', type: 'button', onclick: () => { try { ow.save = importSave(importInput.value); owSave(); toast('Save loaded'); sheetRef.close(); renderWorldScreen(ow.root); } catch (e) { toast(e.message); } } }, 'Import')),
-      h('p', { class: 'hint' }, 'Abandoning sends your creatures to the collection. The Arena tab has the endless mode on the same save.'),
+      h('p', { class: 'hint' }, 'Abandoning sends your creatures to the collection, where the Fusion Lab can still use them.'),
     ]);
   };
   render();
@@ -508,7 +507,7 @@ function owShrineSheet(j) {
         h('div', { class: 'row wrap' },
           h('button', { class: 'btn primary', type: 'button', onclick: () => {
             const { child: member } = shrineFuse(j, pick.a, pick.b);
-            recordCollection(ow.save, member.genome, 0); addToPool(member.genome);
+            recordCollection(ow.save, member.genome); addToPool(member.genome);
             owSave(); toast(`${member.genome.name} is born!`); pick.a = null; pick.b = null; render();
           } }, 'Fuse them'),
           h('button', { class: 'btn', type: 'button', onclick: () => openSheet(child) }, 'Details'))) : null,

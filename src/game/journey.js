@@ -1,16 +1,16 @@
 // The journey: the player's state in the overworld and the rules that move it. Pure game
 // logic over a plain `journey` object (party, box, position, badges, beaten trainers, the
 // pending encounter); the UI calls these and persists the result. Members, XP and healing
-// reuse the arena's helpers so creatures behave the same in both modes.
+// are the shared party helpers in party.js.
 import { makeRng } from '../core/rng.js';
 import { WILD_SPECIES, TIER_WEIGHT } from '../data/species.js';
 import { speciesGenome } from '../creature/genome.js';
 import { fuse, canFuse } from '../creature/fusion.js';
-import { createBattle, makeBattler, MAX_PARTY } from '../battle/engine.js';
-import { makeMember, gainXp, healParty, xpProgress, xpReward, memberMaxHp, canFight } from './run.js';
+import { createBattle, makeBattler } from '../battle/engine.js';
+import { PARTY, makeMember, gainXp, healParty, xpProgress, xpReward, memberMaxHp, canFight } from './party.js';
 import { WORLD, TILE, REGIONS, BIOME_ORDER, worldFor, tileAt, biomeAt, trainerAt, isWalkable, inBounds, wildSpawn, levelAt } from './world.js';
 
-export const JOURNEY = { starterLevel: 8, maxLevel: 100, partyMax: MAX_PARTY, gauntletHeal: 0.35, badgesForSpire: BIOME_ORDER.length, councilFights: 4 };
+export const JOURNEY = { starterLevel: PARTY.starterLevel, maxLevel: PARTY.maxLevel, partyMax: PARTY.max, gauntletHeal: 0.35, badgesForSpire: BIOME_ORDER.length, councilFights: 4 };
 export const DIRS = { up: [0, -1], down: [0, 1], left: [-1, 0], right: [1, 0] };
 
 function nextJourneyUid(j) { return `j${j.nextId++}`; }

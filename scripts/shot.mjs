@@ -1,5 +1,5 @@
 // Screenshot the built index.html at phone size for visual checks.
-// Usage: node scripts/shot.mjs [seed]   -> shots/lab.png, shots/parts.png, shots/sheet.png
+// Usage: node scripts/shot.mjs [seed]   -> shots/lab.png, sheet, fusion, battle and parts screenshots (the overworld has scripts/shot-world.mjs)
 import { createRequire } from 'node:module';
 import fs from 'node:fs';
 import path from 'node:path';
@@ -57,28 +57,6 @@ await page.screenshot({ path: path.join(out, 'battle.png'), fullPage: true });
 await page.locator('.move-btn').first().click();
 await page.waitForTimeout(2500);
 await page.screenshot({ path: path.join(out, 'battle-turn.png'), fullPage: true });
-await page.goto(`${url}#arena`);
-await page.waitForSelector('text=New run');
-await page.screenshot({ path: path.join(out, 'arena-home.png'), fullPage: true });
-await page.click('text=New run');
-await page.waitForSelector('.starters .pslot');
-await page.locator('.starters .pslot').first().click();
-await page.screenshot({ path: path.join(out, 'arena-starter.png'), fullPage: true });
-await page.click('text=Start with');
-await page.waitForSelector('.encounter');
-await page.screenshot({ path: path.join(out, 'arena-floor.png'), fullPage: true });
-await page.click('.encounter .btn.primary');
-await page.waitForSelector('.move-btn', { timeout: 20000 });
-await page.locator('.move-btn').first().click();
-await page.waitForTimeout(2600);
-await page.screenshot({ path: path.join(out, 'arena-fight.png'), fullPage: true });
-await page.click('text=Fast');
-await page.click('text=Auto');
-await page.waitForSelector('.result-card', { timeout: 90000 });
-await page.screenshot({ path: path.join(out, 'arena-after.png'), fullPage: true });
-await page.click('text=Continue');
-await page.waitForSelector('.encounter');
-await page.screenshot({ path: path.join(out, 'arena-floor2.png'), fullPage: true });
 await page.goto(`${url}#parts`);
 await page.waitForSelector('.part svg');
 await page.screenshot({ path: path.join(out, 'parts.png'), fullPage: true });

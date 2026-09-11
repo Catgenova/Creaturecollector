@@ -1,0 +1,99 @@
+// Party members: the creatures a player carries. A member is { uid, genome, level, xp, hp,
+// status, moves }. XP, levels, healing, move learning and the party/box rules live here as
+// pure functions over any owner object with `party`, `box` and `pendingLearns`, so the
+// overworld (and anything added later) shares one set of rules.
+import { learnsetOf } from '../creature/genome.js';
+import { getMove } from '../data/moves.js';
+import { statsAtLevel, movesAtLevel } from '../battle/stats.js';
+import { MAX_PARTY } from '../battle/engine.js';
+
+export const PARTY = { max: MAX_PARTY, maxLevel: 100, xpK: 7, starterLevel: 8 };
+
+export function xpForLevel(L) { return L * L * L; }
+/** XP for defeating (or catching) one foe; Wardens, the Council and alphas pay half again. */
+export function xpReward(level, bst, kind) {
+  return Math.round(PARTY.xpK * level * level * ((bst || 400) / 400) * (kind === 'boss' ? 1.5 : 1));
+}
+
+export function memberMaxHp(m) { return statsAtLevel(m.genome, m.level).hp; }
+
+/** XP progress within the current level: { cur, prev, next, frac }. frac is 1 at the level cap. */
+export function xpProgress(m) {
+  const prev = xpForLevel(m.level);
+  const next = m.level >= PARTY.maxLevel ? prev : xpForLevel(m.level + 1);
+  const frac = next > prev ? Math.max(0, Math.min(1, (m.xp - prev) / (next - prev))) : 1;
+  return { cur: m.xp, prev, next, frac };
+}
+
+export function makeMember(genome, level, uid) {
+  const m = { uid, genome, level, xp: xpForLevel(level), hp: 0, status: null, moves: movesAtLevel(learnsetOf(genome), level) };
+  m.hp = memberMaxHp(m);
+  return m;
+}
+
+/** Moves a member could pick up between two levels (exclusive of `from`, inclusive of `to`). */
+export function movesLearnedBetween(m, from, to) {
+  const out = [];
+  for (const [lvl, id] of learnsetOf(m.genome)) if (lvl > from && lvl <= to && getMove(id) && !m.moves.includes(id) && !out.includes(id)) out.push(id);
+  return out;
+}
+
+export function memberById(owner, uid) { return [...owner.party, ...(owner.box || [])].find((m) => m.uid === uid) || null; }
+
+/** Resolve a pending learn: replace the move at `replaceIndex`, or skip when it is null. */
+export function learnMove(owner, uid, moveId, replaceIndex) {
+  const m = memberById(owner, uid);
+  owner.pendingLearns = (owner.pendingLearns || []).filter((p) => !(p.uid === uid && p.moveId === moveId));
+  if (!m || replaceIndex == null || !getMove(moveId)) return owner;
+  if (replaceIndex >= 0 && replaceIndex < m.moves.length) m.moves[replaceIndex] = moveId;
+  else if (m.moves.length < 4) m.moves.push(moveId);
+  return owner;
+}
+
+/** Add xp, level up as far as it goes (current HP grows with max HP), and report moves learned or pending. */
+export function gainXp(m, xp) {
+  const from = m.level;
+  m.xp += xp;
+  while (m.level < PARTY.maxLevel && m.xp >= xpForLevel(m.level + 1)) {
+    const oldMax = memberMaxHp(m);
+    m.level++;
+    if (m.hp > 0) m.hp += memberMaxHp(m) - oldMax;
+  }
+  const learned = [], pending = [];
+  for (const id of movesLearnedBetween(m, from, m.level)) {
+    if (m.moves.length < 4) { m.moves.push(id); learned.push(id); } else pending.push(id);
+  }
+  return { from, to: m.level, learned, pending };
+}
+
+/** Heal everyone (party and box) by a fraction of max HP, or fully; statuses clear either way. */
+export function healParty(owner, fraction, full) {
+  for (const m of [...owner.party, ...(owner.box || [])]) {
+    const max = memberMaxHp(m);
+    if (full) { m.hp = max; m.status = null; continue; }
+    m.hp = Math.min(max, m.hp + Math.round(max * fraction));
+    m.status = null;
+  }
+  return owner;
+}
+
+export function moveMember(owner, uid, to) {
+  const m = memberById(owner, uid);
+  if (!m) return owner;
+  if (to === 'box') {
+    if (owner.party.length <= 1 || !owner.party.includes(m)) return owner;
+    owner.party = owner.party.filter((x) => x !== m); owner.box.push(m);
+  } else {
+    if (owner.party.length >= PARTY.max || !owner.box.includes(m)) return owner;
+    owner.box = owner.box.filter((x) => x !== m); owner.party.push(m);
+  }
+  return owner;
+}
+
+export function setLead(owner, uid) {
+  const i = owner.party.findIndex((m) => m.uid === uid);
+  if (i > 0) owner.party.unshift(...owner.party.splice(i, 1));
+  return owner;
+}
+
+export function canFight(owner) { return owner.party.some((m) => m.hp > 0); }

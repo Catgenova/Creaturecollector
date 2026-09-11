@@ -219,7 +219,7 @@ h3.sec { font-size: 12px; text-transform: uppercase; letter-spacing: .1em; color
 .result-card { border: 1px solid var(--acc); border-radius: var(--radius); background: var(--bg2); padding: 14px; text-align: center; }
 .result-card h2 { margin: 0 0 4px; }
 
-/* Arena */
+/* Journey cards */
 .screen-title { margin: 0 0 4px; font-size: 22px; }
 .hero-card { border: 1px solid var(--line); border-radius: var(--radius); background: linear-gradient(160deg, #1f2338, var(--bg2)); padding: 16px; margin-bottom: 14px; }
 .hero-card h2 { margin: 0 0 6px; font-size: 24px; }
@@ -241,7 +241,6 @@ h3.sec { font-size: 12px; text-transform: uppercase; letter-spacing: .1em; color
 .foes { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; margin: 4px 0 8px; }
 .foe-card { display: flex; flex-direction: column; align-items: center; font-size: 12px; color: var(--fg2); }
 .foe-card svg { height: auto; }
-.altar-btn { border-color: var(--acc); color: var(--acc); }
 .party-row.static { cursor: default; }
 .party-row.fainted svg { filter: grayscale(1) brightness(.6); }
 .row-actions { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; margin-top: 4px; }
@@ -7623,17 +7622,6 @@ const CLADE_IDS = Object.keys(CLADES);
 
 function cladeName(id) { return CLADES[id] ? CLADES[id].name : 'Unknown'; }
 
-/** Arena biomes: each Warden stretch of five floors favours a few classes, so parties can find fusion partners. */
-const BIOMES = [
-  { id: 'meadow', name: 'Meadow', clades: ['mammal', 'bird', 'insect'] },
-  { id: 'marsh', name: 'Marsh', clades: ['amphibian', 'fish', 'invertebrate'] },
-  { id: 'cavern', name: 'Cavern', clades: ['reptile', 'invertebrate', 'mammal'] },
-  { id: 'reef', name: 'Reef', clades: ['fish', 'invertebrate', 'amphibian'] },
-  { id: 'canopy', name: 'Canopy', clades: ['bird', 'insect', 'mammal'] },
-  { id: 'dunes', name: 'Dunes', clades: ['reptile', 'insect', 'mammal'] },
-  { id: 'peaks', name: 'Peaks', clades: ['bird', 'reptile', 'amphibian'] },
-];
-
 // ---- src/creature/palette.js ----
 // Palette genes -> CSS custom properties. Every part references abstract roles
 // (p/s/a and their shades); the per-slot paint gene decides which of the
@@ -11111,6 +11099,7 @@ function startSandboxBattle(partyGenomes, opts = {}) {
 
 
 
+
 const WORLD = { w: 112, h: 96, hubR: 6, ringR: 30, lairR: 43, trainersPerBiome: 4, encounterChance: 0.12, encounterCooldown: 4 };
 
 /** Tile kinds. */
@@ -11138,6 +11127,8 @@ const WILD_RARITY = { common: 1, uncommon: 0.45, rare: 0.12 };
 /** Odds of a stronger wild creature: an alpha well above the area level, or one a few levels up. */
 const WILD_LEVEL = { alpha: 0.04, alphaBoost: [8, 12], strong: 0.14, strongBoost: [3, 6], spread: 2 };
 const COUNCIL_LEVELS = [66, 70, 74, 80];
+/** Odds that a wild creature is born of an element (a knob so tests can force it). */
+const WILD_ELEMENTAL = { chance: ELEMENTAL_CHANCE };
 
 // ---- noise ---------------------------------------------------------------------
 
@@ -11245,7 +11236,7 @@ function wildSpawn(world, x, y, rng) {
   if (r < WILD_LEVEL.alpha) { level = L + rng.between(WILD_LEVEL.alphaBoost[0], WILD_LEVEL.alphaBoost[1]); alpha = true; }
   else if (r < WILD_LEVEL.alpha + WILD_LEVEL.strong) level = L + rng.between(WILD_LEVEL.strongBoost[0], WILD_LEVEL.strongBoost[1]);
   level = Math.max(2, Math.min(100, level));
-  const elemental = rollElemental(genome, rng.fork('elemental'));
+  const elemental = rollElemental(genome, rng.fork('elemental'), WILD_ELEMENTAL.chance);
   return { genome, level, alpha, elemental, type, biome: biome.id, areaLevel: L };
 }
 
@@ -11500,7 +11491,8 @@ function worldStats(world) {
 }
 
 // ---- src/game/save.js ----
-// Persistent save: best results, the creature collection, and the run in progress.
+// Persistent save: totals, the creature collection, the journey in progress and settings.
+// One localStorage key, versioned, normalised on load so junk cannot brick it.
 
 
 
@@ -11515,18 +11507,17 @@ const COLLECTION_MAX = 200;
 function emptySave() {
   return {
     v: SAVE_VERSION,
-    best: { floor: 0, runs: 0 },
-    totals: { battles: 0, captures: 0, fusions: 0 },
+    totals: { battles: 0, captures: 0, fusions: 0, journeys: 0, champions: 0 },
     collection: [],
-    run: null,
     journey: null,
     settings: { fast: false },
   };
 }
 
+const validGenome = (g) => { try { validateGenome(g); return true; } catch { return false; } };
+
 function cleanMember(m) {
-  if (!m || typeof m !== 'object') return null;
-  try { validateGenome(m.genome); } catch { return null; }
+  if (!m || typeof m !== 'object' || !validGenome(m.genome)) return null;
   if (!Number.isFinite(m.level)) return null;
   const level = Math.max(1, Math.min(100, Math.round(m.level)));
   let moves = Array.isArray(m.moves) ? m.moves.filter((id) => typeof id === 'string' && getMove(id)).slice(0, 4) : [];
@@ -11538,36 +11529,24 @@ function cleanMember(m) {
 function normalizeSave(raw) {
   const s = emptySave();
   if (!raw || typeof raw !== 'object' || raw.v !== SAVE_VERSION) return s;
-  if (raw.best) { s.best.floor = Number(raw.best.floor) || 0; s.best.runs = Number(raw.best.runs) || 0; }
-  if (raw.totals) for (const k of Object.keys(s.totals)) s.totals[k] = Number(raw.totals[k]) || 0;
+  if (raw.totals) for (const k of Object.keys(s.totals)) s.totals[k] = Math.max(0, Number(raw.totals[k]) || 0);
   if (raw.settings) s.settings.fast = Boolean(raw.settings.fast);
   if (Array.isArray(raw.collection)) {
     for (const e of raw.collection) {
-      try { validateGenome(e.genome); s.collection.push({ genome: e.genome, floor: Number(e.floor) || 0, when: Number(e.when) || 0 }); } catch { /* skip */ }
+      if (e && validGenome(e.genome)) s.collection.push({ genome: e.genome, when: Number(e.when) || 0 });
       if (s.collection.length >= COLLECTION_MAX) break;
     }
   }
+  // Saves from before the overworld carried an arena run: its creatures join the collection and its tallies the totals.
   const r = raw.run;
-  if (r && typeof r === 'object' && ['starter', 'floor', 'gameover'].includes(r.phase)) {
-    const run = {
-      seed: String(r.seed || 'run'), floor: Math.max(1, Number(r.floor) || 1), phase: r.phase,
-      party: (Array.isArray(r.party) ? r.party : []).map(cleanMember).filter(Boolean),
-      box: (Array.isArray(r.box) ? r.box : []).map(cleanMember).filter(Boolean),
-      starters: null, altar: Boolean(r.altar), encounter: r.encounter && r.encounter.foes ? r.encounter : null,
-      nextId: Number(r.nextId) || 1, stats: { battles: 0, captures: 0, fusions: 0, bosses: 0, ...(r.stats || {}) }, lastReport: r.lastReport || null,
-      pendingLearns: (Array.isArray(r.pendingLearns) ? r.pendingLearns : []).filter((q) => q && typeof q.uid === 'string' && getMove(q.moveId)),
-    };
-    if (Array.isArray(r.starters)) {
-      run.starters = r.starters.filter((g) => { try { validateGenome(g); return true; } catch { return false; } });
-    }
-    const usable = run.phase === 'starter' ? run.starters && run.starters.length === 3 : run.party.length > 0;
-    if (usable) s.run = run;
+  if (r && typeof r === 'object') {
+    for (const list of [r.party, r.box]) if (Array.isArray(list)) for (const m of list) if (m && validGenome(m.genome)) recordCollection(s, m.genome);
+    if (r.stats) for (const k of ['battles', 'captures', 'fusions']) s.totals[k] += Math.max(0, Number(r.stats[k]) || 0);
   }
   s.journey = normalizeJourney(raw.journey);
   return s;
 }
 
-const validGenome = (g) => { try { validateGenome(g); return true; } catch { return false; } };
 const cleanFoes = (list) => (Array.isArray(list) ? list.filter((f) => f && validGenome(f.genome) && Number.isFinite(f.level)).map((f) => ({ genome: f.genome, level: Math.max(1, Math.min(100, Math.round(f.level))) })) : []);
 const cleanPoint = (p, fallback) => (p && Number.isFinite(p.x) && Number.isFinite(p.y) ? { x: Math.max(0, Math.min(WORLD.w - 1, Math.round(p.x))), y: Math.max(0, Math.min(WORLD.h - 1, Math.round(p.y))) } : { ...fallback });
 
@@ -11637,69 +11616,43 @@ function importSave(code) {
 }
 
 /** Remember a creature in the collection. Wild species dedupe by species; fusions by name and seed. */
-function recordCollection(save, genome, floor) {
+function recordCollection(save, genome) {
   const key = genome.gen ? `${genome.name}#${genome.seed}` : genome.species;
   const exists = save.collection.some((e) => (e.genome.gen ? `${e.genome.name}#${e.genome.seed}` : e.genome.species) === key);
   if (exists) return false;
-  save.collection.push({ genome, floor: floor || 0, when: Date.now() });
+  save.collection.push({ genome, when: Date.now() });
   while (save.collection.length > COLLECTION_MAX) save.collection.shift();
   return true;
 }
 
-/** Close out a run: tally totals, update the best floor, retire its creatures to the collection. */
-function endRun(save) {
-  const run = save.run;
-  if (!run) return save;
-  const reached = run.phase === 'gameover' ? run.floor : Math.max(1, run.floor - 1);
-  save.best.floor = Math.max(save.best.floor, reached);
-  save.best.runs++;
-  save.totals.battles += run.stats.battles || 0;
-  save.totals.captures += run.stats.captures || 0;
-  save.totals.fusions += run.stats.fusions || 0;
-  for (const m of [...run.party, ...run.box]) recordCollection(save, m.genome, run.floor);
-  save.run = null;
+/** Close out a journey: tally its totals and retire its creatures to the collection. */
+function retireJourney(save) {
+  const j = save.journey;
+  if (!j) return save;
+  save.totals.journeys++;
+  for (const k of ['battles', 'captures', 'fusions']) save.totals[k] += j.stats[k] || 0;
+  if (j.champion) save.totals.champions++;
+  for (const m of [...j.party, ...j.box]) recordCollection(save, m.genome);
+  save.journey = null;
   return save;
 }
 
-// ---- src/game/run.js ----
-// Endless arena rules. Pure game logic over a plain `run` object; the UI calls
-// these and persists the result. Every roll is seeded by the run seed and floor.
+// ---- src/game/party.js ----
+// Party members: the creatures a player carries. A member is { uid, genome, level, xp, hp,
+// status, moves }. XP, levels, healing, move learning and the party/box rules live here as
+// pure functions over any owner object with `party`, `box` and `pendingLearns`, so the
+// overworld (and anything added later) shares one set of rules.
 
 
 
 
 
+const PARTY = { max: MAX_PARTY, maxLevel: 100, xpK: 7, starterLevel: 8 };
 
-
-
-
-
-
-
-const ARENA = {
-  partyMax: MAX_PARTY,
-  starterLevel: 8,
-  baseLevel: 3,
-  levelPerFloor: 2,
-  maxLevel: 100,
-  bossEvery: 5,
-  trainerEvery: 3,
-  healBetweenFloors: 0.5,
-  xpK: 7,
-  wildFusionFrom: 8,
-  rareFrom: 4,
-  gentleFloors: 3,
-  elementalChance: ELEMENTAL_CHANCE, // a capturable wild creature born of an element
-};
-
-const TRAINER_NAMES = ['Ranger Ivy', 'Scout Bram', 'Herder Tobin', 'Keeper Sable', 'Drifter Wren', 'Tamer Oakes', 'Courier Pim', 'Warden’s Aide Lise'];
-const WARDEN_NAMES = ['Ashvale', 'Brine', 'Cinder', 'Duskmoor', 'Emberlake', 'Frostgate', 'Gloam', 'Hollowreach'];
-
-function floorLevel(floor) { return Math.min(ARENA.maxLevel, ARENA.baseLevel + floor * ARENA.levelPerFloor); }
 function xpForLevel(L) { return L * L * L; }
-/** XP for defeating (or catching) one foe. Tuned so a floor is worth roughly two levels. */
+/** XP for defeating (or catching) one foe; Wardens, the Council and alphas pay half again. */
 function xpReward(level, bst, kind) {
-  return Math.round(ARENA.xpK * level * level * ((bst || 400) / 400) * (kind === 'boss' ? 1.5 : 1));
+  return Math.round(PARTY.xpK * level * level * ((bst || 400) / 400) * (kind === 'boss' ? 1.5 : 1));
 }
 
 function memberMaxHp(m) { return statsAtLevel(m.genome, m.level).hp; }
@@ -11707,7 +11660,7 @@ function memberMaxHp(m) { return statsAtLevel(m.genome, m.level).hp; }
 /** XP progress within the current level: { cur, prev, next, frac }. frac is 1 at the level cap. */
 function xpProgress(m) {
   const prev = xpForLevel(m.level);
-  const next = m.level >= ARENA.maxLevel ? prev : xpForLevel(m.level + 1);
+  const next = m.level >= PARTY.maxLevel ? prev : xpForLevel(m.level + 1);
   const frac = next > prev ? Math.max(0, Math.min(1, (m.xp - prev) / (next - prev))) : 1;
   return { cur: m.xp, prev, next, frac };
 }
@@ -11725,134 +11678,23 @@ function movesLearnedBetween(m, from, to) {
   return out;
 }
 
+function memberById(owner, uid) { return [...owner.party, ...(owner.box || [])].find((m) => m.uid === uid) || null; }
+
 /** Resolve a pending learn: replace the move at `replaceIndex`, or skip when it is null. */
-function learnMove(run, uid, moveId, replaceIndex) {
-  const m = [...run.party, ...run.box].find((x) => x.uid === uid);
-  run.pendingLearns = (run.pendingLearns || []).filter((p) => !(p.uid === uid && p.moveId === moveId));
-  if (!m || replaceIndex == null || !getMove(moveId)) return run;
+function learnMove(owner, uid, moveId, replaceIndex) {
+  const m = memberById(owner, uid);
+  owner.pendingLearns = (owner.pendingLearns || []).filter((p) => !(p.uid === uid && p.moveId === moveId));
+  if (!m || replaceIndex == null || !getMove(moveId)) return owner;
   if (replaceIndex >= 0 && replaceIndex < m.moves.length) m.moves[replaceIndex] = moveId;
   else if (m.moves.length < 4) m.moves.push(moveId);
-  return run;
+  return owner;
 }
 
-function nextUid(run) { return `m${run.nextId++}`; }
-
-function newRun(seed) {
-  const rng = makeRng(`${seed}:starters`);
-  const starters = [];
-  const used = new Set();
-  let guard = 0;
-  while (starters.length < 3 && guard++ < 50) {
-    const sp = rng.weighted(SPECIES.filter((s) => s.tier !== 'rare'), (s) => TIER_WEIGHT[s.tier]);
-    if (used.has(sp.id)) continue;
-    used.add(sp.id);
-    starters.push(speciesGenome(sp, rng.fork(`s${starters.length}`)));
-  }
-  return {
-    seed: String(seed), floor: 1, phase: 'starter', party: [], box: [], starters, altar: false, encounter: null,
-    nextId: 1, stats: { battles: 0, captures: 0, fusions: 0, bosses: 0 }, lastReport: null, pendingLearns: [],
-  };
-}
-
-function chooseStarter(run, index) {
-  const g = run.starters[index];
-  if (!g) throw new Error('No such starter.');
-  run.party = [makeMember(g, ARENA.starterLevel, nextUid(run))];
-  run.starters = null;
-  run.phase = 'floor';
-  run.encounter = encounterFor(run, run.floor);
-  return run;
-}
-
-/** The biome of a floor: one per Warden stretch, cycling through the list. */
-function biomeFor(floor) { return BIOMES[Math.floor((floor - 1) / ARENA.bossEvery) % BIOMES.length]; }
-
-function tierWeight(s, floor) {
-  if (s.tier === 'rare') return floor < ARENA.rareFrom ? 0 : Math.min(0.9, 0.15 + floor * 0.02);
-  if (s.tier === 'uncommon') return floor < 3 ? 0 : Math.min(1, 0.5 + floor * 0.01);
-  return 1;
-}
-
-/** A wild creature for a floor. Biome classes are four times as common; opts.clade forces a class. */
-function wildGenome(rng, floor, opts = {}) {
-  const biome = biomeFor(floor);
-  let pool = opts.clade ? SPECIES.filter((s) => s.clade === opts.clade) : SPECIES;
-  if (!pool.length) pool = SPECIES;
-  let sp = rng.weighted(pool, (s) => tierWeight(s, floor) * (opts.clade || !biome.clades.includes(s.clade) ? 1 : 4));
-  if (!sp) sp = rng.pick(pool);
-  return speciesGenome(sp, rng.fork(`w${sp.id}`));
-}
-
-/** Wild creature, or on deeper floors sometimes a wild fusion of two same-class creatures. */
-function wildOrFusion(rng, floor) {
-  const fusionChance = floor >= ARENA.wildFusionFrom ? Math.min(0.35, (floor - ARENA.wildFusionFrom + 1) * 0.04) : 0;
-  const a = wildGenome(rng.fork('a'), floor);
-  if (!rng.chance(fusionChance)) return a;
-  const b = wildGenome(rng.fork('b'), floor, { clade: cladeOf(a) });
-  return canFuse(a, b).ok ? fuse(a, b, rng.fork('fuse')).child : a;
-}
-
-/** The encounter waiting on a floor. Deterministic per run seed and floor. */
-function encounterFor(run, floor) {
-  const rng = makeRng(`${run.seed}:floor:${floor}`);
-  const L = floorLevel(floor);
-  const cap = (x) => Math.max(2, Math.min(ARENA.maxLevel, x));
-  if (floor % ARENA.bossEvery === 0) {
-    const count = Math.min(ARENA.partyMax, 1 + Math.floor(floor / ARENA.bossEvery));
-    const a = wildGenome(rng.fork('b1'), floor);
-    const clade = cladeOf(a);
-    const b = wildGenome(rng.fork('b2'), floor, { clade }), c = wildGenome(rng.fork('b3'), floor, { clade });
-    const leader = fuse(fuse(a, b, rng.fork('f1')).child, c, rng.fork('f2')).child;
-    const foes = [{ genome: leader, level: cap(L) }];
-    for (let i = 1; i < count; i++) foes.push({ genome: wildOrFusion(rng.fork(`m${i}`), floor), level: cap(L - 1) });
-    return { kind: 'boss', name: `Warden ${rng.pick(WARDEN_NAMES)}`, foes, capturable: false, biome: biomeFor(floor).id };
-  }
-  if (floor % ARENA.trainerEvery === 0) {
-    const count = Math.max(1, Math.min(ARENA.partyMax, Math.floor(floor / ARENA.trainerEvery)));
-    const foes = [];
-    for (let i = 0; i < count; i++) foes.push({ genome: wildOrFusion(rng.fork(`t${i}`), floor), level: cap(L - 1 - rng.int(2)) });
-    return { kind: 'trainer', name: rng.pick(TRAINER_NAMES), foes, capturable: false, biome: biomeFor(floor).id };
-  }
-  // The first floors never throw a hard counter at a lone starter: re-roll wilds whose
-  // types hit the lead super effectively until one does not (or give up after a few tries).
-  let g = wildOrFusion(rng.fork('wild'), floor);
-  if (floor <= ARENA.gentleFloors && run.party && run.party[0]) {
-    const leadTypes = run.party[0].genome.types;
-    const counters = (w) => w.types.some((t) => t && typeEffectiveness(t, leadTypes) >= 2);
-    for (let i = 0; i < 8 && counters(g); i++) g = wildOrFusion(rng.fork(`wild${i}`), floor);
-  }
-  const elemental = rollElemental(g, rng.fork('elemental'), ARENA.elementalChance);
-  return { kind: 'wild', name: `Wild ${g.name}`, foes: [{ genome: g, level: cap(L + rng.between(-1, 1)) }], capturable: true, biome: biomeFor(floor).id, elemental };
-}
-
-/** Build the engine state for the current floor. Rotates a fainted lead out of the first slot. */
-function buildBattle(run) {
-  const enc = run.encounter;
-  if (!enc) throw new Error('No encounter on this floor.');
-  if (run.party[0].hp <= 0) {
-    const k = run.party.findIndex((m) => m.hp > 0);
-    if (k < 0) throw new Error('Nobody in the party can fight.');
-    run.party.unshift(...run.party.splice(k, 1));
-  }
-  const mine = run.party.map((m) => {
-    const b = makeBattler(m.genome, m.level, { moves: m.moves, xp: xpProgress(m) });
-    b.hp = Math.max(0, Math.min(m.hp, b.maxHp));
-    b.status = m.status;
-    b.fainted = b.hp <= 0;
-    return b;
-  });
-  const foes = enc.foes.map((f) => makeBattler(f.genome, f.level));
-  return createBattle({
-    sides: [{ name: 'You', party: mine }, { name: enc.name, ai: true, party: foes }],
-    seed: `${run.seed}:battle:${run.floor}`,
-    capturable: enc.capturable,
-  });
-}
-
+/** Add xp, level up as far as it goes (current HP grows with max HP), and report moves learned or pending. */
 function gainXp(m, xp) {
   const from = m.level;
   m.xp += xp;
-  while (m.level < ARENA.maxLevel && m.xp >= xpForLevel(m.level + 1)) {
+  while (m.level < PARTY.maxLevel && m.xp >= xpForLevel(m.level + 1)) {
     const oldMax = memberMaxHp(m);
     m.level++;
     if (m.hp > 0) m.hp += memberMaxHp(m) - oldMax;
@@ -11864,382 +11706,43 @@ function gainXp(m, xp) {
   return { from, to: m.level, learned, pending };
 }
 
-function healParty(run, fraction, full) {
-  for (const m of [...run.party, ...run.box]) {
+/** Heal everyone (party and box) by a fraction of max HP, or fully; statuses clear either way. */
+function healParty(owner, fraction, full) {
+  for (const m of [...owner.party, ...(owner.box || [])]) {
     const max = memberMaxHp(m);
     if (full) { m.hp = max; m.status = null; continue; }
     m.hp = Math.min(max, m.hp + Math.round(max * fraction));
     m.status = null;
   }
-  return run;
+  return owner;
 }
 
-/** Fold a finished battle back into the run. Returns { run, report }. */
-function applyBattle(run, state) {
-  const enc = run.encounter;
-  const mine = state.sides[0].party;
-  const foes = state.sides[1].party;
-  run.party.forEach((m, i) => { const b = mine[i]; if (b) { m.hp = b.hp; m.status = b.status; } });
-  const won = state.winner === 0;
-  const capturedBattler = state.captured ? foes.find((f) => f.uid === state.captured) : null;
-  let xp = 0;
-  for (const f of foes) if (f.fainted || (capturedBattler && f.uid === capturedBattler.uid)) xp += xpReward(f.level, f.genome.bst, enc.kind);
-  run.stats.battles++;
-  const report = { won, kind: enc.kind, foe: enc.name, xp: 0, levelUps: [], captured: null, floor: run.floor };
-  if (!won) { run.phase = 'gameover'; run.lastReport = report; return { run, report }; }
-  report.xp = xp;
-  report.learned = [];
-  report.xpGains = [];
-  run.pendingLearns = run.pendingLearns || [];
-  run.party.forEach((m, index) => {
-    const before = xpProgress(m);
-    const r = gainXp(m, xp);
-    const after = xpProgress(m);
-    report.xpGains.push({ uid: m.uid, index, from: { level: r.from, frac: before.frac }, to: { level: r.to, frac: after.frac }, after });
-    if (r.to > r.from) report.levelUps.push({ name: m.genome.name, from: r.from, to: r.to });
-    for (const id of r.learned) report.learned.push({ name: m.genome.name, move: getMove(id).name });
-    for (const id of r.pending) run.pendingLearns.push({ uid: m.uid, moveId: id });
-  });
-  if (capturedBattler) {
-    const nm = makeMember(capturedBattler.genome, capturedBattler.level, nextUid(run));
-    nm.hp = Math.max(1, capturedBattler.hp);
-    nm.status = capturedBattler.status;
-    (run.party.length < ARENA.partyMax ? run.party : run.box).push(nm);
-    run.stats.captures++;
-    report.captured = nm;
-    report.toBox = !run.party.includes(nm);
-  }
-  if (enc.kind === 'boss') { run.stats.bosses++; run.altar = true; }
-  run.floor++;
-  run.encounter = encounterFor(run, run.floor);
-  // Wardens are fought rested: a full heal on the way in, and the altar heals again after.
-  healParty(run, ARENA.healBetweenFloors, run.encounter.kind === 'boss');
-  run.phase = 'floor';
-  run.lastReport = report;
-  return { run, report };
-}
-
-function findMember(run, uid) { return [...run.party, ...run.box].find((m) => m.uid === uid) || null; }
-
-function altarSeed(run, uidA, uidB) { return `${run.seed}:altar:${run.floor}:${uidA}:${uidB}`; }
-
-/** Can two members fuse at the altar? Same class only. */
-function canFuseMembers(run, uidA, uidB) {
-  const a = findMember(run, uidA), b = findMember(run, uidB);
-  if (!a || !b) return { ok: false, reason: 'Pick two creatures.' };
-  return canFuse(a.genome, b.genome);
-}
-
-/** Preview the altar child without changing the run. Null when the pair cannot fuse. */
-function previewFusion(run, uidA, uidB) {
-  const a = findMember(run, uidA), b = findMember(run, uidB);
-  if (!a || !b || a === b || !canFuse(a.genome, b.genome).ok) return null;
-  return fuse(a.genome, b.genome, makeRng(altarSeed(run, uidA, uidB))).child;
-}
-
-/** Fuse two members at the altar. Both are consumed; the child takes the higher level and full HP. */
-function fuseMembers(run, uidA, uidB) {
-  const a = findMember(run, uidA), b = findMember(run, uidB);
-  if (!a || !b || a === b) throw new Error('Pick two different creatures.');
-  const compat = canFuse(a.genome, b.genome);
-  if (!compat.ok) throw new Error(compat.reason);
-  const child = previewFusion(run, uidA, uidB);
-  const member = makeMember(child, Math.max(a.level, b.level), nextUid(run));
-  run.party = run.party.filter((m) => m !== a && m !== b);
-  run.box = run.box.filter((m) => m !== a && m !== b);
-  (run.party.length < ARENA.partyMax ? run.party : run.box).push(member);
-  run.stats.fusions++;
-  run.altar = false;
-  healParty(run, 1, true);
-  return { run, child: member };
-}
-
-function skipAltar(run) { run.altar = false; healParty(run, 1, true); return run; }
-
-function moveMember(run, uid, to) {
-  const m = findMember(run, uid);
-  if (!m) return run;
+function moveMember(owner, uid, to) {
+  const m = memberById(owner, uid);
+  if (!m) return owner;
   if (to === 'box') {
-    if (run.party.length <= 1 || !run.party.includes(m)) return run;
-    run.party = run.party.filter((x) => x !== m); run.box.push(m);
+    if (owner.party.length <= 1 || !owner.party.includes(m)) return owner;
+    owner.party = owner.party.filter((x) => x !== m); owner.box.push(m);
   } else {
-    if (run.party.length >= ARENA.partyMax || !run.box.includes(m)) return run;
-    run.box = run.box.filter((x) => x !== m); run.party.push(m);
+    if (owner.party.length >= PARTY.max || !owner.box.includes(m)) return owner;
+    owner.box = owner.box.filter((x) => x !== m); owner.party.push(m);
   }
-  return run;
+  return owner;
 }
 
-function setLead(run, uid) {
-  const i = run.party.findIndex((m) => m.uid === uid);
-  if (i > 0) run.party.unshift(...run.party.splice(i, 1));
-  return run;
+function setLead(owner, uid) {
+  const i = owner.party.findIndex((m) => m.uid === uid);
+  if (i > 0) owner.party.unshift(...owner.party.splice(i, 1));
+  return owner;
 }
 
-function canFight(run) { return run.party.some((m) => m.hp > 0); }
-
-// ---- src/ui/arena.js ----
-// Endless Arena: the game loop. Starter -> floors of wild, trainer and boss
-// encounters -> capture, level up, fuse at altars -> run ends on a wipe.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-const ar = { save: null, root: null, fight: null, altar: null, starterPick: -1, confirmReset: false, showReport: true };
-
-function save() { if (!persistSave(ar.save)) toast('Could not save (storage blocked?)'); }
-
-function renderArenaScreen(root) {
-  ar.root = root;
-  if (!ar.save) ar.save = loadSave();
-  if (ar.fight) { ar.fight.destroy(); ar.fight = null; }
-  clear(root);
-  const run = ar.save.run;
-  if (!run) return homeView(root);
-  if (run.phase === 'starter') return starterView(root, run);
-  if (run.phase === 'gameover') return gameOverView(root, run);
-  if (ar.altar) return altarView(root, run);
-  return floorView(root, run);
-}
-
-// ---- home -------------------------------------------------------------------
-
-function tile(label, value) { return h('div', { class: 'tile' }, h('b', {}, String(value)), h('span', {}, label)); }
-
-function homeView(root) {
-  const s = ar.save;
-  const rerender = () => renderArenaScreen(root);
-  const importInput = h('input', { class: 'seed code-in', type: 'text', placeholder: 'Paste a save code (CCSAVE1....)', autocapitalize: 'off', autocomplete: 'off', spellcheck: 'false', 'aria-label': 'Save code' });
-  root.append(
-    h('div', { class: 'hero-card' },
-      h('h2', {}, 'Endless Arena'),
-      h('p', { class: 'hint' }, 'Climb floors of wild creatures, trainers and wardens. Catch what you weaken, fuse what you catch, and see how deep you get before your party falls.'),
-      h('div', { class: 'tiles' }, tile('best floor', s.best.floor), tile('runs', s.best.runs), tile('caught', s.totals.captures), tile('fused', s.totals.fusions)),
-      h('button', { class: 'btn primary fuse-btn', type: 'button', onclick: () => { ar.save.run = newRun(freshSeed()); ar.starterPick = -1; save(); rerender(); } }, 'New run')),
-  );
-  if (s.collection.length) {
-    const grid = h('div', { class: 'pool' });
-    for (const e of s.collection.slice().reverse()) {
-      grid.append(h('button', { class: 'pcard', type: 'button', onclick: () => openSheet(e.genome) },
-        e.genome.gen ? h('span', { class: 'gen' }, `gen ${e.genome.gen}`) : null,
-        creatureEl(e.genome, { size: 104, animate: false }), h('span', {}, e.genome.name)));
-    }
-    root.append(...section(`Collection · ${s.collection.length}`, h('p', { class: 'hint' }, 'Every species and fusion that has been on your team. Tap for details, or send one to the Fusion Lab from its sheet.'), grid));
-  }
-  root.append(...section('Save',
-    h('div', { class: 'toolbar' },
-      h('button', { class: 'btn', type: 'button', onclick: async () => toast((await copyText(exportSave(ar.save))) ? 'Save code copied' : 'Copy failed') }, 'Export'),
-      h('button', { class: `btn${ar.confirmReset ? ' danger' : ''}`, type: 'button', onclick: () => {
-        if (!ar.confirmReset) { ar.confirmReset = true; toast('Tap again to erase everything'); rerender(); setTimeout(() => { ar.confirmReset = false; if (root.isConnected) rerender(); }, 4000); return; }
-        ar.save = emptySave(); clearSave(); ar.confirmReset = false; toast('Save erased'); rerender();
-      } }, ar.confirmReset ? 'Really erase?' : 'Erase save')),
-    h('div', { class: 'toolbar' }, importInput,
-      h('button', { class: 'btn', type: 'button', onclick: () => {
-        try { ar.save = importSave(importInput.value); save(); toast('Save loaded'); rerender(); } catch (e) { toast(e.message); }
-      } }, 'Import')),
-    h('p', { class: 'hint' }, 'Progress autosaves in this browser. Export gives you a code to move it elsewhere.')));
-}
-
-// ---- starter ----------------------------------------------------------------
-
-function starterView(root, run) {
-  const rerender = () => renderArenaScreen(root);
-  const cards = h('div', { class: 'starters' });
-  run.starters.forEach((g, i) => cards.append(h('button', { class: `pslot${ar.starterPick === i ? ' filled' : ''}`, type: 'button', onclick: () => { ar.starterPick = i; rerender(); } },
-    creatureEl(g, { size: 150, animate: true }), h('b', {}, g.name), typeChips(g.types),
-    h('span', { class: 'hint', style: { margin: 0 } }, `Lv ${ARENA.starterLevel}`))));
-  const pick = run.starters[ar.starterPick];
-  root.append(
-    h('h2', { class: 'screen-title' }, 'Choose your starter'),
-    h('p', { class: 'hint' }, 'Three wild creatures are willing to come along. Tap one to see it, then start the climb.'),
-    cards,
-    h('div', { class: 'row wrap' },
-      h('button', { class: 'btn primary fuse-btn', type: 'button', disabled: !pick, onclick: () => {
-        chooseStarter(run, ar.starterPick); recordCollection(ar.save, run.party[0].genome, 1); save(); rerender();
-      } }, pick ? `Start with ${pick.name}` : 'Pick a starter'),
-      pick ? h('button', { class: 'btn', type: 'button', onclick: () => openSheet(pick) }, 'Details') : null,
-      h('button', { class: 'btn', type: 'button', onclick: () => { ar.save.run = null; save(); rerender(); } }, 'Cancel')),
-  );
-}
-
-// ---- floor ------------------------------------------------------------------
-
-function memberRow(run, m, actions) {
-  const max = memberMaxHp(m);
-  const frac = m.hp / max;
-  const xp = xpProgress(m);
-  return h('div', { class: `party-row static${m.hp <= 0 ? ' fainted' : ''}` },
-    creatureEl(m.genome, { size: 64, animate: false, level: m.level }),
-    h('div', { class: 'party-info' },
-      h('div', {}, h('b', {}, m.genome.name), ' ', h('span', { class: 'lvl' }, `Lv ${m.level}`), stageBadge(m.level), ' ',
-        m.status ? h('span', { class: `status st-${m.status}` }, STATUS_INFO[m.status].short) : null,
-        m.hp <= 0 ? h('span', { class: 'status' }, 'FAINTED') : null),
-      h('div', { class: 'hpbar' }, h('i', { class: frac > 0.5 ? 'ok' : frac > 0.2 ? 'warn' : 'low', style: { width: `${Math.max(0, frac * 100)}%` } })),
-      h('div', { class: 'xpline' }, xpRow(xp), h('span', { class: 'xpnum' }, xp.next > xp.prev ? `${xp.cur - xp.prev} / ${xp.next - xp.prev}` : 'MAX')),
-      h('div', { class: 'move-chips' }, (m.moves || []).map((id) => { const mv = getMove(id); return mv ? h('span', { class: 'chip', style: { '--chip': TYPE_INFO[mv.type].color } }, mv.name) : null; })),
-      h('div', { class: 'row-actions' }, h('span', { class: 'hint', style: { margin: 0 } }, `${m.hp} / ${max}`), ...actions)));
-}
-
-function moveLabel(id) {
-  const mv = getMove(id);
-  return mv ? `${mv.name} · ${mv.type}${mv.power ? ` ${mv.power}` : ''}` : id;
-}
-
-function learnCard(run) {
-  const q = (run.pendingLearns || [])[0];
-  if (!q) return null;
-  const m = [...run.party, ...run.box].find((x) => x.uid === q.uid);
-  if (!m) { learnMove(run, q.uid, q.moveId, null); save(); return null; }
-  const mv = getMove(q.moveId);
-  const done = () => { save(); renderArenaScreen(ar.root); };
-  return h('div', { class: 'result-card slim learn' },
-    h('div', {}, h('b', {}, m.genome.name), ` wants to learn `, h('b', {}, mv.name), ` (${mv.type}${mv.power ? `, ${mv.power} power` : ''}). Replace which move?`),
-    h('div', { class: 'moves' }, m.moves.map((id, i) => h('button', { class: 'move-btn', type: 'button', style: { '--chip': TYPE_INFO[getMove(id).type].color }, onclick: () => { learnMove(run, q.uid, q.moveId, i); done(); } }, h('span', { class: 'mv-name' }, getMove(id).name), h('span', { class: 'mv-meta' }, moveLabel(id))))),
-    h('div', { class: 'row' }, h('button', { class: 'btn small', type: 'button', onclick: () => { learnMove(run, q.uid, q.moveId, null); done(); } }, `Don't learn ${mv.name}`)));
-}
-
-function smallBtn(label, onclick, disabled) { return h('button', { class: 'btn small', type: 'button', disabled, onclick }, label); }
-
-function reportCard(report) {
-  if (!report || !report.won) return null;
-  const lines = [];
-  lines.push(`Beat ${report.foe} on floor ${report.floor}. +${report.xp} XP each.`);
-  for (const l of report.levelUps) { lines.push(`${l.name} grew to Lv ${l.to}!`); if (stageOf(l.to) > stageOf(l.from)) lines.push(`${l.name} evolved! ${stageName(stageOf(l.to))}: larger, with its features ${stageOf(l.to) === 3 ? 'exaggerated' : 'more pronounced'}.`); }
-  for (const l of report.learned || []) lines.push(`${l.name} learned ${l.move}!`);
-  if (report.captured) lines.push(`${report.captured.genome.name} joined ${report.toBox ? 'the box' : 'the party'}.`);
-  return h('div', { class: 'result-card slim' }, lines.map((t) => h('div', {}, t)),
-    h('button', { class: 'btn small', type: 'button', onclick: () => { ar.showReport = false; renderArenaScreen(ar.root); } }, 'Dismiss'));
-}
-
-function floorView(root, run) {
-  const rerender = () => renderArenaScreen(root);
-  const enc = run.encounter;
-  const L = floorLevel(run.floor);
-  const elem = enc.foes.map((f) => elementalOf(f.genome)).find((e) => e && e.pure) || null;
-  const kindLabel = elem ? `${elem.name} Elemental!` : { wild: 'Wild encounter', trainer: 'Trainer battle', boss: 'Warden' }[enc.kind];
-  const foesRow = h('div', { class: 'foes' }, enc.foes.map((f) => h('div', { class: 'foe-card' },
-    creatureEl(f.genome, { size: enc.foes.length > 2 ? 78 : 120, facing: 'left', animate: enc.foes.length <= 2, level: f.level }),
-    h('span', {}, `${f.genome.name} · Lv ${f.level}`, stageBadge(f.level)))));
-  appendChildren(root, [
-    h('div', { class: 'floor-head' },
-      h('div', {}, h('h2', { class: 'screen-title' }, `Floor ${run.floor} · ${biomeFor(run.floor).name}`), h('span', { class: 'hint' }, `wild level ${L} · ${run.stats.captures} caught · ${run.stats.fusions} fused`)),
-      h('button', { class: 'btn small', type: 'button', onclick: () => { if (confirm('Abandon this run? Your party retires to the collection.')) { run.phase = 'gameover'; endRun(ar.save); save(); rerender(); } } }, 'Abandon')),
-    ar.showReport ? reportCard(run.lastReport) : null,
-    learnCard(run),
-    h('div', { class: `encounter ${enc.kind}${elem ? ` elemental elem-${elem.id}` : ''}` },
-      h('div', { class: 'enc-head' }, h('span', { class: `kind-badge ${enc.kind}${elem ? ' elemental' : ''}` }, kindLabel), h('b', {}, enc.name)),
-      foesRow,
-      elem ? h('p', { class: 'hint elem-hint' }, `One in a thousand: a creature born of ${elem.name.toLowerCase()}. Every part it has carries the element, and its parts keep it when passed down in fusion.`) : null,
-      enc.capturable ? h('p', { class: 'hint' }, 'Wild creatures can be captured during the fight. Weaken them first.') : null,
-      h('div', { class: 'row wrap' },
-        h('button', { class: 'btn primary fuse-btn', type: 'button', disabled: !canFight(run), onclick: () => startArenaBattle(root, run) }, canFight(run) ? 'Fight' : 'Nobody can fight'),
-        run.altar ? h('button', { class: 'btn altar-btn', type: 'button', onclick: () => { ar.altar = { a: null, b: null }; rerender(); } }, '✦ Fusion altar') : null)),
-  ]);
-  const partyList = h('div', { class: 'party-list' });
-  run.party.forEach((m, i) => partyList.append(memberRow(run, m, [
-    smallBtn('Lead', () => { setLead(run, m.uid); save(); rerender(); }, i === 0),
-    smallBtn('Box', () => { moveMember(run, m.uid, 'box'); save(); rerender(); }, run.party.length <= 1),
-    smallBtn('Info', () => openSheet(m.genome)),
-  ])));
-  root.append(...section(`Party · ${run.party.length}/${ARENA.partyMax}`, h('p', { class: 'hint' }, `The lead goes out first. Everyone recovers ${Math.round(ARENA.healBetweenFloors * 100)}% HP between floors, fully before a Warden, and the altar heals everyone.`), partyList));
-  if (run.box.length) {
-    const boxList = h('div', { class: 'party-list' });
-    for (const m of run.box) boxList.append(memberRow(run, m, [
-      smallBtn('To party', () => { moveMember(run, m.uid, 'party'); save(); rerender(); }, run.party.length >= ARENA.partyMax),
-      smallBtn('Info', () => openSheet(m.genome)),
-    ]));
-    root.append(...section(`Box · ${run.box.length}`, boxList));
-  }
-}
-
-function startArenaBattle(root, run) {
-  let built;
-  try { built = buildBattle(run); } catch (e) { toast(e.message); return; }
-  save();
-  clear(root);
-  const host = h('div');
-  root.append(h('div', { class: 'floor-head compact' }, h('b', {}, `Floor ${run.floor} · ${run.encounter.name}`)), host);
-  ar.fight = mountFight(host, {
-    state: built.state, events: built.events, names: ['You', run.encounter.name], wild: run.encounter.capturable, fast: ar.save.settings.fast,
-    onEnd: (state) => {
-      const { report } = applyBattle(run, state);
-      if (report.captured) recordCollection(ar.save, report.captured.genome, report.floor);
-      ar.showReport = true;
-      save();
-      return { xp: report.xpGains || [] };
-    },
-    resultButtons: [{ label: 'Continue', primary: true, onclick: () => renderArenaScreen(root) }],
-  });
-}
-
-// ---- altar ------------------------------------------------------------------
-
-function altarView(root, run) {
-  const rerender = () => renderArenaScreen(root);
-  const pick = ar.altar;
-  const all = [...run.party, ...run.box];
-  const list = h('div', { class: 'pool' });
-  const anchorUid = pick.a || pick.b;
-  for (const m of all) {
-    const tag = pick.a === m.uid ? 'A' : pick.b === m.uid ? 'B' : null;
-    const off = anchorUid && !tag && !canFuseMembers(run, anchorUid, m.uid).ok;
-    list.append(h('button', { class: `pcard${tag === 'A' ? ' is-a' : tag === 'B' ? ' is-b' : off ? ' is-off' : ''}`, type: 'button', onclick: () => {
-      if (off) { toast(canFuseMembers(run, anchorUid, m.uid).reason); return; }
-      if (pick.a === m.uid) pick.a = null; else if (pick.b === m.uid) pick.b = null; else if (!pick.a) pick.a = m.uid; else if (!pick.b) pick.b = m.uid; else pick.b = m.uid;
-      rerender();
-    } }, tag ? h('span', { class: `sel badge ${tag.toLowerCase()}` }, tag) : null, h('span', { class: 'gen' }, cladeName(cladeOf(m.genome))), creatureEl(m.genome, { size: 104, animate: false, level: m.level }), h('span', {}, `${m.genome.name} · Lv ${m.level}`)));
-  }
-  const child = pick.a && pick.b ? previewFusion(run, pick.a, pick.b) : null;
-  appendChildren(root, [
-    h('h2', { class: 'screen-title' }, '✦ Fusion altar'),
-    h('p', { class: 'hint' }, 'Fuse two creatures of the same class into one. Both are consumed; the child keeps the higher level and starts at full health. Everyone is fully healed when you leave.'),
-    ...section('Choose two', list),
-    child ? h('div', { class: 'result' },
-      h('div', { class: 'sheet-head' }, h('h2', {}, child.name), typeChips(child.types)),
-      h('p', { class: 'meta' }, `gen ${child.gen} · ${child.parents.join(' × ')}`),
-      h('div', { class: 'hero' }, creatureEl(child, { size: 240, fit: true })),
-      h('div', { class: 'row wrap' },
-        h('button', { class: 'btn primary', type: 'button', onclick: () => {
-          const { child: member } = fuseMembers(run, pick.a, pick.b);
-          recordCollection(ar.save, member.genome, run.floor);
-          addToPool(member.genome);
-          ar.altar = null; save(); toast(`${member.genome.name} is born!`); rerender();
-        } }, 'Fuse them'),
-        h('button', { class: 'btn', type: 'button', onclick: () => openSheet(child) }, 'Details'))) : null,
-    h('div', { class: 'row wrap' }, h('button', { class: 'btn', type: 'button', onclick: () => { skipAltar(run); ar.altar = null; save(); rerender(); } }, 'Leave without fusing')),
-  ]);
-}
-
-// ---- game over --------------------------------------------------------------
-
-function gameOverView(root, run) {
-  const rerender = () => renderArenaScreen(root);
-  const fallen = h('div', { class: 'pool' });
-  for (const m of [...run.party, ...run.box]) fallen.append(h('button', { class: 'pcard', type: 'button', onclick: () => openSheet(m.genome, { level: m.level }) }, creatureEl(m.genome, { size: 104, animate: false, level: m.level }), h('span', {}, `${m.genome.name} · Lv ${m.level}`)));
-  root.append(
-    h('div', { class: 'hero-card' },
-      h('h2', {}, `Run over on floor ${run.floor}`),
-      h('p', { class: 'hint' }, `${run.stats.battles} battles · ${run.stats.captures} caught · ${run.stats.fusions} fused · ${run.stats.bosses} wardens beaten`),
-      h('button', { class: 'btn primary fuse-btn', type: 'button', onclick: () => { endRun(ar.save); save(); rerender(); } }, 'Retire the team and return')),
-    ...section('Your team', h('p', { class: 'hint' }, 'They join the collection, and you can still fuse them in the Fusion Lab.'), fallen),
-  );
-}
+function canFight(owner) { return owner.party.some((m) => m.hp > 0); }
 
 // ---- src/game/journey.js ----
 // The journey: the player's state in the overworld and the rules that move it. Pure game
 // logic over a plain `journey` object (party, box, position, badges, beaten trainers, the
 // pending encounter); the UI calls these and persists the result. Members, XP and healing
-// reuse the arena's helpers so creatures behave the same in both modes.
+// are the shared party helpers in party.js.
 
 
 
@@ -12248,7 +11751,7 @@ function gameOverView(root, run) {
 
 
 
-const JOURNEY = { starterLevel: 8, maxLevel: 100, partyMax: MAX_PARTY, gauntletHeal: 0.35, badgesForSpire: BIOME_ORDER.length, councilFights: 4 };
+const JOURNEY = { starterLevel: PARTY.starterLevel, maxLevel: PARTY.maxLevel, partyMax: PARTY.max, gauntletHeal: 0.35, badgesForSpire: BIOME_ORDER.length, councilFights: 4 };
 const DIRS = { up: [0, -1], down: [0, 1], left: [-1, 0], right: [1, 0] };
 
 function nextJourneyUid(j) { return `j${j.nextId++}`; }
@@ -12594,7 +12097,7 @@ function owIntroView(root) {
     h('div', { class: 'hero-card' },
       h('h2', {}, 'The Overworld'),
       h('p', { class: 'hint' }, 'Seven biomes ring the Crossroads, one for each class of creature, each harder than the last. Walk the downs, the fen, the meadow, the crags, the lagoon, the hollow and the scar. Catch what lives there, ask trainers for a fight, take a badge from every Warden, and when you hold all seven the Council Spire opens: four fights, back to back.'),
-      h('div', { class: 'tiles' }, owTile('biomes', 7), owTile('wardens', 7), owTile('council', 4), owTile('caught', ow.save.totals.captures + (ow.save.collection ? ow.save.collection.length : 0))),
+      h('div', { class: 'tiles' }, owTile('biomes', 7), owTile('wardens', 7), owTile('journeys', ow.save.totals.journeys), owTile('collection', ow.save.collection.length)),
       h('button', { class: 'btn primary fuse-btn', type: 'button', onclick: () => {
         let seed = null;
         try { seed = new URLSearchParams(location.search).get('seed'); } catch { /* ignore */ }
@@ -12603,7 +12106,7 @@ function owIntroView(root) {
     ...section('Save',
       h('div', { class: 'toolbar' }, importInput,
         h('button', { class: 'btn', type: 'button', onclick: () => { try { ow.save = importSave(importInput.value); owSave(); toast('Save loaded'); rerender(); } catch (e) { toast(e.message); } } }, 'Import')),
-      h('p', { class: 'hint' }, 'The endless Arena lives in its own tab and shares this save. Progress autosaves in this browser.')),
+      h('p', { class: 'hint' }, 'Progress autosaves in this browser. Export gives you a code to move it elsewhere.')),
   );
 }
 
@@ -12619,7 +12122,7 @@ function owStarterView(root, j) {
     h('p', { class: 'hint' }, 'Three wild creatures wait at the Crossroads. Pick one to walk out with; the Heather Downs south of town are the gentlest start.'),
     cards,
     h('div', { class: 'row wrap' },
-      h('button', { class: 'btn primary fuse-btn', type: 'button', disabled: !pick, onclick: () => { chooseJourneyStarter(j, ow.starterPick); recordCollection(ow.save, j.party[0].genome, 0); owSave(); rerender(); } }, pick ? `Set out with ${pick.name}` : 'Pick a companion'),
+      h('button', { class: 'btn primary fuse-btn', type: 'button', disabled: !pick, onclick: () => { chooseJourneyStarter(j, ow.starterPick); recordCollection(ow.save, j.party[0].genome); owSave(); rerender(); } }, pick ? `Set out with ${pick.name}` : 'Pick a companion'),
       pick ? h('button', { class: 'btn', type: 'button', onclick: () => openSheet(pick) }, 'Details') : null,
       h('button', { class: 'btn', type: 'button', onclick: () => { ow.save.journey = null; owSave(); rerender(); } }, 'Cancel')),
   );
@@ -12907,8 +12410,8 @@ function owStartFight() {
     onQuit: enc.kind === 'wild' ? () => { fleeEncounter(j); owSave(); renderWorldScreen(ow.root); } : null,
     onEnd: (state) => {
       const { report } = applyJourneyBattle(j, state);
-      if (report.captured) recordCollection(ow.save, report.captured.genome, 0);
-      if (report.champion) sfx.win();
+      if (report.captured) recordCollection(ow.save, report.captured.genome);
+      if (report.champion) { sfx.win(); ow.save.totals.champions++; }
       ow.showReport = true;
       owSave();
       return { xp: report.xpGains || [] };
@@ -13000,11 +12503,10 @@ function owMenuSheet(j) {
         h('button', { class: 'btn', type: 'button', onclick: async () => toast((await copyText(exportSave(ow.save))) ? 'Save code copied' : 'Copy failed') }, 'Export'),
         h('button', { class: `btn${ow.confirmReset ? ' danger' : ''}`, type: 'button', onclick: () => {
           if (!ow.confirmReset) { ow.confirmReset = true; toast('Tap again to abandon this journey'); render(); setTimeout(() => { ow.confirmReset = false; if (body.isConnected) render(); }, 4000); return; }
-          for (const m of [...j.party, ...j.box]) recordCollection(ow.save, m.genome, 0);
-          ow.save.journey = null; ow.confirmReset = false; owSave(); toast('Journey abandoned'); sheetRef.close(); renderWorldScreen(ow.root);
+          retireJourney(ow.save); ow.confirmReset = false; owSave(); toast('Journey abandoned'); sheetRef.close(); renderWorldScreen(ow.root);
         } }, ow.confirmReset ? 'Really abandon?' : 'Abandon journey')),
       h('div', { class: 'toolbar' }, importInput, h('button', { class: 'btn', type: 'button', onclick: () => { try { ow.save = importSave(importInput.value); owSave(); toast('Save loaded'); sheetRef.close(); renderWorldScreen(ow.root); } catch (e) { toast(e.message); } } }, 'Import')),
-      h('p', { class: 'hint' }, 'Abandoning sends your creatures to the collection. The Arena tab has the endless mode on the same save.'),
+      h('p', { class: 'hint' }, 'Abandoning sends your creatures to the collection, where the Fusion Lab can still use them.'),
     ]);
   };
   render();
@@ -13039,7 +12541,7 @@ function owShrineSheet(j) {
         h('div', { class: 'row wrap' },
           h('button', { class: 'btn primary', type: 'button', onclick: () => {
             const { child: member } = shrineFuse(j, pick.a, pick.b);
-            recordCollection(ow.save, member.genome, 0); addToPool(member.genome);
+            recordCollection(ow.save, member.genome); addToPool(member.genome);
             owSave(); toast(`${member.genome.name} is born!`); pick.a = null; pick.b = null; render();
           } }, 'Fuse them'),
           h('button', { class: 'btn', type: 'button', onclick: () => openSheet(child) }, 'Details'))) : null,
@@ -13232,10 +12734,8 @@ function owDraw(ts) {
 
 
 
-
 const SCREENS = [
   { id: 'world', title: 'World', render: renderWorldScreen },
-  { id: 'arena', title: 'Arena', render: renderArenaScreen },
   { id: 'battle', title: 'Battle', render: renderBattleScreen },
   { id: 'fusion', title: 'Fusion', render: renderFusionScreen },
   { id: 'lab', title: 'Lab', render: renderLabScreen },

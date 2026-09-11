@@ -19,14 +19,13 @@ Phase 3 — Battle: a deterministic, headless battle engine (157 moves, 30
 abilities, status, stages, switching, parties of five, AI opponent, balance
 simulator) and a portrait battle screen.
 
-Phase 4 — Endless Arena: the game loop. Starters, scaling floors of wild
-creatures, trainers and wardens, in-battle capture, XP and levels, party and
-box, fusion altars after bosses, autosave with export and import, and a
-persistent collection.
+Phase 4 — The game loop: starters, in-battle capture, XP and levels, party and
+box, autosave with export and import, and a persistent collection. It first
+shipped as an endless arena, since replaced by the overworld below.
 
-Phase 5 — Polish and balance: learnsets rebuilt on one curve, arena curve tuned
-with a whole-run simulator, move-learning prompts, procedural sound, 28 species
-and 130 parts.
+Phase 5 — Polish and balance: learnsets rebuilt on one curve, the level curve
+tuned with a whole-run simulator, move-learning prompts, procedural sound, 28
+species and 130 parts.
 
 Phase 6 — Art rebuild, class by class: every class gets its own skeleton
 (rig) with its own slots, and a hand-drawn library of seven parts per slot.
@@ -65,8 +64,9 @@ class's species by element type, with stronger and rarer creatures turning up
 less often; trainers on the roads fight when asked; each biome's Warden holds
 a badge; camps heal and set the respawn point; a shrine fuses; and with seven
 badges the Council Spire opens to four fights back to back. Walk with the
-keyboard, the on-screen pad or a tap on the ground. The endless Arena stays in
-its own tab.
+keyboard, the on-screen pad or a tap on the ground. The endless arena is gone;
+its capture, XP, party and collection systems live on here, and an old save's
+arena creatures join the collection.
 
 Creature polish: accents are kept a clear perceptual step away from the base
 colours on every roll, fusion and load; a fusion's coat follows the parent that
@@ -95,10 +95,10 @@ plain ES module that Node can import, so the renderer and (soon) the battle
 engine are testable headlessly.
 
 Balance reports: `node scripts/sim.mjs [games] [level] [partySize] [seed]` runs
-AI-vs-AI tournaments and prints win rates by species and type;
-`node scripts/sim-run.mjs [runs] [seed] [maxFloors]` plays whole arena runs and
-reports how far they get and where they die.
+AI-vs-AI tournaments and prints win rates by species and type.
 
 Visual review: `node scripts/shot.mjs [seed]` screenshots the Lab, a detail
-sheet and the Parts tab at phone size into `shots/` (needs Playwright installed
-globally or locally; dev only).
+sheet, the Fusion Lab, a sandbox battle and the Parts tab at phone size into
+`shots/`, and `node scripts/shot-world.mjs [seed]` walks the overworld into an
+encounter and back (both need Playwright installed globally or locally; dev
+only).

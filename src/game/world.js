@@ -12,6 +12,7 @@ import { hashSeed, makeRng } from '../core/rng.js';
 import { WILD_SPECIES } from '../data/species.js';
 import { TYPE_LIST } from '../data/types.js';
 import { combatStyle } from '../data/damage.js';
+import { ELEMENTAL_CHANCE } from '../data/elements.js';
 import { speciesGenome, rollElemental } from '../creature/genome.js';
 import { fuse, canFuse } from '../creature/fusion.js';
 
@@ -42,6 +43,8 @@ export const WILD_RARITY = { common: 1, uncommon: 0.45, rare: 0.12 };
 /** Odds of a stronger wild creature: an alpha well above the area level, or one a few levels up. */
 export const WILD_LEVEL = { alpha: 0.04, alphaBoost: [8, 12], strong: 0.14, strongBoost: [3, 6], spread: 2 };
 export const COUNCIL_LEVELS = [66, 70, 74, 80];
+/** Odds that a wild creature is born of an element (a knob so tests can force it). */
+export const WILD_ELEMENTAL = { chance: ELEMENTAL_CHANCE };
 
 // ---- noise ---------------------------------------------------------------------
 
@@ -149,7 +152,7 @@ export function wildSpawn(world, x, y, rng) {
   if (r < WILD_LEVEL.alpha) { level = L + rng.between(WILD_LEVEL.alphaBoost[0], WILD_LEVEL.alphaBoost[1]); alpha = true; }
   else if (r < WILD_LEVEL.alpha + WILD_LEVEL.strong) level = L + rng.between(WILD_LEVEL.strongBoost[0], WILD_LEVEL.strongBoost[1]);
   level = Math.max(2, Math.min(100, level));
-  const elemental = rollElemental(genome, rng.fork('elemental'));
+  const elemental = rollElemental(genome, rng.fork('elemental'), WILD_ELEMENTAL.chance);
   return { genome, level, alpha, elemental, type, biome: biome.id, areaLevel: L };
 }
 
