@@ -266,11 +266,15 @@ events back, so a battle is replayable from its start state and action log.
   debuff or self buff; draining; each point of positive priority). Status
   moves: sleep or freeze 10, other major statuses 15, heals 10, sharp stat
   changes (±2, three stats, accuracy or evasion) 20, ordinary ones 30.
-- **Abilities** (`src/data/abilities.js`, 30): entry (Menace), end of turn
-  (Momentum), damage modifiers (Purebred, Finesse, Grit, Blubber…), immunities
-  (Hover, Sponge, Capacitor, status guards), contact effects (Thorn Hide, Live
-  Fur…), Stonewall, Second Wind, Swagger, Lucky Streak. Implemented by id in the
-  engine; the table holds names and text.
+- **Abilities** (`src/data/abilities.js`, 42 plus the eight Elemental cores):
+  entry (Menace, Quick Start), end of turn (Momentum, Regrowth), damage
+  modifiers (Purebred, Finesse, Grit, Blubber, the eight type Hearts that
+  surge at a third HP, Iron Hide / Bulwark / Mirror Scale that take three
+  quarters from one damage type, Keen Edge for double crits), immunities
+  (Hover, Sponge, Capacitor, status guards, Steady against the foe's stat
+  drops), contact effects (Thorn Hide, Live Fur…), Stonewall, Second Wind,
+  Swagger, Lucky Streak. Implemented by id in the engine; the table holds
+  names and text.
 - **Phases:** `choose` → `replace` (a side whose active fainted sends in the
   next one for free) → `over`. `legalActions(state, side)` is the single source
   of truth for what a side may do, and `step` rejects anything else.

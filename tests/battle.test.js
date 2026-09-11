@@ -220,3 +220,56 @@ test('every passive skill has a name and a description in the game\'s own stat w
     assert.ok(!/\bSp\. ?Atk\b|\bSp\. ?Def\b|\bAttack\b|\bDefense\b/.test(a.desc), `${id} names a stat this game does not have: ${a.desc}`);
   }
 });
+
+test('new passives: surges, regrowth, hide, bulwark, mirror, steady, quick start and keen edge', () => {
+  const mk = (id, level, ability, moves) => makeBattler(speciesGenome(SPECIES_BY_ID[id], makeRng(`${id}${level}`)), level, { ability, moves });
+  // surges: 1.5x for the type when HP is a third or less
+  for (const [ab, mvId, id] of [['frost_heart', 'sleet', 'glacub'], ['storm_heart', 'zap', 'voltmite'], ['venom_heart', 'acid_spit', 'slugmire'], ['gale_heart', 'gale', 'zephyrn'], ['stone_heart', 'stone_toss', 'craggon']]) {
+    const me = mk(id, 50, ab), foe = mk('pufflet', 50, 'lucky_streak');
+    const full = calcDamage(me, foe, getMove(mvId), 1, 1, false);
+    me.hp = Math.floor(me.maxHp / 3);
+    assert.ok(calcDamage(me, foe, getMove(mvId), 1, 1, false) >= Math.floor(full * 1.4), ab);
+  }
+  // damage-type hides: three quarters
+  const atk = mk('bruxor', 50, 'lucky_streak');
+  for (const [ab, mvId] of [['iron_hide', 'bump'], ['bulwark', 'squirt'], ['mirror_scale', 'ripple']]) {
+    const plain = mk('pufflet', 50, 'lucky_streak'), hard = mk('pufflet', 50, ab);
+    const a = calcDamage(atk, plain, getMove(mvId), 1, 1, false), b = calcDamage(atk, hard, getMove(mvId), 1, 1, false);
+    assert.ok(b < a && b >= Math.floor(a * 0.7), `${ab} ${b} of ${a}`);
+    for (const other of ['bump', 'squirt', 'ripple']) if (other !== mvId) assert.equal(calcDamage(atk, hard, getMove(other), 1, 1, false), calcDamage(atk, plain, getMove(other), 1, 1, false), `${ab} leaves ${other} alone`);
+  }
+  // steady: the foe cannot lower its stats, its own drawbacks still apply
+  {
+    const { state } = createBattle({ sides: [{ party: [mk('pufflet', 1, 'steady', ['all_out_brawl'])] }, { party: [mk('craggon', 100, 'lucky_streak', ['yowl'])] }], seed: 'steady' });
+    const r = step(state, [{ type: 'move', index: 0 }, { type: 'move', index: 0 }]);
+    const me = r.state.sides[0].party[0];
+    assert.equal(me.stages.melee, 0, 'Yowl was refused'); assert.equal(me.stages.ranged, 0);
+    assert.equal(me.stages.meleeDef, -1, 'its own All-Out Brawl still cost defence');
+    assert.ok(r.events.some((e) => e.t === 'ability' && e.ability === 'Steady'));
+  }
+  // quick start: +1 Speed on entry
+  {
+    const { state, events } = createBattle({ sides: [{ party: [mk('pufflet', 20, 'quick_start')] }, { party: [mk('pufflet', 20, 'lucky_streak')] }], seed: 'qs' });
+    assert.equal(state.sides[0].party[0].stages.spe, 1); assert.equal(state.sides[1].party[0].stages.spe, 0);
+    assert.ok(events.some((e) => e.t === 'ability' && e.ability === 'Quick Start'));
+  }
+  // regrowth: a sixteenth back each turn
+  {
+    const me = mk('glacub', 40, 'regrowth', ['brace']); me.hp = 10;
+    const { state } = createBattle({ sides: [{ party: [me] }, { party: [mk('pufflet', 40, 'lucky_streak', ['brace'])] }], seed: 'rg' });
+    const r = step(state, [{ type: 'move', index: 0 }, { type: 'move', index: 0 }]);
+    assert.equal(r.state.sides[0].party[0].hp, 10 + Math.max(1, Math.floor(me.maxHp / 16)));
+  }
+  // keen edge: crits about twice as often
+  const crits = (ability) => {
+    let n = 0;
+    for (let k = 0; k < 400; k++) {
+      const { state } = createBattle({ sides: [{ party: [mk('bruxor', 30, ability, ['bump'])] }, { party: [mk('craggon', 100, 'lucky_streak', ['brace'])] }], seed: `ke${k}` });
+      const r = step(state, [{ type: 'move', index: 0 }, { type: 'move', index: 0 }]);
+      if (r.events.some((e) => e.t === 'damage' && e.crit)) n++;
+    }
+    return n;
+  };
+  const base = crits('lucky_streak'), keen = crits('keen_edge');
+  assert.ok(keen > base * 1.4 && keen < base * 3.2, `${keen} keen vs ${base} base crits in 400`);
+});

@@ -31,7 +31,7 @@ export const MAX_PARTY = 5;
 
 const stageMul = (n) => (n >= 0 ? (2 + n) / 2 : 2 / (2 - n));
 const accMul = (n) => (n >= 0 ? (3 + n) / 3 : 3 / (3 - n));
-const SURGE = { ember_heart: 'Fire', tide_heart: 'Water', bloom_heart: 'Grass' };
+const SURGE = { ember_heart: 'Fire', tide_heart: 'Water', bloom_heart: 'Grass', frost_heart: 'Ice', storm_heart: 'Electric', venom_heart: 'Poison', gale_heart: 'Flying', stone_heart: 'Rock' };
 
 /** Build a battler from a genome at a level. opts.moves / opts.ability override the defaults. */
 export function makeBattler(genome, level, opts = {}) {
@@ -273,13 +273,13 @@ function entryHooks(state, i, events) {
   const foe = activeOf(state, 1 - i);
   if (me.ability === 'menace' && !foe.fainted) {
     events.push({ t: 'ability', side: i, name: me.name, ability: abilityName(me.ability) });
-    changeStages(state, 1 - i, { melee: -1, ranged: -1 }, events);
+    changeStages(state, 1 - i, { melee: -1, ranged: -1 }, events, true);
   }
   if (me.ability === 'umbral_core' && !foe.fainted) {
     events.push({ t: 'ability', side: i, name: me.name, ability: abilityName(me.ability) });
-    changeStages(state, 1 - i, { magic: -1 }, events);
+    changeStages(state, 1 - i, { magic: -1 }, events, true);
   }
-  if (me.ability === 'storm_core' && me.stages.spe < 6) {
+  if ((me.ability === 'storm_core' || me.ability === 'quick_start') && me.stages.spe < 6) {
     events.push({ t: 'ability', side: i, name: me.name, ability: abilityName(me.ability) });
     changeStages(state, i, { spe: 1 }, events);
   }
@@ -308,11 +308,13 @@ function setStatus(state, side, status, events, rng, mv) {
   return true;
 }
 
-function changeStages(state, side, stats, events) {
+/** Apply stage changes to a side's active creature. byFoe marks changes the other side caused, which Steady refuses. */
+function changeStages(state, side, stats, events, byFoe = false) {
   const b = activeOf(state, side);
   if (b.fainted) return;
   for (const [k, n] of Object.entries(stats)) {
     if (k === 'acc' && n < 0 && b.ability === 'hawkeye') { events.push({ t: 'ability', side, name: b.name, ability: abilityName(b.ability) }); continue; }
+    if (byFoe && n < 0 && b.ability === 'steady') { events.push({ t: 'ability', side, name: b.name, ability: abilityName(b.ability) }); continue; }
     const cur = b.stages[k];
     const next = clamp(cur + n, -6, 6);
     events.push({ t: 'stat', side, name: b.name, stat: k, stages: next - cur, wanted: n });
@@ -382,6 +384,9 @@ export function calcDamage(user, target, mv, eff, roll, crit) {
   if (user.status === 'brn' && mv.cat !== 'magic' && user.ability !== 'grit') dmg = Math.floor(dmg / 2);
   if (target.ability === 'blubber' && (mv.type === 'Fire' || mv.type === 'Ice')) dmg = Math.floor(dmg / 2);
   if (target.ability === 'quake_core' && mv.cat === 'melee') dmg = Math.floor(dmg * 0.75);
+  if (target.ability === 'iron_hide' && mv.cat === 'melee') dmg = Math.floor(dmg * 0.75);
+  if (target.ability === 'bulwark' && mv.cat === 'ranged') dmg = Math.floor(dmg * 0.75);
+  if (target.ability === 'mirror_scale' && mv.cat === 'magic') dmg = Math.floor(dmg * 0.75);
   return Math.max(1, dmg);
 }
 
@@ -462,7 +467,7 @@ function executeMove(state, i, action, events, rng) {
   let total = 0, landed = 0;
   for (let h = 0; h < hits; h++) {
     if (target.fainted) break;
-    const crit = rng.chance(mv.crit >= 1 ? 1 / 8 : 1 / 24);
+    const crit = rng.chance((mv.crit >= 1 ? 1 / 8 : 1 / 24) * (user.ability === 'keen_edge' ? 2 : 1));
     const roll = rng.between(85, 100) / 100;
     let dmg = calcDamage(user, target, mv, eff, roll, crit);
     let held = false;
@@ -497,7 +502,7 @@ function applySecondaries(state, i, mv, events, rng) {
   for (const f of mv.fx) {
     const p = f.p == null ? 100 : f.p;
     if (f.k === 'status') { if (rng.chance(chanceOf(user, p))) setStatus(state, foeSide, f.s, events, rng, mv); }
-    else if (f.k === 'stat') { if (rng.chance(chanceOf(user, p))) changeStages(state, f.who === 'self' ? i : foeSide, f.stats, events); }
+    else if (f.k === 'stat') { if (rng.chance(chanceOf(user, p))) changeStages(state, f.who === 'self' ? i : foeSide, f.stats, events, f.who !== 'self'); }
     else if (f.k === 'flinch') { if (!target.moved && rng.chance(chanceOf(user, p))) target.flinch = true; }
   }
 }
@@ -510,7 +515,7 @@ function contactEffects(state, i, events, rng) {
     hurtBattler(state, i, Math.max(1, user.maxHp / 8), events, 'thorns');
   } else if (ab === 'frost_core' && rng.chance(0.3) && user.stages.spe > -6) {
     events.push({ t: 'ability', side: foeSide, name: target.name, ability: abilityName(ab) });
-    changeStages(state, i, { spe: -1 }, events);
+    changeStages(state, i, { spe: -1 }, events, true);
   } else if ((ab === 'live_fur' || ab === 'hot_blooded' || ab === 'venom_barbs' || ab === 'inferno_core') && rng.chance(0.3)) {
     const status = ab === 'live_fur' ? 'par' : (ab === 'hot_blooded' || ab === 'inferno_core') ? 'brn' : 'psn';
     if (canHaveStatus(user, status)) {
@@ -535,7 +540,7 @@ function applyStatusMove(state, i, mv, events, rng) {
     } else if (f.k === 'stat') {
       const who = f.who === 'self' ? i : foeSide;
       const before = { ...activeOf(state, who).stages };
-      changeStages(state, who, f.stats, events);
+      changeStages(state, who, f.stats, events, f.who !== 'self');
       if (Object.keys(f.stats).some((k) => activeOf(state, who).stages[k] !== before[k])) didSomething = true;
     } else if (f.k === 'heal') {
       const me = activeOf(state, i);
@@ -556,7 +561,7 @@ function endOfTurn(state, events, rng) {
       events.push({ t: 'ability', side: i, name: b.name, ability: abilityName(b.ability) });
       changeStages(state, i, { spe: 1 }, events);
     }
-    if (!b.fainted && b.ability === 'tide_core' && b.hp < b.maxHp) {
+    if (!b.fainted && (b.ability === 'tide_core' || b.ability === 'regrowth') && b.hp < b.maxHp) {
       events.push({ t: 'ability', side: i, name: b.name, ability: abilityName(b.ability) });
       healBattler(state, i, Math.max(1, b.maxHp / 16), events, 'ability');
     }

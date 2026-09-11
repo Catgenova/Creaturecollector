@@ -73,6 +73,13 @@ test('species recipes only reference real parts in the right slots', () => {
       }
     }
     for (const slot of Object.keys(s.recipe)) assert.ok(slotsFor(rig).includes(slot), `${s.id}: recipe slot ${slot} is not in rig ${rig}`);
+    const weight = Object.values(s.stats).reduce((a, b) => a + b, 0);
+    assert.ok(Math.abs(weight - 1) < 0.02, `${s.id} stat weights sum to ${weight.toFixed(3)}`);
+    assert.ok(s.nameParts && s.nameParts.length === 2 && s.nameParts.join('').toLowerCase() === s.name.toLowerCase().replace(/[^a-z]/gi, ''), `${s.id} nameParts`);
+    assert.ok(s.desc && s.desc.length >= 30 && s.desc.length <= 170, `${s.id} desc`);
+    assert.ok(s.abilities.length === 2 && s.abilities[0] !== s.abilities[1], `${s.id} carries two different passives`);
+    assert.ok(['common', 'uncommon', 'rare'].includes(s.tier), `${s.id} tier`);
+    assert.ok(s.learnset.length === 11 && s.learnset[0][0] === 1 && s.learnset[1][0] === 1 && s.learnset[s.learnset.length - 1][0] >= 46, `${s.id} learnset shape`);
     for (const k of ['c1', 'c2', 'c3', 'eye']) assert.equal(s.palette[k].length, 3, `${s.id} palette ${k}`);
     const w = Object.values(s.stats).reduce((a, b) => a + b, 0);
     assert.ok(Math.abs(w - 1) < 0.05, `${s.id} stat weights sum ${w}`);
