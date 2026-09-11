@@ -2,9 +2,12 @@
 // side-view fish), mouth at the front tip. Fin sockets: dorsal (top), pectoral / pectoralFar
 // (side), tail (rear), belly (bottom); plus gills, crest (top of the head), barbels (mouth corner).
 // Fish hover above their shadow (`hover`). kinds: 'fish.round', 'fish.long', 'fish.upright'.
+// Evolutions: stage 2 grows the body, enlarges the marking and draws an accent lateral line;
+// stage 3 sprouts a row of finlets off the back and sets a glow behind the marking.
 import { fBody, torsoShade } from './_shared.js';
 import { L, SH, HL, PATCH, C, tube, arcPts } from '../_dsl.js';
 import { sparklePath, crescentPath, boltPath, diamondPath, starPath } from '../_sigils.js';
+import { evoFan, evoGlow } from '../_evo.js';
 
 const fRing = (cx, cy, rx, ry, n = 12) => arcPts(cx, cy, rx, ry, 0, 360, n).slice(0, n);
 
@@ -20,6 +23,10 @@ export const F_BODIES = [
       tail: { x: -42, y: 2, a: 0, s: 1 }, belly: { x: -6, y: 28, a: 0, s: 1 }, gills: { x: 14, y: -4, a: 0, s: 1 },
       crest: { x: 6, y: -30, a: 0, s: 1 }, barbels: { x: 41, y: 6, a: 0, s: 1 },
     },
+    stages: {
+      2: { grow: [1.06, 1.06], add: [PATCH(sparklePath(8, -17, 7.5), 'a'), L('M-36,-2 C-16,4 10,4 38,-2', 'a', 1.8, { ns: true, cl: true, op: 0.5 })] },
+      3: { grow: [1.06, 1.06], addBehind: [evoFan(-18, -24, 220, 320, 3, 6, 18)], add: [evoGlow(8, -17, 11, 0.25)] },
+    },
   }),
   fBody({
     id: 'betta', name: 'Slender', kind: 'fish.round', tags: ['fancy'], dom: 0.5, w: 2, hover: 16,
@@ -31,6 +38,10 @@ export const F_BODIES = [
       dorsal: { x: -6, y: -24, a: 0, s: 1 }, pectoral: { x: 12, y: 6, a: 0, s: 1 }, pectoralFar: { x: 0, y: 0, a: 0, s: 0.9 },
       tail: { x: -42, y: 0, a: 0, s: 1 }, belly: { x: -6, y: 24, a: 0, s: 1 }, gills: { x: 14, y: -2, a: 0, s: 1 },
       crest: { x: 4, y: -24, a: 0, s: 1 }, barbels: { x: 38, y: 3, a: 0, s: 1 },
+    },
+    stages: {
+      2: { grow: [1.06, 1.06], add: [PATCH(crescentPath(8, -12, 6, -60), 'a'), L('M-36,0 C-16,4 10,4 36,0', 'a', 1.8, { ns: true, cl: true, op: 0.5 })] },
+      3: { grow: [1.06, 1.06], addBehind: [evoFan(-20, -18, 220, 320, 3, 6, 18)], add: [evoGlow(8, -12, 10, 0.25)] },
     },
   }),
   fBody({
@@ -44,6 +55,10 @@ export const F_BODIES = [
       tail: { x: -46, y: -2, a: 0, s: 1 }, belly: { x: -8, y: 18, a: 0, s: 1 }, gills: { x: 16, y: -2, a: 0, s: 1 },
       crest: { x: 4, y: -24, a: 0, s: 1 }, barbels: { x: 38, y: 9, a: 0, s: 1 },
     },
+    stages: {
+      2: { grow: [1.06, 1.06], add: [PATCH(boltPath(10, -14, 6.5, 100), 'a'), L('M-42,0 C-16,4 14,6 44,2', 'a', 1.8, { ns: true, cl: true, op: 0.5 })] },
+      3: { grow: [1.06, 1.06], addBehind: [evoFan(-24, -18, 220, 320, 3, 6, 18), evoFan(-24, 14, 40, 140, 2, 6, 14)], add: [evoGlow(10, -14, 10, 0.25)] },
+    },
   }),
   fBody({
     id: 'angler', name: 'Big-headed', kind: 'fish.round', tags: ['angler', 'deep'], dom: 0.5, w: 2, hover: 12,
@@ -55,6 +70,10 @@ export const F_BODIES = [
       dorsal: { x: -10, y: -34, a: 0, s: 1 }, pectoral: { x: 8, y: 10, a: 0, s: 1 }, pectoralFar: { x: -6, y: 4, a: 0, s: 0.9 },
       tail: { x: -40, y: 4, a: 0, s: 1 }, belly: { x: -8, y: 26, a: 0, s: 1 }, gills: { x: 12, y: 0, a: 0, s: 1 },
       crest: { x: 8, y: -33, a: 0, s: 1 }, barbels: { x: 34, y: 8, a: 0, s: 1 },
+    },
+    stages: {
+      2: { grow: [1.06, 1.06], add: [PATCH(diamondPath(2, -22, 7, 10), 'a'), L('M-34,0 C-14,6 12,6 36,0', 'a', 1.8, { ns: true, cl: true, op: 0.5 })] },
+      3: { grow: [1.06, 1.06], addBehind: [evoFan(-20, -26, 220, 320, 3, 6, 18)], add: [evoGlow(2, -22, 10, 0.25), C(-18, 6, 2, 'a', { ns: true, cl: true, op: 0.8 }), C(-6, 12, 1.8, 'a', { ns: true, cl: true, op: 0.7 }), C(10, 10, 1.8, 'a', { ns: true, cl: true, op: 0.7 })] },
     },
   }),
   fBody({
@@ -68,6 +87,10 @@ export const F_BODIES = [
       tail: { x: -32, y: 2, a: 0, s: 1 }, belly: { x: -4, y: 30, a: 0, s: 1 }, gills: { x: 12, y: -2, a: 0, s: 1 },
       crest: { x: 2, y: -30, a: 0, s: 1 }, barbels: { x: 28, y: 8, a: 0, s: 1 },
     },
+    stages: {
+      2: { grow: [1.06, 1.06], add: [PATCH(starPath(3, -17, 6.5, 5, 0.5), 'a')] },
+      3: { grow: [1.06, 1.06], add: [evoGlow(3, -17, 10, 0.25), L('M-24,8 C-10,14 10,14 24,8', 'a', 1.8, { ns: true, cl: true, op: 0.5 })] },
+    },
   }),
   fBody({
     id: 'seahorse', name: 'Upright', kind: 'fish.upright', tags: ['seahorse'], dom: 0.5, w: 2, hover: 6,
@@ -80,6 +103,10 @@ export const F_BODIES = [
       tail: { x: -14, y: 40, a: 70, s: 1 }, belly: { x: 6, y: 30, a: -30, s: 0.6 }, gills: { x: 9, y: -30, a: 0, s: 0.8 },
       crest: { x: 6, y: -50, a: 0, s: 0.7 }, barbels: { x: 36, y: -31, a: 0, s: 0.8 },
     },
+    stages: {
+      2: { grow: [1.06, 1.06], add: [PATCH(diamondPath(4, -29, 6, 8.5), 'a'), L('M-4,-14 C0,-12 6,-12 12,-14 M-5,-2 C0,0 6,0 11,-2 M-5,10 C0,12 6,12 10,10', 'a', 1.6, { ns: true, cl: true, op: 0.5 })] },
+      3: { grow: [1.06, 1.06], addBehind: [evoFan(-8, -12, 170, 260, 3, 4, 14), evoFan(-10, 14, 150, 240, 2, 4, 12)], add: [evoGlow(4, -29, 8, 0.25)] },
+    },
   }),
   fBody({
     id: 'eel', name: 'Ribbon', kind: 'fish.long', tags: ['eel', 'long'], dom: 0.5, w: 2, hover: 12,
@@ -91,6 +118,10 @@ export const F_BODIES = [
       dorsal: { x: -6, y: -10, a: 0, s: 0.85 }, pectoral: { x: 18, y: 5, a: 0, s: 0.7 }, pectoralFar: { x: 8, y: 2, a: 0, s: 0.6 },
       tail: { x: -64, y: 3, a: 0, s: 0.9 }, belly: { x: -6, y: 10, a: 0, s: 0.85 }, gills: { x: 22, y: 0, a: 0, s: 0.8 },
       crest: { x: 16, y: -12, a: 0, s: 0.8 }, barbels: { x: 40, y: 4, a: 0, s: 0.9 },
+    },
+    stages: {
+      2: { grow: [1.06, 1.06], add: [C(-48, 0, 2, 'a', { ns: true, cl: true }), C(32, -4, 2.2, 'a', { ns: true, cl: true }), L('M-60,4 C-30,7 10,7 40,3', 'a', 1.6, { ns: true, cl: true, op: 0.5 })] },
+      3: { grow: [1.06, 1.06], addBehind: [evoFan(-34, -6, 220, 320, 3, 4, 14)], add: [C(16, -4, 5, 'a', { ns: true, cl: true, op: 0.3 }), C(0, -4, 5, 'a', { ns: true, cl: true, op: 0.3 }), C(-16, -3, 5, 'a', { ns: true, cl: true, op: 0.3 }), C(-32, -2, 4.6, 'a', { ns: true, cl: true, op: 0.3 })] },
     },
   }),
 ];

@@ -549,7 +549,7 @@ already carries the power.
   claws, a darker ruff layered behind the mane). Stage 3 is "exaggerated":
   the feature dominates (a forked tail, a crown of tufts, a sunburst mane,
   gems and glows, armour bands, a second wing membrane). Hand batches so far:
-  mammals, reptiles and amphibians (254 parts).
+  mammals, reptiles, amphibians, fish and birds (422 parts).
 - **UI.** Cards and sheets show a II / III chip (`stageBadge`), sprites in the
   arena, fights and battle setup draw at their level, level-up reports and the
   fight log announce evolutions, and the Lab sheet has Stage 1 / 2 / 3

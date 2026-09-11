@@ -1,6 +1,17 @@
 // Fish eyes. Origin = eye centre.
+// Evolutions: stage 2 rings the iris in the accent colour; stage 3 adds a glow and a second glint.
 import { fPart } from './_shared.js';
 import { E, C, L, P, spline } from '../_dsl.js';
+import { evoRing, evoGlow } from '../_evo.js';
+
+/** Shared eye evolution: an accent iris ring, then glow and a second glint. */
+function fEyeStages(iris) {
+  const [ix, iy, r] = iris;
+  return {
+    2: { grow: [1.05, 1.05], add: [evoRing(ix, iy, r * 0.95, 'a', 1.3, { cl: true, op: 0.85 })] },
+    3: { grow: [1.05, 1.05], add: [evoGlow(ix, iy, r * 1.5, 0.2), C(ix - r * 0.45, iy - r * 0.5, r * 0.28, 'w', { ns: true, op: 0.9 })] },
+  };
+}
 
 function fEye({ id, name, shape, sclera = 'w', iris = [0.8, 0.2, 3.8], irisRole = 'e', pupil = [1.2, 0.5, 2], glint = [2.2, -1.8, 1.3], glint2 = [-1, 1.8, 0.7], lid, lidFill, ring, dom = 0.5, w = 2, tags = [] }) {
   const prims = [];
@@ -15,7 +26,7 @@ function fEye({ id, name, shape, sclera = 'w', iris = [0.8, 0.2, 3.8], irisRole 
   if (glint2) prims.push(C(glint2[0], glint2[1], glint2[2], 'w', { ns: true, op: 0.7 }));
   if (lidFill) prims.push(P(lidFill, 'p', { ns: true, cl: true }));
   if (lid) prims.push(L(lid, 'k', 1.8));
-  return fPart({ id, slot: 'eyes', name, tags, dom, w, extra: prims });
+  return fPart({ id, slot: 'eyes', name, tags, dom, w, extra: prims, stages: fEyeStages(iris) });
 }
 
 const F_OVAL = spline([[0, -6.5], [6, -2], [5.4, 5], [0, 6.8], [-5.4, 5], [-6, -2]]);
