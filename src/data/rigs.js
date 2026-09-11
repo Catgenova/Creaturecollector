@@ -339,6 +339,56 @@ export const RIGS = {
       accentSlots: ['arms', 'legs', 'shell', 'tail', 'crown', 'feelers', 'pattern', 'glow', 'skirt'],
     },
   },
+
+  amphibian: {
+    id: 'amphibian', name: 'Amphibian', prefix: 'a.',
+    slots: ['body', 'head', 'eyes', 'mouth', 'gills', 'legsFront', 'legsBack', 'tail', 'throat', 'crest', 'back', 'pattern'],
+    names: {
+      body: 'Body', head: 'Head', eyes: 'Eyes', mouth: 'Mouth', gills: 'Gills', legsFront: 'Forelegs', legsBack: 'Hind legs',
+      tail: 'Tail', throat: 'Throat', crest: 'Crest', back: 'Back', pattern: 'Pattern',
+    },
+    paint: ['body', 'head', 'gills', 'legsFront', 'legsBack', 'tail', 'throat', 'crest', 'back', 'pattern'],
+    swappable: ['gills', 'tail', 'crest', 'back', 'pattern'],
+    required: ['body', 'head', 'eyes', 'mouth', 'legsFront', 'legsBack'],
+    linked: [['legsFront', 'legsBack'], ['head', 'mouth']],
+    ground: ['body', 'legsFront', 'legsBack'],
+    clipped: ['pattern'],
+    tree: {
+      slot: 'body', anim: 'body',
+      behind: [
+        { slot: 'back', socket: 'back' },
+        { slot: 'tail', socket: 'tail', scale: 'tail', anim: 'tail' },
+        { slot: 'legsBack', socket: 'hipFar', far: true, scale: 'leg' },
+        { slot: 'legsFront', socket: 'shoulderFar', far: true, scale: 'leg' },
+      ],
+      front: [
+        { slot: 'legsBack', socket: 'hip', scale: 'leg' },
+        { slot: 'legsFront', socket: 'shoulder', scale: 'leg' },
+        {
+          slot: 'head', socket: 'head', scale: 'head', anim: 'head',
+          behind: [
+            { slot: 'gills', socket: 'gills' },
+            { slot: 'crest', socket: 'crest' },
+            { slot: 'throat', socket: 'throat' },
+          ],
+          front: [
+            { slot: 'eyes', socket: 'eyeFar', far: true, scale: 'eye', small: true },
+            { slot: 'eyes', socket: 'eye', scale: 'eye', small: true },
+            { slot: 'mouth', socket: 'mouth', small: true },
+          ],
+        },
+      ],
+    },
+    mannequin: {
+      parts: {
+        body: 'a.body.frog', head: 'a.head.frog', eyes: 'a.eyes.bulge', mouth: 'a.mouth.smile', gills: 'a.gills.none',
+        legsFront: 'a.legsFront.frog', legsBack: 'a.legsBack.frog', tail: 'a.tail.none', throat: 'a.throat.none',
+        crest: 'a.crest.none', back: 'a.back.none', pattern: 'a.pattern.none',
+      },
+      forSlot: { tail: { body: 'a.body.newt', head: 'a.head.newt', legsFront: 'a.legsFront.newt', legsBack: 'a.legsBack.newt' }, gills: { body: 'a.body.axolotl', head: 'a.head.axolotl' } },
+      accentSlots: ['gills', 'tail', 'throat', 'crest', 'back', 'pattern'],
+    },
+  },
 };
 
 export const RIG_IDS = Object.keys(RIGS);

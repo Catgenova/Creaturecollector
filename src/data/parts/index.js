@@ -18,6 +18,7 @@ import { FISH_PARTS } from './fish/index.js';
 import { BIRD_PARTS } from './bird/index.js';
 import { INSECT_PARTS } from './insect/index.js';
 import { INVERTEBRATE_PARTS } from './invertebrate/index.js';
+import { AMPHIBIAN_PARTS } from './amphibian/index.js';
 
 export const RIG_PARTS = {
   legacy: {
@@ -30,6 +31,7 @@ export const RIG_PARTS = {
   bird: BIRD_PARTS,
   insect: INSECT_PARTS,
   invertebrate: INVERTEBRATE_PARTS,
+  amphibian: AMPHIBIAN_PARTS,
 };
 
 export const PARTS = new Map();

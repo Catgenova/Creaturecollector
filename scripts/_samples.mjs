@@ -67,6 +67,13 @@ export const PRESETS = {
   wisp: ['invertebrate', 'wisp', { c1: [255, 40, 42], c2: [250, 30, 72], c3: [180, 60, 70], eye: [180, 80, 60] }, { eyes: 'v.eyes.hollow', mouth: 'v.mouth.wavy', arms: 'v.arms.wisps', crown: 'v.crown.flame', tail: 'v.tail.wisp', skirt: 'v.skirt.hem', glow: 'v.glow.mist' }],
   scorpion: ['invertebrate', 'scorpion', { c1: [265, 20, 24], c2: [290, 50, 45], c3: [120, 70, 55], eye: [120, 90, 60] }, { eyes: 'v.eyes.bead', mouth: 'v.mouth.fangs', arms: 'v.arms.pedipalps', legs: 'v.legs.scorpion', tail: 'v.tail.stinger', shell: 'v.shell.plates', glow: 'v.glow.none' }],
   spider: ['invertebrate', 'spider', { c1: [230, 20, 22], c2: [230, 15, 40], c3: [0, 80, 50], eye: [0, 80, 50] }, { eyes: 'v.eyes.cluster', mouth: 'v.mouth.fangs', arms: 'v.arms.feelers', legs: 'v.legs.spider', pattern: 'v.pattern.swirl' }],
+  frog: ['amphibian', 'frog', { c1: [110, 50, 46], c2: [70, 55, 78], c3: [30, 80, 55], eye: [40, 90, 45] }, { eyes: 'a.eyes.bulge', mouth: 'a.mouth.smile', throat: 'a.throat.sac', pattern: 'a.pattern.spots' }],
+  toad: ['amphibian', 'toad', { c1: [40, 30, 42], c2: [45, 30, 72], c3: [25, 40, 28], eye: [40, 80, 45] }, { eyes: 'a.eyes.sleepy', mouth: 'a.mouth.frown', back: 'a.back.warts', pattern: 'a.pattern.blotches' }],
+  treefrog: ['amphibian', 'treefrog', { c1: [95, 60, 45], c2: [60, 70, 72], c3: [20, 90, 55], eye: [0, 80, 50] }, { eyes: 'a.eyes.big', mouth: 'a.mouth.grin', throat: 'a.throat.bubble', pattern: 'a.pattern.stripes' }],
+  axolotl: ['amphibian', 'axolotl', { c1: [340, 45, 80], c2: [350, 40, 92], c3: [340, 70, 60], eye: [220, 20, 20] }, { eyes: 'a.eyes.bead', mouth: 'a.mouth.smile', gills: 'a.gills.frills', tail: 'a.tail.fin', pattern: 'a.pattern.speckles' }],
+  newt: ['amphibian', 'newt', { c1: [15, 70, 32], c2: [40, 95, 60], c3: [50, 100, 55], eye: [50, 90, 55] }, { eyes: 'a.eyes.gold', mouth: 'a.mouth.smirk', tail: 'a.tail.newt', back: 'a.back.ridge', pattern: 'a.pattern.spots' }],
+  salamander: ['amphibian', 'salamander', { c1: [25, 40, 38], c2: [35, 35, 72], c3: [200, 40, 50], eye: [40, 60, 40] }, { eyes: 'a.eyes.bead', mouth: 'a.mouth.smile', tail: 'a.tail.salamander', gills: 'a.gills.stubs', pattern: 'a.pattern.belly' }],
+  polliwog: ['amphibian', 'polliwog', { c1: [200, 55, 50], c2: [195, 40, 82], c3: [30, 80, 60], eye: [220, 40, 25] }, { eyes: 'a.eyes.wide', mouth: 'a.mouth.pout', tail: 'a.tail.polliwog', pattern: 'a.pattern.speckles' }],
   raptor: ['reptile', 'raptor', { c1: [190, 30, 35], c2: [40, 60, 72], c3: [20, 80, 55], eye: [50, 90, 55] }, { eyes: 'r.eyes.fierce', crest: 'r.crest.plume', back: 'r.back.feathers', scales: 'r.scales.saddle' }],
 };
 

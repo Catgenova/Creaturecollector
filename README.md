@@ -35,9 +35,11 @@ twelve species), reptiles (lizard, croc, turtle, dragon, serpent, chameleon,
 raptor; 85 parts, nine species), fish (round, betta, shark, angler, puffer,
 seahorse, eel; 84 parts, eight species), birds (songbird, owl, hawk, penguin,
 duck, parrot, peacock; 84 parts, eight species), insects (beetle, bee, mantis,
-dragonfly, ladybug, ant, moth; 84 parts, nine species) and invertebrates
-(slug, crab, jelly, octopus, wisp, scorpion, spider; 84 parts, eight species).
-Classes lock fusion to the same anatomy. Amphibians are next. See `DESIGN.md`.
+dragonfly, ladybug, ant, moth; 84 parts, nine species), invertebrates (slug,
+crab, jelly, octopus, wisp, scorpion, spider; 84 parts, eight species) and
+amphibians (frog, toad, tree frog, axolotl, newt, salamander, polliwog; 84
+parts, eight species). Classes lock fusion to the same anatomy. All seven
+classes are on rigs and the old shared skeleton is gone. See `DESIGN.md`.
 
 ## Develop
 

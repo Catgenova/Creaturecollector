@@ -398,9 +398,28 @@ scorpion, spider; a snail is a slug with a spiral shell. Eight species:
 Slugmire, Mystril, Phantoom, Voltcrab and Nightstalk rebuilt, plus Inkurl
 (Water), Silkspin (Dark) and Shellwick (Rock/Water).
 
-**Next class**: amphibian (wide heads, webbed feet), with species added to
-reach seven. When all seven classes are on rigs the legacy skeleton and its
-parts go away.
+**Amphibian rig** (done). Slots: body, head, eyes, mouth, gills, front legs,
+hind legs, tail, throat, crest, back, pattern. Linked: front with hind legs,
+head with mouth. Squat bodies carry the head high at the front; the hind legs
+fold under the haunches and each pair is drawn far-behind / near-in-front as
+on the mammal rig. Gills, crest and throat hang off the head (gills behind
+the eyes, the vocal sac under the chin); tails and back features sit behind
+the body. Archetypes: frog, toad (warty), tree frog (long limbs, sticky toe
+pads), axolotl (external gills, fin tail), newt (slender, tapered tail),
+salamander (sturdy), polliwog (a round tadpole on nub legs). Eyes: bulging,
+big, heavy-lidded, slotted gold, bead, wide, glowing; mouths: wide smile,
+grin, frown, tongue, gape, smirk, pout; gills: frills, feathery, stubs,
+plumes, fan, spiky, leafy; throats: vocal sac, double sac, bubble, dewlap,
+glowing sac, striped, frilled; crests: sprout, leaf pair, head fin, brow
+horns, mushroom cap, moss tuft, spikes; backs: warts, moss, crest ridge,
+spikes, mushrooms, flame ridge, boulder; tails: fin, tapered, thick, tadpole,
+stub, leaf, flame; patterns seven. Eight species: Sprigget and Mossbrute
+rebuilt, plus Axolune (Water/Fairy), Newtorch (Fire), Toadstool (Poison),
+Mudpup (Ground/Water), Wigglet (Water) and Leapfern (Grass/Water).
+
+All seven classes are now on rigs, so the legacy skeleton and its parts are
+retired: every species carries a `rig`, and the part registry, renderer and
+mannequins only know the seven class rigs.
 
 ## Polish and balance (Phase 5 — implemented)
 
