@@ -8284,6 +8284,112 @@ function withSpikes(prims, clip, stage) {
 /** For tests and tools: drop the cache. */
 function clearEvolutionCache() { cache.clear(); }
 
+// ---- src/data/poses.js ----
+// Poses: small socket deltas that break the one stiff stance every creature used to share.
+//
+// A pose is a table of per-slot adjustments applied where a part sits on its parent's
+// socket: dx/dy move it (parent units), da turns it (degrees, clockwise), ds scales it.
+// `far` overrides the far-side copy so a near and a far leg can swing apart. The body is
+// the root, so its delta tilts the whole creature; the feet still find the ground because
+// the renderer measures the posed parts.
+//
+// Sign guide for a right-facing creature: negative da on the body or head lifts the nose;
+// negative da on a hanging leg swings the foot forward; positive da raises a tail or wing
+// that points backward.
+//
+// Idle poses follow temperament, read from the combat style: melee fighters brace forward,
+// ranged ones crouch low, magic users hold a poised, upright stance. Fights flash `attack`
+// on the mover and `hurt` on the target.
+
+
+const POSE_NAMES = ['stand', 'brace', 'crouch', 'poise', 'attack', 'hurt'];
+const IDLE_BY_STYLE = { melee: 'brace', ranged: 'crouch', magic: 'poise' };
+
+/** The shared four-legged core: head, forelegs, hind legs, tail and the body tilt. */
+const quadCore = {
+  stand: {},
+  brace: { body: { da: 3, dx: 2 }, head: { da: 5, dx: 2, dy: 1 }, legsFront: { da: -6 }, legsBack: { da: 6 }, tail: { da: 10 } },
+  crouch: { body: { dy: 5, da: 2 }, head: { dy: 2, da: 3 }, legsFront: { ds: 0.88, da: -4 }, legsBack: { ds: 0.9, da: 4 }, tail: { da: 14 } },
+  poise: { body: { da: -4, dy: -1 }, head: { da: -6, dy: -2 }, legsFront: { da: 4 }, legsBack: { da: -4 }, tail: { da: 2 } },
+  attack: { body: { da: 5, dx: 6 }, head: { da: -4, dx: 5 }, legsFront: { da: -22, far: { da: -10 } }, legsBack: { da: 14, far: { da: 8 } }, tail: { da: 16 } },
+  hurt: { body: { da: -8, dx: -4 }, head: { da: -14, dx: -3 }, legsFront: { da: -12, far: { da: 10 } }, legsBack: { da: 12 }, tail: { da: 8 } },
+};
+
+/** Merge per-class extras onto the shared core, pose by pose. */
+function mergePose(core, extras) {
+  const out = {};
+  for (const name of POSE_NAMES) out[name] = { ...(core[name] || {}), ...((extras && extras[name]) || {}) };
+  return out;
+}
+
+const POSES = {
+  mammal: mergePose(quadCore, {
+    brace: { ears: { da: -4 } },
+    poise: { ears: { da: 4 }, mane: { ds: 1.04 } },
+    attack: { ears: { da: -14 }, mane: { ds: 1.06 } },
+    hurt: { ears: { da: -22 } },
+  }),
+  reptile: mergePose(quadCore, {
+    brace: { jaw: { da: 4 }, wings: { da: -4 } },
+    crouch: { wings: { da: -8 } },
+    poise: { wings: { da: 8 }, crest: { ds: 1.05 } },
+    attack: { jaw: { da: 12 }, wings: { da: 20, far: { da: 12 } }, crest: { da: -6 } },
+    hurt: { jaw: { da: 14 }, wings: { da: 26, far: { da: 16 } } },
+  }),
+  amphibian: mergePose(quadCore, {
+    brace: { throat: { ds: 1.08 } },
+    crouch: { throat: { ds: 1.12 }, gills: { da: 6 } },
+    poise: { gills: { da: -6 }, crest: { ds: 1.05 } },
+    attack: { mouth: { ds: 1.15 }, throat: { ds: 1.15 }, gills: { da: 10 } },
+    hurt: { mouth: { ds: 1.1 }, gills: { da: -14 } },
+  }),
+  bird: {
+    stand: {},
+    brace: { body: { da: 6, dx: 2 }, head: { dx: 3, dy: 1, da: 4 }, legs: { da: -6 }, tail: { da: 6 }, wings: { da: -4 } },
+    crouch: { body: { dy: 4, da: 3 }, head: { dy: 3 }, legs: { ds: 0.85 }, wings: { da: 4, ds: 1.03 }, tail: { da: 8 } },
+    poise: { body: { da: -5 }, head: { da: -6, dy: -3 }, wings: { da: -6 }, legs: { da: 4 }, tail: { da: -6 }, crest: { ds: 1.06 } },
+    attack: { body: { da: 6, dx: 6 }, head: { dx: 5, da: 4 }, beak: { ds: 1.12 }, wings: { da: 24, far: { da: 14 } }, legs: { da: -10, far: { da: 6 } }, tail: { da: 10 } },
+    hurt: { body: { da: -10, dx: -4 }, head: { da: -12, dy: -2 }, wings: { da: 30, far: { da: 18 } }, legs: { da: 12 }, tail: { da: -10 }, crest: { da: -10 } },
+  },
+  fish: {
+    stand: {},
+    brace: { body: { da: 4, dx: 3 }, pectoral: { da: -12 }, tail: { da: 6 }, dorsal: { ds: 1.05 } },
+    crouch: { body: { da: 10, dy: 3 }, tail: { da: 12 }, pectoral: { da: 10 }, belly: { da: 6 } },
+    poise: { body: { da: -8, dy: -4 }, tail: { da: -10 }, pectoral: { da: -8 }, dorsal: { da: -4, ds: 1.06 } },
+    attack: { body: { da: 3, dx: 8 }, mouth: { ds: 1.15 }, tail: { da: 18 }, pectoral: { da: -18, far: { da: -8 } }, gills: { ds: 1.1 } },
+    hurt: { body: { da: -10, dx: -5 }, tail: { da: -16 }, pectoral: { da: 20, far: { da: 10 } }, dorsal: { da: 8 } },
+  },
+  insect: {
+    stand: {},
+    brace: { body: { da: 3, dx: 2 }, head: { dx: 2, da: 4 }, legsFront: { da: -8 }, legsBack: { da: 6 }, antennae: { da: 8 }, mandibles: { ds: 1.05 } },
+    crouch: { body: { dy: 4, da: 2 }, legsFront: { ds: 0.85, da: -6 }, legsMid: { ds: 0.85 }, legsBack: { ds: 0.85, da: 6 }, antennae: { da: -6 }, wings: { da: -4 } },
+    poise: { body: { da: -5, dy: -2 }, head: { da: -6 }, legsFront: { da: 8 }, legsBack: { da: -6 }, wings: { da: 6 }, antennae: { da: -10 } },
+    attack: { body: { da: 4, dx: 6 }, head: { dx: 4, da: 6 }, mandibles: { ds: 1.2, da: 4 }, legsFront: { da: -24, far: { da: -12 } }, legsMid: { da: -6 }, legsBack: { da: 12 }, antennae: { da: 14 }, wings: { da: 14 }, tail: { da: 10 } },
+    hurt: { body: { da: -8, dx: -4 }, head: { da: -10 }, legsFront: { da: -14 }, legsBack: { da: 14 }, antennae: { da: -20 }, wings: { da: 22 } },
+  },
+  invertebrate: {
+    stand: {},
+    brace: { body: { da: 3, dx: 2 }, arms: { da: -10 }, legs: { da: -4 }, feelers: { da: 6 } },
+    crouch: { body: { dy: 4 }, arms: { da: 6 }, legs: { ds: 0.88 }, skirt: { ds: 1.05 }, tail: { da: 6 } },
+    poise: { body: { da: -4, dy: -3 }, arms: { da: -16 }, crown: { ds: 1.06 }, feelers: { da: -8 }, skirt: { ds: 1.04 } },
+    attack: { body: { da: 3, dx: 6 }, arms: { da: -28, far: { da: -14 } }, legs: { da: -6 }, feelers: { da: 12 }, tail: { da: 14 }, mouth: { ds: 1.15 } },
+    hurt: { body: { da: -8, dx: -4 }, arms: { da: 20 }, legs: { da: 8 }, feelers: { da: -18 }, skirt: { da: 6 }, tail: { da: -10 } },
+  },
+};
+
+/** The slot deltas of a pose on a rig ({} for an unknown pose or 'stand'). */
+function poseTable(rig, pose) { return (POSES[rig] && POSES[rig][pose]) || {}; }
+
+/** The idle pose a creature holds, from its temperament (combat style). */
+function idlePoseFor(g) { return IDLE_BY_STYLE[combatStyleOf(g)] || 'stand'; }
+
+/** The pose a render uses: an explicit valid name wins; mannequins stand; everyone else holds their idle pose. */
+function resolvePose(g, pose) {
+  if (POSE_NAMES.includes(pose)) return pose;
+  if (g && g.mannequin) return 'stand';
+  return idlePoseFor(g);
+}
+
 // ---- src/creature/render.js ----
 // Genome -> SVG string. Pure: no DOM access, so it runs in Node for tests.
 //
@@ -8299,6 +8405,7 @@ function clearEvolutionCache() { cache.clear(); }
 // The others compute literal colours per slot and add volume procedurally from
 // the same part data: gradient fills, clipped shadow/highlight rims along the
 // edges, a thick silhouette pass under thin interior lines, and a gloss spot.
+
 
 
 
@@ -8649,8 +8756,9 @@ const FIT_FRAME = { w: 100, h: 60 };
  * Returns { layers, defs, box, feet, hover, K, body, clip } where box is the
  * creature's bounds in creature space (body centre = 0,0).
  */
-function buildRigged(g, id, styleName, rig, stage = 1, low = false) {
+function buildRigged(g, id, styleName, rig, stage = 1, low = false, pose = 'stand') {
   const R = renderSetup(g, id, styleName, low);
+  const PT = poseTable(rig.id, pose);
   const { st, styled, shared, ctxFor, wrap, farWrap, fxWrap } = R;
   const base = resolveParts(g);
   const P = {};
@@ -8695,6 +8803,8 @@ function buildRigged(g, id, styleName, rig, stage = 1, low = false) {
     const drawNode = (node, parentPart, outer) => {
       const part = P[node.slot];
       if (!part) return '';
+      const pd0 = PT[node.slot];
+      const pd = pd0 && node.far && pd0.far ? { ...pd0, ...pd0.far } : pd0; // pose delta for this node
       let t;
       if (node.fitBox && parentPart) {
         const bb = parentPart.box || partBounds(parentPart);
@@ -8702,10 +8812,10 @@ function buildRigged(g, id, styleName, rig, stage = 1, low = false) {
       } else if (node.socket) {
         const sk = parentPart && parentPart.sockets ? parentPart.sockets[node.socket] : null;
         if (!sk) return '';
-        const s = (sk.s == null ? 1 : sk.s) * (node.scale ? K[node.scale] : 1) * (node.slot === 'head' ? headFit : 1);
-        t = xf(sk.x, sk.y, sk.a || 0, s);
+        const s = (sk.s == null ? 1 : sk.s) * (node.scale ? K[node.scale] : 1) * (node.slot === 'head' ? headFit : 1) * (pd && pd.ds != null ? pd.ds : 1);
+        t = pd ? xf(sk.x + (pd.dx || 0), sk.y + (pd.dy || 0), (sk.a || 0) + (pd.da || 0), s) : xf(sk.x, sk.y, sk.a || 0, s);
         if (sk.flip) t.sx = -t.sx;
-      } else t = xf(0, 0, 0, 1);
+      } else t = pd ? xf(pd.dx || 0, pd.dy || 0, pd.da || 0, pd.ds == null ? 1 : pd.ds) : xf(0, 0, 0, 1);
       const chain = [t, ...outer];
       if (measure) grow(part, chain, node);
       let inner = '';
@@ -8743,8 +8853,8 @@ function mergeContacts(list) {
   return out.slice(0, 6);
 }
 
-function buildCreature(g, id, styleName, stage = 1, low = false) {
-  return buildRigged(g, id, styleName, getRig(rigOf(g)), stage, low);
+function buildCreature(g, id, styleName, stage = 1, low = false, pose = 'stand') {
+  return buildRigged(g, id, styleName, getRig(rigOf(g)), stage, low, pose);
 }
 
 /**
@@ -8774,8 +8884,8 @@ function placement(built, facing) {
 }
 
 /** Bounding box of a creature in canvas coordinates, shadow included. */
-function measureCreature(g, facing = 'right', stage = 1) {
-  const built = buildCreature(g, 'm', 'classic', stage);
+function measureCreature(g, facing = 'right', stage = 1, pose) {
+  const built = buildCreature(g, 'm', 'classic', stage, false, resolvePose(g, pose));
   const chain = placement(built, facing);
   return union(boxThrough(built.box, chain), shadowBox(shadowGeom(built, facing)));
 }
@@ -8786,7 +8896,8 @@ function measureCreature(g, facing = 'right', stage = 1) {
  *       label (aria), fit (crop the viewBox to the creature instead of the fixed frame),
  *       style (one of RENDER_STYLES; defaults to the global render style),
  *       stage (1..3 evolution stage) or level (the stage is derived from it),
- *       detail ('low' | 'full'; by default small renders drop fine detail, see LOD)
+ *       detail ('low' | 'full'; by default small renders drop fine detail, see LOD),
+ *       pose (one of POSE_NAMES; defaults to the creature's idle pose, see data/poses.js)
  */
 function renderCreatureSvg(g, opts = {}) {
   const { size = 200, facing = 'right', animate = true, fit = false } = opts;
@@ -8795,7 +8906,7 @@ function renderCreatureSvg(g, opts = {}) {
   const stage = opts.stage ? Math.max(1, Math.min(3, Math.round(opts.stage))) : stageOf(opts.level);
   const scale0 = traitScales(g.traits).size * (STAGE_SIZE[stage] || 1);
   const low = opts.detail === 'low' || (opts.detail !== 'full' && (size * scale0) / FRAME.w < LOD.minPx);
-  const built = buildCreature(g, id, styleName, stage, low);
+  const built = buildCreature(g, id, styleName, stage, low, resolvePose(g, opts.pose));
   const chain = placement(built, facing);
   const sh = shadowGeom(built, facing);
 
@@ -10540,6 +10651,20 @@ function renderStage(f, i) {
   setTimeout(() => { const c = el.firstChild; if (c) c.classList.remove('enter'); }, 400);
 }
 
+/** Flash a pose on a combatant: swap its sprite for the posed render, then back to the idle pose after ms (never, when ms is 0). */
+function poseStage(f, i, pose, ms) {
+  const b = activeOf(f.state, i);
+  const el = i === 0 ? f.els.meStage : f.els.foeStage;
+  const c = el.firstChild;
+  if (!c || !b) return;
+  const opts = { size: 200, facing: i === 0 ? 'right' : 'left', level: b.level };
+  const swap = (p) => { const svg = c.querySelector('svg'); if (svg) svg.replaceWith(creatureEl(b.genome, { ...opts, pose: p })); };
+  swap(pose);
+  if (!ms) return;
+  const token = f.token;
+  setTimeout(() => { if (f.alive && f.token === token && c.isConnected && activeOf(f.state, i) === b) swap(undefined); }, ms);
+}
+
 function setHp(f, i, hp, maxHp) {
   const el = i === 0 ? f.els.mePanel : f.els.foePanel;
   const bar = el.querySelector('.hpbar i');
@@ -10571,11 +10696,11 @@ function applyFightEvent(f, e) {
   switch (e.t) {
     case 'turn': logLine(f, text); return 250;
     case 'switch': renderStage(f, e.side); renderPanel(f, e.side); logLine(f, text); sfx.cry(activeOf(f.state, e.side).genome); return 650;
-    case 'move': logLine(f, text); animateStage(f, e.side, e.side === 0 ? 'lunge-r' : 'lunge-l', 450); return 550;
-    case 'damage': animateStage(f, e.side, 'hit', 450); setHp(f, e.side, e.hp, e.maxHp); logLine(f, text); sfx.hit(e.eff); return e.eff !== 1 || e.crit ? 750 : 550;
-    case 'hurt': animateStage(f, e.side, 'hit', 350); setHp(f, e.side, e.hp, e.maxHp); logLine(f, text); sfx.hit(1); return 550;
+    case 'move': logLine(f, text); animateStage(f, e.side, e.side === 0 ? 'lunge-r' : 'lunge-l', 450); poseStage(f, e.side, 'attack', 450); return 550;
+    case 'damage': animateStage(f, e.side, 'hit', 450); poseStage(f, e.side, 'hurt', 450); setHp(f, e.side, e.hp, e.maxHp); logLine(f, text); sfx.hit(e.eff); return e.eff !== 1 || e.crit ? 750 : 550;
+    case 'hurt': animateStage(f, e.side, 'hit', 350); poseStage(f, e.side, 'hurt', 350); setHp(f, e.side, e.hp, e.maxHp); logLine(f, text); sfx.hit(1); return 550;
     case 'heal': setHp(f, e.side, e.hp, e.maxHp); logLine(f, text); sfx.heal(); return 550;
-    case 'faint': animateStage(f, e.side, 'faint', 900); logLine(f, text); renderPanel(f, e.side); sfx.faint(); return 900;
+    case 'faint': animateStage(f, e.side, 'faint', 900); poseStage(f, e.side, 'hurt', 0); logLine(f, text); renderPanel(f, e.side); sfx.faint(); return 900;
     case 'status': renderPanel(f, e.side); logLine(f, text); sfx.status(); return 550;
     case 'cure': renderPanel(f, e.side); logLine(f, text); return 550;
     case 'stat': logLine(f, text); if (e.stages) sfx.stat(e.stages > 0); return 450;

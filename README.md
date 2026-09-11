@@ -65,7 +65,9 @@ supplied most of its parts while the accent and eyes travel with the face; and
 a head that was not drawn for its body is eased toward the body's designed
 proportion. Every creature is lit from the upper left, small renders drop fine
 detail so silhouettes stay clean in lists, and shadows are sized to the body
-with contact shadows under standing feet.
+with contact shadows under standing feet. Creatures hold an idle pose that
+matches their combat style (melee braces forward, ranged crouches, magic
+stands poised) and flash attack and recoil poses in fights.
 
 ## Develop
 

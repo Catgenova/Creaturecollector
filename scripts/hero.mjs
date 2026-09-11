@@ -1,6 +1,6 @@
 // Creatures very large, for close inspection. Usage: node scripts/hero.mjs <ids> [style]
 // ids: comma-separated species ids or preset names (see scripts/_samples.mjs), each optionally
-// followed by +slot=part overrides, e.g. fox+eyes=slit or wolf+back=flame, or +elemental=fire or +stage=3
+// followed by +slot=part overrides, e.g. fox+eyes=slit or wolf+back=flame, or +elemental=fire, +stage=3 or +pose=attack
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -17,6 +17,7 @@ const ids = (process.argv[2] || 'fox').split(',');
 const style = process.argv[3] || 'classic';
 
 const stageOfGenome = new Map();
+const poseOfGenome = new Map();
 function genomeFor(id) {
   const [base, ...rest] = id.split('+');
   let g;
@@ -28,6 +29,7 @@ function genomeFor(id) {
     const [slot, name] = r.split('=');
     if (slot === 'elemental') { makeElemental(g, name); continue; }
     if (slot === 'stage') { stageOfGenome.set(g, Number(name)); continue; }
+    if (slot === 'pose') { poseOfGenome.set(g, name); continue; }
     g.parts[slot] = [`${prefix}${slot}.${name}`, `${prefix}${slot}.${name}`];
   }
   return g;
@@ -36,8 +38,8 @@ let html = `<!doctype html><meta charset="utf-8"><style>${css} body{background:#
 for (const id of ids) {
   const g = genomeFor(id);
   const big = ids.length > 1 ? 440 : 620;
-  const stage = stageOfGenome.get(g) || 1;
-  html += renderCreatureSvg(g, { size: big, animate: false, fit: true, style, stage }) + renderCreatureSvg(g, { size: 150, animate: false, style, stage }) + renderCreatureSvg(g, { size: 90, animate: false, style, stage });
+  const stage = stageOfGenome.get(g) || 1, pose = poseOfGenome.get(g);
+  html += renderCreatureSvg(g, { size: big, animate: false, fit: true, style, stage, pose }) + renderCreatureSvg(g, { size: 150, animate: false, style, stage, pose }) + renderCreatureSvg(g, { size: 90, animate: false, style, stage, pose });
 }
 fs.writeFileSync(path.join(root, 'shots', 'hero.html'), html);
 console.log('wrote shots/hero.html for', ids.join(', '));

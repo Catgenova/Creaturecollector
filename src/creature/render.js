@@ -22,6 +22,7 @@ import { ELEMENTS, elementFilterSvg } from '../data/elements.js';
 import { pathPoints } from './geom.js';
 import { evolvedPart } from './evolve.js';
 import { stageOf, STAGE_SIZE } from '../data/evolution.js';
+import { poseTable, resolvePose } from '../data/poses.js';
 
 export const FRAME = { w: 200, h: 230, ground: 208 };
 const FAR_DEFAULT = { dx: -6, dy: -4 };
@@ -362,8 +363,9 @@ export const FIT_FRAME = { w: 100, h: 60 };
  * Returns { layers, defs, box, feet, hover, K, body, clip } where box is the
  * creature's bounds in creature space (body centre = 0,0).
  */
-function buildRigged(g, id, styleName, rig, stage = 1, low = false) {
+function buildRigged(g, id, styleName, rig, stage = 1, low = false, pose = 'stand') {
   const R = renderSetup(g, id, styleName, low);
+  const PT = poseTable(rig.id, pose);
   const { st, styled, shared, ctxFor, wrap, farWrap, fxWrap } = R;
   const base = resolveParts(g);
   const P = {};
@@ -408,6 +410,8 @@ function buildRigged(g, id, styleName, rig, stage = 1, low = false) {
     const drawNode = (node, parentPart, outer) => {
       const part = P[node.slot];
       if (!part) return '';
+      const pd0 = PT[node.slot];
+      const pd = pd0 && node.far && pd0.far ? { ...pd0, ...pd0.far } : pd0; // pose delta for this node
       let t;
       if (node.fitBox && parentPart) {
         const bb = parentPart.box || partBounds(parentPart);
@@ -415,10 +419,10 @@ function buildRigged(g, id, styleName, rig, stage = 1, low = false) {
       } else if (node.socket) {
         const sk = parentPart && parentPart.sockets ? parentPart.sockets[node.socket] : null;
         if (!sk) return '';
-        const s = (sk.s == null ? 1 : sk.s) * (node.scale ? K[node.scale] : 1) * (node.slot === 'head' ? headFit : 1);
-        t = xf(sk.x, sk.y, sk.a || 0, s);
+        const s = (sk.s == null ? 1 : sk.s) * (node.scale ? K[node.scale] : 1) * (node.slot === 'head' ? headFit : 1) * (pd && pd.ds != null ? pd.ds : 1);
+        t = pd ? xf(sk.x + (pd.dx || 0), sk.y + (pd.dy || 0), (sk.a || 0) + (pd.da || 0), s) : xf(sk.x, sk.y, sk.a || 0, s);
         if (sk.flip) t.sx = -t.sx;
-      } else t = xf(0, 0, 0, 1);
+      } else t = pd ? xf(pd.dx || 0, pd.dy || 0, pd.da || 0, pd.ds == null ? 1 : pd.ds) : xf(0, 0, 0, 1);
       const chain = [t, ...outer];
       if (measure) grow(part, chain, node);
       let inner = '';
@@ -456,8 +460,8 @@ function mergeContacts(list) {
   return out.slice(0, 6);
 }
 
-function buildCreature(g, id, styleName, stage = 1, low = false) {
-  return buildRigged(g, id, styleName, getRig(rigOf(g)), stage, low);
+function buildCreature(g, id, styleName, stage = 1, low = false, pose = 'stand') {
+  return buildRigged(g, id, styleName, getRig(rigOf(g)), stage, low, pose);
 }
 
 /**
@@ -487,8 +491,8 @@ function placement(built, facing) {
 }
 
 /** Bounding box of a creature in canvas coordinates, shadow included. */
-export function measureCreature(g, facing = 'right', stage = 1) {
-  const built = buildCreature(g, 'm', 'classic', stage);
+export function measureCreature(g, facing = 'right', stage = 1, pose) {
+  const built = buildCreature(g, 'm', 'classic', stage, false, resolvePose(g, pose));
   const chain = placement(built, facing);
   return union(boxThrough(built.box, chain), shadowBox(shadowGeom(built, facing)));
 }
@@ -499,7 +503,8 @@ export function measureCreature(g, facing = 'right', stage = 1) {
  *       label (aria), fit (crop the viewBox to the creature instead of the fixed frame),
  *       style (one of RENDER_STYLES; defaults to the global render style),
  *       stage (1..3 evolution stage) or level (the stage is derived from it),
- *       detail ('low' | 'full'; by default small renders drop fine detail, see LOD)
+ *       detail ('low' | 'full'; by default small renders drop fine detail, see LOD),
+ *       pose (one of POSE_NAMES; defaults to the creature's idle pose, see data/poses.js)
  */
 export function renderCreatureSvg(g, opts = {}) {
   const { size = 200, facing = 'right', animate = true, fit = false } = opts;
@@ -508,7 +513,7 @@ export function renderCreatureSvg(g, opts = {}) {
   const stage = opts.stage ? Math.max(1, Math.min(3, Math.round(opts.stage))) : stageOf(opts.level);
   const scale0 = traitScales(g.traits).size * (STAGE_SIZE[stage] || 1);
   const low = opts.detail === 'low' || (opts.detail !== 'full' && (size * scale0) / FRAME.w < LOD.minPx);
-  const built = buildCreature(g, id, styleName, stage, low);
+  const built = buildCreature(g, id, styleName, stage, low, resolvePose(g, opts.pose));
   const chain = placement(built, facing);
   const sh = shadowGeom(built, facing);
 

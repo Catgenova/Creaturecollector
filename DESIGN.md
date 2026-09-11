@@ -141,6 +141,19 @@ lowest point reaches the floor) each get a small contact shadow on the ground
 line, drawn outside the idle-bob group so the body lifts off them; a near and
 a far foot that stand together share one. Small renders skip contact shadows.
 
+**Poses** (`src/data/poses.js`). A pose is a per-rig table of per-slot socket
+deltas: `dx`/`dy` move a part on its parent's socket, `da` turns it (degrees,
+clockwise), `ds` scales it, and `far` overrides the far-side copy so a near and
+a far leg can swing apart. The body is the root, so its delta tilts the whole
+creature, and the feet still find the floor because the renderer measures the
+posed parts. Six poses per class: `stand` (neutral, what mannequins use), the
+three idle stances `brace` (melee: forward, head low), `crouch` (ranged: low,
+tail up) and `poise` (magic: upright, head high), chosen by the creature's
+combat style, and the two action poses `attack` (lunge: legs swung, jaws and
+wings open) and `hurt` (recoil: thrown back, ears flat) that the fight view
+flashes on the mover and the target for the length of the hit animation.
+`opts.pose` overrides; the default is the idle pose.
+
 The frame is fixed (200 × 230, ground at y = 208) so sizes are comparable.
 `opts.fit` crops to the creature's bounds, computed by flattening every path,
 for hero shots. Animation is CSS only: idle bob, head nod, tail sway, wing flap;

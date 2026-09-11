@@ -123,6 +123,20 @@ function renderStage(f, i) {
   setTimeout(() => { const c = el.firstChild; if (c) c.classList.remove('enter'); }, 400);
 }
 
+/** Flash a pose on a combatant: swap its sprite for the posed render, then back to the idle pose after ms (never, when ms is 0). */
+function poseStage(f, i, pose, ms) {
+  const b = activeOf(f.state, i);
+  const el = i === 0 ? f.els.meStage : f.els.foeStage;
+  const c = el.firstChild;
+  if (!c || !b) return;
+  const opts = { size: 200, facing: i === 0 ? 'right' : 'left', level: b.level };
+  const swap = (p) => { const svg = c.querySelector('svg'); if (svg) svg.replaceWith(creatureEl(b.genome, { ...opts, pose: p })); };
+  swap(pose);
+  if (!ms) return;
+  const token = f.token;
+  setTimeout(() => { if (f.alive && f.token === token && c.isConnected && activeOf(f.state, i) === b) swap(undefined); }, ms);
+}
+
 function setHp(f, i, hp, maxHp) {
   const el = i === 0 ? f.els.mePanel : f.els.foePanel;
   const bar = el.querySelector('.hpbar i');
@@ -154,11 +168,11 @@ function applyFightEvent(f, e) {
   switch (e.t) {
     case 'turn': logLine(f, text); return 250;
     case 'switch': renderStage(f, e.side); renderPanel(f, e.side); logLine(f, text); sfx.cry(activeOf(f.state, e.side).genome); return 650;
-    case 'move': logLine(f, text); animateStage(f, e.side, e.side === 0 ? 'lunge-r' : 'lunge-l', 450); return 550;
-    case 'damage': animateStage(f, e.side, 'hit', 450); setHp(f, e.side, e.hp, e.maxHp); logLine(f, text); sfx.hit(e.eff); return e.eff !== 1 || e.crit ? 750 : 550;
-    case 'hurt': animateStage(f, e.side, 'hit', 350); setHp(f, e.side, e.hp, e.maxHp); logLine(f, text); sfx.hit(1); return 550;
+    case 'move': logLine(f, text); animateStage(f, e.side, e.side === 0 ? 'lunge-r' : 'lunge-l', 450); poseStage(f, e.side, 'attack', 450); return 550;
+    case 'damage': animateStage(f, e.side, 'hit', 450); poseStage(f, e.side, 'hurt', 450); setHp(f, e.side, e.hp, e.maxHp); logLine(f, text); sfx.hit(e.eff); return e.eff !== 1 || e.crit ? 750 : 550;
+    case 'hurt': animateStage(f, e.side, 'hit', 350); poseStage(f, e.side, 'hurt', 350); setHp(f, e.side, e.hp, e.maxHp); logLine(f, text); sfx.hit(1); return 550;
     case 'heal': setHp(f, e.side, e.hp, e.maxHp); logLine(f, text); sfx.heal(); return 550;
-    case 'faint': animateStage(f, e.side, 'faint', 900); logLine(f, text); renderPanel(f, e.side); sfx.faint(); return 900;
+    case 'faint': animateStage(f, e.side, 'faint', 900); poseStage(f, e.side, 'hurt', 0); logLine(f, text); renderPanel(f, e.side); sfx.faint(); return 900;
     case 'status': renderPanel(f, e.side); logLine(f, text); sfx.status(); return 550;
     case 'cure': renderPanel(f, e.side); logLine(f, text); return 550;
     case 'stat': logLine(f, text); if (e.stages) sfx.stat(e.stages > 0); return 450;
