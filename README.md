@@ -33,14 +33,15 @@ species and 130 parts.
 Phase 6 — Art rebuild, class by class: every class gets its own skeleton
 (rig) with its own slots, and a hand-drawn library of seven parts per slot.
 Done so far: mammals (fox, cat, bear, rabbit, deer, wolf, mouse; 85 parts,
-twelve species), reptiles (lizard, croc, turtle, dragon, serpent, chameleon,
-raptor; 85 parts, nine species), fish (round, betta, shark, angler, puffer,
-seahorse, eel; 84 parts, eight species), birds (songbird, owl, hawk, penguin,
-duck, parrot, peacock; 84 parts, eight species), insects (beetle, bee, mantis,
-dragonfly, ladybug, ant, moth; 84 parts, nine species), invertebrates (slug,
-crab, jelly, octopus, wisp, scorpion, spider; 84 parts, eight species) and
+nineteen species), reptiles (lizard, croc, turtle, dragon, serpent, chameleon,
+raptor; 85 parts, sixteen species), fish (round, betta, shark, angler, puffer,
+seahorse, eel; 84 parts, fifteen species), birds (songbird, owl, hawk, penguin,
+duck, parrot, peacock; 84 parts, fifteen species), insects (beetle, bee, mantis,
+dragonfly, ladybug, ant, moth; 84 parts, sixteen species), invertebrates (slug,
+crab, jelly, octopus, wisp, scorpion, spider; 84 parts, fifteen species) and
 amphibians (frog, toad, tree frog, axolotl, newt, salamander, polliwog; 84
-parts, eight species). Classes lock fusion to the same anatomy. All seven
+parts, fifteen species): 111 species in all, every class covering fourteen
+or more of the eighteen types. Classes lock fusion to the same anatomy. All seven
 classes are on rigs and the old shared skeleton is gone. A fantasy pass then
 pushed every slot away from field-guide realism: forehead sigils, tufted and
 leaf ears, orb and flame tails, glowing tips and bold markings. See `DESIGN.md`.

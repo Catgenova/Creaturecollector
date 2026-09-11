@@ -745,6 +745,26 @@ into the collection on load.
   and the spire, fast battles, return to camp, export/import, abandon). An
   encounter shows a card with the foes and Fight / Run before the fight view.
 
+## Roster expansion (implemented)
+
+Seven more species per class, 49 in all, took the roster from 62 to 111 and
+every class from a handful of types to fourteen or more of the eighteen.
+Each is a full recipe from its class library (twelve slots, recessive
+alleles where a hidden trait suits the creature), a palette, trait ranges,
+stat weights that name a clear combat style, an eleven-move level-up list
+on the shared curve (two moves at level 1, then 6, 11, 16, 22, 28, 34, 40,
+46, 52) with a damaging move of its own style in every level band, two
+different passives and a line of flavour. Nothing is stored for evolution:
+the three stages come from the part art, and `scripts/evolutions.mjs` with
+`EVO_ONLY=<ids>` renders any set of species at all three for review. Tiers
+follow the old bands (common 395–440, uncommon 415–455, rare 440–470), one
+rare per class or so. Twelve passives were added alongside (the five type
+Hearts, Regrowth, Iron Hide, Bulwark, Mirror Scale, Steady, Quick Start,
+Keen Edge) so the new creatures do not all share the old thirty. The data
+test pins the shape: stat weights sum to one, eleven learnset entries, two
+distinct passives, unique names, at least fifteen species and ten types per
+class.
+
 ## Polish and balance (Phase 5 — implemented)
 
 Balance was done with the two simulators, not by feel:
