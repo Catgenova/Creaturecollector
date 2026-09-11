@@ -2,8 +2,8 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { makeRng } from '../src/core/rng.js';
 import { SPECIES } from '../src/data/species.js';
-import { SLOTS } from '../src/data/parts/index.js';
-import { speciesGenome, randomGenome, validateGenome, encodeGenome, decodeGenome, resolveParts, baseStats, STAT_KEYS } from '../src/creature/genome.js';
+import { slotsFor } from '../src/data/rigs.js';
+import { speciesGenome, randomGenome, validateGenome, encodeGenome, decodeGenome, resolveParts, baseStats, STAT_KEYS, rigOf } from '../src/creature/genome.js';
 
 test('species genomes are deterministic per seed', () => {
   for (const s of SPECIES) {
@@ -18,7 +18,7 @@ test('random genomes validate and resolve on many seeds', () => {
     assert.doesNotThrow(() => validateGenome(JSON.parse(JSON.stringify(g))), `seed ${i}`);
     const parts = resolveParts(g);
     assert.ok(parts.body && parts.eyes, `seed ${i} body/eyes`);
-    for (const slot of SLOTS) assert.ok(slot in parts, `seed ${i} ${slot}`);
+    for (const slot of slotsFor(rigOf(g))) assert.ok(slot in parts, `seed ${i} ${slot}`);
   }
 });
 
@@ -49,7 +49,7 @@ test('mutations and shinies happen but stay rare', () => {
   for (let i = 0; i < n; i++) {
     const g = speciesGenome(s, makeRng(`m${i}`));
     if (g.shiny) shiny++;
-    for (const slot of SLOTS) if (slot !== 'body') { const [e, c] = g.parts[slot]; if (e !== c && c !== [].concat(s.recipe[slot])[1] && c !== [].concat(s.recipe[slot])[0]) { carriedMut++; break; } }
+    for (const slot of slotsFor(rigOf(g))) if (slot !== 'body') { const [e, c] = g.parts[slot]; if (e !== c && c !== [].concat(s.recipe[slot])[1] && c !== [].concat(s.recipe[slot])[0]) { carriedMut++; break; } }
   }
   assert.ok(shiny > 5 && shiny < 90, `shiny ${shiny}`);
   assert.ok(carriedMut > n * 0.3 && carriedMut < n * 0.95, `carried mutations ${carriedMut}`);

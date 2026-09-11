@@ -2,10 +2,11 @@
 import { h, clear, copyText, toast } from './dom.js';
 import { typeChips, creatureEl, section } from './common.js';
 import { makeRng, freshSeed } from '../core/rng.js';
-import { randomGenome, speciesGenome, baseStats, encodeGenome, decodeGenome, resolveParts, STAT_KEYS, STAT_NAMES, TRAIT_KEYS, speciesOf } from '../creature/genome.js';
+import { randomGenome, speciesGenome, baseStats, encodeGenome, decodeGenome, resolveParts, STAT_KEYS, STAT_NAMES, TRAIT_KEYS, speciesOf, rigOf } from '../creature/genome.js';
 import { swatchCss } from '../creature/palette.js';
 import { SPECIES, SPECIES_BY_ID } from '../data/species.js';
-import { SLOTS, SLOT_NAMES, getPart } from '../data/parts/index.js';
+import { getPart } from '../data/parts/index.js';
+import { slotsFor, slotName } from '../data/rigs.js';
 import { addToPool } from './state.js';
 import { cladeName } from '../data/clades.js';
 import { cladeOf } from '../creature/genome.js';
@@ -93,15 +94,16 @@ function statRows(g) {
 
 function partRows(g) {
   const resolved = resolveParts(g);
+  const rig = rigOf(g);
   const rows = [];
-  for (const slot of SLOTS) {
+  for (const slot of slotsFor(rig)) {
     const [e, c] = g.parts[slot];
     const shown = resolved[slot];
     const expressed = getPart(e);
     const carried = getPart(c);
     let label = shown ? shown.name : 'None';
     if (expressed && !expressed.none && (!shown || shown.id !== expressed.id)) label += ` (${expressed.name} does not fit)`;
-    rows.push(h('span', {}, SLOT_NAMES[slot]), h('span', {}, label, c !== e ? h('span', { class: 'carried' }, ` · carries ${carried ? carried.name : c}`) : null));
+    rows.push(h('span', {}, slotName(rig, slot)), h('span', {}, label, c !== e ? h('span', { class: 'carried' }, ` · carries ${carried ? carried.name : c}`) : null));
   }
   return h('div', { class: 'kv' }, rows);
 }

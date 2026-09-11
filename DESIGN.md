@@ -25,12 +25,14 @@ src/app.html          page template
 src/styles.css        all styles
 src/core/             rng, util — no game knowledge
 src/data/types.js     type list, chart, colours
-src/data/parts/       the part library, one file per slot, plus the registry (index.js)
+src/data/rigs.js      class skeletons: slot lists, draw trees, sockets each part must expose
+src/data/parts/       the part library: legacy slot files, mammal/ (one file per mammal slot), registry (index.js)
 src/data/species.js   base species recipes
 src/creature/         genome (schema, rolls, codes), palette, render (SVG)
 src/ui/               dom helpers, screens (lab, parts), app shell (main.js = build entry)
 tests/                node:test suites
-scripts/              screenshot helpers for visual review (Playwright, dev only)
+scripts/              screenshot helpers for visual review (Playwright, dev only):
+                      shot.mjs (app flow), mammal-board.mjs + shot-board.mjs (library board), hero.mjs (close-ups)
 ```
 
 Bundle conventions the build enforces: named exports only, relative imports on
@@ -70,36 +72,68 @@ Odds live in `ROLL` in genome.js: carried-allele mutation 10%, visible mutation
 
 `renderCreatureSvg(genome, opts)` is a pure function producing an SVG string.
 Parts are authored in a local space whose origin is the attachment point, facing
-right, in the units of a 200-wide canvas. Bodies define sockets; heads define
-face sockets; a body also carries `face` sockets for headless creatures.
+right, in the units of a 200-wide canvas.
+
+Every creature is built on a **rig** (`src/data/rigs.js`): the skeleton of its
+class. A rig lists the genome's slots, which of them carry a paint gene, which
+are required, which are linked in fusion, and a **draw tree**. The renderer
+walks that tree: each node names a slot and the socket on its parent part it
+sits on; `behind` children are drawn before the parent's own shapes and `front`
+children after, so ears hide their roots behind the skull and eyes ride the
+head. Far-side copies (`far: true`) are drawn darker. Node `scale` picks a
+trait scale (head, leg, tail, eye), `anim` a CSS animation group, `small`
+marks detail parts that skip the heavy outline treatment. Slots in `clipped`
+(markings) are drawn over the body under its silhouette clip, stretched from a
+100 × 60 authoring frame onto the body's box. The lowest point of the rig's
+`ground` slots is where the feet meet the floor.
+
+Creatures still on the `legacy` rig (classes not yet rebuilt) use the original
+fixed assembly order: wings, tail, back, legs, arms, body (+ pattern, + face when
+headless), head (crown, eyes, mouth).
 
 Colour roles: `p/pd/pl`, `s/sd/sl`, `a/ad/al`, `w/wd`, `e/ed`, `k`. The root SVG
 sets `--c1..--c3` (+ shade/highlight), `--e`, `--ol`, `--w`; each slot group
 remaps `p/s/a` onto those through its paint gene; far-side copies remap onto the
 shade variants. Outlines come from one CSS rule (`.cr .o`) with
-`paint-order: stroke` for the sticker look.
-
-Draw order back to front: wings, tail, back feature, legs, arms, body
-(+ clipped pattern, + face when headless), head (crown behind skull, eyes, mouth).
-Limbs sit behind the body so their roots are hidden by the silhouette.
+`paint-order: stroke` for the sticker look. Shading is part data: translucent
+outline-colour washes (`SH`) and white washes (`HL`) clipped to the part's own
+silhouette, so they survive any recolour.
 
 The frame is fixed (200 × 230, ground at y = 208) so sizes are comparable.
-`opts.fit` crops to the creature's bounds, computed from part coordinates, for
-hero shots. Animation is CSS only: idle bob, tail sway, wing flap; disabled
-under `prefers-reduced-motion`.
+`opts.fit` crops to the creature's bounds, computed by flattening every path,
+for hero shots. Animation is CSS only: idle bob, head nod, tail sway, wing flap;
+disabled under `prefers-reduced-motion`.
 
-### Adding a part (the library is meant to grow a lot)
+### Drawing DSL (`src/data/parts/_dsl.js`)
 
-1. Add an entry to the slot's file in `src/data/parts/`. Use the DSL in `_dsl.js`:
-   `P(path, role, opts)`, `E(cx,cy,rx,ry, role)`, `C(cx,cy,r, role)`, `L(path, role, width)`.
-2. Draw facing right with the origin at the attachment point. Legs hang down with
-   the sole at `y = len`. Crowns extend their bases to about `y = 10` (hidden by
-   the skull). Wings and tails extend to the left.
-3. Give it a stable `id` (`slot.name`), a `name`, a `dom` (dominance 0..1, used by
-   fusion) and `w` (weight when rolled as a mutation). Add `fit` if it only suits
-   some body kinds, and `tags` for flavour.
-4. Run `npm test` (validates fields and renders it on the mannequin), then open
-   the Parts tab to eyeball it.
+- Primitives: `P(path, role, opts)`, `E(cx,cy,rx,ry, role)`, `C(cx,cy,r, role)`,
+  `L(path, role, width)` (stroke only). Options: `op` opacity, `ns` no outline,
+  `sw` outline width, `cl` clip to the part's silhouette.
+- Washes and patches: `SH(path, opacity)` shadow, `HL(path, opacity)` highlight,
+  `PATCH(path, role)` an outline-free colour patch; all clipped to the part.
+- Curves: `spline(points)` turns a point list into a smooth closed path
+  (Catmull-Rom); a point is `[x, y]`, `[x, y, 'c']` for a corner, or `[x, y, k]`
+  to scale its roundness. `S(points, role)` is the filled shorthand.
+- Generators for point lists: `fur(a, b, n, amp)` tufted edge (positive amp is
+  the outside of a clockwise outline), `tube(centre, w0, w1)` a tapered tube for
+  tails and horns, `puff(cx, cy, r, n, amp)` a fluffy ball, `arcPts`, `xfPts`,
+  `mirrorPts`, `leaf`.
+
+### Adding a part
+
+1. Add an entry to the slot's file (legacy: `src/data/parts/<slot>.js`; mammals:
+   `src/data/parts/mammal/<slot>.js`, built with the helpers in `_shared.js`).
+2. Draw facing right with the origin at the attachment point. Give it a stable
+   `id` (mammal ids are `m.<slot>.<name>`), a `name`, a `dom` (dominance 0..1,
+   used by fusion) and `w` (weight when rolled as a mutation). Add `fit` if it
+   only suits some body kinds, and `tags` for flavour.
+3. Parents must expose every socket the rig's draw tree places children on;
+   `npm test` checks that, renders the part on its class mannequin, and insists
+   on at least seven real parts per slot of every class rig.
+4. Review it: `node scripts/mammal-board.mjs` writes a board of every mammal
+   part and sample creatures; `node scripts/hero.mjs fox,wolf` writes close-ups;
+   `PLAYWRIGHT_BROWSERS_PATH=/opt/pw-browsers node scripts/shot-board.mjs <html> <png>`
+   screenshots either.
 
 Never rename or reuse an id: saved creatures reference ids forever.
 
@@ -245,10 +279,46 @@ Bird, Insect, Invertebrate or Amphibian. Types stay elemental and independent.
   Cavern, Reef, Canopy, Dunes, Peaks) whose two or three classes are four
   times as common, so a party finds fusion partners. Biomes are the seed of the
   overworld's regions.
-- Each class will get its own skeleton and slot list in the raster art
-  pipeline (see `docs/ART_PIPELINE.md`), which is where the "own body
-  structure per class" rule really lives; the current vector parts share one
-  skeleton and rely on the class lock plus linked slots.
+- Each class gets its own skeleton (rig) and slot list; see the next section.
+  Classes still on the shared legacy skeleton rely on the class lock plus
+  linked slots until they are rebuilt. Creatures on different rigs never fuse,
+  so a mammal saved before the rebuild stays playable but cannot breed with
+  the new library.
+
+## Class skeletons and the art rebuild (in progress)
+
+The generic vector library looked amateurish, so the library is being rebuilt
+one class at a time to a higher bar: each class on its own rig, with seven
+detailed parts in every one of its slots, and enough species to use them.
+
+**House style.** Three-quarter view facing right. A big cranium with both
+eyes visible (the far eye smaller), a short muzzle projecting right with the
+nose at its tip. Bold outline (4 units, rounded joins), thin interior lines,
+one shadow wash on the underside and one highlight on the top of every part,
+far-side copies a shade darker. Fur tufts are sparse and soft. Colour roles are
+used consistently so palettes travel: `p` coat, `s` underside, muzzle, inner
+ear and tail tip, `a` accents (socks, ear tips, nose leather, markings).
+
+**Mammal rig** (done). Slots: body, head, ears, eyes, muzzle, legsFront,
+legsBack, tail, mane, horns, back, markings. Linked in fusion: the two leg
+slots, and head with muzzle. Body sockets: `head`, `shoulder`/`shoulderFar`,
+`hip`/`hipFar`, `tail`, `mane`, `back`; head sockets: `ear`/`earFar`,
+`eye`/`eyeFar`, `muzzle`, `horns`. Body kinds `mammal.quad` and
+`mammal.biped` (upright: forelegs hang as arms). Seven archetypes supply the
+anatomical slots: fox, cat, bear (biped), rabbit, deer, wolf, mouse (biped);
+eyes: round, almond, slit, bead, doe, sleepy, fierce; manes add a lion mane;
+horns: antlers, ram, goat, bull, spiral, nubs, crest; back: bat wings,
+feathered wings, ridge fur, quills, saddle mane, flame crest, crystals;
+markings: belly, saddle, stripes, spots, rings, chest star, patches. Twelve
+mammal species use them, including the new Howlune (wolf, Psychic) and
+Solmane (lion, Fire/Normal).
+
+**Next classes**, one per step, each with its own slot list and seven parts per
+slot: reptile (crests, scales, long tails; serpents and dragons), fish (fins,
+gills, face on the body), bird (beaks, wings, tail fans), insect (segments,
+antennae, six legs, wing pairs), invertebrate (shells, tentacles, spirits),
+amphibian (wide heads, webbed feet). Each needs species added to reach seven.
+When all seven classes are on rigs the legacy skeleton and its parts go away.
 
 ## Polish and balance (Phase 5 — implemented)
 

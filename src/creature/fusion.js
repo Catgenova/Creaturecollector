@@ -10,9 +10,10 @@
 // the primary type. The other parent gives the suffix, one accent colour and the
 // secondary type. Shape from one side, colours from the other: that is what
 // makes a fusion read as half and half.
-import { SLOTS, getPart, partFits } from '../data/parts/index.js';
+import { getPart, partFits } from '../data/parts/index.js';
+import { getRig, slotsFor, paintSlotsFor } from '../data/rigs.js';
 import { clamp01, lerp, round3, normalizeWeights } from '../core/util.js';
-import { GENOME_VERSION, PAINT_SLOTS, PAINT_PERMS, TRAIT_KEYS, STAT_KEYS, randomPartId, learnsetOf, cladeOf } from './genome.js';
+import { GENOME_VERSION, PAINT_PERMS, TRAIT_KEYS, STAT_KEYS, randomPartId, learnsetOf, cladeOf, rigOf } from './genome.js';
 import { CLADES, cladeName } from '../data/clades.js';
 import { getMove, UNIVERSAL_LEARNSET } from '../data/moves.js';
 import { blendColor } from './palette.js';
@@ -53,6 +54,7 @@ export function canFuse(a, b) {
   if (a === b) return { ok: false, reason: 'Pick two different creatures.' };
   const ca = cladeOf(a), cb = cladeOf(b);
   if (ca !== cb) return { ok: false, reason: `${cladeName(ca)}s only fuse with ${cladeName(ca)}s.` };
+  if (rigOf(a) !== rigOf(b)) return { ok: false, reason: 'These two were built on different skeletons and cannot fuse.' };
   return { ok: true, reason: '' };
 }
 
@@ -65,6 +67,7 @@ export function fuse(a, b, rng) {
   const compat = canFuse(a, b);
   if (!compat.ok) throw new Error(compat.reason);
   const clade = cladeOf(a);
+  const rig = rigOf(a);
   const rParts = rng.fork('parts');
   const rMut = rng.fork('mutation');
   const rPaint = rng.fork('paint');
@@ -86,23 +89,24 @@ export function fuse(a, b, rng) {
   const bodyDraw = draw('body');
   parts.body = bodyDraw.alleles;
   from.body = bodyDraw.from;
-  if (rMut.chance(FUSE.bodyMutation)) { const nb = randomPartId('body', getPart(parts.body[0]).kind, rMut); if (nb) { parts.body = [nb, parts.body[0]]; mutated.body = true; } }
+  if (rMut.chance(FUSE.bodyMutation)) { const nb = randomPartId(rig, 'body', getPart(parts.body[0]).kind, rMut); if (nb) { parts.body = [nb, parts.body[0]]; mutated.body = true; } }
   const bodyKind = getPart(parts.body[0]).kind;
 
-  for (const slot of SLOTS) {
+  for (const slot of slotsFor(rig)) {
     if (slot === 'body') continue;
     const d = draw(slot);
     let [e, c] = d.alleles;
     let f = d.from;
     if (!fitsBody(e, bodyKind) && fitsBody(c, bodyKind)) { [e, c] = [c, e]; f = 1 - f; }
-    if (rMut.chance(FUSE.expressedMutation)) { const ne = randomPartId(slot, bodyKind, rMut); if (ne) { c = e; e = ne; mutated[slot] = true; } }
-    else if (rMut.chance(FUSE.carriedMutation)) c = randomPartId(slot, bodyKind, rMut) || c;
+    if (rMut.chance(FUSE.expressedMutation)) { const ne = randomPartId(rig, slot, bodyKind, rMut); if (ne) { c = e; e = ne; mutated[slot] = true; } }
+    else if (rMut.chance(FUSE.carriedMutation)) c = randomPartId(rig, slot, bodyKind, rMut) || c;
     parts[slot] = [e, c];
     from[slot] = f;
   }
 
   // Linked slots inherit together so the class silhouette stays coherent.
-  for (const group of (CLADES[clade] && CLADES[clade].linked) || []) {
+  const linked = getRig(rig).linked || (CLADES[clade] && CLADES[clade].linked) || [];
+  for (const group of linked) {
     const lead = group[0];
     if (from[lead] == null) continue;
     for (const slot of group.slice(1)) {
@@ -115,13 +119,13 @@ export function fuse(a, b, rng) {
     }
   }
 
-  const headPart = getPart(parts.head[0]);
+  const headPart = parts.head ? getPart(parts.head[0]) : null;
   const identity = headPart && !headPart.none && !mutated.head ? from.head : from.body;
   const P1 = parents[identity], P2 = parents[1 - identity];
 
   // Paint travels with the part that was expressed.
   const paint = {};
-  for (const slot of PAINT_SLOTS) {
+  for (const slot of paintSlotsFor(rig)) {
     const src = parents[from[slot] == null ? identity : from[slot]];
     paint[slot] = (src.paint && PAINT_PERMS[src.paint[slot]]) ? src.paint[slot] : 0;
     if (rPaint.chance(FUSE.paintSwap)) paint[slot] = rPaint.int(PAINT_PERMS.length);
@@ -177,6 +181,7 @@ export function fuse(a, b, rng) {
     seed: rng.seed,
     species: null,
     clade,
+    rig,
     name: joinNameParts(nameParts[0], nameParts[1]),
     nameParts,
     gen,

@@ -4,7 +4,8 @@
 //
 // Diploid part genes: every slot holds [expressed, carried]. Only the expressed
 // allele is drawn; the carried one can resurface in offspring.
-import { SLOTS, PARTS_BY_SLOT, getPart, partsFor, partFits } from '../data/parts/index.js';
+import { getPart, partsFor, partsOf, partFits } from '../data/parts/index.js';
+import { RIGS, getRig, slotsFor, paintSlotsFor, noneId } from '../data/rigs.js';
 import { SPECIES, SPECIES_BY_ID, TIER_WEIGHT, WILD_SPECIES } from '../data/species.js';
 import { isType } from '../data/types.js';
 import { clamp01, round3, normalizeWeights, b64uEncode, b64uDecode } from '../core/util.js';
@@ -19,7 +20,6 @@ export const CODE_PREFIX = 'CC1.';
 export const STAT_KEYS = ['hp', 'atk', 'def', 'spa', 'spd', 'spe'];
 export const STAT_NAMES = { hp: 'HP', atk: 'Attack', def: 'Defense', spa: 'Sp. Atk', spd: 'Sp. Def', spe: 'Speed' };
 export const TRAIT_KEYS = ['size', 'bulk', 'headScale', 'limbScale', 'tailScale', 'wingScale', 'eyeScale'];
-export const PAINT_SLOTS = ['body', 'head', 'crown', 'legs', 'arms', 'wings', 'tail', 'back'];
 /** Role order [p, s, a] -> colour index into [c1, c2, c3]. */
 export const PAINT_PERMS = [[0, 1, 2], [0, 2, 1], [1, 0, 2], [1, 2, 0], [2, 0, 1], [2, 1, 0]];
 
@@ -32,18 +32,23 @@ export const ROLL = {
   shiny: 1 / 64,
 };
 
-function allelesFromRecipe(entry, slot) {
+function allelesFromRecipe(entry, slot, rig) {
   if (Array.isArray(entry)) return [entry[0], entry[1] ?? entry[0]];
   if (typeof entry === 'string') return [entry, entry];
-  return [`${slot}.none`, `${slot}.none`];
+  return [noneId(rig, slot), noneId(rig, slot)];
 }
 
-/** Random part id for a slot that fits the body kind, weighted by part rarity. Null when nothing fits. */
-export function randomPartId(slot, bodyKind, rng) {
-  const pool = partsFor(slot, bodyKind);
+/** Random part id for a rig slot that fits the body kind, weighted by part rarity. Null when nothing fits. */
+export function randomPartId(rig, slot, bodyKind, rng) {
+  const pool = partsFor(rig, slot, bodyKind);
   if (!pool.length) return null;
   return rng.weighted(pool, (p) => p.w ?? 1).id;
 }
+
+/** The rig a genome is built on ('legacy' when unset or unknown). */
+export function rigOf(g) { return g && g.rig && RIGS[g.rig] ? g.rig : 'legacy'; }
+/** The rig a species is built on. */
+export function speciesRig(species) { return species && species.rig && RIGS[species.rig] ? species.rig : 'legacy'; }
 
 export function defaultTraits() {
   const t = {};
@@ -60,21 +65,22 @@ export function speciesGenome(species, rng) {
   const rStats = rng.fork('stats');
   const rAbility = rng.fork('ability');
 
+  const rig = speciesRig(species);
   const parts = {};
-  const bodyAlleles = allelesFromRecipe(species.recipe.body, 'body');
-  if (rParts.chance(ROLL.bodyCarriedMutation)) bodyAlleles[1] = randomPartId('body', getPart(bodyAlleles[0]).kind, rParts) || bodyAlleles[1];
+  const bodyAlleles = allelesFromRecipe(species.recipe.body, 'body', rig);
+  if (rParts.chance(ROLL.bodyCarriedMutation)) bodyAlleles[1] = randomPartId(rig, 'body', getPart(bodyAlleles[0]).kind, rParts) || bodyAlleles[1];
   parts.body = bodyAlleles;
   const bodyKind = getPart(bodyAlleles[0]).kind;
-  for (const slot of SLOTS) {
+  for (const slot of slotsFor(rig)) {
     if (slot === 'body') continue;
-    const a = allelesFromRecipe(species.recipe[slot], slot);
-    if (rParts.chance(ROLL.carriedMutation)) a[1] = randomPartId(slot, bodyKind, rParts) || a[1];
-    if (rParts.chance(ROLL.expressedMutation)) a[0] = randomPartId(slot, bodyKind, rParts) || a[0];
+    const a = allelesFromRecipe(species.recipe[slot], slot, rig);
+    if (rParts.chance(ROLL.carriedMutation)) a[1] = randomPartId(rig, slot, bodyKind, rParts) || a[1];
+    if (rParts.chance(ROLL.expressedMutation)) a[0] = randomPartId(rig, slot, bodyKind, rParts) || a[0];
     parts[slot] = a;
   }
 
   const paint = {};
-  for (const slot of PAINT_SLOTS) {
+  for (const slot of paintSlotsFor(rig)) {
     let idx = (species.paint && species.paint[slot]) || 0;
     if (rPaint.chance(ROLL.paintSwap)) idx = rPaint.int(PAINT_PERMS.length);
     paint[slot] = idx;
@@ -98,6 +104,7 @@ export function speciesGenome(species, rng) {
     seed: rng.seed,
     species: species.id,
     clade: species.clade,
+    rig,
     name: species.name,
     nameParts: species.nameParts ? species.nameParts.slice() : splitName(species.name),
     gen: 0,
@@ -145,9 +152,10 @@ export function speciesOf(g) { return SPECIES_BY_ID[g.species] || null; }
  */
 export function resolveParts(g) {
   const out = {};
-  const body = getPart(g.parts.body[0]) || getPart(g.parts.body[1]) || PARTS_BY_SLOT.body[0];
+  const rig = rigOf(g);
+  const body = getPart(g.parts.body[0]) || getPart(g.parts.body[1]) || partsOf(rig, 'body')[0];
   out.body = body;
-  for (const slot of SLOTS) {
+  for (const slot of slotsFor(rig)) {
     if (slot === 'body') continue;
     const [e, c] = g.parts[slot] || [];
     let part = getPart(e);
@@ -185,11 +193,14 @@ export function validateGenome(g) {
   if (!g || typeof g !== 'object') throw new Error('Not a creature.');
   if (g.v !== GENOME_VERSION) throw new Error(`Unsupported creature version ${g.v}.`);
   if (!g.parts || typeof g.parts !== 'object') throw new Error('Creature has no parts.');
-  for (const slot of SLOTS) {
+  g.rig = rigOf(g);
+  for (const slot of slotsFor(g.rig)) {
     const a = g.parts[slot];
     if (!Array.isArray(a) || a.length !== 2 || !a.every((x) => typeof x === 'string')) throw new Error(`Bad ${slot} genes.`);
   }
-  if (!getPart(g.parts.body[0]) && !getPart(g.parts.body[1])) throw new Error('Unknown body part.');
+  const bodyPart = getPart(g.parts.body[0]) || getPart(g.parts.body[1]);
+  if (!bodyPart) throw new Error('Unknown body part.');
+  if (bodyPart.rig !== g.rig) throw new Error('Creature parts do not match its skeleton.');
   for (const k of ['c1', 'c2', 'c3', 'eye']) {
     const c = g.palette && g.palette[k];
     if (!Array.isArray(c) || c.length !== 3 || !c.every(Number.isFinite)) throw new Error('Bad palette.');
@@ -199,7 +210,7 @@ export function validateGenome(g) {
   g.traits = { ...defaultTraits(), ...(g.traits || {}) };
   for (const k of TRAIT_KEYS) g.traits[k] = clamp01(Number(g.traits[k]) || 0.5);
   g.paint = g.paint && typeof g.paint === 'object' ? g.paint : {};
-  for (const slot of PAINT_SLOTS) g.paint[slot] = PAINT_PERMS[g.paint[slot]] ? g.paint[slot] : 0;
+  for (const slot of paintSlotsFor(g.rig)) g.paint[slot] = PAINT_PERMS[g.paint[slot]] ? g.paint[slot] : 0;
   if (!g.stats || typeof g.stats !== 'object') g.stats = Object.fromEntries(STAT_KEYS.map((k) => [k, 1]));
   if (!g.vigor || typeof g.vigor !== 'object') g.vigor = Object.fromEntries(STAT_KEYS.map((k) => [k, 0.5]));
   g.bst = Number.isFinite(g.bst) ? g.bst : 400;

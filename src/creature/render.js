@@ -1,10 +1,10 @@
 // Genome -> SVG string. Pure: no DOM access, so it runs in Node for tests.
 //
-// Draw order (back to front): far wing, near wing, tail, back feature, far legs,
-// far arm, near legs, near arm, body (+pattern, +face when headless), head
-// (crown behind the skull, then eyes and mouth), and front-mounted arms for
-// bodies that ask for it. Limbs sit behind the body so their roots are hidden
-// by the silhouette, which keeps outlines clean.
+// Creatures on a class rig are drawn by walking the rig's draw tree: every
+// part is placed on a named socket of its parent part, far-side copies are
+// drawn darker behind, and children move with their parent (ears and eyes ride
+// the head). Creatures still on the legacy rig use the original fixed
+// assembly order (wings, tail, back, legs, arms, body, head).
 //
 // The frame is fixed so creatures are comparable in size: the ground line sits
 // at the same height in every render. opts.fit crops the viewBox to the
@@ -16,7 +16,8 @@
 // edges, a thick silhouette pass under thin interior lines, and a gloss spot.
 import { lerp, num, uid, escapeHtml, hsl, mixHue } from '../core/util.js';
 import { paletteVars, slotPaintVars, FAR_VARS } from './palette.js';
-import { resolveParts, PAINT_PERMS, typeLabel } from './genome.js';
+import { resolveParts, PAINT_PERMS, typeLabel, rigOf } from './genome.js';
+import { getRig } from '../data/rigs.js';
 
 export const FRAME = { w: 200, h: 230, ground: 208 };
 const FAR_DEFAULT = { dx: -6, dy: -4 };
@@ -86,7 +87,31 @@ function primSvg(pr, ctx) {
   return out;
 }
 
-function partPrimsCtx(part, ctx) { return part.prims.map((pr) => primSvg(pr, ctx)).join(''); }
+/** The silhouette a part's clipped prims are cut to: its clip paths, else its first filled shape. */
+function partClipShapes(part) {
+  if (Array.isArray(part.clip) && part.clip.length) return part.clip.map((d) => `<path d="${d}"/>`).join('');
+  const first = (part.prims || []).find((pr) => pr.t !== 'line' && pr.f !== 'none' && !pr.cl);
+  return first ? shapeTag(first, '') : '';
+}
+
+/** All prims of a part in a context. Prims flagged `cl` are clipped to the part's own silhouette. */
+function partPrimsCtx(part, ctx) {
+  let out = '', clipped = '';
+  for (const pr of part.prims) {
+    if (pr.cl) { if (ctx.mode !== 'outline') clipped += primSvg(pr, ctx); }
+    else {
+      if (clipped) { out += flushClip(part, ctx, clipped); clipped = ''; }
+      out += primSvg(pr, ctx);
+    }
+  }
+  if (clipped) out += flushClip(part, ctx, clipped);
+  return out;
+}
+function flushClip(part, ctx, inner) {
+  const id = `${ctx.uid}-pc${ctx.shared.n++}`;
+  return `<clipPath id="${id}">${partClipShapes(part)}</clipPath><g clip-path="url(#${id})">${inner}</g>`;
+}
+
 /** Classic-style primitives for a part (used by tests and tools). */
 export function partPrims(part) { return part.prims.map(classicPrim).join(''); }
 
@@ -118,23 +143,57 @@ function styledColors(g, slot, far, st) {
 
 const boundsCache = new Map();
 
-/**
- * Approximate bounding box [x0,y0,x1,y1] of a part in its own coordinates.
- * Reads absolute path coordinates (control points included, so it errs large);
- * relative path segments are ignored, which only matters for clipped patterns.
- */
+/** Sample points along an SVG path (absolute and relative commands; curves are flattened). */
+export function pathPoints(d) {
+  const pts = [];
+  const tok = d.match(/[MLHVCSQTAZmlhvcsqtaz]|-?(?:\d+\.?\d*|\.\d+)(?:e-?\d+)?/gi) || [];
+  let i = 0, cmd = 'M', cx = 0, cy = 0, sx = 0, sy = 0, pcx = 0, pcy = 0, prevCurve = '';
+  const rd = () => Number(tok[i++]);
+  const cubic = (x1, y1, x2, y2, x, y) => {
+    for (let k = 1; k <= 8; k++) {
+      const t = k / 8, u = 1 - t;
+      pts.push([u * u * u * cx + 3 * u * u * t * x1 + 3 * u * t * t * x2 + t * t * t * x, u * u * u * cy + 3 * u * u * t * y1 + 3 * u * t * t * y2 + t * t * t * y]);
+    }
+    pcx = x2; pcy = y2; cx = x; cy = y; prevCurve = 'C';
+  };
+  const quad = (x1, y1, x, y) => {
+    for (let k = 1; k <= 6; k++) {
+      const t = k / 6, u = 1 - t;
+      pts.push([u * u * cx + 2 * u * t * x1 + t * t * x, u * u * cy + 2 * u * t * y1 + t * t * y]);
+    }
+    pcx = x1; pcy = y1; cx = x; cy = y; prevCurve = 'Q';
+  };
+  while (i < tok.length) {
+    if (/[a-z]/i.test(tok[i])) cmd = tok[i++];
+    const rel = cmd === cmd.toLowerCase();
+    const ox = rel ? cx : 0, oy = rel ? cy : 0;
+    switch (cmd.toUpperCase()) {
+      case 'M': { const x = rd() + ox, y = rd() + oy; cx = sx = x; cy = sy = y; pts.push([x, y]); cmd = rel ? 'l' : 'L'; prevCurve = ''; break; }
+      case 'L': { const x = rd() + ox, y = rd() + oy; cx = x; cy = y; pts.push([x, y]); prevCurve = ''; break; }
+      case 'H': { cx = rd() + ox; pts.push([cx, cy]); prevCurve = ''; break; }
+      case 'V': { cy = rd() + oy; pts.push([cx, cy]); prevCurve = ''; break; }
+      case 'C': { const x1 = rd() + ox, y1 = rd() + oy, x2 = rd() + ox, y2 = rd() + oy, x = rd() + ox, y = rd() + oy; cubic(x1, y1, x2, y2, x, y); break; }
+      case 'S': { const x2 = rd() + ox, y2 = rd() + oy, x = rd() + ox, y = rd() + oy; const x1 = prevCurve === 'C' ? 2 * cx - pcx : cx, y1 = prevCurve === 'C' ? 2 * cy - pcy : cy; cubic(x1, y1, x2, y2, x, y); break; }
+      case 'Q': { const x1 = rd() + ox, y1 = rd() + oy, x = rd() + ox, y = rd() + oy; quad(x1, y1, x, y); break; }
+      case 'T': { const x = rd() + ox, y = rd() + oy; const x1 = prevCurve === 'Q' ? 2 * cx - pcx : cx, y1 = prevCurve === 'Q' ? 2 * cy - pcy : cy; quad(x1, y1, x, y); break; }
+      case 'A': { const rx = rd(), ry = rd(); rd(); rd(); rd(); const x = rd() + ox, y = rd() + oy; const mx = (cx + x) / 2, my = (cy + y) / 2; pts.push([mx - rx, my - ry], [mx + rx, my + ry], [x, y]); cx = x; cy = y; prevCurve = ''; break; }
+      case 'Z': { cx = sx; cy = sy; prevCurve = ''; break; }
+      default: i++;
+    }
+  }
+  return pts;
+}
+
+/** Bounding box [x0,y0,x1,y1] of a part in its own coordinates, with a small margin for the outline. */
 export function partBounds(part) {
   if (boundsCache.has(part.id)) return boundsCache.get(part.id);
   let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
   const add = (x, y) => { if (x < x0) x0 = x; if (x > x1) x1 = x; if (y < y0) y0 = y; if (y > y1) y1 = y; };
   for (const pr of part.prims || []) {
+    if (pr.cl) continue; // clipped prims never extend the silhouette
     if (pr.t === 'ellipse') { add(pr.cx - pr.rx, pr.cy - pr.ry); add(pr.cx + pr.rx, pr.cy + pr.ry); }
     else if (pr.t === 'circle') { add(pr.cx - pr.r, pr.cy - pr.r); add(pr.cx + pr.r, pr.cy + pr.r); }
-    else if (pr.t === 'path' || pr.t === 'line') {
-      const abs = pr.d.replace(/[a-z][^A-Za-z]*/g, ' ');
-      const nums = (abs.match(/-?\d*\.?\d+/g) || []).map(Number);
-      for (let i = 0; i + 1 < nums.length; i += 2) add(nums[i], nums[i + 1]);
-    }
+    else if (pr.t === 'path' || pr.t === 'line') for (const [x, y] of pathPoints(pr.d)) add(x, y);
   }
   const box = x0 === Infinity ? [0, 0, 0, 0] : [x0 - 2, y0 - 2, x1 + 2, y1 + 2];
   boundsCache.set(part.id, box);
@@ -194,23 +253,10 @@ export function traitScales(traits = {}) {
   };
 }
 
-/**
- * Build the layered markup and measure it. Returns { layers, defs, box, feet, hover, K, body, clip }
- * where box is the creature's bounds in creature space (body centre = 0,0).
- */
-function buildCreature(g, id, styleName) {
+/** Shared per-render state: style, outline colour, gradient defs and the per-slot context cache. */
+function renderSetup(g, id, styleName) {
   const st = STYLE[styleName] || STYLE.classic;
   const styled = st !== STYLE.classic;
-  const P = resolveParts(g);
-  const body = P.body;
-  const S = body.sockets;
-  const K = traitScales(g.traits);
-  K.eye *= st.eye;
-
-  let feet = body.bottom;
-  if (P.legs && S.legs) for (const ls of S.legs) feet = Math.max(feet, ls.y + (P.legs.len || 40) * K.leg);
-  const hover = body.hover || 0;
-
   const shared = { n: 0, defs: [], grads: new Map() };
   const ol = styled ? hsl(g.palette.c1[0], Math.min(g.palette.c1[1], st.olS), st.olL) : 'var(--ol)';
   const ctxCache = new Map();
@@ -233,6 +279,38 @@ function buildCreature(g, id, styleName) {
     ctxCache.set(key, ctx);
     return ctx;
   };
+  const wrap = (slot, inner) => (styled ? `<g>${inner}</g>` : `<g style="${paintOf(g, slot)}">${inner}</g>`);
+  const farWrap = (inner) => (styled ? inner : `<g style="${FAR_VARS}">${inner}</g>`);
+  return { st, styled, shared, ol, ctxFor, wrap, farWrap };
+}
+
+/** Gloss spot for the styled renderers, clipped to the body. */
+function glossSvg(body, id) {
+  const b = partBounds(body);
+  const w = b[2] - b[0], hh = b[3] - b[1];
+  const cx = b[0] + w * 0.34, cy = b[1] + hh * 0.26;
+  return `<g clip-path="url(#${id}-clip)"><ellipse cx="${num(cx)}" cy="${num(cy)}" rx="${num(w * 0.17)}" ry="${num(hh * 0.09)}" fill="#fff" opacity="0.22" transform="rotate(-24 ${num(cx)} ${num(cy)})"/></g>`;
+}
+
+// ---- legacy rig ---------------------------------------------------------------
+
+/**
+ * Build the layered markup for a legacy-rig creature and measure it.
+ * Returns { layers, defs, box, feet, hover, K, body, clip } where box is the
+ * creature's bounds in creature space (body centre = 0,0).
+ */
+function buildLegacy(g, id, styleName) {
+  const R = renderSetup(g, id, styleName);
+  const { st, styled, shared, ctxFor, wrap, farWrap } = R;
+  const P = resolveParts(g);
+  const body = P.body;
+  const S = body.sockets;
+  const K = traitScales(g.traits);
+  K.eye *= st.eye;
+
+  let feet = body.bottom;
+  if (P.legs && S.legs) for (const ls of S.legs) feet = Math.max(feet, ls.y + (P.legs.len || 40) * K.leg);
+  const hover = body.hover || 0;
 
   let box = null;
   const grow = (part, chain) => { box = union(box, boxThrough(partBounds(part), chain)); };
@@ -240,8 +318,6 @@ function buildCreature(g, id, styleName) {
   const assemble = (mode) => {
     const L = [];
     const pp = (part, slot, far = false, extra) => partPrimsCtx(part, ctxFor(slot, far, mode, extra));
-    const wrap = (slot, inner) => (styled ? `<g>${inner}</g>` : `<g style="${paintOf(g, slot)}">${inner}</g>`);
-    const farWrap = (inner) => (styled ? inner : `<g style="${FAR_VARS}">${inner}</g>`);
 
     if (P.wings && S.wing) {
       const tn = xf(S.wing.x, S.wing.y, 0, K.wing), tfar = xf(S.wing.x - 6, S.wing.y - 6, 0, K.wing);
@@ -315,12 +391,7 @@ function buildCreature(g, id, styleName) {
     bodyInner += pp(body, 'body');
     if (mode !== 'outline') {
       if (P.pattern) bodyInner += `<g clip-path="url(#${id}-clip)">${pp(P.pattern, 'body', false, { small: true })}</g>`;
-      if (st.gloss) {
-        const b = partBounds(body);
-        const w = b[2] - b[0], hh = b[3] - b[1];
-        const cx = b[0] + w * 0.34, cy = b[1] + hh * 0.26;
-        bodyInner += `<g clip-path="url(#${id}-clip)"><ellipse cx="${num(cx)}" cy="${num(cy)}" rx="${num(w * 0.17)}" ry="${num(hh * 0.09)}" fill="#fff" opacity="0.22" transform="rotate(-24 ${num(cx)} ${num(cy)})"/></g>`;
-      }
+      if (st.gloss) bodyInner += glossSvg(body, id);
     }
     if (bodyFace) bodyInner += bodyFace.front;
     L.push(`<g class="g-body">${styled ? bodyInner : `<g style="${paintOf(g, 'body')}">${bodyInner}</g>`}</g>`);
@@ -340,6 +411,89 @@ function buildCreature(g, id, styleName) {
   const outline = st.outlinePass ? assemble('outline') : [];
   const layers = assemble('normal');
   return { layers: [...outline, ...layers], defs: shared.defs.join(''), box: box || [-40, -40, 40, 40], feet, hover, K, body, clip: body.clip || [] };
+}
+
+// ---- class rigs -----------------------------------------------------------------
+
+const ANIM_CLASS = { body: 'g-body', head: 'g-head', tail: 'g-tail', sway: 'g-sway', flap: 'g-wing', ear: 'g-ear' };
+
+/** Frame markings and other box-fitted parts are authored in: 100 wide, 60 tall, centred on the origin. */
+export const FIT_FRAME = { w: 100, h: 60 };
+
+/** Build a creature on a class rig by walking the rig's draw tree. Same return shape as buildLegacy. */
+function buildRigged(g, id, styleName, rig) {
+  const R = renderSetup(g, id, styleName);
+  const { st, styled, shared, ctxFor, wrap, farWrap } = R;
+  const P = resolveParts(g);
+  const body = P.body;
+  const K = traitScales(g.traits);
+  K.eye *= st.eye;
+  const hover = body.hover || 0;
+  const ground = new Set(rig.ground || ['body']);
+  const bodyBox = body.box || partBounds(body);
+
+  let box = null, feet = -Infinity;
+  const grow = (part, chain, slot) => {
+    const b = boxThrough(partBounds(part), chain);
+    box = union(box, b);
+    if (ground.has(slot)) feet = Math.max(feet, b[3] - 2);
+  };
+
+  /** The slots drawn on the body under its clip (markings), scaled from the authoring frame onto the body box. */
+  const clippedSvg = (mode, pp) => {
+    if (mode === 'outline') return '';
+    let out = '';
+    for (const slot of rig.clipped || []) {
+      const part = P[slot];
+      if (!part) continue;
+      const sx = (bodyBox[2] - bodyBox[0]) / FIT_FRAME.w, sy = (bodyBox[3] - bodyBox[1]) / FIT_FRAME.h;
+      const t = { x: (bodyBox[0] + bodyBox[2]) / 2, y: (bodyBox[1] + bodyBox[3]) / 2, a: 0, sx: part.fitBox === false ? 1 : sx, sy: part.fitBox === false ? 1 : sy };
+      out += wrap(slot, `<g clip-path="url(#${id}-clip)"><g transform="${tf(t)}">${pp(part, slot, false, { small: true })}</g></g>`);
+    }
+    if (st.gloss) out += glossSvg(body, id);
+    return out;
+  };
+
+  const assemble = (mode) => {
+    const measure = mode === 'normal';
+    const pp = (part, slot, far = false, extra) => partPrimsCtx(part, ctxFor(slot, far, mode, extra));
+    const drawNode = (node, parentPart, outer) => {
+      const part = P[node.slot];
+      if (!part) return '';
+      let t;
+      if (node.socket) {
+        const sk = parentPart && parentPart.sockets ? parentPart.sockets[node.socket] : null;
+        if (!sk) return '';
+        const s = (sk.s == null ? 1 : sk.s) * (node.scale ? K[node.scale] : 1);
+        t = xf(sk.x, sk.y, sk.a || 0, s);
+        if (sk.flip) t.sx = -t.sx;
+      } else t = xf(0, 0, 0, 1);
+      const chain = [t, ...outer];
+      if (measure) grow(part, chain, node.slot);
+      let inner = '';
+      for (const c of node.behind || []) inner += drawNode(c, part, chain);
+      let own = pp(part, node.slot, Boolean(node.far), { small: node.small, noOutline: node.noOutline });
+      if (node.far) own = farWrap(own);
+      inner += own;
+      if (node.slot === 'body') inner += clippedSvg(mode, pp);
+      for (const c of node.front || []) inner += drawNode(c, part, chain);
+      const cls = node.anim && ANIM_CLASS[node.anim] ? ANIM_CLASS[node.anim] : '';
+      const body_ = cls ? `<g class="${cls}">${inner}</g>` : inner;
+      return wrap(node.slot, `<g transform="${tf(t)}">${body_}</g>`);
+    };
+    return [drawNode(rig.tree, null, [])];
+  };
+
+  const outline = st.outlinePass ? assemble('outline') : [];
+  const layers = assemble('normal');
+  if (!Number.isFinite(feet)) feet = bodyBox[3];
+  if (typeof body.bottom === 'number') feet = Math.max(feet, body.bottom);
+  return { layers: [...outline, ...layers], defs: shared.defs.join(''), box: box || [-40, -40, 40, 40], feet, hover, K, body, clip: body.clip || [] };
+}
+
+function buildCreature(g, id, styleName) {
+  const rig = getRig(rigOf(g));
+  return rig.tree ? buildRigged(g, id, styleName, rig) : buildLegacy(g, id, styleName);
 }
 
 /** Canvas-space transform that places a built creature on the ground line. */
@@ -399,20 +553,17 @@ export function renderCreatureSvg(g, opts = {}) {
 
 /** A neutral mannequin genome used by the Part Lab to preview any single part. */
 export function mannequinGenome(part) {
-  const parts = {
-    body: ['body.round', 'body.round'], head: ['head.round', 'head.round'], eyes: ['eye.round', 'eye.round'], mouth: ['mouth.smile', 'mouth.smile'],
-    crown: ['crown.none', 'crown.none'], legs: ['legs.stub', 'legs.stub'], arms: ['arms.none', 'arms.none'], wings: ['wings.none', 'wings.none'],
-    tail: ['tail.none', 'tail.none'], back: ['back.none', 'back.none'], pattern: ['pattern.none', 'pattern.none'],
-  };
-  const paint = {};
-  if (part.slot === 'arms') parts.body = ['body.biped', 'body.biped'];
-  if (part.slot === 'wings' || part.slot === 'tail' || part.slot === 'back') parts.body = ['body.quad', 'body.quad'];
-  if (part.slot === 'eyes' || part.slot === 'mouth') parts.head = ['head.bulb', 'head.bulb'];
-  if (part.slot === 'body' && part.sockets && !part.sockets.legs.length) parts.legs = ['legs.none', 'legs.none'];
+  const rig = getRig(part.rig);
+  const m = rig.mannequin;
+  const parts = {};
+  for (const slot of rig.slots) parts[slot] = [m.parts[slot], m.parts[slot]];
+  for (const [slot, pid] of Object.entries(m.forSlot[part.slot] || {})) parts[slot] = [pid, pid];
+  if (rig.id === 'legacy' && part.slot === 'body' && part.sockets && !part.sockets.legs.length) parts.legs = ['legs.none', 'legs.none'];
   parts[part.slot] = [part.id, part.id];
-  if (!['body', 'pattern', 'eyes', 'mouth'].includes(part.slot)) paint[part.slot] = 4; // accent-first
+  const paint = {};
+  if (m.accentSlots.includes(part.slot)) paint[part.slot] = 4; // accent-first
   return {
-    v: 1, seed: 'mannequin', species: null, name: part.name, gen: 0, shiny: false, types: ['Normal', null],
+    v: 1, seed: 'mannequin', species: null, rig: rig.id, name: part.name, gen: 0, shiny: false, types: ['Normal', null],
     parts, paint,
     palette: { c1: [222, 10, 64], c2: [222, 12, 46], c3: [28, 80, 58], eye: [200, 55, 45] },
     traits: { size: 0.6, bulk: 0.5, headScale: 0.5, limbScale: 0.5, tailScale: 0.5, wingScale: 0.5, eyeScale: part.slot === 'eyes' ? 0.9 : 0.5 },

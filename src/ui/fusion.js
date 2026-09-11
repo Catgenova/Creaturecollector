@@ -3,14 +3,14 @@
 import { h, clear, copyText, toast } from './dom.js';
 import { typeChips, creatureEl, section } from './common.js';
 import { makeRng, freshSeed } from '../core/rng.js';
-import { randomGenome, decodeGenome, encodeGenome, resolveParts } from '../creature/genome.js';
+import { randomGenome, decodeGenome, encodeGenome, resolveParts, rigOf } from '../creature/genome.js';
 import { fuse, fuseChain, canFuse } from '../creature/fusion.js';
 import { cladeName } from '../data/clades.js';
 import { cladeOf } from '../creature/genome.js';
 import { swatchCss } from '../creature/palette.js';
 import { fusionPool, addToPool, removeFromPool } from './state.js';
 import { openSheet } from './lab.js';
-import { SLOTS, SLOT_NAMES } from '../data/parts/index.js';
+import { slotsFor, slotName } from '../data/rigs.js';
 
 const fs = { a: null, b: null, child: null, report: null, rerolls: 0, chain: null, next: 'a' };
 
@@ -112,10 +112,11 @@ export function renderFusionScreen(root) {
 function resultPanel(child, report, a, b, actions) {
   const parents = [a, b];
   const parts = resolveParts(child);
+  const rig = rigOf(child);
   const rows = [];
-  for (const slot of SLOTS) {
+  for (const slot of slotsFor(rig)) {
     const p = parts[slot];
-    rows.push(h('span', {}, SLOT_NAMES[slot]), h('span', {}, p ? p.name : 'None'),
+    rows.push(h('span', {}, slotName(rig, slot)), h('span', {}, p ? p.name : 'None'),
       h('span', {}, report.mutated[slot] ? h('span', { class: 'badge m' }, 'mutation') : badge(report.from[slot])));
   }
   const palRows = ['c1', 'c2', 'c3', 'eye'].map((k) => h('div', { class: 'sw-row' },

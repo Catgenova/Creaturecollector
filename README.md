@@ -28,8 +28,12 @@ Phase 5 — Polish and balance: learnsets rebuilt on one curve, arena curve tune
 with a whole-run simulator, move-learning prompts, procedural sound, 28 species
 and 130 parts.
 
-Now: classes lock fusion to the same anatomy, and the vector part library is
-being rebuilt class by class on per-class skeletons. See `DESIGN.md`.
+Phase 6 — Art rebuild, class by class: every class gets its own skeleton
+(rig) with its own slots, and a hand-drawn library of seven parts per slot.
+Mammals are done: twelve slots, seven archetypes (fox, cat, bear, rabbit,
+deer, wolf, mouse), 85 parts, twelve species. Classes lock fusion to the same
+anatomy. Reptiles, fish, birds, insects, invertebrates and amphibians are
+next. See `DESIGN.md`.
 
 ## Develop
 

@@ -1,17 +1,20 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { SLOTS, PARTS, PARTS_BY_SLOT, getPart } from '../src/data/parts/index.js';
+import { PARTS, RIG_PARTS, partsOf, getPart } from '../src/data/parts/index.js';
+import { RIGS, slotsFor, rigNodes } from '../src/data/rigs.js';
+import { speciesRig } from '../src/creature/genome.js';
 import { SPECIES } from '../src/data/species.js';
 import { TYPE_LIST, typeMultiplier, typeEffectiveness } from '../src/data/types.js';
 
 test('every part has the fields the renderer needs', () => {
   for (const [id, p] of PARTS) {
     assert.equal(p.id, id);
-    assert.ok(SLOTS.includes(p.slot), `${id} slot`);
+    assert.ok(RIGS[p.rig] && slotsFor(p.rig).includes(p.slot), `${id} slot ${p.slot} in rig ${p.rig}`);
     assert.ok(typeof p.dom === 'number' && p.dom >= 0 && p.dom <= 1, `${id} dominance`);
     if (p.none) continue;
     assert.ok(Array.isArray(p.prims) && p.prims.length > 0, `${id} prims`);
     for (const pr of p.prims) assert.ok(['path', 'ellipse', 'circle', 'line'].includes(pr.t), `${id} prim type`);
+    if (p.rig !== 'legacy') continue;
     if (p.slot === 'body') {
       assert.ok(p.kind && typeof p.bottom === 'number' && Array.isArray(p.clip), `${id} body fields`);
       for (const k of ['head', 'face', 'legs', 'wing', 'tail', 'back']) assert.ok(k in p.sockets, `${id} socket ${k}`);
@@ -24,11 +27,39 @@ test('every part has the fields the renderer needs', () => {
   }
 });
 
+test('class rigs: every parent part exposes every socket its draw tree places children on', () => {
+  for (const rigId of Object.keys(RIGS)) {
+    const rig = RIGS[rigId];
+    if (!rig.tree) continue;
+    const nodes = rigNodes(rigId);
+    // parent slot of each node
+    const parentOf = new Map();
+    const walk = (node) => { for (const c of [...(node.behind || []), ...(node.front || [])]) { parentOf.set(c, node.slot); walk(c); } };
+    walk(rig.tree);
+    for (const node of nodes) {
+      if (!node.socket) continue;
+      const parentSlot = parentOf.get(node);
+      for (const parent of partsOf(rigId, parentSlot)) {
+        if (parent.none) continue;
+        assert.ok(parent.sockets && node.socket in parent.sockets, `${parent.id} lacks socket ${node.socket}`);
+      }
+    }
+    for (const body of partsOf(rigId, 'body')) {
+      assert.ok(body.kind && Array.isArray(body.clip) && body.clip.length, `${body.id} body fields`);
+    }
+    for (const slot of rig.slots) {
+      const real = partsOf(rigId, slot).filter((p) => !p.none).length;
+      assert.ok(real >= 7, `${rigId}.${slot} has ${real} parts, wants 7`);
+    }
+  }
+});
+
 test('optional slots have a none entry, required ones do not', () => {
-  for (const slot of SLOTS) {
-    const hasNone = PARTS_BY_SLOT[slot].some((p) => p.none);
-    if (slot === 'body' || slot === 'eyes') assert.equal(hasNone, false, slot);
-    else assert.equal(hasNone, true, slot);
+  for (const rigId of Object.keys(RIG_PARTS)) {
+    for (const slot of slotsFor(rigId)) {
+      const hasNone = partsOf(rigId, slot).some((p) => p.none);
+      assert.equal(hasNone, !RIGS[rigId].required.includes(slot), `${rigId}.${slot}`);
+    }
   }
 });
 
@@ -38,15 +69,18 @@ test('species recipes only reference real parts in the right slots', () => {
     assert.ok(!ids.has(s.id), `duplicate species ${s.id}`); ids.add(s.id);
     assert.ok(s.types.every((t) => TYPE_LIST.includes(t)), `${s.id} types`);
     assert.ok(s.bst > 300 && s.bst < 700, `${s.id} bst`);
-    for (const slot of SLOTS) {
+    const rig = speciesRig(s);
+    for (const slot of slotsFor(rig)) {
       const entry = s.recipe[slot];
       assert.ok(entry, `${s.id} missing ${slot}`);
       for (const id of [].concat(entry)) {
         const part = getPart(id);
         assert.ok(part, `${s.id}: unknown part ${id}`);
         assert.equal(part.slot, slot, `${s.id}: ${id} is not a ${slot}`);
+        assert.equal(part.rig, rig, `${s.id}: ${id} is not on the ${rig} rig`);
       }
     }
+    for (const slot of Object.keys(s.recipe)) assert.ok(slotsFor(rig).includes(slot), `${s.id}: recipe slot ${slot} is not in rig ${rig}`);
     for (const k of ['c1', 'c2', 'c3', 'eye']) assert.equal(s.palette[k].length, 3, `${s.id} palette ${k}`);
     const w = Object.values(s.stats).reduce((a, b) => a + b, 0);
     assert.ok(Math.abs(w - 1) < 0.05, `${s.id} stat weights sum ${w}`);

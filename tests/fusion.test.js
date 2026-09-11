@@ -2,8 +2,9 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { makeRng } from '../src/core/rng.js';
 import { SPECIES, SPECIES_BY_ID } from '../src/data/species.js';
-import { SLOTS, getPart } from '../src/data/parts/index.js';
-import { speciesGenome, randomGenome, validateGenome, encodeGenome, decodeGenome, resolveParts, STAT_KEYS } from '../src/creature/genome.js';
+import { getPart } from '../src/data/parts/index.js';
+import { slotsFor } from '../src/data/rigs.js';
+import { speciesGenome, randomGenome, validateGenome, encodeGenome, decodeGenome, resolveParts, STAT_KEYS, rigOf } from '../src/creature/genome.js';
 import { fuse, fuseChain, FUSE, canFuse } from '../src/creature/fusion.js';
 import { CLADES, CLADE_IDS } from '../src/data/clades.js';
 import { joinNameParts, splitName } from '../src/creature/naming.js';
@@ -60,7 +61,8 @@ test('children are valid, renderable and legible', () => {
     assert.ok(child.name.length >= 2 && child.name.length <= 20, tag);
     assert.equal(child.species, null);
     assert.deepEqual(child.parents, [a.name, b.name]);
-    for (const slot of SLOTS) {
+    assert.equal(rigOf(child), rigOf(a), tag);
+    for (const slot of slotsFor(rigOf(child))) {
       assert.ok(report.from[slot] === 0 || report.from[slot] === 1, `${tag} report ${slot}`);
       for (const id of child.parts[slot]) assert.ok(getPart(id), `${tag} unknown ${id}`);
     }
@@ -72,7 +74,7 @@ test('expressed part comes from the reported parent unless mutated', () => {
   for (let i = 0; i < 100; i++) {
     const a = kin(`qa${i}`), b = kin(`qb${i}`);
     const { child, report } = fuse(a, b, makeRng(`q${i}`));
-    for (const slot of SLOTS) {
+    for (const slot of slotsFor(rigOf(child))) {
       if (report.mutated[slot]) continue;
       const src = report.from[slot] === 0 ? a : b;
       assert.ok(src.parts[slot].includes(child.parts[slot][0]), `${slot} of fusion ${i}`);
@@ -101,13 +103,13 @@ test('ten generations stay bounded and coherent', () => {
 test('both parents contribute and carried alleles resurface', () => {
   const ember = speciesGenome(SPECIES_BY_ID.emberox, makeRng('e'));
   const fin = speciesGenome(SPECIES_BY_ID.glacub, makeRng('f'));
-  ember.parts.crown = ['crown.catears', 'crown.horns'];
+  ember.parts.horns = ['m.horns.none', 'm.horns.bull'];
   let bodyFromA = 0, hornsShown = 0, dual = 0;
   const n = 400;
   for (let i = 0; i < n; i++) {
     const { child, report } = fuse(ember, fin, makeRng(`d${i}`));
     if (report.from.body === 0) bodyFromA++;
-    if (child.parts.crown[0] === 'crown.horns') hornsShown++;
+    if (child.parts.horns[0] === 'm.horns.bull') hornsShown++;
     if (child.types[1]) dual++;
   }
   assert.ok(bodyFromA > n * 0.2 && bodyFromA < n * 0.8, `body from A ${bodyFromA}/${n}`);
