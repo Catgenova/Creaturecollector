@@ -77,6 +77,22 @@ function abilityCard(g) {
   return h('div', { class: 'ability-card' }, h('small', {}, 'Passive skill'), h('b', {}, a ? a.name : 'None'), h('span', {}, a ? a.desc : 'This creature has no passive skill.'));
 }
 
+/**
+ * Release from the sheet: two taps, the second within a few seconds. opts = { can, reason?, onRelease() -> boolean };
+ * the sheet closes when onRelease reports success.
+ */
+function releaseSection(g, opts, close) {
+  let armed = false, timer = 0;
+  const paint = () => { btn.textContent = armed ? `Really release ${g.name}?` : `Release ${g.name}`; btn.classList.toggle('danger', armed); };
+  const btn = h('button', { class: 'btn', type: 'button', disabled: !opts.can, title: opts.can ? '' : (opts.reason || ''), onclick: () => {
+    if (!armed) { armed = true; paint(); clearTimeout(timer); timer = setTimeout(() => { armed = false; if (btn.isConnected) paint(); }, 4000); return; }
+    clearTimeout(timer); armed = false;
+    if (opts.onRelease()) close(); else paint();
+  } }, '');
+  paint();
+  return section('Release', h('p', { class: 'hint' }, opts.can ? 'Lets this creature go for good. It stays in your Collection. Tap twice.' : (opts.reason || 'This creature cannot be released right now.')), h('div', { class: 'row' }, btn));
+}
+
 let activeSheet = null;
 export function closeSheet() { if (activeSheet) { activeSheet(); activeSheet = null; } }
 
@@ -119,6 +135,7 @@ export function openSheet(g, sheetOpts = {}) {
     ...section('Parts', partRows(g)),
     ...section('Palette', h('div', { class: 'swatches' }, ['c1', 'c2', 'c3', 'eye'].map((k) => h('span', { class: 'sw', title: k, style: { background: swatchCss(g.palette[k]) } })))),
     ...section('Traits', traitRows(g)),
+    ...(sheetOpts.release ? releaseSection(g, sheetOpts.release, close) : []),
   );
   document.body.append(backdrop, sheet);
   document.addEventListener('keydown', onKey);

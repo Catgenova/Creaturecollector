@@ -410,6 +410,14 @@ function owSheet(title, body, onClose) {
   return { close, sheet };
 }
 
+/** Re-render a sheet's body without losing the reader's place: clearing the body collapses the sheet and would snap it to the top. */
+function owKeepScroll(container, draw) {
+  const sheet = container.closest ? container.closest('.sheet') : null;
+  const top = sheet ? sheet.scrollTop : 0;
+  draw();
+  if (sheet) sheet.scrollTop = top;
+}
+
 function owMemberRow(j, m, actions) {
   const max = memberMaxHp(m), frac = m.hp / max, xp = xpProgress(m);
   return h('div', { class: `party-row static${m.hp <= 0 ? ' fainted' : ''}` },
@@ -423,36 +431,57 @@ function owMemberRow(j, m, actions) {
       h('div', { class: 'row-actions' }, h('span', { class: 'hint', style: { margin: 0 } }, `${m.hp} / ${max} · ${abilityName(m.genome.ability)}`), ...actions)));
 }
 
-/** Release: tap once to arm, again within a few seconds to let the creature go. The party keeps at least one. */
+/** Release: tap once to arm (the button changes in place), again within a few seconds to let the creature go. The party keeps at least one. */
 function owReleaseBtn(j, m, render) {
-  const arming = ow.confirmRelease === m.uid;
   const disabled = j.party.includes(m) && j.party.length <= 1;
-  return h('button', { class: `btn small${arming ? ' danger' : ''}`, type: 'button', disabled, title: disabled ? 'Keep at least one creature with you.' : '', onclick: () => {
-    if (!arming) {
+  const armed = () => ow.confirmRelease === m.uid;
+  const paint = () => { btn.textContent = armed() ? 'Really release?' : 'Release'; btn.classList.toggle('danger', armed()); };
+  const btn = h('button', { class: 'btn small', type: 'button', disabled, title: disabled ? 'Keep at least one creature with you.' : '', onclick: () => {
+    if (!armed()) {
       ow.confirmRelease = m.uid;
+      paint();
       toast(`Tap again to release ${m.genome.name} for good`);
-      render();
-      setTimeout(() => { if (ow.confirmRelease === m.uid) { ow.confirmRelease = null; render(); } }, 4000);
+      setTimeout(() => { if (armed()) { ow.confirmRelease = null; if (btn.isConnected) paint(); } }, 4000);
       return;
     }
     ow.confirmRelease = null;
     const r = releaseMember(j, m.uid);
-    if (!r.ok) { toast(r.reason); render(); return; }
+    if (!r.ok) { toast(r.reason); paint(); return; }
     owSave();
     toast(`${m.genome.name} was released. It stays in your Collection.`);
     render();
-  } }, arming ? 'Really release?' : 'Release');
+  } }, 'Release');
+  paint();
+  return btn;
+}
+
+/** What the Info sheet needs to offer Release for a journey member: whether it may go, why not, and what to do when it does. */
+function owReleaseOpts(j, m, render) {
+  const last = j.party.includes(m) && j.party.length <= 1;
+  return {
+    can: !last,
+    reason: last ? 'Keep at least one creature with you.' : '',
+    onRelease: () => {
+      const r = releaseMember(j, m.uid);
+      if (!r.ok) { toast(r.reason); return false; }
+      ow.confirmRelease = null;
+      owSave();
+      toast(`${m.genome.name} was released. It stays in your Collection.`);
+      render();
+      return true;
+    },
+  };
 }
 
 function owPartySheet(j) {
   const body = h('div');
-  const render = () => {
+  const draw = () => {
     clear(body);
     const btn = (label, onclick, disabled) => h('button', { class: 'btn small', type: 'button', disabled, onclick }, label);
     const partyList = h('div', { class: 'party-list' });
     j.party.forEach((m, i) => partyList.append(owMemberRow(j, m, [
       btn('Lead', () => { setLead(j, m.uid); owSave(); render(); }, i === 0),
-      btn('Info', () => openSheet(m.genome, { level: m.level, moves: m.moves })),
+      btn('Info', () => openSheet(m.genome, { level: m.level, moves: m.moves, release: owReleaseOpts(j, m, render) })),
       owReleaseBtn(j, m, render),
     ])));
     appendChildren(body, [
@@ -460,6 +489,7 @@ function owPartySheet(j) {
     ]);
     body.append(h('p', { class: 'hint' }, `${j.stats.steps} steps · ${j.stats.battles} battles · ${j.stats.captures} caught · ${j.stats.trainers} trainers · ${j.stats.bosses} wardens · ${j.stats.fusions} fusions`));
   };
+  const render = () => owKeepScroll(body, draw);
   render();
   owSheet('Party', body, () => owRefreshHud());
 }
@@ -486,7 +516,7 @@ function owMapSheet(j) {
 
 function owMenuSheet(j) {
   const body = h('div');
-  const render = () => {
+  const draw = () => {
     clear(body);
     const importInput = h('input', { class: 'seed code-in', type: 'text', placeholder: 'Paste a save code (CCSAVE1....)', autocapitalize: 'off', autocomplete: 'off', spellcheck: 'false', 'aria-label': 'Save code' });
     appendChildren(body, [
@@ -504,6 +534,7 @@ function owMenuSheet(j) {
       h('p', { class: 'hint' }, 'Abandoning sends your creatures to the collection.'),
     ]);
   };
+  const render = () => owKeepScroll(body, draw);
   render();
   const sheetRef = owSheet('Menu', body);
 }
@@ -519,7 +550,7 @@ function owItemInfo(item, tag) {
 function owBagSheet(j) {
   const body = h('div');
   let teaching = null, using = null;
-  const render = () => {
+  const draw = () => {
     clear(body);
     const scrolls = bagList(j), potions = itemList(j);
     if (teaching) { body.append(owTeachPanel(j, teaching, () => { teaching = null; render(); })); return; }
@@ -536,6 +567,7 @@ function owBagSheet(j) {
       body.append(...section('Move scrolls', h('p', { class: 'hint' }, 'A scroll teaches its move to one creature and is used up. Any creature can learn any move.'), list));
     }
   };
+  const render = () => owKeepScroll(body, draw);
   render();
   owSheet('Bag', body, () => owRefreshHud());
 }
@@ -544,7 +576,7 @@ function owBagSheet(j) {
 function owUsePanel(j, itemId, back) {
   const item = getItem(itemId);
   const panel = h('div');
-  const render = () => {
+  const draw = () => {
     clear(panel);
     const qty = bagCount(j, itemId);
     panel.append(h('div', { class: 'row', style: { justifyContent: 'flex-start' } }, h('button', { class: 'btn small', type: 'button', onclick: back }, '‹ Bag'), h('span', { class: 'hint', style: { margin: 0 } }, `Use ${item.name} (×${qty}) on…`)));
@@ -560,6 +592,7 @@ function owUsePanel(j, itemId, back) {
     }
     panel.append(list);
   };
+  const render = () => owKeepScroll(panel, draw);
   render();
   return panel;
 }
@@ -568,7 +601,7 @@ function owUsePanel(j, itemId, back) {
 function owTeachPanel(j, teaching, back) {
   const move = getMove(teaching.moveId);
   const panel = h('div');
-  const render = () => {
+  const draw = () => {
     clear(panel);
     panel.append(h('div', { class: 'row', style: { justifyContent: 'flex-start' } }, h('button', { class: 'btn small', type: 'button', style: { whiteSpace: 'nowrap' }, onclick: back }, '‹ Bag'), h('span', { class: 'hint', style: { margin: 0 } }, `Teach ${move.name} (${move.type}) to… ${move.type === 'Normal' ? 'Any creature can learn a Normal scroll.' : `Only a ${move.type} creature, or an Elemental of that element, can learn it.`} Party only; withdraw stored creatures first.`)));
     const done = (uid, index) => {
@@ -592,6 +625,7 @@ function owTeachPanel(j, teaching, back) {
       }
     }
   };
+  const render = () => owKeepScroll(panel, draw);
   render();
   return panel;
 }
@@ -602,7 +636,7 @@ function owMarketSheet(j) {
   let filter = 'All', onlyMine = false;
   const catalogue = marketCatalogue();
   const potions = itemCatalogue();
-  const render = () => {
+  const draw = () => {
     clear(body);
     const potionList = h('div', { class: 'shop-list' });
     for (const { item, cost } of potions) {
@@ -640,6 +674,7 @@ function owMarketSheet(j) {
       ...section('Move scrolls', h('p', { class: 'hint' }, 'Every move is sold as a single-use scroll; prices rise with power in steps of 1000. A creature learns scrolls of its own types, of its Elemental element, and any Normal scroll; "My team" hides the rest.'), chips, shown ? list : h('p', { class: 'hint' }, 'No scroll here suits your team.')),
     ]);
   };
+  const render = () => owKeepScroll(body, draw);
   render();
   owSheet('Market', body, () => owRefreshHud());
 }
@@ -647,20 +682,20 @@ function owMarketSheet(j) {
 /** Creature Storage: the only place the box opens. Deposit from the party, withdraw into it. */
 function owStorageSheet(j) {
   const body = h('div');
-  const render = () => {
+  const draw = () => {
     clear(body);
     const btn = (label, onclick, disabled) => h('button', { class: 'btn small', type: 'button', disabled, onclick }, label);
     const partyList = h('div', { class: 'party-list' });
     j.party.forEach((m, i) => partyList.append(owMemberRow(j, m, [
       btn('Lead', () => { setLead(j, m.uid); owSave(); render(); }, i === 0),
       btn('Deposit', () => { moveMember(j, m.uid, 'box'); owSave(); render(); }, j.party.length <= 1),
-      btn('Info', () => openSheet(m.genome, { level: m.level, moves: m.moves })),
+      btn('Info', () => openSheet(m.genome, { level: m.level, moves: m.moves, release: owReleaseOpts(j, m, render) })),
       owReleaseBtn(j, m, render),
     ])));
     const boxList = h('div', { class: 'party-list' });
     for (const m of j.box) boxList.append(owMemberRow(j, m, [
       btn('Withdraw', () => { moveMember(j, m.uid, 'party'); owSave(); render(); }, j.party.length >= JOURNEY.partyMax),
-      btn('Info', () => openSheet(m.genome, { level: m.level, moves: m.moves })),
+      btn('Info', () => openSheet(m.genome, { level: m.level, moves: m.moves, release: owReleaseOpts(j, m, render) })),
       owReleaseBtn(j, m, render),
     ]));
     appendChildren(body, [
@@ -669,6 +704,7 @@ function owStorageSheet(j) {
       ...section(`Stored · ${j.box.length}`, j.box.length ? boxList : h('p', { class: 'hint' }, 'Nothing stored yet.')),
     ]);
   };
+  const render = () => owKeepScroll(body, draw);
   render();
   owSheet('Creature Storage', body, () => owRefreshHud());
 }
@@ -692,7 +728,7 @@ function owCollectionSheet() {
 function owShrineSheet(j) {
   const pick = { a: null, b: null };
   const body = h('div');
-  const render = () => {
+  const draw = () => {
     clear(body);
     const all = [...j.party, ...j.box];
     const list = h('div', { class: 'pool' });
@@ -723,6 +759,7 @@ function owShrineSheet(j) {
           h('button', { class: 'btn', type: 'button', onclick: () => openSheet(child) }, 'Details'))) : null,
     ]);
   };
+  const render = () => owKeepScroll(body, draw);
   render();
   owSheet('Fusion shrine', body, () => owRefreshHud());
 }
