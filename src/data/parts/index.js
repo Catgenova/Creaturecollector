@@ -8,6 +8,7 @@ import { LEGS, ARMS, WINGS } from './limbs.js';
 import { TAILS } from './tails.js';
 import { BACKS } from './backs.js';
 import { PATTERNS } from './patterns.js';
+import { RASTER_PARTS } from './raster.js';
 
 export const SLOTS = ['body', 'head', 'eyes', 'mouth', 'crown', 'legs', 'arms', 'wings', 'tail', 'back', 'pattern'];
 export const SLOT_NAMES = {
@@ -29,11 +30,30 @@ for (const slot of SLOTS) {
   }
 }
 
+/** Add a raster part at runtime (Art tab uploads and anchor edits). Replaces an existing id. */
+export function registerPart(part) {
+  const list = PARTS_BY_SLOT[part.slot];
+  if (!list) throw new Error(`unknown slot ${part.slot}`);
+  const i = list.findIndex((x) => x.id === part.id);
+  if (i >= 0) list[i] = part; else list.push(part);
+  PARTS.set(part.id, part);
+  return part;
+}
+for (const part of RASTER_PARTS) registerPart(part);
+
 export function getPart(id) { return PARTS.get(id) || null; }
 
-/** Does this part fit on a body of the given kind? Parts without a fit list fit everything. */
+export function isRasterKind(kind) { return typeof kind === 'string' && kind.startsWith('r-'); }
+
+/**
+ * Does this part fit on a body of the given kind? Vector parts without a fit list fit every
+ * vector body; raster bodies only take parts that name their rig; "none" fits everywhere.
+ */
 export function partFits(part, bodyKind) {
-  return !part || !part.fit || part.fit.includes(bodyKind);
+  if (!part || part.none) return true;
+  if (isRasterKind(bodyKind)) return Boolean(part.fit && part.fit.includes(bodyKind));
+  if (part.img) return false;
+  return !part.fit || part.fit.includes(bodyKind);
 }
 
 /** All parts for a slot that fit the given body kind (includes the slot's "none" entry when it has one). */
