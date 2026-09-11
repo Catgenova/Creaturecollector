@@ -9,7 +9,7 @@ import { chooseAction } from '../battle/ai.js';
 import { getMove, accuracyText, moveEffects } from '../data/moves.js';
 import { ITEM_IDS, getItem } from '../data/items.js';
 import { TYPE_INFO } from '../data/types.js';
-import { abilityName } from '../data/abilities.js';
+import { abilityName, getAbility } from '../data/abilities.js';
 import { DAMAGE_TYPES, triangleEdge } from '../data/damage.js';
 import { STAGE_LEVELS, stageOf, stageName } from '../data/evolution.js';
 import { openSheet } from './sheet.js';
@@ -65,7 +65,7 @@ function renderPanel(f, i) {
     h('div', { class: 'panel-head' }, h('b', {}, b.name), h('span', { class: 'lvl' }, `Lv ${b.level}`), stageBadge(b.level), styleChip(null, b.style),
       b.status ? h('span', { class: `status st-${b.status}` }, STATUS_INFO[b.status].short) : null),
     typeChips(b.types),
-    h('div', { class: 'passive', title: 'Passive skill' }, abilityName(b.ability)),
+    h('div', { class: 'passive' }, h('b', {}, abilityName(b.ability)), h('span', {}, ` ${(getAbility(b.ability) || { desc: 'No passive skill.' }).desc}`)),
     h('div', { class: 'hpbar' }, h('i', { class: hpClass(frac), style: { width: `${Math.max(0, frac * 100)}%` } })),
     h('div', { class: 'panel-foot' },
       h('span', { class: 'hpnum' }, i === 0 ? `${b.hp} / ${b.maxHp}` : `${Math.ceil(frac * 100)}%`),

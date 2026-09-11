@@ -289,8 +289,9 @@ The fight view (`ui/fight.js`) is portrait: foe panel and creature on top,
 yours below, a four-line log, then move cards with type, damage type, power,
 PP, accuracy, every side effect with its odds (`moveEffects`: "30% burn", "+1
 own Speed", "hits 2–5×", "priority +1") and effectiveness words, plus Party,
-Info, Items, capture, Fast and Auto. Info opens the creature sheet, which
-shows the passive skill with its description, the moves it knows (the same
+Info, Items, capture, Fast and Auto. Each panel names the creature's passive
+skill with its description under the type chips. Info opens the creature
+sheet, which leads with the passive skill card, then the moves it knows (the same
 details) and a Learns by level list: every move on its learnset with the
 level, the known ones marked, the next one ahead flagged. It plays
 the engine's events back with sprite poses and sound, and is mounted by the
@@ -697,8 +698,8 @@ into the collection on load.
   `canLearnScroll`), and any Normal scroll; the Market says who on the team
   can learn each scroll and can hide the rest. Every creature carries one
   passive skill (`genome.ability`, rolled from its species' pair at birth;
-  Elementals take their element's core), shown on the battle panel, in party
-  rows and on the sheet. The Market also sells potions
+  Elementals take their element's core), shown with its description on the
+  battle panel and at the top of the sheet, and by name in party rows. The Market also sells potions
   (`src/data/items.js`): Potion 20 HP for 300, Super Potion 60 for 700, Hyper
   Potion 150 for 1,500, Max Potion full for 2,500, Full Restore full plus any
   status cured for 3,000. A potion works on a standing party member from the

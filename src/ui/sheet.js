@@ -71,10 +71,10 @@ function learnsetRows(g, level, known) {
   return rows.length ? h('div', {}, h('p', { class: 'hint' }, intro), h('div', { class: 'shop-list' }, rows)) : h('p', { class: 'hint' }, 'Nothing to learn.');
 }
 
-/** The passive skill: its name and what it does. */
+/** The passive skill: its name and what it does, shown at the top of the sheet. */
 function abilityCard(g) {
   const a = getAbility(g.ability);
-  return h('div', { class: 'ability-card' }, h('b', {}, a ? a.name : 'None'), h('span', {}, a ? a.desc : 'This creature has no passive skill.'));
+  return h('div', { class: 'ability-card' }, h('small', {}, 'Passive skill'), h('b', {}, a ? a.name : 'None'), h('span', {}, a ? a.desc : 'This creature has no passive skill.'));
 }
 
 let activeSheet = null;
@@ -102,6 +102,7 @@ export function openSheet(g, sheetOpts = {}) {
       elementalBadge(g),
       h('button', { class: 'btn close', onclick: close, 'aria-label': 'Close' }, '✕')),
     h('p', { class: 'meta' }, sp ? `${sp.name} · ${sp.tier}` : 'Fusion', ` · ${cladeName(cladeOf(g))} · gen ${g.gen} · seed ${g.seed}`),
+    abilityCard(g),
     hero,
     stageRow,
     h('div', { class: 'row' },
@@ -112,7 +113,6 @@ export function openSheet(g, sheetOpts = {}) {
         redraw();
       } }, h('option', { value: '' }, 'Elemental preview'), ...ELEMENT_IDS.map((id) => h('option', { value: id }, `${ELEMENTS[id].name} Elemental`)))),
     sp ? h('p', { class: 'desc' }, sp.desc) : null,
-    ...section('Passive skill', abilityCard(g)),
     ...section('Base stats', statRows(g)),
     ...(moveRows(sheetOpts.moves) ? section('Moves', moveRows(sheetOpts.moves)) : []),
     ...section('Learns by level', learnsetRows(g, sheetOpts.level, sheetOpts.moves)),
