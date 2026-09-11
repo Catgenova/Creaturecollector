@@ -41,6 +41,7 @@ test('class rigs: every parent part exposes every socket its draw tree places ch
       const parentSlot = parentOf.get(node);
       for (const parent of partsOf(rigId, parentSlot)) {
         if (parent.none) continue;
+        // a socket may be declared null (the body has no such joint, e.g. a serpent's hips) but never forgotten
         assert.ok(parent.sockets && node.socket in parent.sockets, `${parent.id} lacks socket ${node.socket}`);
       }
     }

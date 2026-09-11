@@ -5,7 +5,7 @@
 // Diploid part genes: every slot holds [expressed, carried]. Only the expressed
 // allele is drawn; the carried one can resurface in offspring.
 import { getPart, partsFor, partsOf, partFits } from '../data/parts/index.js';
-import { RIGS, getRig, slotsFor, paintSlotsFor, noneId } from '../data/rigs.js';
+import { RIGS, getRig, slotsFor, paintSlotsFor, swappableSlotsFor, noneId } from '../data/rigs.js';
 import { SPECIES, SPECIES_BY_ID, TIER_WEIGHT, WILD_SPECIES } from '../data/species.js';
 import { isType } from '../data/types.js';
 import { clamp01, round3, normalizeWeights, b64uEncode, b64uDecode } from '../core/util.js';
@@ -80,9 +80,10 @@ export function speciesGenome(species, rng) {
   }
 
   const paint = {};
+  const swappable = swappableSlotsFor(rig);
   for (const slot of paintSlotsFor(rig)) {
     let idx = (species.paint && species.paint[slot]) || 0;
-    if (rPaint.chance(ROLL.paintSwap)) idx = rPaint.int(PAINT_PERMS.length);
+    if (swappable.includes(slot) && rPaint.chance(ROLL.paintSwap)) idx = rPaint.int(PAINT_PERMS.length);
     paint[slot] = idx;
   }
 

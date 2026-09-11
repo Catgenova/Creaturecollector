@@ -558,6 +558,8 @@ function swatchCss([h, s, l]) { return hsl(h, s, l); }
 //   slots     every slot in the genome, in display order
 //   names     UI labels per slot
 //   paint     slots that carry their own colour-role permutation gene
+//   swappable paint slots a wild roll or fusion may permute at random (accessories only, so
+//             a creature never ends up with one odd-coloured leg)
 //   required  slots that have no "none" part (always drawn)
 //   linked    slot groups that inherit from the same parent in fusion
 //   ground    slots whose lowest point defines where the feet touch the floor
@@ -583,6 +585,7 @@ const RIGS = {
       arms: 'Arms', wings: 'Wings', tail: 'Tail', back: 'Back', pattern: 'Pattern',
     },
     paint: ['body', 'head', 'crown', 'legs', 'arms', 'wings', 'tail', 'back'],
+    swappable: ['crown', 'wings', 'tail', 'back'],
     required: ['body', 'eyes'],
     linked: null, // taken from the class
     ground: ['body', 'legs'],
@@ -610,6 +613,7 @@ const RIGS = {
       tail: 'Tail', mane: 'Mane', horns: 'Horns', back: 'Back', markings: 'Markings',
     },
     paint: ['body', 'head', 'ears', 'legsFront', 'legsBack', 'tail', 'mane', 'horns', 'back', 'markings'],
+    swappable: ['ears', 'tail', 'mane', 'horns', 'back', 'markings'],
     required: ['body', 'head', 'ears', 'eyes', 'muzzle', 'legsFront', 'legsBack', 'tail'],
     linked: [['legsFront', 'legsBack'], ['head', 'muzzle']],
     ground: ['body', 'legsFront', 'legsBack'],
@@ -651,6 +655,57 @@ const RIGS = {
       accentSlots: ['ears', 'tail', 'mane', 'horns', 'back', 'markings'],
     },
   },
+
+  reptile: {
+    id: 'reptile', name: 'Reptile', prefix: 'r.',
+    slots: ['body', 'head', 'eyes', 'jaw', 'crest', 'legsFront', 'legsBack', 'tail', 'back', 'wings', 'throat', 'scales'],
+    names: {
+      body: 'Body', head: 'Head', eyes: 'Eyes', jaw: 'Jaw', crest: 'Crest', legsFront: 'Forelegs', legsBack: 'Hind legs',
+      tail: 'Tail', back: 'Back', wings: 'Wings', throat: 'Throat', scales: 'Scales',
+    },
+    paint: ['body', 'head', 'crest', 'legsFront', 'legsBack', 'tail', 'back', 'wings', 'throat', 'scales'],
+    swappable: ['crest', 'tail', 'back', 'wings', 'throat', 'scales'],
+    required: ['body', 'head', 'eyes', 'jaw', 'legsFront', 'legsBack', 'tail'],
+    linked: [['legsFront', 'legsBack'], ['head', 'jaw']],
+    ground: ['body', 'legsFront', 'legsBack'],
+    clipped: ['scales'],
+    tree: {
+      slot: 'body', anim: 'body',
+      behind: [
+        { slot: 'wings', socket: 'wingFar', far: true, scale: 'wing', anim: 'flap' },
+        { slot: 'wings', socket: 'wing', scale: 'wing', anim: 'flap' },
+        { slot: 'back', socket: 'back' },
+        { slot: 'tail', socket: 'tail', scale: 'tail', anim: 'tail' },
+        { slot: 'legsBack', socket: 'hipFar', far: true, scale: 'leg' },
+        { slot: 'legsFront', socket: 'shoulderFar', far: true, scale: 'leg' },
+      ],
+      front: [
+        { slot: 'legsBack', socket: 'hip', scale: 'leg' },
+        { slot: 'legsFront', socket: 'shoulder', scale: 'leg' },
+        {
+          slot: 'head', socket: 'head', scale: 'head', anim: 'head',
+          behind: [
+            { slot: 'crest', socket: 'crest' },
+            { slot: 'throat', socket: 'throat' },
+          ],
+          front: [
+            { slot: 'eyes', socket: 'eyeFar', far: true, scale: 'eye', small: true },
+            { slot: 'eyes', socket: 'eye', scale: 'eye', small: true },
+            { slot: 'jaw', socket: 'jaw', small: true },
+          ],
+        },
+      ],
+    },
+    mannequin: {
+      parts: {
+        body: 'r.body.lizard', head: 'r.head.lizard', eyes: 'r.eyes.round', jaw: 'r.jaw.grin', crest: 'r.crest.none',
+        legsFront: 'r.legsFront.lizard', legsBack: 'r.legsBack.lizard', tail: 'r.tail.lizard', back: 'r.back.none',
+        wings: 'r.wings.none', throat: 'r.throat.none', scales: 'r.scales.none',
+      },
+      forSlot: {},
+      accentSlots: ['crest', 'tail', 'back', 'wings', 'throat', 'scales'],
+    },
+  },
 };
 
 const RIG_IDS = Object.keys(RIGS);
@@ -658,6 +713,7 @@ const RIG_IDS = Object.keys(RIGS);
 function getRig(id) { return RIGS[id] || RIGS.legacy; }
 function slotsFor(rig) { return getRig(rig).slots; }
 function paintSlotsFor(rig) { return getRig(rig).paint; }
+function swappableSlotsFor(rig) { const r = getRig(rig); return r.swappable || r.paint; }
 function slotName(rig, slot) { return getRig(rig).names[slot] || slot; }
 function noneId(rig, slot) { return `${getRig(rig).prefix}${slot}.none`; }
 
@@ -1303,46 +1359,57 @@ const PATTERNS = [
     prims: [[-30, -10], [-10, -22], [10, -10], [30, -22], [-20, 12], [0, 2], [20, 14]].map(([x, y]) => L(`M${x - 7},${y - 4} L${x},${y - 8} L${x + 7},${y - 4} L${x + 7},${y + 4} L${x},${y + 8} L${x - 7},${y + 4} Z`, 'k', 1.1, { op: 0.28 })) },
 ];
 
-// ---- src/data/parts/mammal/_shared.js ----
-// Shared builders for the mammal library. Every mammal part is authored facing
-// right at a common scale: a mid-sized quadruped torso is about 90 wide and 50
-// tall, its head about 45 across, its legs about 40 long.
+// ---- src/data/parts/_builders.js ----
+// Part builders shared by the class libraries. partBuilders(prefix) returns
+// body / leg / part constructors that namespace ids with the rig's prefix
+// ("m." mammals, "r." reptiles) and derive clip paths from the silhouettes.
 
 
-const MAMMAL = 'm.';
+const shapeToPath = (s) => (typeof s === 'string' ? s : Array.isArray(s) ? spline(s) : s.d || spline(s.pts));
+const shapeRole = (s) => (s && !Array.isArray(s) && typeof s === 'object' && s.f) || 'p';
 
-/** A body part: torso silhouette from points, clip and box derived, shading layered on. */
-function mBody({ id, name, kind = 'mammal.quad', pts, sockets, dom = 0.5, w = 2, tags = [], shade = [], extra = [], hover }) {
-  const d = spline(pts);
-  const prims = [P(d, 'p'), ...shade, ...extra];
-  return { id: `${MAMMAL}body.${id}`, slot: 'body', name, kind, tags, dom, w, clip: [d], hover, prims, sockets };
+function partBuilders(prefix) {
+  /** A torso: silhouette shapes (point lists, paths or {pts|d, f}), clip and box derived, shading layered on. */
+  const body = ({ id, name, kind, pts, shapes, sockets, dom = 0.5, w = 2, tags = [], shade = [], extra = [], hover, bottom }) => {
+    const list = shapes || [pts];
+    const clip = list.map(shapeToPath);
+    const prims = [...list.map((s, i) => P(clip[i], shapeRole(s))), ...shade, ...extra];
+    const part = { id: `${prefix}body.${id}`, slot: 'body', name, kind, tags, dom, w, clip, prims, sockets };
+    if (hover) part.hover = hover;
+    if (bottom != null) part.bottom = bottom;
+    return part;
+  };
+
+  /** A leg: clip = union of its shapes so socks and shading stay inside the silhouette. */
+  const leg = ({ id, slot, name, shapes, extra = [], dom = 0.5, w = 2, tags = [], fit }) => {
+    const clip = shapes.map(shapeToPath);
+    const part = { id: `${prefix}${slot}.${id}`, slot, name, tags, dom, w, clip, prims: [...shapes.map((s, i) => P(clip[i], shapeRole(s))), ...extra] };
+    if (fit) part.fit = fit;
+    return part;
+  };
+
+  /** Generic part: silhouette shapes first (they form the clip), then details. */
+  const part = ({ id, slot, name, shapes = [], extra = [], dom = 0.5, w = 2, tags = [], sockets, fit, fitBox, hover }) => {
+    const clip = shapes.map(shapeToPath);
+    const out = { id: `${prefix}${slot}.${id}`, slot, name, tags, dom, w, prims: [...shapes.map((s, i) => P(clip[i], shapeRole(s))), ...extra] };
+    if (clip.length) out.clip = clip;
+    if (sockets) out.sockets = sockets;
+    if (fit) out.fit = fit;
+    if (fitBox != null) out.fitBox = fitBox;
+    if (hover) out.hover = hover;
+    return out;
+  };
+
+  return { body, leg, part };
 }
 
-/** Standard belly shadow and back highlight for a torso spanning x0..x1 with belly line at yBelly and spine at ySpine. */
+/** Standard belly shadow and back highlight for a torso spanning x0..x1 with spine at ySpine and belly line at yBelly. */
 function torsoShade(x0, x1, ySpine, yBelly, o = {}) {
   const midY = yBelly - (yBelly - ySpine) * (o.shadeFrac == null ? 0.42 : o.shadeFrac);
   const shade = SH(`M${x0 - 10},${midY} C${x0 + (x1 - x0) * 0.3},${midY + 8} ${x0 + (x1 - x0) * 0.7},${midY + 8} ${x1 + 10},${midY - 4} L${x1 + 10},${yBelly + 20} L${x0 - 10},${yBelly + 20} Z`, o.shade == null ? 0.14 : o.shade);
   const hy = ySpine + (yBelly - ySpine) * 0.18;
   const light = HL(`M${x0 + 6},${ySpine - 10} C${x0 + (x1 - x0) * 0.3},${ySpine - 12} ${x1 - 20},${ySpine - 12} ${x1 - 4},${ySpine - 4} L${x1 - 8},${hy} C${x1 - 24},${hy - 6} ${x0 + (x1 - x0) * 0.3},${hy - 4} ${x0 + 6},${hy + 2} Z`, o.light == null ? 0.16 : o.light);
   return [shade, light];
-}
-
-/** A leg part. clip = union of its shapes so socks and shading stay inside the silhouette. */
-function mLeg({ id, slot, name, shapes, extra = [], dom = 0.5, w = 2, tags = [], fit }) {
-  const clip = shapes.map((s) => (typeof s === 'string' ? s : spline(s)));
-  return { id: `${MAMMAL}${slot}.${id}`, slot, name, tags, dom, w, fit, clip, prims: [...clip.map((d) => P(d, 'p')), ...extra] };
-}
-
-/** Generic part with a silhouette (first shape) and details. */
-function mPart({ id, slot, name, shapes = [], extra = [], dom = 0.5, w = 2, tags = [], sockets, fit, fitBox, hover }) {
-  const clip = shapes.map((s) => (typeof s === 'string' ? s : spline(s)));
-  const part = { id: `${MAMMAL}${slot}.${id}`, slot, name, tags, dom, w, prims: [...clip.map((d) => P(d, 'p')), ...extra] };
-  if (clip.length) part.clip = clip;
-  if (sockets) part.sockets = sockets;
-  if (fit) part.fit = fit;
-  if (fitBox != null) part.fitBox = fitBox;
-  if (hover) part.hover = hover;
-  return part;
 }
 
 /** Toe lines on a paw: n short dark ticks across x0..x1 at y, pointing down. */
@@ -1352,10 +1419,32 @@ function toes(x0, x1, y, n = 2, len = 3, op = 0.55) {
   return { t: 'line', d: d.trim(), f: 'k', w: 1.6, op };
 }
 
+/** Claws: n small pale triangles along the front of a foot from x0..x1 at y, pointing down-right. */
+function claws(x0, x1, y, n = 3, len = 4, f = 'w') {
+  const out = [];
+  for (let i = 0; i < n; i++) {
+    const x = x0 + ((x1 - x0) * i) / Math.max(1, n - 1);
+    out.push({ t: 'path', d: `M${x - 2},${y - 1} L${x + 1.5},${y + len} L${x + 3.5},${y - 1} Z`, f, sw: 1.2 });
+  }
+  return out;
+}
+
 /** A dark "sock" from y down over the leg, clipped to the leg silhouette. */
 function sock(y, role = 'a', x0 = -30, x1 = 30, curve = 3) {
   return PATCH(`M${x0},${y + curve} Q0,${y - curve} ${x1},${y + curve} L${x1},${y + 60} L${x0},${y + 60} Z`, role);
 }
+
+// ---- src/data/parts/mammal/_shared.js ----
+// Mammal builders: the shared constructors namespaced with "m.".
+// Every mammal part is authored facing right at a common scale: a mid-sized
+// quadruped torso is about 90 wide and 50 tall, its head about 45 across, its
+// legs about 40 long.
+
+
+const mammalBuilders = partBuilders('m.');
+const mBody = (o) => mammalBuilders.body({ kind: 'mammal.quad', ...o });
+const mLeg = mammalBuilders.leg;
+const mPart = mammalBuilders.part;
 
 // ---- src/data/parts/mammal/bodies.js ----
 // Mammal torsos. Origin = centre of the torso. Sockets (body coordinates):
@@ -2155,6 +2244,659 @@ const MAMMAL_PARTS = {
   horns: M_HORNS, back: M_BACKS, markings: M_MARKINGS,
 };
 
+// ---- src/data/parts/reptile/_shared.js ----
+// Reptile builders: the shared constructors namespaced with "r.".
+// Reptiles are long and low: a quadruped torso is about 95 wide and 38 tall,
+// heads 40 to 55 long, legs about 28 long and splayed. Serpents coil.
+
+
+const reptileBuilders = partBuilders('r.');
+const rBody = reptileBuilders.body;
+const rLeg = reptileBuilders.leg;
+const rPart = reptileBuilders.part;
+
+// ---- src/data/parts/reptile/bodies.js ----
+// Reptile torsos. Origin = centre of the torso. Sockets (body coordinates):
+//   head        neck point the head's origin sits on
+//   shoulder / shoulderFar, hip / hipFar   leg joints (absent on serpents)
+//   tail {x,y,a}  back {x,y,a}  wing / wingFar {x,y}
+// kind: 'reptile.quad', 'reptile.biped' (upright, forelegs hang as arms) or 'reptile.serpent' (no legs)
+
+
+
+const ring = (cx, cy, rx, ry, n = 12) => arcPts(cx, cy, rx, ry, 0, 360, n).slice(0, n);
+
+const R_BODIES = [
+  rBody({
+    id: 'lizard', name: 'Low', kind: 'reptile.quad', tags: ['lizard'], dom: 0.5, w: 3,
+    pts: [[34, -18], [10, -22], [-16, -20], [-38, -14], [-46, -2], [-40, 10], [-24, 16], [0, 18], [22, 16], [38, 10], [46, -2], [44, -12]],
+    shade: torsoShade(-46, 46, -22, 18),
+    sockets: {
+      head: { x: 34, y: -9, a: 0, s: 1 },
+      shoulder: { x: 28, y: 8 }, shoulderFar: { x: 16, y: 4 }, hip: { x: -28, y: 6 }, hipFar: { x: -38, y: 2 },
+      tail: { x: -44, y: 0, a: 0 }, back: { x: -6, y: -22, a: 0 }, wing: { x: -10, y: -16 }, wingFar: { x: -22, y: -18 },
+    },
+  }),
+  rBody({
+    id: 'croc', name: 'Armoured', kind: 'reptile.quad', tags: ['croc', 'long'], dom: 0.55, w: 2,
+    pts: [[36, -14], [10, -18], [-20, -17], [-42, -12], [-50, 0], [-44, 10], [-24, 16], [0, 18], [26, 16], [42, 10], [50, 0], [46, -8]],
+    shade: torsoShade(-50, 50, -18, 18),
+    extra: [L('M-34,-10 C-30,-14 -26,-14 -22,-10 M-16,-13 C-12,-17 -8,-17 -4,-13 M2,-14 C6,-18 10,-18 14,-14 M20,-12 C24,-16 28,-16 32,-12', 'k', 1.2, { op: 0.3 })],
+    sockets: {
+      head: { x: 40, y: -4, a: 0, s: 1 },
+      shoulder: { x: 30, y: 8 }, shoulderFar: { x: 18, y: 4 }, hip: { x: -30, y: 6 }, hipFar: { x: -40, y: 2 },
+      tail: { x: -48, y: 2, a: 0 }, back: { x: -8, y: -18, a: 0 }, wing: { x: -12, y: -12 }, wingFar: { x: -24, y: -14 },
+    },
+  }),
+  rBody({
+    id: 'turtle', name: 'Shelled', kind: 'reptile.quad', tags: ['turtle', 'shell'], dom: 0.55, w: 2,
+    shapes: [
+      { pts: [[30, 2], [36, 10], [26, 18], [0, 20], [-26, 18], [-36, 10], [-30, 2]], f: 's' },
+      [[26, -34], [0, -40], [-26, -34], [-40, -16], [-42, 0], [-34, 10], [-10, 14], [14, 14], [34, 10], [42, 0], [40, -16]],
+    ],
+    shade: [SH('M-44,2 C-20,12 20,12 44,2 L44,30 L-44,30 Z', 0.14), HL('M-22,-32 C-10,-40 10,-40 22,-32 C10,-34 -10,-34 -22,-28 Z', 0.2)],
+    extra: [
+      PATCH('M-42,2 C-30,10 30,10 42,2 L42,12 L-42,12 Z', 'a', { op: 0.6 }),
+      L('M-12,-30 L-22,-14 L-12,0 L8,0 L18,-14 L8,-30 Z M8,-30 L14,-38 M18,-14 L34,-14 M8,0 L14,10 M-12,0 L-18,10 M-22,-14 L-38,-14 M-12,-30 L-18,-38', 'k', 1.4, { op: 0.28 }),
+    ],
+    sockets: {
+      head: { x: 36, y: 0, a: 0, s: 0.95 },
+      shoulder: { x: 26, y: 10 }, shoulderFar: { x: 16, y: 6 }, hip: { x: -26, y: 8 }, hipFar: { x: -36, y: 4 },
+      tail: { x: -40, y: 6, a: 0 }, back: { x: 0, y: -40, a: 0 }, wing: { x: -8, y: -30 }, wingFar: { x: -20, y: -32 },
+    },
+  }),
+  rBody({
+    id: 'dragon', name: 'Upright', kind: 'reptile.biped', tags: ['dragon', 'upright'], dom: 0.55, w: 2,
+    pts: [[4, -40], [20, -34], [30, -16], [32, 4], [26, 24], [10, 34], [-10, 34], [-26, 24], [-32, 4], [-30, -16], [-20, -32], [-6, -40]],
+    shade: torsoShade(-32, 32, -40, 34, { shadeFrac: 0.3 }),
+    sockets: {
+      head: { x: 6, y: -36, a: 0, s: 1 },
+      shoulder: { x: 14, y: -12 }, shoulderFar: { x: -6, y: -16 }, hip: { x: 8, y: 20 }, hipFar: { x: -12, y: 16 },
+      tail: { x: -28, y: 16, a: 20 }, back: { x: -16, y: -34, a: -20 }, wing: { x: -12, y: -26 }, wingFar: { x: -24, y: -28 },
+    },
+  }),
+  rBody({
+    id: 'serpent', name: 'Coiled', kind: 'reptile.serpent', tags: ['snake', 'legless'], dom: 0.55, w: 2,
+    shapes: [ring(-12, -6, 34, 12), ring(-2, 10, 48, 16), tube([[12, 4], [26, -10], [34, -26], [36, -42]], 22, 17)],
+    shade: [SH('M-48,-6 C-30,4 10,4 24,-6 L24,6 L-48,6 Z', 0.12), SH('M-52,12 C-30,22 30,22 50,10 L50,30 L-52,30 Z', 0.14), HL('M-40,-14 C-24,-18 -2,-18 12,-14 L10,-10 C-2,-13 -24,-13 -38,-10 Z', 0.16), HL('M22,-14 C26,-22 30,-30 32,-38 L36,-38 C34,-30 30,-22 28,-12 Z', 0.16)],
+    extra: [L('M-44,8 C-20,4 20,4 44,8', 'k', 1.2, { op: 0.2 })],
+    bottom: 26,
+    sockets: {
+      head: { x: 36, y: -40, a: -6, s: 1 },
+      shoulder: null, shoulderFar: null, hip: null, hipFar: null,
+      tail: { x: -48, y: 12, a: 0 }, back: { x: -12, y: -18, a: 0 }, wing: { x: -4, y: -14 }, wingFar: { x: -16, y: -16 },
+    },
+  }),
+  rBody({
+    id: 'chameleon', name: 'Humped', kind: 'reptile.quad', tags: ['chameleon'], dom: 0.5, w: 2,
+    pts: [[26, -22], [6, -30], [-14, -30], [-32, -22], [-42, -6], [-38, 8], [-24, 16], [0, 18], [22, 16], [36, 8], [42, -4], [38, -14]],
+    shade: torsoShade(-42, 42, -30, 18),
+    extra: [L('M-30,-4 C-20,-2 -10,-2 0,-4 M-26,4 C-14,6 -2,6 10,4', 'k', 1.1, { op: 0.2 })],
+    sockets: {
+      head: { x: 36, y: -16, a: 0, s: 1 },
+      shoulder: { x: 24, y: 8 }, shoulderFar: { x: 12, y: 4 }, hip: { x: -26, y: 6 }, hipFar: { x: -36, y: 2 },
+      tail: { x: -42, y: 2, a: 0 }, back: { x: -8, y: -31, a: 0 }, wing: { x: -10, y: -24 }, wingFar: { x: -22, y: -26 },
+    },
+  }),
+  rBody({
+    id: 'raptor', name: 'Sprinter', kind: 'reptile.biped', tags: ['raptor', 'upright'], dom: 0.5, w: 2,
+    pts: [[14, -30], [30, -22], [36, -6], [30, 10], [14, 20], [-6, 22], [-24, 16], [-36, 4], [-34, -12], [-22, -26], [-4, -32]],
+    shade: torsoShade(-36, 36, -32, 22, { shadeFrac: 0.35 }),
+    sockets: {
+      head: { x: 30, y: -24, a: -10, s: 1 },
+      shoulder: { x: 24, y: -4 }, shoulderFar: { x: 10, y: -8 }, hip: { x: -10, y: 12 }, hipFar: { x: -24, y: 8 },
+      tail: { x: -36, y: -2, a: 0 }, back: { x: -10, y: -30, a: 0 }, wing: { x: -8, y: -22 }, wingFar: { x: -20, y: -24 },
+    },
+  }),
+];
+
+// ---- src/data/parts/reptile/heads.js ----
+// Reptile heads. Origin = neck point. Long low skulls in three-quarter view with a pale jaw.
+// Sockets: eye / eyeFar {x,y,s}, jaw {x,y,a,s} at the mouth corner, crest {x,y,a,s} on the crown,
+// throat {x,y,a,s} under the jaw.
+
+
+
+const R_HEADS = [
+  rPart({
+    id: 'lizard', slot: 'head', name: 'Wedge', tags: ['lizard'], dom: 0.5, w: 3,
+    shapes: [[[-12, -26], [4, -30], [20, -26], [36, -14], [42, -6, 'c'], [36, 2], [18, 6], [0, 6], [-14, 0], [-18, -12]]],
+    extra: [
+      PATCH('M44,-8 C36,-8 26,-6 14,-4 C4,-2 -8,-4 -18,-10 L-20,10 L44,10 Z', 's'),
+      SH('M-18,-6 C-4,2 16,4 40,-2 L40,10 L-18,10 Z', 0.1),
+      HL('M-10,-26 C0,-32 14,-30 26,-22 C14,-26 2,-26 -8,-22 Z', 0.18),
+      C(36, -11, 1.4, 'k', { ns: true, op: 0.6 }),
+      L('M-8,-16 C2,-20 14,-18 24,-12', 'k', 1.2, { op: 0.25 }),
+    ],
+    sockets: { eye: { x: 12, y: -16, s: 1 }, eyeFar: { x: -4, y: -18, s: 0.8 }, jaw: { x: 36, y: -2, a: 0, s: 1 }, crest: { x: 4, y: -30, a: 0, s: 1 }, throat: { x: 8, y: 6, a: 0, s: 1 } },
+  }),
+  rPart({
+    id: 'croc', slot: 'head', name: 'Snapper', tags: ['croc'], dom: 0.55, w: 2,
+    shapes: [[[-12, -24], [2, -28], [14, -24], [26, -18], [50, -12], [56, -6, 'c'], [50, 2], [30, 4], [6, 6], [-12, 2], [-18, -10]]],
+    extra: [
+      PATCH('M58,-6 C46,-6 30,-4 12,-2 C0,0 -10,-2 -18,-6 L-20,10 L58,10 Z', 's'),
+      SH('M-18,-4 C0,4 24,6 54,-2 L54,10 L-18,10 Z', 0.1),
+      HL('M-10,-24 C0,-30 12,-28 22,-20 C12,-24 0,-24 -8,-20 Z', 0.18),
+      P('M26,-2 L28,3 L30,-2 Z M34,-3 L36,2 L38,-3 Z M42,-4 L44,1 L46,-4 Z', 'w', { sw: 1.1 }),
+      L('M2,-24 C6,-28 10,-28 14,-24 M14,-22 C18,-25 22,-25 26,-20', 'k', 1.2, { op: 0.3 }),
+      C(50, -11, 1.5, 'k', { ns: true, op: 0.6 }),
+    ],
+    sockets: { eye: { x: 8, y: -20, s: 1 }, eyeFar: { x: -6, y: -22, s: 0.8 }, jaw: { x: 48, y: 0, a: 0, s: 1 }, crest: { x: 0, y: -28, a: 0, s: 1 }, throat: { x: 6, y: 6, a: 0, s: 1 } },
+  }),
+  rPart({
+    id: 'turtle', slot: 'head', name: 'Stubby', tags: ['turtle'], dom: 0.45, w: 2,
+    shapes: [[[-8, -22], [4, -26], [16, -22], [26, -12], [28, -2, 0.4], [22, 6], [8, 8], [-6, 6], [-12, -6]]],
+    extra: [
+      PATCH('M30,-4 C22,-2 12,0 2,0 C-6,0 -10,-2 -14,-6 L-16,12 L30,12 Z', 's'),
+      SH('M-14,-2 C0,6 14,8 28,2 L28,12 L-14,12 Z', 0.1),
+      HL('M-6,-22 C2,-28 12,-26 20,-18 C12,-22 2,-22 -4,-18 Z', 0.18),
+      C(24, -10, 1.2, 'k', { ns: true, op: 0.6 }),
+    ],
+    sockets: { eye: { x: 12, y: -14, s: 1 }, eyeFar: { x: -2, y: -16, s: 0.8 }, jaw: { x: 24, y: 0, a: 0, s: 1 }, crest: { x: 4, y: -26, a: 0, s: 1 }, throat: { x: 6, y: 8, a: 0, s: 1 } },
+  }),
+  rPart({
+    id: 'dragon', slot: 'head', name: 'Draconic', tags: ['dragon'], dom: 0.55, w: 2,
+    shapes: [[[-10, -34], [6, -40], [22, -36], [32, -26], [44, -14], [46, -6, 'c'], [38, 2], [20, 4], [2, 4], [-14, -4], [-18, -18]]],
+    extra: [
+      PATCH('M48,-8 C40,-8 28,-6 14,-4 C4,-2 -6,-4 -16,-10 L-18,10 L48,10 Z', 's'),
+      SH('M-18,-8 C0,2 20,4 46,-4 L46,10 L-18,10 Z', 0.1),
+      HL('M-8,-34 C2,-42 16,-40 28,-30 C16,-34 4,-34 -6,-30 Z', 0.18),
+      L('M-4,-26 C8,-32 20,-30 30,-22', 'k', 1.4, { op: 0.35 }),
+      L('M-8,-14 L-2,-12 M-6,-8 L0,-6', 'k', 1, { op: 0.25 }),
+      C(40, -15, 1.6, 'k', { ns: true, op: 0.6 }),
+    ],
+    sockets: { eye: { x: 18, y: -22, s: 1 }, eyeFar: { x: 0, y: -25, s: 0.8 }, jaw: { x: 40, y: -2, a: 0, s: 1 }, crest: { x: 8, y: -40, a: 0, s: 1 }, throat: { x: 6, y: 4, a: 0, s: 1 } },
+  }),
+  rPart({
+    id: 'cobra', slot: 'head', name: 'Hooded', tags: ['snake', 'cobra'], dom: 0.55, w: 2,
+    shapes: [
+      [[-30, -40], [-10, -52], [16, -50], [30, -36], [26, -20], [12, -10], [-12, -10], [-28, -22]],
+      [[-6, -30], [8, -32], [22, -26], [32, -16], [34, -8, 'c'], [26, -2], [10, 0], [-6, -2], [-12, -14]],
+    ],
+    extra: [
+      S([[-14, -40], [-2, -46], [10, -40], [8, -30], [-2, -24], [-12, -30]], 'a', { ns: true, cl: true }),
+      L('M-24,-34 C-16,-44 0,-48 14,-44', 'k', 1.2, { op: 0.25 }),
+      PATCH('M36,-8 C28,-6 16,-4 4,-4 C-4,-4 -8,-6 -12,-10 L-14,8 L36,8 Z', 's'),
+      SH('M-12,-6 C0,2 14,4 32,-2 L32,8 L-12,8 Z', 0.1),
+      HL('M-6,-30 C2,-36 12,-34 20,-26 C12,-30 2,-30 -4,-26 Z', 0.18),
+      C(28, -14, 1.3, 'k', { ns: true, op: 0.6 }),
+    ],
+    sockets: { eye: { x: 16, y: -20, s: 1 }, eyeFar: { x: 2, y: -22, s: 0.8 }, jaw: { x: 30, y: -6, a: 0, s: 1 }, crest: { x: 4, y: -32, a: 0, s: 1 }, throat: { x: 6, y: 0, a: 0, s: 1 } },
+  }),
+  rPart({
+    id: 'chameleon', slot: 'head', name: 'Casqued', tags: ['chameleon'], dom: 0.5, w: 2,
+    shapes: [[[-8, -30], [6, -46, 'c'], [18, -36], [30, -26], [38, -14], [40, -6, 'c'], [32, 2], [14, 6], [-4, 6], [-14, -4], [-16, -18]]],
+    extra: [
+      PATCH('M42,-6 C34,-4 22,-2 10,-2 C0,-2 -8,-4 -14,-8 L-16,10 L42,10 Z', 's'),
+      SH('M-16,-6 C0,2 16,4 38,-2 L38,10 L-16,10 Z', 0.1),
+      HL('M-6,-30 C0,-40 8,-42 16,-34 C8,-36 2,-34 -4,-28 Z', 0.18),
+      L('M-4,-28 L6,-42', 'k', 1.2, { op: 0.3 }),
+      L('M-2,-14 C10,-10 22,-10 34,-12', 'k', 1.2, { op: 0.25 }),
+      C(34, -12, 1.2, 'k', { ns: true, op: 0.6 }),
+    ],
+    sockets: { eye: { x: 16, y: -20, s: 1.15 }, eyeFar: { x: -2, y: -22, s: 0.95 }, jaw: { x: 34, y: -2, a: 0, s: 1 }, crest: { x: 6, y: -46, a: 0, s: 1 }, throat: { x: 8, y: 6, a: 0, s: 1 } },
+  }),
+  rPart({
+    id: 'raptor', slot: 'head', name: 'Toothy', tags: ['raptor'], dom: 0.5, w: 2,
+    shapes: [[[-10, -30], [4, -34], [18, -30], [30, -22], [48, -10], [52, -4, 'c'], [46, 4], [24, 6], [4, 6], [-12, 0], [-16, -14]]],
+    extra: [
+      PATCH('M54,-4 C44,-4 30,-2 12,0 C2,1 -8,-1 -16,-6 L-18,10 L54,10 Z', 's'),
+      SH('M-16,-4 C0,4 24,6 50,-2 L50,10 L-16,10 Z', 0.1),
+      HL('M-8,-30 C2,-36 14,-34 24,-26 C14,-30 2,-30 -6,-26 Z', 0.18),
+      P('M24,0 L26,5 L28,0 Z M32,-1 L34,4 L36,-1 Z M40,-3 L42,2 L44,-3 Z', 'w', { sw: 1.1 }),
+      L('M0,-22 C10,-26 20,-24 30,-18', 'k', 1.4, { op: 0.35 }),
+      C(46, -9, 1.4, 'k', { ns: true, op: 0.6 }),
+    ],
+    sockets: { eye: { x: 14, y: -20, s: 1 }, eyeFar: { x: -2, y: -22, s: 0.8 }, jaw: { x: 44, y: -1, a: 0, s: 1 }, crest: { x: 4, y: -34, a: 0, s: 1 }, throat: { x: 6, y: 6, a: 0, s: 1 } },
+  }),
+];
+
+// ---- src/data/parts/reptile/eyes.js ----
+// Reptile eyes. Origin = eye centre. Many are coloured all over with a slit pupil.
+
+
+
+function rEye({ id, name, shape, sclera = 'w', iris = [0.8, 0.2, 3.8], irisRole = 'e', pupil = [1.2, 0.5, 2], pupilPath, glint = [2.2, -1.8, 1.3], glint2 = [-1, 1.8, 0.7], lid, lidFill, before = [], dom = 0.5, w = 2, tags = [] }) {
+  const prims = [...before];
+  if (shape) prims.push(P(shape, sclera, { sw: 2 }));
+  if (iris) {
+    prims.push(C(iris[0], iris[1], iris[2], irisRole, { ns: true, cl: Boolean(shape) }));
+    prims.push(C(iris[0] + 0.5, iris[1] + 1, iris[2] * 0.72, 'ed', { ns: true, cl: Boolean(shape), op: 0.5 }));
+  }
+  if (pupilPath) prims.push(P(pupilPath, 'k', { ns: true, cl: Boolean(shape) }));
+  else if (pupil) prims.push(Array.isArray(pupil[2]) ? E(pupil[0], pupil[1], pupil[2][0], pupil[2][1], 'k', { ns: true, cl: Boolean(shape) }) : C(pupil[0], pupil[1], pupil[2], 'k', { ns: true, cl: Boolean(shape) }));
+  if (glint) prims.push(C(glint[0], glint[1], glint[2], 'w', { ns: true }));
+  if (glint2) prims.push(C(glint2[0], glint2[1], glint2[2], 'w', { ns: true, op: 0.7 }));
+  if (lidFill) prims.push(P(lidFill, 'p', { ns: true, cl: Boolean(shape) }));
+  if (lid) prims.push(L(lid, 'k', 1.8));
+  return rPart({ id, slot: 'eyes', name, tags, dom, w, extra: prims });
+}
+
+const OVAL = spline([[0, -6.5], [6, -2], [5.4, 5], [0, 6.8], [-5.4, 5], [-6, -2]]);
+
+const R_EYES = [
+  rEye({ id: 'round', name: 'Round', tags: ['cute'], w: 3, shape: OVAL, lid: 'M-5,-5 Q0,-8.4 5,-5' }),
+  rEye({ id: 'slit', name: 'Slit', tags: ['snake'], w: 3, shape: OVAL, sclera: 'e', iris: [0.4, 0.2, 4.6], irisRole: 'el', pupil: [0.8, 0.2, [1.4, 5.2]], glint: [2.6, -2.4, 1.2], lid: 'M-5,-5.2 Q0,-8.6 5.2,-5.2' }),
+  rEye({ id: 'turret', name: 'Turret', tags: ['chameleon'], w: 2, shape: null, before: [C(0, 0, 8, 'p'), L('M-5,-5 C-2,-2 2,-2 5,-5 M-6,2 C-2,4 2,4 6,2', 'k', 1, { op: 0.3 })], iris: [1.5, 0, 3.4], pupil: [2, 0, 1.4], glint: [2.8, -1.4, 0.8], glint2: null }),
+  rEye({ id: 'fierce', name: 'Fierce', tags: ['angry'], w: 2, shape: spline([[-6.5, -4], [0, -5.5], [6.5, -2], [6.5, 3], [2, 5.5], [-4, 5], [-7, 1]]), iris: [1, 0.6, 3.6], pupil: [1.4, 0.9, [1.4, 3.2]], glint: [2.4, -1, 1.1], lidFill: 'M-9,-10 L9,-10 L9,-1.5 L-9,-5.8 Z', lid: 'M-7,-5.5 L6.5,-1.5' }),
+  rEye({ id: 'hooded', name: 'Hooded', tags: ['calm'], w: 2, shape: OVAL, iris: [0.8, 1.2, 3.8], pupil: [1.2, 1.5, 2], glint: [2.2, -0.4, 1.1], glint2: null, lidFill: 'M-9,-10 L9,-10 L9,-1 L-9,-1 Z', lid: 'M-6,-1 L6,-1' }),
+  rEye({ id: 'bead', name: 'Bead', tags: ['small'], w: 3, shape: spline([[0, -5], [4.8, -1.5], [4.2, 3.6], [0, 5.2], [-4.2, 3.6], [-4.8, -1.5]]), iris: [0.4, 0, 4.4], pupil: [0.6, 0.2, 3.2], glint: [1.8, -1.8, 1.2], glint2: [-1, 1.5, 0.6], lid: null }),
+  rEye({ id: 'gem', name: 'Gem', tags: ['dragon'], w: 2, shape: OVAL, sclera: 'e', iris: [0.6, 0.2, 4.4], irisRole: 'el', pupilPath: 'M1,-4.6 L3.6,0 L1,4.6 L-1.6,0 Z', glint: [2.6, -2.6, 1.2], lid: 'M-5,-5.2 Q0,-8.6 5.2,-5.2' }),
+];
+
+// ---- src/data/parts/reptile/jaws.js ----
+// Reptile jaws: the mouth line, teeth, beaks and tongues. Origin = the mouth corner on the head's jaw socket.
+
+
+
+const MOUTH = 'M2,0 C-6,3 -14,4 -22,2';
+
+const R_JAWS = [
+  rPart({ id: 'grin', slot: 'jaw', name: 'Grin', tags: ['teeth'], dom: 0.5, w: 3, extra: [L(MOUTH, 'k', 1.9), P('M-6,2.2 L-4.5,5.5 L-3,2.4 Z M-12,2.8 L-10.5,6 L-9,2.8 Z M-18,2.6 L-16.5,5.6 L-15,2.4 Z', 'w', { sw: 1 })] }),
+  rPart({ id: 'fangs', slot: 'jaw', name: 'Fangs', tags: ['snake'], dom: 0.55, w: 2, extra: [L(MOUTH, 'k', 1.9), P('M-4,2.5 L-2,9.5 L0,2 Z', 'w', { sw: 1.2 }), P('M-13,3 L-11,9 L-9,2.8 Z', 'w', { sw: 1.2 })] }),
+  rPart({ id: 'beak', slot: 'jaw', name: 'Beak', tags: ['turtle'], dom: 0.5, w: 2, extra: [P('M4,-6 C8,-4 8,2 3,4 C-2,6 -10,6 -16,3 C-8,2 -2,0 2,-2 Z', 'a', { sw: 1.6 }), L('M-14,3 C-8,2 -2,0 3,-3', 'k', 1.2)] }),
+  rPart({ id: 'tongue', slot: 'jaw', name: 'Forked tongue', tags: ['snake'], dom: 0.5, w: 2, extra: [L(MOUTH, 'k', 1.8), P('M2,0 C8,-2 14,-2 18,0 L22,-3 L20,1 L23,3 L17,1 C13,1 8,2 3,2 Z', 'a', { sw: 1 })] }),
+  rPart({ id: 'tusks', slot: 'jaw', name: 'Tusks', tags: ['boar'], dom: 0.5, w: 1, extra: [L(MOUTH, 'k', 1.9), P('M-6,1 L-4,-8 L-1,2 Z', 'w', { sw: 1.2 }), P('M-16,2 L-14,-6 L-11,3 Z', 'w', { sw: 1.2 })] }),
+  rPart({ id: 'smirk', slot: 'jaw', name: 'Smirk', tags: ['sly'], dom: 0.45, w: 2, extra: [L('M0,-1 C-4,3 -10,4 -16,3 C-13,1 -10,1 -8,1', 'k', 1.8)] }),
+  rPart({ id: 'underbite', slot: 'jaw', name: 'Underbite', tags: ['teeth'], dom: 0.5, w: 2, extra: [L(MOUTH, 'k', 1.9), P('M-4,2 L-3,-3 L-1,2 Z M-10,3 L-9,-2 L-7,3 Z M-16,3 L-15,-2 L-13,3 Z', 'w', { sw: 1 })] }),
+];
+
+// ---- src/data/parts/reptile/crests.js ----
+// Reptile crests: frills, horns, fins and plumes on the crown. Origin = the head's crest socket;
+// crests grow up (-y) and sweep back (-x). Drawn behind the skull.
+
+
+
+const rBeam = (pts, w0, w1, f = 'p') => S(tube(pts, w0, w1), f);
+
+const R_CRESTS = [
+  NONE('crest', 0.3, 'r.'),
+  rPart({
+    id: 'frill', slot: 'crest', name: 'Frill', tags: ['frill'], dom: 0.55, w: 2,
+    shapes: [[[6, 4], [8, -10], [0, -24], [-14, -30], [-30, -24], [-38, -10], [-34, 6], [-20, 10]]],
+    extra: [S([[2, 0], [2, -12], [-6, -20], [-18, -22], [-28, -12], [-26, 2]], 's', { ns: true, cl: true, op: 0.6 }), L('M4,2 L-2,-20 M4,2 L-14,-26 M4,2 L-28,-20 M4,2 L-32,-6', 'k', 1.2, { op: 0.3 })],
+  }),
+  rPart({
+    id: 'horns', slot: 'crest', name: 'Horns', tags: ['dragon'], dom: 0.55, w: 2,
+    extra: [rBeam([[-6, 2], [-10, -10], [-20, -20], [-32, -26]], 7, 2, 'pd'), rBeam([[6, 2], [4, -12], [-4, -24], [-16, -32]], 8, 2), L('M4,-6 L0,-6 M3,-12 L-1,-11 M0,-17 L-4,-15', 'k', 1.2, { op: 0.3 })],
+  }),
+  rPart({
+    id: 'fin', slot: 'crest', name: 'Head fin', tags: ['fin'], dom: 0.5, w: 2,
+    shapes: [[[-4, 4], [0, -12], [6, -28], [-2, -34], [-14, -26], [-22, -12], [-24, 4]]],
+    extra: [S([[-4, 0], [-2, -12], [2, -24], [-6, -26], [-14, -18], [-20, -6], [-20, 2]], 's', { ns: true, cl: true, op: 0.5 }), L('M-4,2 L2,-26 M-6,2 L-12,-22 M-8,2 L-18,-10', 'k', 1.2, { op: 0.3 })],
+  }),
+  rPart({
+    id: 'casque', slot: 'crest', name: 'Casque', tags: ['chameleon'], dom: 0.5, w: 2,
+    shapes: [[[-6, 4], [-2, -8], [4, -22, 'c'], [12, -10], [14, 4]]],
+    extra: [L('M-2,-6 L4,-20 L10,-8', 'k', 1.2, { op: 0.3 }), HL('M2,-18 L6,-14 L4,-2 L0,-2 Z', 0.2)],
+  }),
+  rPart({
+    id: 'plume', slot: 'crest', name: 'Plume', tags: ['feathers'], dom: 0.5, w: 2,
+    shapes: [[[-4, 4], [0, -8], [-4, -24, 0.2], [-8, -10], [-16, -26, 0.2], [-16, -8], [-26, -18, 0.2], [-22, -2], [-30, 0, 0.2], [-24, 6]]],
+    extra: [L('M-2,0 L-4,-20 M-6,0 L-14,-22 M-10,2 L-22,-14', 'k', 1, { op: 0.3 }), S([[-4, 0], [-6, -14], [-12, -18], [-16, -6], [-14, 2]], 's', { ns: true, cl: true, op: 0.5 })],
+  }),
+  rPart({
+    id: 'antlers', slot: 'crest', name: 'Antlers', tags: ['dragon', 'deer'], dom: 0.5, w: 1,
+    extra: [
+      rBeam([[-6, 2], [-8, -10], [-6, -22], [-10, -36]], 5, 3, 'pd'), rBeam([[-7, -14], [-14, -20], [-20, -28]], 4, 2, 'pd'),
+      rBeam([[8, 2], [11, -10], [12, -24], [9, -38]], 5.5, 3), rBeam([[11, -14], [18, -20], [24, -28]], 4.5, 2.2), rBeam([[12, -26], [18, -34]], 4, 2),
+    ],
+  }),
+  rPart({
+    id: 'spikes', slot: 'crest', name: 'Spikes', tags: ['spiky'], dom: 0.5, w: 2,
+    shapes: [[[-14, 4], [-14, -4], [-9, -16, 'c'], [-4, -4], [0, -22, 'c'], [4, -4], [9, -16, 'c'], [12, -4], [14, 4]]],
+    extra: [HL('M-2,-18 L0,-6 L2,-18 Z', 0.25)],
+  }),
+];
+
+// ---- src/data/parts/reptile/legs.js ----
+// Reptile legs. Origin = the joint on the body. Splayed, short, ending in clawed feet.
+// The near hind leg carries a thigh that overlaps the torso; on upright bodies forelegs hang as arms.
+
+
+
+const rShadeBack = SH('M-16,-20 L-4,-20 L-3,46 L-16,46 Z', 0.12);
+const rLightFront = HL('M2,-6 L6,-6 L6,12 L3,12 Z', 0.16);
+const pads = (x, y) => [C(x, y, 2.2, 'a', { sw: 1 }), C(x + 6, y + 1, 2.2, 'a', { sw: 1 }), C(x + 12, y, 2.2, 'a', { sw: 1 })];
+
+const R_LEGS_FRONT = [
+  rLeg({
+    id: 'lizard', slot: 'legsFront', name: 'Splayed', tags: ['lizard'], dom: 0.5, w: 3,
+    shapes: [[[-7, -6], [4, -9], [10, -2], [10, 10], [10, 18], [18, 22], [22, 26, 'c'], [16, 28], [4, 28], [-4, 26], [-6, 18], [-7, 8]]],
+    extra: [rShadeBack, rLightFront, L('M-4,10 C0,12 6,12 9,10', 'k', 1.2, { op: 0.25 }), ...claws(6, 20, 27, 3, 4)],
+  }),
+  rLeg({
+    id: 'croc', slot: 'legsFront', name: 'Stubby', tags: ['croc'], dom: 0.5, w: 2,
+    shapes: [[[-9, -6], [4, -9], [12, -2], [12, 10], [14, 18], [20, 20], [22, 24, 'c'], [14, 26], [0, 26], [-8, 22], [-9, 12]]],
+    extra: [rShadeBack, rLightFront, L('M-6,6 C0,8 6,8 11,6 M-6,12 C0,14 8,14 12,12', 'k', 1.1, { op: 0.25 }), ...claws(4, 20, 25, 3, 4)],
+  }),
+  rLeg({
+    id: 'turtle', slot: 'legsFront', name: 'Stump', tags: ['turtle'], dom: 0.45, w: 2,
+    shapes: [[[-10, -4], [2, -8], [12, -2], [13, 10], [12, 20], [6, 24], [-6, 24], [-12, 18], [-12, 8]]],
+    extra: [rShadeBack, L('M-8,4 C-2,6 6,6 11,4 M-8,12 C-2,14 6,14 11,12', 'k', 1.1, { op: 0.25 }), ...claws(-4, 8, 23, 3, 3)],
+  }),
+  rLeg({
+    id: 'dragon', slot: 'legsFront', name: 'Talon', tags: ['dragon'], dom: 0.55, w: 2,
+    shapes: [[[-8, -8], [4, -12], [11, -4], [10, 10], [10, 22], [16, 28], [20, 32, 'c'], [14, 34], [2, 34], [-5, 30], [-6, 20], [-8, 8]]],
+    extra: [rShadeBack, rLightFront, L('M-4,12 C0,14 6,14 9,12', 'k', 1.2, { op: 0.25 }), ...claws(2, 18, 33, 3, 5)],
+  }),
+  rLeg({
+    id: 'chameleon', slot: 'legsFront', name: 'Mitten', tags: ['chameleon'], dom: 0.5, w: 2,
+    shapes: [[[-7, -6], [4, -9], [10, -2], [9, 10], [8, 20], [14, 24], [16, 28, 'c'], [10, 32], [-2, 32], [-6, 28], [-6, 18], [-7, 8]]],
+    extra: [rShadeBack, rLightFront, L('M4,24 L4,31', 'k', 1.4, { op: 0.5 }), L('M-4,10 C0,12 6,12 8,10', 'k', 1.2, { op: 0.25 })],
+  }),
+  rLeg({
+    id: 'raptor', slot: 'legsFront', name: 'Grasper', tags: ['raptor', 'small'], dom: 0.45, w: 2,
+    shapes: [[[-6, -6], [3, -8], [8, -2], [7, 8], [6, 16], [12, 18], [14, 22, 'c'], [8, 24], [-2, 22], [-5, 16], [-6, 8]]],
+    extra: [rShadeBack, rLightFront, ...claws(2, 12, 23, 3, 4)],
+  }),
+  rLeg({
+    id: 'gecko', slot: 'legsFront', name: 'Padded', tags: ['gecko'], dom: 0.5, w: 2,
+    shapes: [[[-7, -6], [4, -9], [10, -2], [10, 10], [10, 18], [18, 20], [22, 24, 'c'], [16, 28], [4, 28], [-4, 26], [-6, 18], [-7, 8]]],
+    extra: [rShadeBack, rLightFront, ...pads(6, 26)],
+  }),
+];
+
+const R_LEGS_BACK = [
+  rLeg({
+    id: 'lizard', slot: 'legsBack', name: 'Splayed', tags: ['lizard'], dom: 0.5, w: 3,
+    shapes: [[[-14, -6], [-2, -14], [10, -10], [16, 0], [14, 10], [12, 18], [20, 22], [24, 26, 'c'], [18, 29], [4, 29], [-4, 26], [-8, 18], [-10, 10], [-16, 4]]],
+    extra: [L('M-8,10 C-2,16 6,14 12,6', 'k', 1.5, { op: 0.3 }), SH('M-20,4 C-10,16 4,18 16,8 L20,20 L-20,20 Z', 0.12), HL('M-6,-10 C0,-14 8,-10 10,-4 C4,-6 -4,-6 -8,-2 Z', 0.16), ...claws(8, 22, 28, 3, 4)],
+  }),
+  rLeg({
+    id: 'croc', slot: 'legsBack', name: 'Stubby', tags: ['croc'], dom: 0.5, w: 2,
+    shapes: [[[-16, -6], [-4, -14], [10, -10], [18, 0], [16, 10], [16, 18], [22, 20], [24, 24, 'c'], [16, 27], [0, 27], [-8, 22], [-10, 14], [-16, 6]]],
+    extra: [L('M-10,10 C-2,16 8,14 14,6', 'k', 1.5, { op: 0.3 }), SH('M-20,4 C-10,16 4,18 18,8 L22,20 L-20,20 Z', 0.12), HL('M-6,-10 C0,-14 8,-10 10,-4 C4,-6 -4,-6 -8,-2 Z', 0.16), ...claws(6, 20, 26, 3, 4)],
+  }),
+  rLeg({
+    id: 'turtle', slot: 'legsBack', name: 'Stump', tags: ['turtle'], dom: 0.45, w: 2,
+    shapes: [[[-14, -4], [-2, -10], [10, -6], [14, 4], [14, 14], [10, 22], [-2, 24], [-12, 20], [-14, 10]]],
+    extra: [L('M-10,4 C-4,8 4,8 10,4 M-10,12 C-4,15 4,15 10,12', 'k', 1.1, { op: 0.25 }), SH('M-18,2 C-8,12 4,14 16,6 L18,18 L-18,18 Z', 0.12), ...claws(-6, 6, 23, 3, 3)],
+  }),
+  rLeg({
+    id: 'dragon', slot: 'legsBack', name: 'Haunch', tags: ['dragon'], dom: 0.55, w: 2,
+    shapes: [[[-18, -8], [-4, -18], [12, -14], [20, 0], [18, 12], [14, 24], [18, 32], [22, 36, 'c'], [14, 40], [0, 40], [-8, 36], [-8, 26], [-12, 16], [-18, 6]]],
+    extra: [L('M-12,12 C-2,18 8,16 16,8', 'k', 1.5, { op: 0.3 }), SH('M-24,6 C-10,20 6,20 20,8 L24,22 L-24,22 Z', 0.12), SH('M-12,26 L20,26 L20,44 L-12,44 Z', 0.1), HL('M-8,-14 C0,-18 10,-14 12,-8 C6,-10 -4,-10 -10,-6 Z', 0.14), ...claws(2, 18, 39, 3, 5)],
+  }),
+  rLeg({
+    id: 'chameleon', slot: 'legsBack', name: 'Gripper', tags: ['chameleon'], dom: 0.5, w: 2,
+    shapes: [[[-14, -6], [-2, -14], [10, -10], [16, 0], [13, 10], [10, 20], [14, 26], [16, 30, 'c'], [10, 34], [-2, 34], [-6, 28], [-8, 18], [-12, 10], [-16, 4]]],
+    extra: [L('M-8,10 C-2,16 6,14 12,6', 'k', 1.5, { op: 0.3 }), SH('M-20,4 C-10,16 4,18 16,8 L20,20 L-20,20 Z', 0.12), HL('M-6,-10 C0,-14 8,-10 10,-4 C4,-6 -4,-6 -8,-2 Z', 0.16), L('M4,26 L4,33', 'k', 1.4, { op: 0.5 })],
+  }),
+  rLeg({
+    id: 'raptor', slot: 'legsBack', name: 'Sickle', tags: ['raptor', 'big'], dom: 0.55, w: 2,
+    shapes: [[[-18, -10], [-4, -20], [12, -16], [20, -2], [16, 10], [8, 20], [6, 30], [12, 36], [16, 40, 'c'], [8, 44], [-4, 44], [-8, 38], [-6, 28], [-8, 18], [-14, 10], [-20, 2]]],
+    extra: [L('M-12,10 C-2,16 8,14 16,4', 'k', 1.5, { op: 0.3 }), SH('M-24,4 C-10,18 6,20 20,6 L24,22 L-24,22 Z', 0.12), SH('M-12,28 L18,28 L18,46 L-12,46 Z', 0.1), HL('M-8,-16 C0,-20 10,-16 12,-10 C6,-12 -4,-12 -10,-8 Z', 0.14), ...claws(0, 12, 43, 3, 5), P('M-6,36 C-12,38 -14,44 -10,48 C-10,44 -8,40 -4,39 Z', 'w', { sw: 1.2 })],
+  }),
+  rLeg({
+    id: 'gecko', slot: 'legsBack', name: 'Padded', tags: ['gecko'], dom: 0.5, w: 2,
+    shapes: [[[-14, -6], [-2, -14], [10, -10], [16, 0], [14, 10], [12, 18], [20, 20], [24, 24, 'c'], [18, 28], [4, 28], [-4, 26], [-8, 18], [-10, 10], [-16, 4]]],
+    extra: [L('M-8,10 C-2,16 6,14 12,6', 'k', 1.5, { op: 0.3 }), SH('M-20,4 C-10,16 4,18 16,8 L20,20 L-20,20 Z', 0.12), HL('M-6,-10 C0,-14 8,-10 10,-4 C4,-6 -4,-6 -8,-2 Z', 0.16), ...pads(8, 26)],
+  }),
+];
+
+// ---- src/data/parts/reptile/tails.js ----
+// Reptile tails. Origin = tail root on the body's rear; tails sweep left (-x).
+
+
+
+const R_TAILS = [
+  rPart({
+    id: 'lizard', slot: 'tail', name: 'Whip', tags: ['lizard', 'long'], dom: 0.5, w: 3,
+    shapes: [tube([[0, 0], [-20, 4], [-40, 4], [-58, -2], [-70, -12]], 14, 2)],
+    extra: [SH('M-72,-4 C-50,8 -24,12 2,8 L2,20 L-72,20 Z', 0.13), HL('M-56,-6 C-40,-4 -20,-4 -2,-6 L-2,-2 C-20,0 -40,0 -54,-2 Z', 0.16)],
+  }),
+  rPart({
+    id: 'croc', slot: 'tail', name: 'Ridged', tags: ['croc', 'thick'], dom: 0.55, w: 2,
+    shapes: [tube([[0, 0], [-18, 4], [-36, 6], [-52, 2], [-64, -6]], 18, 4)],
+    extra: [
+      S([[-4, -8], [-2, -12, 'c'], [2, -6]], 'pd'), S([[-16, -6], [-14, -11, 'c'], [-10, -5]], 'pd'), S([[-28, -4], [-26, -9, 'c'], [-22, -3]], 'pd'), S([[-40, -4], [-38, -9, 'c'], [-34, -3]], 'pd'), S([[-52, -6], [-50, -11, 'c'], [-46, -5]], 'pd'),
+      L('M-10,-2 L-10,10 M-22,0 L-22,12 M-34,0 L-34,10', 'k', 1.1, { op: 0.25 }),
+      SH('M-66,-2 C-44,10 -20,14 2,10 L2,22 L-66,22 Z', 0.13),
+    ],
+  }),
+  rPart({
+    id: 'turtle', slot: 'tail', name: 'Nub', tags: ['turtle', 'short'], dom: 0.4, w: 2,
+    shapes: [[[2, -4], [-8, -6], [-14, -2], [-12, 4], [-4, 6], [2, 4]]],
+    extra: [SH('M-16,1 L4,1 L4,10 L-16,10 Z', 0.14)],
+  }),
+  rPart({
+    id: 'dragon', slot: 'tail', name: 'Spade', tags: ['dragon'], dom: 0.55, w: 2,
+    shapes: [tube([[0, 0], [-16, 6], [-32, 4], [-46, -6], [-54, -18]], 14, 4)],
+    extra: [
+      P('M-52,-14 L-66,-20 L-58,-30 L-48,-24 Z', 'a', { sw: 2 }),
+      SH('M-56,-10 C-36,4 -18,10 2,8 L2,20 L-56,20 Z', 0.13), HL('M-40,-2 C-28,2 -14,0 -2,-4 L-2,0 C-14,4 -28,6 -38,2 Z', 0.16),
+    ],
+  }),
+  rPart({
+    id: 'rattle', slot: 'tail', name: 'Rattle', tags: ['snake'], dom: 0.5, w: 2,
+    shapes: [tube([[0, 0], [-14, 2], [-28, 0], [-40, -4]], 12, 6)],
+    extra: [
+      P('M-40,-9 L-48,-9 L-49,-1 L-41,1 Z', 's', { sw: 1.6 }), P('M-48,-8 L-55,-8 L-56,-2 L-49,0 Z', 's', { sw: 1.6 }), P('M-55,-7 L-61,-7 L-62,-2 L-56,-1 Z', 's', { sw: 1.6 }),
+      SH('M-42,-2 C-28,6 -12,8 2,6 L2,16 L-42,16 Z', 0.13),
+    ],
+  }),
+  rPart({
+    id: 'curl', slot: 'tail', name: 'Curl', tags: ['chameleon'], dom: 0.5, w: 2,
+    shapes: [tube([[0, 0], [-12, 6], [-24, 4], [-32, -6], [-28, -18], [-16, -20], [-10, -12], [-14, -6]], 12, 3)],
+    extra: [SH('M-34,0 C-24,10 -10,12 2,8 L2,18 L-34,18 Z', 0.13), L('M-8,2 L-8,8 M-18,4 L-18,10', 'k', 1, { op: 0.2 })],
+  }),
+  rPart({
+    id: 'raptor', slot: 'tail', name: 'Stiff', tags: ['raptor', 'long'], dom: 0.5, w: 2,
+    shapes: [tube([[0, 0], [-22, -2], [-44, -6], [-66, -12], [-84, -20]], 16, 3)],
+    extra: [SH('M-84,-14 C-56,-2 -26,4 2,8 L2,20 L-84,20 Z', 0.13), HL('M-64,-12 C-44,-10 -24,-8 -2,-8 L-2,-4 C-24,-4 -44,-6 -62,-8 Z', 0.16)],
+  }),
+  rPart({
+    id: 'finned', slot: 'tail', name: 'Finned', tags: ['aquatic'], dom: 0.5, w: 1,
+    shapes: [tube([[0, 0], [-18, 4], [-36, 4], [-52, -2]], 14, 6), [[-50, -2], [-58, -18], [-70, -22], [-66, -4], [-72, 12], [-60, 10], [-50, 4]]],
+    extra: [L('M-54,-4 L-66,-18 M-56,0 L-66,0 M-56,4 L-68,10', 'k', 1.1, { op: 0.3 }), SH('M-52,0 C-36,10 -18,12 2,8 L2,20 L-52,20 Z', 0.13)],
+  }),
+];
+
+// ---- src/data/parts/reptile/backs.js ----
+// Reptile back features: spines, sails and plates along the spine. Origin = the body's back socket.
+
+
+
+const R_BACKS = [
+  NONE('back', 0.3, 'r.'),
+  rPart({
+    id: 'spines', slot: 'back', name: 'Spines', tags: ['spiky'], dom: 0.5, w: 3,
+    shapes: [[[28, 6], ...fur([28, 6], [-32, 6], 5, -14, { lean: 0.45, tip: 'c', wobble: 0.2 }), [-36, 10], [28, 10]]],
+    extra: [SH('M-38,4 L30,4 L30,14 L-38,14 Z', 0.14)],
+  }),
+  rPart({
+    id: 'sail', slot: 'back', name: 'Sail', tags: ['fin'], dom: 0.5, w: 2,
+    shapes: [[[26, 6], [20, -16], [6, -32], [-12, -34], [-28, -20], [-34, 6], [-36, 10], [26, 10]]],
+    extra: [S([[20, 4], [16, -12], [4, -26], [-12, -28], [-24, -16], [-28, 4]], 's', { ns: true, cl: true, op: 0.5 }), L('M22,4 L14,-20 M12,4 L4,-28 M0,4 L-10,-30 M-12,4 L-24,-18', 'k', 1.2, { op: 0.3 }), SH('M-38,4 L30,4 L30,14 L-38,14 Z', 0.12)],
+  }),
+  rPart({
+    id: 'plates', slot: 'back', name: 'Plates', tags: ['stegosaur'], dom: 0.5, w: 2,
+    extra: [
+      P('M14,6 L10,-6 L18,-18 L26,-6 L24,6 Z', 'p'), P('M-2,6 L-6,-10 L4,-26 L14,-10 L12,6 Z', 'p'), P('M-18,6 L-22,-8 L-12,-22 L-2,-8 L-4,6 Z', 'p'), P('M-32,6 L-34,-4 L-26,-14 L-18,-4 L-20,6 Z', 'p'),
+      HL('M-6,-10 L4,-24 L8,-12 L0,-8 Z', 0.2), HL('M-22,-8 L-12,-20 L-8,-10 L-16,-6 Z', 0.2),
+      SH('M-36,4 L28,4 L28,14 L-36,14 Z', 0.12),
+    ],
+  }),
+  rPart({
+    id: 'ridge', slot: 'back', name: 'Scute ridge', tags: ['croc'], dom: 0.45, w: 2,
+    shapes: [[[28, 6], ...fur([28, 6], [-32, 6], 7, -7, { lean: 0.2, tip: 0.8, wobble: 0.1 }), [-36, 10], [28, 10]]],
+    extra: [SH('M-38,4 L30,4 L30,14 L-38,14 Z', 0.14), L('M24,2 L24,8 M14,2 L14,8 M4,2 L4,8 M-6,2 L-6,8 M-16,2 L-16,8 M-26,2 L-26,8', 'k', 1, { op: 0.2 })],
+  }),
+  rPart({
+    id: 'fin', slot: 'back', name: 'Dorsal fin', tags: ['fin'], dom: 0.5, w: 2,
+    shapes: [[[8, 6], [6, -12], [-4, -30], [-16, -14], [-20, 6], [-22, 10], [10, 10]]],
+    extra: [S([[4, 4], [2, -10], [-4, -24], [-12, -12], [-14, 4]], 's', { ns: true, cl: true, op: 0.5 }), L('M4,4 L-2,-24 M-4,4 L-10,-16', 'k', 1.2, { op: 0.3 }), SH('M-24,4 L12,4 L12,14 L-24,14 Z', 0.12)],
+  }),
+  rPart({
+    id: 'crystals', slot: 'back', name: 'Crystals', tags: ['rock', 'ice'], dom: 0.5, w: 1,
+    extra: [
+      P('M-24,8 L-30,-10 L-20,-26 L-12,-8 L-14,8 Z', 'pd'), P('M-4,8 L-10,-14 L2,-40 L14,-16 L10,8 Z', 'p'), P('M14,8 L12,-6 L22,-22 L30,-6 L26,8 Z', 'pl'),
+      HL('M-6,-10 L2,-32 L4,-30 L-2,-8 Z', 0.35), HL('M14,-8 L22,-18 L24,-16 L18,-6 Z', 0.3),
+      L('M-24,8 L-22,-6 M-4,8 L0,-12 M14,8 L18,-4', 'k', 1.2, { op: 0.3 }),
+    ],
+  }),
+  rPart({
+    id: 'feathers', slot: 'back', name: 'Feather ridge', tags: ['raptor', 'feathers'], dom: 0.45, w: 2,
+    shapes: [[[26, 6], ...fur([26, 6], [-32, 6], 5, -11, { lean: 0.5, tip: 0.5, wobble: 0.15 }), [-36, 10], [26, 10]]],
+    extra: [S([[20, 4], [16, -4], [6, -2], [4, 4]], 's', { ns: true, cl: true, op: 0.5 }), S([[-4, 4], [-8, -4], [-18, -2], [-20, 4]], 's', { ns: true, cl: true, op: 0.5 }), SH('M-38,4 L28,4 L28,14 L-38,14 Z', 0.12)],
+  }),
+];
+
+// ---- src/data/parts/reptile/wings.js ----
+// Reptile wings. Origin = the wing root on the back; wings rise up (-y) and sweep back (-x).
+// Both wings are drawn behind the torso, the near one after the far one.
+
+
+
+const R_WINGS = [
+  NONE('wings', 0.3, 'r.'),
+  rPart({
+    id: 'dragon', slot: 'wings', name: 'Dragon', tags: ['dragon', 'membrane'], dom: 0.6, w: 2,
+    shapes: [[[0, 0], [-6, -24], [-18, -46], [-40, -56], [-70, -52, 0.3], [-58, -36], [-74, -26, 0.3], [-56, -16], [-64, -2, 0.3], [-40, -2], [-16, 4]]],
+    extra: [
+      S([[-8, -20], [-20, -40], [-44, -48], [-58, -44], [-48, -32], [-58, -22], [-44, -14], [-24, -8]], 's', { ns: true, cl: true, op: 0.6 }),
+      P('M-6,-24 C-20,-36 -36,-46 -52,-50 M-8,-22 C-24,-30 -40,-36 -60,-38 M-10,-16 C-26,-18 -42,-20 -60,-22', 'none', { sw: 1.6 }),
+      SH('M-74,-14 C-50,-4 -24,2 4,4 L4,12 L-74,12 Z', 0.14),
+    ],
+  }),
+  rPart({
+    id: 'feathered', slot: 'wings', name: 'Feathered', tags: ['bird', 'feathers'], dom: 0.55, w: 1,
+    shapes: [[[0, 0], [-4, -22], [-20, -40], [-50, -46], [-72, -38, 0.3], [-56, -30], [-70, -18, 0.3], [-50, -14], [-58, -2, 0.3], [-34, 0], [-12, 4]]],
+    extra: [
+      S([[-4, -18], [-18, -34], [-44, -40], [-56, -34], [-46, -26], [-40, -14], [-20, -8]], 's', { ns: true, cl: true, op: 0.6 }),
+      L('M-10,-16 C-26,-20 -42,-24 -58,-30 M-10,-10 C-26,-10 -40,-12 -56,-16 M-12,-4 C-26,-2 -36,-2 -50,-4', 'k', 1.3, { op: 0.3 }),
+      SH('M-72,-10 C-48,-2 -24,2 4,4 L4,12 L-72,12 Z', 0.12),
+    ],
+  }),
+  rPart({
+    id: 'fin', slot: 'wings', name: 'Fin wings', tags: ['aquatic'], dom: 0.5, w: 1,
+    shapes: [[[0, 0], [-6, -20], [-20, -34], [-44, -36], [-52, -20], [-44, -6], [-24, 2], [-8, 4]]],
+    extra: [S([[-4, -16], [-16, -28], [-38, -30], [-44, -18], [-38, -6], [-20, -2]], 's', { ns: true, cl: true, op: 0.5 }), L('M-8,-14 C-22,-24 -36,-30 -46,-30 M-10,-8 C-24,-14 -38,-18 -48,-18 M-12,-2 C-24,-4 -36,-6 -46,-8', 'k', 1.2, { op: 0.3 }), SH('M-54,-8 C-36,0 -18,4 4,4 L4,12 L-54,12 Z', 0.12)],
+  }),
+  rPart({
+    id: 'leaf', slot: 'wings', name: 'Leaf wings', tags: ['grass'], dom: 0.5, w: 1,
+    shapes: [[[0, 0], [-8, -20], [-24, -38], [-50, -42, 'c'], [-52, -24], [-40, -8], [-20, 2]]],
+    extra: [L('M-4,-4 C-18,-14 -32,-26 -48,-40', 'k', 1.4, { op: 0.35 }), L('M-14,-12 L-8,-20 M-24,-20 L-20,-30 M-34,-28 L-32,-38', 'k', 1, { op: 0.3 }), S([[-6,-6],[-16,-16],[-30,-28],[-44,-38],[-46,-28],[-34,-12],[-18,-2]], 's', { ns: true, cl: true, op: 0.4 }), SH('M-54,-10 C-38,-2 -18,2 4,4 L4,12 L-54,12 Z', 0.12)],
+  }),
+  rPart({
+    id: 'crystal', slot: 'wings', name: 'Crystal wings', tags: ['ice', 'rock'], dom: 0.5, w: 1,
+    extra: [
+      P('M0,0 L-14,-30 L-6,-46 L4,-20 Z', 'pl'), P('M-2,-4 L-30,-34 L-44,-40 L-28,-14 L-6,2 Z', 'p'), P('M-8,2 L-40,-8 L-58,-6 L-34,6 L-12,6 Z', 'pd'),
+      HL('M-12,-28 L-8,-42 L-6,-22 Z', 0.35), HL('M-26,-30 L-40,-36 L-28,-18 Z', 0.3),
+      SH('M-58,-4 C-40,2 -20,4 4,6 L4,12 L-58,12 Z', 0.12),
+    ],
+  }),
+  rPart({
+    id: 'flame', slot: 'wings', name: 'Flame wings', tags: ['fire'], dom: 0.5, w: 1,
+    shapes: [[[0, 0], [-6, -18], [-14, -34], [-30, -50, 0.2], [-26, -30], [-42, -38, 0.2], [-34, -18], [-50, -18, 0.2], [-34, -6], [-14, 4]]],
+    extra: [S([[-4, -4], [-8, -18], [-16, -32], [-20, -22], [-30, -26], [-26, -12], [-32, -8], [-14, 0]], 's', { ns: true, cl: true }), HL('M-10,-14 C-14,-22 -18,-28 -22,-36 L-18,-36 C-16,-28 -12,-20 -8,-12 Z', 0.3)],
+  }),
+  rPart({
+    id: 'tattered', slot: 'wings', name: 'Tattered', tags: ['ghost'], dom: 0.45, w: 1,
+    shapes: [[[0, 0], [-8, -22], [-24, -42], [-52, -48, 0.3], [-44, -32], [-62, -30, 'c'], [-48, -18], [-60, -8, 'c'], [-40, -6], [-18, 4]]],
+    extra: [P('M-8,-22 C-22,-30 -34,-38 -48,-44 M-10,-16 C-26,-22 -38,-24 -56,-30 M-12,-10 C-26,-12 -40,-12 -56,-10', 'none', { sw: 1.4 }), SH('M-40,-20 L-32,-28 L-28,-18 Z M-52,-14 L-46,-24 L-40,-12 Z', 0.3), SH('M-62,-6 C-40,0 -20,2 4,4 L4,12 L-62,12 Z', 0.12)],
+  }),
+];
+
+// ---- src/data/parts/reptile/throats.js ----
+// Reptile throats: dewlaps, pouches and frills under the jaw. Origin = the head's throat socket.
+// Drawn behind the skull so the top edge hides under the jaw.
+
+
+
+const R_THROATS = [
+  NONE('throat', 0.3, 'r.'),
+  rPart({
+    id: 'dewlap', slot: 'throat', name: 'Dewlap', tags: ['anole'], dom: 0.5, w: 2,
+    shapes: [[[-8, -6], [8, -4], [12, 10], [4, 20], [-8, 18], [-14, 6]]],
+    extra: [L('M-4,-2 L0,16 M-4,-2 L8,10 M-4,-2 L-8,12', 'k', 1.1, { op: 0.3 }), SH('M-16,10 C-8,18 4,20 12,12 L14,24 L-16,24 Z', 0.12)],
+  }),
+  rPart({
+    id: 'pouch', slot: 'throat', name: 'Pouch', tags: ['bulge'], dom: 0.45, w: 2,
+    extra: [E(0, 6, 12, 10, 'p'), SH('M-14,8 C-8,16 8,16 14,8 L14,20 L-14,20 Z', 0.12), HL('M-8,-1 C-4,-4 4,-4 8,-1 L6,2 C2,0 -2,0 -6,2 Z', 0.2)],
+  }),
+  rPart({
+    id: 'frill', slot: 'throat', name: 'Neck frill', tags: ['frill'], dom: 0.55, w: 1,
+    shapes: [[[-20, -16], [0, -18], [16, -8], [18, 8], [6, 20], [-10, 20], [-24, 6]]],
+    extra: [S([[-14, -10], [0, -12], [10, -4], [12, 6], [4, 14], [-8, 14], [-18, 4]], 's', { ns: true, cl: true, op: 0.5 }), L('M-2,0 L14,-6 M-2,0 L16,6 M-2,0 L6,18 M-2,0 L-8,18 M-2,0 L-20,4 M-2,0 L-16,-12', 'k', 1.1, { op: 0.3 })],
+  }),
+  rPart({
+    id: 'beard', slot: 'throat', name: 'Beard', tags: ['spiky'], dom: 0.5, w: 2,
+    shapes: [[[-12, -6], [10, -4], [12, 4], ...fur([12, 6], [-10, 14], 5, 5, { lean: 0.2, tip: 'c' }), [-14, 6]]],
+    extra: [SH('M-16,6 C-8,12 4,14 12,8 L14,20 L-16,20 Z', 0.12)],
+  }),
+  rPart({
+    id: 'plates', slot: 'throat', name: 'Throat plates', tags: ['armour'], dom: 0.5, w: 2,
+    shapes: [[[-12, -6], [12, -4], [14, 4], [12, 14], [0, 18], [-12, 14], [-14, 4]]],
+    extra: [L('M-12,2 C-4,5 6,5 13,2 M-11,8 C-4,11 6,11 12,8', 'k', 1.2, { op: 0.3 }), SH('M-16,8 C-8,16 6,16 14,8 L14,22 L-16,22 Z', 0.12), HL('M-10,-4 C-4,-6 4,-6 10,-4 L8,0 C4,-2 -4,-2 -8,0 Z', 0.16)],
+  }),
+  rPart({
+    id: 'ruff', slot: 'throat', name: 'Feather ruff', tags: ['feathers'], dom: 0.45, w: 2,
+    shapes: [[[-16, -10], [8, -8], [12, 0], ...fur([12, 2], [-4, 20], 3, 6, { lean: 0.3, tip: 0.5 }), [-16, 16], [-20, 2]]],
+    extra: [S([[-10, -6], [2, -6], [4, 4], [-2, 12], [-12, 8]], 's', { ns: true, cl: true, op: 0.5 }), SH('M-22,8 C-10,18 4,18 12,10 L14,24 L-22,24 Z', 0.12)],
+  }),
+  rPart({
+    id: 'collar', slot: 'throat', name: 'Collar', tags: ['band'], dom: 0.45, w: 2,
+    shapes: [[[-14, -8], [12, -6], [14, 4], [12, 8], [-12, 10], [-16, 2]]],
+    extra: [S([[-13, -2], [12, 0], [12, 5], [-12, 6]], 's', { ns: true, cl: true }), SH('M-16,4 L14,4 L14,12 L-16,12 Z', 0.12)],
+  }),
+];
+
+// ---- src/data/parts/reptile/scales.js ----
+// Reptile scale patterns, drawn on the torso and clipped to it. Authored in a 100 x 60 frame
+// centred on the origin; the renderer stretches that frame over the body's box.
+
+
+
+const R_SCALES = [
+  NONE('scales', 0.3, 'r.'),
+  rPart({ id: 'belly', slot: 'scales', name: 'Belly plates', tags: ['soft'], dom: 0.5, w: 3, extra: [
+    S([[-54, 18], [-30, 12], [0, 10], [30, 12], [54, 18], [54, 40], [-54, 40]], 's', { ns: true }),
+    L('M-44,22 L44,22 M-46,27 L46,27 M-40,32 L40,32', 'k', 1.1, { op: 0.2 }),
+  ] }),
+  rPart({ id: 'bands', slot: 'scales', name: 'Bands', tags: ['striped'], dom: 0.5, w: 2, extra: [
+    S([[-36, -40], [-24, -40], [-26, 40], [-38, 40]], 'a', { ns: true }), S([[-8, -40], [4, -40], [2, 40], [-10, 40]], 'a', { ns: true }), S([[20, -40], [32, -40], [30, 40], [18, 40]], 'a', { ns: true }),
+  ] }),
+  rPart({ id: 'spots', slot: 'scales', name: 'Spots', tags: ['spotted'], dom: 0.45, w: 2, extra: [
+    ...[[-34, -14, 5], [-16, -22, 4], [2, -18, 5.5], [20, -24, 4], [34, -14, 5], [-24, 0, 4], [-6, -4, 3.5], [14, -6, 4.5], [30, 2, 3.5], [-38, 6, 3]].map(([x, y, r]) => ({ t: 'ellipse', cx: x, cy: y, rx: r * 1.15, ry: r * 0.85, f: 'a', ns: true })),
+  ] }),
+  rPart({ id: 'diamonds', slot: 'scales', name: 'Diamonds', tags: ['snake'], dom: 0.5, w: 2, extra: [
+    S([[-44, -30], [-32, -18], [-44, -6], [-56, -18]], 'a', { ns: true, spline: { tension: 0.1 } }), S([[-20, -30], [-8, -18], [-20, -6], [-32, -18]], 'a', { ns: true, spline: { tension: 0.1 } }), S([[4, -30], [16, -18], [4, -6], [-8, -18]], 'a', { ns: true, spline: { tension: 0.1 } }), S([[28, -30], [40, -18], [28, -6], [16, -18]], 'a', { ns: true, spline: { tension: 0.1 } }), S([[52, -30], [64, -18], [52, -6], [40, -18]], 'a', { ns: true, spline: { tension: 0.1 } }),
+  ] }),
+  rPart({ id: 'scutes', slot: 'scales', name: 'Scutes', tags: ['croc'], dom: 0.45, w: 2, extra: [
+    L('M-50,-20 L50,-20 M-50,-8 L50,-8 M-50,4 L50,4 M-50,16 L50,16 M-36,-40 L-36,40 M-18,-40 L-18,40 M0,-40 L0,40 M18,-40 L18,40 M36,-40 L36,40', 'k', 1.2, { op: 0.2 }),
+    S([[-54, 18], [-30, 14], [0, 12], [30, 14], [54, 18], [54, 40], [-54, 40]], 's', { ns: true, op: 0.7 }),
+  ] }),
+  rPart({ id: 'hex', slot: 'scales', name: 'Hex plates', tags: ['turtle'], dom: 0.45, w: 2, extra: [
+    L('M-30,-26 L-38,-12 L-30,2 L-14,2 L-6,-12 L-14,-26 Z M6,-26 L-2,-12 L6,2 L22,2 L30,-12 L22,-26 Z M-14,2 L-22,16 L-14,30 L2,30 L10,16 L2,2 M22,2 L30,16 L22,30 M-38,-12 L-52,-12 M30,-12 L46,-12 M-14,-26 L-8,-38 M22,-26 L28,-38', 'k', 1.3, { op: 0.25 }),
+  ] }),
+  rPart({ id: 'saddle', slot: 'scales', name: 'Dark back', tags: ['gradient'], dom: 0.5, w: 2, extra: [
+    S([[-48, -40], [48, -40], [52, -12], [24, 2], [-6, 6], [-32, 2], [-52, -12]], 'a', { ns: true }),
+    S([[-40, -40], [40, -40], [42, -24], [20, -14], [-8, -12], [-30, -14], [-44, -24]], 'k', { ns: true, op: 0.12 }),
+  ] }),
+];
+
+// ---- src/data/parts/reptile/index.js ----
+// The reptile library, one list per rig slot.
+
+
+
+
+
+
+
+
+
+
+
+
+const REPTILE_PARTS = {
+  body: R_BODIES, head: R_HEADS, eyes: R_EYES, jaw: R_JAWS, crest: R_CRESTS,
+  legsFront: R_LEGS_FRONT, legsBack: R_LEGS_BACK, tail: R_TAILS, back: R_BACKS,
+  wings: R_WINGS, throat: R_THROATS, scales: R_SCALES,
+};
+
 // ---- src/data/parts/index.js ----
 // Part registry. Part ids are stable forever: a saved creature must decode the
 // same way after the library grows, so never rename or reuse an id.
@@ -2172,12 +2914,14 @@ const MAMMAL_PARTS = {
 
 
 
+
 const RIG_PARTS = {
   legacy: {
     body: BODIES, head: HEADS, eyes: EYES, mouth: MOUTHS, crown: CROWNS, legs: LEGS,
     arms: ARMS, wings: WINGS, tail: TAILS, back: BACKS, pattern: PATTERNS,
   },
   mammal: MAMMAL_PARTS,
+  reptile: REPTILE_PARTS,
 };
 
 const PARTS = new Map();
@@ -2353,10 +3097,11 @@ const SPECIES = [
     desc: 'Chatters constantly by rubbing its plates together. Swarms are loud enough to hear from the next valley.',
   },
   {
-    id: 'craggon', name: 'Craggon', nameParts: ['Crag', 'gon'], clade: 'reptile', types: ['Rock'], tier: 'uncommon', bst: 445,
+    id: 'craggon', name: 'Craggon', nameParts: ['Crag', 'gon'], clade: 'reptile', rig: 'reptile', types: ['Rock'], tier: 'uncommon', bst: 445,
     stats: { hp: 0.17, atk: 0.21, def: 0.27, spa: 0.08, spd: 0.15, spe: 0.12 },
-    recipe: { body: 'body.biped', head: 'head.block', eyes: 'eye.dot', mouth: 'mouth.flat', crown: 'crown.spikes', legs: 'legs.chunky', arms: 'arms.claw', wings: 'wings.none', tail: 'tails.club', back: ['back.plates', 'back.crystal'], pattern: 'pat.scales' },
+    recipe: { body: 'r.body.dragon', head: 'r.head.turtle', eyes: 'r.eyes.bead', jaw: 'r.jaw.grin', crest: 'r.crest.spikes', legsFront: 'r.legsFront.dragon', legsBack: 'r.legsBack.dragon', tail: 'r.tail.croc', back: ['r.back.crystals', 'r.back.plates'], wings: 'r.wings.none', throat: 'r.throat.plates', scales: 'r.scales.scutes' },
     palette: { c1: [30, 15, 50], c2: [30, 12, 36], c3: [32, 22, 68], eye: [45, 80, 50] }, vary: { h: 10, s: 6, l: 6 },
+    paint: { back: 4 },
     traits: T([0.5, 0.85], [0.4, 0.6], [0.4, 0.6], [0.5, 0.75], MID, [0.3, 0.5]),
     learnset: [[1,'stone_toss'],[1,'brace'],[6,'stone_trap'],[11,'stampede'],[16,'primal_surge'],[22,'gem_gleam'],[28,'boulder_fall'],[34,'smooth_stone'],[40,'bull_rush'],[46,'shard_spire'],[52,'tremor']],
     abilities: ['stonewall','thorn_hide'],
@@ -2373,10 +3118,11 @@ const SPECIES = [
     desc: 'Drifts through walls when it forgets they are there. Giggles in empty rooms.',
   },
   {
-    id: 'drakelet', name: 'Drakelet', nameParts: ['Drake', 'let'], clade: 'reptile', types: ['Dragon'], tier: 'rare', bst: 465,
+    id: 'drakelet', name: 'Drakelet', nameParts: ['Drake', 'let'], clade: 'reptile', rig: 'reptile', types: ['Dragon'], tier: 'rare', bst: 465,
     stats: { hp: 0.17, atk: 0.21, def: 0.16, spa: 0.18, spd: 0.14, spe: 0.14 },
-    recipe: { body: 'body.quad', head: 'head.long', eyes: 'eye.slit', mouth: 'mouth.fangs', crown: 'crown.horns', legs: 'legs.chunky', arms: 'arms.none', wings: 'wings.bat', tail: ['tails.whip', 'tails.club'], back: 'back.spikes', pattern: 'pat.gradient' },
-    palette: { c1: [175, 55, 40], c2: [25, 80, 58], c3: [45, 70, 76], eye: [40, 90, 50] }, vary: { h: 12, s: 8, l: 6 },
+    recipe: { body: 'r.body.dragon', head: 'r.head.dragon', eyes: 'r.eyes.slit', jaw: 'r.jaw.fangs', crest: 'r.crest.horns', legsFront: 'r.legsFront.dragon', legsBack: 'r.legsBack.dragon', tail: ['r.tail.dragon', 'r.tail.lizard'], back: 'r.back.spines', wings: 'r.wings.dragon', throat: 'r.throat.none', scales: 'r.scales.belly' },
+    palette: { c1: [175, 55, 40], c2: [45, 70, 76], c3: [25, 80, 58], eye: [40, 90, 50] }, vary: { h: 12, s: 8, l: 6 },
+    paint: { wings: 1, crest: 4 },
     traits: T([0.5, 0.8], MID, [0.45, 0.7], [0.5, 0.8], [0.5, 0.8], [0.3, 0.5]),
     learnset: [[1,'swipe'],[1,'glare'],[6,'wyrm_breath'],[11,'ember_bite'],[16,'wyrm_claw'],[22,'wyrm_dance'],[28,'wyrm_pulse'],[34,'fire_stream'],[40,'wyrm_rush'],[46,'rampage'],[52,'comet_roar']],
     abilities: ['menace','vice_jaw'],
@@ -2393,10 +3139,11 @@ const SPECIES = [
     desc: 'Only ever seen out of the corner of the eye. Steals one sock, never the pair.',
   },
   {
-    id: 'boltmaw', name: 'Boltmaw', nameParts: ['Bolt', 'maw'], clade: 'reptile', types: ['Steel'], tier: 'rare', bst: 470,
+    id: 'boltmaw', name: 'Boltmaw', nameParts: ['Bolt', 'maw'], clade: 'reptile', rig: 'reptile', types: ['Steel'], tier: 'rare', bst: 470,
     stats: { hp: 0.17, atk: 0.22, def: 0.24, spa: 0.1, spd: 0.15, spe: 0.12 },
-    recipe: { body: 'body.biped', head: 'head.skull', eyes: 'eye.dot', mouth: 'mouth.teeth', crown: 'crown.spikes', legs: 'legs.peg', arms: ['arms.claw', 'arms.blade'], wings: 'wings.none', tail: 'tails.club', back: 'back.plates', pattern: 'pat.bands' },
+    recipe: { body: 'r.body.raptor', head: 'r.head.croc', eyes: 'r.eyes.gem', jaw: 'r.jaw.underbite', crest: 'r.crest.spikes', legsFront: ['r.legsFront.raptor', 'r.legsFront.dragon'], legsBack: 'r.legsBack.raptor', tail: 'r.tail.croc', back: 'r.back.plates', wings: 'r.wings.none', throat: 'r.throat.plates', scales: 'r.scales.bands' },
     palette: { c1: [220, 12, 62], c2: [220, 15, 40], c3: [200, 60, 55], eye: [0, 90, 52] }, vary: { h: 8, s: 5, l: 6 },
+    paint: { back: 2, throat: 2 },
     traits: T([0.5, 0.8], MID, [0.4, 0.6], [0.4, 0.6], MID, [0.3, 0.5]),
     learnset: [[1,'iron_claw'],[1,'glare'],[6,'bolt_jab'],[11,'steel_fin'],[16,'plate_up'],[22,'steel_ram'],[28,'grind_screech'],[34,'chrome_beam'],[40,'tremor'],[46,'comet_fist'],[52,'overpower']],
     abilities: ['heavy_hands','stonewall'],
@@ -2425,10 +3172,11 @@ const SPECIES = [
     desc: 'Its wingbeats leave trails of embers. Nests on chimney tops in winter.',
   },
   {
-    id: 'tidalisk', name: 'Tidalisk', nameParts: ['Tida', 'lisk'], clade: 'reptile', types: ['Water', 'Dragon'], tier: 'rare', bst: 475,
+    id: 'tidalisk', name: 'Tidalisk', nameParts: ['Tida', 'lisk'], clade: 'reptile', rig: 'reptile', types: ['Water', 'Dragon'], tier: 'rare', bst: 465,
     stats: { hp: 0.18, atk: 0.17, def: 0.17, spa: 0.2, spd: 0.15, spe: 0.13 },
-    recipe: { body: 'body.serpent', head: 'head.long', eyes: 'eye.slit', mouth: 'mouth.fangs', crown: 'crown.fin', legs: 'legs.none', arms: 'arms.none', wings: 'wings.fin', tail: 'tails.fish', back: 'back.fin', pattern: 'pat.scales' },
+    recipe: { body: 'r.body.serpent', head: 'r.head.dragon', eyes: 'r.eyes.slit', jaw: 'r.jaw.fangs', crest: 'r.crest.fin', legsFront: 'r.legsFront.lizard', legsBack: 'r.legsBack.lizard', tail: 'r.tail.finned', back: 'r.back.sail', wings: ['r.wings.fin', 'r.wings.none'], throat: 'r.throat.frill', scales: 'r.scales.belly' },
     palette: { c1: [200, 65, 42], c2: [185, 60, 68], c3: [165, 70, 60], eye: [45, 90, 55] }, vary: { h: 10, s: 6, l: 6 },
+    paint: { crest: 4, back: 4, wings: 4 },
     traits: T([0.55, 0.85], MID, MID, [0.5, 0.8], [0.4, 0.7], [0.3, 0.5]),
     learnset: [[1,'squirt'],[1,'glare'],[6,'ripple'],[11,'wyrm_breath'],[16,'wyrm_claw'],[22,'tidal_wave'],[28,'wyrm_dance'],[34,'riptide'],[40,'wyrm_pulse'],[46,'geyser'],[52,'comet_roar']],
     abilities: ['tide_heart','purebred'],
@@ -2537,6 +3285,59 @@ const SPECIES = [
     learnset: [[1,'swipe'],[1,'cinder'],[6,'kindle_rush'],[11,'headbonk'],[16,'ember_bite'],[22,'whetting'],[28,'scorch_fist'],[34,'bellow'],[40,'blaze_tackle'],[46,'ram'],[52,'meltdown']],
     abilities: ['ember_heart','menace'],
     desc: 'Its mane glows brighter at noon. Young ones practise roaring at their own shadows.',
+  },
+  {
+    id: 'skinkit', name: 'Skinkit', nameParts: ['Skink', 'it'], clade: 'reptile', rig: 'reptile', types: ['Normal'], tier: 'common', bst: 400,
+    stats: { hp: 0.16, atk: 0.18, def: 0.14, spa: 0.12, spd: 0.14, spe: 0.26 },
+    recipe: { body: 'r.body.lizard', head: 'r.head.lizard', eyes: 'r.eyes.round', jaw: 'r.jaw.grin', crest: 'r.crest.none', legsFront: ['r.legsFront.lizard', 'r.legsFront.gecko'], legsBack: ['r.legsBack.lizard', 'r.legsBack.gecko'], tail: 'r.tail.lizard', back: 'r.back.none', wings: 'r.wings.none', throat: ['r.throat.none', 'r.throat.dewlap'], scales: 'r.scales.bands' },
+    palette: { c1: [42, 55, 58], c2: [48, 50, 84], c3: [200, 55, 50], eye: [40, 90, 45] }, vary: { h: 10, s: 8, l: 6 },
+    paint: { tail: 4 },
+    traits: T([0.3, 0.55], MID, MID, [0.6, 0.9], MID, [0.5, 0.75]),
+    learnset: [[1,'swipe'],[1,'glare'],[6,'dash'],[11,'bump'],[16,'blur'],[22,'rake'],[28,'quicken'],[34,'headbonk'],[40,'mud_fling'],[46,'blitz_punch'],[52,'reckless_charge']],
+    abilities: ['loose_joints','restless'],
+    desc: 'Drops its bright tail to escape and grows a brighter one. Basks on warm rocks in a row with its friends.',
+  },
+  {
+    id: 'tortoak', name: 'Tortoak', nameParts: ['Tort', 'oak'], clade: 'reptile', rig: 'reptile', types: ['Grass', 'Ground'], tier: 'common', bst: 425,
+    stats: { hp: 0.22, atk: 0.14, def: 0.26, spa: 0.12, spd: 0.18, spe: 0.08 },
+    recipe: { body: 'r.body.turtle', head: 'r.head.turtle', eyes: 'r.eyes.bead', jaw: 'r.jaw.beak', crest: 'r.crest.none', legsFront: 'r.legsFront.turtle', legsBack: 'r.legsBack.turtle', tail: 'r.tail.turtle', back: ['r.back.none', 'r.back.plates'], wings: ['r.wings.none', 'r.wings.leaf'], throat: 'r.throat.none', scales: 'r.scales.hex' },
+    palette: { c1: [110, 35, 38], c2: [60, 40, 66], c3: [30, 40, 40], eye: [30, 60, 30] }, vary: { h: 10, s: 6, l: 6 },
+    traits: T([0.45, 0.75], [0.4, 0.6], [0.3, 0.5], [0.3, 0.5], MID, [0.4, 0.6]),
+    learnset: [[1,'bump'],[1,'brace'],[6,'vine_lash'],[11,'mud_fling'],[16,'leaf_razor'],[22,'stampede'],[28,'photosynth'],[34,'sap_drain'],[40,'fissure_burst'],[46,'blade_leaf'],[52,'tremor']],
+    abilities: ['stonewall','bloom_heart'],
+    desc: 'A sapling grows from a crack in its shell. It plants itself in the sun and refuses to move until dusk.',
+  },
+  {
+    id: 'chamelune', name: 'Chamelune', nameParts: ['Chame', 'lune'], clade: 'reptile', rig: 'reptile', types: ['Psychic'], tier: 'common', bst: 410,
+    stats: { hp: 0.15, atk: 0.12, def: 0.14, spa: 0.24, spd: 0.2, spe: 0.15 },
+    recipe: { body: 'r.body.chameleon', head: 'r.head.chameleon', eyes: 'r.eyes.turret', jaw: 'r.jaw.smirk', crest: ['r.crest.none', 'r.crest.fin'], legsFront: 'r.legsFront.chameleon', legsBack: 'r.legsBack.chameleon', tail: 'r.tail.curl', back: 'r.back.none', wings: 'r.wings.none', throat: ['r.throat.pouch', 'r.throat.none'], scales: 'r.scales.spots' },
+    palette: { c1: [150, 45, 42], c2: [80, 55, 70], c3: [280, 50, 62], eye: [40, 90, 55] }, vary: { h: 16, s: 8, l: 6 },
+    traits: T([0.35, 0.6], [0.5, 0.7], MID, [0.5, 0.8], MID, [0.6, 0.9]),
+    learnset: [[1,'mind_jolt'],[1,'glare'],[6,'swipe'],[11,'thought_beam'],[16,'lull'],[22,'psi_shock'],[28,'meditate'],[34,'blank_mind'],[40,'mind_crush'],[46,'dazzle'],[52,'lunar_burst']],
+    abilities: ['finesse','hawkeye'],
+    desc: 'Changes colour with its mood and its mood with the moon. Its eyes can watch two dreams at once.',
+  },
+  {
+    id: 'venomba', name: 'Venomba', nameParts: ['Venom', 'ba'], clade: 'reptile', rig: 'reptile', types: ['Poison'], tier: 'uncommon', bst: 445,
+    stats: { hp: 0.16, atk: 0.25, def: 0.13, spa: 0.12, spd: 0.14, spe: 0.2 },
+    recipe: { body: 'r.body.serpent', head: 'r.head.cobra', eyes: 'r.eyes.slit', jaw: ['r.jaw.fangs', 'r.jaw.tongue'], crest: 'r.crest.none', legsFront: 'r.legsFront.lizard', legsBack: 'r.legsBack.lizard', tail: 'r.tail.rattle', back: 'r.back.none', wings: 'r.wings.none', throat: 'r.throat.none', scales: 'r.scales.diamonds' },
+    palette: { c1: [275, 40, 38], c2: [50, 80, 68], c3: [285, 45, 18], eye: [0, 85, 50] }, vary: { h: 10, s: 6, l: 6 },
+    paint: { tail: 1 },
+    traits: T([0.45, 0.75], MID, MID, [0.5, 0.8], MID, [0.4, 0.6]),
+    learnset: [[1,'venom_prick'],[1,'glare'],[6,'chomp'],[11,'swipe'],[16,'venom_slash'],[22,'acid_spit'],[28,'blight'],[34,'venom_stab'],[40,'crush_bite'],[46,'sludge_hurl'],[52,'rampage']],
+    abilities: ['venom_barbs','menace'],
+    desc: 'Spreads its hood to look twice its size. The rattle is a courtesy; the bite is not.',
+  },
+  {
+    id: 'raptrix', name: 'Raptrix', nameParts: ['Rap', 'trix'], clade: 'reptile', rig: 'reptile', types: ['Dark'], tier: 'uncommon', bst: 440,
+    stats: { hp: 0.15, atk: 0.24, def: 0.13, spa: 0.1, spd: 0.13, spe: 0.25 },
+    recipe: { body: 'r.body.raptor', head: 'r.head.raptor', eyes: 'r.eyes.fierce', jaw: 'r.jaw.grin', crest: 'r.crest.plume', legsFront: 'r.legsFront.raptor', legsBack: 'r.legsBack.raptor', tail: 'r.tail.raptor', back: ['r.back.feathers', 'r.back.none'], wings: 'r.wings.none', throat: ['r.throat.none', 'r.throat.ruff'], scales: 'r.scales.saddle' },
+    palette: { c1: [192, 30, 34], c2: [40, 60, 72], c3: [20, 80, 55], eye: [50, 90, 55] }, vary: { h: 10, s: 8, l: 6 },
+    paint: { crest: 4, back: 4 },
+    traits: T([0.45, 0.75], MID, [0.5, 0.75], [0.6, 0.9], MID, MID),
+    learnset: [[1,'swipe'],[1,'yowl'],[6,'cheap_shot'],[11,'dash'],[16,'blindside'],[22,'rake'],[28,'scheme'],[34,'dusk_slash'],[40,'leg_sweep'],[46,'crush_bite'],[52,'all_out_brawl']],
+    abilities: ['momentum','menace'],
+    desc: 'Hunts in pairs and takes turns being the distraction. Its crest flares when it has spotted lunch.',
   },
 ];
 
@@ -2934,9 +3735,10 @@ function speciesGenome(species, rng) {
   }
 
   const paint = {};
+  const swappable = swappableSlotsFor(rig);
   for (const slot of paintSlotsFor(rig)) {
     let idx = (species.paint && species.paint[slot]) || 0;
-    if (rPaint.chance(ROLL.paintSwap)) idx = rPaint.int(PAINT_PERMS.length);
+    if (swappable.includes(slot) && rPaint.chance(ROLL.paintSwap)) idx = rPaint.int(PAINT_PERMS.length);
     paint[slot] = idx;
   }
 
@@ -4114,10 +4916,11 @@ function fuse(a, b, rng) {
 
   // Paint travels with the part that was expressed.
   const paint = {};
+  const swappable = swappableSlotsFor(rig);
   for (const slot of paintSlotsFor(rig)) {
     const src = parents[from[slot] == null ? identity : from[slot]];
     paint[slot] = (src.paint && PAINT_PERMS[src.paint[slot]]) ? src.paint[slot] : 0;
-    if (rPaint.chance(FUSE.paintSwap)) paint[slot] = rPaint.int(PAINT_PERMS.length);
+    if (swappable.includes(slot) && rPaint.chance(FUSE.paintSwap)) paint[slot] = rPaint.int(PAINT_PERMS.length);
   }
 
   // Palette: base from the identity parent, one colour from the other parent.

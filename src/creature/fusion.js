@@ -11,7 +11,7 @@
 // secondary type. Shape from one side, colours from the other: that is what
 // makes a fusion read as half and half.
 import { getPart, partFits } from '../data/parts/index.js';
-import { getRig, slotsFor, paintSlotsFor } from '../data/rigs.js';
+import { getRig, slotsFor, paintSlotsFor, swappableSlotsFor } from '../data/rigs.js';
 import { clamp01, lerp, round3, normalizeWeights } from '../core/util.js';
 import { GENOME_VERSION, PAINT_PERMS, TRAIT_KEYS, STAT_KEYS, randomPartId, learnsetOf, cladeOf, rigOf } from './genome.js';
 import { CLADES, cladeName } from '../data/clades.js';
@@ -125,10 +125,11 @@ export function fuse(a, b, rng) {
 
   // Paint travels with the part that was expressed.
   const paint = {};
+  const swappable = swappableSlotsFor(rig);
   for (const slot of paintSlotsFor(rig)) {
     const src = parents[from[slot] == null ? identity : from[slot]];
     paint[slot] = (src.paint && PAINT_PERMS[src.paint[slot]]) ? src.paint[slot] : 0;
-    if (rPaint.chance(FUSE.paintSwap)) paint[slot] = rPaint.int(PAINT_PERMS.length);
+    if (swappable.includes(slot) && rPaint.chance(FUSE.paintSwap)) paint[slot] = rPaint.int(PAINT_PERMS.length);
   }
 
   // Palette: base from the identity parent, one colour from the other parent.

@@ -8,6 +8,8 @@
 //   slots     every slot in the genome, in display order
 //   names     UI labels per slot
 //   paint     slots that carry their own colour-role permutation gene
+//   swappable paint slots a wild roll or fusion may permute at random (accessories only, so
+//             a creature never ends up with one odd-coloured leg)
 //   required  slots that have no "none" part (always drawn)
 //   linked    slot groups that inherit from the same parent in fusion
 //   ground    slots whose lowest point defines where the feet touch the floor
@@ -33,6 +35,7 @@ export const RIGS = {
       arms: 'Arms', wings: 'Wings', tail: 'Tail', back: 'Back', pattern: 'Pattern',
     },
     paint: ['body', 'head', 'crown', 'legs', 'arms', 'wings', 'tail', 'back'],
+    swappable: ['crown', 'wings', 'tail', 'back'],
     required: ['body', 'eyes'],
     linked: null, // taken from the class
     ground: ['body', 'legs'],
@@ -60,6 +63,7 @@ export const RIGS = {
       tail: 'Tail', mane: 'Mane', horns: 'Horns', back: 'Back', markings: 'Markings',
     },
     paint: ['body', 'head', 'ears', 'legsFront', 'legsBack', 'tail', 'mane', 'horns', 'back', 'markings'],
+    swappable: ['ears', 'tail', 'mane', 'horns', 'back', 'markings'],
     required: ['body', 'head', 'ears', 'eyes', 'muzzle', 'legsFront', 'legsBack', 'tail'],
     linked: [['legsFront', 'legsBack'], ['head', 'muzzle']],
     ground: ['body', 'legsFront', 'legsBack'],
@@ -101,6 +105,57 @@ export const RIGS = {
       accentSlots: ['ears', 'tail', 'mane', 'horns', 'back', 'markings'],
     },
   },
+
+  reptile: {
+    id: 'reptile', name: 'Reptile', prefix: 'r.',
+    slots: ['body', 'head', 'eyes', 'jaw', 'crest', 'legsFront', 'legsBack', 'tail', 'back', 'wings', 'throat', 'scales'],
+    names: {
+      body: 'Body', head: 'Head', eyes: 'Eyes', jaw: 'Jaw', crest: 'Crest', legsFront: 'Forelegs', legsBack: 'Hind legs',
+      tail: 'Tail', back: 'Back', wings: 'Wings', throat: 'Throat', scales: 'Scales',
+    },
+    paint: ['body', 'head', 'crest', 'legsFront', 'legsBack', 'tail', 'back', 'wings', 'throat', 'scales'],
+    swappable: ['crest', 'tail', 'back', 'wings', 'throat', 'scales'],
+    required: ['body', 'head', 'eyes', 'jaw', 'legsFront', 'legsBack', 'tail'],
+    linked: [['legsFront', 'legsBack'], ['head', 'jaw']],
+    ground: ['body', 'legsFront', 'legsBack'],
+    clipped: ['scales'],
+    tree: {
+      slot: 'body', anim: 'body',
+      behind: [
+        { slot: 'wings', socket: 'wingFar', far: true, scale: 'wing', anim: 'flap' },
+        { slot: 'wings', socket: 'wing', scale: 'wing', anim: 'flap' },
+        { slot: 'back', socket: 'back' },
+        { slot: 'tail', socket: 'tail', scale: 'tail', anim: 'tail' },
+        { slot: 'legsBack', socket: 'hipFar', far: true, scale: 'leg' },
+        { slot: 'legsFront', socket: 'shoulderFar', far: true, scale: 'leg' },
+      ],
+      front: [
+        { slot: 'legsBack', socket: 'hip', scale: 'leg' },
+        { slot: 'legsFront', socket: 'shoulder', scale: 'leg' },
+        {
+          slot: 'head', socket: 'head', scale: 'head', anim: 'head',
+          behind: [
+            { slot: 'crest', socket: 'crest' },
+            { slot: 'throat', socket: 'throat' },
+          ],
+          front: [
+            { slot: 'eyes', socket: 'eyeFar', far: true, scale: 'eye', small: true },
+            { slot: 'eyes', socket: 'eye', scale: 'eye', small: true },
+            { slot: 'jaw', socket: 'jaw', small: true },
+          ],
+        },
+      ],
+    },
+    mannequin: {
+      parts: {
+        body: 'r.body.lizard', head: 'r.head.lizard', eyes: 'r.eyes.round', jaw: 'r.jaw.grin', crest: 'r.crest.none',
+        legsFront: 'r.legsFront.lizard', legsBack: 'r.legsBack.lizard', tail: 'r.tail.lizard', back: 'r.back.none',
+        wings: 'r.wings.none', throat: 'r.throat.none', scales: 'r.scales.none',
+      },
+      forSlot: {},
+      accentSlots: ['crest', 'tail', 'back', 'wings', 'throat', 'scales'],
+    },
+  },
 };
 
 export const RIG_IDS = Object.keys(RIGS);
@@ -108,6 +163,7 @@ export const RIG_IDS = Object.keys(RIGS);
 export function getRig(id) { return RIGS[id] || RIGS.legacy; }
 export function slotsFor(rig) { return getRig(rig).slots; }
 export function paintSlotsFor(rig) { return getRig(rig).paint; }
+export function swappableSlotsFor(rig) { const r = getRig(rig); return r.swappable || r.paint; }
 export function slotName(rig, slot) { return getRig(rig).names[slot] || slot; }
 export function noneId(rig, slot) { return `${getRig(rig).prefix}${slot}.none`; }
 

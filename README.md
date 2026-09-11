@@ -30,10 +30,11 @@ and 130 parts.
 
 Phase 6 — Art rebuild, class by class: every class gets its own skeleton
 (rig) with its own slots, and a hand-drawn library of seven parts per slot.
-Mammals are done: twelve slots, seven archetypes (fox, cat, bear, rabbit,
-deer, wolf, mouse), 85 parts, twelve species. Classes lock fusion to the same
-anatomy. Reptiles, fish, birds, insects, invertebrates and amphibians are
-next. See `DESIGN.md`.
+Done so far: mammals (fox, cat, bear, rabbit, deer, wolf, mouse; 85 parts,
+twelve species) and reptiles (lizard, croc, turtle, dragon, serpent,
+chameleon, raptor; 86 parts, nine species). Classes lock fusion to the same
+anatomy. Fish, birds, insects, invertebrates and amphibians are next. See
+`DESIGN.md`.
 
 ## Develop
 

@@ -26,13 +26,14 @@ src/styles.css        all styles
 src/core/             rng, util — no game knowledge
 src/data/types.js     type list, chart, colours
 src/data/rigs.js      class skeletons: slot lists, draw trees, sockets each part must expose
-src/data/parts/       the part library: legacy slot files, mammal/ (one file per mammal slot), registry (index.js)
+src/data/parts/       the part library: legacy slot files, one folder per rebuilt class (mammal/, reptile/),
+                      shared builders (_builders.js), drawing DSL (_dsl.js), registry (index.js)
 src/data/species.js   base species recipes
 src/creature/         genome (schema, rolls, codes), palette, render (SVG)
 src/ui/               dom helpers, screens (lab, parts), app shell (main.js = build entry)
 tests/                node:test suites
 scripts/              screenshot helpers for visual review (Playwright, dev only):
-                      shot.mjs (app flow), mammal-board.mjs + shot-board.mjs (library board), hero.mjs (close-ups)
+                      shot.mjs (app flow), board.mjs <rig> + shot-board.mjs (library board), hero.mjs (close-ups)
 ```
 
 Bundle conventions the build enforces: named exports only, relative imports on
@@ -130,8 +131,8 @@ disabled under `prefers-reduced-motion`.
 3. Parents must expose every socket the rig's draw tree places children on;
    `npm test` checks that, renders the part on its class mannequin, and insists
    on at least seven real parts per slot of every class rig.
-4. Review it: `node scripts/mammal-board.mjs` writes a board of every mammal
-   part and sample creatures; `node scripts/hero.mjs fox,wolf` writes close-ups;
+4. Review it: `node scripts/board.mjs <rig>` writes a board of every part of a
+   class and its species; `node scripts/hero.mjs fox,drakelet` writes close-ups;
    `PLAYWRIGHT_BROWSERS_PATH=/opt/pw-browsers node scripts/shot-board.mjs <html> <png>`
    screenshots either.
 
@@ -313,12 +314,34 @@ markings: belly, saddle, stripes, spots, rings, chest star, patches. Twelve
 mammal species use them, including the new Howlune (wolf, Psychic) and
 Solmane (lion, Fire/Normal).
 
+**Reptile rig** (done). Slots: body, head, eyes, jaw, crest, legsFront,
+legsBack, tail, back, wings, throat, scales. Linked: the two leg slots, head
+with jaw. Body kinds `reptile.quad`, `reptile.biped` and `reptile.serpent`
+(no leg sockets: a serpent body declares them `null` and the legs are simply
+not drawn, though the genes stay and resurface on a legged child). Both wings
+draw behind the torso. Archetypes: lizard, croc, turtle (the shell is the
+body), dragon (biped), serpent (coil with a rising neck), chameleon, raptor
+(biped); eyes: round, slit, turret, fierce, hooded, bead, gem; jaws: grin,
+fangs, beak, forked tongue, tusks, smirk, underbite; crests: frill, horns,
+head fin, casque, plume, antlers, spikes; backs: spines, sail, plates, scute
+ridge, dorsal fin, crystals, feather ridge; wings: dragon, feathered, fin,
+leaf, crystal, flame, tattered; throats: dewlap, pouch, neck frill, beard,
+plates, feather ruff, collar; scales: belly plates, bands, spots, diamonds,
+scutes, hex plates, dark back. Nine species: Craggon, Drakelet, Boltmaw and
+Tidalisk rebuilt, plus Skinkit (Normal), Tortoak (Grass/Ground), Chamelune
+(Psychic), Venomba (Poison) and Raptrix (Dark), which also gives the class its
+first commons.
+
+Wild rolls and fusions only permute paint on a rig's `swappable` slots
+(accessories: crests, tails, manes, wings...), never on legs or heads, so a
+random colour swap reads as a marking rather than a mistake.
+
 **Next classes**, one per step, each with its own slot list and seven parts per
-slot: reptile (crests, scales, long tails; serpents and dragons), fish (fins,
-gills, face on the body), bird (beaks, wings, tail fans), insect (segments,
-antennae, six legs, wing pairs), invertebrate (shells, tentacles, spirits),
-amphibian (wide heads, webbed feet). Each needs species added to reach seven.
-When all seven classes are on rigs the legacy skeleton and its parts go away.
+slot: fish (fins, gills, face on the body), bird (beaks, wings, tail fans),
+insect (segments, antennae, six legs, wing pairs), invertebrate (shells,
+tentacles, spirits), amphibian (wide heads, webbed feet). Each needs species
+added to reach seven. When all seven classes are on rigs the legacy skeleton
+and its parts go away.
 
 ## Polish and balance (Phase 5 — implemented)
 
