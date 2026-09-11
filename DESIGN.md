@@ -872,8 +872,8 @@ reran it over the full roster.
 
 The ring took six more classes, built the same way: a rig with twelve slots,
 seven hand-drawn parts per slot with stage art, poses, a clade, fourteen
-species and a biome slotted into the difficulty order. The roster stands at
-265 species on eighteen rigs, 1,512 drawn parts.
+species and a biome slotted into the difficulty order. The roster then stood
+at 265 species on eighteen rigs, 1,514 drawn parts.
 
 - **Skeletals** (`k.`, the Barrow Downs, level 47): walking bone on the
   four-legged pose core. Ribcage bodies with a heart-light socket inside the
@@ -929,6 +929,44 @@ Balance: the tuner ran twice over the 265 species, a coarse pass at the
 defaults and then a finer one (`node scripts/tune.mjs 6 8000 100 12000`: six
 rounds of 8,000 games with a gain of 100). The final 12,000-game verification
 read 40–60% with nothing outside the band; totals still span 360 to 520.
+
+## Six more elements and the element pass (implemented)
+
+Rust, Blood, Void, Moon, Crystal and Mist joined the eight elements, each in
+the same shape: one animated filter, one core ability and a colour (see
+Elementals). To give every element natural hosts, an element pass added
+fourteen species to every class, 252 in all, taking the roster to 517.
+
+- **Coverage.** In each class the fourteen are, for each of the six elements,
+  one species carrying the element's exact type pair (Steel and Poison, Dark
+  and Fighting, Ghost and Psychic, Dark and Fairy, Rock and Psychic, Water and
+  Ghost) and one mixing a type of the pair with the class's anchor type
+  (Normal for mammals, Water for fish, Dragon for wyrms and so on), plus two
+  more of the elements that suit the class best. With the Elemental roll
+  favouring an element that shares a type with the species, a Rustcrab is far
+  more likely to be born of Rust than of Bloom.
+- **Authored and derived.** Names, name parts, types, tiers, combat styles
+  and the one-line descriptions were written by hand; everything else was
+  derived once and written into `species.js` as ordinary data. Recipes pick,
+  per slot, the class part whose tags and name best fit the element (iron,
+  plate and rivet words for Rust, fang and fist words for Blood, hollow and
+  spiral for Void, crescent and silver for Moon, gem and facet for Crystal,
+  drip and veil for Mist), avoiding the body, head and eyes a sibling of the
+  same element already took; optional slots are carried as expressed-plus-none
+  pairs three times in five. Palettes come from the element's base colours
+  shifted per class and per sibling; stats follow the style archetype (tank
+  and fast variants shift a few points); learnsets are assembled from the
+  species' types plus Normal so a style attack lands in each of the three
+  level bands; the two passives come from an element pool of ordinary
+  abilities.
+
+Balance: with 517 species a 12,000-game round gives each one only about
+seventy games, so the tuner needed three passes (two at
+`6 12000 100 16000`, then `3 30000 100 20000`) to settle, and one species that
+sat at the 520 cap with a slow tank spread was given the plain melee spread
+instead. A final 40,000-game verification tournament (`node scripts/sim.mjs
+40000 50 3`) read 42–59% with nothing outside the band; totals still span 360
+to 520. Larger rounds are the lever when the roster grows again.
 
 ## Mobile view (implemented)
 

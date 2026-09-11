@@ -55,7 +55,9 @@ coiled trunks; 84 parts, fourteen species), fiends (imp, brute, lanky, stout,
 armoured, hunched, regal torsos on the first upright rig; 84 parts, fourteen
 species) and spirits (wisp, sheet, orb, shade, flame, wraith, blob shrouds on a
 headless hovering rig; 84 parts, fourteen species): 265 species in all, every
-class covering fourteen or more of the eighteen types. Classes lock fusion to
+class covering fourteen or more of the eighteen types, and an element pass
+then added fourteen more species to every class as hosts for the six later
+elements, taking the roster to 517. Classes lock fusion to
 the same anatomy. All eighteen classes are on rigs and the old shared skeleton is gone. A fantasy pass then
 pushed every slot away from field-guide realism: forehead sigils, tufted and
 leaf ears, orb and flame tails, glowing tips and bold markings. See `DESIGN.md`.

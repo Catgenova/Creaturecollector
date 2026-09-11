@@ -225,7 +225,8 @@ test('new passives: surges, regrowth, hide, bulwark, mirror, steady, quick start
   const mk = (id, level, ability, moves) => makeBattler(speciesGenome(SPECIES_BY_ID[id], makeRng(`${id}${level}`)), level, { ability, moves });
   // surges: 1.5x for the type when HP is a third or less
   for (const [ab, mvId, id] of [['frost_heart', 'sleet', 'glacub'], ['storm_heart', 'zap', 'voltmite'], ['venom_heart', 'acid_spit', 'slugmire'], ['gale_heart', 'gale', 'zephyrn'], ['stone_heart', 'stone_toss', 'craggon']]) {
-    const me = mk(id, 50, ab), foe = mk('pufflet', 50, 'lucky_streak');
+    // level 100 keeps the numbers large enough that integer rounding cannot hide the 1.5x
+    const me = mk(id, 100, ab), foe = mk('pufflet', 100, 'lucky_streak');
     const full = calcDamage(me, foe, getMove(mvId), 1, 1, false);
     me.hp = Math.floor(me.maxHp / 3);
     assert.ok(calcDamage(me, foe, getMove(mvId), 1, 1, false) >= Math.floor(full * 1.4), ab);
