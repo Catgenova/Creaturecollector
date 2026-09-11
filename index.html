@@ -2455,6 +2455,9 @@ const rPart = reptileBuilders.part;
 //   shoulder / shoulderFar, hip / hipFar   leg joints (absent on serpents)
 //   tail {x,y,a}  back {x,y,a}  wing / wingFar {x,y}
 // kind: 'reptile.quad', 'reptile.biped' (upright, forelegs hang as arms) or 'reptile.serpent' (no legs)
+// Evolutions: stage 2 broadens the torso and sprouts chest spikes (shell-rim spikes on the turtle,
+// coil spines on the serpent, chest plates on the dragon); stage 3 adds rump or hem spikes.
+
 
 
 
@@ -2470,6 +2473,10 @@ const R_BODIES = [
       shoulder: { x: 28, y: 8 }, shoulderFar: { x: 16, y: 4 }, hip: { x: -28, y: 6 }, hipFar: { x: -38, y: 2 },
       tail: { x: -44, y: 0, a: 0 }, back: { x: -6, y: -22, a: 0 }, wing: { x: -10, y: -16 }, wingFar: { x: -22, y: -18 },
     },
+    stages: {
+      2: { grow: [1.06, 1.06], addBehind: [evoFan(38, -4, -50, 50, 3, 8, 22)] },
+      3: { grow: [1.06, 1.07], addBehind: [evoFan(-36, -8, 170, 260, 3, 8, 24)] },
+    },
   }),
   rBody({
     id: 'croc', name: 'Armoured', kind: 'reptile.quad', tags: ['croc', 'long'], dom: 0.55, w: 2,
@@ -2480,6 +2487,10 @@ const R_BODIES = [
       head: { x: 40, y: -4, a: 0, s: 1 },
       shoulder: { x: 30, y: 8 }, shoulderFar: { x: 18, y: 4 }, hip: { x: -30, y: 6 }, hipFar: { x: -40, y: 2 },
       tail: { x: -48, y: 2, a: 0 }, back: { x: -8, y: -18, a: 0 }, wing: { x: -12, y: -12 }, wingFar: { x: -24, y: -14 },
+    },
+    stages: {
+      2: { grow: [1.06, 1.06], addBehind: [evoFan(42, -2, -50, 50, 3, 8, 22)] },
+      3: { grow: [1.06, 1.07], addBehind: [evoFan(-40, -6, 170, 260, 4, 8, 24)] },
     },
   }),
   rBody({
@@ -2498,6 +2509,10 @@ const R_BODIES = [
       shoulder: { x: 26, y: 10 }, shoulderFar: { x: 16, y: 6 }, hip: { x: -26, y: 8 }, hipFar: { x: -36, y: 4 },
       tail: { x: -40, y: 6, a: 0 }, back: { x: 0, y: -40, a: 0 }, wing: { x: -8, y: -30 }, wingFar: { x: -20, y: -32 },
     },
+    stages: {
+      2: { grow: [1.06, 1.06], addBehind: [evoFan(0, -14, 200, 340, 5, 26, 38)] },
+      3: { grow: [1.06, 1.07], addBehind: [evoFan(0, -14, 190, 350, 7, 28, 46)], add: [...evoGem(0, -16, 3.6)] },
+    },
   }),
   rBody({
     id: 'dragon', name: 'Upright', kind: 'reptile.biped', tags: ['dragon', 'upright'], dom: 0.55, w: 2,
@@ -2507,6 +2522,10 @@ const R_BODIES = [
       head: { x: 6, y: -36, a: 0, s: 1 },
       shoulder: { x: 14, y: -12 }, shoulderFar: { x: -6, y: -16 }, hip: { x: 8, y: 20 }, hipFar: { x: -12, y: 16 },
       tail: { x: -28, y: 16, a: 20 }, back: { x: -16, y: -34, a: -20 }, wing: { x: -12, y: -26 }, wingFar: { x: -24, y: -28 },
+    },
+    stages: {
+      2: { grow: [1.06, 1.06], add: [L('M-14,-6 C-4,-2 8,-2 18,-6 M-16,4 C-4,8 8,8 20,4 M-14,14 C-4,18 8,18 18,14', 'a', 2, { ns: true, cl: true, op: 0.6 })] },
+      3: { grow: [1.06, 1.07], addBehind: [evoFan(0, 26, 30, 150, 4, 8, 24), evoFan(18, -30, 250, 330, 2, 6, 20)] },
     },
   }),
   rBody({
@@ -2520,6 +2539,10 @@ const R_BODIES = [
       shoulder: null, shoulderFar: null, hip: null, hipFar: null,
       tail: { x: -48, y: 12, a: 0 }, back: { x: -12, y: -18, a: 0 }, wing: { x: -4, y: -14 }, wingFar: { x: -16, y: -16 },
     },
+    stages: {
+      2: { grow: [1.06, 1.06], addBehind: [evoFan(-12, -10, 200, 340, 4, 12, 26)] },
+      3: { grow: [1.06, 1.07], addBehind: [evoFan(-2, 8, 200, 340, 6, 16, 34)], add: [L('M-40,6 C-20,2 20,2 40,6 M-30,14 C-14,10 14,10 30,14', 'a', 2, { ns: true, cl: true, op: 0.6 })] },
+    },
   }),
   rBody({
     id: 'chameleon', name: 'Humped', kind: 'reptile.quad', tags: ['chameleon'], dom: 0.5, w: 2,
@@ -2531,6 +2554,10 @@ const R_BODIES = [
       shoulder: { x: 24, y: 8 }, shoulderFar: { x: 12, y: 4 }, hip: { x: -26, y: 6 }, hipFar: { x: -36, y: 2 },
       tail: { x: -42, y: 2, a: 0 }, back: { x: -8, y: -31, a: 0 }, wing: { x: -10, y: -24 }, wingFar: { x: -22, y: -26 },
     },
+    stages: {
+      2: { grow: [1.06, 1.06], addBehind: [evoFan(34, -8, -50, 50, 3, 8, 20)] },
+      3: { grow: [1.06, 1.07], addBehind: [evoFan(-32, -12, 170, 260, 3, 8, 22)] },
+    },
   }),
   rBody({
     id: 'raptor', name: 'Sprinter', kind: 'reptile.biped', tags: ['raptor', 'upright'], dom: 0.5, w: 2,
@@ -2541,6 +2568,10 @@ const R_BODIES = [
       shoulder: { x: 24, y: -4 }, shoulderFar: { x: 10, y: -8 }, hip: { x: -10, y: 12 }, hipFar: { x: -24, y: 8 },
       tail: { x: -36, y: -2, a: 0 }, back: { x: -10, y: -30, a: 0 }, wing: { x: -8, y: -22 }, wingFar: { x: -20, y: -24 },
     },
+    stages: {
+      2: { grow: [1.06, 1.06], addBehind: [evoFan(30, -10, -50, 40, 3, 8, 20)] },
+      3: { grow: [1.06, 1.07], addBehind: [evoFan(-20, 16, 60, 170, 4, 8, 22)] },
+    },
   }),
 ];
 
@@ -2548,6 +2579,9 @@ const R_BODIES = [
 // Reptile heads. Origin = neck point. Long low skulls in three-quarter view with a pale jaw.
 // Sockets: eye / eyeFar {x,y,s}, jaw {x,y,a,s} at the mouth corner, crest {x,y,a,s} on the crown,
 // throat {x,y,a,s} under the jaw.
+// Evolutions: stage 2 grows the skull, sprouts horn nubs off the back of it and enlarges the
+// marking; stage 3 adds a crown of spikes, a glow behind the marking and accent brow streaks.
+
 
 
 
@@ -2565,6 +2599,10 @@ const R_HEADS = [
       PATCH('M-16,-20 C-2,-30 16,-28 40,-12 L42,-7 C16,-22 -2,-24 -14,-14 Z', 'a', { op: 0.85 }),
     ],
     sockets: { eye: { x: 12, y: -16, s: 1 }, eyeFar: { x: -4, y: -18, s: 0.8 }, jaw: { x: 36, y: -2, a: 0, s: 1 }, crest: { x: 4, y: -30, a: 0, s: 1 }, throat: { x: 8, y: 6, a: 0, s: 1 } },
+    stages: {
+      2: { grow: [1.05, 1.06], addBehind: [evoFan(-10, -18, 160, 250, 2, 6, 20)], add: [PATCH(diamondPath(6, -21, 6, 9), 'a')] },
+      3: { grow: [1.05, 1.06], addBehind: [evoFan(4, -26, 200, 340, 4, 5, 20)], add: [evoGlow(6, -21, 10, 0.25), L('M-6,-19 L-11,-25 M18,-20 L23,-26', 'a', 2.2, { ns: true })] },
+    },
   }),
   rPart({
     id: 'croc', slot: 'head', name: 'Snapper', tags: ['croc'], dom: 0.55, w: 2,
@@ -2578,6 +2616,10 @@ const R_HEADS = [
       C(50, -11, 1.5, 'k', { ns: true, op: 0.6 }),
     ],
     sockets: { eye: { x: 8, y: -20, s: 1 }, eyeFar: { x: -6, y: -22, s: 0.8 }, jaw: { x: 48, y: 0, a: 0, s: 1 }, crest: { x: 0, y: -28, a: 0, s: 1 }, throat: { x: 6, y: 6, a: 0, s: 1 } },
+    stages: {
+      2: { grow: [1.05, 1.06], addBehind: [evoFan(-8, -18, 160, 250, 3, 6, 18)], add: [P('M18,0 L20,5 L22,0 Z M50,-8 L52,-3 L54,-8 Z', 'w', { sw: 1.1 }), PATCH(diamondPath(10, -18, 5, 8), 'a')] },
+      3: { grow: [1.05, 1.06], addBehind: [evoFan(10, -26, 210, 330, 3, 5, 18)], add: [evoGlow(10, -18, 9, 0.25), L('M-4,-18 L-9,-24 M22,-16 L27,-22', 'a', 2.2, { ns: true })] },
+    },
   }),
   rPart({
     id: 'turtle', slot: 'head', name: 'Stubby', tags: ['turtle'], dom: 0.45, w: 2,
@@ -2590,6 +2632,10 @@ const R_HEADS = [
       PATCH(diamondPath(5, -19, 6, 8), 'a'),
     ],
     sockets: { eye: { x: 12, y: -14, s: 1 }, eyeFar: { x: -2, y: -16, s: 0.8 }, jaw: { x: 24, y: 0, a: 0, s: 1 }, crest: { x: 4, y: -26, a: 0, s: 1 }, throat: { x: 6, y: 8, a: 0, s: 1 } },
+    stages: {
+      2: { grow: [1.05, 1.06], addBehind: [evoFan(-6, -16, 160, 250, 2, 5, 14, { tip: 0.4 })], add: [PATCH(diamondPath(5, -19, 8, 11), 'a')] },
+      3: { grow: [1.05, 1.06], addBehind: [evoFan(4, -22, 210, 330, 3, 4, 14, { tip: 0.4 })], add: [evoGlow(5, -19, 9, 0.25), L('M-4,-16 L-8,-21 M14,-16 L18,-21', 'a', 2.2, { ns: true })] },
+    },
   }),
   rPart({
     id: 'dragon', slot: 'head', name: 'Draconic', tags: ['dragon'], dom: 0.55, w: 2,
@@ -2604,6 +2650,10 @@ const R_HEADS = [
       PATCH(sparklePath(8, -30, 6), 'a'),
     ],
     sockets: { eye: { x: 18, y: -22, s: 1 }, eyeFar: { x: 0, y: -25, s: 0.8 }, jaw: { x: 40, y: -2, a: 0, s: 1 }, crest: { x: 8, y: -40, a: 0, s: 1 }, throat: { x: 6, y: 4, a: 0, s: 1 } },
+    stages: {
+      2: { grow: [1.05, 1.06], addBehind: [evoFan(-10, -24, 150, 250, 3, 6, 22)], add: [PATCH(sparklePath(8, -30, 8), 'a')] },
+      3: { grow: [1.05, 1.06], addBehind: [evoFan(6, -36, 200, 340, 4, 5, 22)], add: [evoGlow(8, -30, 11, 0.25), L('M-4,-26 L-9,-32 M22,-28 L27,-34', 'a', 2.2, { ns: true })] },
+    },
   }),
   rPart({
     id: 'cobra', slot: 'head', name: 'Hooded', tags: ['snake', 'cobra'], dom: 0.55, w: 2,
@@ -2621,6 +2671,10 @@ const R_HEADS = [
       PATCH(diamondPath(8, -25, 5, 8), 'a'),
     ],
     sockets: { eye: { x: 16, y: -20, s: 1 }, eyeFar: { x: 2, y: -22, s: 0.8 }, jaw: { x: 30, y: -6, a: 0, s: 1 }, crest: { x: 4, y: -32, a: 0, s: 1 }, throat: { x: 6, y: 0, a: 0, s: 1 } },
+    stages: {
+      2: { grow: [1.05, 1.06], addBehind: [{ pts: [[-36, -42], [-12, -58], [20, -56], [36, -38], [30, -18], [12, -8], [-14, -8], [-34, -22]], f: 'pd' }], add: [S([[-16, -42], [-2, -49], [12, -42], [10, -29], [-2, -22], [-14, -29]], 'a', { ns: true, cl: true, op: 0.9 })] },
+      3: { grow: [1.05, 1.06], addBehind: [evoFan(-2, -32, 190, 350, 5, 22, 40)], add: [evoGlow(-2, -36, 12, 0.22), L('M-2,-22 L-7,-28 M20,-22 L25,-28', 'a', 2.2, { ns: true })] },
+    },
   }),
   rPart({
     id: 'chameleon', slot: 'head', name: 'Casqued', tags: ['chameleon'], dom: 0.5, w: 2,
@@ -2636,6 +2690,10 @@ const R_HEADS = [
       L(spiralPath(24, -6, 5.5, 1.5, 100), 'a', 1.8, { ns: true, cl: true, op: 0.85 }),
     ],
     sockets: { eye: { x: 16, y: -20, s: 1.15 }, eyeFar: { x: -2, y: -22, s: 0.95 }, jaw: { x: 34, y: -2, a: 0, s: 1 }, crest: { x: 6, y: -46, a: 0, s: 1 }, throat: { x: 8, y: 6, a: 0, s: 1 } },
+    stages: {
+      2: { grow: [1.05, 1.06], addBehind: [evoFan(-8, -22, 160, 250, 2, 6, 18)], addShapes: [{ pts: [[0, -38], [6, -58, 'c'], [12, -40]], f: 'a' }] },
+      3: { grow: [1.05, 1.06], addBehind: [evoFan(0, -30, 190, 300, 3, 8, 24)], add: [evoGlow(24, -6, 9, 0.25), L('M-4,-22 L-9,-28 M20,-24 L25,-30', 'a', 2.2, { ns: true })] },
+    },
   }),
   rPart({
     id: 'raptor', slot: 'head', name: 'Toothy', tags: ['raptor'], dom: 0.5, w: 2,
@@ -2650,15 +2708,30 @@ const R_HEADS = [
       PATCH('M2,-27 L32,-13 L32,-7 L0,-20 Z', 'a', { op: 0.85 }),
     ],
     sockets: { eye: { x: 14, y: -20, s: 1 }, eyeFar: { x: -2, y: -22, s: 0.8 }, jaw: { x: 44, y: -1, a: 0, s: 1 }, crest: { x: 4, y: -34, a: 0, s: 1 }, throat: { x: 6, y: 6, a: 0, s: 1 } },
+    stages: {
+      2: { grow: [1.05, 1.06], addBehind: [evoFan(-8, -24, 150, 250, 3, 6, 20)], add: [P('M16,1 L18,6 L20,1 Z M48,-6 L50,-1 L52,-6 Z', 'w', { sw: 1.1 }), PATCH('M2,-29 L34,-14 L34,-7 L0,-20 Z', 'a', { op: 0.9 })] },
+      3: { grow: [1.05, 1.06], addBehind: [evoFan(5, -34, 200, 340, 4, 5, 20)], add: [evoGlow(14, -20, 11, 0.22), L('M-4,-24 L-9,-30 M20,-24 L25,-30', 'a', 2.2, { ns: true })] },
+    },
   }),
 ];
 
 // ---- src/data/parts/reptile/eyes.js ----
 // Reptile eyes. Origin = eye centre. Many are coloured all over with a slit pupil.
+// Evolutions: stage 2 rings the iris in the accent colour; stage 3 adds a glow, a second glint
+// and an accent brow spike, and the eye grows a touch each time.
 
 
 
-function rEye({ id, name, shape, sclera = 'w', iris = [0.8, 0.2, 3.8], irisRole = 'e', pupil = [1.2, 0.5, 2], pupilPath, glint = [2.2, -1.8, 1.3], glint2 = [-1, 1.8, 0.7], lid, lidFill, before = [], dom = 0.5, w = 2, tags = [] }) {
+
+function rEyeStages(iris, brow) {
+  const [ix, iy, r] = iris;
+  return {
+    2: { grow: [1.05, 1.05], add: [evoRing(ix, iy, r * 0.95, 'a', 1.3, { cl: true, op: 0.85 })] },
+    3: { grow: [1.05, 1.05], add: [evoGlow(ix, iy, r * 1.5, 0.2), C(ix - r * 0.45, iy - r * 0.5, r * 0.28, 'w', { ns: true, op: 0.9 }), P(brow, 'a', { ns: true })] },
+  };
+}
+
+function rEye({ id, name, shape, sclera = 'w', iris = [0.8, 0.2, 3.8], irisRole = 'e', pupil = [1.2, 0.5, 2], pupilPath, glint = [2.2, -1.8, 1.3], glint2 = [-1, 1.8, 0.7], lid, lidFill, before = [], brow = 'M-2,-7 L1.5,-12.5 L5,-7 Z', dom = 0.5, w = 2, tags = [] }) {
   const prims = [...before];
   if (shape) prims.push(P(shape, sclera, { sw: 2 }));
   if (iris) {
@@ -2671,7 +2744,7 @@ function rEye({ id, name, shape, sclera = 'w', iris = [0.8, 0.2, 3.8], irisRole 
   if (glint2) prims.push(C(glint2[0], glint2[1], glint2[2], 'w', { ns: true, op: 0.7 }));
   if (lidFill) prims.push(P(lidFill, 'p', { ns: true, cl: Boolean(shape) }));
   if (lid) prims.push(L(lid, 'k', 1.8));
-  return rPart({ id, slot: 'eyes', name, tags, dom, w, extra: prims });
+  return rPart({ id, slot: 'eyes', name, tags, dom, w, extra: prims, stages: rEyeStages(iris, brow) });
 }
 
 const OVAL = spline([[0, -6.5], [6, -2], [5.4, 5], [0, 6.8], [-5.4, 5], [-6, -2]]);
@@ -2679,63 +2752,142 @@ const OVAL = spline([[0, -6.5], [6, -2], [5.4, 5], [0, 6.8], [-5.4, 5], [-6, -2]
 const R_EYES = [
   rEye({ id: 'round', name: 'Round', tags: ['cute'], w: 3, shape: OVAL, lid: 'M-5,-5 Q0,-8.4 5,-5' }),
   rEye({ id: 'slit', name: 'Slit', tags: ['snake'], w: 3, shape: OVAL, sclera: 'e', iris: [0.4, 0.2, 4.6], irisRole: 'el', pupil: [0.8, 0.2, [1.4, 5.2]], glint: [2.6, -2.4, 1.2], lid: 'M-5,-5.2 Q0,-8.6 5.2,-5.2' }),
-  rEye({ id: 'turret', name: 'Turret', tags: ['chameleon'], w: 2, shape: null, before: [C(0, 0, 8, 'p'), L('M-5,-5 C-2,-2 2,-2 5,-5 M-6,2 C-2,4 2,4 6,2', 'k', 1, { op: 0.3 })], iris: [1.5, 0, 3.4], pupil: [2, 0, 1.4], glint: [2.8, -1.4, 0.8], glint2: null }),
-  rEye({ id: 'fierce', name: 'Fierce', tags: ['angry'], w: 2, shape: spline([[-6.5, -4], [0, -5.5], [6.5, -2], [6.5, 3], [2, 5.5], [-4, 5], [-7, 1]]), iris: [1, 0.6, 3.6], pupil: [1.4, 0.9, [1.4, 3.2]], glint: [2.4, -1, 1.1], lidFill: 'M-9,-10 L9,-10 L9,-1.5 L-9,-5.8 Z', lid: 'M-7,-5.5 L6.5,-1.5' }),
-  rEye({ id: 'hooded', name: 'Hooded', tags: ['calm'], w: 2, shape: OVAL, iris: [0.8, 1.2, 3.8], pupil: [1.2, 1.5, 2], glint: [2.2, -0.4, 1.1], glint2: null, lidFill: 'M-9,-10 L9,-10 L9,-1 L-9,-1 Z', lid: 'M-6,-1 L6,-1' }),
-  rEye({ id: 'bead', name: 'Bead', tags: ['small'], w: 3, shape: spline([[0, -5], [4.8, -1.5], [4.2, 3.6], [0, 5.2], [-4.2, 3.6], [-4.8, -1.5]]), iris: [0.4, 0, 4.4], pupil: [0.6, 0.2, 3.2], glint: [1.8, -1.8, 1.2], glint2: [-1, 1.5, 0.6], lid: null }),
+  rEye({ id: 'turret', name: 'Turret', tags: ['chameleon'], w: 2, shape: null, before: [C(0, 0, 8, 'p'), L('M-5,-5 C-2,-2 2,-2 5,-5 M-6,2 C-2,4 2,4 6,2', 'k', 1, { op: 0.3 })], iris: [1.5, 0, 3.4], pupil: [2, 0, 1.4], glint: [2.8, -1.4, 0.8], glint2: null, brow: 'M-3,-8 L0,-13.5 L3,-8 Z' }),
+  rEye({ id: 'fierce', name: 'Fierce', tags: ['angry'], w: 2, shape: spline([[-6.5, -4], [0, -5.5], [6.5, -2], [6.5, 3], [2, 5.5], [-4, 5], [-7, 1]]), iris: [1, 0.6, 3.6], pupil: [1.4, 0.9, [1.4, 3.2]], glint: [2.4, -1, 1.1], lidFill: 'M-9,-10 L9,-10 L9,-1.5 L-9,-5.8 Z', lid: 'M-7,-5.5 L6.5,-1.5', brow: 'M3,-3 L7.5,-8 L8,-1.5 Z' }),
+  rEye({ id: 'hooded', name: 'Hooded', tags: ['calm'], w: 2, shape: OVAL, iris: [0.8, 1.2, 3.8], pupil: [1.2, 1.5, 2], glint: [2.2, -0.4, 1.1], glint2: null, lidFill: 'M-9,-10 L9,-10 L9,-1 L-9,-1 Z', lid: 'M-6,-1 L6,-1', brow: 'M-2,-2 L1.5,-7.5 L5,-2 Z' }),
+  rEye({ id: 'bead', name: 'Bead', tags: ['small'], w: 3, shape: spline([[0, -5], [4.8, -1.5], [4.2, 3.6], [0, 5.2], [-4.2, 3.6], [-4.8, -1.5]]), iris: [0.4, 0, 4.4], pupil: [0.6, 0.2, 3.2], glint: [1.8, -1.8, 1.2], glint2: [-1, 1.5, 0.6], lid: null, brow: 'M-2,-5.5 L1,-10 L4,-5.5 Z' }),
   rEye({ id: 'gem', name: 'Gem', tags: ['dragon'], w: 2, shape: OVAL, sclera: 'e', iris: [0.6, 0.2, 4.4], irisRole: 'el', pupilPath: 'M1,-4.6 L3.6,0 L1,4.6 L-1.6,0 Z', glint: [2.6, -2.6, 1.2], lid: 'M-5,-5.2 Q0,-8.6 5.2,-5.2' }),
 ];
 
 // ---- src/data/parts/reptile/jaws.js ----
 // Reptile jaws: the mouth line, teeth, beaks and tongues. Origin = the mouth corner on the head's jaw socket.
+// Evolutions: stage 2 grows the jaw and adds teeth, longer fangs, a bigger hook or a longer
+// tongue; stage 3 redraws them larger still with venom beads, serrations and tusk bands.
 
 
 
 const MOUTH = 'M2,0 C-6,3 -14,4 -22,2';
 
 const R_JAWS = [
-  rPart({ id: 'grin', slot: 'jaw', name: 'Grin', tags: ['teeth'], dom: 0.5, w: 3, extra: [L(MOUTH, 'k', 1.9), P('M-6,2.2 L-4.5,5.5 L-3,2.4 Z M-12,2.8 L-10.5,6 L-9,2.8 Z M-18,2.6 L-16.5,5.6 L-15,2.4 Z', 'w', { sw: 1 })] }),
-  rPart({ id: 'fangs', slot: 'jaw', name: 'Fangs', tags: ['snake'], dom: 0.55, w: 2, extra: [L(MOUTH, 'k', 1.9), P('M-4,2.5 L-2,9.5 L0,2 Z', 'w', { sw: 1.2 }), P('M-13,3 L-11,9 L-9,2.8 Z', 'w', { sw: 1.2 })] }),
-  rPart({ id: 'beak', slot: 'jaw', name: 'Beak', tags: ['turtle'], dom: 0.5, w: 2, extra: [P('M4,-6 C8,-4 8,2 3,4 C-2,6 -10,6 -16,3 C-8,2 -2,0 2,-2 Z', 'a', { sw: 1.6 }), L('M-14,3 C-8,2 -2,0 3,-3', 'k', 1.2)] }),
-  rPart({ id: 'tongue', slot: 'jaw', name: 'Forked tongue', tags: ['snake'], dom: 0.5, w: 2, extra: [L(MOUTH, 'k', 1.8), P('M2,0 C8,-2 14,-2 18,0 L22,-3 L20,1 L23,3 L17,1 C13,1 8,2 3,2 Z', 'a', { sw: 1 })] }),
-  rPart({ id: 'tusks', slot: 'jaw', name: 'Tusks', tags: ['boar'], dom: 0.5, w: 1, extra: [L(MOUTH, 'k', 1.9), P('M-6,1 L-4,-8 L-1,2 Z', 'w', { sw: 1.2 }), P('M-16,2 L-14,-6 L-11,3 Z', 'w', { sw: 1.2 })] }),
-  rPart({ id: 'smirk', slot: 'jaw', name: 'Smirk', tags: ['sly'], dom: 0.45, w: 2, extra: [L('M0,-1 C-4,3 -10,4 -16,3 C-13,1 -10,1 -8,1', 'k', 1.8)] }),
-  rPart({ id: 'underbite', slot: 'jaw', name: 'Underbite', tags: ['teeth'], dom: 0.5, w: 2, extra: [L(MOUTH, 'k', 1.9), P('M-4,2 L-3,-3 L-1,2 Z M-10,3 L-9,-2 L-7,3 Z M-16,3 L-15,-2 L-13,3 Z', 'w', { sw: 1 })] }),
+  rPart({
+    id: 'grin', slot: 'jaw', name: 'Grin', tags: ['teeth'], dom: 0.5, w: 3,
+    extra: [L(MOUTH, 'k', 1.9), P('M-6,2.2 L-4.5,5.5 L-3,2.4 Z M-12,2.8 L-10.5,6 L-9,2.8 Z M-18,2.6 L-16.5,5.6 L-15,2.4 Z', 'w', { sw: 1 })],
+    stages: {
+      2: { grow: [1.12, 1.12], add: [P('M-24,2.4 L-22.5,5.4 L-21,2.2 Z M0,1.5 L1.5,4.8 L3,1.2 Z', 'w', { sw: 1 })] },
+      3: { reset: true, grow: [1.25, 1.25], add: [P('M-6,2.2 L-4.5,7 L-3,2.4 Z M-12,2.8 L-10.5,7.4 L-9,2.8 Z M-18,2.6 L-16.5,7 L-15,2.4 Z M-24,2.4 L-22.5,6.4 L-21,2.2 Z M0,1.5 L1.5,6 L3,1.2 Z', 'w', { sw: 1 })] },
+    },
+  }),
+  rPart({
+    id: 'fangs', slot: 'jaw', name: 'Fangs', tags: ['snake'], dom: 0.55, w: 2,
+    extra: [L(MOUTH, 'k', 1.9), P('M-4,2.5 L-2,9.5 L0,2 Z', 'w', { sw: 1.2 }), P('M-13,3 L-11,9 L-9,2.8 Z', 'w', { sw: 1.2 })],
+    stages: {
+      2: { grow: [1.12, 1.12], add: [P('M-4,2.5 L-2,12 L0,2 Z', 'w', { sw: 1.2 }), P('M-13,3 L-11,11.5 L-9,2.8 Z', 'w', { sw: 1.2 })] },
+      3: { reset: true, grow: [1.25, 1.25], add: [P('M-4,2.5 L-1.6,14.5 L0.6,2 Z', 'w', { sw: 1.3 }), P('M-13,3 L-10.6,13.5 L-8.6,2.8 Z', 'w', { sw: 1.3 }), C(-1.4, 15.8, 1.3, 'a', { ns: true }), C(-10.4, 14.8, 1.1, 'a', { ns: true })] },
+    },
+  }),
+  rPart({
+    id: 'beak', slot: 'jaw', name: 'Beak', tags: ['turtle'], dom: 0.5, w: 2,
+    extra: [P('M4,-6 C8,-4 8,2 3,4 C-2,6 -10,6 -16,3 C-8,2 -2,0 2,-2 Z', 'a', { sw: 1.6 }), L('M-14,3 C-8,2 -2,0 3,-3', 'k', 1.2)],
+    stages: {
+      2: { grow: [1.12, 1.12], add: [P('M4,-8 C10,-6 10,3 3,6 C-1,7 -6,7 -10,6 L-8,3 C-2,3 4,1 5,-1 C6,-3 5,-5 2,-6 Z', 'a', { sw: 1.4 })] },
+      3: { reset: true, grow: [1.25, 1.25], add: [P('M4,-9 C11,-6 11,4 3,7 C-1,8 -7,8 -12,6.5 L-9,3.5 C-2,3.5 4,1.5 5.5,-1 C6.5,-3.5 5,-6 2,-7 Z', 'a', { sw: 1.4 }), L('M-12,3.6 L-10,5.6 M-6,2.4 L-4,4.4 M0,0 L2,2', 'k', 1.2, { op: 0.5 })] },
+    },
+  }),
+  rPart({
+    id: 'tongue', slot: 'jaw', name: 'Forked tongue', tags: ['snake'], dom: 0.5, w: 2,
+    extra: [L(MOUTH, 'k', 1.8), P('M2,0 C8,-2 14,-2 18,0 L22,-3 L20,1 L23,3 L17,1 C13,1 8,2 3,2 Z', 'a', { sw: 1 })],
+    stages: {
+      2: { grow: [1.12, 1.12], add: [P('M2,0 C10,-2 18,-2 24,0 L29,-4 L26,1 L30,4 L23,1.5 C17,1.5 10,2.5 3,2.5 Z', 'a', { sw: 1 })] },
+      3: { reset: true, grow: [1.25, 1.25], add: [P('M2,0 C10,-2.5 20,-2.5 28,0 L34,-5 L30,1 L35,5 L27,1.5 C20,1.5 10,3 3,2.5 Z', 'a', { sw: 1 }), C(35.5, -6, 1.2, 'a', { ns: true }), C(36.5, 6, 1.2, 'a', { ns: true })] },
+    },
+  }),
+  rPart({
+    id: 'tusks', slot: 'jaw', name: 'Tusks', tags: ['boar'], dom: 0.5, w: 1,
+    extra: [L(MOUTH, 'k', 1.9), P('M-6,1 L-4,-8 L-1,2 Z', 'w', { sw: 1.2 }), P('M-16,2 L-14,-6 L-11,3 Z', 'w', { sw: 1.2 })],
+    stages: {
+      2: { grow: [1.12, 1.12], add: [P('M-6,1 L-3.6,-12 L-0.6,2 Z', 'w', { sw: 1.2 }), P('M-16,2 L-13.6,-10 L-10.6,3 Z', 'w', { sw: 1.2 })] },
+      3: { reset: true, grow: [1.25, 1.25], add: [P('M-6,1 L-3,-15 L0,2 Z', 'w', { sw: 1.3 }), P('M-16,2 L-13,-13 L-10,3 Z', 'w', { sw: 1.3 }), L('M-5,-6 L-2,-6 M-15,-5 L-12,-5', 'a', 1.4, { ns: true, op: 0.8 })] },
+    },
+  }),
+  rPart({
+    id: 'smirk', slot: 'jaw', name: 'Smirk', tags: ['sly'], dom: 0.45, w: 2,
+    extra: [L('M0,-1 C-4,3 -10,4 -16,3 C-13,1 -10,1 -8,1', 'k', 1.8)],
+    stages: {
+      2: { grow: [1.12, 1.12], add: [P('M-10,1.5 L-8.6,6.5 L-7.2,1.8 Z', 'w', { sw: 1 })] },
+      3: { reset: true, grow: [1.25, 1.25], add: [P('M-10,1.5 L-8.4,8 L-6.8,1.8 Z M-3,0.4 L-2,4.4 L-0.8,0.2 Z', 'w', { sw: 1 })] },
+    },
+  }),
+  rPart({
+    id: 'underbite', slot: 'jaw', name: 'Underbite', tags: ['teeth'], dom: 0.5, w: 2,
+    extra: [L(MOUTH, 'k', 1.9), P('M-4,2 L-3,-3 L-1,2 Z M-10,3 L-9,-2 L-7,3 Z M-16,3 L-15,-2 L-13,3 Z', 'w', { sw: 1 })],
+    stages: {
+      2: { grow: [1.12, 1.12], add: [P('M-22,2.8 L-21,-2.4 L-19,2.8 Z', 'w', { sw: 1 })] },
+      3: { reset: true, grow: [1.25, 1.25], add: [P('M-4,2 L-3,-5 L-1,2 Z M-10,3 L-9,-4 L-7,3 Z M-16,3 L-15,-4 L-13,3 Z M-22,2.8 L-21,-3.4 L-19,2.8 Z', 'w', { sw: 1 })] },
+    },
+  }),
 ];
 
 // ---- src/data/parts/reptile/crests.js ----
 // Reptile crests: frills, horns, fins and plumes on the crown. Origin = the head's crest socket;
 // crests grow up (-y) and sweep back (-x). Drawn behind the skull.
+// Evolutions: stage 2 grows the crest and adds accent rays, tips, ridges or a notched edge;
+// stage 3 layers a larger copy behind it (or a second pair of horns) and sets a gem.
+
 
 
 
 const rBeam = (pts, w0, w1, f = 'p') => S(tube(pts, w0, w1), f);
 
+const frillPts = [[6, 4], [8, -10], [0, -24], [-14, -30], [-30, -24], [-38, -10], [-34, 6], [-20, 10]];
+const finPts = [[-4, 4], [0, -12], [6, -28], [-2, -34], [-14, -26], [-22, -12], [-24, 4]];
+const plumePts = [[-4, 4], [0, -8], [-4, -24, 0.2], [-8, -10], [-16, -26, 0.2], [-16, -8], [-26, -18, 0.2], [-22, -2], [-30, 0, 0.2], [-24, 6]];
+const spikePts = [[-14, 4], [-14, -4], [-9, -16, 'c'], [-4, -4], [0, -22, 'c'], [4, -4], [9, -16, 'c'], [12, -4], [14, 4]];
+
 const R_CRESTS = [
   NONE('crest', 0.3, 'r.'),
   rPart({
     id: 'frill', slot: 'crest', name: 'Frill', tags: ['frill'], dom: 0.55, w: 2,
-    shapes: [[[6, 4], [8, -10], [0, -24], [-14, -30], [-30, -24], [-38, -10], [-34, 6], [-20, 10]]],
+    shapes: [frillPts],
     extra: [S([[2, 0], [2, -12], [-6, -20], [-18, -22], [-28, -12], [-26, 2]], 's', { ns: true, cl: true, op: 0.6 }), L('M4,2 L-2,-20 M4,2 L-14,-26 M4,2 L-28,-20 M4,2 L-32,-6', 'k', 1.2, { op: 0.3 })],
+    stages: {
+      2: { grow: [1.12, 1.15], addBehind: [evoFan(-14, -10, 150, 290, 5, 16, 30)], add: [L('M4,2 L-2,-20 M4,2 L-14,-26 M4,2 L-28,-20 M4,2 L-32,-6', 'a', 1.6, { ns: true, op: 0.7 })] },
+      3: { grow: [1.1, 1.1], addBehind: [{ pts: xfPts(frillPts, { sx: 1.3, sy: 1.3 }), f: 'pd' }], add: [...evoGem(-14, -12, 3.2)] },
+    },
   }),
   rPart({
     id: 'horns', slot: 'crest', name: 'Horns', tags: ['dragon'], dom: 0.55, w: 2,
     extra: [rBeam([[-6, 2], [-10, -10], [-20, -20], [-32, -26]], 7, 2, 'pd'), rBeam([[6, 2], [4, -12], [-4, -24], [-16, -32]], 8, 2), L('M4,-6 L0,-6 M3,-12 L-1,-11 M0,-17 L-4,-15', 'k', 1.2, { op: 0.3 })],
+    stages: {
+      2: { grow: [1.1, 1.15], add: [L('M-8,-8 L-12,-6 M-12,-14 L-16,-12 M-18,-19 L-22,-17', 'k', 1.1, { op: 0.25 }), S(tube([[-12, -28], [-16, -32]], 3.4, 1.2), 'a', { ns: true }), S(tube([[-28, -22], [-32, -26]], 3, 1.2), 'a', { ns: true })] },
+      3: { grow: [1.1, 1.1], add: [rBeam([[-2, 4], [-6, -4], [-12, -10]], 5, 1.6, 'pd'), rBeam([[10, 4], [10, -6], [6, -14]], 5.5, 1.6), ...evoGem(0, -2, 2.8)] },
+    },
   }),
   rPart({
     id: 'fin', slot: 'crest', name: 'Head fin', tags: ['fin'], dom: 0.5, w: 2,
-    shapes: [[[-4, 4], [0, -12], [6, -28], [-2, -34], [-14, -26], [-22, -12], [-24, 4]]],
+    shapes: [finPts],
     extra: [S([[-4, 0], [-2, -12], [2, -24], [-6, -26], [-14, -18], [-20, -6], [-20, 2]], 's', { ns: true, cl: true, op: 0.5 }), L('M-4,2 L2,-26 M-6,2 L-12,-22 M-8,2 L-18,-10', 'k', 1.2, { op: 0.3 })],
+    stages: {
+      2: { grow: [1.1, 1.25], addShapes: [{ pts: [[4, -24], [10, -40, 'c'], [2, -30]], f: 'p' }], add: [L('M-4,2 L2,-26 M-6,2 L-12,-22', 'a', 1.6, { ns: true, op: 0.7 })] },
+      3: { grow: [1.1, 1.15], addBehind: [{ pts: xfPts(finPts, { sx: 1.3, sy: 1.3 }), f: 'pd' }], add: [...evoGem(-6, -14, 3)] },
+    },
   }),
   rPart({
     id: 'casque', slot: 'crest', name: 'Casque', tags: ['chameleon'], dom: 0.5, w: 2,
     shapes: [[[-6, 4], [-2, -8], [4, -22, 'c'], [12, -10], [14, 4]]],
     extra: [L('M-2,-6 L4,-20 L10,-8', 'k', 1.2, { op: 0.3 }), HL('M2,-18 L6,-14 L4,-2 L0,-2 Z', 0.2)],
+    stages: {
+      2: { grow: [1.1, 1.25], addShapes: [{ pts: [[1, -18], [4, -34, 'c'], [8, -16]], f: 'a' }] },
+      3: { grow: [1.1, 1.1], addBehind: [[[-14, 4], [-10, -8], [-6, -20, 'c'], [0, -8], [2, 4]], [[6, 4], [10, -8], [16, -18, 'c'], [20, -6], [20, 4]]], add: [...evoGem(4, -8, 2.6)] },
+    },
   }),
   rPart({
     id: 'plume', slot: 'crest', name: 'Plume', tags: ['feathers'], dom: 0.5, w: 2,
-    shapes: [[[-4, 4], [0, -8], [-4, -24, 0.2], [-8, -10], [-16, -26, 0.2], [-16, -8], [-26, -18, 0.2], [-22, -2], [-30, 0, 0.2], [-24, 6]]],
+    shapes: [plumePts],
     extra: [L('M-2,0 L-4,-20 M-6,0 L-14,-22 M-10,2 L-22,-14', 'k', 1, { op: 0.3 }), S([[-4, 0], [-6, -14], [-12, -18], [-16, -6], [-14, 2]], 's', { ns: true, cl: true, op: 0.5 })],
+    stages: {
+      2: { grow: [1.1, 1.2], add: [P('M-6,-22 L-4,-30 L-2,-22 Z M-18,-24 L-17,-32 L-14,-24 Z M-28,-16 L-28,-24 L-24,-16 Z', 'a', { ns: true, op: 0.85 })] },
+      3: { grow: [1.1, 1.1], addBehind: [{ pts: xfPts(plumePts, { sx: 1.3, sy: 1.3 }), f: 'pd' }], add: [...evoGem(-6, -4, 2.6)] },
+    },
   }),
   rPart({
     id: 'antlers', slot: 'crest', name: 'Antlers', tags: ['dragon', 'deer'], dom: 0.5, w: 1,
@@ -2743,59 +2895,89 @@ const R_CRESTS = [
       rBeam([[-6, 2], [-8, -10], [-6, -22], [-10, -36]], 5, 3, 'pd'), rBeam([[-7, -14], [-14, -20], [-20, -28]], 4, 2, 'pd'),
       rBeam([[8, 2], [11, -10], [12, -24], [9, -38]], 5.5, 3), rBeam([[11, -14], [18, -20], [24, -28]], 4.5, 2.2), rBeam([[12, -26], [18, -34]], 4, 2),
     ],
+    stages: {
+      2: { grow: [1.1, 1.12], add: [rBeam([[11, -6], [18, -8], [23, -14]], 4, 2), rBeam([[-7, -6], [-14, -9], [-18, -14]], 3.6, 2, 'pd'), C(9, -39, 2.4, 'a', { sw: 1.4 }), C(-10, -37, 2, 'a', { sw: 1.4 }), C(24, -29, 2.2, 'a', { sw: 1.4 })] },
+      3: { grow: [1.1, 1.1], add: [rBeam([[12, -30], [16, -42], [14, -50]], 3.6, 2), rBeam([[-10, -30], [-14, -42]], 3, 1.8, 'pd'), C(14, -51, 2.6, 'a', { sw: 1.5 }), C(-14, -43, 2, 'a', { sw: 1.4 }), C(9, -40, 6, 'a', { ns: true, op: 0.22 })] },
+    },
   }),
   rPart({
     id: 'spikes', slot: 'crest', name: 'Spikes', tags: ['spiky'], dom: 0.5, w: 2,
-    shapes: [[[-14, 4], [-14, -4], [-9, -16, 'c'], [-4, -4], [0, -22, 'c'], [4, -4], [9, -16, 'c'], [12, -4], [14, 4]]],
+    shapes: [spikePts],
     extra: [HL('M-2,-18 L0,-6 L2,-18 Z', 0.25)],
+    stages: {
+      2: { grow: [1.1, 1.25], add: [P('M-11,-8 L-9,-18 L-7,-8 Z M-2,-12 L0,-24 L2,-12 Z M7,-8 L9,-18 L11,-8 Z', 'a', { ns: true, op: 0.85 })] },
+      3: { grow: [1.1, 1.15], addBehind: [{ pts: [[-20, 4], [-20, -4], [-15, -18, 'c'], [-8, -4], [-4, -26, 'c'], [0, -6], [4, -28, 'c'], [8, -4], [15, -18, 'c'], [18, -4], [20, 4]], f: 'pd' }] },
+    },
   }),
 ];
 
 // ---- src/data/parts/reptile/legs.js ----
 // Reptile legs. Origin = the joint on the body. Splayed, short, ending in clawed feet.
 // The near hind leg carries a thigh that overlaps the torso; on upright bodies forelegs hang as arms.
+// Evolutions (rLegStages): stage 2 grows the limb, bares longer claws and sprouts a spur at
+// the joint; stage 3 grows it again with longer claws still, a bigger spur and armour bands.
+// Padded and mitten feet get bigger pads and accent rings instead of claws.
+
 
 
 
 const rShadeBack = SH('M-16,-20 L-4,-20 L-3,46 L-16,46 Z', 0.12);
 const rLightFront = HL('M2,-6 L6,-6 L6,12 L3,12 Z', 0.16);
-const pads = (x, y) => [C(x, y, 2.2, 'a', { sw: 1 }), C(x + 6, y + 1, 2.2, 'a', { sw: 1 }), C(x + 12, y, 2.2, 'a', { sw: 1 })];
+const pads = (x, y, r = 2.2) => [C(x, y, r, 'a', { sw: 1 }), C(x + 6, y + 1, r, 'a', { sw: 1 }), C(x + 12, y, r, 'a', { sw: 1 })];
+
+/** foot = [x0, x1, y, n] claw row (null for clawless feet), ankleY = band start, spur = [x, y, angle] at the joint, o.pads = [x, y]. */
+const rLegStages = (foot, ankleY, spur, o = {}) => {
+  const clawsAt = (len) => (foot ? claws(foot[0], foot[1], foot[2], foot[3] || 3, len) : []);
+  const spurFan = (len) => (spur ? [evoFan(spur[0], spur[1], spur[2] - 30, spur[2] + 30, 1, 3, len)] : []);
+  const padsAt = (r) => (o.pads ? pads(o.pads[0], o.pads[1], r) : []);
+  return {
+    2: { grow: [1.06, 1.08], addBehind: spurFan(12), add: [...clawsAt(6), ...padsAt(2.8)] },
+    3: { reset: true, grow: [1.12, 1.16], addBehind: spurFan(16), add: [...evoBands(ankleY, 2, 2.6, 6), ...clawsAt(7.5), ...padsAt(3.2), ...(o.pads ? [evoRing(o.pads[0] + 6, o.pads[1] + 1, 6, 'a', 1.2, { op: 0.6 })] : [])] },
+  };
+};
 
 const R_LEGS_FRONT = [
   rLeg({
     id: 'lizard', slot: 'legsFront', name: 'Splayed', tags: ['lizard'], dom: 0.5, w: 3,
     shapes: [[[-7, -6], [4, -9], [10, -2], [10, 10], [10, 18], [18, 22], [22, 26, 'c'], [16, 28], [4, 28], [-4, 26], [-6, 18], [-7, 8]]],
     extra: [rShadeBack, rLightFront, L('M-4,10 C0,12 6,12 9,10', 'k', 1.2, { op: 0.25 }), ...claws(6, 20, 27, 3, 4)],
+    stages: rLegStages([6, 20, 27, 3], 14, [-4, 20, 160]),
   }),
   rLeg({
     id: 'croc', slot: 'legsFront', name: 'Stubby', tags: ['croc'], dom: 0.5, w: 2,
     shapes: [[[-9, -6], [4, -9], [12, -2], [12, 10], [14, 18], [20, 20], [22, 24, 'c'], [14, 26], [0, 26], [-8, 22], [-9, 12]]],
     extra: [rShadeBack, rLightFront, L('M-6,6 C0,8 6,8 11,6 M-6,12 C0,14 8,14 12,12', 'k', 1.1, { op: 0.25 }), ...claws(4, 20, 25, 3, 4)],
+    stages: rLegStages([4, 20, 25, 3], 12, [-6, 18, 160]),
   }),
   rLeg({
     id: 'turtle', slot: 'legsFront', name: 'Stump', tags: ['turtle'], dom: 0.45, w: 2,
     shapes: [[[-10, -4], [2, -8], [12, -2], [13, 10], [12, 20], [6, 24], [-6, 24], [-12, 18], [-12, 8]]],
     extra: [rShadeBack, L('M-8,4 C-2,6 6,6 11,4 M-8,12 C-2,14 6,14 11,12', 'k', 1.1, { op: 0.25 }), ...claws(-4, 8, 23, 3, 3)],
+    stages: rLegStages([-4, 8, 23, 3], 10, [-10, 14, 170]),
   }),
   rLeg({
     id: 'dragon', slot: 'legsFront', name: 'Talon', tags: ['dragon'], dom: 0.55, w: 2,
     shapes: [[[-8, -8], [4, -12], [11, -4], [10, 10], [10, 22], [16, 28], [20, 32, 'c'], [14, 34], [2, 34], [-5, 30], [-6, 20], [-8, 8]]],
     extra: [rShadeBack, rLightFront, L('M-4,12 C0,14 6,14 9,12', 'k', 1.2, { op: 0.25 }), ...claws(2, 18, 33, 3, 5)],
+    stages: rLegStages([2, 18, 33, 3], 18, [-4, 24, 160]),
   }),
   rLeg({
     id: 'chameleon', slot: 'legsFront', name: 'Mitten', tags: ['chameleon'], dom: 0.5, w: 2,
     shapes: [[[-7, -6], [4, -9], [10, -2], [9, 10], [8, 20], [14, 24], [16, 28, 'c'], [10, 32], [-2, 32], [-6, 28], [-6, 18], [-7, 8]]],
     extra: [rShadeBack, rLightFront, L('M4,24 L4,31', 'k', 1.4, { op: 0.5 }), L('M-4,10 C0,12 6,12 8,10', 'k', 1.2, { op: 0.25 })],
+    stages: rLegStages(null, 18, [-4, 22, 160]),
   }),
   rLeg({
     id: 'raptor', slot: 'legsFront', name: 'Grasper', tags: ['raptor', 'small'], dom: 0.45, w: 2,
     shapes: [[[-6, -6], [3, -8], [8, -2], [7, 8], [6, 16], [12, 18], [14, 22, 'c'], [8, 24], [-2, 22], [-5, 16], [-6, 8]]],
     extra: [rShadeBack, rLightFront, ...claws(2, 12, 23, 3, 4)],
+    stages: rLegStages([2, 12, 23, 3], 10, [-4, 16, 160]),
   }),
   rLeg({
     id: 'gecko', slot: 'legsFront', name: 'Padded', tags: ['gecko'], dom: 0.5, w: 2,
     shapes: [[[-7, -6], [4, -9], [10, -2], [10, 10], [10, 18], [18, 20], [22, 24, 'c'], [16, 28], [4, 28], [-4, 26], [-6, 18], [-7, 8]]],
     extra: [rShadeBack, rLightFront, ...pads(6, 26)],
+    stages: rLegStages(null, 14, [-4, 20, 160], { pads: [6, 26] }),
   }),
 ];
 
@@ -2804,49 +2986,67 @@ const R_LEGS_BACK = [
     id: 'lizard', slot: 'legsBack', name: 'Splayed', tags: ['lizard'], dom: 0.5, w: 3,
     shapes: [[[-14, -6], [-2, -14], [10, -10], [16, 0], [14, 10], [12, 18], [20, 22], [24, 26, 'c'], [18, 29], [4, 29], [-4, 26], [-8, 18], [-10, 10], [-16, 4]]],
     extra: [L('M-8,10 C-2,16 6,14 12,6', 'k', 1.5, { op: 0.3 }), SH('M-20,4 C-10,16 4,18 16,8 L20,20 L-20,20 Z', 0.12), HL('M-6,-10 C0,-14 8,-10 10,-4 C4,-6 -4,-6 -8,-2 Z', 0.16), ...claws(8, 22, 28, 3, 4)],
+    stages: rLegStages([8, 22, 28, 3], 16, [-8, 20, 170]),
   }),
   rLeg({
     id: 'croc', slot: 'legsBack', name: 'Stubby', tags: ['croc'], dom: 0.5, w: 2,
     shapes: [[[-16, -6], [-4, -14], [10, -10], [18, 0], [16, 10], [16, 18], [22, 20], [24, 24, 'c'], [16, 27], [0, 27], [-8, 22], [-10, 14], [-16, 6]]],
     extra: [L('M-10,10 C-2,16 8,14 14,6', 'k', 1.5, { op: 0.3 }), SH('M-20,4 C-10,16 4,18 18,8 L22,20 L-20,20 Z', 0.12), HL('M-6,-10 C0,-14 8,-10 10,-4 C4,-6 -4,-6 -8,-2 Z', 0.16), ...claws(6, 20, 26, 3, 4)],
+    stages: rLegStages([6, 20, 26, 3], 14, [-8, 20, 170]),
   }),
   rLeg({
     id: 'turtle', slot: 'legsBack', name: 'Stump', tags: ['turtle'], dom: 0.45, w: 2,
     shapes: [[[-14, -4], [-2, -10], [10, -6], [14, 4], [14, 14], [10, 22], [-2, 24], [-12, 20], [-14, 10]]],
     extra: [L('M-10,4 C-4,8 4,8 10,4 M-10,12 C-4,15 4,15 10,12', 'k', 1.1, { op: 0.25 }), SH('M-18,2 C-8,12 4,14 16,6 L18,18 L-18,18 Z', 0.12), ...claws(-6, 6, 23, 3, 3)],
+    stages: rLegStages([-6, 6, 23, 3], 12, [-12, 16, 180]),
   }),
   rLeg({
     id: 'dragon', slot: 'legsBack', name: 'Haunch', tags: ['dragon'], dom: 0.55, w: 2,
     shapes: [[[-18, -8], [-4, -18], [12, -14], [20, 0], [18, 12], [14, 24], [18, 32], [22, 36, 'c'], [14, 40], [0, 40], [-8, 36], [-8, 26], [-12, 16], [-18, 6]]],
     extra: [L('M-12,12 C-2,18 8,16 16,8', 'k', 1.5, { op: 0.3 }), SH('M-24,6 C-10,20 6,20 20,8 L24,22 L-24,22 Z', 0.12), SH('M-12,26 L20,26 L20,44 L-12,44 Z', 0.1), HL('M-8,-14 C0,-18 10,-14 12,-8 C6,-10 -4,-10 -10,-6 Z', 0.14), ...claws(2, 18, 39, 3, 5)],
+    stages: rLegStages([2, 18, 39, 3], 24, [-6, 30, 170]),
   }),
   rLeg({
     id: 'chameleon', slot: 'legsBack', name: 'Gripper', tags: ['chameleon'], dom: 0.5, w: 2,
     shapes: [[[-14, -6], [-2, -14], [10, -10], [16, 0], [13, 10], [10, 20], [14, 26], [16, 30, 'c'], [10, 34], [-2, 34], [-6, 28], [-8, 18], [-12, 10], [-16, 4]]],
     extra: [L('M-8,10 C-2,16 6,14 12,6', 'k', 1.5, { op: 0.3 }), SH('M-20,4 C-10,16 4,18 16,8 L20,20 L-20,20 Z', 0.12), HL('M-6,-10 C0,-14 8,-10 10,-4 C4,-6 -4,-6 -8,-2 Z', 0.16), L('M4,26 L4,33', 'k', 1.4, { op: 0.5 })],
+    stages: rLegStages(null, 20, [-6, 26, 170]),
   }),
   rLeg({
     id: 'raptor', slot: 'legsBack', name: 'Sickle', tags: ['raptor', 'big'], dom: 0.55, w: 2,
     shapes: [[[-18, -10], [-4, -20], [12, -16], [20, -2], [16, 10], [8, 20], [6, 30], [12, 36], [16, 40, 'c'], [8, 44], [-4, 44], [-8, 38], [-6, 28], [-8, 18], [-14, 10], [-20, 2]]],
     extra: [L('M-12,10 C-2,16 8,14 16,4', 'k', 1.5, { op: 0.3 }), SH('M-24,4 C-10,18 6,20 20,6 L24,22 L-24,22 Z', 0.12), SH('M-12,28 L18,28 L18,46 L-12,46 Z', 0.1), HL('M-8,-16 C0,-20 10,-16 12,-10 C6,-12 -4,-12 -10,-8 Z', 0.14), ...claws(0, 12, 43, 3, 5), P('M-6,36 C-12,38 -14,44 -10,48 C-10,44 -8,40 -4,39 Z', 'w', { sw: 1.2 })],
+    stages: rLegStages([0, 12, 43, 3], 28, [-6, 34, 170]),
   }),
   rLeg({
     id: 'gecko', slot: 'legsBack', name: 'Padded', tags: ['gecko'], dom: 0.5, w: 2,
     shapes: [[[-14, -6], [-2, -14], [10, -10], [16, 0], [14, 10], [12, 18], [20, 20], [24, 24, 'c'], [18, 28], [4, 28], [-4, 26], [-8, 18], [-10, 10], [-16, 4]]],
     extra: [L('M-8,10 C-2,16 6,14 12,6', 'k', 1.5, { op: 0.3 }), SH('M-20,4 C-10,16 4,18 16,8 L20,20 L-20,20 Z', 0.12), HL('M-6,-10 C0,-14 8,-10 10,-4 C4,-6 -4,-6 -8,-2 Z', 0.16), ...pads(8, 26)],
+    stages: rLegStages(null, 16, [-8, 20, 170], { pads: [8, 26] }),
   }),
 ];
 
 // ---- src/data/parts/reptile/tails.js ----
 // Reptile tails. Origin = tail root on the body's rear; tails sweep left (-x).
+// Evolutions: stage 2 grows the tail and adds a band, taller ridges, a bigger spade or more
+// rattle segments; stage 3 forks or clubs the tip, layers a second fan or fin and adds glow.
 
 
+
+
+
+const raptorFan = [[-76, -14], [-90, -30, 0.3], [-86, -36, 0.3], [-100, -30, 0.3], [-104, -18, 0.3], [-98, -8], [-82, -10]];
+const finLobe = [[-50, -2], [-58, -18], [-70, -22], [-66, -4], [-72, 12], [-60, 10], [-50, 4]];
 
 const R_TAILS = [
   rPart({
     id: 'lizard', slot: 'tail', name: 'Banded whip', tags: ['lizard', 'long'], dom: 0.5, w: 3,
     shapes: [tube([[0, 0], [-20, 4], [-40, 4], [-58, -2], [-70, -12]], 14, 2)],
     extra: [S([[-22, -8], [-15, -8], [-14, 14], [-21, 14]], 'a', { ns: true, cl: true }), S([[-42, -8], [-35, -8], [-34, 14], [-41, 14]], 'a', { ns: true, cl: true }), S([[-60, -14], [-54, -12], [-56, 8], [-62, 6]], 'a', { ns: true, cl: true }), SH('M-72,-4 C-50,8 -24,12 2,8 L2,20 L-72,20 Z', 0.13), HL('M-56,-6 C-40,-4 -20,-4 -2,-6 L-2,-2 C-20,0 -40,0 -54,-2 Z', 0.16)],
+    stages: {
+      2: { grow: [1.12, 1.08], addShapes: [[[-66, -8], [-86, -22, 'c'], [-70, -14]]], add: [S([[-8, -8], [-2, -8], [-2, 12], [-8, 12]], 'a', { ns: true, cl: true })] },
+      3: { grow: [1.1, 1.1], addBehind: [[[-48, 0], [-66, 8], [-84, 6, 'c'], [-70, -2], [-56, -6]]], add: [S([[-72, -16], [-82, -22], [-74, -12]], 'a', { ns: true }), P(starPath(-88, -24, 3.4, 4, 0.4), 'a', { ns: true })] },
+    },
   }),
   rPart({
     id: 'croc', slot: 'tail', name: 'Ridged', tags: ['croc', 'thick'], dom: 0.55, w: 2,
@@ -2856,11 +3056,19 @@ const R_TAILS = [
       L('M-10,-2 L-10,10 M-22,0 L-22,12 M-34,0 L-34,10', 'k', 1.1, { op: 0.25 }),
       SH('M-66,-2 C-44,10 -20,14 2,10 L2,22 L-66,22 Z', 0.13),
     ],
+    stages: {
+      2: { grow: [1.1, 1.1], addShapes: [{ pts: [[-10, -8], [-8, -19, 'c'], [-4, -7]], f: 'a' }, { pts: [[-34, -6], [-32, -17, 'c'], [-28, -5]], f: 'a' }] },
+      3: { grow: [1.1, 1.1], addShapes: [[[-60, -14], [-74, -18], [-82, -8, 0.3], [-74, 2], [-58, 0]]], add: [P('M-72,-18 L-76,-30 L-66,-20 Z M-82,-10 L-94,-12 L-82,-4 Z M-76,2 L-84,10 L-70,4 Z', 'a', { sw: 1.4 })] },
+    },
   }),
   rPart({
     id: 'turtle', slot: 'tail', name: 'Nub', tags: ['turtle', 'short'], dom: 0.4, w: 2,
     shapes: [[[2, -4], [-8, -6], [-14, -2], [-12, 4], [-4, 6], [2, 4]]],
     extra: [C(-12, 0, 2.4, 'a', { ns: true }), SH('M-16,1 L4,1 L4,10 L-16,10 Z', 0.14)],
+    stages: {
+      2: { grow: [1.3, 1.3], add: [P(starPath(-12, 0, 3.4, 5, 0.5), 'a', { ns: true })] },
+      3: { grow: [1.2, 1.2], addShapes: [[[-12, -6], [-22, -10], [-27, 0, 'c'], [-22, 8], [-12, 6]]], add: [P('M-22,-9 L-26,-17 L-18,-10 Z M-27,2 L-36,0 L-27,-4 Z M-22,7 L-26,15 L-18,8 Z', 'a', { sw: 1.2 })] },
+    },
   }),
   rPart({
     id: 'dragon', slot: 'tail', name: 'Spade', tags: ['dragon'], dom: 0.55, w: 2,
@@ -2869,6 +3077,10 @@ const R_TAILS = [
       P('M-52,-14 L-66,-20 L-58,-30 L-48,-24 Z', 'a', { sw: 2 }),
       SH('M-56,-10 C-36,4 -18,10 2,8 L2,20 L-56,20 Z', 0.13), HL('M-40,-2 C-28,2 -14,0 -2,-4 L-2,0 C-14,4 -28,6 -38,2 Z', 0.16),
     ],
+    stages: {
+      2: { grow: [1.12, 1.1], addShapes: [{ pts: [[-14, 0], [-12, -11, 'c'], [-8, 1]], f: 'a' }, { pts: [[-30, -2], [-28, -13, 'c'], [-24, -1]], f: 'a' }], add: [P('M-52,-14 L-70,-22 L-60,-34 L-46,-26 Z', 'a', { sw: 2 })] },
+      3: { grow: [1.1, 1.1], add: [P('M-52,-14 L-74,-16 L-64,-38 L-46,-28 Z', 'a', { sw: 2 }), P('M-54,-12 L-72,-4 L-60,4 Z', 'a', { sw: 1.6 }), C(-62, -22, 8, 'a', { ns: true, op: 0.22 })] },
+    },
   }),
   rPart({
     id: 'rattle', slot: 'tail', name: 'Rattle', tags: ['snake'], dom: 0.5, w: 2,
@@ -2877,28 +3089,50 @@ const R_TAILS = [
       P('M-40,-9 L-48,-9 L-49,-1 L-41,1 Z', 'a', { sw: 1.6 }), P('M-48,-8 L-55,-8 L-56,-2 L-49,0 Z', 'a', { sw: 1.6 }), P('M-55,-7 L-61,-7 L-62,-2 L-56,-1 Z', 'a', { sw: 1.6 }),
       SH('M-42,-2 C-28,6 -12,8 2,6 L2,16 L-42,16 Z', 0.13),
     ],
+    stages: {
+      2: { grow: [1.1, 1.1], add: [P('M-61,-6 L-66,-6 L-67,-2 L-62,-1 Z', 'a', { sw: 1.6 }), P('M-66,-5.5 L-70,-5.5 L-71,-2 L-67,-1.5 Z', 'a', { sw: 1.6 })] },
+      3: { grow: [1.1, 1.1], add: [P('M-40,-11 L-49,-11 L-50,1 L-41,3 Z', 'a', { sw: 1.6 }), P('M-49,-10 L-57,-10 L-58,0 L-50,2 Z', 'a', { sw: 1.6 }), P('M-57,-9 L-64,-9 L-65,-1 L-58,1 Z', 'a', { sw: 1.6 }), L('M-70,-16 C-78,-10 -78,2 -70,8 M-66,-22 C-84,-12 -84,4 -66,14', 'a', 1.6, { ns: true, op: 0.6 })] },
+    },
   }),
   rPart({
     id: 'curl', slot: 'tail', name: 'Curl', tags: ['chameleon'], dom: 0.5, w: 2,
     shapes: [tube([[0, 0], [-12, 6], [-24, 4], [-32, -6], [-28, -18], [-16, -20], [-10, -12], [-14, -6]], 12, 3)],
     extra: [C(-21, -13, 4.5, 'a', { ns: true }), SH('M-34,0 C-24,10 -10,12 2,8 L2,18 L-34,18 Z', 0.13), L('M-8,2 L-8,8 M-18,4 L-18,10', 'k', 1, { op: 0.2 })],
+    stages: {
+      2: { grow: [1.1, 1.1], add: [L('M-8,0 L-8,10 M-18,2 L-18,12 M-30,-4 L-30,4', 'a', 2.4, { ns: true, cl: true, op: 0.85 }), C(-21, -13, 5.5, 'a', { ns: true })] },
+      3: { grow: [1.1, 1.1], addShapes: [tube([[-14, -6], [-10, -14], [-4, -18]], 5, 2)], add: [...evoGem(-21, -13, 3), C(-3, -19, 2.4, 'a', { ns: true })] },
+    },
   }),
   rPart({
     id: 'raptor', slot: 'tail', name: 'Plumed', tags: ['raptor', 'long'], dom: 0.5, w: 2,
-    shapes: [{ pts: [[-76, -14], [-90, -30, 0.3], [-86, -36, 0.3], [-100, -30, 0.3], [-104, -18, 0.3], [-98, -8], [-82, -10]], f: 's' }, tube([[0, 0], [-22, -2], [-44, -6], [-66, -12], [-84, -20]], 16, 3)],
+    shapes: [{ pts: raptorFan, f: 's' }, tube([[0, 0], [-22, -2], [-44, -6], [-66, -12], [-84, -20]], 16, 3)],
     extra: [SH('M-84,-14 C-56,-2 -26,4 2,8 L2,20 L-84,20 Z', 0.13), HL('M-64,-12 C-44,-10 -24,-8 -2,-8 L-2,-4 C-24,-4 -44,-6 -62,-8 Z', 0.16)],
+    stages: {
+      2: { grow: [1.08, 1.1], addBehind: [{ pts: [[-78, -12], [-96, -42, 0.3], [-106, -36, 0.3], [-92, -14]], f: 's' }] },
+      3: { grow: [1.1, 1.1], addBehind: [{ pts: xfPts(raptorFan, { sx: 1.25, sy: 1.25 }), f: 'pd' }], add: [C(-92, -28, 2.6, 'a', { ns: true }), C(-98, -16, 2.4, 'a', { ns: true }), C(-88, -36, 2.2, 'a', { ns: true })] },
+    },
   }),
   rPart({
     id: 'finned', slot: 'tail', name: 'Finned', tags: ['aquatic'], dom: 0.5, w: 1,
-    shapes: [tube([[0, 0], [-18, 4], [-36, 4], [-52, -2]], 14, 6), [[-50, -2], [-58, -18], [-70, -22], [-66, -4], [-72, 12], [-60, 10], [-50, 4]]],
+    shapes: [tube([[0, 0], [-18, 4], [-36, 4], [-52, -2]], 14, 6), finLobe],
     extra: [L('M-54,-4 L-66,-18 M-56,0 L-66,0 M-56,4 L-68,10', 'k', 1.1, { op: 0.3 }), SH('M-52,0 C-36,10 -18,12 2,8 L2,20 L-52,20 Z', 0.13)],
+    stages: {
+      2: { grow: [1.1, 1.15], addShapes: [[[-48, -4], [-60, -30], [-72, -36, 'c'], [-66, -14], [-54, -2]]], add: [L('M-54,-4 L-66,-18 M-56,4 L-68,10', 'a', 1.6, { ns: true, op: 0.7 })] },
+      3: { grow: [1.1, 1.1], addBehind: [{ pts: xfPts(finLobe, { sx: 1.3, sy: 1.3 }), f: 'pd' }], add: [C(-70, -22, 2.4, 'a', { ns: true }), C(-72, 12, 2.2, 'a', { ns: true }), evoRing(-64, -4, 5, 'a', 1.4, { op: 0.7 })] },
+    },
   }),
 ];
 
 // ---- src/data/parts/reptile/backs.js ----
 // Reptile back features: spines, sails and plates along the spine. Origin = the body's back socket.
+// Evolutions: stage 2 grows the feature and adds accent tips, rays or an extra plate; stage 3
+// layers a taller row or a second sail behind it, with a gem or extra shards.
 
 
+
+
+const sailPts = [[26, 6], [20, -16], [6, -32], [-12, -34], [-28, -20], [-34, 6], [-36, 10], [26, 10]];
+const dorsalPts = [[8, 6], [6, -12], [-4, -30], [-16, -14], [-20, 6], [-22, 10], [10, 10]];
 
 const R_BACKS = [
   NONE('back', 0.3, 'r.'),
@@ -2906,11 +3140,19 @@ const R_BACKS = [
     id: 'spines', slot: 'back', name: 'Spines', tags: ['spiky'], dom: 0.5, w: 3,
     shapes: [[[28, 6], ...fur([28, 6], [-32, 6], 5, -14, { lean: 0.45, tip: 'c', wobble: 0.2 }), [-36, 10], [28, 10]]],
     extra: [SH('M-38,4 L30,4 L30,14 L-38,14 Z', 0.14)],
+    stages: {
+      2: { grow: [1.05, 1.3], add: [L('M14,-8 L16,-16 M2,-8 L4,-16 M-10,-8 L-8,-16 M-22,-6 L-20,-12', 'a', 2, { ns: true, op: 0.85 })] },
+      3: { grow: [1.05, 1.25], addBehind: [{ pts: [[32, 8], ...fur([32, 8], [-36, 8], 6, -22, { lean: 0.45, tip: 'c', wobble: 0.2 }), [-40, 12], [32, 12]], f: 'pd' }], spikes: true },
+    },
   }),
   rPart({
     id: 'sail', slot: 'back', name: 'Sail', tags: ['fin'], dom: 0.5, w: 2,
-    shapes: [[[26, 6], [20, -16], [6, -32], [-12, -34], [-28, -20], [-34, 6], [-36, 10], [26, 10]]],
+    shapes: [sailPts],
     extra: [S([[20, 4], [16, -12], [4, -26], [-12, -28], [-24, -16], [-28, 4]], 's', { ns: true, cl: true, op: 0.5 }), L('M22,4 L14,-20 M12,4 L4,-28 M0,4 L-10,-30 M-12,4 L-24,-18', 'k', 1.2, { op: 0.3 }), SH('M-38,4 L30,4 L30,14 L-38,14 Z', 0.12)],
+    stages: {
+      2: { grow: [1.05, 1.25], add: [L('M22,4 L14,-20 M12,4 L4,-28 M0,4 L-10,-30 M-12,4 L-24,-18', 'a', 1.6, { ns: true, op: 0.7 })] },
+      3: { grow: [1.05, 1.2], addBehind: [{ pts: xfPts(sailPts, { sx: 1.22, sy: 1.25 }), f: 'pd' }], add: [...evoGem(-4, -14, 3.4)] },
+    },
   }),
   rPart({
     id: 'plates', slot: 'back', name: 'Plates', tags: ['stegosaur'], dom: 0.5, w: 2,
@@ -2919,16 +3161,28 @@ const R_BACKS = [
       HL('M-6,-10 L4,-24 L8,-12 L0,-8 Z', 0.2), HL('M-22,-8 L-12,-20 L-8,-10 L-16,-6 Z', 0.2),
       SH('M-36,4 L28,4 L28,14 L-36,14 Z', 0.12),
     ],
+    stages: {
+      2: { grow: [1.1, 1.25], add: [P('M28,6 L26,-4 L32,-12 L38,-4 L38,6 Z', 'p'), P('M4,-26 L14,-10 L12,-8 L4,-22 Z', 'a', { ns: true, op: 0.7 }), P('M-12,-22 L-2,-8 L-4,-6 L-12,-18 Z', 'a', { ns: true, op: 0.7 })] },
+      3: { grow: [1.1, 1.15], addBehind: [{ pts: [[8, 6, 'c'], [6, -6, 'c'], [12, -18, 'c'], [18, -6, 'c'], [18, 6, 'c']], f: 'pd' }, { pts: [[-10, 6, 'c'], [-14, -8, 'c'], [-6, -22, 'c'], [2, -8, 'c'], [2, 6, 'c']], f: 'pd' }, { pts: [[-26, 6, 'c'], [-28, -4, 'c'], [-22, -14, 'c'], [-14, -4, 'c'], [-14, 6, 'c']], f: 'pd' }] },
+    },
   }),
   rPart({
     id: 'ridge', slot: 'back', name: 'Scute ridge', tags: ['croc'], dom: 0.45, w: 2,
     shapes: [[[28, 6], ...fur([28, 6], [-32, 6], 7, -7, { lean: 0.2, tip: 0.8, wobble: 0.1 }), [-36, 10], [28, 10]]],
     extra: [SH('M-38,4 L30,4 L30,14 L-38,14 Z', 0.14), L('M24,2 L24,8 M14,2 L14,8 M4,2 L4,8 M-6,2 L-6,8 M-16,2 L-16,8 M-26,2 L-26,8', 'k', 1, { op: 0.2 })],
+    stages: {
+      2: { grow: [1.05, 1.4], add: [L('M20,-2 L20,-6 M10,-2 L10,-6 M0,-2 L0,-6 M-10,-2 L-10,-6 M-20,-2 L-20,-6', 'a', 2, { ns: true, op: 0.8 })] },
+      3: { grow: [1.05, 1.25], addBehind: [{ pts: [[32, 8], ...fur([32, 8], [-36, 8], 8, -12, { lean: 0.2, tip: 0.6, wobble: 0.1 }), [-40, 12], [32, 12]], f: 'pd' }] },
+    },
   }),
   rPart({
     id: 'fin', slot: 'back', name: 'Dorsal fin', tags: ['fin'], dom: 0.5, w: 2,
-    shapes: [[[8, 6], [6, -12], [-4, -30], [-16, -14], [-20, 6], [-22, 10], [10, 10]]],
+    shapes: [dorsalPts],
     extra: [S([[4, 4], [2, -10], [-4, -24], [-12, -12], [-14, 4]], 's', { ns: true, cl: true, op: 0.5 }), L('M4,4 L-2,-24 M-4,4 L-10,-16', 'k', 1.2, { op: 0.3 }), SH('M-24,4 L12,4 L12,14 L-24,14 Z', 0.12)],
+    stages: {
+      2: { grow: [1.05, 1.3], addShapes: [{ pts: [[-2, -26], [-6, -42, 'c'], [-8, -22]], f: 'p' }], add: [L('M4,4 L-2,-24 M-4,4 L-10,-16', 'a', 1.6, { ns: true, op: 0.7 })] },
+      3: { grow: [1.05, 1.15], addBehind: [{ pts: xfPts(dorsalPts, { sx: 1.3, sy: 1.3 }), f: 'pd' }], add: [...evoGem(-4, -8, 3)] },
+    },
   }),
   rPart({
     id: 'crystals', slot: 'back', name: 'Crystals', tags: ['rock', 'ice'], dom: 0.5, w: 1,
@@ -2937,49 +3191,82 @@ const R_BACKS = [
       HL('M-6,-10 L2,-32 L4,-30 L-2,-8 Z', 0.35), HL('M14,-8 L22,-18 L24,-16 L18,-6 Z', 0.3),
       L('M-24,8 L-22,-6 M-4,8 L0,-12 M14,8 L18,-4', 'k', 1.2, { op: 0.3 }),
     ],
+    stages: {
+      2: { grow: [1.1, 1.22], add: [P('M-38,8 L-42,-4 L-34,-16 L-28,-4 L-30,8 Z', 'pd'), P('M-34,-2 L-33,-10 L-32,-9 L-33,-1 Z', 'w', { ns: true, op: 0.35 })] },
+      3: { grow: [1.08, 1.12], add: [P('M30,8 L30,-4 L38,-16 L44,-4 L42,8 Z', 'pl'), P('M-16,8 L-22,-4 L-16,-22 L-8,-6 L-8,8 Z', 'pd'), P('M-14,-4 L-16,-16 L-14,-14 L-12,-4 Z', 'w', { ns: true, op: 0.35 })] },
+    },
   }),
   rPart({
     id: 'feathers', slot: 'back', name: 'Feather ridge', tags: ['raptor', 'feathers'], dom: 0.45, w: 2,
     shapes: [[[26, 6], ...fur([26, 6], [-32, 6], 5, -11, { lean: 0.5, tip: 0.5, wobble: 0.15 }), [-36, 10], [26, 10]]],
-    extra: [S([[20, 4], [16, -4], [6, -2], [4, 4]], 's', { ns: true, cl: true, op: 0.5 }), S([[-4, 4], [-8, -4], [-18, -2], [-20, 4]], 's', { ns: true, cl: true, op: 0.5 }), SH('M-38,4 L28,4 L28,14 L-38,14 Z', 0.12)],
+    extra: [S([[20, 4], [16, -4], [6, -2], [4, 4]], 's', { ns: true, cl: true, op: 0.5 }), S([[-4, 4], [-8, -4], [-18, -2], [-20, 4]], 's', { ns: true, cl: true, op: 0.5 }), SH('M-38,4 L28,4 L28,12 L-38,12 Z', 0.12)],
+    stages: {
+      2: { grow: [1.05, 1.3], add: [L('M14,-6 L14,-12 M2,-6 L2,-12 M-10,-6 L-10,-12 M-22,-4 L-22,-10', 'a', 2, { ns: true, op: 0.8 })] },
+      3: { grow: [1.05, 1.25], addBehind: [{ pts: [[30, 8], ...fur([30, 8], [-36, 8], 6, -18, { lean: 0.5, tip: 0.5, wobble: 0.15 }), [-40, 12], [30, 12]], f: 'pd' }] },
+    },
   }),
 ];
 
 // ---- src/data/parts/reptile/wings.js ----
 // Reptile wings. Origin = the wing root on the back; wings rise up (-y) and sweep back (-x).
 // Both wings are drawn behind the torso, the near one after the far one.
+// Evolutions: stage 2 grows the wing and adds a thumb claw, extra primaries, a second leaflet
+// or another shard; stage 3 layers a larger membrane, feather row, leaf or flame behind it.
 
 
+
+const dragonWing = [[0, 0], [-6, -24], [-18, -46], [-40, -56], [-70, -52, 0.3], [-58, -36], [-74, -26, 0.3], [-56, -16], [-64, -2, 0.3], [-40, -2], [-16, 4]];
+const featherWing = [[0, 0], [-4, -22], [-20, -40], [-50, -46], [-72, -38, 0.3], [-56, -30], [-70, -18, 0.3], [-50, -14], [-58, -2, 0.3], [-34, 0], [-12, 4]];
+const finWing = [[0, 0], [-6, -20], [-20, -34], [-44, -36], [-52, -20], [-44, -6], [-24, 2], [-8, 4]];
+const leafWing = [[0, 0], [-8, -20], [-24, -38], [-50, -42, 'c'], [-52, -24], [-40, -8], [-20, 2]];
+const flameWing = [[0, 0], [-6, -18], [-14, -34], [-30, -50, 0.2], [-26, -30], [-42, -38, 0.2], [-34, -18], [-50, -18, 0.2], [-34, -6], [-14, 4]];
+const tatteredWing = [[0, 0], [-8, -22], [-24, -42], [-52, -48, 0.3], [-44, -32], [-62, -30, 'c'], [-48, -18], [-60, -8, 'c'], [-40, -6], [-18, 4]];
 
 const R_WINGS = [
   NONE('wings', 0.3, 'r.'),
   rPart({
     id: 'dragon', slot: 'wings', name: 'Dragon', tags: ['dragon', 'membrane'], dom: 0.6, w: 2,
-    shapes: [[[0, 0], [-6, -24], [-18, -46], [-40, -56], [-70, -52, 0.3], [-58, -36], [-74, -26, 0.3], [-56, -16], [-64, -2, 0.3], [-40, -2], [-16, 4]]],
+    shapes: [dragonWing],
     extra: [
       S([[-8, -20], [-20, -40], [-44, -48], [-58, -44], [-48, -32], [-58, -22], [-44, -14], [-24, -8]], 's', { ns: true, cl: true, op: 0.6 }),
       P('M-6,-24 C-20,-36 -36,-46 -52,-50 M-8,-22 C-24,-30 -40,-36 -60,-38 M-10,-16 C-26,-18 -42,-20 -60,-22', 'none', { sw: 1.6 }),
       SH('M-74,-14 C-50,-4 -24,2 4,4 L4,12 L-74,12 Z', 0.14),
     ],
+    stages: {
+      2: { grow: [1.12, 1.12], addShapes: [{ pts: [[-10, -28], [-16, -50, 'c'], [-4, -36]], f: 'a' }], add: [P('M-10,-10 C-26,-8 -42,-6 -60,-4', 'none', { sw: 1.6 })] },
+      3: { grow: [1.12, 1.12], addBehind: [{ pts: xfPts(dragonWing, { sx: 1.22, sy: 1.22 }), f: 'pd' }], add: [P('M-70,-52 L-80,-64 L-66,-58 Z', 'a', { sw: 1.2 }), P('M-74,-26 L-86,-30 L-74,-34 Z', 'a', { sw: 1.2 })] },
+    },
   }),
   rPart({
     id: 'feathered', slot: 'wings', name: 'Feathered', tags: ['bird', 'feathers'], dom: 0.55, w: 1,
-    shapes: [[[0, 0], [-4, -22], [-20, -40], [-50, -46], [-72, -38, 0.3], [-56, -30], [-70, -18, 0.3], [-50, -14], [-58, -2, 0.3], [-34, 0], [-12, 4]]],
+    shapes: [featherWing],
     extra: [
       S([[-4, -18], [-18, -34], [-44, -40], [-56, -34], [-46, -26], [-40, -14], [-20, -8]], 's', { ns: true, cl: true, op: 0.6 }),
       L('M-10,-16 C-26,-20 -42,-24 -58,-30 M-10,-10 C-26,-10 -40,-12 -56,-16 M-12,-4 C-26,-2 -36,-2 -50,-4', 'k', 1.3, { op: 0.3 }),
       SH('M-72,-10 C-48,-2 -24,2 4,4 L4,12 L-72,12 Z', 0.12),
     ],
+    stages: {
+      2: { grow: [1.12, 1.12], addShapes: [[[-50, -44], [-70, -52], [-82, -44, 0.3], [-64, -36]], [[-56, -26], [-76, -28], [-82, -18, 0.3], [-62, -14]]] },
+      3: { grow: [1.12, 1.12], addBehind: [{ pts: xfPts(featherWing, { sx: 1.25, sy: 1.25 }), f: 'pd' }], add: [L('M-20,-30 C-40,-36 -56,-40 -74,-44 M-18,-20 C-38,-22 -54,-24 -70,-26', 'a', 1.6, { ns: true, op: 0.6 })] },
+    },
   }),
   rPart({
     id: 'fin', slot: 'wings', name: 'Fin wings', tags: ['aquatic'], dom: 0.5, w: 1,
-    shapes: [[[0, 0], [-6, -20], [-20, -34], [-44, -36], [-52, -20], [-44, -6], [-24, 2], [-8, 4]]],
+    shapes: [finWing],
     extra: [S([[-4, -16], [-16, -28], [-38, -30], [-44, -18], [-38, -6], [-20, -2]], 's', { ns: true, cl: true, op: 0.5 }), L('M-8,-14 C-22,-24 -36,-30 -46,-30 M-10,-8 C-24,-14 -38,-18 -48,-18 M-12,-2 C-24,-4 -36,-6 -46,-8', 'k', 1.2, { op: 0.3 }), SH('M-54,-8 C-36,0 -18,4 4,4 L4,12 L-54,12 Z', 0.12)],
+    stages: {
+      2: { grow: [1.12, 1.15], addShapes: [{ pts: [[-40, -34], [-56, -48, 'c'], [-48, -28]], f: 'p' }, { pts: [[-50, -20], [-66, -20, 'c'], [-50, -12]], f: 'p' }], add: [L('M-8,-14 C-22,-24 -36,-30 -46,-30 M-10,-8 C-24,-14 -38,-18 -48,-18', 'a', 1.6, { ns: true, op: 0.7 })] },
+      3: { grow: [1.1, 1.1], addBehind: [{ pts: xfPts(finWing, { sx: 1.3, sy: 1.3 }), f: 'pd' }], add: [C(-52, -40, 2.4, 'a', { ns: true }), C(-60, -18, 2.4, 'a', { ns: true }), C(-50, -2, 2.2, 'a', { ns: true })] },
+    },
   }),
   rPart({
     id: 'leaf', slot: 'wings', name: 'Leaf wings', tags: ['grass'], dom: 0.5, w: 1,
-    shapes: [[[0, 0], [-8, -20], [-24, -38], [-50, -42, 'c'], [-52, -24], [-40, -8], [-20, 2]]],
+    shapes: [leafWing],
     extra: [L('M-4,-4 C-18,-14 -32,-26 -48,-40', 'k', 1.4, { op: 0.35 }), L('M-14,-12 L-8,-20 M-24,-20 L-20,-30 M-34,-28 L-32,-38', 'k', 1, { op: 0.3 }), S([[-6,-6],[-16,-16],[-30,-28],[-44,-38],[-46,-28],[-34,-12],[-18,-2]], 's', { ns: true, cl: true, op: 0.4 }), SH('M-54,-10 C-38,-2 -18,2 4,4 L4,12 L-54,12 Z', 0.12)],
+    stages: {
+      2: { grow: [1.12, 1.15], addBehind: [[[-10, -4], [-28, -14], [-50, -26, 'c'], [-44, -8], [-24, 2]]] },
+      3: { grow: [1.1, 1.1], addBehind: [{ pts: xfPts(leafWing, { sx: 1.3, sy: 1.3 }), f: 'pd' }], add: [C(-20, -8, 2.4, 'a', { ns: true }), C(-26, -3, 2.2, 'a', { ns: true }), C(-16, -2, 2, 'a', { ns: true })] },
+    },
   }),
   rPart({
     id: 'crystal', slot: 'wings', name: 'Crystal wings', tags: ['ice', 'rock'], dom: 0.5, w: 1,
@@ -2988,95 +3275,183 @@ const R_WINGS = [
       HL('M-12,-28 L-8,-42 L-6,-22 Z', 0.35), HL('M-26,-30 L-40,-36 L-28,-18 Z', 0.3),
       SH('M-58,-4 C-40,2 -20,4 4,6 L4,12 L-58,12 Z', 0.12),
     ],
+    stages: {
+      2: { grow: [1.12, 1.15], add: [P('M-4,-2 L-24,-46 L-14,-58 L2,-24 Z', 'pl'), P('M-16,-36 L-14,-50 L-12,-30 Z', 'w', { ns: true, op: 0.35 })] },
+      3: { grow: [1.1, 1.12], addBehind: [{ pts: [[-10, 0, 'c'], [-52, -24, 'c'], [-72, -24, 'c'], [-46, -6, 'c'], [-16, 4, 'c']], f: 'pd' }, { pts: [[-6, -6, 'c'], [-36, -48, 'c'], [-54, -54, 'c'], [-30, -22, 'c'], [-8, 0, 'c']], f: 'pd' }] },
+    },
   }),
   rPart({
     id: 'flame', slot: 'wings', name: 'Flame wings', tags: ['fire'], dom: 0.5, w: 1,
-    shapes: [[[0, 0], [-6, -18], [-14, -34], [-30, -50, 0.2], [-26, -30], [-42, -38, 0.2], [-34, -18], [-50, -18, 0.2], [-34, -6], [-14, 4]]],
+    shapes: [flameWing],
     extra: [S([[-4, -4], [-8, -18], [-16, -32], [-20, -22], [-30, -26], [-26, -12], [-32, -8], [-14, 0]], 's', { ns: true, cl: true }), HL('M-10,-14 C-14,-22 -18,-28 -22,-36 L-18,-36 C-16,-28 -12,-20 -8,-12 Z', 0.3)],
+    stages: {
+      2: { grow: [1.12, 1.15], add: [S([[-6, -6], [-10, -20], [-16, -30, 0.2], [-18, -20], [-26, -24], [-22, -12], [-26, -8], [-14, -2]], 'a', { ns: true, cl: true, op: 0.8 })] },
+      3: { grow: [1.1, 1.1], addBehind: [{ pts: xfPts(flameWing, { sx: 1.3, sy: 1.3 }), f: 'a' }] },
+    },
   }),
   rPart({
     id: 'tattered', slot: 'wings', name: 'Tattered', tags: ['ghost'], dom: 0.45, w: 1,
-    shapes: [[[0, 0], [-8, -22], [-24, -42], [-52, -48, 0.3], [-44, -32], [-62, -30, 'c'], [-48, -18], [-60, -8, 'c'], [-40, -6], [-18, 4]]],
+    shapes: [tatteredWing],
     extra: [P('M-8,-22 C-22,-30 -34,-38 -48,-44 M-10,-16 C-26,-22 -38,-24 -56,-30 M-12,-10 C-26,-12 -40,-12 -56,-10', 'none', { sw: 1.4 }), SH('M-40,-20 L-32,-28 L-28,-18 Z M-52,-14 L-46,-24 L-40,-12 Z', 0.3), SH('M-62,-6 C-40,0 -20,2 4,4 L4,12 L-62,12 Z', 0.12)],
+    stages: {
+      2: { grow: [1.12, 1.12], addShapes: [{ pts: [[-40, -6], [-54, -4], [-64, 4, 'c'], [-48, 2]], f: 'p' }], add: [SH('M-24,-30 L-18,-36 L-14,-26 Z', 0.3)] },
+      3: { grow: [1.1, 1.1], addBehind: [{ pts: xfPts(tatteredWing, { sx: 1.28, sy: 1.28 }), f: 'pd' }], add: [C(-58, -40, 2.2, 'a', { ns: true, op: 0.8 }), C(-66, -22, 2, 'a', { ns: true, op: 0.7 }), C(-62, -2, 1.8, 'a', { ns: true, op: 0.7 })] },
+    },
   }),
 ];
 
 // ---- src/data/parts/reptile/throats.js ----
 // Reptile throats: dewlaps, pouches and frills under the jaw. Origin = the head's throat socket.
 // Drawn behind the skull so the top edge hides under the jaw.
+// Evolutions: stage 2 grows the feature and adds accent rays, rings or spines; stage 3 layers a
+// larger copy of it behind and sets a gem at the throat.
 
 
+
+
+/** Layered evolution for a throat feature drawn from the point list `pts`: accent detail at 2, a bigger copy behind and a gem at 3. */
+const rThroatStages = (pts, detail2, gem, k2 = 1.12, k3 = 1.32) => ({
+  2: { grow: [k2, k2 * 1.05], add: detail2 },
+  3: { grow: [1.08, 1.1], addBehind: [{ pts: xfPts(pts, { sx: k3, sy: k3 }), f: 'pd' }], add: [...evoGem(gem[0], gem[1], gem[2] || 3)] },
+});
+
+const dewlapPts = [[-8, -6], [8, -4], [12, 10], [4, 20], [-8, 18], [-14, 6]];
+const throatFrillPts = [[-20, -16], [0, -18], [16, -8], [18, 8], [6, 20], [-10, 20], [-24, 6]];
+const beardPts = [[-12, -6], [10, -4], [12, 4], ...fur([12, 6], [-10, 14], 5, 5, { lean: 0.2, tip: 'c' }), [-14, 6]];
+const platesPts = [[-12, -6], [12, -4], [14, 4], [12, 14], [0, 18], [-12, 14], [-14, 4]];
+const ruffPts = [[-16, -10], [8, -8], [12, 0], ...fur([12, 2], [-4, 20], 3, 6, { lean: 0.3, tip: 0.5 }), [-16, 16], [-20, 2]];
+const collarPts = [[-14, -8], [12, -6], [14, 4], [12, 8], [-12, 10], [-16, 2]];
+const pouchPts = arcPts(0, 6, 12, 10, 0, 330, 11);
 
 const R_THROATS = [
   NONE('throat', 0.3, 'r.'),
   rPart({
     id: 'dewlap', slot: 'throat', name: 'Dewlap', tags: ['anole'], dom: 0.5, w: 2,
-    shapes: [[[-8, -6], [8, -4], [12, 10], [4, 20], [-8, 18], [-14, 6]]],
+    shapes: [dewlapPts],
     extra: [L('M-4,-2 L0,16 M-4,-2 L8,10 M-4,-2 L-8,12', 'k', 1.1, { op: 0.3 }), SH('M-16,10 C-8,18 4,20 12,12 L14,24 L-16,24 Z', 0.12)],
+    stages: rThroatStages(dewlapPts, [L('M-4,-2 L0,16 M-4,-2 L8,10 M-4,-2 L-8,12', 'a', 1.6, { ns: true, op: 0.7 })], [-1, 8]),
   }),
   rPart({
     id: 'pouch', slot: 'throat', name: 'Pouch', tags: ['bulge'], dom: 0.45, w: 2,
     extra: [E(0, 6, 12, 10, 'p'), SH('M-14,8 C-8,16 8,16 14,8 L14,20 L-14,20 Z', 0.12), HL('M-8,-1 C-4,-4 4,-4 8,-1 L6,2 C2,0 -2,0 -6,2 Z', 0.2)],
+    stages: {
+      2: { grow: [1.15, 1.15], add: [evoRing(0, 6, 8, 'a', 1.6, { op: 0.7 })] },
+      3: { grow: [1.1, 1.1], addBehind: [{ pts: xfPts(pouchPts, { sx: 1.3, sy: 1.3 }), f: 'pd' }], add: [...evoGem(0, 6, 3.2)] },
+    },
   }),
   rPart({
     id: 'frill', slot: 'throat', name: 'Neck frill', tags: ['frill'], dom: 0.55, w: 1,
-    shapes: [[[-20, -16], [0, -18], [16, -8], [18, 8], [6, 20], [-10, 20], [-24, 6]]],
+    shapes: [throatFrillPts],
     extra: [S([[-14, -10], [0, -12], [10, -4], [12, 6], [4, 14], [-8, 14], [-18, 4]], 's', { ns: true, cl: true, op: 0.5 }), L('M-2,0 L14,-6 M-2,0 L16,6 M-2,0 L6,18 M-2,0 L-8,18 M-2,0 L-20,4 M-2,0 L-16,-12', 'k', 1.1, { op: 0.3 })],
+    stages: rThroatStages(throatFrillPts, [L('M-2,0 L14,-6 M-2,0 L16,6 M-2,0 L6,18 M-2,0 L-8,18 M-2,0 L-20,4 M-2,0 L-16,-12', 'a', 1.6, { ns: true, op: 0.7 })], [-2, 2, 3.4]),
   }),
   rPart({
     id: 'beard', slot: 'throat', name: 'Beard', tags: ['spiky'], dom: 0.5, w: 2,
-    shapes: [[[-12, -6], [10, -4], [12, 4], ...fur([12, 6], [-10, 14], 5, 5, { lean: 0.2, tip: 'c' }), [-14, 6]]],
+    shapes: [beardPts],
     extra: [SH('M-16,6 C-8,12 4,14 12,8 L14,20 L-16,20 Z', 0.12)],
+    stages: rThroatStages(beardPts, [L('M8,8 L9,14 M2,10 L3,16 M-4,10 L-3,16 M-10,9 L-9,14', 'a', 1.8, { ns: true, op: 0.8 })], [0, 2, 2.6]),
   }),
   rPart({
     id: 'plates', slot: 'throat', name: 'Throat plates', tags: ['armour'], dom: 0.5, w: 2,
-    shapes: [[[-12, -6], [12, -4], [14, 4], [12, 14], [0, 18], [-12, 14], [-14, 4]]],
+    shapes: [platesPts],
     extra: [L('M-12,2 C-4,5 6,5 13,2 M-11,8 C-4,11 6,11 12,8', 'k', 1.2, { op: 0.3 }), SH('M-16,8 C-8,16 6,16 14,8 L14,22 L-16,22 Z', 0.12), HL('M-10,-4 C-4,-6 4,-6 10,-4 L8,0 C4,-2 -4,-2 -8,0 Z', 0.16)],
+    stages: rThroatStages(platesPts, [L('M-12,2 C-4,5 6,5 13,2 M-11,8 C-4,11 6,11 12,8', 'a', 1.6, { ns: true, op: 0.7 })], [0, 6, 2.8]),
   }),
   rPart({
     id: 'ruff', slot: 'throat', name: 'Feather ruff', tags: ['feathers'], dom: 0.45, w: 2,
-    shapes: [[[-16, -10], [8, -8], [12, 0], ...fur([12, 2], [-4, 20], 3, 6, { lean: 0.3, tip: 0.5 }), [-16, 16], [-20, 2]]],
+    shapes: [ruffPts],
     extra: [S([[-10, -6], [2, -6], [4, 4], [-2, 12], [-12, 8]], 's', { ns: true, cl: true, op: 0.5 }), SH('M-22,8 C-10,18 4,18 12,10 L14,24 L-22,24 Z', 0.12)],
+    stages: rThroatStages(ruffPts, [L('M8,12 L9,18 M0,14 L0,20 M-8,12 L-9,18', 'a', 1.8, { ns: true, op: 0.8 })], [-4, 2, 2.8]),
   }),
   rPart({
     id: 'collar', slot: 'throat', name: 'Collar', tags: ['band'], dom: 0.45, w: 2,
-    shapes: [[[-14, -8], [12, -6], [14, 4], [12, 8], [-12, 10], [-16, 2]]],
+    shapes: [collarPts],
     extra: [S([[-13, -2], [12, 0], [12, 5], [-12, 6]], 's', { ns: true, cl: true }), SH('M-16,4 L14,4 L14,12 L-16,12 Z', 0.12)],
+    stages: rThroatStages(collarPts, [L('M-12,8 L12,7', 'a', 2, { ns: true, cl: true, op: 0.85 })], [0, 2, 2.6], 1.15, 1.35),
   }),
 ];
 
 // ---- src/data/parts/reptile/scales.js ----
 // Reptile scale patterns, drawn on the torso and clipped to it. Authored in a 100 x 60 frame
 // centred on the origin; the renderer stretches that frame over the body's box.
+// Evolutions: stage 2 adds to the pattern (a band, spots, a second row, a ridge line); stage 3
+// adds a second layer of detail (rings, dots, accent centres, embers).
 
 
+
+
+const diamond = (cx, cy, r = 12) => S([[cx, cy - r], [cx + r, cy], [cx, cy + r], [cx - r, cy]], 'a', { ns: true, spline: { tension: 0.1 } });
 
 const R_SCALES = [
   NONE('scales', 0.3, 'r.'),
-  rPart({ id: 'belly', slot: 'scales', name: 'Belly plates', tags: ['soft'], dom: 0.5, w: 3, extra: [
-    S([[-54, 18], [-30, 12], [0, 10], [30, 12], [54, 18], [54, 40], [-54, 40]], 's', { ns: true }),
-    L('M-44,22 L44,22 M-46,27 L46,27 M-40,32 L40,32', 'k', 1.1, { op: 0.2 }),
-  ] }),
-  rPart({ id: 'bands', slot: 'scales', name: 'Jagged bands', tags: ['striped'], dom: 0.5, w: 2, extra: [
-    S([[-40, -40], [-24, -40], [-26, -20], [-32, -6, 'c'], [-26, 4], [-36, 18, 'c'], [-36, 4], [-42, -18]], 'a', { ns: true }), S([[-12, -40], [4, -40], [2, -18], [-4, -4, 'c'], [2, 6], [-8, 20, 'c'], [-8, 4], [-14, -18]], 'a', { ns: true }), S([[16, -40], [32, -40], [30, -20], [24, -6, 'c'], [30, 4], [20, 18, 'c'], [20, 4], [14, -18]], 'a', { ns: true }),
-  ] }),
-  rPart({ id: 'spots', slot: 'scales', name: 'Eye spots', tags: ['spotted'], dom: 0.45, w: 2, extra: [
-    ...[[-32, -14, 6], [-10, -22, 5.5], [14, -20, 6], [34, -10, 5], [-20, 2, 5], [6, -2, 5.5], [28, 8, 4.5]].flatMap(([x, y, r]) => [E(x, y, r * 1.15, r * 0.9, 'a', { ns: true }), C(x + 0.6, y + 0.4, r * 0.5, 's', { ns: true, op: 0.9 })]),
-  ] }),
-  rPart({ id: 'diamonds', slot: 'scales', name: 'Diamonds', tags: ['snake'], dom: 0.5, w: 2, extra: [
-    S([[-44, -30], [-32, -18], [-44, -6], [-56, -18]], 'a', { ns: true, spline: { tension: 0.1 } }), S([[-20, -30], [-8, -18], [-20, -6], [-32, -18]], 'a', { ns: true, spline: { tension: 0.1 } }), S([[4, -30], [16, -18], [4, -6], [-8, -18]], 'a', { ns: true, spline: { tension: 0.1 } }), S([[28, -30], [40, -18], [28, -6], [16, -18]], 'a', { ns: true, spline: { tension: 0.1 } }), S([[52, -30], [64, -18], [52, -6], [40, -18]], 'a', { ns: true, spline: { tension: 0.1 } }),
-  ] }),
-  rPart({ id: 'scutes', slot: 'scales', name: 'Scutes', tags: ['croc'], dom: 0.45, w: 2, extra: [
-    L('M-50,-20 L50,-20 M-50,-8 L50,-8 M-50,4 L50,4 M-50,16 L50,16 M-36,-40 L-36,40 M-18,-40 L-18,40 M0,-40 L0,40 M18,-40 L18,40 M36,-40 L36,40', 'k', 1.2, { op: 0.2 }),
-    S([[-54, 18], [-30, 14], [0, 12], [30, 14], [54, 18], [54, 40], [-54, 40]], 's', { ns: true, op: 0.7 }),
-  ] }),
-  rPart({ id: 'hex', slot: 'scales', name: 'Hex plates', tags: ['turtle'], dom: 0.45, w: 2, extra: [
-    L('M-30,-26 L-38,-12 L-30,2 L-14,2 L-6,-12 L-14,-26 Z M6,-26 L-2,-12 L6,2 L22,2 L30,-12 L22,-26 Z M-14,2 L-22,16 L-14,30 L2,30 L10,16 L2,2 M22,2 L30,16 L22,30 M-38,-12 L-52,-12 M30,-12 L46,-12 M-14,-26 L-8,-38 M22,-26 L28,-38', 'k', 1.3, { op: 0.25 }),
-  ] }),
-  rPart({ id: 'saddle', slot: 'scales', name: 'Jagged back', tags: ['gradient'], dom: 0.5, w: 2, extra: [
-    S([[-48, -40], [48, -40], [52, -12], [42, 0, 'c'], [32, -10], [22, 4, 'c'], [12, -8], [2, 6, 'c'], [-8, -8], [-18, 4, 'c'], [-28, -10], [-38, 2, 'c'], [-52, -12]], 'a', { ns: true, spline: { tension: 0.45 } }),
-    S([[-40, -40], [40, -40], [42, -24], [20, -14], [-8, -12], [-30, -14], [-44, -24]], 'k', { ns: true, op: 0.12 }),
-  ] }),
+  rPart({
+    id: 'belly', slot: 'scales', name: 'Belly plates', tags: ['soft'], dom: 0.5, w: 3,
+    extra: [S([[-54, 18], [-30, 12], [0, 10], [30, 12], [54, 18], [54, 40], [-54, 40]], 's', { ns: true }), L('M-44,22 L44,22 M-46,27 L46,27 M-40,32 L40,32', 'k', 1.1, { op: 0.2 })],
+    stages: {
+      2: { add: [L('M-48,16 C-24,10 24,10 48,16', 'a', 2.2, { ns: true, op: 0.7 })] },
+      3: { add: [L('M-34,37 L34,37', 'k', 1.1, { op: 0.2 }), C(-30, 24, 1.6, 'w', { ns: true, op: 0.5 }), C(0, 22, 1.6, 'w', { ns: true, op: 0.5 }), C(30, 24, 1.6, 'w', { ns: true, op: 0.5 })] },
+    },
+  }),
+  rPart({
+    id: 'bands', slot: 'scales', name: 'Jagged bands', tags: ['striped'], dom: 0.5, w: 2,
+    extra: [
+      S([[-40, -40], [-24, -40], [-26, -20], [-32, -6, 'c'], [-26, 4], [-36, 18, 'c'], [-36, 4], [-42, -18]], 'a', { ns: true }), S([[-12, -40], [4, -40], [2, -18], [-4, -4, 'c'], [2, 6], [-8, 20, 'c'], [-8, 4], [-14, -18]], 'a', { ns: true }), S([[16, -40], [32, -40], [30, -20], [24, -6, 'c'], [30, 4], [20, 18, 'c'], [20, 4], [14, -18]], 'a', { ns: true }),
+    ],
+    stages: {
+      2: { add: [S([[40, -40], [54, -40], [52, -20], [46, -8, 'c'], [50, 2], [42, 14, 'c'], [42, 2], [38, -18]], 'a', { ns: true })] },
+      3: { add: [S([[-58, -40], [-50, -40], [-52, -24], [-56, -12, 'c'], [-52, -6], [-58, 4, 'c'], [-60, -8], [-62, -22]], 'a', { ns: true }), C(-22, 20, 2.4, 'a', { ns: true }), C(6, 22, 2.4, 'a', { ns: true }), C(34, 20, 2.4, 'a', { ns: true })] },
+    },
+  }),
+  rPart({
+    id: 'spots', slot: 'scales', name: 'Eye spots', tags: ['spotted'], dom: 0.45, w: 2,
+    extra: [
+      ...[[-32, -14, 6], [-10, -22, 5.5], [14, -20, 6], [34, -10, 5], [-20, 2, 5], [6, -2, 5.5], [28, 8, 4.5]].flatMap(([x, y, r]) => [E(x, y, r * 1.15, r * 0.9, 'a', { ns: true }), C(x + 0.6, y + 0.4, r * 0.5, 's', { ns: true, op: 0.9 })]),
+    ],
+    stages: {
+      2: { add: [[-42, 10, 4.5], [40, -24, 4.5], [-4, 14, 4.5]].flatMap(([x, y, r]) => [E(x, y, r * 1.15, r * 0.9, 'a', { ns: true }), C(x + 0.6, y + 0.4, r * 0.5, 's', { ns: true, op: 0.9 })]) },
+      3: { add: [evoRing(-10, -22, 8.5, 'a', 1.6), evoRing(14, -20, 9, 'a', 1.6), evoRing(6, -2, 8.5, 'a', 1.6)] },
+    },
+  }),
+  rPart({
+    id: 'diamonds', slot: 'scales', name: 'Diamonds', tags: ['snake'], dom: 0.5, w: 2,
+    extra: [diamond(-44, -18), diamond(-20, -18), diamond(4, -18), diamond(28, -18), diamond(52, -18)],
+    stages: {
+      2: { add: [diamond(-32, 8, 8), diamond(-8, 8, 8), diamond(16, 8, 8), diamond(40, 8, 8)] },
+      3: { add: [C(-44, -18, 2.6, 's', { ns: true }), C(-20, -18, 2.6, 's', { ns: true }), C(4, -18, 2.6, 's', { ns: true }), C(28, -18, 2.6, 's', { ns: true }), C(52, -18, 2.6, 's', { ns: true })] },
+    },
+  }),
+  rPart({
+    id: 'scutes', slot: 'scales', name: 'Scutes', tags: ['croc'], dom: 0.45, w: 2,
+    extra: [
+      L('M-50,-20 L50,-20 M-50,-8 L50,-8 M-50,4 L50,4 M-50,16 L50,16 M-36,-40 L-36,40 M-18,-40 L-18,40 M0,-40 L0,40 M18,-40 L18,40 M36,-40 L36,40', 'k', 1.2, { op: 0.2 }),
+      S([[-54, 18], [-30, 14], [0, 12], [30, 14], [54, 18], [54, 40], [-54, 40]], 's', { ns: true, op: 0.7 }),
+    ],
+    stages: {
+      2: { add: [L('M-50,-32 L50,-32', 'a', 2.4, { ns: true, op: 0.7 })] },
+      3: { add: [...[-27, -9, 9, 27].map((x) => C(x, -14, 1.8, 'w', { ns: true, op: 0.45 })), ...[-27, -9, 9, 27].map((x) => C(x, -2, 1.8, 'w', { ns: true, op: 0.45 }))] },
+    },
+  }),
+  rPart({
+    id: 'hex', slot: 'scales', name: 'Hex plates', tags: ['turtle'], dom: 0.45, w: 2,
+    extra: [
+      L('M-30,-26 L-38,-12 L-30,2 L-14,2 L-6,-12 L-14,-26 Z M6,-26 L-2,-12 L6,2 L22,2 L30,-12 L22,-26 Z M-14,2 L-22,16 L-14,30 L2,30 L10,16 L2,2 M22,2 L30,16 L22,30 M-38,-12 L-52,-12 M30,-12 L46,-12 M-14,-26 L-8,-38 M22,-26 L28,-38', 'k', 1.3, { op: 0.25 }),
+    ],
+    stages: {
+      2: { add: [L('M-52,-12 L-60,2 L-52,16 L-38,16 L-30,2 M46,-12 L54,2 L46,16 L30,16', 'k', 1.3, { op: 0.25 })] },
+      3: { add: [C(-22, -12, 3.2, 'a', { ns: true, op: 0.7 }), C(14, -12, 3.2, 'a', { ns: true, op: 0.7 }), C(-6, 16, 3, 'a', { ns: true, op: 0.7 }), C(-45, 2, 2.6, 'a', { ns: true, op: 0.6 }), C(38, 2, 2.6, 'a', { ns: true, op: 0.6 })] },
+    },
+  }),
+  rPart({
+    id: 'saddle', slot: 'scales', name: 'Jagged back', tags: ['gradient'], dom: 0.5, w: 2,
+    extra: [
+      S([[-48, -40], [48, -40], [52, -12], [42, 0, 'c'], [32, -10], [22, 4, 'c'], [12, -8], [2, 6, 'c'], [-8, -8], [-18, 4, 'c'], [-28, -10], [-38, 2, 'c'], [-52, -12]], 'a', { ns: true, spline: { tension: 0.45 } }),
+      S([[-40, -40], [40, -40], [42, -24], [20, -14], [-8, -12], [-30, -14], [-44, -24]], 'k', { ns: true, op: 0.12 }),
+    ],
+    stages: {
+      2: { add: [S([[38, -6], [44, 12, 'c'], [48, -4]], 'a', { ns: true }), S([[-2, -4], [2, 16, 'c'], [8, -2]], 'a', { ns: true }), S([[-40, -6], [-38, 12, 'c'], [-32, -4]], 'a', { ns: true })] },
+      3: { add: [C(30, -20, 2.4, 'w', { ns: true, op: 0.6 }), C(-10, -24, 2, 'w', { ns: true, op: 0.55 }), C(10, -14, 1.8, 'w', { ns: true, op: 0.55 }), C(-30, -22, 2.2, 'w', { ns: true, op: 0.6 })] },
+    },
+  }),
 ];
 
 // ---- src/data/parts/reptile/index.js ----
@@ -4317,6 +4692,9 @@ const aPart = amphBuilders.part;
 // ---- src/data/parts/amphibian/bodies.js ----
 // Amphibian bodies. Origin = centre. Sockets: head (front top), shoulder / shoulderFar, hip / hipFar,
 // tail (rear), back (spine). kinds: 'amph.squat', 'amph.long', 'amph.swim'.
+// Evolutions: stage 2 broadens the body and bulges soft lobes out of the chest (a belly fin on
+// the polliwog); stage 3 adds rump lobes and, on the warty kinds, more warts.
+
 
 
 
@@ -4331,6 +4709,10 @@ const A_BODIES = [
       head: { x: 16, y: -20, a: 0, s: 1 }, shoulder: { x: 18, y: 10 }, shoulderFar: { x: 8, y: 6 }, hip: { x: -22, y: 8 }, hipFar: { x: -30, y: 4 },
       tail: { x: -36, y: 2, a: 0 }, back: { x: -10, y: -26, a: 0 },
     },
+    stages: {
+      2: { grow: [1.06, 1.06], addBehind: [evoFan(26, -4, -50, 50, 3, 8, 20, { tip: 0.5 })] },
+      3: { grow: [1.06, 1.07], addBehind: [evoFan(-30, -8, 170, 260, 3, 8, 22, { tip: 0.5 })], add: warts([[-14, -16, 2.6], [4, -20, 2.2]]) },
+    },
   }),
   aBody({
     id: 'toad', name: 'Warty', kind: 'amph.squat', tags: ['toad'], dom: 0.55, w: 2,
@@ -4341,6 +4723,10 @@ const A_BODIES = [
       head: { x: 18, y: -18, a: 0, s: 1.05 }, shoulder: { x: 22, y: 12 }, shoulderFar: { x: 10, y: 8 }, hip: { x: -24, y: 10 }, hipFar: { x: -32, y: 6 },
       tail: { x: -40, y: 2, a: 0 }, back: { x: -8, y: -27, a: 0 },
     },
+    stages: {
+      2: { grow: [1.06, 1.06], addBehind: [evoFan(30, -2, -50, 50, 3, 8, 20, { tip: 0.5 })], add: warts([[-34, -8, 2.4], [-18, 8, 2.2], [16, 4, 2.4]]) },
+      3: { grow: [1.06, 1.07], addBehind: [evoFan(-34, -6, 170, 260, 3, 8, 22, { tip: 0.5 })], add: warts([[-20, -12, 4], [10, -14, 4], [-2, 8, 3]]) },
+    },
   }),
   aBody({
     id: 'treefrog', name: 'Slim', kind: 'amph.squat', tags: ['treefrog'], dom: 0.5, w: 2,
@@ -4349,6 +4735,10 @@ const A_BODIES = [
     sockets: {
       head: { x: 14, y: -16, a: 0, s: 1 }, shoulder: { x: 14, y: 8 }, shoulderFar: { x: 6, y: 4 }, hip: { x: -18, y: 6 }, hipFar: { x: -26, y: 2 },
       tail: { x: -30, y: 0, a: 0 }, back: { x: -8, y: -20, a: 0 },
+    },
+    stages: {
+      2: { grow: [1.06, 1.06], addBehind: [evoFan(22, -4, -50, 50, 3, 6, 18, { tip: 0.5 })] },
+      3: { grow: [1.06, 1.07], addBehind: [evoFan(-24, -6, 170, 260, 3, 6, 20, { tip: 0.5 })] },
     },
   }),
   aBody({
@@ -4359,6 +4749,10 @@ const A_BODIES = [
       head: { x: 26, y: -14, a: 0, s: 1 }, shoulder: { x: 20, y: 10 }, shoulderFar: { x: 10, y: 6 }, hip: { x: -24, y: 10 }, hipFar: { x: -32, y: 6 },
       tail: { x: -56, y: 0, a: 0 }, back: { x: -14, y: -16, a: 0 },
     },
+    stages: {
+      2: { grow: [1.06, 1.06], addBehind: [evoFan(30, -4, -50, 50, 3, 8, 20, { tip: 0.5 })] },
+      3: { grow: [1.06, 1.07], addBehind: [evoFan(-48, -2, 150, 250, 3, 8, 20, { tip: 0.5 })] },
+    },
   }),
   aBody({
     id: 'newt', name: 'Newt', kind: 'amph.long', tags: ['newt'], dom: 0.5, w: 2,
@@ -4367,6 +4761,10 @@ const A_BODIES = [
     sockets: {
       head: { x: 26, y: -10, a: 0, s: 1 }, shoulder: { x: 20, y: 8 }, shoulderFar: { x: 10, y: 4 }, hip: { x: -24, y: 8 }, hipFar: { x: -32, y: 4 },
       tail: { x: -48, y: -2, a: 0 }, back: { x: -12, y: -12, a: 0 },
+    },
+    stages: {
+      2: { grow: [1.06, 1.06], addBehind: [evoFan(28, -2, -50, 50, 3, 6, 18, { tip: 0.5 })] },
+      3: { grow: [1.06, 1.07], addBehind: [evoFan(-40, 0, 150, 250, 3, 6, 18, { tip: 0.5 })] },
     },
   }),
   aBody({
@@ -4378,6 +4776,10 @@ const A_BODIES = [
       head: { x: 30, y: -16, a: 0, s: 1 }, shoulder: { x: 24, y: 12 }, shoulderFar: { x: 12, y: 8 }, hip: { x: -26, y: 12 }, hipFar: { x: -34, y: 8 },
       tail: { x: -52, y: -2, a: 0 }, back: { x: -12, y: -21, a: 0 },
     },
+    stages: {
+      2: { grow: [1.06, 1.06], addBehind: [evoFan(34, -4, -50, 50, 3, 8, 20, { tip: 0.5 })] },
+      3: { grow: [1.06, 1.07], addBehind: [evoFan(-44, -2, 150, 250, 3, 8, 20, { tip: 0.5 })], add: [L('M-34,-12 C-22,-8 -8,-8 6,-12 M-30,12 C-18,16 -4,16 10,12', 'a', 1.6, { ns: true, cl: true, op: 0.5 })] },
+    },
   }),
   aBody({
     id: 'polliwog', name: 'Polliwog', kind: 'amph.swim', tags: ['tadpole', 'round'], dom: 0.45, w: 2, hover: 8,
@@ -4387,6 +4789,10 @@ const A_BODIES = [
       head: { x: 10, y: -14, a: 0, s: 0.95 }, shoulder: { x: 14, y: 10 }, shoulderFar: { x: 6, y: 6 }, hip: { x: -14, y: 10 }, hipFar: { x: -20, y: 6 },
       tail: { x: -24, y: 0, a: 0 }, back: { x: -4, y: -20, a: 0 },
     },
+    stages: {
+      2: { grow: [1.06, 1.06], addBehind: [evoFan(0, 14, 40, 140, 3, 6, 18, { tip: 0.4 })] },
+      3: { grow: [1.06, 1.07], addBehind: [evoFan(0, -14, 220, 320, 3, 6, 18, { tip: 0.4 })] },
+    },
   }),
 ];
 
@@ -4394,36 +4800,64 @@ const A_BODIES = [
 // Amphibian heads: wide and flat, eyes bulging on top. Origin = neck point.
 // Sockets: eye / eyeFar, mouth {x,y,a,s} at the front, gills {x,y,a,s} on the neck sides (behind),
 // throat {x,y,a,s} under the jaw (behind), crest {x,y,a,s} on top (behind).
+// Evolutions: stage 2 grows the head, bulges soft lobes off the back of it and enlarges the
+// marking; stage 3 adds a crown of lobes, a glow behind the marking and accent brow streaks.
+
 
 
 
 
 const jaw = (d) => PATCH(d, 's');
+/** Shared head evolution: lobes behind the skull at (bx, by), a bigger marking, then a crown at (cx, cy), glow at the marking and brow streaks. */
+const aHeadStages = (bx, by, mark2, cx, cy, glow, brows) => ({
+  2: { grow: [1.05, 1.06], addBehind: [evoFan(bx, by, 150, 250, 2, 6, 16, { tip: 0.5 })], add: mark2 },
+  3: { grow: [1.05, 1.06], addBehind: [evoFan(cx, cy, 200, 340, 3, 5, 16, { tip: 0.4 })], add: [evoGlow(glow[0], glow[1], glow[2], 0.25), L(brows, 'a', 2, { ns: true })] },
+});
 
 const A_HEADS = [
   aPart({ id: 'frog', slot: 'head', name: 'Frog', tags: ['frog'], dom: 0.5, w: 3, shapes: [[[-14, -18], [0, -24], [14, -22], [24, -14], [28, -4], [22, 4], [8, 8], [-8, 8], [-20, 2], [-22, -8]]], extra: [jaw('M30,-4 C22,0 8,2 -8,2 C-16,2 -20,0 -24,-4 L-26,12 L30,12 Z'), SH('M-22,-6 C-10,2 10,4 26,-2 L26,12 L-22,12 Z', 0.1), HL('M-10,-20 C0,-26 12,-25 20,-18 C12,-21 2,-21 -6,-17 Z', 0.2), PATCH(sparklePath(6, -9, 4.5), 'a')],
-    sockets: { eye: { x: 10, y: -20, s: 1.1 }, eyeFar: { x: -7, y: -21, s: 1 }, mouth: { x: 14, y: 4, a: 0, s: 1 }, gills: { x: -18, y: -6, a: 0, s: 1 }, throat: { x: 2, y: 8, a: 0, s: 1 }, crest: { x: 2, y: -24, a: 0, s: 1 } } }),
+    sockets: { eye: { x: 10, y: -20, s: 1.1 }, eyeFar: { x: -7, y: -21, s: 1 }, mouth: { x: 14, y: 4, a: 0, s: 1 }, gills: { x: -18, y: -6, a: 0, s: 1 }, throat: { x: 2, y: 8, a: 0, s: 1 }, crest: { x: 2, y: -24, a: 0, s: 1 } },
+    stages: aHeadStages(-14, -12, [PATCH(sparklePath(6, -9, 6.5), 'a')], 2, -20, [6, -9, 9], 'M-8,-12 L-12,-17 M18,-12 L22,-17') }),
   aPart({ id: 'toad', slot: 'head', name: 'Toad', tags: ['toad', 'wide'], dom: 0.55, w: 2, shapes: [[[-18, -16], [-2, -22], [14, -20], [26, -12], [32, -2], [26, 6], [10, 10], [-10, 10], [-24, 4], [-28, -6]]], extra: [jaw('M34,-2 C24,2 8,4 -10,4 C-20,4 -26,2 -30,-2 L-32,14 L34,14 Z'), C(-6, -16, 2.2, 'pd', { sw: 1.2 }), C(8, -17, 2, 'pd', { sw: 1.2 }), SH('M-28,-4 C-12,4 10,6 30,0 L30,14 L-28,14 Z', 0.1), HL('M-14,-18 C-4,-24 10,-23 20,-16 C10,-19 0,-19 -8,-15 Z', 0.2), PATCH(diamondPath(4, -7, 6, 8), 'a')],
-    sockets: { eye: { x: 10, y: -18, s: 1.05 }, eyeFar: { x: -10, y: -19, s: 0.95 }, mouth: { x: 16, y: 6, a: 0, s: 1.1 }, gills: { x: -22, y: -4, a: 0, s: 1 }, throat: { x: 0, y: 10, a: 0, s: 1.1 }, crest: { x: 0, y: -22, a: 0, s: 1 } } }),
+    sockets: { eye: { x: 10, y: -18, s: 1.05 }, eyeFar: { x: -10, y: -19, s: 0.95 }, mouth: { x: 16, y: 6, a: 0, s: 1.1 }, gills: { x: -22, y: -4, a: 0, s: 1 }, throat: { x: 0, y: 10, a: 0, s: 1.1 }, crest: { x: 0, y: -22, a: 0, s: 1 } },
+    stages: aHeadStages(-18, -10, [PATCH(diamondPath(4, -7, 8, 11), 'a'), C(-16, -12, 2.2, 'pd', { sw: 1.2 }), C(18, -14, 2, 'pd', { sw: 1.2 })], 0, -18, [4, -7, 9], 'M-10,-10 L-14,-15 M18,-10 L22,-15') }),
   aPart({ id: 'treefrog', slot: 'head', name: 'Bright-eyed', tags: ['treefrog'], dom: 0.5, w: 2, shapes: [[[-12, -18], [2, -22], [16, -18], [24, -10], [26, -2], [20, 4], [6, 8], [-8, 8], [-18, 2], [-20, -8]]], extra: [jaw('M28,-2 C20,2 6,3 -8,3 C-14,3 -18,1 -22,-2 L-24,12 L28,12 Z'), SH('M-20,-4 C-8,2 8,4 24,0 L24,12 L-20,12 Z', 0.1), HL('M-8,-18 C0,-24 10,-23 18,-16 C10,-19 2,-19 -4,-15 Z', 0.2), PATCH(starPath(6, -8, 4.5, 5, 0.5), 'a')],
-    sockets: { eye: { x: 10, y: -16, s: 1.2 }, eyeFar: { x: -7, y: -17, s: 1.05 }, mouth: { x: 12, y: 4, a: 0, s: 1 }, gills: { x: -16, y: -6, a: 0, s: 0.9 }, throat: { x: 0, y: 8, a: 0, s: 1 }, crest: { x: 2, y: -22, a: 0, s: 1 } } }),
+    sockets: { eye: { x: 10, y: -16, s: 1.2 }, eyeFar: { x: -7, y: -17, s: 1.05 }, mouth: { x: 12, y: 4, a: 0, s: 1 }, gills: { x: -16, y: -6, a: 0, s: 0.9 }, throat: { x: 0, y: 8, a: 0, s: 1 }, crest: { x: 2, y: -22, a: 0, s: 1 } },
+    stages: aHeadStages(-12, -12, [PATCH(starPath(6, -8, 6, 5, 0.5), 'a')], 2, -18, [6, -8, 9], 'M-6,-12 L-10,-17 M16,-12 L20,-17') }),
   aPart({ id: 'axolotl', slot: 'head', name: 'Axolotl', tags: ['axolotl', 'round'], dom: 0.5, w: 2, shapes: [[[-14, -20], [2, -26], [16, -22], [26, -12], [26, 0], [18, 6], [4, 8], [-10, 6], [-20, 0], [-22, -10]]], extra: [jaw('M28,-2 C20,2 6,4 -8,4 C-16,4 -20,2 -24,-2 L-26,12 L28,12 Z'), SH('M-22,-4 C-8,4 8,6 26,0 L26,12 L-22,12 Z', 0.1), HL('M-10,-22 C0,-28 12,-26 20,-18 C12,-22 2,-22 -6,-18 Z', 0.2), PATCH(heartPath(4, -19, 3.6), 'a')],
-    sockets: { eye: { x: 12, y: -12, s: 0.9 }, eyeFar: { x: -6, y: -13, s: 0.8 }, mouth: { x: 16, y: 2, a: 0, s: 1 }, gills: { x: -16, y: -14, a: 0, s: 1 }, throat: { x: 0, y: 8, a: 0, s: 1 }, crest: { x: 2, y: -26, a: 0, s: 1 } } }),
+    sockets: { eye: { x: 12, y: -12, s: 0.9 }, eyeFar: { x: -6, y: -13, s: 0.8 }, mouth: { x: 16, y: 2, a: 0, s: 1 }, gills: { x: -16, y: -14, a: 0, s: 1 }, throat: { x: 0, y: 8, a: 0, s: 1 }, crest: { x: 2, y: -26, a: 0, s: 1 } },
+    stages: aHeadStages(-14, -14, [PATCH(heartPath(4, -19, 4.8), 'a')], 2, -22, [4, -19, 8], 'M-6,-8 L-10,-13 M16,-6 L20,-11') }),
   aPart({ id: 'newt', slot: 'head', name: 'Newt', tags: ['newt', 'pointed'], dom: 0.5, w: 2, shapes: [[[-12, -16], [2, -20], [14, -18], [24, -10], [30, -2, 0.4], [22, 4], [8, 6], [-8, 6], [-18, 0], [-18, -8]]], extra: [jaw('M32,-2 C22,2 8,4 -8,4 C-14,4 -18,2 -20,-2 L-22,12 L32,12 Z'), SH('M-18,-4 C-6,2 8,4 28,0 L28,12 L-18,12 Z', 0.1), HL('M-8,-16 C0,-22 10,-21 18,-14 C10,-17 2,-17 -4,-13 Z', 0.2), PATCH(flamePath(3, -14, 4.5), 'a')],
-    sockets: { eye: { x: 10, y: -12, s: 0.9 }, eyeFar: { x: -6, y: -13, s: 0.8 }, mouth: { x: 20, y: 2, a: 0, s: 0.9 }, gills: { x: -14, y: -8, a: 0, s: 0.9 }, throat: { x: 0, y: 6, a: 0, s: 0.9 }, crest: { x: 2, y: -20, a: 0, s: 1 } } }),
+    sockets: { eye: { x: 10, y: -12, s: 0.9 }, eyeFar: { x: -6, y: -13, s: 0.8 }, mouth: { x: 20, y: 2, a: 0, s: 0.9 }, gills: { x: -14, y: -8, a: 0, s: 0.9 }, throat: { x: 0, y: 6, a: 0, s: 0.9 }, crest: { x: 2, y: -20, a: 0, s: 1 } },
+    stages: aHeadStages(-12, -10, [PATCH(flamePath(3, -14, 6), 'a')], 2, -16, [3, -14, 8], 'M-6,-8 L-10,-13 M16,-6 L20,-11') }),
   aPart({ id: 'salamander', slot: 'head', name: 'Broad', tags: ['salamander'], dom: 0.55, w: 2, shapes: [[[-16, -16], [0, -22], [16, -20], [28, -12], [34, -2], [28, 6], [12, 10], [-10, 10], [-24, 4], [-26, -6]]], extra: [jaw('M36,-2 C26,2 10,4 -10,4 C-20,4 -26,2 -28,-2 L-30,14 L36,14 Z'), SH('M-26,-4 C-10,4 10,6 32,0 L32,14 L-26,14 Z', 0.1), HL('M-12,-18 C-2,-24 12,-23 22,-16 C12,-19 2,-19 -6,-15 Z', 0.2), PATCH(boltPath(3, -14, 5, 10), 'a')],
-    sockets: { eye: { x: 12, y: -14, s: 0.95 }, eyeFar: { x: -8, y: -15, s: 0.85 }, mouth: { x: 20, y: 4, a: 0, s: 1.05 }, gills: { x: -20, y: -6, a: 0, s: 1 }, throat: { x: 0, y: 10, a: 0, s: 1 }, crest: { x: 0, y: -22, a: 0, s: 1 } } }),
+    sockets: { eye: { x: 12, y: -14, s: 0.95 }, eyeFar: { x: -8, y: -15, s: 0.85 }, mouth: { x: 20, y: 4, a: 0, s: 1.05 }, gills: { x: -20, y: -6, a: 0, s: 1 }, throat: { x: 0, y: 10, a: 0, s: 1 }, crest: { x: 0, y: -22, a: 0, s: 1 } },
+    stages: aHeadStages(-16, -10, [PATCH(boltPath(3, -14, 6.5, 10), 'a')], 0, -18, [3, -14, 9], 'M-8,-10 L-12,-15 M18,-10 L22,-15') }),
   aPart({ id: 'polliwog', slot: 'head', name: 'Round', tags: ['tadpole'], dom: 0.45, w: 2, shapes: [[[-12, -16], [0, -20], [12, -18], [18, -10], [18, 0], [12, 6], [0, 8], [-12, 6], [-18, 0], [-18, -10]]], extra: [jaw('M20,-2 C14,2 4,4 -6,4 C-12,4 -16,2 -18,-2 L-20,12 L20,12 Z'), SH('M-18,-4 C-8,4 6,6 18,0 L18,12 L-18,12 Z', 0.1), HL('M-8,-16 C0,-21 8,-20 14,-14 C8,-17 0,-17 -4,-13 Z', 0.2), C(1, -15, 2.8, 'a', { ns: true, cl: true })],
-    sockets: { eye: { x: 8, y: -10, s: 1 }, eyeFar: { x: -6, y: -11, s: 0.9 }, mouth: { x: 12, y: 2, a: 0, s: 0.9 }, gills: { x: -14, y: -6, a: 0, s: 0.8 }, throat: { x: 0, y: 8, a: 0, s: 0.9 }, crest: { x: 0, y: -20, a: 0, s: 1 } } }),
+    sockets: { eye: { x: 8, y: -10, s: 1 }, eyeFar: { x: -6, y: -11, s: 0.9 }, mouth: { x: 12, y: 2, a: 0, s: 0.9 }, gills: { x: -14, y: -6, a: 0, s: 0.8 }, throat: { x: 0, y: 8, a: 0, s: 0.9 }, crest: { x: 0, y: -20, a: 0, s: 1 } },
+    stages: aHeadStages(-12, -10, [C(1, -15, 3.8, 'a', { ns: true, cl: true })], 0, -16, [1, -15, 7], 'M-6,-6 L-10,-11 M12,-6 L16,-11') }),
 ];
 
 // ---- src/data/parts/amphibian/face.js ----
 // Amphibian eyes (bulging, on top of the head), mouths (wide), gills (external frills behind the
 // head), throats (vocal sacs under the jaw) and crests (growths on the crown).
+// Evolutions: eyes ring the iris then glow; mouths grow teeth, longer tongues and bubbles; gills
+// tip their fronds in accent and grow a fan behind; throats ring, then layer a bigger sac and a
+// gem; crests bud, flower, layer and gem.
 
 
 
-function aEye({ id, name, shape, dome, sclera = 'w', iris = [0.8, 0.2, 3.8], irisRole = 'e', pupil = [1.2, 0.5, 2], pupilPath, glint = [2.2, -1.8, 1.3], glint2 = [-1, 1.8, 0.7], lid, lidFill, dom = 0.5, w = 2, tags = [] }) {
+
+
+function aEyeStages(iris, brow) {
+  const [ix, iy, r] = iris;
+  return {
+    2: { grow: [1.05, 1.05], add: [evoRing(ix, iy, r * 0.95, 'a', 1.3, { cl: true, op: 0.85 })] },
+    3: { grow: [1.05, 1.05], add: [evoGlow(ix, iy, r * 1.5, 0.2), C(ix - r * 0.45, iy - r * 0.5, r * 0.28, 'w', { ns: true, op: 0.9 }), L(brow, 'k', 1.6)] },
+  };
+}
+
+function aEye({ id, name, shape, dome, sclera = 'w', iris = [0.8, 0.2, 3.8], irisRole = 'e', pupil = [1.2, 0.5, 2], pupilPath, glint = [2.2, -1.8, 1.3], glint2 = [-1, 1.8, 0.7], lid, lidFill, brow = 'M-5,-9 Q0,-11.5 5,-9', dom = 0.5, w = 2, tags = [] }) {
   const prims = [];
   if (dome) prims.push(P(dome, 'p', { sw: 2 }));
   prims.push(P(shape, sclera, { sw: 2 }));
@@ -4434,75 +4868,189 @@ function aEye({ id, name, shape, dome, sclera = 'w', iris = [0.8, 0.2, 3.8], iri
   if (glint2) prims.push(C(glint2[0], glint2[1], glint2[2], 'w', { ns: true, op: 0.7 }));
   if (lidFill) prims.push(P(lidFill, 'p', { ns: true, cl: true }));
   if (lid) prims.push(L(lid, 'k', 1.8));
-  return aPart({ id, slot: 'eyes', name, tags, dom, w, extra: prims });
+  return aPart({ id, slot: 'eyes', name, tags, dom, w, extra: prims, stages: aEyeStages(iris || [0, 0, 4], brow) });
 }
 const A_OVAL = spline([[0, -6.5], [6, -2], [5.4, 5], [0, 6.8], [-5.4, 5], [-6, -2]]);
 const A_BIG = spline([[0, -8], [7.4, -2.6], [6.8, 6], [0, 8.4], [-6.8, 6], [-7.4, -2.6]]);
 const DOME = spline([[0, -10], [9, -4], [8.5, 6], [0, 9], [-8.5, 6], [-9, -4]]);
 
 const A_EYES = [
-  aEye({ id: 'bulge', name: 'Bulging', tags: ['frog'], w: 3, dome: DOME, shape: spline([[0.5, -7], [6.5, -2.5], [6, 4.5], [0.5, 6.5], [-5, 4.5], [-5.5, -2.5]]), iris: [1, 0, 4.2], pupil: [1.4, 0.3, [3, 2]], glint: [2.6, -2.2, 1.4] }),
-  aEye({ id: 'big', name: 'Big', tags: ['cute'], w: 3, shape: A_BIG, iris: [0.8, 0.4, 5], pupil: [1.4, 0.8, 2.8], glint: [2.8, -2.4, 1.7], glint2: [-1.4, 2.4, 0.9], lid: 'M-6,-6.5 Q0,-10 6,-6.5' }),
-  aEye({ id: 'sleepy', name: 'Heavy-lidded', tags: ['toad'], w: 2, dome: DOME, shape: A_OVAL, iris: [0.8, 1.2, 3.8], pupil: [1.2, 1.5, 2], glint: [2.2, -0.4, 1.1], glint2: null, lidFill: 'M-9,-10 L9,-10 L9,-1 L-9,-1 Z', lid: 'M-6,-1 L6,-1' }),
-  aEye({ id: 'gold', name: 'Slotted', tags: ['newt'], w: 2, dome: DOME, shape: A_OVAL, sclera: 'e', iris: [0.4, 0, 4.4], irisRole: 'el', pupil: [0.6, 0.2, [4.4, 1.6]], glint: [2.4, -2.4, 1.2] }),
-  aEye({ id: 'bead', name: 'Bead', tags: ['small'], w: 3, shape: spline([[0, -5.2], [5, -1.5], [4.4, 3.8], [0, 5.4], [-4.4, 3.8], [-5, -1.5]]), iris: [0.4, 0, 4.6], irisRole: 'k', pupil: null, glint: [1.9, -1.9, 1.4], glint2: [-1, 1.6, 0.6], lid: null }),
-  aEye({ id: 'wide', name: 'Wide', tags: ['tadpole'], w: 2, shape: A_BIG, iris: [0.6, 0.4, 5.6], pupil: [1, 0.8, 3.4], glint: [3, -2.6, 1.8], glint2: [-1.6, 2.6, 1], lid: null }),
-  aEye({ id: 'glow', name: 'Glowing', tags: ['light'], w: 1, dome: DOME, shape: A_OVAL, sclera: 'e', iris: [0.4, 0, 4.4], irisRole: 'el', pupil: [0.8, 0.2, 2], glint: [2.4, -2.4, 1.3] }),
+  aEye({ id: 'bulge', name: 'Bulging', tags: ['frog'], w: 3, dome: DOME, shape: spline([[0.5, -7], [6.5, -2.5], [6, 4.5], [0.5, 6.5], [-5, 4.5], [-5.5, -2.5]]), iris: [1, 0, 4.2], pupil: [1.4, 0.3, [3, 2]], glint: [2.6, -2.2, 1.4], brow: 'M-6,-11 Q0,-14 6,-11' }),
+  aEye({ id: 'big', name: 'Big', tags: ['cute'], w: 3, shape: A_BIG, iris: [0.8, 0.4, 5], pupil: [1.4, 0.8, 2.8], glint: [2.8, -2.4, 1.7], glint2: [-1.4, 2.4, 0.9], lid: 'M-6,-6.5 Q0,-10 6,-6.5', brow: 'M-5,-11 Q0,-13.5 5,-11' }),
+  aEye({ id: 'sleepy', name: 'Heavy-lidded', tags: ['toad'], w: 2, dome: DOME, shape: A_OVAL, iris: [0.8, 1.2, 3.8], pupil: [1.2, 1.5, 2], glint: [2.2, -0.4, 1.1], glint2: null, lidFill: 'M-9,-10 L9,-10 L9,-1 L-9,-1 Z', lid: 'M-6,-1 L6,-1', brow: 'M-6,-11 Q0,-13 6,-11' }),
+  aEye({ id: 'gold', name: 'Slotted', tags: ['newt'], w: 2, dome: DOME, shape: A_OVAL, sclera: 'e', iris: [0.4, 0, 4.4], irisRole: 'el', pupil: [0.6, 0.2, [4.4, 1.6]], glint: [2.4, -2.4, 1.2], brow: 'M-6,-11 Q0,-14 6,-11' }),
+  aEye({ id: 'bead', name: 'Bead', tags: ['small'], w: 3, shape: spline([[0, -5.2], [5, -1.5], [4.4, 3.8], [0, 5.4], [-4.4, 3.8], [-5, -1.5]]), iris: [0.4, 0, 4.6], irisRole: 'k', pupil: null, glint: [1.9, -1.9, 1.4], glint2: [-1, 1.6, 0.6], lid: null, brow: 'M-4,-7.5 Q0,-9.5 4,-7.5' }),
+  aEye({ id: 'wide', name: 'Wide', tags: ['tadpole'], w: 2, shape: A_BIG, iris: [0.6, 0.4, 5.6], pupil: [1, 0.8, 3.4], glint: [3, -2.6, 1.8], glint2: [-1.6, 2.6, 1], lid: null, brow: 'M-5,-11 Q0,-13.5 5,-11' }),
+  aEye({ id: 'glow', name: 'Glowing', tags: ['light'], w: 1, dome: DOME, shape: A_OVAL, sclera: 'e', iris: [0.4, 0, 4.4], irisRole: 'el', pupil: [0.8, 0.2, 2], glint: [2.4, -2.4, 1.3], brow: 'M-6,-11 Q0,-14 6,-11' }),
 ];
 
 const A_MOUTHS = [
-  aPart({ id: 'smile', slot: 'mouth', name: 'Wide smile', tags: ['frog'], dom: 0.5, w: 3, extra: [L('M4,-2 C-2,4 -14,6 -26,2', 'k', 2.2)] }),
-  aPart({ id: 'grin', slot: 'mouth', name: 'Grin', tags: ['happy'], dom: 0.5, w: 2, extra: [P('M4,-2 C-2,6 -14,8 -26,2 C-14,4 -2,2 4,-2 Z', 'k', { ns: true }), P('M0,-1 C-6,2 -14,3 -22,1 C-14,2 -6,1 0,-1 Z', 'w', { ns: true })] }),
-  aPart({ id: 'frown', slot: 'mouth', name: 'Frown', tags: ['grumpy'], dom: 0.45, w: 2, extra: [L('M4,2 C-2,-3 -14,-4 -26,0', 'k', 2.2)] }),
-  aPart({ id: 'tongue', slot: 'mouth', name: 'Tongue', tags: ['frog'], dom: 0.5, w: 2, extra: [L('M4,-2 C-2,4 -14,6 -26,2', 'k', 2.2), P('M-2,1 C4,6 12,8 18,4 C20,2 18,0 16,0 C10,1 4,0 -1,-1 Z', 'a', { sw: 1.4 })] }),
-  aPart({ id: 'gape', slot: 'mouth', name: 'Gape', tags: ['open'], dom: 0.45, w: 2, extra: [P('M4,-4 C-2,-6 -14,-6 -24,-2 C-14,8 -2,10 4,4 Z', 'k', { ns: true }), P('M0,2 C-6,4 -14,4 -20,0 C-14,6 -4,7 0,2 Z', 'a', { ns: true })] }),
-  aPart({ id: 'smirk', slot: 'mouth', name: 'Smirk', tags: ['sly'], dom: 0.45, w: 2, extra: [L('M4,-4 C0,2 -8,4 -20,2 C-14,0 -12,0 -10,0', 'k', 2.2)] }),
-  aPart({ id: 'pout', slot: 'mouth', name: 'Pout', tags: ['cute'], dom: 0.45, w: 2, extra: [E(-6, 0, 3.5, 3, 'k', { ns: true }), C(-7, -1, 1, 'w', { ns: true, op: 0.6 })] }),
+  aPart({
+    id: 'smile', slot: 'mouth', name: 'Wide smile', tags: ['frog'], dom: 0.5, w: 3, extra: [L('M4,-2 C-2,4 -14,6 -26,2', 'k', 2.2)],
+    stages: {
+      2: { grow: [1.12, 1.12], add: [P('M-12,3.6 L-10.6,7.4 L-9,3.6 Z', 'w', { sw: 1 })] },
+      3: { reset: true, grow: [1.25, 1.25], add: [P('M-12,3.6 L-10.6,8 L-9,3.6 Z M-20,3 L-18.8,6.6 L-17.4,2.8 Z M-4,1.6 L-2.8,5.2 L-1.4,1.4 Z', 'w', { sw: 1 })] },
+    },
+  }),
+  aPart({
+    id: 'grin', slot: 'mouth', name: 'Grin', tags: ['happy'], dom: 0.5, w: 2, extra: [P('M4,-2 C-2,6 -14,8 -26,2 C-14,4 -2,2 4,-2 Z', 'k', { ns: true }), P('M0,-1 C-6,2 -14,3 -22,1 C-14,2 -6,1 0,-1 Z', 'w', { ns: true })],
+    stages: {
+      2: { grow: [1.12, 1.12], add: [L('M-6,-0.4 L-6,2.2 M-14,0.6 L-14,3.2', 'k', 1, { op: 0.6 })] },
+      3: { reset: true, grow: [1.25, 1.25], add: [P('M0,-1 C-6,3 -14,4.5 -22,1.5 C-14,3.5 -6,2 0,-1 Z', 'w', { ns: true }), L('M-6,-0.4 L-6,3 M-14,0.6 L-14,4 M-18,1 L-18,3.6', 'k', 1, { op: 0.6 })] },
+    },
+  }),
+  aPart({
+    id: 'frown', slot: 'mouth', name: 'Frown', tags: ['grumpy'], dom: 0.45, w: 2, extra: [L('M4,2 C-2,-3 -14,-4 -26,0', 'k', 2.2)],
+    stages: {
+      2: { grow: [1.12, 1.12], add: [P('M-8,-1.5 L-6.6,3 L-5,-1.5 Z', 'w', { sw: 1 })] },
+      3: { reset: true, grow: [1.25, 1.25], add: [P('M-8,-1.5 L-6.6,4 L-5,-1.5 Z M-16,-1.4 L-14.8,2.6 L-13.4,-1.4 Z', 'w', { sw: 1 })] },
+    },
+  }),
+  aPart({
+    id: 'tongue', slot: 'mouth', name: 'Tongue', tags: ['frog'], dom: 0.5, w: 2, extra: [L('M4,-2 C-2,4 -14,6 -26,2', 'k', 2.2), P('M-2,1 C4,6 12,8 18,4 C20,2 18,0 16,0 C10,1 4,0 -1,-1 Z', 'a', { sw: 1.4 })],
+    stages: {
+      2: { grow: [1.12, 1.12], add: [P('M-2,1 C6,8 16,10 24,5 C26,3 24,0 21,0 C13,2 5,1 -1,-1 Z', 'a', { sw: 1.4 })] },
+      3: { reset: true, grow: [1.25, 1.25], add: [P('M-2,1 C8,9 20,12 30,6 C32,4 30,0 27,0 C17,2 7,1 -1,-1 Z', 'a', { sw: 1.4 }), C(31, 4, 1.6, 'k', { ns: true }), L('M29,2 L31,0 M31,0 L33,2', 'k', 1, { op: 0.6 })] },
+    },
+  }),
+  aPart({
+    id: 'gape', slot: 'mouth', name: 'Gape', tags: ['open'], dom: 0.45, w: 2, extra: [P('M4,-4 C-2,-6 -14,-6 -24,-2 C-14,8 -2,10 4,4 Z', 'k', { ns: true }), P('M0,2 C-6,4 -14,4 -20,0 C-14,6 -4,7 0,2 Z', 'a', { ns: true })],
+    stages: {
+      2: { grow: [1.12, 1.12], add: [P('M-2,-4.4 L-1,-1.4 L0,-4.4 Z M-8,-5 L-7,-2 L-6,-5 Z M-14,-5 L-13,-2 L-12,-5 Z', 'w', { ns: true })] },
+      3: { reset: true, grow: [1.25, 1.25], add: [P('M-2,-4.4 L-1,-0.6 L0,-4.4 Z M-8,-5 L-7,-1.4 L-6,-5 Z M-14,-5 L-13,-1.4 L-12,-5 Z M-19,-4 L-18.2,-1.6 L-17.4,-4 Z', 'w', { ns: true }), C(-11, 1.6, 1.6, 'a', { ns: true })] },
+    },
+  }),
+  aPart({
+    id: 'smirk', slot: 'mouth', name: 'Smirk', tags: ['sly'], dom: 0.45, w: 2, extra: [L('M4,-4 C0,2 -8,4 -20,2 C-14,0 -12,0 -10,0', 'k', 2.2)],
+    stages: {
+      2: { grow: [1.12, 1.12], add: [P('M-6,1.5 L-4.8,5.5 L-3.4,1.5 Z', 'w', { sw: 1 })] },
+      3: { reset: true, grow: [1.25, 1.25], add: [P('M-6,1.5 L-4.6,7 L-3.2,1.5 Z', 'w', { sw: 1 })] },
+    },
+  }),
+  aPart({
+    id: 'pout', slot: 'mouth', name: 'Pout', tags: ['cute'], dom: 0.45, w: 2, extra: [E(-6, 0, 3.5, 3, 'k', { ns: true }), C(-7, -1, 1, 'w', { ns: true, op: 0.6 })],
+    stages: {
+      2: { grow: [1.12, 1.12], add: [E(-6, 2.4, 3, 1.2, 'a', { ns: true, op: 0.6 })] },
+      3: { reset: true, grow: [1.25, 1.25], add: [C(-1, -4, 2.4, 'w', { ns: true, op: 0.45 }), evoRing(-1, -4, 2.8, 'k', 0.8, { op: 0.4 }), C(2, -7.5, 1.2, 'w', { ns: true, op: 0.4 })] },
+    },
+  }),
 ];
 
 const frond = (pts, f = 'p') => S(pts, f);
+/** Shared gill evolution: accent beads at the frond tips, then a fan of extra fronds behind and more beads. */
+const aGillStages = (tips) => ({
+  2: { grow: [1.15, 1.2], add: tips.map(([x, y]) => C(x, y, 2.2, 'a', { ns: true })) },
+  3: { grow: [1.12, 1.15], addBehind: [{ pts: evoFan(0, 4, 120, 240, 4, 6, 28, { tip: 0.5 }), f: 'pd' }], add: tips.map(([x, y]) => C(x, y, 2.8, 'a', { ns: true })) },
+});
 
 const A_GILLS = [
   NONE('gills', 0.3, 'a.'),
   aPart({ id: 'frills', slot: 'gills', name: 'Frills', tags: ['axolotl'], dom: 0.55, w: 3, extra: [
     frond([[2, -2], [-6, -14], [-18, -20, 0.3], [-10, -10], [-16, -6, 0.3], [-4, -2]]), frond([[2, 2], [-8, -4], [-22, -6, 0.3], [-12, 0], [-20, 6, 0.3], [-6, 4]]), frond([[2, 6], [-8, 8], [-20, 14, 0.3], [-10, 12], [-14, 20, 0.3], [-4, 10]]),
     L('M-4,-6 L-14,-16 M-6,0 L-18,-4 M-6,6 L-16,12', 'k', 1, { op: 0.3 }),
-  ] }),
+  ], stages: aGillStages([[-18, -20], [-22, -6], [-20, 14]]) }),
   aPart({ id: 'feathery', slot: 'gills', name: 'Feathery', tags: ['soft'], dom: 0.5, w: 2, extra: [
     frond([[2, -4], ...fur([-2, -8], [-22, -14], 4, 4, { tip: 0.5 }), [-24, -10], ...fur([-22, -6], [-2, -2], 3, -3, { tip: 0.5 })]), frond([[2, 4], ...fur([-2, 4], [-22, 8], 4, 4, { tip: 0.5 }), [-24, 12], ...fur([-22, 14], [-2, 8], 3, -3, { tip: 0.5 })]),
-  ] }),
-  aPart({ id: 'stubs', slot: 'gills', name: 'Stubs', tags: ['small'], dom: 0.4, w: 2, extra: [frond([[2, -4], [-4, -10], [-10, -8], [-6, -2]]), frond([[2, 2], [-6, 0], [-10, 4], [-4, 6]]), frond([[2, 8], [-4, 10], [-8, 14], [-2, 12]])] }),
-  aPart({ id: 'plumes', slot: 'gills', name: 'Plumes', tags: ['long'], dom: 0.5, w: 2, extra: [frond([[2, -2], [-10, -14], [-28, -22, 0.2], [-18, -10], [-6, -2]]), frond([[2, 4], [-12, 2], [-32, 0, 0.2], [-18, 6], [-6, 6]]), frond([[2, 8], [-10, 14], [-26, 22, 0.2], [-16, 12], [-4, 10]])] }),
-  aPart({ id: 'fan', slot: 'gills', name: 'Fan', tags: ['wide'], dom: 0.5, w: 2, extra: [frond([[2, -6], [-8, -16], [-22, -14, 0.3], [-24, -2], [-22, 10, 0.3], [-8, 14], [2, 8]]), L('M0,0 L-18,-12 M0,0 L-22,-2 M0,0 L-18,10', 'k', 1.1, { op: 0.3 })] }),
-  aPart({ id: 'spiky', slot: 'gills', name: 'Spiky', tags: ['sharp'], dom: 0.45, w: 2, extra: [P('M2,-4 L-16,-14 L-4,-2 Z M2,2 L-20,0 L-2,6 Z M2,8 L-16,16 L-2,10 Z', 'p', { sw: 1.6 })] }),
-  aPart({ id: 'leafy', slot: 'gills', name: 'Leafy', tags: ['grass'], dom: 0.45, w: 2, extra: [frond([[2, -2], [-8, -12], [-20, -16, 'c'], [-14, -6], [-4, 0]]), frond([[2, 4], [-10, 2], [-24, 4, 'c'], [-14, 8], [-4, 8]]), L('M-2,-4 L-16,-13 M-2,4 L-18,4', 'k', 1, { op: 0.3 })] }),
+  ], stages: aGillStages([[-24, -10], [-24, 12]]) }),
+  aPart({ id: 'stubs', slot: 'gills', name: 'Stubs', tags: ['small'], dom: 0.4, w: 2, extra: [frond([[2, -4], [-4, -10], [-10, -8], [-6, -2]]), frond([[2, 2], [-6, 0], [-10, 4], [-4, 6]]), frond([[2, 8], [-4, 10], [-8, 14], [-2, 12]])], stages: aGillStages([[-10, -8], [-10, 4], [-8, 14]]) }),
+  aPart({ id: 'plumes', slot: 'gills', name: 'Plumes', tags: ['long'], dom: 0.5, w: 2, extra: [frond([[2, -2], [-10, -14], [-28, -22, 0.2], [-18, -10], [-6, -2]]), frond([[2, 4], [-12, 2], [-32, 0, 0.2], [-18, 6], [-6, 6]]), frond([[2, 8], [-10, 14], [-26, 22, 0.2], [-16, 12], [-4, 10]])], stages: aGillStages([[-28, -22], [-32, 0], [-26, 22]]) }),
+  aPart({ id: 'fan', slot: 'gills', name: 'Fan', tags: ['wide'], dom: 0.5, w: 2, extra: [frond([[2, -6], [-8, -16], [-22, -14, 0.3], [-24, -2], [-22, 10, 0.3], [-8, 14], [2, 8]]), L('M0,0 L-18,-12 M0,0 L-22,-2 M0,0 L-18,10', 'k', 1.1, { op: 0.3 })], stages: aGillStages([[-22, -14], [-24, -2], [-22, 10]]) }),
+  aPart({ id: 'spiky', slot: 'gills', name: 'Spiky', tags: ['sharp'], dom: 0.45, w: 2, extra: [P('M2,-4 L-16,-14 L-4,-2 Z M2,2 L-20,0 L-2,6 Z M2,8 L-16,16 L-2,10 Z', 'p', { sw: 1.6 })], stages: aGillStages([[-16, -14], [-20, 0], [-16, 16]]) }),
+  aPart({ id: 'leafy', slot: 'gills', name: 'Leafy', tags: ['grass'], dom: 0.45, w: 2, extra: [frond([[2, -2], [-8, -12], [-20, -16, 'c'], [-14, -6], [-4, 0]]), frond([[2, 4], [-10, 2], [-24, 4, 'c'], [-14, 8], [-4, 8]]), L('M-2,-4 L-16,-13 M-2,4 L-18,4', 'k', 1, { op: 0.3 })], stages: aGillStages([[-20, -16], [-24, 4]]) }),
 ];
+
+const sacPts = arcPts(0, 8, 14, 11, 0, 330, 11);
+const dewlapPts2 = [[-10, -2], [10, 0], [12, 10], [4, 18], [-8, 16], [-14, 6]];
+const frilledPts = [[-12, -2], [12, -2], [14, 6], ...fur([12, 10], [-12, 12], 5, 4, { tip: 0.5 }), [-14, 6]];
 
 const A_THROATS = [
   NONE('throat', 0.3, 'a.'),
-  aPart({ id: 'sac', slot: 'throat', name: 'Vocal sac', tags: ['frog'], dom: 0.55, w: 3, extra: [E(0, 8, 14, 11, 's', { sw: 2 }), HL('M-8,0 C-4,-4 4,-4 8,0 L6,3 C2,1 -2,1 -6,3 Z', 0.3), SH('M-16,10 C-8,20 8,20 16,10 L16,24 L-16,24 Z', 0.1)] }),
-  aPart({ id: 'double', slot: 'throat', name: 'Double sac', tags: ['frog'], dom: 0.5, w: 2, extra: [E(-9, 8, 9, 8, 's', { sw: 2 }), E(9, 8, 9, 8, 's', { sw: 2 }), HL('M-14,3 C-11,0 -7,0 -4,3 L-6,5 C-8,3 -10,3 -12,5 Z M4,3 C7,0 11,0 14,3 L12,5 C10,3 8,3 6,5 Z', 0.3)] }),
-  aPart({ id: 'bubble', slot: 'throat', name: 'Small bubble', tags: ['small'], dom: 0.4, w: 2, extra: [E(0, 6, 8, 6.5, 's', { sw: 1.8 }), HL('M-5,1 C-2,-1 2,-1 5,1 L4,3 C1,2 -1,2 -4,3 Z', 0.3)] }),
-  aPart({ id: 'dewlap', slot: 'throat', name: 'Dewlap', tags: ['flap'], dom: 0.45, w: 2, shapes: [[[-10, -2], [10, 0], [12, 10], [4, 18], [-8, 16], [-14, 6]]], extra: [L('M-2,0 L0,14 M-2,0 L8,8 M-2,0 L-8,10', 'k', 1.1, { op: 0.3 })] }),
-  aPart({ id: 'glowsac', slot: 'throat', name: 'Glowing sac', tags: ['light'], dom: 0.45, w: 1, extra: [C(0, 8, 16, 'a', { ns: true, op: 0.3 }), E(0, 8, 13, 10, 'a', { sw: 2 }), HL('M-8,0 C-4,-4 4,-4 8,0 L6,3 C2,1 -2,1 -6,3 Z', 0.35)] }),
-  aPart({ id: 'striped', slot: 'throat', name: 'Striped sac', tags: ['frog'], dom: 0.45, w: 2, extra: [E(0, 8, 14, 11, 's', { sw: 2 }), L('M-12,4 C-4,8 4,8 12,4 M-12,10 C-4,14 4,14 12,10 M-8,16 C-2,19 2,19 8,16', 'a', 2.2, { op: 0.7 })] }),
-  aPart({ id: 'frilled', slot: 'throat', name: 'Frilled', tags: ['frilly'], dom: 0.45, w: 2, shapes: [[[-12, -2], [12, -2], [14, 6], ...fur([12, 10], [-12, 12], 5, 4, { tip: 0.5 }), [-14, 6]]], extra: [S([[-8, 0], [8, 0], [8, 6], [-8, 6]], 's', { ns: true, cl: true, op: 0.4 })] }),
+  aPart({ id: 'sac', slot: 'throat', name: 'Vocal sac', tags: ['frog'], dom: 0.55, w: 3, extra: [E(0, 8, 14, 11, 's', { sw: 2 }), HL('M-8,0 C-4,-4 4,-4 8,0 L6,3 C2,1 -2,1 -6,3 Z', 0.3), SH('M-16,10 C-8,20 8,20 16,10 L16,24 L-16,24 Z', 0.1)],
+    stages: {
+      2: { grow: [1.15, 1.15], add: [evoRing(0, 8, 9, 'a', 1.6, { op: 0.6 })] },
+      3: { grow: [1.1, 1.1], addBehind: [{ pts: xfPts(sacPts, { sx: 1.3, sy: 1.3 }), f: 'pd' }], add: [...evoGem(0, 8, 3)] },
+    } }),
+  aPart({ id: 'double', slot: 'throat', name: 'Double sac', tags: ['frog'], dom: 0.5, w: 2, extra: [E(-9, 8, 9, 8, 's', { sw: 2 }), E(9, 8, 9, 8, 's', { sw: 2 }), HL('M-14,3 C-11,0 -7,0 -4,3 L-6,5 C-8,3 -10,3 -12,5 Z M4,3 C7,0 11,0 14,3 L12,5 C10,3 8,3 6,5 Z', 0.3)],
+    stages: {
+      2: { grow: [1.15, 1.15], add: [evoRing(-9, 8, 6, 'a', 1.4, { op: 0.6 }), evoRing(9, 8, 6, 'a', 1.4, { op: 0.6 })] },
+      3: { grow: [1.1, 1.1], addBehind: [{ pts: arcPts(-12, 10, 12, 11, 0, 330, 11), f: 'pd' }, { pts: arcPts(12, 10, 12, 11, 0, 330, 11), f: 'pd' }], add: [...evoGem(-9, 8, 2.4), ...evoGem(9, 8, 2.4)] },
+    } }),
+  aPart({ id: 'bubble', slot: 'throat', name: 'Small bubble', tags: ['small'], dom: 0.4, w: 2, extra: [E(0, 6, 8, 6.5, 's', { sw: 1.8 }), HL('M-5,1 C-2,-1 2,-1 5,1 L4,3 C1,2 -1,2 -4,3 Z', 0.3)],
+    stages: {
+      2: { grow: [1.2, 1.2], add: [evoRing(0, 6, 5, 'a', 1.4, { op: 0.6 })] },
+      3: { grow: [1.12, 1.12], add: [C(-10, -4, 3.6, 's', { sw: 1.4 }), C(8, -6, 2.4, 's', { sw: 1.2 }), C(-11, -5, 1, 'w', { ns: true, op: 0.7 }), ...evoGem(0, 6, 2.4)] },
+    } }),
+  aPart({ id: 'dewlap', slot: 'throat', name: 'Dewlap', tags: ['flap'], dom: 0.45, w: 2, shapes: [dewlapPts2], extra: [L('M-2,0 L0,14 M-2,0 L8,8 M-2,0 L-8,10', 'k', 1.1, { op: 0.3 })],
+    stages: {
+      2: { grow: [1.12, 1.18], add: [L('M-2,0 L0,14 M-2,0 L8,8 M-2,0 L-8,10', 'a', 1.6, { ns: true, op: 0.7 })] },
+      3: { grow: [1.08, 1.1], addBehind: [{ pts: xfPts(dewlapPts2, { sx: 1.32, sy: 1.32 }), f: 'pd' }], add: [...evoGem(-1, 7, 2.8)] },
+    } }),
+  aPart({ id: 'glowsac', slot: 'throat', name: 'Glowing sac', tags: ['light'], dom: 0.45, w: 1, extra: [C(0, 8, 16, 'a', { ns: true, op: 0.3 }), E(0, 8, 13, 10, 'a', { sw: 2 }), HL('M-8,0 C-4,-4 4,-4 8,0 L6,3 C2,1 -2,1 -6,3 Z', 0.35)],
+    stages: {
+      2: { grow: [1.15, 1.15], add: [C(0, 8, 20, 'a', { ns: true, op: 0.22 })] },
+      3: { grow: [1.1, 1.1], add: [evoRing(0, 8, 17, 'a', 1.4, { op: 0.5 }), evoRing(0, 8, 21, 'a', 1, { op: 0.3 }), C(0, 8, 4, 'w', { ns: true, op: 0.5 })] },
+    } }),
+  aPart({ id: 'striped', slot: 'throat', name: 'Striped sac', tags: ['frog'], dom: 0.45, w: 2, extra: [E(0, 8, 14, 11, 's', { sw: 2 }), L('M-12,4 C-4,8 4,8 12,4 M-12,10 C-4,14 4,14 12,10 M-8,16 C-2,19 2,19 8,16', 'a', 2.2, { op: 0.7 })],
+    stages: {
+      2: { grow: [1.15, 1.15], add: [L('M-10,-1 C-4,3 4,3 10,-1', 'a', 2.2, { op: 0.7 })] },
+      3: { grow: [1.1, 1.1], addBehind: [{ pts: xfPts(sacPts, { sx: 1.3, sy: 1.3 }), f: 'pd' }], add: [...evoGem(0, 8, 3)] },
+    } }),
+  aPart({ id: 'frilled', slot: 'throat', name: 'Frilled', tags: ['frilly'], dom: 0.45, w: 2, shapes: [frilledPts], extra: [S([[-8, 0], [8, 0], [8, 6], [-8, 6]], 's', { ns: true, cl: true, op: 0.4 })],
+    stages: {
+      2: { grow: [1.12, 1.18], add: [L('M10,12 L11,16 M4,14 L4,18 M-2,14 L-2,18 M-8,13 L-9,17', 'a', 1.8, { ns: true, op: 0.8 })] },
+      3: { grow: [1.08, 1.1], addBehind: [{ pts: xfPts(frilledPts, { sx: 1.32, sy: 1.32 }), f: 'pd' }], add: [...evoGem(0, 3, 2.6)] },
+    } }),
 ];
+
+const finCrestPts = [[-6, 4], [-2, -10], [4, -22], [10, -12], [12, 4]];
+const mossCrestPts = [[-14, 4], ...fur([-14, 4], [14, 4], 5, 9, { tip: 0.6, lean: 0.1, wobble: 0.3 }), [16, 6], [-16, 6]];
+const spikeCrestPts = [[-14, 4], [-14, -2], [-9, -12, 'c'], [-4, -2], [0, -16, 'c'], [4, -2], [9, -12, 'c'], [14, -2], [14, 4]];
 
 const A_CRESTS = [
   NONE('crest', 0.3, 'a.'),
-  aPart({ id: 'sprout', slot: 'crest', name: 'Sprout', tags: ['grass'], dom: 0.5, w: 3, extra: [L('M0,2 C0,-6 -2,-10 -2,-14', 'k', 5), L('M0,2 C0,-6 -2,-10 -2,-14', 'pd', 2.4), S([[-2, -14], [-12, -22], [-16, -14, 'c'], [-8, -10]], 'p'), S([[-2, -14], [8, -24], [14, -16, 'c'], [6, -10]], 'p'), L('M-3,-14 L-12,-18 M-1,-14 L8,-20', 'k', 1, { op: 0.35 })] }),
-  aPart({ id: 'leaves', slot: 'crest', name: 'Leaf pair', tags: ['grass'], dom: 0.5, w: 2, extra: [S([[-4, 2], [-18, -6], [-28, -4, 'c'], [-20, 6], [-6, 6]], 'p'), S([[4, 2], [18, -8], [28, -6, 'c'], [20, 4], [6, 6]], 'p'), L('M-6,4 L-24,-2 M6,4 L24,-4', 'k', 1, { op: 0.35 })] }),
-  aPart({ id: 'fin', slot: 'crest', name: 'Head fin', tags: ['newt'], dom: 0.5, w: 2, shapes: [[[-6, 4], [-2, -10], [4, -22], [10, -12], [12, 4]]], extra: [S([[-4, 2], [0, -10], [4, -16], [8, -10], [10, 2]], 's', { ns: true, cl: true, op: 0.5 }), L('M-2,2 L2,-18 M4,2 L6,-14', 'k', 1, { op: 0.3 })] }),
-  aPart({ id: 'horns', slot: 'crest', name: 'Brow horns', tags: ['horned'], dom: 0.5, w: 2, extra: [S([[-14, 4], [-14, -4], [-10, -14, 'c'], [-6, -4], [-4, 4]], 'p'), S([[4, 4], [6, -4], [10, -14, 'c'], [14, -4], [14, 4]], 'p'), HL('M8,-4 L10,-12 L12,-4 Z', 0.25)] }),
-  aPart({ id: 'mushroom', slot: 'crest', name: 'Mushroom cap', tags: ['poison'], dom: 0.55, w: 2, extra: [L('M0,4 L0,-8', 'k', 7), L('M0,4 L0,-8', 's', 4), S([[-18, -6], [-14, -18], [0, -24], [14, -18], [18, -6], [0, -3]], 'p'), ...[[-10, -12], [2, -18], [10, -10]].map(([x, y]) => C(x, y, 2.4, 'w', { ns: true, op: 0.85 })), HL('M-12,-10 C-8,-18 -2,-20 4,-20 L2,-16 C-2,-16 -6,-14 -8,-8 Z', 0.2)] }),
-  aPart({ id: 'moss', slot: 'crest', name: 'Moss tuft', tags: ['grass'], dom: 0.45, w: 2, shapes: [[[-14, 4], ...fur([-14, 4], [14, 4], 5, 9, { tip: 0.6, lean: 0.1, wobble: 0.3 }), [16, 6], [-16, 6]]], extra: [S([[-8, 2], [-6, -4], [2, -6], [8, -2], [8, 4]], 's', { ns: true, cl: true, op: 0.35 })] }),
-  aPart({ id: 'spikes', slot: 'crest', name: 'Spikes', tags: ['spiky'], dom: 0.5, w: 2, shapes: [[[-14, 4], [-14, -2], [-9, -12, 'c'], [-4, -2], [0, -16, 'c'], [4, -2], [9, -12, 'c'], [14, -2], [14, 4]]], extra: [HL('M-2,-12 L0,-4 L2,-12 Z', 0.25)] }),
+  aPart({ id: 'sprout', slot: 'crest', name: 'Sprout', tags: ['grass'], dom: 0.5, w: 3, extra: [L('M0,2 C0,-6 -2,-10 -2,-14', 'k', 5), L('M0,2 C0,-6 -2,-10 -2,-14', 'pd', 2.4), S([[-2, -14], [-12, -22], [-16, -14, 'c'], [-8, -10]], 'p'), S([[-2, -14], [8, -24], [14, -16, 'c'], [6, -10]], 'p'), L('M-3,-14 L-12,-18 M-1,-14 L8,-20', 'k', 1, { op: 0.35 })],
+    stages: {
+      2: { grow: [1.1, 1.2], add: [C(-2, -16, 3, 'a', { sw: 1.4 })] },
+      3: { grow: [1.1, 1.1], add: [P(starPath(-2, -20, 6.5, 5, 0.5), 'a', { sw: 1.4 }), C(-2, -20, 2, 'w', { ns: true, op: 0.8 })] },
+    } }),
+  aPart({ id: 'leaves', slot: 'crest', name: 'Leaf pair', tags: ['grass'], dom: 0.5, w: 2, extra: [S([[-4, 2], [-18, -6], [-28, -4, 'c'], [-20, 6], [-6, 6]], 'p'), S([[4, 2], [18, -8], [28, -6, 'c'], [20, 4], [6, 6]], 'p'), L('M-6,4 L-24,-2 M6,4 L24,-4', 'k', 1, { op: 0.35 })],
+    stages: {
+      2: { grow: [1.1, 1.15], addBehind: [[[-4, 0], [-14, -14], [-20, -24, 'c'], [-8, -12]], [[4, 0], [14, -14], [20, -24, 'c'], [8, -12]]] },
+      3: { grow: [1.1, 1.1], add: [C(-2, -2, 2.6, 'a', { ns: true }), C(3, -5, 2.2, 'a', { ns: true }), C(-4, -7, 2, 'a', { ns: true }), L('M-6,4 L-24,-2 M6,4 L24,-4', 'a', 1.4, { ns: true, op: 0.6 })] },
+    } }),
+  aPart({ id: 'fin', slot: 'crest', name: 'Head fin', tags: ['newt'], dom: 0.5, w: 2, shapes: [finCrestPts], extra: [S([[-4, 2], [0, -10], [4, -16], [8, -10], [10, 2]], 's', { ns: true, cl: true, op: 0.5 }), L('M-2,2 L2,-18 M4,2 L6,-14', 'k', 1, { op: 0.3 })],
+    stages: {
+      2: { grow: [1.1, 1.25], addShapes: [{ pts: [[2, -18], [4, -32, 'c'], [8, -16]], f: 'p' }], add: [L('M-2,2 L2,-18 M4,2 L6,-14', 'a', 1.6, { ns: true, op: 0.7 })] },
+      3: { grow: [1.1, 1.1], addBehind: [{ pts: xfPts(finCrestPts, { sx: 1.35, sy: 1.35 }), f: 'pd' }], add: [...evoGem(3, -8, 2.6)] },
+    } }),
+  aPart({ id: 'horns', slot: 'crest', name: 'Brow horns', tags: ['horned'], dom: 0.5, w: 2, extra: [S([[-14, 4], [-14, -4], [-10, -14, 'c'], [-6, -4], [-4, 4]], 'p'), S([[4, 4], [6, -4], [10, -14, 'c'], [14, -4], [14, 4]], 'p'), HL('M8,-4 L10,-12 L12,-4 Z', 0.25)],
+    stages: {
+      2: { grow: [1.1, 1.2], add: [P('M-12,-8 L-10,-16 L-8,-8 Z M8,-8 L10,-16 L12,-8 Z', 'a', { ns: true, op: 0.85 })] },
+      3: { grow: [1.1, 1.1], addBehind: [[[-6, 4], [-4, -2], [0, -12, 'c'], [3, -2], [4, 4]]], add: [...evoGem(0, 0, 2.4)] },
+    } }),
+  aPart({ id: 'mushroom', slot: 'crest', name: 'Mushroom cap', tags: ['poison'], dom: 0.55, w: 2, extra: [L('M0,4 L0,-8', 'k', 7), L('M0,4 L0,-8', 's', 4), S([[-18, -6], [-14, -18], [0, -24], [14, -18], [18, -6], [0, -3]], 'p'), ...[[-10, -12], [2, -18], [10, -10]].map(([x, y]) => C(x, y, 2.4, 'w', { ns: true, op: 0.85 })), HL('M-12,-10 C-8,-18 -2,-20 4,-20 L2,-16 C-2,-16 -6,-14 -8,-8 Z', 0.2)],
+    stages: {
+      2: { grow: [1.12, 1.15], add: [L('M-18,4 L-18,-2', 'k', 5), L('M-18,4 L-18,-2', 's', 2.6), S([[-26, -2], [-24, -8], [-18, -10], [-12, -8], [-10, -2], [-18, 0]], 'p'), C(-19, -6, 1.4, 'w', { ns: true, op: 0.85 })] },
+      3: { grow: [1.1, 1.1], add: [L('M16,4 L16,0', 'k', 4.5), L('M16,4 L16,0', 's', 2.2), S([[10, 0], [12, -5], [16, -7], [20, -5], [22, 0], [16, 1]], 'p'), C(-6, -28, 1.6, 'a', { ns: true, op: 0.8 }), C(6, -30, 1.4, 'a', { ns: true, op: 0.7 }), C(0, -34, 1.2, 'a', { ns: true, op: 0.6 })] },
+    } }),
+  aPart({ id: 'moss', slot: 'crest', name: 'Moss tuft', tags: ['grass'], dom: 0.45, w: 2, shapes: [mossCrestPts], extra: [S([[-8, 2], [-6, -4], [2, -6], [8, -2], [8, 4]], 's', { ns: true, cl: true, op: 0.35 })],
+    stages: {
+      2: { grow: [1.1, 1.3], add: [C(-8, -4, 1.8, 'a', { ns: true }), C(4, -6, 1.8, 'a', { ns: true })] },
+      3: { grow: [1.1, 1.15], addBehind: [{ pts: xfPts(mossCrestPts, { sx: 1.3, sy: 1.4 }), f: 'pd' }], add: [C(-2, -9, 2, 'a', { ns: true }), C(10, -2, 1.6, 'a', { ns: true }), C(-12, 0, 1.6, 'a', { ns: true })] },
+    } }),
+  aPart({ id: 'spikes', slot: 'crest', name: 'Spikes', tags: ['spiky'], dom: 0.5, w: 2, shapes: [spikeCrestPts], extra: [HL('M-2,-12 L0,-4 L2,-12 Z', 0.25)],
+    stages: {
+      2: { grow: [1.1, 1.25], add: [P('M-11,-6 L-9,-14 L-7,-6 Z M-2,-9 L0,-18 L2,-9 Z M7,-6 L9,-14 L11,-6 Z', 'a', { ns: true, op: 0.85 })] },
+      3: { grow: [1.1, 1.15], addBehind: [{ pts: [[-20, 4], [-20, -2], [-15, -14, 'c'], [-8, -2], [-4, -20, 'c'], [0, -4], [4, -22, 'c'], [8, -2], [15, -14, 'c'], [18, -2], [20, 4]], f: 'pd' }] },
+    } }),
 ];
 
 // ---- src/data/parts/amphibian/limbs.js ----
 // Amphibian legs (origin = the joint on the body; folded springy hind legs, small forelegs with
 // long fingers) and tails (from the rear socket).
+// Evolutions: legs grow accent toe pads, then bands and bigger pads (aLegStages); tails add
+// rays, ridges, bands or leaflets, then fork, club or layer a bigger fin behind.
+
 
 
 
@@ -4511,63 +5059,166 @@ const padToe = (a, b, w = 4) => tube([a, [(a[0] + b[0]) / 2, (a[1] + b[1]) / 2],
 const padTip = (b, r = 2.7, f = 'a') => C(b[0], b[1], r, f, { sw: 1.4 });
 const fingers = (d) => L(d, 'k', 1.4, { op: 0.45 });
 
+/** tips = finger-tip points that get accent pads; ankleY = where the stage-3 bands start. */
+const aLegStages = (tips, ankleY, r = 2.2) => ({
+  2: { grow: [1.06, 1.08], add: tips.map((t) => padTip(t, r)) },
+  3: { reset: true, grow: [1.12, 1.16], add: [...evoBands(ankleY, 2, 2.4, 5), ...tips.map((t) => padTip(t, r + 0.8)), ...tips.slice(0, 1).map((t) => evoRing(t[0], t[1], r + 3, 'a', 1, { op: 0.5 }))] },
+});
+
 const A_LEGS_FRONT = [
-  aLeg({ id: 'frog', slot: 'legsFront', name: 'Frog arms', tags: ['frog'], dom: 0.5, w: 3, shapes: [[[-5, -6], [4, -6], [7, 4], [8, 14], [16, 17, 'c'], [12, 20], [2, 20], [-4, 14], [-6, 4]]], extra: [fingers('M6,18 L14,17 M4,19 L8,24 M0,18 L-4,23'), SH('M-8,-8 L-2,-8 L-1,22 L-8,22 Z', 0.12), HL('M1,-4 L4,-4 L4,10 L2,10 Z', 0.16)] }),
-  aLeg({ id: 'toad', slot: 'legsFront', name: 'Stout arms', tags: ['toad'], dom: 0.5, w: 2, shapes: [[[-7, -6], [5, -7], [9, 4], [10, 14], [16, 16, 'c'], [12, 20], [0, 20], [-6, 14], [-8, 4]]], extra: [fingers('M8,18 L15,16 M5,19 L9,24 M1,18 L-3,23'), SH('M-10,-8 L-3,-8 L-2,22 L-10,22 Z', 0.12), HL('M1,-4 L5,-4 L5,10 L2,10 Z', 0.16)] }),
-  aLeg({ id: 'treefrog', slot: 'legsFront', name: 'Padded arms', tags: ['treefrog'], dom: 0.5, w: 2, shapes: [padToe([1, 18], [12, 13]), padToe([1, 19], [10, 24]), padToe([-1, 18], [-8, 21]), [[-4, -6], [3, -6], [5, 4], [6, 16], [3, 20], [-2, 20], [-4, 14], [-5, 4]]], extra: [padTip([12, 13]), padTip([10, 24]), padTip([-8, 21]), SH('M-7,-8 L-1,-8 L0,22 L-7,22 Z', 0.12), HL('M0,-4 L3,-4 L3,10 L1,10 Z', 0.16)] }),
-  aLeg({ id: 'axolotl', slot: 'legsFront', name: 'Tiny arms', tags: ['axolotl'], dom: 0.4, w: 2, shapes: [[[-4, -4], [3, -4], [5, 4], [6, 10], [10, 12, 'c'], [8, 14], [0, 14], [-4, 10], [-5, 4]]], extra: [fingers('M6,12 L10,12 M4,13 L6,17 M1,12 L-2,16'), SH('M-6,-6 L-1,-6 L0,16 L-6,16 Z', 0.12)] }),
-  aLeg({ id: 'newt', slot: 'legsFront', name: 'Thin arms', tags: ['newt'], dom: 0.45, w: 2, shapes: [[[-3, -5], [3, -5], [4, 4], [5, 14], [10, 16, 'c'], [7, 18], [0, 18], [-3, 12], [-4, 4]]], extra: [fingers('M5,16 L10,15 M3,17 L5,21 M0,16 L-3,20'), SH('M-6,-6 L-1,-6 L0,20 L-6,20 Z', 0.12)] }),
-  aLeg({ id: 'salamander', slot: 'legsFront', name: 'Sturdy arms', tags: ['salamander'], dom: 0.5, w: 2, shapes: [[[-6, -6], [5, -7], [8, 4], [9, 16], [16, 18, 'c'], [12, 22], [0, 22], [-6, 16], [-7, 4]]], extra: [fingers('M8,20 L15,18 M5,21 L8,26 M1,20 L-3,25'), SH('M-9,-8 L-2,-8 L-1,24 L-9,24 Z', 0.12), HL('M1,-4 L5,-4 L5,12 L2,12 Z', 0.16)] }),
-  aLeg({ id: 'polliwog', slot: 'legsFront', name: 'Nubs', tags: ['tadpole'], dom: 0.35, w: 2, shapes: [[[-4, -3], [3, -3], [5, 3], [4, 8], [-1, 9], [-4, 6]]], extra: [SH('M-6,-4 L-1,-4 L0,10 L-6,10 Z', 0.12)] }),
+  aLeg({ id: 'frog', slot: 'legsFront', name: 'Frog arms', tags: ['frog'], dom: 0.5, w: 3, shapes: [[[-5, -6], [4, -6], [7, 4], [8, 14], [16, 17, 'c'], [12, 20], [2, 20], [-4, 14], [-6, 4]]], extra: [fingers('M6,18 L14,17 M4,19 L8,24 M0,18 L-4,23'), SH('M-8,-8 L-2,-8 L-1,22 L-8,22 Z', 0.12), HL('M1,-4 L4,-4 L4,10 L2,10 Z', 0.16)], stages: aLegStages([[14, 17], [8, 24], [-4, 23]], 10) }),
+  aLeg({ id: 'toad', slot: 'legsFront', name: 'Stout arms', tags: ['toad'], dom: 0.5, w: 2, shapes: [[[-7, -6], [5, -7], [9, 4], [10, 14], [16, 16, 'c'], [12, 20], [0, 20], [-6, 14], [-8, 4]]], extra: [fingers('M8,18 L15,16 M5,19 L9,24 M1,18 L-3,23'), SH('M-10,-8 L-3,-8 L-2,22 L-10,22 Z', 0.12), HL('M1,-4 L5,-4 L5,10 L2,10 Z', 0.16)], stages: aLegStages([[15, 16], [9, 24], [-3, 23]], 10) }),
+  aLeg({ id: 'treefrog', slot: 'legsFront', name: 'Padded arms', tags: ['treefrog'], dom: 0.5, w: 2, shapes: [padToe([1, 18], [12, 13]), padToe([1, 19], [10, 24]), padToe([-1, 18], [-8, 21]), [[-4, -6], [3, -6], [5, 4], [6, 16], [3, 20], [-2, 20], [-4, 14], [-5, 4]]], extra: [padTip([12, 13]), padTip([10, 24]), padTip([-8, 21]), SH('M-7,-8 L-1,-8 L0,22 L-7,22 Z', 0.12), HL('M0,-4 L3,-4 L3,10 L1,10 Z', 0.16)], stages: aLegStages([[12, 13], [10, 24], [-8, 21]], 10, 3.2) }),
+  aLeg({ id: 'axolotl', slot: 'legsFront', name: 'Tiny arms', tags: ['axolotl'], dom: 0.4, w: 2, shapes: [[[-4, -4], [3, -4], [5, 4], [6, 10], [10, 12, 'c'], [8, 14], [0, 14], [-4, 10], [-5, 4]]], extra: [fingers('M6,12 L10,12 M4,13 L6,17 M1,12 L-2,16'), SH('M-6,-6 L-1,-6 L0,16 L-6,16 Z', 0.12)], stages: aLegStages([[10, 12], [6, 17], [-2, 16]], 6, 1.8) }),
+  aLeg({ id: 'newt', slot: 'legsFront', name: 'Thin arms', tags: ['newt'], dom: 0.45, w: 2, shapes: [[[-3, -5], [3, -5], [4, 4], [5, 14], [10, 16, 'c'], [7, 18], [0, 18], [-3, 12], [-4, 4]]], extra: [fingers('M5,16 L10,15 M3,17 L5,21 M0,16 L-3,20'), SH('M-6,-6 L-1,-6 L0,20 L-6,20 Z', 0.12)], stages: aLegStages([[10, 15], [5, 21], [-3, 20]], 8, 1.8) }),
+  aLeg({ id: 'salamander', slot: 'legsFront', name: 'Sturdy arms', tags: ['salamander'], dom: 0.5, w: 2, shapes: [[[-6, -6], [5, -7], [8, 4], [9, 16], [16, 18, 'c'], [12, 22], [0, 22], [-6, 16], [-7, 4]]], extra: [fingers('M8,20 L15,18 M5,21 L8,26 M1,20 L-3,25'), SH('M-9,-8 L-2,-8 L-1,24 L-9,24 Z', 0.12), HL('M1,-4 L5,-4 L5,12 L2,12 Z', 0.16)], stages: aLegStages([[15, 18], [8, 26], [-3, 25]], 10) }),
+  aLeg({ id: 'polliwog', slot: 'legsFront', name: 'Nubs', tags: ['tadpole'], dom: 0.35, w: 2, shapes: [[[-4, -3], [3, -3], [5, 3], [4, 8], [-1, 9], [-4, 6]]], extra: [SH('M-6,-4 L-1,-4 L0,10 L-6,10 Z', 0.12)], stages: aLegStages([[1, 9]], 3, 1.6) }),
 ];
 
 const A_LEGS_BACK = [
-  aLeg({ id: 'frog', slot: 'legsBack', name: 'Spring legs', tags: ['frog'], dom: 0.55, w: 3, shapes: [[[-2, -10], [8, -6], [10, 4], [12, 12], [24, 16], [30, 20, 'c'], [22, 22], [8, 22], [-8, 20], [-16, 12], [-16, 0], [-10, -8]]], extra: [L('M-12,6 C-4,12 4,12 10,6', 'k', 1.5, { op: 0.3 }), fingers('M14,20 L26,18 M12,21 L20,24 M8,21 L10,26'), SH('M-20,10 C-8,20 6,22 14,14 L14,24 L-20,24 Z', 0.12), HL('M-6,-8 C0,-10 6,-8 8,-2 C4,-5 -2,-5 -8,-2 Z', 0.16)] }),
-  aLeg({ id: 'toad', slot: 'legsBack', name: 'Thick legs', tags: ['toad'], dom: 0.55, w: 2, shapes: [[[-2, -12], [10, -8], [12, 4], [14, 14], [26, 18], [30, 22, 'c'], [22, 24], [6, 24], [-10, 22], [-18, 12], [-18, -2], [-10, -10]]], extra: [L('M-14,6 C-4,14 6,14 12,6', 'k', 1.5, { op: 0.3 }), fingers('M16,22 L26,20 M12,23 L20,26 M8,23 L10,27'), SH('M-22,10 C-8,22 6,24 16,16 L16,26 L-22,26 Z', 0.12), HL('M-6,-10 C0,-12 6,-10 8,-4 C4,-7 -2,-7 -8,-4 Z', 0.16)] }),
-  aLeg({ id: 'treefrog', slot: 'legsBack', name: 'Long legs', tags: ['treefrog'], dom: 0.5, w: 2, shapes: [padToe([14, 19], [26, 14], 4.5), padToe([14, 20], [24, 25], 4.5), padToe([8, 20], [4, 28], 4.5), [[-2, -8], [6, -6], [8, 4], [10, 14], [20, 18], [22, 22], [16, 22], [4, 22], [-8, 20], [-14, 12], [-14, 0], [-8, -6]]], extra: [L('M-10,6 C-4,12 2,12 8,6', 'k', 1.5, { op: 0.3 }), padTip([26, 14], 3), padTip([24, 25], 3), padTip([4, 28], 3), SH('M-18,10 C-6,20 4,22 12,14 L12,24 L-18,24 Z', 0.12), HL('M-5,-6 C0,-8 5,-6 7,-1 C3,-4 -2,-4 -7,-1 Z', 0.16)] }),
-  aLeg({ id: 'axolotl', slot: 'legsBack', name: 'Tiny legs', tags: ['axolotl'], dom: 0.4, w: 2, shapes: [[[-4, -6], [4, -6], [6, 4], [8, 12], [14, 14, 'c'], [10, 16], [0, 16], [-6, 12], [-8, 4]]], extra: [fingers('M8,14 L13,14 M6,15 L8,19 M2,14 L-1,18'), SH('M-10,-8 L-3,-8 L-2,18 L-10,18 Z', 0.12)] }),
-  aLeg({ id: 'newt', slot: 'legsBack', name: 'Thin legs', tags: ['newt'], dom: 0.45, w: 2, shapes: [[[-4, -6], [4, -6], [6, 4], [7, 14], [14, 16, 'c'], [10, 18], [0, 18], [-5, 12], [-7, 4]]], extra: [fingers('M8,16 L13,15 M6,17 L8,21 M2,16 L-1,20'), SH('M-9,-8 L-3,-8 L-2,20 L-9,20 Z', 0.12)] }),
-  aLeg({ id: 'salamander', slot: 'legsBack', name: 'Sturdy legs', tags: ['salamander'], dom: 0.5, w: 2, shapes: [[[-6, -8], [6, -8], [10, 4], [12, 16], [20, 18, 'c'], [16, 22], [2, 22], [-6, 16], [-10, 4]]], extra: [fingers('M12,20 L19,18 M9,21 L12,26 M4,20 L1,25'), SH('M-12,-10 L-4,-10 L-3,24 L-12,24 Z', 0.12), HL('M-2,-6 L4,-6 L6,10 L1,10 Z', 0.14)] }),
-  aLeg({ id: 'polliwog', slot: 'legsBack', name: 'Nub legs', tags: ['tadpole'], dom: 0.35, w: 2, shapes: [[[-5, -4], [4, -4], [6, 4], [5, 10], [-1, 11], [-5, 7]]], extra: [SH('M-7,-6 L-1,-6 L0,12 L-7,12 Z', 0.12)] }),
+  aLeg({ id: 'frog', slot: 'legsBack', name: 'Spring legs', tags: ['frog'], dom: 0.55, w: 3, shapes: [[[-2, -10], [8, -6], [10, 4], [12, 12], [24, 16], [30, 20, 'c'], [22, 22], [8, 22], [-8, 20], [-16, 12], [-16, 0], [-10, -8]]], extra: [L('M-12,6 C-4,12 4,12 10,6', 'k', 1.5, { op: 0.3 }), fingers('M14,20 L26,18 M12,21 L20,24 M8,21 L10,26'), SH('M-20,10 C-8,20 6,22 14,14 L14,24 L-20,24 Z', 0.12), HL('M-6,-8 C0,-10 6,-8 8,-2 C4,-5 -2,-5 -8,-2 Z', 0.16)], stages: aLegStages([[26, 18], [20, 24], [10, 26]], 12) }),
+  aLeg({ id: 'toad', slot: 'legsBack', name: 'Thick legs', tags: ['toad'], dom: 0.55, w: 2, shapes: [[[-2, -12], [10, -8], [12, 4], [14, 14], [26, 18], [30, 22, 'c'], [22, 24], [6, 24], [-10, 22], [-18, 12], [-18, -2], [-10, -10]]], extra: [L('M-14,6 C-4,14 6,14 12,6', 'k', 1.5, { op: 0.3 }), fingers('M16,22 L26,20 M12,23 L20,26 M8,23 L10,27'), SH('M-22,10 C-8,22 6,24 16,16 L16,26 L-22,26 Z', 0.12), HL('M-6,-10 C0,-12 6,-10 8,-4 C4,-7 -2,-7 -8,-4 Z', 0.16)], stages: aLegStages([[26, 20], [20, 26], [10, 27]], 14) }),
+  aLeg({ id: 'treefrog', slot: 'legsBack', name: 'Long legs', tags: ['treefrog'], dom: 0.5, w: 2, shapes: [padToe([14, 19], [26, 14], 4.5), padToe([14, 20], [24, 25], 4.5), padToe([8, 20], [4, 28], 4.5), [[-2, -8], [6, -6], [8, 4], [10, 14], [20, 18], [22, 22], [16, 22], [4, 22], [-8, 20], [-14, 12], [-14, 0], [-8, -6]]], extra: [L('M-10,6 C-4,12 2,12 8,6', 'k', 1.5, { op: 0.3 }), padTip([26, 14], 3), padTip([24, 25], 3), padTip([4, 28], 3), SH('M-18,10 C-6,20 4,22 12,14 L12,24 L-18,24 Z', 0.12), HL('M-5,-6 C0,-8 5,-6 7,-1 C3,-4 -2,-4 -7,-1 Z', 0.16)], stages: aLegStages([[26, 14], [24, 25], [4, 28]], 12, 3.4) }),
+  aLeg({ id: 'axolotl', slot: 'legsBack', name: 'Tiny legs', tags: ['axolotl'], dom: 0.4, w: 2, shapes: [[[-4, -6], [4, -6], [6, 4], [8, 12], [14, 14, 'c'], [10, 16], [0, 16], [-6, 12], [-8, 4]]], extra: [fingers('M8,14 L13,14 M6,15 L8,19 M2,14 L-1,18'), SH('M-10,-8 L-3,-8 L-2,18 L-10,18 Z', 0.12)], stages: aLegStages([[13, 14], [8, 19], [-1, 18]], 8, 1.8) }),
+  aLeg({ id: 'newt', slot: 'legsBack', name: 'Thin legs', tags: ['newt'], dom: 0.45, w: 2, shapes: [[[-4, -6], [4, -6], [6, 4], [7, 14], [14, 16, 'c'], [10, 18], [0, 18], [-5, 12], [-7, 4]]], extra: [fingers('M8,16 L13,15 M6,17 L8,21 M2,16 L-1,20'), SH('M-9,-8 L-3,-8 L-2,20 L-9,20 Z', 0.12)], stages: aLegStages([[13, 15], [8, 21], [-1, 20]], 8, 1.8) }),
+  aLeg({ id: 'salamander', slot: 'legsBack', name: 'Sturdy legs', tags: ['salamander'], dom: 0.5, w: 2, shapes: [[[-6, -8], [6, -8], [10, 4], [12, 16], [20, 18, 'c'], [16, 22], [2, 22], [-6, 16], [-10, 4]]], extra: [fingers('M12,20 L19,18 M9,21 L12,26 M4,20 L1,25'), SH('M-12,-10 L-4,-10 L-3,24 L-12,24 Z', 0.12), HL('M-2,-6 L4,-6 L6,10 L1,10 Z', 0.14)], stages: aLegStages([[19, 18], [12, 26], [1, 25]], 10) }),
+  aLeg({ id: 'polliwog', slot: 'legsBack', name: 'Nub legs', tags: ['tadpole'], dom: 0.35, w: 2, shapes: [[[-5, -4], [4, -4], [6, 4], [5, 10], [-1, 11], [-5, 7]]], extra: [SH('M-7,-6 L-1,-6 L0,12 L-7,12 Z', 0.12)], stages: aLegStages([[0, 11]], 4, 1.6) }),
 ];
+
+const finTailPts = [[2, -12], [-14, -18], [-32, -16], [-48, -8], [-56, 2, 'c'], [-48, 10], [-32, 14], [-14, 14], [2, 10]];
+const polliwogTailPts = [[2, -8], [-12, -12], [-28, -10], [-42, -2, 'c'], [-28, 8], [-12, 10], [2, 8]];
+const flameTailPts = [[2, -6], [-10, -12], [-24, -22, 0.2], [-22, -10], [-38, -14, 0.2], [-30, -2], [-44, 2, 0.2], [-28, 8], [-12, 10], [2, 6]];
 
 const A_TAILS = [
   NONE('tail', 0.3, 'a.'),
-  aPart({ id: 'fin', slot: 'tail', name: 'Fin tail', tags: ['axolotl'], dom: 0.55, w: 3, shapes: [[[2, -12], [-14, -18], [-32, -16], [-48, -8], [-56, 2, 'c'], [-48, 10], [-32, 14], [-14, 14], [2, 10]]], extra: [S([[0, -4], [-16, -6], [-34, -4], [-46, 2], [-34, 6], [-16, 7], [0, 5]], 'pd', { ns: true, cl: true, op: 0.35 }), L('M-10,-14 L-12,-6 M-24,-14 L-26,-6 M-38,-10 L-38,-4 M-10,12 L-12,6 M-24,12 L-26,6', 'k', 1, { op: 0.25 }), SH('M-56,4 C-40,12 -20,16 2,12 L2,22 L-56,22 Z', 0.12)] }),
-  aPart({ id: 'newt', slot: 'tail', name: 'Tapered', tags: ['newt', 'long'], dom: 0.5, w: 3, shapes: [tube([[0, 0], [-16, 2], [-32, 0], [-46, -6], [-58, -14]], 12, 2)], extra: [SH('M-60,-6 C-40,4 -20,8 2,8 L2,18 L-60,18 Z', 0.12), HL('M-44,-8 C-30,-6 -16,-4 -2,-5 L-2,-2 C-16,-1 -30,-2 -42,-4 Z', 0.16)] }),
-  aPart({ id: 'salamander', slot: 'tail', name: 'Thick tail', tags: ['salamander'], dom: 0.5, w: 2, shapes: [tube([[0, 0], [-14, 4], [-30, 4], [-44, -2], [-54, -8]], 16, 4)], extra: [L('M-10,-6 L-10,8 M-22,-4 L-22,10 M-34,-4 L-34,8', 'k', 1.1, { op: 0.2 }), SH('M-56,-2 C-40,8 -20,12 2,10 L2,20 L-56,20 Z', 0.12)] }),
-  aPart({ id: 'polliwog', slot: 'tail', name: 'Tadpole tail', tags: ['tadpole'], dom: 0.5, w: 2, shapes: [[[2, -8], [-12, -12], [-28, -10], [-42, -2, 'c'], [-28, 8], [-12, 10], [2, 8]]], extra: [S([[0, -3], [-14, -5], [-28, -4], [-36, -2], [-28, 2], [-14, 4], [0, 3]], 'pd', { ns: true, cl: true, op: 0.4 }), L('M-8,-9 L-10,-4 M-20,-9 L-22,-4 M-8,8 L-10,3 M-20,7 L-22,3', 'k', 1, { op: 0.25 })] }),
-  aPart({ id: 'stub', slot: 'tail', name: 'Stub', tags: ['short'], dom: 0.4, w: 2, shapes: [[[2, -5], [-8, -7], [-14, -2], [-12, 4], [-4, 6], [2, 5]]], extra: [SH('M-16,2 L4,2 L4,10 L-16,10 Z', 0.14)] }),
-  aPart({ id: 'leaf', slot: 'tail', name: 'Leaf tail', tags: ['grass'], dom: 0.45, w: 2, shapes: [[[2, -4], [-10, -12], [-26, -14], [-40, -6, 'c'], [-28, 4], [-12, 8], [2, 4]]], extra: [L('M0,0 C-12,-2 -24,-4 -36,-6', 'k', 1.3, { op: 0.35 }), L('M-10,-2 L-12,-10 M-20,-4 L-24,-11', 'k', 1, { op: 0.3 })] }),
-  aPart({ id: 'flame', slot: 'tail', name: 'Flame tail', tags: ['fire'], dom: 0.5, w: 2, shapes: [[[2, -6], [-10, -12], [-24, -22, 0.2], [-22, -10], [-38, -14, 0.2], [-30, -2], [-44, 2, 0.2], [-28, 8], [-12, 10], [2, 6]]], extra: [S([[0, -2], [-10, -6], [-20, -12], [-18, -4], [-28, -4], [-22, 2], [-12, 6], [0, 3]], 's', { ns: true, cl: true }), HL('M-8,-6 C-12,-8 -16,-12 -18,-16 L-14,-16 C-12,-12 -8,-10 -4,-6 Z', 0.3)] }),
+  aPart({ id: 'fin', slot: 'tail', name: 'Fin tail', tags: ['axolotl'], dom: 0.55, w: 3, shapes: [finTailPts], extra: [S([[0, -4], [-16, -6], [-34, -4], [-46, 2], [-34, 6], [-16, 7], [0, 5]], 'pd', { ns: true, cl: true, op: 0.35 }), L('M-10,-14 L-12,-6 M-24,-14 L-26,-6 M-38,-10 L-38,-4 M-10,12 L-12,6 M-24,12 L-26,6', 'k', 1, { op: 0.25 }), SH('M-56,4 C-40,12 -20,16 2,12 L2,22 L-56,22 Z', 0.12)],
+    stages: {
+      2: { grow: [1.12, 1.15], addShapes: [{ pts: [[-44, -10], [-62, -22, 'c'], [-50, -4]], f: 'p' }], add: [L('M-10,-14 L-12,-6 M-24,-14 L-26,-6 M-38,-10 L-38,-4', 'a', 1.6, { ns: true, op: 0.7 })] },
+      3: { grow: [1.1, 1.1], addBehind: [{ pts: xfPts(finTailPts, { sx: 1.28, sy: 1.3 }), f: 'pd' }], add: [C(-56, 2, 2.6, 'a', { ns: true }), C(-60, -18, 2.2, 'a', { ns: true })] },
+    } }),
+  aPart({ id: 'newt', slot: 'tail', name: 'Tapered', tags: ['newt', 'long'], dom: 0.5, w: 3, shapes: [tube([[0, 0], [-16, 2], [-32, 0], [-46, -6], [-58, -14]], 12, 2)], extra: [SH('M-60,-6 C-40,4 -20,8 2,8 L2,18 L-60,18 Z', 0.12), HL('M-44,-8 C-30,-6 -16,-4 -2,-5 L-2,-2 C-16,-1 -30,-2 -42,-4 Z', 0.16)],
+    stages: {
+      2: { grow: [1.12, 1.08], addBehind: [[[-4, -6], [-14, -16, 0.3], [-24, -8], [-34, -18, 0.3], [-44, -10], [-40, -4], [-6, -2]]] },
+      3: { grow: [1.1, 1.1], addBehind: [[[-50, -10], [-64, -24], [-74, -16, 'c'], [-62, -6]]], add: [S([[-56, -12], [-66, -20], [-58, -8]], 'a', { ns: true, op: 0.85 })] },
+    } }),
+  aPart({ id: 'salamander', slot: 'tail', name: 'Thick tail', tags: ['salamander'], dom: 0.5, w: 2, shapes: [tube([[0, 0], [-14, 4], [-30, 4], [-44, -2], [-54, -8]], 16, 4)], extra: [L('M-10,-6 L-10,8 M-22,-4 L-22,10 M-34,-4 L-34,8', 'k', 1.1, { op: 0.2 }), SH('M-56,-2 C-40,8 -20,12 2,10 L2,20 L-56,20 Z', 0.12)],
+    stages: {
+      2: { grow: [1.12, 1.1], add: [L('M-10,-8 L-10,10 M-22,-6 L-22,12 M-34,-6 L-34,10', 'a', 2.4, { ns: true, cl: true, op: 0.8 })] },
+      3: { grow: [1.1, 1.1], addShapes: [[[-50, -12], [-62, -18], [-72, -6, 0.3], [-62, 6], [-50, 2]]], add: [P('M-62,-18 L-66,-28 L-56,-20 Z M-72,-8 L-82,-10 L-72,-2 Z M-64,6 L-70,14 L-58,8 Z', 'a', { sw: 1.4 })] },
+    } }),
+  aPart({ id: 'polliwog', slot: 'tail', name: 'Tadpole tail', tags: ['tadpole'], dom: 0.5, w: 2, shapes: [polliwogTailPts], extra: [S([[0, -3], [-14, -5], [-28, -4], [-36, -2], [-28, 2], [-14, 4], [0, 3]], 'pd', { ns: true, cl: true, op: 0.4 }), L('M-8,-9 L-10,-4 M-20,-9 L-22,-4 M-8,8 L-10,3 M-20,7 L-22,3', 'k', 1, { op: 0.25 })],
+    stages: {
+      2: { grow: [1.15, 1.15], add: [L('M-8,-9 L-10,-4 M-20,-9 L-22,-4 M-8,8 L-10,3 M-20,7 L-22,3', 'a', 1.6, { ns: true, op: 0.7 })] },
+      3: { grow: [1.1, 1.1], addBehind: [{ pts: xfPts(polliwogTailPts, { sx: 1.3, sy: 1.35 }), f: 'pd' }], add: [C(-40, -2, 2.4, 'a', { ns: true }), C(-32, -10, 2, 'a', { ns: true, op: 0.8 }), C(-32, 8, 2, 'a', { ns: true, op: 0.8 })] },
+    } }),
+  aPart({ id: 'stub', slot: 'tail', name: 'Stub', tags: ['short'], dom: 0.4, w: 2, shapes: [[[2, -5], [-8, -7], [-14, -2], [-12, 4], [-4, 6], [2, 5]]], extra: [SH('M-16,2 L4,2 L4,10 L-16,10 Z', 0.14)],
+    stages: {
+      2: { grow: [1.3, 1.3], add: [C(-11, -1, 2.4, 'a', { ns: true })] },
+      3: { grow: [1.2, 1.2], addShapes: [[[-12, -6], [-22, -12], [-27, -2, 'c'], [-22, 8], [-12, 6]]], add: [C(-21, -2, 3, 'a', { ns: true }), C(-22.5, -3.5, 1, 'w', { ns: true, op: 0.8 })] },
+    } }),
+  aPart({ id: 'leaf', slot: 'tail', name: 'Leaf tail', tags: ['grass'], dom: 0.45, w: 2, shapes: [[[2, -4], [-10, -12], [-26, -14], [-40, -6, 'c'], [-28, 4], [-12, 8], [2, 4]]], extra: [L('M0,0 C-12,-2 -24,-4 -36,-6', 'k', 1.3, { op: 0.35 }), L('M-10,-2 L-12,-10 M-20,-4 L-24,-11', 'k', 1, { op: 0.3 })],
+    stages: {
+      2: { grow: [1.15, 1.15], addBehind: [[[-6, 2], [-16, 10], [-30, 16, 'c'], [-22, 4], [-12, -2]], [[-10, -10], [-22, -22], [-36, -28, 'c'], [-26, -16], [-16, -8]]] },
+      3: { grow: [1.12, 1.12], addBehind: [[[-16, -6], [-34, -4], [-50, 0, 'c'], [-34, -10], [-20, -12]]], add: [C(-14, -10, 2.6, 'a', { ns: true }), C(-19, -6, 2.2, 'a', { ns: true }), C(-13, -4, 2, 'a', { ns: true })] },
+    } }),
+  aPart({ id: 'flame', slot: 'tail', name: 'Flame tail', tags: ['fire'], dom: 0.5, w: 2, shapes: [flameTailPts], extra: [S([[0, -2], [-10, -6], [-20, -12], [-18, -4], [-28, -4], [-22, 2], [-12, 6], [0, 3]], 's', { ns: true, cl: true }), HL('M-8,-6 C-12,-8 -16,-12 -18,-16 L-14,-16 C-12,-12 -8,-10 -4,-6 Z', 0.3)],
+    stages: {
+      2: { grow: [1.12, 1.15], add: [S([[-2, -2], [-10, -8], [-18, -16, 0.2], [-16, -6], [-26, -8], [-20, 0], [-12, 4], [-2, 2]], 'a', { ns: true, cl: true, op: 0.8 })] },
+      3: { grow: [1.1, 1.1], addBehind: [{ pts: xfPts(flameTailPts, { sx: 1.3, sy: 1.3 }), f: 'a' }] },
+    } }),
 ];
 
 // ---- src/data/parts/amphibian/back.js ----
 // Amphibian back features (warts, moss, ridges along the spine; origin = the back socket, drawn
 // behind the body) and patterns (clipped to the body, 100 x 60 frame).
+// Evolutions: backs add warts, flowers, rays, shards or another mushroom, then layer a taller
+// silhouette behind; patterns add elements, then a second layer of rings, dots and embers.
 
 
+
+
+const mossBackPts = [[24, 6], ...fur([24, 6], [-34, 6], 7, -8, { tip: 0.7, lean: 0.1, wobble: 0.3 }), [-36, 10], [24, 10]];
+const ridgeBackPts = [[26, 6], [24, -1], [19, -9, 0.3], [13, -2], [7, -11, 0.3], [1, -3], [-6, -12, 0.3], [-12, -3], [-19, -11, 0.3], [-25, -2], [-31, -9, 0.3], [-36, -1], [-38, 8], [26, 10]];
+const flameBackPts = [[24, 6], [22, -4], [16, -14, 0.2], [12, -4], [4, -18, 0.2], [0, -6], [-8, -20, 0.2], [-12, -6], [-22, -14, 0.2], [-24, -2], [-34, -4, 0.2], [-36, 8], [24, 10]];
+const boulderPts = [[22, 6], [18, -8], [4, -18], [-14, -20], [-30, -10], [-36, 4], [-34, 10], [22, 10]];
+const shroom = (x, y, r) => [L(`M${x},${y + 6} L${x},${y - r * 0.4}`, 'k', 5), L(`M${x},${y + 6} L${x},${y - r * 0.4}`, 's', 2.6), S([[x - r, y - r * 0.2], [x - r * 0.7, y - r], [x, y - r * 1.3], [x + r * 0.7, y - r], [x + r, y - r * 0.2], [x, y]], 'p'), C(x - r * 0.3, y - r * 0.8, r * 0.18, 'w', { ns: true, op: 0.85 })];
 
 const A_BACKS = [
   NONE('back', 0.3, 'a.'),
-  aPart({ id: 'warts', slot: 'back', name: 'Warts', tags: ['toad'], dom: 0.5, w: 3, extra: [...[[18, 2, 4, 'a'], [6, -2, 5, 'p'], [-8, -1, 4.5, 'a'], [-22, 2, 4, 'p'], [-32, 6, 3, 'a']].map(([x, y, r, f]) => C(x, y, r, f, { sw: 1.6 })), HL('M4,-5 C6,-7 9,-6 9,-3 L6,-3 Z M-10,-4 C-8,-6 -5,-5 -5,-2 L-8,-2 Z', 0.3)] }),
-  aPart({ id: 'moss', slot: 'back', name: 'Moss', tags: ['grass'], dom: 0.5, w: 2, shapes: [[[24, 6], ...fur([24, 6], [-34, 6], 7, -8, { tip: 0.7, lean: 0.1, wobble: 0.3 }), [-36, 10], [24, 10]]], extra: [S([[18, 4], [8, -1], [-6, -2], [-20, 0], [-28, 4]], 's', { ns: true, cl: true, op: 0.35 })] }),
-  aPart({ id: 'ridge', slot: 'back', name: 'Crest ridge', tags: ['newt', 'fin'], dom: 0.5, w: 2, shapes: [[[26, 6], [24, -1], [19, -9, 0.3], [13, -2], [7, -11, 0.3], [1, -3], [-6, -12, 0.3], [-12, -3], [-19, -11, 0.3], [-25, -2], [-31, -9, 0.3], [-36, -1], [-38, 8], [26, 10]]], extra: [S([[22, 4], [18, -5], [13, 0], [7, -7], [1, -1], [-6, -8], [-12, -1], [-19, -7], [-25, 0], [-31, -5], [-34, 4]], 's', { ns: true, cl: true, op: 0.45 }), L('M19,-7 L17,2 M7,-9 L5,1 M-6,-10 L-8,1 M-19,-9 L-21,1 M-31,-7 L-32,2', 'k', 1, { op: 0.3 })] }),
-  aPart({ id: 'spikes', slot: 'back', name: 'Spikes', tags: ['spiky'], dom: 0.5, w: 2, shapes: [[[26, 6], ...fur([26, 6], [-32, 6], 5, -12, { lean: 0.4, tip: 'c', wobble: 0.2 }), [-36, 10], [26, 10]]], extra: [SH('M-38,4 L28,4 L28,14 L-38,14 Z', 0.12)] }),
-  aPart({ id: 'mushrooms', slot: 'back', name: 'Mushrooms', tags: ['poison'], dom: 0.5, w: 2, extra: [...[[14, 0, 7], [-4, -4, 9], [-22, 0, 6]].flatMap(([x, y, r]) => [L(`M${x},${y + 6} L${x},${y - r * 0.4}`, 'k', 5), L(`M${x},${y + 6} L${x},${y - r * 0.4}`, 's', 2.6), S([[x - r, y - r * 0.2], [x - r * 0.7, y - r], [x, y - r * 1.3], [x + r * 0.7, y - r], [x + r, y - r * 0.2], [x, y]], 'p'), C(x - r * 0.3, y - r * 0.8, r * 0.18, 'w', { ns: true, op: 0.85 })])] }),
-  aPart({ id: 'flames', slot: 'back', name: 'Flame ridge', tags: ['fire'], dom: 0.5, w: 1, shapes: [[[24, 6], [22, -4], [16, -14, 0.2], [12, -4], [4, -18, 0.2], [0, -6], [-8, -20, 0.2], [-12, -6], [-22, -14, 0.2], [-24, -2], [-34, -4, 0.2], [-36, 8], [24, 10]]], extra: [S([[18, 4], [14, -6], [10, -2], [4, -10], [0, -2], [-8, -12], [-12, -2], [-20, -6], [-24, 2], [-30, 4]], 's', { ns: true, cl: true }), HL('M2,-6 C4,-10 4,-14 6,-16 L8,-14 C6,-10 6,-6 4,-2 Z', 0.3)] }),
-  aPart({ id: 'boulder', slot: 'back', name: 'Boulder', tags: ['rock'], dom: 0.5, w: 2, shapes: [[[22, 6], [18, -8], [4, -18], [-14, -20], [-30, -10], [-36, 4], [-34, 10], [22, 10]]], extra: [L('M8,-12 L2,-4 M-12,-14 L-16,-4 M-22,-8 L-26,2', 'k', 1.2, { op: 0.3 }), S([[12, -4], [4, -10], [-8, -12], [-18, -6], [-20, 2]], 'a', { ns: true, cl: true, op: 0.4 }), HL('M2,-14 C-4,-16 -12,-14 -18,-10 L-14,-6 C-8,-10 -2,-12 4,-10 Z', 0.2)] }),
+  aPart({ id: 'warts', slot: 'back', name: 'Warts', tags: ['toad'], dom: 0.5, w: 3, extra: [...[[18, 2, 4, 'a'], [6, -2, 5, 'p'], [-8, -1, 4.5, 'a'], [-22, 2, 4, 'p'], [-32, 6, 3, 'a']].map(([x, y, r, f]) => C(x, y, r, f, { sw: 1.6 })), HL('M4,-5 C6,-7 9,-6 9,-3 L6,-3 Z M-10,-4 C-8,-6 -5,-5 -5,-2 L-8,-2 Z', 0.3)],
+    stages: {
+      2: { grow: [1.1, 1.2], add: [C(26, 4, 3, 'p', { sw: 1.4 }), C(-2, -6, 3.2, 'a', { sw: 1.4 }), C(-16, -4, 3, 'p', { sw: 1.4 })] },
+      3: { grow: [1.05, 1.1], add: [evoRing(6, -2, 7.5, 'a', 1.2, { op: 0.6 }), evoRing(-8, -1, 7, 'a', 1.2, { op: 0.6 }), evoRing(18, 2, 6.5, 'a', 1.2, { op: 0.6 }), C(6, -2, 2, 'w', { ns: true, op: 0.6 }), C(-22, 2, 1.6, 'w', { ns: true, op: 0.6 })] },
+    } }),
+  aPart({ id: 'moss', slot: 'back', name: 'Moss', tags: ['grass'], dom: 0.5, w: 2, shapes: [mossBackPts], extra: [S([[18, 4], [8, -1], [-6, -2], [-20, 0], [-28, 4]], 's', { ns: true, cl: true, op: 0.35 })],
+    stages: {
+      2: { grow: [1.05, 1.35], add: [C(12, -4, 1.8, 'a', { ns: true }), C(-4, -6, 1.8, 'a', { ns: true }), C(-22, -3, 1.8, 'a', { ns: true })] },
+      3: { grow: [1.05, 1.25], addBehind: [{ pts: xfPts(mossBackPts, { sx: 1.08, sy: 1.6 }), f: 'pd' }], add: [C(4, -10, 2.2, 'a', { ns: true }), C(-14, -9, 2, 'a', { ns: true }), C(20, -6, 1.8, 'a', { ns: true })] },
+    } }),
+  aPart({ id: 'ridge', slot: 'back', name: 'Crest ridge', tags: ['newt', 'fin'], dom: 0.5, w: 2, shapes: [ridgeBackPts], extra: [S([[22, 4], [18, -5], [13, 0], [7, -7], [1, -1], [-6, -8], [-12, -1], [-19, -7], [-25, 0], [-31, -5], [-34, 4]], 's', { ns: true, cl: true, op: 0.45 }), L('M19,-7 L17,2 M7,-9 L5,1 M-6,-10 L-8,1 M-19,-9 L-21,1 M-31,-7 L-32,2', 'k', 1, { op: 0.3 })],
+    stages: {
+      2: { grow: [1.05, 1.3], add: [L('M19,-7 L17,2 M7,-9 L5,1 M-6,-10 L-8,1 M-19,-9 L-21,1 M-31,-7 L-32,2', 'a', 1.6, { ns: true, op: 0.7 })] },
+      3: { grow: [1.05, 1.2], addBehind: [{ pts: xfPts(ridgeBackPts, { sx: 1.08, sy: 1.6 }), f: 'pd' }], add: [...evoGem(-6, -3, 2.6)] },
+    } }),
+  aPart({ id: 'spikes', slot: 'back', name: 'Spikes', tags: ['spiky'], dom: 0.5, w: 2, shapes: [[[26, 6], ...fur([26, 6], [-32, 6], 5, -12, { lean: 0.4, tip: 'c', wobble: 0.2 }), [-36, 10], [26, 10]]], extra: [SH('M-38,4 L28,4 L28,14 L-38,14 Z', 0.12)],
+    stages: {
+      2: { grow: [1.05, 1.3], add: [L('M12,-6 L14,-12 M0,-7 L2,-13 M-12,-6 L-10,-12 M-24,-5 L-22,-10', 'a', 2, { ns: true, op: 0.85 })] },
+      3: { grow: [1.05, 1.25], addBehind: [{ pts: [[30, 8], ...fur([30, 8], [-36, 8], 6, -20, { lean: 0.4, tip: 'c', wobble: 0.2 }), [-40, 12], [30, 12]], f: 'pd' }], spikes: true },
+    } }),
+  aPart({ id: 'mushrooms', slot: 'back', name: 'Mushrooms', tags: ['poison'], dom: 0.5, w: 2, extra: [...[[14, 0, 7], [-4, -4, 9], [-22, 0, 6]].flatMap(([x, y, r]) => shroom(x, y, r))],
+    stages: {
+      2: { grow: [1.08, 1.18], add: [...shroom(28, 4, 4.5), ...shroom(-34, 4, 4)] },
+      3: { grow: [1.05, 1.1], add: [C(-4, -18, 1.8, 'a', { ns: true, op: 0.8 }), C(4, -20, 1.4, 'a', { ns: true, op: 0.7 }), C(-12, -20, 1.4, 'a', { ns: true, op: 0.7 }), C(14, -12, 1.4, 'a', { ns: true, op: 0.7 }), C(-24, -10, 1.2, 'a', { ns: true, op: 0.7 }), ...shroom(4, 6, 3.5)] },
+    } }),
+  aPart({ id: 'flames', slot: 'back', name: 'Flame ridge', tags: ['fire'], dom: 0.5, w: 1, shapes: [flameBackPts], extra: [S([[18, 4], [14, -6], [10, -2], [4, -10], [0, -2], [-8, -12], [-12, -2], [-20, -6], [-24, 2], [-30, 4]], 's', { ns: true, cl: true }), HL('M2,-6 C4,-10 4,-14 6,-16 L8,-14 C6,-10 6,-6 4,-2 Z', 0.3)],
+    stages: {
+      2: { grow: [1.08, 1.25], add: [S([[16, 4], [13, -4], [10, 0], [4, -8], [0, 0], [-8, -10], [-12, 0], [-20, -4], [-24, 3], [-28, 5]], 'a', { ns: true, cl: true, op: 0.8 })] },
+      3: { grow: [1.05, 1.2], addBehind: [{ pts: xfPts(flameBackPts, { sx: 1.15, sy: 1.5 }), f: 'a' }] },
+    } }),
+  aPart({ id: 'boulder', slot: 'back', name: 'Boulder', tags: ['rock'], dom: 0.5, w: 2, shapes: [boulderPts], extra: [L('M8,-12 L2,-4 M-12,-14 L-16,-4 M-22,-8 L-26,2', 'k', 1.2, { op: 0.3 }), S([[12, -4], [4, -10], [-8, -12], [-18, -6], [-20, 2]], 'a', { ns: true, cl: true, op: 0.4 }), HL('M2,-14 C-4,-16 -12,-14 -18,-10 L-14,-6 C-8,-10 -2,-12 4,-10 Z', 0.2)],
+    stages: {
+      2: { grow: [1.1, 1.2], add: [P('M-2,-16 L4,-30 L10,-14 Z', 'a', { sw: 1.4 }), P('M-20,-14 L-18,-26 L-10,-12 Z', 'a', { sw: 1.4 })] },
+      3: { grow: [1.05, 1.1], addBehind: [{ pts: xfPts(boulderPts, { sx: 1.25, sy: 1.35 }), f: 'pd' }], add: [P('M14,-10 L22,-26 L26,-8 Z', 'a', { sw: 1.4 }), C(-8, -6, 2, 'a', { ns: true, op: 0.6 }), C(6, -4, 1.6, 'a', { ns: true, op: 0.6 })] },
+    } }),
 ];
 
 const A_PATTERNS = [
   NONE('pattern', 0.3, 'a.'),
-  aPart({ id: 'belly', slot: 'pattern', name: 'Light belly', tags: ['soft'], dom: 0.5, w: 3, extra: [S([[-54, 12], [-30, 6], [0, 4], [30, 6], [54, 12], [54, 40], [-54, 40]], 's', { ns: true })] }),
-  aPart({ id: 'spots', slot: 'pattern', name: 'Ringed spots', tags: ['spotted'], dom: 0.5, w: 3, extra: [...[[-30, -14, 6], [-8, -22, 5.5], [12, -16, 6], [32, -14, 5], [-20, 2, 5], [2, 0, 5.5], [24, 6, 4.5]].flatMap(([x, y, r]) => [E(x, y, r * 1.1, r * 0.9, 'a', { ns: true }), C(x + 0.5, y + 0.4, r * 0.48, 's', { ns: true, op: 0.9 })])] }),
-  aPart({ id: 'stripes', slot: 'pattern', name: 'Wave bands', tags: ['striped'], dom: 0.5, w: 2, extra: [S([[-46, -20], [-24, -26], [0, -18], [24, -26], [46, -20], [46, -12], [24, -18], [0, -10], [-24, -18], [-46, -12]], 'a', { ns: true }), S([[-46, 0], [-24, -6], [0, 2], [24, -6], [46, 0], [46, 8], [24, 2], [0, 10], [-24, 2], [-46, 8]], 'a', { ns: true }), S([[-44, 20], [-22, 14], [0, 22], [22, 14], [44, 20], [44, 28], [22, 22], [0, 30], [-22, 22], [-44, 28]], 'a', { ns: true })] }),
-  aPart({ id: 'blotches', slot: 'pattern', name: 'Blotches', tags: ['toad'], dom: 0.45, w: 2, extra: [S([[-40, -22], [-22, -30], [-12, -14], [-24, -4], [-44, -10]], 'a', { ns: true, op: 0.8 }), S([[-4, -28], [16, -32], [26, -16], [12, -6], [-6, -12]], 'a', { ns: true, op: 0.8 }), S([[-16, 6], [2, 2], [10, 16], [-4, 24], [-20, 16]], 'a', { ns: true, op: 0.8 }), S([[20, 4], [38, -2], [46, 12], [32, 20], [18, 14]], 'a', { ns: true, op: 0.8 })] }),
-  aPart({ id: 'speckles', slot: 'pattern', name: 'Speckles', tags: ['texture'], dom: 0.45, w: 2, extra: [...Array.from({ length: 24 }, (_, i) => { const x = -44 + (i % 8) * 12 + (Math.floor(i / 8) % 2 ? 6 : 0), y = -22 + Math.floor(i / 8) * 18; return { t: 'circle', cx: x, cy: y, r: 2, f: 'a', ns: true, op: 0.8 }; })] }),
-  aPart({ id: 'gradient', slot: 'pattern', name: 'Dark back', tags: ['gradient'], dom: 0.5, w: 2, extra: [S([[-54, -40], [54, -40], [54, -12], [26, 0], [-8, 2], [-36, -2], [-56, -12]], 'a', { ns: true }), S([[-46, -40], [46, -40], [46, -26], [22, -16], [-6, -14], [-30, -18], [-48, -26]], 'k', { ns: true, op: 0.12 })] }),
-  aPart({ id: 'rings', slot: 'pattern', name: 'Rings', tags: ['ringed'], dom: 0.45, w: 2, extra: [...[[-28, -12, 8], [0, -18, 9], [26, -8, 7], [-12, 10, 7], [18, 12, 6]].flatMap(([x, y, r]) => [{ t: 'circle', cx: x, cy: y, r, f: 'a', ns: true }, { t: 'circle', cx: x, cy: y, r: r * 0.5, f: 'p', ns: true }])] }),
+  aPart({ id: 'belly', slot: 'pattern', name: 'Light belly', tags: ['soft'], dom: 0.5, w: 3, extra: [S([[-54, 12], [-30, 6], [0, 4], [30, 6], [54, 12], [54, 40], [-54, 40]], 's', { ns: true })],
+    stages: {
+      2: { add: [L('M-50,10 C-26,4 26,4 50,10', 'a', 2.2, { ns: true, op: 0.6 })] },
+      3: { add: [L('M-40,22 L40,22 M-42,30 L42,30', 'k', 1.2, { ns: true, op: 0.18 }), C(-24, 16, 1.6, 'w', { ns: true, op: 0.5 }), C(0, 14, 1.6, 'w', { ns: true, op: 0.5 }), C(24, 16, 1.6, 'w', { ns: true, op: 0.5 })] },
+    } }),
+  aPart({ id: 'spots', slot: 'pattern', name: 'Ringed spots', tags: ['spotted'], dom: 0.5, w: 3, extra: [...[[-30, -14, 6], [-8, -22, 5.5], [12, -16, 6], [32, -14, 5], [-20, 2, 5], [2, 0, 5.5], [24, 6, 4.5]].flatMap(([x, y, r]) => [E(x, y, r * 1.1, r * 0.9, 'a', { ns: true }), C(x + 0.5, y + 0.4, r * 0.48, 's', { ns: true, op: 0.9 })])],
+    stages: {
+      2: { add: [[-42, 8, 4.5], [40, -26, 4.5], [-4, 14, 4.5]].flatMap(([x, y, r]) => [E(x, y, r * 1.1, r * 0.9, 'a', { ns: true }), C(x + 0.5, y + 0.4, r * 0.48, 's', { ns: true, op: 0.9 })]) },
+      3: { add: [evoRing(-8, -22, 8.5, 'a', 1.6), evoRing(12, -16, 9, 'a', 1.6), evoRing(2, 0, 8.5, 'a', 1.6)] },
+    } }),
+  aPart({ id: 'stripes', slot: 'pattern', name: 'Wave bands', tags: ['striped'], dom: 0.5, w: 2, extra: [S([[-46, -20], [-24, -26], [0, -18], [24, -26], [46, -20], [46, -12], [24, -18], [0, -10], [-24, -18], [-46, -12]], 'a', { ns: true }), S([[-46, 0], [-24, -6], [0, 2], [24, -6], [46, 0], [46, 8], [24, 2], [0, 10], [-24, 2], [-46, 8]], 'a', { ns: true }), S([[-44, 20], [-22, 14], [0, 22], [22, 14], [44, 20], [44, 28], [22, 22], [0, 30], [-22, 22], [-44, 28]], 'a', { ns: true })],
+    stages: {
+      2: { add: [S([[-46, -36], [-24, -42], [0, -34], [24, -42], [46, -36], [46, -30], [24, -36], [0, -28], [-24, -36], [-46, -30]], 'a', { ns: true })] },
+      3: { add: [C(-34, -6, 2.2, 'w', { ns: true, op: 0.55 }), C(-12, -12, 2.2, 'w', { ns: true, op: 0.55 }), C(12, -12, 2.2, 'w', { ns: true, op: 0.55 }), C(34, -6, 2.2, 'w', { ns: true, op: 0.55 }), C(-34, 14, 2, 'w', { ns: true, op: 0.5 }), C(0, 16, 2, 'w', { ns: true, op: 0.5 }), C(34, 14, 2, 'w', { ns: true, op: 0.5 })] },
+    } }),
+  aPart({ id: 'blotches', slot: 'pattern', name: 'Blotches', tags: ['toad'], dom: 0.45, w: 2, extra: [S([[-40, -22], [-22, -30], [-12, -14], [-24, -4], [-44, -10]], 'a', { ns: true, op: 0.8 }), S([[-4, -28], [16, -32], [26, -16], [12, -6], [-6, -12]], 'a', { ns: true, op: 0.8 }), S([[-16, 6], [2, 2], [10, 16], [-4, 24], [-20, 16]], 'a', { ns: true, op: 0.8 }), S([[20, 4], [38, -2], [46, 12], [32, 20], [18, 14]], 'a', { ns: true, op: 0.8 })],
+    stages: {
+      2: { add: [S([[36, -30], [50, -34], [54, -22], [44, -16], [34, -22]], 'a', { ns: true, op: 0.8 }), S([[-52, 6], [-40, 2], [-34, 14], [-44, 22], [-54, 16]], 'a', { ns: true, op: 0.8 })] },
+      3: { add: [C(-28, -16, 3, 's', { ns: true, op: 0.8 }), C(10, -18, 3, 's', { ns: true, op: 0.8 }), C(-4, 12, 3, 's', { ns: true, op: 0.8 }), C(32, 8, 2.8, 's', { ns: true, op: 0.8 })] },
+    } }),
+  aPart({ id: 'speckles', slot: 'pattern', name: 'Speckles', tags: ['texture'], dom: 0.45, w: 2, extra: [...Array.from({ length: 24 }, (_, i) => { const x = -44 + (i % 8) * 12 + (Math.floor(i / 8) % 2 ? 6 : 0), y = -22 + Math.floor(i / 8) * 18; return { t: 'circle', cx: x, cy: y, r: 2, f: 'a', ns: true, op: 0.8 }; })],
+    stages: {
+      2: { add: Array.from({ length: 16 }, (_, i) => { const x = -38 + (i % 8) * 12 + (Math.floor(i / 8) % 2 ? 6 : 0), y = -13 + Math.floor(i / 8) * 18; return { t: 'circle', cx: x, cy: y, r: 1.4, f: 'a', ns: true, op: 0.7 }; }) },
+      3: { add: [C(-32, -22, 3.4, 's', { ns: true, op: 0.8 }), C(4, -4, 3.4, 's', { ns: true, op: 0.8 }), C(34, 14, 3.4, 's', { ns: true, op: 0.8 }), C(-20, 14, 3, 's', { ns: true, op: 0.8 }), C(28, -22, 3, 's', { ns: true, op: 0.8 })] },
+    } }),
+  aPart({ id: 'gradient', slot: 'pattern', name: 'Dark back', tags: ['gradient'], dom: 0.5, w: 2, extra: [S([[-54, -40], [54, -40], [54, -12], [26, 0], [-8, 2], [-36, -2], [-56, -12]], 'a', { ns: true }), S([[-46, -40], [46, -40], [46, -26], [22, -16], [-6, -14], [-30, -18], [-48, -26]], 'k', { ns: true, op: 0.12 })],
+    stages: {
+      2: { add: [S([[38, -4], [44, 12, 'c'], [48, -6]], 'a', { ns: true }), S([[-2, 0], [2, 16, 'c'], [8, -2]], 'a', { ns: true }), S([[-40, -4], [-38, 12, 'c'], [-32, -6]], 'a', { ns: true })] },
+      3: { add: [C(30, -22, 2.4, 'w', { ns: true, op: 0.5 }), C(-10, -26, 2, 'w', { ns: true, op: 0.45 }), C(10, -16, 1.8, 'w', { ns: true, op: 0.45 }), C(-30, -24, 2.2, 'w', { ns: true, op: 0.5 })] },
+    } }),
+  aPart({ id: 'rings', slot: 'pattern', name: 'Rings', tags: ['ringed'], dom: 0.45, w: 2, extra: [...[[-28, -12, 8], [0, -18, 9], [26, -8, 7], [-12, 10, 7], [18, 12, 6]].flatMap(([x, y, r]) => [{ t: 'circle', cx: x, cy: y, r, f: 'a', ns: true }, { t: 'circle', cx: x, cy: y, r: r * 0.5, f: 'p', ns: true }])],
+    stages: {
+      2: { add: [[-46, 4, 5], [44, -22, 5]].flatMap(([x, y, r]) => [{ t: 'circle', cx: x, cy: y, r, f: 'a', ns: true }, { t: 'circle', cx: x, cy: y, r: r * 0.5, f: 'p', ns: true }]) },
+      3: { add: [C(-28, -12, 2, 'a', { ns: true }), C(0, -18, 2.4, 'a', { ns: true }), C(26, -8, 1.8, 'a', { ns: true }), C(-12, 10, 1.8, 'a', { ns: true }), C(18, 12, 1.6, 'a', { ns: true })] },
+    } }),
 ];
 
 // ---- src/data/parts/amphibian/index.js ----

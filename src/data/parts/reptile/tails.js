@@ -1,12 +1,23 @@
 // Reptile tails. Origin = tail root on the body's rear; tails sweep left (-x).
+// Evolutions: stage 2 grows the tail and adds a band, taller ridges, a bigger spade or more
+// rattle segments; stage 3 forks or clubs the tip, layers a second fan or fin and adds glow.
 import { rPart } from './_shared.js';
-import { S, SH, HL, L, P, C, tube } from '../_dsl.js';
+import { S, SH, HL, L, P, C, tube, xfPts } from '../_dsl.js';
+import { starPath } from '../_sigils.js';
+import { evoRing, evoGem } from '../_evo.js';
+
+const raptorFan = [[-76, -14], [-90, -30, 0.3], [-86, -36, 0.3], [-100, -30, 0.3], [-104, -18, 0.3], [-98, -8], [-82, -10]];
+const finLobe = [[-50, -2], [-58, -18], [-70, -22], [-66, -4], [-72, 12], [-60, 10], [-50, 4]];
 
 export const R_TAILS = [
   rPart({
     id: 'lizard', slot: 'tail', name: 'Banded whip', tags: ['lizard', 'long'], dom: 0.5, w: 3,
     shapes: [tube([[0, 0], [-20, 4], [-40, 4], [-58, -2], [-70, -12]], 14, 2)],
     extra: [S([[-22, -8], [-15, -8], [-14, 14], [-21, 14]], 'a', { ns: true, cl: true }), S([[-42, -8], [-35, -8], [-34, 14], [-41, 14]], 'a', { ns: true, cl: true }), S([[-60, -14], [-54, -12], [-56, 8], [-62, 6]], 'a', { ns: true, cl: true }), SH('M-72,-4 C-50,8 -24,12 2,8 L2,20 L-72,20 Z', 0.13), HL('M-56,-6 C-40,-4 -20,-4 -2,-6 L-2,-2 C-20,0 -40,0 -54,-2 Z', 0.16)],
+    stages: {
+      2: { grow: [1.12, 1.08], addShapes: [[[-66, -8], [-86, -22, 'c'], [-70, -14]]], add: [S([[-8, -8], [-2, -8], [-2, 12], [-8, 12]], 'a', { ns: true, cl: true })] },
+      3: { grow: [1.1, 1.1], addBehind: [[[-48, 0], [-66, 8], [-84, 6, 'c'], [-70, -2], [-56, -6]]], add: [S([[-72, -16], [-82, -22], [-74, -12]], 'a', { ns: true }), P(starPath(-88, -24, 3.4, 4, 0.4), 'a', { ns: true })] },
+    },
   }),
   rPart({
     id: 'croc', slot: 'tail', name: 'Ridged', tags: ['croc', 'thick'], dom: 0.55, w: 2,
@@ -16,11 +27,19 @@ export const R_TAILS = [
       L('M-10,-2 L-10,10 M-22,0 L-22,12 M-34,0 L-34,10', 'k', 1.1, { op: 0.25 }),
       SH('M-66,-2 C-44,10 -20,14 2,10 L2,22 L-66,22 Z', 0.13),
     ],
+    stages: {
+      2: { grow: [1.1, 1.1], addShapes: [{ pts: [[-10, -8], [-8, -19, 'c'], [-4, -7]], f: 'a' }, { pts: [[-34, -6], [-32, -17, 'c'], [-28, -5]], f: 'a' }] },
+      3: { grow: [1.1, 1.1], addShapes: [[[-60, -14], [-74, -18], [-82, -8, 0.3], [-74, 2], [-58, 0]]], add: [P('M-72,-18 L-76,-30 L-66,-20 Z M-82,-10 L-94,-12 L-82,-4 Z M-76,2 L-84,10 L-70,4 Z', 'a', { sw: 1.4 })] },
+    },
   }),
   rPart({
     id: 'turtle', slot: 'tail', name: 'Nub', tags: ['turtle', 'short'], dom: 0.4, w: 2,
     shapes: [[[2, -4], [-8, -6], [-14, -2], [-12, 4], [-4, 6], [2, 4]]],
     extra: [C(-12, 0, 2.4, 'a', { ns: true }), SH('M-16,1 L4,1 L4,10 L-16,10 Z', 0.14)],
+    stages: {
+      2: { grow: [1.3, 1.3], add: [P(starPath(-12, 0, 3.4, 5, 0.5), 'a', { ns: true })] },
+      3: { grow: [1.2, 1.2], addShapes: [[[-12, -6], [-22, -10], [-27, 0, 'c'], [-22, 8], [-12, 6]]], add: [P('M-22,-9 L-26,-17 L-18,-10 Z M-27,2 L-36,0 L-27,-4 Z M-22,7 L-26,15 L-18,8 Z', 'a', { sw: 1.2 })] },
+    },
   }),
   rPart({
     id: 'dragon', slot: 'tail', name: 'Spade', tags: ['dragon'], dom: 0.55, w: 2,
@@ -29,6 +48,10 @@ export const R_TAILS = [
       P('M-52,-14 L-66,-20 L-58,-30 L-48,-24 Z', 'a', { sw: 2 }),
       SH('M-56,-10 C-36,4 -18,10 2,8 L2,20 L-56,20 Z', 0.13), HL('M-40,-2 C-28,2 -14,0 -2,-4 L-2,0 C-14,4 -28,6 -38,2 Z', 0.16),
     ],
+    stages: {
+      2: { grow: [1.12, 1.1], addShapes: [{ pts: [[-14, 0], [-12, -11, 'c'], [-8, 1]], f: 'a' }, { pts: [[-30, -2], [-28, -13, 'c'], [-24, -1]], f: 'a' }], add: [P('M-52,-14 L-70,-22 L-60,-34 L-46,-26 Z', 'a', { sw: 2 })] },
+      3: { grow: [1.1, 1.1], add: [P('M-52,-14 L-74,-16 L-64,-38 L-46,-28 Z', 'a', { sw: 2 }), P('M-54,-12 L-72,-4 L-60,4 Z', 'a', { sw: 1.6 }), C(-62, -22, 8, 'a', { ns: true, op: 0.22 })] },
+    },
   }),
   rPart({
     id: 'rattle', slot: 'tail', name: 'Rattle', tags: ['snake'], dom: 0.5, w: 2,
@@ -37,20 +60,36 @@ export const R_TAILS = [
       P('M-40,-9 L-48,-9 L-49,-1 L-41,1 Z', 'a', { sw: 1.6 }), P('M-48,-8 L-55,-8 L-56,-2 L-49,0 Z', 'a', { sw: 1.6 }), P('M-55,-7 L-61,-7 L-62,-2 L-56,-1 Z', 'a', { sw: 1.6 }),
       SH('M-42,-2 C-28,6 -12,8 2,6 L2,16 L-42,16 Z', 0.13),
     ],
+    stages: {
+      2: { grow: [1.1, 1.1], add: [P('M-61,-6 L-66,-6 L-67,-2 L-62,-1 Z', 'a', { sw: 1.6 }), P('M-66,-5.5 L-70,-5.5 L-71,-2 L-67,-1.5 Z', 'a', { sw: 1.6 })] },
+      3: { grow: [1.1, 1.1], add: [P('M-40,-11 L-49,-11 L-50,1 L-41,3 Z', 'a', { sw: 1.6 }), P('M-49,-10 L-57,-10 L-58,0 L-50,2 Z', 'a', { sw: 1.6 }), P('M-57,-9 L-64,-9 L-65,-1 L-58,1 Z', 'a', { sw: 1.6 }), L('M-70,-16 C-78,-10 -78,2 -70,8 M-66,-22 C-84,-12 -84,4 -66,14', 'a', 1.6, { ns: true, op: 0.6 })] },
+    },
   }),
   rPart({
     id: 'curl', slot: 'tail', name: 'Curl', tags: ['chameleon'], dom: 0.5, w: 2,
     shapes: [tube([[0, 0], [-12, 6], [-24, 4], [-32, -6], [-28, -18], [-16, -20], [-10, -12], [-14, -6]], 12, 3)],
     extra: [C(-21, -13, 4.5, 'a', { ns: true }), SH('M-34,0 C-24,10 -10,12 2,8 L2,18 L-34,18 Z', 0.13), L('M-8,2 L-8,8 M-18,4 L-18,10', 'k', 1, { op: 0.2 })],
+    stages: {
+      2: { grow: [1.1, 1.1], add: [L('M-8,0 L-8,10 M-18,2 L-18,12 M-30,-4 L-30,4', 'a', 2.4, { ns: true, cl: true, op: 0.85 }), C(-21, -13, 5.5, 'a', { ns: true })] },
+      3: { grow: [1.1, 1.1], addShapes: [tube([[-14, -6], [-10, -14], [-4, -18]], 5, 2)], add: [...evoGem(-21, -13, 3), C(-3, -19, 2.4, 'a', { ns: true })] },
+    },
   }),
   rPart({
     id: 'raptor', slot: 'tail', name: 'Plumed', tags: ['raptor', 'long'], dom: 0.5, w: 2,
-    shapes: [{ pts: [[-76, -14], [-90, -30, 0.3], [-86, -36, 0.3], [-100, -30, 0.3], [-104, -18, 0.3], [-98, -8], [-82, -10]], f: 's' }, tube([[0, 0], [-22, -2], [-44, -6], [-66, -12], [-84, -20]], 16, 3)],
+    shapes: [{ pts: raptorFan, f: 's' }, tube([[0, 0], [-22, -2], [-44, -6], [-66, -12], [-84, -20]], 16, 3)],
     extra: [SH('M-84,-14 C-56,-2 -26,4 2,8 L2,20 L-84,20 Z', 0.13), HL('M-64,-12 C-44,-10 -24,-8 -2,-8 L-2,-4 C-24,-4 -44,-6 -62,-8 Z', 0.16)],
+    stages: {
+      2: { grow: [1.08, 1.1], addBehind: [{ pts: [[-78, -12], [-96, -42, 0.3], [-106, -36, 0.3], [-92, -14]], f: 's' }] },
+      3: { grow: [1.1, 1.1], addBehind: [{ pts: xfPts(raptorFan, { sx: 1.25, sy: 1.25 }), f: 'pd' }], add: [C(-92, -28, 2.6, 'a', { ns: true }), C(-98, -16, 2.4, 'a', { ns: true }), C(-88, -36, 2.2, 'a', { ns: true })] },
+    },
   }),
   rPart({
     id: 'finned', slot: 'tail', name: 'Finned', tags: ['aquatic'], dom: 0.5, w: 1,
-    shapes: [tube([[0, 0], [-18, 4], [-36, 4], [-52, -2]], 14, 6), [[-50, -2], [-58, -18], [-70, -22], [-66, -4], [-72, 12], [-60, 10], [-50, 4]]],
+    shapes: [tube([[0, 0], [-18, 4], [-36, 4], [-52, -2]], 14, 6), finLobe],
     extra: [L('M-54,-4 L-66,-18 M-56,0 L-66,0 M-56,4 L-68,10', 'k', 1.1, { op: 0.3 }), SH('M-52,0 C-36,10 -18,12 2,8 L2,20 L-52,20 Z', 0.13)],
+    stages: {
+      2: { grow: [1.1, 1.15], addShapes: [[[-48, -4], [-60, -30], [-72, -36, 'c'], [-66, -14], [-54, -2]]], add: [L('M-54,-4 L-66,-18 M-56,4 L-68,10', 'a', 1.6, { ns: true, op: 0.7 })] },
+      3: { grow: [1.1, 1.1], addBehind: [{ pts: xfPts(finLobe, { sx: 1.3, sy: 1.3 }), f: 'pd' }], add: [C(-70, -22, 2.4, 'a', { ns: true }), C(-72, 12, 2.2, 'a', { ns: true }), evoRing(-64, -4, 5, 'a', 1.4, { op: 0.7 })] },
+    },
   }),
 ];

@@ -3,8 +3,11 @@
 //   shoulder / shoulderFar, hip / hipFar   leg joints (absent on serpents)
 //   tail {x,y,a}  back {x,y,a}  wing / wingFar {x,y}
 // kind: 'reptile.quad', 'reptile.biped' (upright, forelegs hang as arms) or 'reptile.serpent' (no legs)
+// Evolutions: stage 2 broadens the torso and sprouts chest spikes (shell-rim spikes on the turtle,
+// coil spines on the serpent, chest plates on the dragon); stage 3 adds rump or hem spikes.
 import { rBody, torsoShade } from './_shared.js';
 import { L, SH, HL, PATCH, tube, arcPts } from '../_dsl.js';
+import { evoFan, evoGem } from '../_evo.js';
 
 const rRing = (cx, cy, rx, ry, n = 12) => arcPts(cx, cy, rx, ry, 0, 360, n).slice(0, n);
 
@@ -18,6 +21,10 @@ export const R_BODIES = [
       shoulder: { x: 28, y: 8 }, shoulderFar: { x: 16, y: 4 }, hip: { x: -28, y: 6 }, hipFar: { x: -38, y: 2 },
       tail: { x: -44, y: 0, a: 0 }, back: { x: -6, y: -22, a: 0 }, wing: { x: -10, y: -16 }, wingFar: { x: -22, y: -18 },
     },
+    stages: {
+      2: { grow: [1.06, 1.06], addBehind: [evoFan(38, -4, -50, 50, 3, 8, 22)] },
+      3: { grow: [1.06, 1.07], addBehind: [evoFan(-36, -8, 170, 260, 3, 8, 24)] },
+    },
   }),
   rBody({
     id: 'croc', name: 'Armoured', kind: 'reptile.quad', tags: ['croc', 'long'], dom: 0.55, w: 2,
@@ -28,6 +35,10 @@ export const R_BODIES = [
       head: { x: 40, y: -4, a: 0, s: 1 },
       shoulder: { x: 30, y: 8 }, shoulderFar: { x: 18, y: 4 }, hip: { x: -30, y: 6 }, hipFar: { x: -40, y: 2 },
       tail: { x: -48, y: 2, a: 0 }, back: { x: -8, y: -18, a: 0 }, wing: { x: -12, y: -12 }, wingFar: { x: -24, y: -14 },
+    },
+    stages: {
+      2: { grow: [1.06, 1.06], addBehind: [evoFan(42, -2, -50, 50, 3, 8, 22)] },
+      3: { grow: [1.06, 1.07], addBehind: [evoFan(-40, -6, 170, 260, 4, 8, 24)] },
     },
   }),
   rBody({
@@ -46,6 +57,10 @@ export const R_BODIES = [
       shoulder: { x: 26, y: 10 }, shoulderFar: { x: 16, y: 6 }, hip: { x: -26, y: 8 }, hipFar: { x: -36, y: 4 },
       tail: { x: -40, y: 6, a: 0 }, back: { x: 0, y: -40, a: 0 }, wing: { x: -8, y: -30 }, wingFar: { x: -20, y: -32 },
     },
+    stages: {
+      2: { grow: [1.06, 1.06], addBehind: [evoFan(0, -14, 200, 340, 5, 26, 38)] },
+      3: { grow: [1.06, 1.07], addBehind: [evoFan(0, -14, 190, 350, 7, 28, 46)], add: [...evoGem(0, -16, 3.6)] },
+    },
   }),
   rBody({
     id: 'dragon', name: 'Upright', kind: 'reptile.biped', tags: ['dragon', 'upright'], dom: 0.55, w: 2,
@@ -55,6 +70,10 @@ export const R_BODIES = [
       head: { x: 6, y: -36, a: 0, s: 1 },
       shoulder: { x: 14, y: -12 }, shoulderFar: { x: -6, y: -16 }, hip: { x: 8, y: 20 }, hipFar: { x: -12, y: 16 },
       tail: { x: -28, y: 16, a: 20 }, back: { x: -16, y: -34, a: -20 }, wing: { x: -12, y: -26 }, wingFar: { x: -24, y: -28 },
+    },
+    stages: {
+      2: { grow: [1.06, 1.06], add: [L('M-14,-6 C-4,-2 8,-2 18,-6 M-16,4 C-4,8 8,8 20,4 M-14,14 C-4,18 8,18 18,14', 'a', 2, { ns: true, cl: true, op: 0.6 })] },
+      3: { grow: [1.06, 1.07], addBehind: [evoFan(0, 26, 30, 150, 4, 8, 24), evoFan(18, -30, 250, 330, 2, 6, 20)] },
     },
   }),
   rBody({
@@ -68,6 +87,10 @@ export const R_BODIES = [
       shoulder: null, shoulderFar: null, hip: null, hipFar: null,
       tail: { x: -48, y: 12, a: 0 }, back: { x: -12, y: -18, a: 0 }, wing: { x: -4, y: -14 }, wingFar: { x: -16, y: -16 },
     },
+    stages: {
+      2: { grow: [1.06, 1.06], addBehind: [evoFan(-12, -10, 200, 340, 4, 12, 26)] },
+      3: { grow: [1.06, 1.07], addBehind: [evoFan(-2, 8, 200, 340, 6, 16, 34)], add: [L('M-40,6 C-20,2 20,2 40,6 M-30,14 C-14,10 14,10 30,14', 'a', 2, { ns: true, cl: true, op: 0.6 })] },
+    },
   }),
   rBody({
     id: 'chameleon', name: 'Humped', kind: 'reptile.quad', tags: ['chameleon'], dom: 0.5, w: 2,
@@ -79,6 +102,10 @@ export const R_BODIES = [
       shoulder: { x: 24, y: 8 }, shoulderFar: { x: 12, y: 4 }, hip: { x: -26, y: 6 }, hipFar: { x: -36, y: 2 },
       tail: { x: -42, y: 2, a: 0 }, back: { x: -8, y: -31, a: 0 }, wing: { x: -10, y: -24 }, wingFar: { x: -22, y: -26 },
     },
+    stages: {
+      2: { grow: [1.06, 1.06], addBehind: [evoFan(34, -8, -50, 50, 3, 8, 20)] },
+      3: { grow: [1.06, 1.07], addBehind: [evoFan(-32, -12, 170, 260, 3, 8, 22)] },
+    },
   }),
   rBody({
     id: 'raptor', name: 'Sprinter', kind: 'reptile.biped', tags: ['raptor', 'upright'], dom: 0.5, w: 2,
@@ -88,6 +115,10 @@ export const R_BODIES = [
       head: { x: 30, y: -24, a: -10, s: 1 },
       shoulder: { x: 24, y: -4 }, shoulderFar: { x: 10, y: -8 }, hip: { x: -10, y: 12 }, hipFar: { x: -24, y: 8 },
       tail: { x: -36, y: -2, a: 0 }, back: { x: -10, y: -30, a: 0 }, wing: { x: -8, y: -22 }, wingFar: { x: -20, y: -24 },
+    },
+    stages: {
+      2: { grow: [1.06, 1.06], addBehind: [evoFan(30, -10, -50, 40, 3, 8, 20)] },
+      3: { grow: [1.06, 1.07], addBehind: [evoFan(-20, 16, 60, 170, 4, 8, 22)] },
     },
   }),
 ];
