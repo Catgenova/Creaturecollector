@@ -1,0 +1,14 @@
+{
+  "name": "creaturecollector",
+  "version": "0.1.0",
+  "private": true,
+  "description": "A mobile-first HTML creature battler with procedural monster fusion. Zero dependencies.",
+  "type": "module",
+  "scripts": {
+    "build": "node build.js",
+    "test": "node --test tests/*.test.js",
+    "check": "node build.js && node --test tests/*.test.js",
+    "dev": "npx --yes http-server -c-1 -p 8080 ."
+  },
+  "engines": { "node": ">=20" }
+}

@@ -1,0 +1,1862 @@
+<!-- GENERATED FILE. Edit files in src/ and run: node build.js -->
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#12131a">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>Creature Collector</title>
+<style>
+:root {
+  --bg: #12131a; --bg2: #1b1d27; --bg3: #262939; --fg: #e9eaf1; --fg2: #a8acbe; --line: #303449;
+  --acc: #f5c518; --acc2: #4f8ef7; --radius: 14px; --tap: 44px;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; min-height: 100%; }
+body {
+  background: var(--bg); color: var(--fg);
+  font: 15px/1.4 system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  -webkit-text-size-adjust: 100%; overscroll-behavior-y: none;
+}
+button, input, select, textarea { font: inherit; }
+#app {
+  min-height: 100dvh; display: flex; flex-direction: column;
+  padding: env(safe-area-inset-top) env(safe-area-inset-right) 0 env(safe-area-inset-left);
+}
+.topbar { display: flex; align-items: baseline; gap: 10px; padding: 12px 16px 6px; }
+.topbar h1 { font-size: 18px; margin: 0; letter-spacing: .2px; }
+.ver { color: var(--fg2); font-size: 12px; margin-left: auto; white-space: nowrap; }
+.tabs { display: flex; gap: 6px; padding: 6px 12px; border-bottom: 1px solid var(--line); position: sticky; top: 0; background: var(--bg); z-index: 5; }
+.tab { flex: 1; min-height: var(--tap); border: 0; border-radius: 10px; background: transparent; color: var(--fg2); font-weight: 600; cursor: pointer; }
+.tab[aria-selected="true"] { background: var(--bg3); color: var(--fg); }
+.tab:disabled { opacity: .45; cursor: default; }
+.tab small { display: block; font-size: 10px; font-weight: 400; line-height: 1; }
+.screen { flex: 1; padding: 12px 16px calc(32px + env(safe-area-inset-bottom)); }
+.hint, .meta, .desc { color: var(--fg2); font-size: 13px; margin: 0 0 12px; }
+.desc { color: var(--fg); font-style: italic; }
+.toolbar { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
+.row { display: flex; gap: 8px; justify-content: center; margin: 8px 0 4px; }
+.toolbar input, .toolbar select, .btn {
+  min-height: var(--tap); border-radius: 10px; border: 1px solid var(--line); background: var(--bg2); color: var(--fg); padding: 0 14px;
+}
+.toolbar .seed { flex: 1 1 130px; min-width: 0; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; letter-spacing: .06em; text-transform: uppercase; }
+.toolbar .code-in { text-transform: none; letter-spacing: 0; font-size: 13px; }
+.toolbar select { flex: 1 1 100%; }
+.btn { font-weight: 600; cursor: pointer; }
+.btn:active { transform: translateY(1px); }
+.btn.primary { background: var(--acc); color: #1a1400; border-color: transparent; }
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; }
+.card {
+  display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 6px 6px 10px; border: 1px solid var(--line);
+  border-radius: var(--radius); background: var(--bg2); color: inherit; cursor: pointer; text-align: center;
+}
+.card:active { transform: scale(.98); }
+.card svg { width: 100%; height: auto; }
+.card-name { font-weight: 700; }
+.shiny { color: var(--acc); }
+.chips { display: flex; gap: 4px; flex-wrap: wrap; justify-content: center; }
+.chip { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 999px; color: #111; background: var(--chip, #999); }
+.chip b { font-size: 10px; opacity: .7; }
+.sheet-backdrop { position: fixed; inset: 0; background: rgba(0, 0, 0, .55); z-index: 20; }
+.sheet {
+  position: fixed; left: 0; right: 0; bottom: 0; max-height: 90dvh; overflow: auto; background: var(--bg2);
+  border-radius: 20px 20px 0 0; padding: 8px 16px calc(24px + env(safe-area-inset-bottom)); z-index: 21; box-shadow: 0 -10px 40px rgba(0, 0, 0, .5);
+  max-width: 720px; margin: 0 auto;
+}
+.sheet .grab { width: 44px; height: 5px; border-radius: 3px; background: var(--line); margin: 4px auto 12px; }
+.sheet-head { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.sheet h2 { margin: 0; font-size: 20px; }
+.sheet .close { margin-left: auto; min-width: var(--tap); padding: 0; }
+.hero { display: flex; justify-content: center; }
+.hero { min-height: 200px; align-items: center; }
+.hero svg { width: min(72vw, 280px); max-height: 46dvh; height: auto; }
+.stats { display: grid; grid-template-columns: 72px 1fr 40px; gap: 5px 8px; align-items: center; font-size: 13px; }
+.stats b { text-align: right; font-variant-numeric: tabular-nums; }
+.bar { height: 8px; border-radius: 4px; background: var(--bg3); overflow: hidden; }
+.bar i { display: block; height: 100%; background: var(--acc2); border-radius: 4px; }
+.kv { display: grid; grid-template-columns: 72px 1fr; gap: 4px 10px; font-size: 13px; }
+.kv .carried { color: var(--fg2); }
+.swatches { display: flex; gap: 8px; }
+.sw { width: 34px; height: 34px; border-radius: 9px; border: 1px solid rgba(255, 255, 255, .15); }
+.code { width: 100%; font: 11px/1.3 ui-monospace, Menlo, Consolas, monospace; background: var(--bg); color: var(--fg2); border: 1px solid var(--line); border-radius: 8px; padding: 8px; word-break: break-all; resize: none; }
+h3.sec { font-size: 12px; text-transform: uppercase; letter-spacing: .1em; color: var(--fg2); margin: 18px 0 6px; }
+.toast { position: fixed; left: 50%; bottom: calc(24px + env(safe-area-inset-bottom)); transform: translateX(-50%); background: var(--fg); color: var(--bg); padding: 8px 14px; border-radius: 999px; font-weight: 600; z-index: 50; animation: toast 1.9s forwards; }
+@keyframes toast { 0% { opacity: 0; transform: translate(-50%, 10px); } 12%, 80% { opacity: 1; transform: translate(-50%, 0); } 100% { opacity: 0; } }
+
+/* Part Lab */
+.slot-sec { margin-bottom: 14px; }
+.slot-row { display: grid; grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); gap: 6px; }
+.part { display: flex; flex-direction: column; align-items: center; font-size: 11px; color: var(--fg2); background: var(--bg2); border: 1px solid var(--line); border-radius: 10px; padding: 4px; text-align: center; }
+.part svg { width: 100%; height: auto; }
+
+/* Creature SVG */
+.cr { display: block; overflow: visible; }
+.cr .o { stroke: var(--ol); stroke-width: 4; stroke-linejoin: round; stroke-linecap: round; paint-order: stroke; }
+.cr .cr-anim, .cr .g-tail, .cr .g-wing { transform-box: view-box; transform-origin: 0 0; }
+@media (prefers-reduced-motion: no-preference) {
+  .cr-live .cr-anim { animation: cr-bob 2.4s ease-in-out infinite; }
+  .cr-live .g-tail { animation: cr-sway 2.8s ease-in-out infinite; }
+  .cr-live .g-wing { animation: cr-flap 1.3s ease-in-out infinite; }
+}
+@keyframes cr-bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-2.5px); } }
+@keyframes cr-sway { 0%, 100% { transform: rotate(-4deg); } 50% { transform: rotate(4deg); } }
+@keyframes cr-flap { 0%, 100% { transform: rotate(0deg); } 50% { transform: rotate(-12deg); } }
+
+@media (min-width: 720px) {
+  .toolbar select { flex: 1 1 220px; }
+  .grid { grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); }
+}
+</style>
+</head>
+<body>
+<div id="app"><noscript>This game needs JavaScript.</noscript></div>
+<script>
+"use strict";
+(() => {
+// ---- src/ui/dom.js ----
+// Minimal DOM helpers. No framework.
+
+function h(tag, attrs, ...children) {
+  const el = document.createElement(tag);
+  if (attrs) {
+    for (const [k, v] of Object.entries(attrs)) {
+      if (v == null || v === false) continue;
+      if (k === 'class') el.className = v;
+      else if (k === 'html') el.innerHTML = v;
+      else if (k === 'text') el.textContent = v;
+      else if (k.startsWith('on') && typeof v === 'function') el.addEventListener(k.slice(2).toLowerCase(), v);
+      else if (k === 'style' && typeof v === 'object') Object.assign(el.style, v);
+      else if (k === 'dataset') Object.assign(el.dataset, v);
+      else if (v === true) el.setAttribute(k, '');
+      else el.setAttribute(k, v);
+    }
+  }
+  appendChildren(el, children);
+  return el;
+}
+
+function appendChildren(el, children) {
+  for (const c of children.flat(Infinity)) {
+    if (c == null || c === false) continue;
+    el.append(c instanceof Node ? c : document.createTextNode(String(c)));
+  }
+  return el;
+}
+
+function clear(el) {
+  while (el.firstChild) el.removeChild(el.firstChild);
+  return el;
+}
+
+/** Turn an SVG markup string into an element. */
+function svgEl(markup) {
+  const t = document.createElement('template');
+  t.innerHTML = markup.trim();
+  return t.content.firstElementChild;
+}
+
+async function copyText(text) {
+  try {
+    if (navigator.clipboard && window.isSecureContext) { await navigator.clipboard.writeText(text); return true; }
+  } catch { /* fall through */ }
+  const ta = h('textarea', { style: { position: 'fixed', top: '0', left: '0', opacity: '0' } }, text);
+  document.body.append(ta);
+  ta.focus(); ta.select();
+  let ok = false;
+  try { ok = document.execCommand('copy'); } catch { ok = false; }
+  ta.remove();
+  return ok;
+}
+
+let toastEl = null;
+function toast(msg) {
+  if (toastEl) toastEl.remove();
+  toastEl = h('div', { class: 'toast', role: 'status' }, msg);
+  document.body.append(toastEl);
+  const mine = toastEl;
+  setTimeout(() => { if (toastEl === mine) { mine.remove(); toastEl = null; } }, 1900);
+}
+
+// ---- src/data/types.js ----
+// The classic 18-type chart. Attacker -> defender multipliers.
+// Colors are ours; each type also gets a one-letter glyph so type is never color-only.
+
+const TYPE_LIST = [
+  'Normal', 'Fire', 'Water', 'Electric', 'Grass', 'Ice', 'Fighting', 'Poison', 'Ground',
+  'Flying', 'Psychic', 'Bug', 'Rock', 'Ghost', 'Dragon', 'Dark', 'Steel', 'Fairy',
+];
+
+const TYPE_INFO = {
+  Normal:   { color: '#a8a290', glyph: 'N' },
+  Fire:     { color: '#f0762e', glyph: 'F' },
+  Water:    { color: '#4f8ef7', glyph: 'W' },
+  Electric: { color: '#f5c518', glyph: 'E' },
+  Grass:    { color: '#5fbf4a', glyph: 'G' },
+  Ice:      { color: '#7fd6e6', glyph: 'I' },
+  Fighting: { color: '#c23b3b', glyph: 'T' },
+  Poison:   { color: '#a349b8', glyph: 'P' },
+  Ground:   { color: '#d6a95a', glyph: 'R' },
+  Flying:   { color: '#9aa8f0', glyph: 'Y' },
+  Psychic:  { color: '#f26aa3', glyph: 'S' },
+  Bug:      { color: '#9fb52a', glyph: 'B' },
+  Rock:     { color: '#b09a5c', glyph: 'K' },
+  Ghost:    { color: '#6d5aa6', glyph: 'H' },
+  Dragon:   { color: '#6a4de8', glyph: 'D' },
+  Dark:     { color: '#5b4a42', glyph: 'A' },
+  Steel:    { color: '#9fa6b8', glyph: 'M' },
+  Fairy:    { color: '#f096b8', glyph: 'X' },
+};
+
+// se = super effective (2x), nve = not very effective (0.5x), imm = immune (0x)
+const RULES = {
+  Normal:   { nve: ['Rock', 'Steel'], imm: ['Ghost'] },
+  Fire:     { se: ['Grass', 'Ice', 'Bug', 'Steel'], nve: ['Fire', 'Water', 'Rock', 'Dragon'] },
+  Water:    { se: ['Fire', 'Ground', 'Rock'], nve: ['Water', 'Grass', 'Dragon'] },
+  Electric: { se: ['Water', 'Flying'], nve: ['Electric', 'Grass', 'Dragon'], imm: ['Ground'] },
+  Grass:    { se: ['Water', 'Ground', 'Rock'], nve: ['Fire', 'Grass', 'Poison', 'Flying', 'Bug', 'Dragon', 'Steel'] },
+  Ice:      { se: ['Grass', 'Ground', 'Flying', 'Dragon'], nve: ['Fire', 'Water', 'Ice', 'Steel'] },
+  Fighting: { se: ['Normal', 'Ice', 'Rock', 'Dark', 'Steel'], nve: ['Poison', 'Flying', 'Psychic', 'Bug', 'Fairy'], imm: ['Ghost'] },
+  Poison:   { se: ['Grass', 'Fairy'], nve: ['Poison', 'Ground', 'Rock', 'Ghost'], imm: ['Steel'] },
+  Ground:   { se: ['Fire', 'Electric', 'Poison', 'Rock', 'Steel'], nve: ['Grass', 'Bug'], imm: ['Flying'] },
+  Flying:   { se: ['Grass', 'Fighting', 'Bug'], nve: ['Electric', 'Rock', 'Steel'] },
+  Psychic:  { se: ['Fighting', 'Poison'], nve: ['Psychic', 'Steel'], imm: ['Dark'] },
+  Bug:      { se: ['Grass', 'Psychic', 'Dark'], nve: ['Fire', 'Fighting', 'Poison', 'Flying', 'Ghost', 'Steel', 'Fairy'] },
+  Rock:     { se: ['Fire', 'Ice', 'Flying', 'Bug'], nve: ['Fighting', 'Ground', 'Steel'] },
+  Ghost:    { se: ['Psychic', 'Ghost'], nve: ['Dark'], imm: ['Normal'] },
+  Dragon:   { se: ['Dragon'], nve: ['Steel'], imm: ['Fairy'] },
+  Dark:     { se: ['Psychic', 'Ghost'], nve: ['Fighting', 'Dark', 'Fairy'] },
+  Steel:    { se: ['Ice', 'Rock', 'Fairy'], nve: ['Fire', 'Water', 'Electric', 'Steel'] },
+  Fairy:    { se: ['Fighting', 'Dragon', 'Dark'], nve: ['Fire', 'Poison', 'Steel'] },
+};
+
+/** Multiplier for a single attacking type against a single defending type. */
+function typeMultiplier(attacker, defender) {
+  const r = RULES[attacker];
+  if (!r) return 1;
+  if (r.imm && r.imm.includes(defender)) return 0;
+  if (r.se && r.se.includes(defender)) return 2;
+  if (r.nve && r.nve.includes(defender)) return 0.5;
+  return 1;
+}
+
+/** Multiplier against a creature with one or two types (second may be null). */
+function typeEffectiveness(attacker, defenderTypes) {
+  let m = 1;
+  for (const t of defenderTypes) if (t) m *= typeMultiplier(attacker, t);
+  return m;
+}
+
+function isType(t) { return TYPE_LIST.includes(t); }
+
+// ---- src/core/util.js ----
+// Small shared helpers. No game logic here.
+
+const clamp = (v, lo, hi) => (v < lo ? lo : v > hi ? hi : v);
+const clamp01 = (v) => clamp(v, 0, 1);
+const lerp = (a, b, t) => a + (b - a) * t;
+const round1 = (v) => Math.round(v * 10) / 10;
+const sum = (arr) => arr.reduce((a, b) => a + b, 0);
+
+/** Wrap a hue into [0,360). */
+const wrapHue = (h) => ((h % 360) + 360) % 360;
+
+/** Shortest signed distance from hue a to hue b, in (-180, 180]. */
+function hueDelta(a, b) {
+  let d = wrapHue(b) - wrapHue(a);
+  if (d > 180) d -= 360;
+  if (d <= -180) d += 360;
+  return d;
+}
+
+const hsl = (h, s, l) => `hsl(${Math.round(wrapHue(h))} ${Math.round(clamp(s, 0, 100))}% ${Math.round(clamp(l, 0, 100))}%)`;
+
+/** Normalize an object of positive weights so its values sum to 1. */
+function normalizeWeights(obj) {
+  const keys = Object.keys(obj);
+  const total = sum(keys.map((k) => Math.max(0, obj[k])));
+  const out = {};
+  for (const k of keys) out[k] = total > 0 ? Math.max(0, obj[k]) / total : 1 / keys.length;
+  return out;
+}
+
+function escapeHtml(s) {
+  return String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
+}
+
+/** Format a number for SVG attributes: short, stable, never "-0". */
+function num(v) {
+  const r = Math.round(v * 100) / 100;
+  return (Object.is(r, -0) ? 0 : r).toString();
+}
+
+let uidCounter = 0;
+/** Unique id fragment for DOM/SVG ids within a page lifetime. */
+function uid(prefix = 'u') { return `${prefix}${(++uidCounter).toString(36)}`; }
+
+// base64url of UTF-8 text, works in browsers and Node.
+function b64uEncode(str) {
+  const bytes = new TextEncoder().encode(str);
+  let bin = '';
+  for (const b of bytes) bin += String.fromCharCode(b);
+  const b64 = typeof btoa === 'function' ? btoa(bin) : Buffer.from(bin, 'binary').toString('base64');
+  return b64.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+}
+function b64uDecode(s) {
+  let b64 = s.replace(/-/g, '+').replace(/_/g, '/');
+  while (b64.length % 4) b64 += '=';
+  const bin = typeof atob === 'function' ? atob(b64) : Buffer.from(b64, 'base64').toString('binary');
+  const bytes = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+  return new TextDecoder().decode(bytes);
+}
+
+function deepFreeze(o) {
+  if (o && typeof o === 'object' && !Object.isFrozen(o)) {
+    Object.freeze(o);
+    for (const k of Object.keys(o)) deepFreeze(o[k]);
+  }
+  return o;
+}
+
+function titleCase(s) { return s.charAt(0).toUpperCase() + s.slice(1); }
+
+// ---- src/creature/palette.js ----
+// Palette genes -> CSS custom properties. Every part references abstract roles
+// (p/s/a and their shades); the per-slot paint gene decides which of the
+// creature's three colours each role maps to. That is how one part gets
+// recoloured differently on different creatures.
+
+
+const COLOR_KEYS = ['c1', 'c2', 'c3'];
+
+/** Root CSS variables for a creature: the three colour families, eye colour, outline and whites. */
+function paletteVars(pal) {
+  const v = [];
+  for (const k of COLOR_KEYS) {
+    const [h, s, l] = pal[k];
+    v.push(`--${k}:${hsl(h, s, l)}`, `--${k}d:${hsl(h, Math.min(100, s + 6), l - 14)}`, `--${k}l:${hsl(h, Math.max(0, s - 8), Math.min(96, l + 14))}`);
+  }
+  const [eh, es, el] = pal.eye;
+  v.push(`--e:${hsl(eh, es, el)}`, `--ed:${hsl(eh, es, el - 16)}`);
+  const [h1, s1] = pal.c1;
+  const ol = hsl(h1, Math.min(s1, 45), 13);
+  const hue = Math.round(wrapHue(h1));
+  v.push(`--ol:${ol}`, `--k:${ol}`, `--w:hsl(${hue} 20% 97%)`, `--wd:hsl(${hue} 15% 80%)`);
+  return v.join(';');
+}
+
+/** Per-slot role mapping. perm = indexes into [c1,c2,c3] for roles [p,s,a]. */
+function slotPaintVars(perm) {
+  const [p, s, a] = perm.map((i) => COLOR_KEYS[i]);
+  return `--p:var(--${p});--pd:var(--${p}d);--pl:var(--${p}l);--s:var(--${s});--sd:var(--${s}d);--sl:var(--${s}l);--a:var(--${a});--ad:var(--${a}d);--al:var(--${a}l)`;
+}
+
+/** Applied to far-side copies (far legs, far wing, far eye): everything one shade darker. */
+const FAR_VARS = '--p:var(--pd);--pl:var(--pd);--s:var(--sd);--sl:var(--sd);--a:var(--ad);--al:var(--ad);--w:var(--wd);--e:var(--ed)';
+
+function jitterColor([h, s, l], vary, rng, sharedHue) {
+  return [
+    wrapHue(h + sharedHue + rng.gauss() * vary.h * 0.5),
+    clamp(s + rng.gauss() * vary.s, 8, 100),
+    clamp(l + rng.gauss() * vary.l, 12, 92),
+  ].map((x) => Math.round(x * 10) / 10);
+}
+
+/** Genetic roll on a species palette: a shared hue drift plus small independent wobble per colour. */
+function jitterPalette(base, vary, rng) {
+  const v = { h: 10, s: 8, l: 6, ...(vary || {}) };
+  const sharedHue = rng.gauss() * v.h;
+  return {
+    c1: jitterColor(base.c1, v, rng, sharedHue),
+    c2: jitterColor(base.c2, v, rng, sharedHue),
+    c3: jitterColor(base.c3, v, rng, sharedHue),
+    eye: jitterColor(base.eye, v, rng, 0),
+  };
+}
+
+/** Rare recolour: rotate the whole palette to a new harmony. */
+function shinyPalette(pal, rng) {
+  const rot = rng.range(140, 220);
+  const out = {};
+  for (const k of ['c1', 'c2', 'c3', 'eye']) {
+    const [h, s, l] = pal[k];
+    out[k] = [wrapHue(h + rot), clamp(s + 5, 8, 100), l].map((x) => Math.round(x * 10) / 10);
+  }
+  return out;
+}
+
+/** Blend two palettes colour by colour. t=0 -> a, t=1 -> b. Hues take the short way round. */
+function blendColor(a, b, t) {
+  let dh = wrapHue(b[0]) - wrapHue(a[0]);
+  if (dh > 180) dh -= 360;
+  if (dh < -180) dh += 360;
+  return [wrapHue(a[0] + dh * t), a[1] + (b[1] - a[1]) * t, a[2] + (b[2] - a[2]) * t].map((x) => Math.round(x * 10) / 10);
+}
+
+function swatchCss([h, s, l]) { return hsl(h, s, l); }
+
+// ---- src/data/parts/_dsl.js ----
+// Tiny drawing DSL for creature parts.
+//
+// Every part is authored facing RIGHT in a local coordinate system whose origin
+// (0,0) is the point that attaches to the parent's socket. Units are the same as
+// the 200x200 creature canvas at scale 1.
+//
+// Fill roles (resolved to CSS variables at render time, remapped per slot by paint genes):
+//   p / pd / pl   primary colour, its shade, its highlight
+//   s / sd / sl   secondary colour family
+//   a / ad / al   accent colour family
+//   w / wd        white and its shade         e / ed   eye colour and its shade
+//   k             outline/dark                none     no fill (stroke only)
+//
+// Options: op (opacity), ns (no outline stroke), sw (outline stroke width override).
+
+const P = (d, f = 'p', o = {}) => ({ t: 'path', d, f, ...o });
+const E = (cx, cy, rx, ry, f = 'p', o = {}) => ({ t: 'ellipse', cx, cy, rx, ry, f, ...o });
+const C = (cx, cy, r, f = 'p', o = {}) => ({ t: 'circle', cx, cy, r, f, ...o });
+/** Stroke-only path. f is the stroke role, w the stroke width. */
+const L = (d, f = 'k', w = 3, o = {}) => ({ t: 'line', d, f, w, ...o });
+
+/** Convenience for a "none" part in an optional slot. */
+const NONE = (slot, dom = 0.35) => ({ id: `${slot}.none`, slot, name: 'None', none: true, dom, w: 1 });
+
+// ---- src/data/parts/bodies.js ----
+// Body sockets (all in body coordinates, body centre = 0,0):
+//   head  {x,y,a,s}  neck point where a head's bottom-centre attaches
+//   face  {eye,eye2,mouth,crown}  used when the head slot is "none" (face drawn on the body)
+//   legs  [{x,y,far?}] near-leg hip points; a darker far copy is drawn automatically
+//   arm, wing {x,y}; tail, back {x,y,a}
+// bottom: lowest y of the silhouette. hover: floats this far above its shadow.
+
+const QUAD = 'M40,-22 C52,-14 52,14 40,22 C20,28 -30,28 -44,18 C-56,8 -54,-18 -42,-26 C-30,-34 20,-34 40,-22 Z';
+const BULK = 'M44,-14 C56,-6 56,18 44,26 C20,34 -32,34 -48,24 C-62,12 -58,-16 -44,-26 C-28,-38 24,-36 44,-14 Z';
+const ROUND = 'M0,-34 C21,-34 38,-19 38,0 C38,19 21,34 0,34 C-21,34 -38,19 -38,0 C-38,-19 -21,-34 0,-34 Z';
+const BIPED = 'M0,-36 C14,-36 24,-24 26,-6 C30,14 24,34 0,34 C-24,34 -30,14 -26,-6 C-24,-24 -14,-36 0,-36 Z';
+const BIRD = 'M0,-38 C22,-38 34,-16 30,8 C26,30 6,38 -6,36 C-26,32 -34,10 -28,-12 C-22,-30 -14,-38 0,-38 Z';
+const COIL = 'M-50,14 a44,16 0 1,0 88,0 a44,16 0 1,0 -88,0 Z';
+const NECK = 'M6,14 C10,-8 18,-26 32,-38 L46,-34 C36,-22 30,-4 34,16 Z';
+const FISH = 'M44,0 C40,-20 10,-30 -14,-26 C-34,-22 -46,-12 -50,0 C-46,12 -34,22 -14,26 C10,30 40,20 44,0 Z';
+const FLOAT = 'M-34,4 C-34,-30 34,-30 34,4 C28,14 22,4 16,14 C10,22 4,10 -2,16 C-8,22 -14,10 -20,14 C-26,20 -30,10 -34,4 Z';
+
+const BODIES = [
+  {
+    id: 'body.quad', slot: 'body', name: 'Quadruped', kind: 'quad', tags: ['mammal'], dom: 0.55, w: 3,
+    bottom: 27, clip: [QUAD], prims: [P(QUAD, 'p')],
+    sockets: {
+      head: { x: 42, y: -22, a: 0, s: 1 },
+      face: { eye: { x: 30, y: -12, s: 1 }, eye2: { x: 12, y: -14, s: 0.85 }, mouth: { x: 44, y: 4, s: 1 }, crown: { x: 26, y: -30, a: 0, s: 0.9 } },
+      legs: [{ x: 26, y: 16 }, { x: -30, y: 16 }],
+      arm: null, wing: { x: -8, y: -28 }, tail: { x: -46, y: -8, a: 0 }, back: { x: -4, y: -31, a: 0 },
+    },
+  },
+  {
+    id: 'body.bulk', slot: 'body', name: 'Heavy', kind: 'quad', tags: ['beast'], dom: 0.6, w: 2,
+    bottom: 33, clip: [BULK], prims: [P(BULK, 'p')],
+    sockets: {
+      head: { x: 44, y: -18, a: 0, s: 1.05 },
+      face: { eye: { x: 30, y: -8, s: 1.1 }, eye2: { x: 10, y: -10, s: 0.9 }, mouth: { x: 46, y: 8, s: 1.1 }, crown: { x: 24, y: -32, a: 0, s: 1 } },
+      legs: [{ x: 28, y: 22 }, { x: -32, y: 22 }],
+      arm: null, wing: { x: -10, y: -32 }, tail: { x: -50, y: 0, a: 0 }, back: { x: -6, y: -35, a: 0 },
+    },
+  },
+  {
+    id: 'body.round', slot: 'body', name: 'Round', kind: 'blob', tags: ['blob'], dom: 0.5, w: 3,
+    bottom: 34, clip: [ROUND], prims: [P(ROUND, 'p')],
+    sockets: {
+      head: { x: 6, y: -30, a: 0, s: 1 },
+      face: { eye: { x: 14, y: -8, s: 1.1 }, eye2: { x: -7, y: -9, s: 0.95 }, mouth: { x: 16, y: 7, s: 1 }, crown: { x: 2, y: -34, a: 0, s: 1 } },
+      legs: [{ x: 10, y: 26, far: { dx: -16, dy: -2 } }],
+      arm: { x: 32, y: -2 }, wing: { x: -16, y: -22 }, tail: { x: -36, y: 4, a: -25 }, back: { x: -8, y: -33, a: 0 },
+    },
+  },
+  {
+    id: 'body.biped', slot: 'body', name: 'Biped', kind: 'biped', tags: ['upright'], dom: 0.5, w: 3,
+    bottom: 34, clip: [BIPED], prims: [P(BIPED, 'p')],
+    sockets: {
+      head: { x: 2, y: -34, a: 0, s: 1 },
+      face: { eye: { x: 12, y: -14, s: 1 }, eye2: { x: -6, y: -15, s: 0.9 }, mouth: { x: 12, y: 2, s: 1 }, crown: { x: 0, y: -36, a: 0, s: 1 } },
+      legs: [{ x: 8, y: 28, far: { dx: -16, dy: -2 } }],
+      arm: { x: 25, y: -6 }, wing: { x: -18, y: -16 }, tail: { x: -26, y: 14, a: -20 }, back: { x: -10, y: -32, a: -10 },
+    },
+  },
+  {
+    id: 'body.bird', slot: 'body', name: 'Avian', kind: 'bird', tags: ['bird'], dom: 0.5, w: 2,
+    bottom: 38, clip: [BIRD], prims: [P(BIRD, 'p')],
+    sockets: {
+      head: { x: 6, y: -36, a: 0, s: 0.95 },
+      face: { eye: { x: 12, y: -18, s: 1 }, eye2: { x: -6, y: -20, s: 0.85 }, mouth: { x: 20, y: -4, s: 1 }, crown: { x: 2, y: -38, a: 0, s: 1 } },
+      legs: [{ x: 2, y: 30, far: { dx: -12, dy: -2 } }],
+      arm: null, wing: { x: -8, y: -10 }, tail: { x: -30, y: 12, a: 25 }, back: { x: -14, y: -30, a: -20 },
+    },
+  },
+  {
+    id: 'body.serpent', slot: 'body', name: 'Serpent', kind: 'serpent', tags: ['reptile'], dom: 0.55, w: 2,
+    bottom: 30, clip: [COIL, NECK], prims: [E(-6, 14, 44, 16, 'p'), P(NECK, 'p')],
+    sockets: {
+      head: { x: 40, y: -36, a: -12, s: 0.95 },
+      face: { eye: { x: 34, y: -26, s: 0.9 }, eye2: null, mouth: { x: 42, y: -16, s: 0.9 }, crown: { x: 40, y: -36, a: -12, s: 0.8 } },
+      legs: [],
+      arm: null, wing: { x: 2, y: -6 }, tail: { x: -48, y: 12, a: 0 }, back: { x: 26, y: -24, a: -50 },
+    },
+  },
+  {
+    id: 'body.fish', slot: 'body', name: 'Fish', kind: 'fish', tags: ['aquatic'], dom: 0.5, w: 2,
+    bottom: 30, hover: 12, armsFront: true, clip: [FISH], prims: [P(FISH, 'p')],
+    sockets: {
+      head: { x: 34, y: -10, a: 0, s: 0.85 },
+      face: { eye: { x: 24, y: -8, s: 1 }, eye2: null, mouth: { x: 40, y: 5, s: 0.9 }, crown: { x: 8, y: -27, a: 0, s: 0.9 } },
+      legs: [],
+      arm: { x: 10, y: 8 }, wing: { x: -4, y: -22 }, tail: { x: -48, y: 0, a: 0 }, back: { x: -6, y: -26, a: 0 },
+    },
+  },
+  {
+    id: 'body.float', slot: 'body', name: 'Wisp', kind: 'float', tags: ['spirit'], dom: 0.45, w: 2,
+    bottom: 22, hover: 18, clip: [FLOAT], prims: [P(FLOAT, 'p')],
+    sockets: {
+      head: { x: 2, y: -24, a: 0, s: 0.9 },
+      face: { eye: { x: 12, y: -8, s: 1.1 }, eye2: { x: -8, y: -9, s: 0.95 }, mouth: { x: 4, y: 6, s: 1 }, crown: { x: 0, y: -26, a: 0, s: 1 } },
+      legs: [],
+      arm: { x: 31, y: -2 }, wing: { x: -18, y: -16 }, tail: { x: -30, y: 0, a: -15 }, back: { x: -6, y: -26, a: 0 },
+    },
+  },
+];
+
+// ---- src/data/parts/heads.js ----
+// Head origin = neck point (bottom centre of the skull). Heads face right.
+// Sockets: eye (near), eye2 (far, optional), mouth (null = the head has its own, e.g. a beak), crown (top).
+
+const HEADS = [
+  NONE('head', 0.3),
+  {
+    id: 'head.round', slot: 'head', name: 'Round', tags: ['cute'], dom: 0.5, w: 3,
+    prims: [C(0, -18, 20, 'p')],
+    sockets: { eye: { x: 8, y: -22, s: 1 }, eye2: { x: -7, y: -23, s: 0.85 }, mouth: { x: 12, y: -10, s: 1 }, crown: { x: 0, y: -38, a: 0, s: 1 } },
+  },
+  {
+    id: 'head.snout', slot: 'head', name: 'Snout', tags: ['mammal', 'canine'], dom: 0.55, w: 3,
+    prims: [
+      P('M-19,-20 C-19,-34 -8,-42 4,-40 C14,-39 20,-32 22,-26 C30,-24 40,-16 40,-8 C40,-1 34,2 26,2 C14,6 -2,6 -10,0 C-17,-4 -19,-12 -19,-20 Z', 'p'),
+      E(37, -11, 3.2, 2.4, 'k', { ns: true }),
+    ],
+    sockets: { eye: { x: 8, y: -26, s: 1 }, eye2: { x: -7, y: -28, s: 0.8 }, mouth: { x: 32, y: -4, s: 0.9 }, crown: { x: 2, y: -40, a: 0, s: 1 } },
+  },
+  {
+    id: 'head.beak', slot: 'head', name: 'Beaked', tags: ['bird'], dom: 0.55, w: 2,
+    prims: [C(0, -18, 18, 'p'), P('M12,-22 L36,-14 L12,-6 Z', 'a'), P('M12,-14 L34,-14', 'none', { sw: 1.6 })],
+    sockets: { eye: { x: 6, y: -22, s: 1 }, eye2: { x: -8, y: -22, s: 0.8 }, mouth: null, crown: { x: 0, y: -36, a: 0, s: 1 } },
+  },
+  {
+    id: 'head.block', slot: 'head', name: 'Blocky', tags: ['reptile', 'sturdy'], dom: 0.5, w: 2,
+    prims: [P('M-18,-36 L30,-36 Q38,-36 38,-28 L38,-8 Q38,0 30,0 L-10,0 Q-18,0 -18,-8 Z', 'p'), E(33, -14, 2.4, 2, 'k', { ns: true })],
+    sockets: { eye: { x: 14, y: -24, s: 1 }, eye2: { x: -4, y: -26, s: 0.8 }, mouth: { x: 28, y: -6, s: 1 }, crown: { x: 4, y: -36, a: 0, s: 1 } },
+  },
+  {
+    id: 'head.cat', slot: 'head', name: 'Feline', tags: ['mammal', 'feline'], dom: 0.5, w: 2,
+    prims: [P('M-20,-14 C-22,-32 -8,-40 4,-40 C16,-40 26,-32 24,-14 C26,-6 22,0 14,2 L10,-1 L6,3 L0,0 L-6,3 L-10,-1 L-14,2 C-20,0 -22,-6 -20,-14 Z', 'p')],
+    sockets: { eye: { x: 8, y: -22, s: 1 }, eye2: { x: -6, y: -23, s: 0.85 }, mouth: { x: 12, y: -9, s: 1 }, crown: { x: 2, y: -40, a: 0, s: 1 } },
+  },
+  {
+    id: 'head.bulb', slot: 'head', name: 'Bulb', tags: ['cute', 'big'], dom: 0.5, w: 2,
+    prims: [E(2, -18, 25, 21, 'p')],
+    sockets: { eye: { x: 10, y: -20, s: 1.1 }, eye2: { x: -7, y: -22, s: 0.9 }, mouth: { x: 16, y: -8, s: 1 }, crown: { x: 2, y: -39, a: 0, s: 1 } },
+  },
+  {
+    id: 'head.skull', slot: 'head', name: 'Angular', tags: ['menacing'], dom: 0.5, w: 2,
+    prims: [P('M-16,-34 L26,-36 L34,-20 L30,-4 L14,2 L-10,0 L-18,-14 Z', 'p')],
+    sockets: { eye: { x: 12, y: -22, s: 1 }, eye2: { x: -4, y: -24, s: 0.8 }, mouth: { x: 22, y: -6, s: 1 }, crown: { x: 4, y: -36, a: 0, s: 1 } },
+  },
+  {
+    id: 'head.long', slot: 'head', name: 'Muzzle', tags: ['dragon', 'equine'], dom: 0.55, w: 2,
+    prims: [
+      P('M-18,-22 C-18,-40 2,-44 12,-38 C20,-34 40,-20 44,-10 C46,-2 38,2 30,2 C18,4 -6,6 -14,-2 C-18,-8 -18,-14 -18,-22 Z', 'p'),
+      E(40, -11, 2.6, 2, 'k', { ns: true }),
+    ],
+    sockets: { eye: { x: 10, y: -28, s: 1 }, eye2: { x: -4, y: -30, s: 0.8 }, mouth: { x: 34, y: -5, s: 0.9 }, crown: { x: 4, y: -41, a: 0, s: 1 } },
+  },
+  {
+    id: 'head.wide', slot: 'head', name: 'Wide', tags: ['amphibian'], dom: 0.45, w: 2,
+    prims: [P('M-22,-14 C-22,-30 -6,-34 6,-34 C22,-34 34,-26 34,-14 C36,-4 30,2 18,2 L-10,2 C-20,2 -24,-4 -22,-14 Z', 'p')],
+    sockets: { eye: { x: 14, y: -28, s: 1.1 }, eye2: { x: -6, y: -30, s: 0.9 }, mouth: { x: 16, y: -8, s: 1.3 }, crown: { x: 4, y: -34, a: 0, s: 0.9 } },
+  },
+];
+
+// ---- src/data/parts/faces.js ----
+// Eyes: origin at the eye centre, base radius about 7. Drawn for the near eye; the far eye is a scaled copy.
+const EYES = [
+  { id: 'eye.round', slot: 'eyes', name: 'Round', dom: 0.5, w: 3,
+    prims: [C(0, 0, 7, 'w'), C(1.2, 0.4, 4, 'k', { ns: true }), C(2.6, -2.2, 1.6, 'w', { ns: true })] },
+  { id: 'eye.big', slot: 'eyes', name: 'Big', dom: 0.5, w: 3,
+    prims: [E(0, 0, 8, 9, 'w'), C(1, 0.5, 5.5, 'e', { ns: true }), C(1.6, 1, 3, 'k', { ns: true }), C(3.2, -2.6, 2, 'w', { ns: true }), C(-1, 3, 1, 'w', { ns: true, op: 0.7 })] },
+  { id: 'eye.angry', slot: 'eyes', name: 'Fierce', dom: 0.55, w: 2,
+    prims: [C(0, 0, 7, 'w'), C(1.2, 0.6, 4, 'k', { ns: true }), C(2.6, -1.6, 1.4, 'w', { ns: true }), P('M-9,-9 L9,-9 L9,-3 L-9,-6 Z', 'p', { ns: true }), L('M-9,-6 L9,-3', 'k', 2.2)] },
+  { id: 'eye.sleepy', slot: 'eyes', name: 'Sleepy', dom: 0.45, w: 2,
+    prims: [C(0, 0, 7, 'w'), C(1, 1, 4, 'k', { ns: true }), C(2.4, -0.4, 1.4, 'w', { ns: true }), P('M-8,-1 A8,8 0 0,1 8,-1 Z', 'p', { ns: true }), L('M-8,-1 L8,-1', 'k', 2.2)] },
+  { id: 'eye.dot', slot: 'eyes', name: 'Dot', dom: 0.4, w: 2,
+    prims: [C(0, 0, 4.5, 'k', { ns: true }), C(1.5, -1.5, 1.6, 'w', { ns: true })] },
+  { id: 'eye.bug', slot: 'eyes', name: 'Compound', dom: 0.5, w: 1,
+    prims: [C(0, 0, 8, 'e'), C(0, 0, 5, 'k', { ns: true, op: 0.35 }), C(2.5, -2.5, 2.2, 'w', { ns: true }), L('M-4,3 L4,3 M-4,0 L5,0 M-3,-3 L4,-3', 'k', 0.8, { op: 0.35 })] },
+  { id: 'eye.slit', slot: 'eyes', name: 'Slit', dom: 0.55, w: 2,
+    prims: [C(0, 0, 7, 'e'), E(1, 0, 1.8, 5.2, 'k', { ns: true }), C(2.8, -2.4, 1.4, 'w', { ns: true })] },
+  { id: 'eye.sad', slot: 'eyes', name: 'Worried', dom: 0.4, w: 1,
+    prims: [C(0, 0, 7, 'w'), C(1, 0.6, 4, 'k', { ns: true }), C(2.4, -1.6, 1.4, 'w', { ns: true }), P('M-9,-4 L9,-9 L9,-11 L-9,-11 Z', 'p', { ns: true }), L('M-9,-4 L9,-9', 'k', 2.2)] },
+  { id: 'eye.spiral', slot: 'eyes', name: 'Spiral', dom: 0.4, w: 1,
+    prims: [C(0, 0, 7, 'w'), L('M0,0 C2,-1 3,1 1,2 C-2,3 -4,0 -2,-3 C1,-5 5,-3 5,1', 'k', 1.6)] },
+];
+
+// Mouths: origin at the mouth centre.
+const MOUTHS = [
+  NONE('mouth', 0.2),
+  { id: 'mouth.smile', slot: 'mouth', name: 'Smile', dom: 0.5, w: 3, prims: [L('M-7,-1 Q0,5 7,-2', 'k', 2.4)] },
+  { id: 'mouth.grin', slot: 'mouth', name: 'Grin', dom: 0.5, w: 2,
+    prims: [P('M-9,-2 Q0,9 9,-2 Z', 'k', { ns: true }), P('M-6,-1 L6,-1 L5,2 L-5,2 Z', 'w', { ns: true })] },
+  { id: 'mouth.fangs', slot: 'mouth', name: 'Fangs', dom: 0.55, w: 2,
+    prims: [L('M-8,-1 Q0,4 8,-1', 'k', 2.2), P('M-5,0 L-3,6 L-1,1 Z', 'w', { sw: 1.2 }), P('M2,1 L4,6 L6,0 Z', 'w', { sw: 1.2 })] },
+  { id: 'mouth.flat', slot: 'mouth', name: 'Flat', dom: 0.4, w: 2, prims: [L('M-6,0 L6,0', 'k', 2.4)] },
+  { id: 'mouth.open', slot: 'mouth', name: 'Open', dom: 0.45, w: 2,
+    prims: [E(0, 1, 4.5, 5.5, 'k', { ns: true }), E(0, 3, 2.6, 2.2, 'a', { ns: true })] },
+  { id: 'mouth.tongue', slot: 'mouth', name: 'Tongue', dom: 0.45, w: 1,
+    prims: [L('M-7,-1 Q0,4 7,-2', 'k', 2.4), P('M-1,1 C0,7 5,8 6,3 L3,0 Z', 'a', { sw: 1.2 })] },
+  { id: 'mouth.frown', slot: 'mouth', name: 'Frown', dom: 0.45, w: 1, prims: [L('M-7,2 Q0,-4 7,2', 'k', 2.4)] },
+  { id: 'mouth.teeth', slot: 'mouth', name: 'Teeth', dom: 0.5, w: 1,
+    prims: [P('M-9,-3 L9,-3 L9,3 L-9,3 Z', 'w', { sw: 1.8 }), L('M-6,-3 L-6,3 M-2,-3 L-2,3 M2,-3 L2,3 M6,-3 L6,3', 'k', 1.4)] },
+  { id: 'mouth.smirk', slot: 'mouth', name: 'Smirk', dom: 0.45, w: 2, prims: [L('M-6,1 Q2,4 7,-3', 'k', 2.4)] },
+];
+
+// ---- src/data/parts/crowns.js ----
+// Crowns (ears, horns, crests...) attach at the top centre of the head and are
+// drawn BEHIND the skull, so every base extends down to about y=10 and the head
+// hides it. Both sides live in one part; the far side uses the shade roles.
+const CROWNS = [
+  NONE('crown', 0.35),
+  { id: 'crown.catears', slot: 'crown', name: 'Pointed ears', tags: ['mammal'], dom: 0.55, w: 3,
+    prims: [P('M-22,10 L-14,-18 L-2,8 Z', 'pd'), P('M-17,4 L-14,-10 L-8,3 Z', 'ad', { ns: true }), P('M2,8 L11,-19 L22,10 Z', 'p'), P('M7,3 L11,-12 L16,4 Z', 'a', { ns: true })] },
+  { id: 'crown.bunny', slot: 'crown', name: 'Long ears', tags: ['mammal'], dom: 0.5, w: 2,
+    prims: [P('M-14,10 C-19,-14 -12,-40 -5,-40 C1,-40 -1,-14 -5,10 Z', 'pd'), P('M4,10 C0,-14 6,-42 13,-40 C19,-38 17,-12 12,10 Z', 'p'), P('M7,0 C5,-14 8,-32 12,-32 C15,-32 14,-14 11,0 Z', 'a', { ns: true })] },
+  { id: 'crown.horns', slot: 'crown', name: 'Horns', tags: ['beast', 'dragon'], dom: 0.6, w: 2,
+    prims: [P('M-8,10 C-12,-6 -18,-14 -28,-14 C-18,-10 -14,-2 -14,10 Z', 'ad'), P('M6,10 C8,-6 16,-18 28,-16 C18,-12 14,-2 14,10 Z', 'a')] },
+  { id: 'crown.spikes', slot: 'crown', name: 'Spikes', tags: ['rock'], dom: 0.5, w: 2,
+    prims: [P('M-22,10 L-14,-13 L-6,10 Z', 'a'), P('M-8,10 L0,-17 L8,10 Z', 'a'), P('M6,10 L14,-13 L22,10 Z', 'a')] },
+  { id: 'crown.antennae', slot: 'crown', name: 'Antennae', tags: ['bug'], dom: 0.45, w: 2,
+    prims: [L('M-4,8 C-6,-8 -14,-18 -20,-26', 'k', 2.6), C(-21, -28, 3.5, 'a'), L('M4,8 C8,-8 14,-20 20,-26', 'k', 2.6), C(21, -28, 3.5, 'a')] },
+  { id: 'crown.fin', slot: 'crown', name: 'Head fin', tags: ['aquatic'], dom: 0.5, w: 2,
+    prims: [P('M-16,10 C-12,-14 6,-24 18,10 Z', 'a'), L('M-8,4 C-4,-10 2,-14 8,-6 M-2,4 C0,-6 4,-8 10,-2', 'k', 1.2, { op: 0.4 })] },
+  { id: 'crown.sprout', slot: 'crown', name: 'Sprout', tags: ['plant'], dom: 0.45, w: 2,
+    prims: [L('M0,8 C0,-4 -2,-10 -2,-16', 'k', 2.6), P('M-2,-16 C-12,-14 -16,-22 -14,-30 C-6,-30 -2,-24 -2,-16 Z', 'a'), P('M-2,-16 C8,-16 12,-26 8,-32 C2,-30 -2,-24 -2,-16 Z', 'a')] },
+  { id: 'crown.crest', slot: 'crown', name: 'Feather crest', tags: ['bird'], dom: 0.5, w: 2,
+    prims: [P('M-2,10 C-6,-6 -16,-18 -24,-16 C-16,-12 -10,-2 -6,10 Z', 'ad'), P('M0,10 C-2,-10 -8,-26 -14,-32 C-4,-26 2,-10 4,10 Z', 'a'), P('M2,10 C6,-6 14,-24 22,-26 C16,-16 10,-4 8,10 Z', 'al')] },
+  { id: 'crown.halo', slot: 'crown', name: 'Halo', tags: ['spirit'], dom: 0.4, w: 1,
+    prims: [E(0, -24, 16, 5, 'a'), E(0, -24, 10, 2.6, 'w', { ns: true, op: 0.6 })] },
+  { id: 'crown.mohawk', slot: 'crown', name: 'Mohawk', tags: ['fighter'], dom: 0.5, w: 1,
+    prims: [P('M-18,10 C-14,-4 -12,-14 -10,-22 C-6,-12 -4,-10 -2,-18 C2,-10 4,-12 6,-24 C10,-12 12,-8 16,-2 C20,4 18,10 14,10 Z', 'a')] },
+  { id: 'crown.bolts', slot: 'crown', name: 'Static tufts', tags: ['electric'], dom: 0.5, w: 1,
+    prims: [P('M-12,10 L-20,-10 L-14,-8 L-18,-22 L-8,-6 L-13,-6 L-6,10 Z', 'a'), P('M6,10 L16,-12 L10,-10 L18,-24 L4,-8 L10,-8 L2,10 Z', 'a')] },
+];
+
+// ---- src/data/parts/limbs.js ----
+// Legs: origin at the hip, one leg hanging down with the sole at y = len (scale 1).
+const LEGS = [
+  NONE('legs', 0.3),
+  { id: 'legs.stub', slot: 'legs', name: 'Stubby', dom: 0.5, w: 3, len: 40,
+    prims: [P('M-8,-4 L8,-4 L9,34 Q9,40 3,40 L-6,40 Q-11,40 -10,34 Z', 'p')] },
+  { id: 'legs.canine', slot: 'legs', name: 'Canine', tags: ['mammal'], dom: 0.55, w: 3, len: 40,
+    prims: [P('M-10,-6 C-14,8 -8,18 -3,24 L-3,34 Q-3,40 5,40 L13,40 Q15,38 11,36 L5,34 L5,22 C9,12 9,4 6,-6 Z', 'p'), L('M2,40 L2,36 M6,40 L6,36', 'k', 1.2, { op: 0.5 })] },
+  { id: 'legs.bird', slot: 'legs', name: 'Talons', tags: ['bird'], dom: 0.5, w: 2, len: 40,
+    prims: [L('M0,-2 L0,30', 'a', 4.5), L('M0,30 L9,40 M0,30 L1,40 M0,30 L-7,40 M0,30 L-5,24', 'a', 3.5)] },
+  { id: 'legs.hoof', slot: 'legs', name: 'Hooves', tags: ['mammal'], dom: 0.5, w: 2, len: 40,
+    prims: [P('M-7,-4 L7,-4 L6,30 L-6,30 Z', 'p'), P('M-8,29 L8,29 L9,40 L-9,40 Z', 'k')] },
+  { id: 'legs.frog', slot: 'legs', name: 'Springy', tags: ['amphibian'], dom: 0.45, w: 2, len: 40,
+    prims: [P('M-6,-4 C-18,2 -22,18 -14,28 L-2,34 L14,40 L15,36 L4,30 L-3,22 C-8,14 -2,6 5,0 Z', 'p')] },
+  { id: 'legs.tentacle', slot: 'legs', name: 'Tentacles', tags: ['aquatic'], dom: 0.45, w: 1, len: 40,
+    prims: [P('M-7,-2 C-11,10 -3,16 -7,26 C-11,36 -3,42 5,40 C9,36 5,30 7,22 C9,12 8,6 7,-2 Z', 'p'), C(-4, 30, 1.6, 'a', { ns: true }), C(-2, 22, 1.6, 'a', { ns: true }), C(-4, 14, 1.6, 'a', { ns: true })] },
+  { id: 'legs.chunky', slot: 'legs', name: 'Clawed', tags: ['dragon', 'beast'], dom: 0.55, w: 2, len: 40,
+    prims: [P('M-13,-6 C-17,10 -11,20 -7,26 L-7,34 Q-7,40 3,40 L15,40 Q17,36 11,36 L7,34 L7,26 C11,16 11,6 9,-6 Z', 'p'), P('M12,40 L15,36 L17,40 Z', 'w', { sw: 1.2 }), P('M6,40 L8,36 L10,40 Z', 'w', { sw: 1.2 })] },
+  { id: 'legs.insect', slot: 'legs', name: 'Jointed', tags: ['bug'], dom: 0.45, w: 1, len: 40,
+    prims: [L('M0,-2 C-10,4 -14,16 -10,30', 'k', 3.4), L('M-10,30 L-8,40', 'k', 3), C(-10, 30, 3, 'p')] },
+  { id: 'legs.peg', slot: 'legs', name: 'Pegs', tags: ['steel'], dom: 0.4, w: 1, len: 40,
+    prims: [P('M-5,-4 L5,-4 L4,40 L-4,40 Z', 'a')] },
+];
+
+// Arms: origin at the shoulder, near arm reaching forward and down.
+const ARMS = [
+  NONE('arms', 0.35),
+  { id: 'arms.stub', slot: 'arms', name: 'Nubs', dom: 0.5, w: 3, prims: [P('M0,-7 C9,-9 17,-2 15,7 C13,13 3,13 0,7 Z', 'p')] },
+  { id: 'arms.claw', slot: 'arms', name: 'Claws', dom: 0.55, w: 2,
+    prims: [P('M0,-6 C10,-8 19,-1 19,8 L24,16 L18,12 L19,19 L14,13 L12,19 L9,10 C4,10 0,6 0,0 Z', 'p')] },
+  { id: 'arms.fin', slot: 'arms', name: 'Fins', tags: ['aquatic'], dom: 0.5, w: 2,
+    prims: [P('M0,-7 C10,-11 24,-3 22,10 C15,8 6,11 0,9 Z', 'a'), L('M4,-2 C10,0 14,4 16,8 M3,3 C8,4 11,6 12,9', 'k', 1.1, { op: 0.4 })] },
+  { id: 'arms.paw', slot: 'arms', name: 'Paws', tags: ['mammal'], dom: 0.5, w: 2,
+    prims: [P('M0,-7 C8,-9 15,0 13,10 C11,17 3,17 0,10 Z', 'p'), L('M4,15 L4,12 M8,15 L8,12', 'k', 1.2, { op: 0.5 })] },
+  { id: 'arms.tentacle', slot: 'arms', name: 'Tendrils', dom: 0.45, w: 1,
+    prims: [P('M0,-6 C10,-4 18,4 16,14 C14,22 6,24 2,20 C6,18 10,14 8,8 C6,2 2,0 0,2 Z', 'p')] },
+  { id: 'arms.blade', slot: 'arms', name: 'Blades', tags: ['steel', 'bug'], dom: 0.5, w: 1,
+    prims: [P('M0,-6 C6,-8 12,-4 12,2 L30,14 L12,10 C8,10 2,8 0,2 Z', 'a')] },
+];
+
+// Wings: origin at the wing root, extending up and back (left). A far copy is drawn behind the body.
+const WINGS = [
+  NONE('wings', 0.4),
+  { id: 'wings.feather', slot: 'wings', name: 'Feathered', tags: ['bird'], dom: 0.55, w: 3,
+    prims: [P('M0,0 C-10,-12 -30,-30 -56,-30 C-50,-22 -44,-16 -40,-10 C-46,-10 -52,-8 -56,-4 C-46,0 -30,2 -14,6 C-8,6 -2,4 0,0 Z', 'p'), L('M-14,4 C-24,-6 -36,-16 -46,-24 M-18,5 C-28,-2 -38,-6 -48,-8', 'k', 1.2, { op: 0.35 })] },
+  { id: 'wings.bat', slot: 'wings', name: 'Membrane', tags: ['dragon', 'dark'], dom: 0.55, w: 2,
+    prims: [P('M0,0 C-6,-16 -20,-30 -50,-34 L-40,-20 L-54,-18 L-38,-8 L-50,0 L-30,2 C-20,6 -8,6 0,0 Z', 'a'), L('M-4,-2 L-40,-20 M-4,-2 L-38,-8 M-4,-2 L-30,2', 'k', 1.4, { op: 0.5 })] },
+  { id: 'wings.bug', slot: 'wings', name: 'Gossamer', tags: ['bug', 'fairy'], dom: 0.5, w: 2,
+    prims: [P('M0,0 C-6,-20 -36,-36 -48,-26 C-56,-16 -30,2 0,0 Z', 'w', { op: 0.8 }), P('M0,2 C-10,-4 -34,-6 -40,4 C-42,12 -20,12 0,2 Z', 'w', { op: 0.7 }), L('M-4,-2 C-16,-12 -30,-20 -42,-24', 'k', 1, { op: 0.3 })] },
+  { id: 'wings.leaf', slot: 'wings', name: 'Leaf wings', tags: ['plant'], dom: 0.5, w: 2,
+    prims: [P('M0,0 C-10,-14 -30,-30 -52,-24 C-44,-8 -20,2 0,0 Z', 'a'), L('M-4,-2 C-16,-10 -30,-18 -46,-22', 'k', 1.2, { op: 0.45 })] },
+  { id: 'wings.fire', slot: 'wings', name: 'Blazing', tags: ['fire'], dom: 0.5, w: 1,
+    prims: [P('M0,0 C-8,-10 -18,-14 -30,-14 C-26,-22 -34,-30 -46,-34 C-42,-24 -48,-20 -54,-20 C-46,-12 -40,-4 -30,0 C-20,4 -8,4 0,0 Z', 'a'), P('M-6,-2 C-14,-8 -22,-10 -30,-10 C-26,-16 -30,-22 -38,-26 C-36,-18 -40,-14 -44,-14 C-38,-8 -30,-4 -22,-2 Z', 'al', { ns: true })] },
+  { id: 'wings.fin', slot: 'wings', name: 'Fin wings', tags: ['aquatic'], dom: 0.45, w: 1,
+    prims: [P('M0,0 C-8,-12 -26,-22 -44,-16 C-40,-8 -30,-2 -20,2 C-12,4 -6,4 0,0 Z', 'a'), L('M-6,-2 C-16,-8 -26,-12 -36,-12 M-8,0 C-18,-4 -26,-4 -34,-4', 'k', 1.1, { op: 0.4 })] },
+];
+
+// ---- src/data/parts/tails.js ----
+// Tails: origin at the base on the rump, pointing left (back).
+const TAILS = [
+  NONE('tail', 0.3),
+  { id: 'tails.fluffy', slot: 'tail', name: 'Fluffy', tags: ['mammal'], dom: 0.55, w: 3,
+    prims: [P('M0,-8 C-14,-22 -40,-30 -52,-14 C-60,-2 -50,12 -38,8 C-30,14 -14,12 0,6 Z', 'p'), P('M-40,-16 C-52,-14 -58,-2 -50,6 C-44,8 -38,4 -40,-2 C-36,-8 -34,-14 -40,-16 Z', 'a', { ns: true })] },
+  { id: 'tails.whip', slot: 'tail', name: 'Whip', dom: 0.5, w: 3,
+    prims: [P('M0,-4 C-20,-6 -40,-2 -52,-22 C-54,-26 -50,-28 -48,-24 C-40,-10 -24,2 0,4 Z', 'p')] },
+  { id: 'tails.fish', slot: 'tail', name: 'Fin tail', tags: ['aquatic'], dom: 0.55, w: 2,
+    prims: [P('M0,-6 C-12,-6 -20,-8 -28,-4 L-42,-22 L-38,0 L-42,22 L-28,4 C-20,8 -12,6 0,6 Z', 'a'), L('M-30,-2 L-38,-14 M-30,2 L-38,14', 'k', 1.1, { op: 0.4 })] },
+  { id: 'tails.flame', slot: 'tail', name: 'Flame', tags: ['fire'], dom: 0.55, w: 2,
+    prims: [
+      P('M0,-6 C-12,-8 -22,-6 -30,-2 C-36,-10 -34,-20 -40,-26 C-38,-14 -44,-8 -46,-2 C-48,6 -40,14 -30,10 C-22,12 -10,8 0,6 Z', 'p'),
+      P('M-8,-2 C-20,-4 -28,-2 -32,0 C-34,-6 -34,-12 -38,-16 C-38,-8 -42,-4 -42,0 C-42,6 -36,10 -30,6 C-24,6 -14,4 -8,2 Z', 'a', { ns: true }),
+      P('M-16,0 C-26,-2 -30,0 -32,2 C-34,-2 -34,-6 -36,-8 C-36,-2 -38,0 -38,2 C-36,6 -30,6 -26,4 C-22,4 -18,2 -16,0 Z', 'al', { ns: true }),
+    ] },
+  { id: 'tails.leaf', slot: 'tail', name: 'Leaf', tags: ['plant'], dom: 0.5, w: 2,
+    prims: [P('M0,-4 C-12,-4 -22,-2 -30,-4 C-44,-20 -58,-16 -60,-8 C-54,0 -40,6 -30,4 C-22,6 -12,6 0,4 Z', 'a'), L('M-30,0 C-40,-4 -50,-8 -56,-8', 'k', 1.2, { op: 0.45 })] },
+  { id: 'tails.club', slot: 'tail', name: 'Club', tags: ['rock', 'dragon'], dom: 0.55, w: 2,
+    prims: [P('M0,-4 C-14,-6 -26,-6 -34,-8 L-34,6 C-26,6 -14,6 0,4 Z', 'p'), C(-40, -1, 10, 'a'), P('M-46,-9 L-50,-16 L-44,-11 Z', 'w', { sw: 1.2 }), P('M-49,2 L-56,0 L-49,-3 Z', 'w', { sw: 1.2 }), P('M-44,8 L-48,14 L-40,10 Z', 'w', { sw: 1.2 })] },
+  { id: 'tails.curl', slot: 'tail', name: 'Curly', dom: 0.45, w: 2,
+    prims: [P('M0,-5 C-14,-8 -30,-10 -36,-22 C-40,-32 -28,-38 -22,-30 C-18,-24 -26,-20 -28,-24 C-30,-28 -26,-30 -24,-28 C-20,-22 -26,-14 -30,-12 C-26,-8 -12,-6 0,5 Z', 'p')] },
+  { id: 'tails.stubby', slot: 'tail', name: 'Stubby', dom: 0.4, w: 2,
+    prims: [P('M0,-6 C-8,-9 -16,-5 -14,3 C-12,10 -4,8 0,6 Z', 'p')] },
+  { id: 'tails.spade', slot: 'tail', name: 'Spade', tags: ['dark'], dom: 0.5, w: 1,
+    prims: [P('M0,-3 C-16,-4 -30,-4 -40,-6 L-40,4 C-30,2 -16,3 0,3 Z', 'p'), P('M-38,-1 L-52,-14 L-58,2 L-44,7 Z', 'a')] },
+  { id: 'tails.feathers', slot: 'tail', name: 'Tail fan', tags: ['bird'], dom: 0.5, w: 1,
+    prims: [P('M0,-4 L-30,-20 L-26,-6 L-40,-8 L-28,0 L-40,8 L-26,6 L-30,20 L0,4 Z', 'p'), L('M-4,0 L-28,-12 M-4,0 L-34,0 M-4,0 L-28,12', 'k', 1.1, { op: 0.4 })] },
+];
+
+// ---- src/data/parts/backs.js ----
+// Back features: origin on the spine near its highest point; bases are sunk a few units into the body.
+const BACKS = [
+  NONE('back', 0.4),
+  { id: 'back.spikes', slot: 'back', name: 'Spines', tags: ['dragon', 'rock'], dom: 0.55, w: 3,
+    prims: [P('M4,6 L10,-12 L16,6 Z', 'a'), P('M-10,6 L-4,-14 L2,6 Z', 'a'), P('M-24,8 L-18,-8 L-12,8 Z', 'a'), P('M-36,12 L-32,-2 L-26,12 Z', 'a')] },
+  { id: 'back.shell', slot: 'back', name: 'Shell', tags: ['sturdy'], dom: 0.6, w: 2,
+    prims: [P('M-34,10 C-34,-24 30,-24 30,10 Z', 'a'), L('M-30,4 L28,4 M-16,-18 L-16,4 M6,-18 L6,4 M-28,-8 L26,-8', 'k', 1.3, { op: 0.35 })] },
+  { id: 'back.fin', slot: 'back', name: 'Dorsal fin', tags: ['aquatic'], dom: 0.5, w: 2,
+    prims: [P('M-6,6 C-4,-14 6,-28 22,-30 C14,-18 12,-6 14,6 Z', 'a'), L('M0,4 C2,-8 8,-16 14,-22', 'k', 1.1, { op: 0.4 })] },
+  { id: 'back.mane', slot: 'back', name: 'Mane', tags: ['mammal'], dom: 0.5, w: 2,
+    prims: [P('M-32,10 C-34,-4 -22,-10 -18,-2 C-16,-14 -6,-16 -2,-6 C0,-18 12,-18 12,-6 C18,-10 26,-4 22,8 Z', 's')] },
+  { id: 'back.plates', slot: 'back', name: 'Plates', tags: ['rock', 'steel'], dom: 0.5, w: 2,
+    prims: [P('M6,6 C6,-8 20,-8 20,6 Z', 'a'), P('M-12,6 C-12,-12 4,-12 4,6 Z', 'a'), P('M-30,8 C-30,-6 -16,-6 -16,8 Z', 'a')] },
+  { id: 'back.wisps', slot: 'back', name: 'Wisps', tags: ['spirit'], dom: 0.4, w: 2,
+    prims: [P('M-10,6 C-14,-6 -6,-14 -2,-8 C0,-16 8,-16 6,-8 C12,-12 16,-2 10,4 Z', 'w', { op: 0.55 }), C(-20, -2, 4, 'w', { op: 0.4, ns: true }), C(16, -6, 3, 'w', { op: 0.4, ns: true })] },
+  { id: 'back.crystal', slot: 'back', name: 'Crystals', tags: ['rock', 'ice'], dom: 0.5, w: 1,
+    prims: [P('M-4,8 L0,-24 L8,8 Z', 'al'), P('M-20,10 L-14,-10 L-8,10 Z', 'a'), P('M8,10 L14,-6 L20,10 Z', 'a')] },
+  { id: 'back.bolts', slot: 'back', name: 'Sparks', tags: ['electric'], dom: 0.45, w: 1,
+    prims: [P('M-2,6 L4,-8 L0,-8 L8,-22 L-2,-8 L2,-8 L-4,6 Z', 'a'), P('M-22,8 L-16,-4 L-20,-4 L-12,-16 L-22,-4 L-18,-4 L-24,8 Z', 'a')] },
+  { id: 'back.leaf', slot: 'back', name: 'Foliage', tags: ['plant'], dom: 0.5, w: 1,
+    prims: [P('M0,6 C-4,-10 8,-26 24,-26 C22,-10 12,2 0,6 Z', 'a'), P('M-4,8 C-10,-6 -22,-14 -34,-10 C-26,0 -14,6 -4,8 Z', 'a'), L('M2,4 C6,-6 12,-14 20,-20', 'k', 1.1, { op: 0.4 })] },
+];
+
+// ---- src/data/parts/patterns.js ----
+// Patterns are drawn in body coordinates and clipped to the body silhouette.
+// They inherit the body's paint, so "s" is the secondary colour and "pd"/"pl" the body shade/highlight.
+const SCALE_ROW = 'q5,-6 10,0 q5,-6 10,0 q5,-6 10,0 q5,-6 10,0 q5,-6 10,0 q5,-6 10,0 q5,-6 10,0 q5,-6 10,0 q5,-6 10,0 q5,-6 10,0';
+
+const PATTERNS = [
+  NONE('pattern', 0.4),
+  { id: 'pat.stripes', slot: 'pattern', name: 'Stripes', dom: 0.55, w: 3,
+    prims: [-34, -12, 10, 32].map((x) => P(`M${x},-40 L${x + 12},-40 L${x + 4},40 L${x - 8},40 Z`, 'pd', { ns: true, op: 0.85 })) },
+  { id: 'pat.spots', slot: 'pattern', name: 'Spots', dom: 0.5, w: 3,
+    prims: [C(-20, -10, 7, 's', { ns: true }), C(4, -18, 5, 's', { ns: true }), C(20, 2, 6, 's', { ns: true }), C(-6, 10, 8, 's', { ns: true }), C(-30, 12, 4, 's', { ns: true }), C(28, -16, 4, 's', { ns: true })] },
+  { id: 'pat.belly', slot: 'pattern', name: 'Belly', dom: 0.5, w: 3, prims: [E(6, 16, 34, 17, 'pl', { ns: true })] },
+  { id: 'pat.saddle', slot: 'pattern', name: 'Saddle', dom: 0.5, w: 2, prims: [E(-6, -24, 38, 20, 'pd', { ns: true, op: 0.9 })] },
+  { id: 'pat.scales', slot: 'pattern', name: 'Scales', dom: 0.45, w: 2,
+    prims: [-16, -4, 8, 20].map((y, i) => L(`M${i % 2 ? -45 : -50},${y} ${SCALE_ROW}`, 'k', 1.2, { op: 0.28 })) },
+  { id: 'pat.gradient', slot: 'pattern', name: 'Shaded', dom: 0.45, w: 2,
+    prims: [P('M-60,10 L60,10 L60,60 L-60,60 Z', 'pd', { ns: true, op: 0.25 }), P('M-60,22 L60,22 L60,60 L-60,60 Z', 'pd', { ns: true, op: 0.3 })] },
+  { id: 'pat.speckle', slot: 'pattern', name: 'Speckled', dom: 0.4, w: 2,
+    prims: [[-28, -6], [-18, -20], [-6, -26], [8, -22], [22, -14], [30, 2], [18, 12], [4, 20], [-12, 18], [-26, 10], [-2, 2], [14, -4]].map(([x, y]) => C(x, y, 1.7, 'pl', { ns: true, op: 0.9 })) },
+  { id: 'pat.chest', slot: 'pattern', name: 'Chest patch', dom: 0.45, w: 2, prims: [E(22, -2, 14, 18, 'pl', { ns: true })] },
+  { id: 'pat.bands', slot: 'pattern', name: 'Bands', dom: 0.5, w: 1,
+    prims: [P('M-60,-14 L60,-14 L60,-6 L-60,-6 Z', 'pd', { ns: true, op: 0.8 }), P('M-60,6 L60,6 L60,14 L-60,14 Z', 'pd', { ns: true, op: 0.8 })] },
+  { id: 'pat.diamonds', slot: 'pattern', name: 'Diamonds', dom: 0.45, w: 1,
+    prims: [P('M-20,-8 L-12,-20 L-4,-8 L-12,4 Z', 's', { ns: true }), P('M6,-4 L14,-16 L22,-4 L14,8 Z', 's', { ns: true }), P('M-40,4 L-34,-6 L-28,4 L-34,14 Z', 's', { ns: true })] },
+];
+
+// ---- src/data/parts/index.js ----
+// Part registry. Part ids are stable forever: a saved creature must decode the
+// same way after the library grows, so never rename or reuse an id.
+
+
+
+
+
+
+
+
+
+const SLOTS = ['body', 'head', 'eyes', 'mouth', 'crown', 'legs', 'arms', 'wings', 'tail', 'back', 'pattern'];
+const SLOT_NAMES = {
+  body: 'Body', head: 'Head', eyes: 'Eyes', mouth: 'Mouth', crown: 'Crown', legs: 'Legs',
+  arms: 'Arms', wings: 'Wings', tail: 'Tail', back: 'Back', pattern: 'Pattern',
+};
+
+const PARTS_BY_SLOT = {
+  body: BODIES, head: HEADS, eyes: EYES, mouth: MOUTHS, crown: CROWNS, legs: LEGS,
+  arms: ARMS, wings: WINGS, tail: TAILS, back: BACKS, pattern: PATTERNS,
+};
+
+const PARTS = new Map();
+for (const slot of SLOTS) {
+  for (const part of PARTS_BY_SLOT[slot]) {
+    if (PARTS.has(part.id)) throw new Error(`duplicate part id ${part.id}`);
+    if (part.slot !== slot) throw new Error(`part ${part.id} listed under slot ${slot} but declares ${part.slot}`);
+    PARTS.set(part.id, part);
+  }
+}
+
+function getPart(id) { return PARTS.get(id) || null; }
+
+/** Does this part fit on a body of the given kind? Parts without a fit list fit everything. */
+function partFits(part, bodyKind) {
+  return !part || !part.fit || part.fit.includes(bodyKind);
+}
+
+/** All parts for a slot that fit the given body kind (includes the slot's "none" entry when it has one). */
+function partsFor(slot, bodyKind) {
+  return PARTS_BY_SLOT[slot].filter((p) => partFits(p, bodyKind));
+}
+
+function partCount() { return PARTS.size; }
+
+// ---- src/data/species.js ----
+// Base species: recipes of parts, a palette, trait ranges and stat weights.
+// Recipe entries are a part id, or [expressed, carried] to give the species a
+// hidden recessive allele that fusion can bring back out.
+// Palette colours are [hue, saturation, lightness]. c1 = primary, c2 = secondary, c3 = accent.
+
+const T = (size, head, limb, tail, wing, eye) => ({
+  size, bulk: [0.35, 0.65], headScale: head, limbScale: limb, tailScale: tail, wingScale: wing, eyeScale: eye,
+});
+const MID = [0.35, 0.65];
+
+const SPECIES = [
+  {
+    id: 'pufflet', name: 'Pufflet', types: ['Normal'], tier: 'common', bst: 385,
+    stats: { hp: 0.2, atk: 0.16, def: 0.16, spa: 0.14, spd: 0.16, spe: 0.18 },
+    recipe: { body: 'body.round', head: 'head.round', eyes: 'eye.round', mouth: 'mouth.smile', crown: ['crown.catears', 'crown.bunny'], legs: 'legs.stub', arms: 'arms.none', wings: 'wings.none', tail: 'tails.stubby', back: 'back.none', pattern: 'pat.belly' },
+    palette: { c1: [38, 45, 72], c2: [36, 40, 88], c3: [350, 60, 72], eye: [205, 35, 28] }, vary: { h: 10, s: 8, l: 6 },
+    traits: T([0.3, 0.55], MID, [0.3, 0.5], MID, MID, [0.5, 0.8]),
+    desc: 'A soft, round creature that puffs up when startled. Happiest in a warm pocket.',
+  },
+  {
+    id: 'emberox', name: 'Emberox', types: ['Fire'], tier: 'common', bst: 405,
+    stats: { hp: 0.14, atk: 0.19, def: 0.13, spa: 0.2, spd: 0.13, spe: 0.21 },
+    recipe: { body: 'body.quad', head: 'head.snout', eyes: 'eye.angry', mouth: 'mouth.fangs', crown: ['crown.catears', 'crown.horns'], legs: 'legs.canine', arms: 'arms.none', wings: ['wings.none', 'wings.fire'], tail: 'tails.flame', back: 'back.none', pattern: 'pat.saddle' },
+    palette: { c1: [22, 88, 52], c2: [40, 95, 58], c3: [8, 88, 52], eye: [48, 95, 55] }, vary: { h: 8, s: 6, l: 6 },
+    traits: T([0.4, 0.7], MID, [0.45, 0.7], [0.6, 0.9], MID, MID),
+    desc: 'Its tail flame burns hotter the more it wants to impress. Kicks up sparks when it runs.',
+  },
+  {
+    id: 'finnip', name: 'Finnip', types: ['Water'], tier: 'common', bst: 395,
+    stats: { hp: 0.16, atk: 0.14, def: 0.17, spa: 0.19, spd: 0.18, spe: 0.16 },
+    recipe: { body: 'body.fish', head: 'head.none', eyes: 'eye.big', mouth: 'mouth.open', crown: 'crown.fin', legs: 'legs.none', arms: 'arms.fin', wings: 'wings.none', tail: 'tails.fish', back: 'back.fin', pattern: 'pat.stripes' },
+    palette: { c1: [205, 80, 54], c2: [190, 70, 72], c3: [28, 90, 62], eye: [42, 90, 50] }, vary: { h: 10, s: 6, l: 6 },
+    traits: T([0.35, 0.6], MID, MID, [0.5, 0.8], MID, [0.5, 0.8]),
+    desc: 'Swims through air as easily as water by beating its fins very fast. Curious about shiny things.',
+  },
+  {
+    id: 'sprigget', name: 'Sprigget', types: ['Grass'], tier: 'common', bst: 395,
+    stats: { hp: 0.18, atk: 0.15, def: 0.18, spa: 0.17, spd: 0.18, spe: 0.14 },
+    recipe: { body: 'body.biped', head: 'head.bulb', eyes: 'eye.round', mouth: 'mouth.smile', crown: 'crown.sprout', legs: 'legs.stub', arms: 'arms.stub', wings: ['wings.none', 'wings.leaf'], tail: 'tails.leaf', back: 'back.none', pattern: 'pat.spots' },
+    palette: { c1: [110, 45, 48], c2: [95, 55, 66], c3: [98, 55, 40], eye: [22, 60, 30] }, vary: { h: 12, s: 8, l: 6 },
+    traits: T([0.3, 0.6], [0.5, 0.75], [0.3, 0.55], MID, MID, [0.5, 0.75]),
+    desc: 'The sprout on its head leans toward sunlight. It naps in flowerbeds and wakes covered in pollen.',
+  },
+  {
+    id: 'voltmite', name: 'Voltmite', types: ['Electric'], tier: 'common', bst: 400,
+    stats: { hp: 0.13, atk: 0.16, def: 0.12, spa: 0.21, spd: 0.14, spe: 0.24 },
+    recipe: { body: 'body.round', head: 'head.none', eyes: 'eye.big', mouth: 'mouth.grin', crown: 'crown.bolts', legs: 'legs.stub', arms: 'arms.stub', wings: 'wings.none', tail: 'tails.whip', back: ['back.none', 'back.bolts'], pattern: 'pat.stripes' },
+    palette: { c1: [50, 95, 58], c2: [222, 15, 22], c3: [30, 95, 55], eye: [222, 40, 22] }, vary: { h: 6, s: 5, l: 6 },
+    traits: T([0.25, 0.5], MID, [0.3, 0.5], [0.5, 0.8], MID, [0.6, 0.9]),
+    desc: 'Static crackles in its fur. It clings to power lines and hums along with them.',
+  },
+  {
+    id: 'glacub', name: 'Glacub', types: ['Ice'], tier: 'uncommon', bst: 420,
+    stats: { hp: 0.2, atk: 0.18, def: 0.17, spa: 0.14, spd: 0.17, spe: 0.14 },
+    recipe: { body: 'body.biped', head: 'head.round', eyes: 'eye.sleepy', mouth: 'mouth.flat', crown: 'crown.catears', legs: 'legs.chunky', arms: 'arms.paw', wings: 'wings.none', tail: 'tails.stubby', back: ['back.none', 'back.crystal'], pattern: 'pat.belly' },
+    palette: { c1: [196, 55, 80], c2: [200, 30, 95], c3: [210, 60, 62], eye: [222, 50, 35] }, vary: { h: 8, s: 8, l: 5 },
+    traits: T([0.5, 0.8], [0.45, 0.65], [0.4, 0.6], [0.3, 0.5], MID, [0.4, 0.6]),
+    desc: 'Sleeps through blizzards. Its breath leaves frost on anything it sniffs.',
+  },
+  {
+    id: 'bruxor', name: 'Bruxor', types: ['Fighting'], tier: 'uncommon', bst: 430,
+    stats: { hp: 0.17, atk: 0.25, def: 0.18, spa: 0.08, spd: 0.14, spe: 0.18 },
+    recipe: { body: 'body.biped', head: 'head.block', eyes: 'eye.angry', mouth: 'mouth.frown', crown: ['crown.horns', 'crown.mohawk'], legs: 'legs.chunky', arms: 'arms.claw', wings: 'wings.none', tail: 'tail.none', back: 'back.none', pattern: 'pat.chest' },
+    palette: { c1: [15, 55, 46], c2: [30, 45, 70], c3: [40, 30, 88], eye: [10, 80, 40] }, vary: { h: 8, s: 8, l: 6 },
+    traits: T([0.55, 0.85], [0.4, 0.6], [0.5, 0.75], MID, MID, [0.3, 0.5]),
+    desc: 'Headbutts boulders to keep its horns sharp. Loyal to whoever beats it fairly.',
+  },
+  {
+    id: 'slugmire', name: 'Slugmire', types: ['Poison'], tier: 'common', bst: 390,
+    stats: { hp: 0.19, atk: 0.14, def: 0.15, spa: 0.18, spd: 0.2, spe: 0.14 },
+    recipe: { body: 'body.serpent', head: 'head.bulb', eyes: 'eye.slit', mouth: 'mouth.tongue', crown: 'crown.antennae', legs: 'legs.none', arms: 'arms.none', wings: 'wings.none', tail: 'tails.whip', back: ['back.none', 'back.spikes'], pattern: 'pat.spots' },
+    palette: { c1: [280, 50, 46], c2: [95, 60, 52], c3: [305, 70, 66], eye: [95, 90, 55] }, vary: { h: 12, s: 8, l: 6 },
+    traits: T([0.35, 0.65], [0.4, 0.6], MID, [0.5, 0.8], MID, [0.5, 0.75]),
+    desc: 'Leaves a faintly glowing trail. Gardeners both dread and admire it.',
+  },
+  {
+    id: 'dustoat', name: 'Dustoat', types: ['Ground'], tier: 'common', bst: 400,
+    stats: { hp: 0.18, atk: 0.2, def: 0.2, spa: 0.1, spd: 0.16, spe: 0.16 },
+    recipe: { body: 'body.quad', head: 'head.snout', eyes: 'eye.dot', mouth: 'mouth.flat', crown: ['crown.none', 'crown.horns'], legs: 'legs.hoof', arms: 'arms.none', wings: 'wings.none', tail: 'tails.whip', back: 'back.none', pattern: 'pat.saddle' },
+    palette: { c1: [32, 45, 50], c2: [40, 50, 76], c3: [25, 35, 30], eye: [30, 60, 25] }, vary: { h: 8, s: 8, l: 6 },
+    traits: T([0.45, 0.75], MID, [0.4, 0.6], [0.3, 0.5], MID, [0.3, 0.5]),
+    desc: 'Digs shallow burrows and forgets where they are. Its hooves never seem to get dirty.',
+  },
+  {
+    id: 'zephyrn', name: 'Zephyrn', types: ['Flying'], tier: 'common', bst: 395,
+    stats: { hp: 0.14, atk: 0.17, def: 0.12, spa: 0.16, spd: 0.13, spe: 0.28 },
+    recipe: { body: 'body.bird', head: 'head.beak', eyes: 'eye.round', mouth: 'mouth.none', crown: 'crown.crest', legs: 'legs.bird', arms: 'arms.none', wings: 'wings.feather', tail: 'tails.feathers', back: 'back.none', pattern: 'pat.belly' },
+    palette: { c1: [210, 70, 72], c2: [200, 20, 96], c3: [40, 90, 58], eye: [222, 60, 25] }, vary: { h: 12, s: 8, l: 6 },
+    traits: T([0.3, 0.6], MID, [0.4, 0.6], MID, [0.55, 0.85], MID),
+    desc: 'Rides thermals for hours without a single flap. Whistles at travellers to show them the way.',
+  },
+  {
+    id: 'mystril', name: 'Mystril', types: ['Psychic'], tier: 'uncommon', bst: 440,
+    stats: { hp: 0.14, atk: 0.08, def: 0.13, spa: 0.26, spd: 0.21, spe: 0.18 },
+    recipe: { body: 'body.float', head: 'head.none', eyes: 'eye.big', mouth: 'mouth.smile', crown: ['crown.antennae', 'crown.halo'], legs: 'legs.none', arms: 'arms.none', wings: 'wings.none', tail: 'tails.curl', back: 'back.wisps', pattern: 'pat.spots' },
+    palette: { c1: [320, 60, 68], c2: [270, 50, 62], c3: [48, 90, 62], eye: [200, 70, 50] }, vary: { h: 14, s: 8, l: 6 },
+    traits: T([0.35, 0.6], MID, MID, [0.5, 0.8], MID, [0.6, 0.9]),
+    desc: 'Hovers a hand-width above the ground and always seems to be listening to something far away.',
+  },
+  {
+    id: 'chitterbug', name: 'Chitterbug', types: ['Bug'], tier: 'common', bst: 380,
+    stats: { hp: 0.16, atk: 0.18, def: 0.17, spa: 0.12, spd: 0.15, spe: 0.22 },
+    recipe: { body: 'body.round', head: 'head.round', eyes: 'eye.bug', mouth: 'mouth.fangs', crown: 'crown.antennae', legs: 'legs.insect', arms: 'arms.none', wings: 'wings.bug', tail: 'tail.none', back: 'back.plates', pattern: 'pat.stripes' },
+    palette: { c1: [95, 50, 42], c2: [222, 10, 18], c3: [50, 90, 55], eye: [0, 0, 12] }, vary: { h: 14, s: 8, l: 6 },
+    traits: T([0.25, 0.5], [0.4, 0.6], [0.4, 0.7], MID, [0.4, 0.7], [0.5, 0.8]),
+    desc: 'Chatters constantly by rubbing its plates together. Swarms are loud enough to hear from the next valley.',
+  },
+  {
+    id: 'craggon', name: 'Craggon', types: ['Rock'], tier: 'uncommon', bst: 430,
+    stats: { hp: 0.17, atk: 0.21, def: 0.27, spa: 0.08, spd: 0.15, spe: 0.12 },
+    recipe: { body: 'body.biped', head: 'head.block', eyes: 'eye.dot', mouth: 'mouth.flat', crown: 'crown.spikes', legs: 'legs.chunky', arms: 'arms.claw', wings: 'wings.none', tail: 'tails.club', back: ['back.plates', 'back.crystal'], pattern: 'pat.scales' },
+    palette: { c1: [30, 15, 50], c2: [30, 12, 36], c3: [32, 22, 68], eye: [45, 80, 50] }, vary: { h: 10, s: 6, l: 6 },
+    traits: T([0.5, 0.85], [0.4, 0.6], [0.4, 0.6], [0.5, 0.75], MID, [0.3, 0.5]),
+    desc: 'Mistaken for a boulder until it yawns. Lichen grows on the ones that sit still longest.',
+  },
+  {
+    id: 'phantoom', name: 'Phantoom', types: ['Ghost'], tier: 'uncommon', bst: 425,
+    stats: { hp: 0.13, atk: 0.1, def: 0.14, spa: 0.24, spd: 0.2, spe: 0.19 },
+    recipe: { body: 'body.float', head: 'head.none', eyes: 'eye.sleepy', mouth: 'mouth.grin', crown: ['crown.none', 'crown.halo'], legs: 'legs.none', arms: 'arms.stub', wings: 'wings.none', tail: 'tail.none', back: 'back.wisps', pattern: 'pattern.none' },
+    palette: { c1: [255, 40, 42], c2: [250, 30, 72], c3: [180, 60, 70], eye: [180, 80, 60] }, vary: { h: 12, s: 8, l: 6 },
+    traits: T([0.35, 0.65], MID, MID, MID, MID, [0.5, 0.8]),
+    desc: 'Drifts through walls when it forgets they are there. Giggles in empty rooms.',
+  },
+  {
+    id: 'drakelet', name: 'Drakelet', types: ['Dragon'], tier: 'rare', bst: 480,
+    stats: { hp: 0.17, atk: 0.21, def: 0.16, spa: 0.18, spd: 0.14, spe: 0.14 },
+    recipe: { body: 'body.quad', head: 'head.long', eyes: 'eye.slit', mouth: 'mouth.fangs', crown: 'crown.horns', legs: 'legs.chunky', arms: 'arms.none', wings: 'wings.bat', tail: ['tails.whip', 'tails.club'], back: 'back.spikes', pattern: 'pat.gradient' },
+    palette: { c1: [175, 55, 40], c2: [25, 80, 58], c3: [45, 70, 76], eye: [40, 90, 50] }, vary: { h: 12, s: 8, l: 6 },
+    traits: T([0.5, 0.8], MID, [0.45, 0.7], [0.5, 0.8], [0.5, 0.8], [0.3, 0.5]),
+    desc: 'A young dragon that hoards pebbles and sleeps on them. Its wings are still too small to carry it far.',
+  },
+  {
+    id: 'nyxcat', name: 'Nyxcat', types: ['Dark'], tier: 'uncommon', bst: 425,
+    stats: { hp: 0.14, atk: 0.21, def: 0.13, spa: 0.15, spd: 0.13, spe: 0.24 },
+    recipe: { body: 'body.quad', head: 'head.cat', eyes: 'eye.slit', mouth: 'mouth.smirk', crown: 'crown.catears', legs: 'legs.canine', arms: 'arms.none', wings: 'wings.none', tail: ['tails.curl', 'tails.spade'], back: 'back.none', pattern: 'pattern.none' },
+    palette: { c1: [262, 22, 22], c2: [270, 30, 45], c3: [45, 90, 60], eye: [50, 95, 55] }, vary: { h: 12, s: 8, l: 5 },
+    traits: T([0.35, 0.6], MID, [0.5, 0.75], [0.6, 0.9], MID, [0.5, 0.8]),
+    desc: 'Only ever seen out of the corner of the eye. Steals one sock, never the pair.',
+  },
+  {
+    id: 'boltmaw', name: 'Boltmaw', types: ['Steel'], tier: 'rare', bst: 470,
+    stats: { hp: 0.16, atk: 0.22, def: 0.26, spa: 0.1, spd: 0.16, spe: 0.1 },
+    recipe: { body: 'body.biped', head: 'head.skull', eyes: 'eye.dot', mouth: 'mouth.teeth', crown: 'crown.spikes', legs: 'legs.peg', arms: ['arms.claw', 'arms.blade'], wings: 'wings.none', tail: 'tails.club', back: 'back.plates', pattern: 'pat.bands' },
+    palette: { c1: [220, 12, 62], c2: [220, 15, 40], c3: [200, 60, 55], eye: [0, 90, 52] }, vary: { h: 8, s: 5, l: 6 },
+    traits: T([0.5, 0.8], MID, [0.4, 0.6], [0.4, 0.6], MID, [0.3, 0.5]),
+    desc: 'Nobody knows whether it was built or born. It sharpens its teeth on rusty nails.',
+  },
+  {
+    id: 'twinklet', name: 'Twinklet', types: ['Fairy'], tier: 'common', bst: 400,
+    stats: { hp: 0.17, atk: 0.1, def: 0.15, spa: 0.22, spd: 0.21, spe: 0.15 },
+    recipe: { body: 'body.round', head: 'head.bulb', eyes: 'eye.big', mouth: 'mouth.smile', crown: 'crown.bunny', legs: 'legs.stub', arms: 'arms.stub', wings: 'wings.bug', tail: 'tails.fluffy', back: 'back.none', pattern: 'pat.speckle' },
+    palette: { c1: [335, 75, 78], c2: [330, 30, 97], c3: [48, 90, 66], eye: [200, 70, 55] }, vary: { h: 12, s: 8, l: 5 },
+    traits: T([0.25, 0.5], [0.5, 0.75], [0.3, 0.5], MID, [0.4, 0.7], [0.6, 0.9]),
+    desc: 'Sheds glitter when happy, which is nearly always. Impossible to stay angry at.',
+  },
+  // Dual-typed species
+  {
+    id: 'moltrix', name: 'Moltrix', types: ['Fire', 'Flying'], tier: 'uncommon', bst: 445,
+    stats: { hp: 0.14, atk: 0.18, def: 0.12, spa: 0.22, spd: 0.12, spe: 0.22 },
+    recipe: { body: 'body.bird', head: 'head.beak', eyes: 'eye.angry', mouth: 'mouth.none', crown: 'crown.crest', legs: 'legs.bird', arms: 'arms.none', wings: 'wings.fire', tail: 'tails.feathers', back: 'back.none', pattern: 'pat.gradient' },
+    palette: { c1: [18, 85, 50], c2: [40, 95, 60], c3: [48, 95, 58], eye: [48, 95, 55] }, vary: { h: 8, s: 6, l: 6 },
+    traits: T([0.4, 0.7], MID, [0.4, 0.6], [0.5, 0.8], [0.6, 0.9], MID),
+    desc: 'Its wingbeats leave trails of embers. Nests on chimney tops in winter.',
+  },
+  {
+    id: 'tidalisk', name: 'Tidalisk', types: ['Water', 'Dragon'], tier: 'rare', bst: 490,
+    stats: { hp: 0.18, atk: 0.17, def: 0.17, spa: 0.2, spd: 0.15, spe: 0.13 },
+    recipe: { body: 'body.serpent', head: 'head.long', eyes: 'eye.slit', mouth: 'mouth.fangs', crown: 'crown.fin', legs: 'legs.none', arms: 'arms.none', wings: 'wings.fin', tail: 'tails.fish', back: 'back.fin', pattern: 'pat.scales' },
+    palette: { c1: [200, 65, 42], c2: [185, 60, 68], c3: [165, 70, 60], eye: [45, 90, 55] }, vary: { h: 10, s: 6, l: 6 },
+    traits: T([0.55, 0.85], MID, MID, [0.5, 0.8], [0.4, 0.7], [0.3, 0.5]),
+    desc: 'Coils around harbour posts during storms. Sailors leave it fish and it leaves them alone.',
+  },
+  {
+    id: 'mossbrute', name: 'Mossbrute', types: ['Grass', 'Fighting'], tier: 'uncommon', bst: 440,
+    stats: { hp: 0.19, atk: 0.23, def: 0.2, spa: 0.1, spd: 0.16, spe: 0.12 },
+    recipe: { body: 'body.biped', head: 'head.block', eyes: 'eye.angry', mouth: 'mouth.frown', crown: 'crown.sprout', legs: 'legs.chunky', arms: 'arms.claw', wings: 'wings.none', tail: 'tails.stubby', back: 'back.leaf', pattern: 'pat.spots' },
+    palette: { c1: [100, 35, 40], c2: [80, 45, 55], c3: [95, 55, 62], eye: [40, 80, 50] }, vary: { h: 10, s: 8, l: 6 },
+    traits: T([0.55, 0.85], [0.4, 0.6], [0.5, 0.75], [0.3, 0.5], MID, [0.3, 0.5]),
+    desc: 'Moss grows thick on its shoulders. It uproots trees to practise its throws, then replants them.',
+  },
+  {
+    id: 'gloamoth', name: 'Gloamoth', types: ['Bug', 'Ghost'], tier: 'uncommon', bst: 430,
+    stats: { hp: 0.14, atk: 0.12, def: 0.12, spa: 0.22, spd: 0.18, spe: 0.22 },
+    recipe: { body: 'body.float', head: 'head.none', eyes: 'eye.bug', mouth: 'mouth.flat', crown: 'crown.antennae', legs: 'legs.none', arms: 'arms.none', wings: 'wings.bug', tail: 'tail.none', back: 'back.wisps', pattern: 'pat.speckle' },
+    palette: { c1: [250, 30, 38], c2: [260, 25, 60], c3: [170, 60, 68], eye: [170, 80, 65] }, vary: { h: 12, s: 8, l: 6 },
+    traits: T([0.3, 0.6], MID, MID, MID, [0.6, 0.9], [0.5, 0.8]),
+    desc: 'Drawn to lanterns, but the light passes straight through it. Dust from its wings causes vivid dreams.',
+  },
+];
+
+const SPECIES_BY_ID = Object.fromEntries(SPECIES.map((s) => [s.id, s]));
+
+const TIER_WEIGHT = { common: 1, uncommon: 0.55, rare: 0.25 };
+
+// ---- src/creature/genome.js ----
+// The genome is the single source of truth for a creature. It is a plain JSON
+// object with a fixed shape, so fusing two genomes always yields another valid
+// genome and any creature can be shared as a code string.
+//
+// Diploid part genes: every slot holds [expressed, carried]. Only the expressed
+// allele is drawn; the carried one can resurface in offspring.
+
+
+
+
+
+
+const GENOME_VERSION = 1;
+const CODE_PREFIX = 'CC1.';
+const STAT_KEYS = ['hp', 'atk', 'def', 'spa', 'spd', 'spe'];
+const STAT_NAMES = { hp: 'HP', atk: 'Attack', def: 'Defense', spa: 'Sp. Atk', spd: 'Sp. Def', spe: 'Speed' };
+const TRAIT_KEYS = ['size', 'bulk', 'headScale', 'limbScale', 'tailScale', 'wingScale', 'eyeScale'];
+const PAINT_SLOTS = ['body', 'head', 'crown', 'legs', 'arms', 'wings', 'tail', 'back'];
+/** Role order [p, s, a] -> colour index into [c1, c2, c3]. */
+const PAINT_PERMS = [[0, 1, 2], [0, 2, 1], [1, 0, 2], [1, 2, 0], [2, 0, 1], [2, 1, 0]];
+
+/** Odds used when rolling a wild creature from its species. */
+const ROLL = {
+  carriedMutation: 0.1,   // hidden allele replaced by a random part
+  expressedMutation: 0.03, // visible variant
+  bodyCarriedMutation: 0.05,
+  paintSwap: 0.12,        // a slot's colour roles get permuted
+  shiny: 1 / 64,
+};
+
+const round3 = (x) => Math.round(x * 1000) / 1000;
+
+function allelesFromRecipe(entry, slot) {
+  if (Array.isArray(entry)) return [entry[0], entry[1] ?? entry[0]];
+  if (typeof entry === 'string') return [entry, entry];
+  return [`${slot}.none`, `${slot}.none`];
+}
+
+function randomPartId(slot, bodyKind, rng) {
+  const pool = partsFor(slot, bodyKind);
+  return rng.weighted(pool, (p) => p.w ?? 1).id;
+}
+
+function defaultTraits() {
+  const t = {};
+  for (const k of TRAIT_KEYS) t[k] = 0.5;
+  return t;
+}
+
+/** Roll a wild creature of a species. Deterministic for a given rng seed. */
+function speciesGenome(species, rng) {
+  const rParts = rng.fork('parts');
+  const rPaint = rng.fork('paint');
+  const rPal = rng.fork('palette');
+  const rTraits = rng.fork('traits');
+  const rStats = rng.fork('stats');
+
+  const parts = {};
+  const bodyAlleles = allelesFromRecipe(species.recipe.body, 'body');
+  if (rParts.chance(ROLL.bodyCarriedMutation)) bodyAlleles[1] = randomPartId('body', null, rParts);
+  parts.body = bodyAlleles;
+  const bodyKind = getPart(bodyAlleles[0]).kind;
+  for (const slot of SLOTS) {
+    if (slot === 'body') continue;
+    const a = allelesFromRecipe(species.recipe[slot], slot);
+    if (rParts.chance(ROLL.carriedMutation)) a[1] = randomPartId(slot, bodyKind, rParts);
+    if (rParts.chance(ROLL.expressedMutation)) a[0] = randomPartId(slot, bodyKind, rParts);
+    parts[slot] = a;
+  }
+
+  const paint = {};
+  for (const slot of PAINT_SLOTS) {
+    let idx = (species.paint && species.paint[slot]) || 0;
+    if (rPaint.chance(ROLL.paintSwap)) idx = rPaint.int(PAINT_PERMS.length);
+    paint[slot] = idx;
+  }
+
+  let palette = jitterPalette(species.palette, species.vary, rPal);
+  const shiny = rPal.chance(ROLL.shiny);
+  if (shiny) palette = shinyPalette(palette, rPal);
+
+  const traits = {};
+  for (const k of TRAIT_KEYS) {
+    const [lo, hi] = (species.traits && species.traits[k]) || [0.35, 0.65];
+    traits[k] = round3(rTraits.range(lo, hi));
+  }
+
+  const vigor = {};
+  for (const k of STAT_KEYS) vigor[k] = round3(rStats.next());
+
+  return {
+    v: GENOME_VERSION,
+    seed: rng.seed,
+    species: species.id,
+    name: species.name,
+    gen: 0,
+    shiny,
+    types: [species.types[0], species.types[1] || null],
+    parts,
+    paint,
+    palette,
+    traits,
+    stats: { ...species.stats },
+    vigor,
+    bst: species.bst,
+    lineage: [species.id],
+  };
+}
+
+/** A random wild creature: species weighted by rarity tier, then rolled. */
+function randomGenome(rng) {
+  const species = rng.fork('species').weighted(SPECIES, (s) => TIER_WEIGHT[s.tier] || 1);
+  return speciesGenome(species, rng);
+}
+
+function speciesOf(g) { return SPECIES_BY_ID[g.species] || null; }
+
+/**
+ * Expressed part per slot after compatibility checks. If the expressed allele
+ * does not fit the body, the carried one is tried, then nothing.
+ */
+function resolveParts(g) {
+  const out = {};
+  const body = getPart(g.parts.body[0]) || getPart(g.parts.body[1]) || PARTS_BY_SLOT.body[0];
+  out.body = body;
+  for (const slot of SLOTS) {
+    if (slot === 'body') continue;
+    const [e, c] = g.parts[slot] || [];
+    let part = getPart(e);
+    if (!part || !partFits(part, body.kind)) {
+      const alt = getPart(c);
+      part = alt && partFits(alt, body.kind) ? alt : null;
+    }
+    out[slot] = part && !part.none ? part : null;
+  }
+  return out;
+}
+
+/** Species-level base stats: the fixed budget split by the creature's stat weights. */
+function baseStats(g) {
+  const w = normalizeWeights(g.stats);
+  const out = {};
+  for (const k of STAT_KEYS) out[k] = Math.max(20, Math.round((g.bst || 400) * w[k]));
+  return out;
+}
+
+function typeLabel(g) { return g.types.filter(Boolean).join(' / '); }
+
+function encodeGenome(g) { return CODE_PREFIX + b64uEncode(JSON.stringify(g)); }
+
+function decodeGenome(code) {
+  const s = String(code || '').trim();
+  if (!s.startsWith(CODE_PREFIX)) throw new Error('That is not a creature code.');
+  let g;
+  try { g = JSON.parse(b64uDecode(s.slice(CODE_PREFIX.length))); } catch { throw new Error('That creature code is damaged.'); }
+  return validateGenome(g);
+}
+
+/** Throws on structural problems; fills harmless gaps with defaults. Returns the genome. */
+function validateGenome(g) {
+  if (!g || typeof g !== 'object') throw new Error('Not a creature.');
+  if (g.v !== GENOME_VERSION) throw new Error(`Unsupported creature version ${g.v}.`);
+  if (!g.parts || typeof g.parts !== 'object') throw new Error('Creature has no parts.');
+  for (const slot of SLOTS) {
+    const a = g.parts[slot];
+    if (!Array.isArray(a) || a.length !== 2 || !a.every((x) => typeof x === 'string')) throw new Error(`Bad ${slot} genes.`);
+  }
+  if (!getPart(g.parts.body[0]) && !getPart(g.parts.body[1])) throw new Error('Unknown body part.');
+  for (const k of ['c1', 'c2', 'c3', 'eye']) {
+    const c = g.palette && g.palette[k];
+    if (!Array.isArray(c) || c.length !== 3 || !c.every(Number.isFinite)) throw new Error('Bad palette.');
+  }
+  if (!Array.isArray(g.types) || !isType(g.types[0]) || (g.types[1] != null && !isType(g.types[1]))) throw new Error('Bad types.');
+  g.types = [g.types[0], g.types[1] || null];
+  g.traits = { ...defaultTraits(), ...(g.traits || {}) };
+  for (const k of TRAIT_KEYS) g.traits[k] = clamp01(Number(g.traits[k]) || 0.5);
+  g.paint = g.paint && typeof g.paint === 'object' ? g.paint : {};
+  for (const slot of PAINT_SLOTS) g.paint[slot] = PAINT_PERMS[g.paint[slot]] ? g.paint[slot] : 0;
+  if (!g.stats || typeof g.stats !== 'object') g.stats = Object.fromEntries(STAT_KEYS.map((k) => [k, 1]));
+  if (!g.vigor || typeof g.vigor !== 'object') g.vigor = Object.fromEntries(STAT_KEYS.map((k) => [k, 0.5]));
+  g.bst = Number.isFinite(g.bst) ? g.bst : 400;
+  g.gen = Number.isFinite(g.gen) ? g.gen : 0;
+  g.name = typeof g.name === 'string' && g.name.trim() ? g.name.trim().slice(0, 24) : 'Unknown';
+  g.lineage = Array.isArray(g.lineage) ? g.lineage.filter((x) => typeof x === 'string').slice(0, 16) : [];
+  g.shiny = Boolean(g.shiny);
+  return g;
+}
+
+// ---- src/creature/render.js ----
+// Genome -> SVG string. Pure: no DOM access, so it runs in Node for tests.
+//
+// Draw order (back to front): far wing, near wing, tail, back feature, far legs,
+// far arm, near legs, near arm, body (+pattern, +face when headless), head
+// (crown behind the skull, then eyes and mouth), and front-mounted arms for
+// bodies that ask for it. Limbs sit behind the body so their roots are hidden
+// by the silhouette, which keeps outlines clean.
+//
+// The frame is fixed so creatures are comparable in size: the ground line sits
+// at the same height in every render. opts.fit crops the viewBox to the
+// creature's bounds instead, for hero shots.
+
+
+
+
+const FRAME = { w: 200, h: 230, ground: 208 };
+const FAR_DEFAULT = { dx: -6, dy: -4 };
+
+function fillAttr(f) { return f === 'none' ? 'none' : `var(--${f})`; }
+
+function primSvg(pr) {
+  const cls = pr.ns ? '' : ' class="o"';
+  const style = pr.sw != null && !pr.ns ? ` style="stroke-width:${num(pr.sw)}"` : '';
+  const op = pr.op != null ? ` opacity="${num(pr.op)}"` : '';
+  switch (pr.t) {
+    case 'path': return `<path${cls} d="${pr.d}" fill="${fillAttr(pr.f)}"${style}${op}/>`;
+    case 'ellipse': return `<ellipse${cls} cx="${num(pr.cx)}" cy="${num(pr.cy)}" rx="${num(pr.rx)}" ry="${num(pr.ry)}" fill="${fillAttr(pr.f)}"${style}${op}/>`;
+    case 'circle': return `<circle${cls} cx="${num(pr.cx)}" cy="${num(pr.cy)}" r="${num(pr.r)}" fill="${fillAttr(pr.f)}"${style}${op}/>`;
+    case 'line': return `<path d="${pr.d}" fill="none" stroke="var(--${pr.f})" stroke-width="${num(pr.w)}" stroke-linecap="round" stroke-linejoin="round"${op}/>`;
+    default: return '';
+  }
+}
+
+function partPrims(part) { return part.prims.map(primSvg).join(''); }
+
+// ---- bounds -----------------------------------------------------------------
+
+const boundsCache = new Map();
+
+/**
+ * Approximate bounding box [x0,y0,x1,y1] of a part in its own coordinates.
+ * Reads absolute path coordinates (control points included, so it errs large);
+ * relative path segments are ignored, which only matters for clipped patterns.
+ */
+function partBounds(part) {
+  if (boundsCache.has(part.id)) return boundsCache.get(part.id);
+  let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
+  const add = (x, y) => { if (x < x0) x0 = x; if (x > x1) x1 = x; if (y < y0) y0 = y; if (y > y1) y1 = y; };
+  for (const pr of part.prims || []) {
+    if (pr.t === 'ellipse') { add(pr.cx - pr.rx, pr.cy - pr.ry); add(pr.cx + pr.rx, pr.cy + pr.ry); }
+    else if (pr.t === 'circle') { add(pr.cx - pr.r, pr.cy - pr.r); add(pr.cx + pr.r, pr.cy + pr.r); }
+    else if (pr.t === 'path' || pr.t === 'line') {
+      const abs = pr.d.replace(/[a-z][^A-Za-z]*/g, ' ');
+      const nums = (abs.match(/-?\d*\.?\d+/g) || []).map(Number);
+      for (let i = 0; i + 1 < nums.length; i += 2) add(nums[i], nums[i + 1]);
+    }
+  }
+  const box = x0 === Infinity ? [0, 0, 0, 0] : [x0 - 2, y0 - 2, x1 + 2, y1 + 2];
+  boundsCache.set(part.id, box);
+  return box;
+}
+
+// transform = { x, y, a, sx, sy } applied as translate(x,y) rotate(a) scale(sx,sy)
+function applyT([px, py], t) {
+  let x = px * (t.sx == null ? 1 : t.sx), y = py * (t.sy == null ? 1 : t.sy);
+  if (t.a) {
+    const r = (t.a * Math.PI) / 180, c = Math.cos(r), s = Math.sin(r);
+    const rx = x * c - y * s, ry = x * s + y * c;
+    x = rx; y = ry;
+  }
+  return [x + (t.x || 0), y + (t.y || 0)];
+}
+
+/** Push a box through a chain of transforms, innermost first. */
+function boxThrough(box, chain) {
+  let pts = [[box[0], box[1]], [box[2], box[1]], [box[0], box[3]], [box[2], box[3]]];
+  for (const t of chain) pts = pts.map((p) => applyT(p, t));
+  let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
+  for (const [x, y] of pts) { if (x < x0) x0 = x; if (x > x1) x1 = x; if (y < y0) y0 = y; if (y > y1) y1 = y; }
+  return [x0, y0, x1, y1];
+}
+
+function union(a, b) {
+  if (!a) return b.slice();
+  return [Math.min(a[0], b[0]), Math.min(a[1], b[1]), Math.max(a[2], b[2]), Math.max(a[3], b[3])];
+}
+
+const xf = (x, y, a = 0, s = 1) => ({ x, y, a, sx: s, sy: s });
+
+function tf(t) {
+  let out = `translate(${num(t.x)} ${num(t.y)})`;
+  if (t.a) out += ` rotate(${num(t.a)})`;
+  if (t.sx !== 1) out += ` scale(${num(t.sx)})`;
+  return out;
+}
+
+function paintOf(g, slot) {
+  const perm = PAINT_PERMS[(g.paint && g.paint[slot]) || 0] || PAINT_PERMS[0];
+  return slotPaintVars(perm);
+}
+
+/** Scales derived from continuous trait genes. Exported so the UI can explain them. */
+function traitScales(traits = {}) {
+  const t = (k) => (traits[k] == null ? 0.5 : traits[k]);
+  return {
+    size: lerp(0.68, 1.0, t('size')),
+    leg: lerp(0.8, 1.2, t('limbScale')),
+    head: lerp(0.85, 1.15, t('headScale')),
+    tail: lerp(0.75, 1.25, t('tailScale')),
+    wing: lerp(0.75, 1.25, t('wingScale')),
+    eye: lerp(0.8, 1.25, t('eyeScale')),
+  };
+}
+
+/**
+ * Build the layered markup and measure it. Returns { layers, box, feet, hover, K, body, clip }
+ * where box is the creature's bounds in creature space (body centre = 0,0).
+ */
+function buildCreature(g, id) {
+  const P = resolveParts(g);
+  const body = P.body;
+  const S = body.sockets;
+  const K = traitScales(g.traits);
+
+  let feet = body.bottom;
+  if (P.legs && S.legs) for (const ls of S.legs) feet = Math.max(feet, ls.y + (P.legs.len || 40) * K.leg);
+  const hover = body.hover || 0;
+
+  const L = [];
+  let box = null;
+  const grow = (part, chain) => { box = union(box, boxThrough(partBounds(part), chain)); };
+
+  if (P.wings && S.wing) {
+    const w = partPrims(P.wings);
+    const tn = xf(S.wing.x, S.wing.y, 0, K.wing), tfar = xf(S.wing.x - 6, S.wing.y - 6, 0, K.wing);
+    grow(P.wings, [tn]); grow(P.wings, [tfar]);
+    L.push(`<g style="${paintOf(g, 'wings')}">` +
+      `<g transform="${tf(tfar)}"><g class="g-wing" style="${FAR_VARS}">${w}</g></g>` +
+      `<g transform="${tf(tn)}"><g class="g-wing">${w}</g></g></g>`);
+  }
+  if (P.tail && S.tail) {
+    const t = xf(S.tail.x, S.tail.y, S.tail.a, K.tail);
+    grow(P.tail, [t]);
+    L.push(`<g style="${paintOf(g, 'tail')}"><g transform="${tf(t)}"><g class="g-tail">${partPrims(P.tail)}</g></g></g>`);
+  }
+  if (P.back && S.back) {
+    const t = xf(S.back.x, S.back.y, S.back.a);
+    grow(P.back, [t]);
+    L.push(`<g style="${paintOf(g, 'back')}"><g transform="${tf(t)}">${partPrims(P.back)}</g></g>`);
+  }
+  if (P.legs && S.legs && S.legs.length) {
+    const lp = partPrims(P.legs);
+    let far = '', near = '';
+    for (const ls of S.legs) {
+      const f = ls.far || FAR_DEFAULT;
+      const tfar = xf(ls.x + f.dx, ls.y + f.dy, 0, K.leg), tn = xf(ls.x, ls.y, 0, K.leg);
+      grow(P.legs, [tfar]); grow(P.legs, [tn]);
+      far += `<g transform="${tf(tfar)}" style="${FAR_VARS}">${lp}</g>`;
+      near += `<g transform="${tf(tn)}">${lp}</g>`;
+    }
+    L.push(`<g style="${paintOf(g, 'legs')}">${far}${near}</g>`);
+  }
+  const armsFront = Boolean(body.armsFront);
+  const armSvg = () => {
+    const ap = partPrims(P.arms);
+    const tn = xf(S.arm.x, S.arm.y), tfar = xf(S.arm.x - 14, S.arm.y - 3);
+    grow(P.arms, [tn]);
+    let s = `<g style="${paintOf(g, 'arms')}">`;
+    if (!armsFront) { grow(P.arms, [tfar]); s += `<g transform="${tf(tfar)}" style="${FAR_VARS}">${ap}</g>`; }
+    return s + `<g transform="${tf(tn)}">${ap}</g></g>`;
+  };
+  if (P.arms && S.arm && !armsFront) L.push(armSvg());
+
+  // Face: crown behind the skull, then far eye, near eye, mouth. `outer` is the
+  // transform chain of whatever the face sits on (head or body).
+  const face = (F, outer) => {
+    let behind = '', front = '';
+    if (P.crown && F.crown) {
+      const t = xf(F.crown.x, F.crown.y, F.crown.a, F.crown.s == null ? 1 : F.crown.s);
+      grow(P.crown, [t, ...outer]);
+      behind += `<g style="${paintOf(g, 'crown')}"><g transform="${tf(t)}">${partPrims(P.crown)}</g></g>`;
+    }
+    if (P.eyes) {
+      const ep = partPrims(P.eyes);
+      if (F.eye2) {
+        const t = xf(F.eye2.x, F.eye2.y, 0, (F.eye2.s == null ? 0.85 : F.eye2.s) * K.eye);
+        grow(P.eyes, [t, ...outer]);
+        front += `<g transform="${tf(t)}" style="${FAR_VARS}">${ep}</g>`;
+      }
+      if (F.eye) {
+        const t = xf(F.eye.x, F.eye.y, 0, (F.eye.s == null ? 1 : F.eye.s) * K.eye);
+        grow(P.eyes, [t, ...outer]);
+        front += `<g transform="${tf(t)}">${ep}</g>`;
+      }
+    }
+    if (P.mouth && F.mouth) {
+      const t = xf(F.mouth.x, F.mouth.y, 0, F.mouth.s == null ? 1 : F.mouth.s);
+      grow(P.mouth, [t, ...outer]);
+      front += `<g transform="${tf(t)}">${partPrims(P.mouth)}</g>`;
+    }
+    return { behind, front };
+  };
+
+  const headless = !P.head || !S.head;
+  const bodyFace = headless && S.face ? face(S.face, []) : null;
+  grow(body, []);
+  let bodyInner = bodyFace ? bodyFace.behind : '';
+  bodyInner += partPrims(body);
+  if (P.pattern) bodyInner += `<g clip-path="url(#${id}-clip)">${partPrims(P.pattern)}</g>`;
+  if (bodyFace) bodyInner += bodyFace.front;
+  L.push(`<g class="g-body" style="${paintOf(g, 'body')}">${bodyInner}</g>`);
+
+  if (P.arms && S.arm && armsFront) L.push(armSvg());
+
+  if (!headless) {
+    const hs = S.head;
+    const th = xf(hs.x, hs.y, hs.a, (hs.s == null ? 1 : hs.s) * K.head);
+    grow(P.head, [th]);
+    const hf = face(P.head.sockets, [th]);
+    L.push(`<g style="${paintOf(g, 'head')}"><g transform="${tf(th)}"><g class="g-head">${hf.behind}${partPrims(P.head)}${hf.front}</g></g></g>`);
+  }
+
+  return { layers: L, box: box || [-40, -40, 40, 40], feet, hover, K, body, clip: body.clip || [] };
+}
+
+/** Canvas-space transform that places a built creature on the ground line. */
+function placement(built, facing) {
+  const flip = facing === 'left' ? -1 : 1;
+  const sc = built.K.size;
+  return [
+    { x: 0, y: -(built.feet + built.hover) },
+    { x: FRAME.w / 2, y: FRAME.ground, a: 0, sx: flip * sc, sy: sc },
+  ];
+}
+
+/** Bounding box of a creature in canvas coordinates, shadow included. */
+function measureCreature(g, facing = 'right') {
+  const built = buildCreature(g, 'm');
+  const chain = placement(built, facing);
+  const box = boxThrough(built.box, chain);
+  const sc = built.K.size;
+  const shadowRx = 36 * sc * (built.hover ? 0.7 : 1), shadowRy = 7 * sc;
+  return union(box, [FRAME.w / 2 - shadowRx, FRAME.ground - shadowRy, FRAME.w / 2 + shadowRx, FRAME.ground + shadowRy]);
+}
+
+/**
+ * Render a creature.
+ * opts: size (px width), facing ('right' | 'left'), animate (bool), id (svg id prefix),
+ *       label (aria), fit (crop the viewBox to the creature instead of the fixed frame)
+ */
+function renderCreatureSvg(g, opts = {}) {
+  const { size = 200, facing = 'right', animate = true, fit = false } = opts;
+  const id = opts.id || uid('cr');
+  const built = buildCreature(g, id);
+  const chain = placement(built, facing);
+  const sc = built.K.size;
+  const shadowRx = 36 * sc * (built.hover ? 0.7 : 1), shadowRy = 7 * sc;
+
+  let vb = [0, 0, FRAME.w, FRAME.h];
+  if (fit) {
+    const b = union(boxThrough(built.box, chain), [FRAME.w / 2 - shadowRx, FRAME.ground - shadowRy, FRAME.w / 2 + shadowRx, FRAME.ground + shadowRy]);
+    const pad = 8;
+    vb = [b[0] - pad, b[1] - pad, b[2] - b[0] + pad * 2, b[3] - b[1] + pad * 2];
+  }
+  const height = Math.round((size * vb[3]) / vb[2]);
+  const label = opts.label || `${g.name}, ${typeLabel(g)}`;
+  const delay = animate ? ` style="animation-delay:-${num(((g.seed || '').length * 0.37 + (g.traits ? g.traits.size * 3 : 0)) % 3)}s"` : '';
+  const clip = built.clip.map((d) => `<path d="${d}"/>`).join('');
+
+  return `<svg class="cr${animate ? ' cr-live' : ''}" xmlns="http://www.w3.org/2000/svg" viewBox="${vb.map(num).join(' ')}" width="${size}" height="${height}" role="img" aria-label="${escapeHtml(label)}" style="${paletteVars(g.palette)}">` +
+    `<defs><clipPath id="${id}-clip">${clip}</clipPath></defs>` +
+    `<ellipse class="cr-shadow" cx="${num(FRAME.w / 2)}" cy="${FRAME.ground}" rx="${num(shadowRx)}" ry="${num(shadowRy)}" fill="var(--k)" opacity="0.18"/>` +
+    `<g transform="${tf(chain[1])} translate(0 ${num(chain[0].y)})">` +
+    `<g class="cr-anim"${delay}>${built.layers.join('')}</g></g></svg>`;
+}
+
+/** A neutral mannequin genome used by the Part Lab to preview any single part. */
+function mannequinGenome(part) {
+  const parts = {
+    body: ['body.round', 'body.round'], head: ['head.round', 'head.round'], eyes: ['eye.round', 'eye.round'], mouth: ['mouth.smile', 'mouth.smile'],
+    crown: ['crown.none', 'crown.none'], legs: ['legs.stub', 'legs.stub'], arms: ['arms.none', 'arms.none'], wings: ['wings.none', 'wings.none'],
+    tail: ['tail.none', 'tail.none'], back: ['back.none', 'back.none'], pattern: ['pattern.none', 'pattern.none'],
+  };
+  const paint = {};
+  if (part.slot === 'arms') parts.body = ['body.biped', 'body.biped'];
+  if (part.slot === 'wings' || part.slot === 'tail' || part.slot === 'back') parts.body = ['body.quad', 'body.quad'];
+  if (part.slot === 'eyes' || part.slot === 'mouth') parts.head = ['head.bulb', 'head.bulb'];
+  if (part.slot === 'body' && part.sockets && !part.sockets.legs.length) parts.legs = ['legs.none', 'legs.none'];
+  parts[part.slot] = [part.id, part.id];
+  if (!['body', 'pattern', 'eyes', 'mouth'].includes(part.slot)) paint[part.slot] = 4; // accent-first
+  return {
+    v: 1, seed: 'mannequin', species: null, name: part.name, gen: 0, shiny: false, types: ['Normal', null],
+    parts, paint,
+    palette: { c1: [222, 10, 64], c2: [222, 12, 46], c3: [28, 80, 58], eye: [200, 55, 45] },
+    traits: { size: 0.6, bulk: 0.5, headScale: 0.5, limbScale: 0.5, tailScale: 0.5, wingScale: 0.5, eyeScale: part.slot === 'eyes' ? 0.9 : 0.5 },
+    stats: {}, vigor: {}, bst: 400, lineage: [],
+  };
+}
+
+// ---- src/ui/common.js ----
+// UI pieces shared between screens.
+
+
+
+
+function typeChip(type) {
+  const info = TYPE_INFO[type] || { color: '#999', glyph: '?' };
+  return h('span', { class: 'chip', style: { '--chip': info.color } }, h('b', {}, info.glyph), type);
+}
+
+function typeChips(types) {
+  return h('div', { class: 'chips' }, types.filter(Boolean).map(typeChip));
+}
+
+function creatureEl(genome, opts) {
+  return svgEl(renderCreatureSvg(genome, opts));
+}
+
+function section(title, ...children) {
+  return [h('h3', { class: 'sec' }, title), ...children];
+}
+
+// ---- src/core/rng.js ----
+// Seeded random numbers. Every roll in the game goes through here so that a
+// creature, a fusion, or a whole battle can be reproduced from its seed.
+// Hash: cyrb128. Generator: sfc32. Both are small, fast and well distributed.
+
+function hashSeed(str) {
+  let h1 = 1779033703, h2 = 3144134277, h3 = 1013904242, h4 = 2773480762;
+  for (let i = 0, k; i < str.length; i++) {
+    k = str.charCodeAt(i);
+    h1 = h2 ^ Math.imul(h1 ^ k, 597399067);
+    h2 = h3 ^ Math.imul(h2 ^ k, 2869860233);
+    h3 = h4 ^ Math.imul(h3 ^ k, 951274213);
+    h4 = h1 ^ Math.imul(h4 ^ k, 2716044179);
+  }
+  h1 = Math.imul(h3 ^ (h1 >>> 18), 597399067);
+  h2 = Math.imul(h4 ^ (h2 >>> 22), 2869860233);
+  h3 = Math.imul(h1 ^ (h3 >>> 17), 951274213);
+  h4 = Math.imul(h2 ^ (h4 >>> 19), 2716044179);
+  return [(h1 ^ h2 ^ h3 ^ h4) >>> 0, (h2 ^ h1) >>> 0, (h3 ^ h1) >>> 0, (h4 ^ h1) >>> 0];
+}
+
+function sfc32(a, b, c, d) {
+  return function next() {
+    a |= 0; b |= 0; c |= 0; d |= 0;
+    const t = (((a + b) | 0) + d) | 0;
+    d = (d + 1) | 0;
+    a = b ^ (b >>> 9);
+    b = (c + (c << 3)) | 0;
+    c = (c << 21) | (c >>> 11);
+    c = (c + t) | 0;
+    return (t >>> 0) / 4294967296;
+  };
+}
+
+/** Create a deterministic RNG from any string or number seed. */
+function makeRng(seed) {
+  const seedStr = String(seed);
+  const [a, b, c, d] = hashSeed(seedStr);
+  const next = sfc32(a, b, c, d);
+  for (let i = 0; i < 12; i++) next(); // warm up
+  const rng = {
+    seed: seedStr,
+    /** float in [0,1) */
+    next,
+    /** integer in [0,n) */
+    int(n) { return Math.floor(next() * n); },
+    /** integer in [lo,hi] inclusive */
+    between(lo, hi) { return lo + Math.floor(next() * (hi - lo + 1)); },
+    /** float in [lo,hi) */
+    range(lo, hi) { return lo + next() * (hi - lo); },
+    /** true with probability p */
+    chance(p) { return next() < p; },
+    pick(arr) { return arr[Math.floor(next() * arr.length)]; },
+    /** pick by weight; weightOf(item) must return a number >= 0 */
+    weighted(items, weightOf) {
+      let total = 0;
+      for (const it of items) total += weightOf(it);
+      if (total <= 0) return items[Math.floor(next() * items.length)];
+      let r = next() * total;
+      for (const it of items) { r -= weightOf(it); if (r < 0) return it; }
+      return items[items.length - 1];
+    },
+    shuffle(arr) {
+      const out = arr.slice();
+      for (let i = out.length - 1; i > 0; i--) {
+        const j = Math.floor(next() * (i + 1));
+        [out[i], out[j]] = [out[j], out[i]];
+      }
+      return out;
+    },
+    /** approx. normal(0,1) via sum of uniforms, cheap and good enough for trait jitter */
+    gauss() { return (next() + next() + next() + next() - 2) * Math.SQRT2 * 0.5 * 1.4142; },
+    /**
+     * Derive an independent stream from a label. Depends only on the parent's
+     * seed and the label, never on how many numbers were drawn, so call order
+     * does not matter. Labels must be unique per parent.
+     */
+    fork(label) { return makeRng(seedStr + '/' + label); },
+  };
+  return rng;
+}
+
+/** The one place non-deterministic randomness is allowed: minting fresh seeds from the UI. */
+function freshSeed() {
+  const alphabet = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  let s = '';
+  if (typeof crypto !== 'undefined' && crypto.getRandomValues) {
+    const buf = new Uint8Array(8);
+    crypto.getRandomValues(buf);
+    for (const b of buf) s += alphabet[b % alphabet.length];
+  } else {
+    for (let i = 0; i < 8; i++) s += alphabet[Math.floor(Math.random() * alphabet.length)];
+  }
+  return s;
+}
+
+// ---- src/ui/lab.js ----
+// Creature Lab: roll seeded creatures, inspect genes, copy and load creature codes.
+
+
+
+
+
+
+
+
+const labState = { seed: null, species: 'random', count: 12 };
+
+function seedFromUrl() {
+  try { return new URLSearchParams(location.search).get('seed'); } catch { return null; }
+}
+
+function rollGenomes() {
+  const out = [];
+  for (let i = 0; i < labState.count; i++) {
+    const rng = makeRng(`${labState.seed}:${i}`);
+    const sp = SPECIES_BY_ID[labState.species];
+    out.push(sp ? speciesGenome(sp, rng) : randomGenome(rng));
+  }
+  return out;
+}
+
+function renderLabScreen(root) {
+  if (!labState.seed) labState.seed = (seedFromUrl() || freshSeed()).toUpperCase();
+  clear(root);
+
+  const seedInput = h('input', { class: 'seed', type: 'text', value: labState.seed, spellcheck: 'false', autocapitalize: 'characters', autocomplete: 'off', 'aria-label': 'Seed', placeholder: 'Seed' });
+  const speciesSel = h('select', { 'aria-label': 'Species' },
+    h('option', { value: 'random' }, 'Any species'),
+    SPECIES.map((s) => h('option', { value: s.id, selected: labState.species === s.id }, `${s.name}  (${s.types.join(' / ')})`)));
+  speciesSel.addEventListener('change', () => { labState.species = speciesSel.value; draw(); });
+
+  const grid = h('div', { class: 'grid' });
+  const codeInput = h('input', { class: 'seed code-in', type: 'text', placeholder: 'Paste a creature code (CC1....)', 'aria-label': 'Creature code', autocapitalize: 'off', autocomplete: 'off', spellcheck: 'false' });
+
+  const applySeed = (seed) => {
+    labState.seed = (seed || freshSeed()).toUpperCase();
+    seedInput.value = labState.seed;
+    draw();
+  };
+
+  const toolbar = h('div', { class: 'toolbar' },
+    seedInput,
+    h('button', { class: 'btn', onclick: () => applySeed(seedInput.value.trim()) }, 'Go'),
+    h('button', { class: 'btn primary', onclick: () => applySeed(null) }, 'Roll'),
+    speciesSel,
+  );
+  seedInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') applySeed(seedInput.value.trim()); });
+
+  const loader = h('div', { class: 'toolbar' },
+    codeInput,
+    h('button', { class: 'btn', onclick: () => {
+      try { openSheet(decodeGenome(codeInput.value)); codeInput.value = ''; }
+      catch (e) { toast(e.message); }
+    } }, 'Load'),
+  );
+
+  function draw() {
+    clear(grid);
+    for (const g of rollGenomes()) {
+      grid.append(h('button', { class: 'card', type: 'button', onclick: () => openSheet(g) },
+        creatureEl(g, { size: 160 }),
+        h('div', { class: 'card-name' }, g.name, g.shiny ? h('span', { class: 'shiny', title: 'Rare colours' }, ' ✦') : null),
+        typeChips(g.types)));
+    }
+  }
+
+  root.append(
+    toolbar,
+    h('p', { class: 'hint' }, 'Same seed, same creatures, on any device. Tap a creature to see its genes.'),
+    grid,
+    ...section('Load a creature', loader),
+  );
+  draw();
+}
+
+function statRows(g) {
+  const base = baseStats(g);
+  const rows = [];
+  for (const k of STAT_KEYS) {
+    rows.push(h('span', {}, STAT_NAMES[k]), h('div', { class: 'bar' }, h('i', { style: { width: `${Math.min(100, base[k] / 1.6)}%` } })), h('b', {}, String(base[k])));
+  }
+  const total = STAT_KEYS.reduce((a, k) => a + base[k], 0);
+  rows.push(h('span', {}, 'Total'), h('span', {}), h('b', {}, String(total)));
+  return h('div', { class: 'stats' }, rows);
+}
+
+function partRows(g) {
+  const resolved = resolveParts(g);
+  const rows = [];
+  for (const slot of SLOTS) {
+    const [e, c] = g.parts[slot];
+    const shown = resolved[slot];
+    const expressed = getPart(e);
+    const carried = getPart(c);
+    let label = shown ? shown.name : 'None';
+    if (expressed && !expressed.none && (!shown || shown.id !== expressed.id)) label += ` (${expressed.name} does not fit)`;
+    rows.push(h('span', {}, SLOT_NAMES[slot]), h('span', {}, label, c !== e ? h('span', { class: 'carried' }, ` · carries ${carried ? carried.name : c}`) : null));
+  }
+  return h('div', { class: 'kv' }, rows);
+}
+
+function traitRows(g) {
+  const rows = [];
+  for (const k of TRAIT_KEYS) rows.push(h('span', {}, k), h('div', { class: 'bar' }, h('i', { style: { width: `${Math.round(g.traits[k] * 100)}%` } })), h('b', {}, g.traits[k].toFixed(2)));
+  return h('div', { class: 'stats' }, rows);
+}
+
+let activeSheet = null;
+function closeSheet() { if (activeSheet) { activeSheet(); activeSheet = null; } }
+
+function openSheet(g) {
+  closeSheet();
+  const sp = speciesOf(g);
+  const code = encodeGenome(g);
+  let facing = 'right';
+  const hero = h('div', { class: 'hero' }, creatureEl(g, { size: 260, facing, fit: true }));
+  const close = () => { backdrop.remove(); sheet.remove(); document.removeEventListener('keydown', onKey); if (activeSheet === close) activeSheet = null; };
+  activeSheet = close;
+  const onKey = (e) => { if (e.key === 'Escape') close(); };
+  const backdrop = h('div', { class: 'sheet-backdrop', onclick: close });
+  const sheet = h('section', { class: 'sheet', role: 'dialog', 'aria-modal': 'true', 'aria-label': g.name },
+    h('div', { class: 'grab' }),
+    h('div', { class: 'sheet-head' },
+      h('h2', {}, g.name, g.shiny ? ' ✦' : ''),
+      typeChips(g.types),
+      h('button', { class: 'btn close', onclick: close, 'aria-label': 'Close' }, '✕')),
+    h('p', { class: 'meta' }, sp ? `${sp.name} · ${sp.tier}` : 'Fusion', ` · gen ${g.gen} · seed ${g.seed}`),
+    hero,
+    h('div', { class: 'row' },
+      h('button', { class: 'btn', onclick: () => { facing = facing === 'right' ? 'left' : 'right'; clear(hero).append(creatureEl(g, { size: 260, facing, fit: true })); } }, 'Flip'),
+      h('button', { class: 'btn', onclick: async () => toast((await copyText(code)) ? 'Code copied' : 'Copy failed, select the text below') }, 'Copy code')),
+    sp ? h('p', { class: 'desc' }, sp.desc) : null,
+    ...section('Base stats', statRows(g)),
+    ...section('Parts', partRows(g)),
+    ...section('Palette', h('div', { class: 'swatches' }, ['c1', 'c2', 'c3', 'eye'].map((k) => h('span', { class: 'sw', title: k, style: { background: swatchCss(g.palette[k]) } })))),
+    ...section('Traits', traitRows(g)),
+    ...section('Creature code', h('textarea', { class: 'code', readonly: true, rows: 3, onclick: (e) => e.target.select() }, code)),
+  );
+  document.body.append(backdrop, sheet);
+  document.addEventListener('keydown', onKey);
+}
+
+// ---- src/ui/parts.js ----
+// Part Lab: every part in the library on a neutral mannequin, grouped by slot.
+
+
+
+
+
+function renderPartsScreen(root) {
+  clear(root);
+  root.append(h('p', { class: 'hint' }, 'Every part, drawn on a grey mannequin with the part in orange. Add parts in src/data/parts and they show up here.'));
+  for (const slot of SLOTS) {
+    const parts = PARTS_BY_SLOT[slot].filter((p) => !p.none);
+    const row = h('div', { class: 'slot-row' });
+    for (const part of parts) {
+      row.append(h('div', { class: 'part', title: part.id },
+        creatureEl(mannequinGenome(part), { size: 96, animate: false }),
+        h('span', {}, part.name)));
+    }
+    root.append(h('section', { class: 'slot-sec' }, h('h3', { class: 'sec' }, `${SLOT_NAMES[slot]} · ${parts.length}`), row));
+  }
+}
+
+// ---- src/ui/main.js ----
+// App shell: header, tabs, hash routing between screens.
+
+
+
+
+
+
+const SCREENS = [
+  { id: 'lab', title: 'Lab', render: renderLabScreen },
+  { id: 'parts', title: 'Parts', render: renderPartsScreen },
+  { id: 'fusion', title: 'Fusion', soon: true },
+  { id: 'battle', title: 'Battle', soon: true },
+];
+
+function bootApp() {
+  const app = document.getElementById('app');
+  clear(app);
+  const nav = h('nav', { class: 'tabs', role: 'tablist' });
+  const main = h('main', { class: 'screen' });
+  app.append(
+    h('header', { class: 'topbar' }, h('h1', {}, 'Creature Collector'), h('span', { class: 'ver' }, `${SPECIES.length} species · ${partCount()} parts`)),
+    nav, main,
+  );
+
+  function go(id) {
+    const screen = SCREENS.find((s) => s.id === id && !s.soon) || SCREENS[0];
+    closeSheet();
+    clear(nav);
+    for (const s of SCREENS) {
+      nav.append(h('button', {
+        class: 'tab', role: 'tab', type: 'button', disabled: s.soon, 'aria-selected': String(s === screen),
+        onclick: () => { location.hash = s.id; },
+      }, s.title, s.soon ? h('small', {}, 'soon') : null));
+    }
+    screen.render(main);
+    window.scrollTo(0, 0);
+  }
+
+  window.addEventListener('hashchange', () => go(location.hash.slice(1)));
+  go(location.hash.slice(1));
+}
+
+if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', bootApp);
+else bootApp();
+
+})();
+</script>
+</body>
+</html>
