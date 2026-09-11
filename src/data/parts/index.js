@@ -20,6 +20,7 @@ import { SKELETAL_PARTS } from './skeletal/index.js';
 import { NIGHTWING_PARTS } from './nightwing/index.js';
 import { CRYSTALLINE_PARTS } from './crystalline/index.js';
 import { MYRIAPOD_PARTS } from './myriapod/index.js';
+import { FIEND_PARTS } from './fiend/index.js';
 
 export const RIG_PARTS = {
   mammal: MAMMAL_PARTS,
@@ -38,6 +39,7 @@ export const RIG_PARTS = {
   nightwing: NIGHTWING_PARTS,
   crystalline: CRYSTALLINE_PARTS,
   myriapod: MYRIAPOD_PARTS,
+  fiend: FIEND_PARTS,
 };
 
 export const PARTS = new Map();

@@ -180,3 +180,12 @@ POSES.myriapod = {
   attack: { body: { da: 3, dx: 6 }, head: { da: 6, dx: 5 }, mandibles: { ds: 1.2, da: 4 }, legs: { da: -18, far: { da: -8 } }, antennae: { da: 14 }, tail: { da: 12 }, venom: { ds: 1.2 } },
   hurt: { body: { da: -6, dx: -4 }, head: { da: -12 }, legs: { da: 12, far: { da: 6 } }, antennae: { da: -20 }, tail: { da: -10 } },
 };
+
+POSES.fiend = {
+  stand: {},
+  brace: { body: { da: 4, dx: 2 }, head: { da: 4, dx: 1 }, arms: { da: -14, far: { da: -6 } }, legs: { da: -4, far: { da: 4 } }, tail: { da: 8 }, wings: { da: -4 } },
+  crouch: { body: { dy: 4, da: 6 }, head: { da: 2, dy: 1 }, arms: { da: -20, far: { da: -10 } }, legs: { ds: 0.9, da: -6, far: { da: 6 } }, tail: { da: 12 }, wings: { da: 6 } },
+  poise: { body: { da: -3, dy: -1 }, head: { da: -5, dy: -2 }, arms: { da: 10, far: { da: -16 } }, wings: { da: -8 }, tail: { da: -4 }, horns: { ds: 1.04 }, aura: { ds: 1.06 } },
+  attack: { body: { da: 8, dx: 6 }, head: { da: 4, dx: 4 }, arms: { da: -34, far: { da: -12 } }, hand: { ds: 1.15 }, legs: { da: -10, far: { da: 10 } }, tail: { da: 14 }, wings: { da: 20, far: { da: 12 } }, mouth: { ds: 1.15 } },
+  hurt: { body: { da: -10, dx: -4 }, head: { da: -12 }, arms: { da: 18, far: { da: 10 } }, legs: { da: 8, far: { da: -6 } }, tail: { da: -10 }, wings: { da: 26, far: { da: 16 } } },
+};

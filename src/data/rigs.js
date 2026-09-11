@@ -752,6 +752,43 @@ RIGS.myriapod = {
   },
 };
 
+RIGS.fiend = {
+  id: 'fiend', name: 'Fiend', prefix: 'e.',
+  slots: ['body', 'head', 'eyes', 'mouth', 'horns', 'arms', 'legs', 'tail', 'wings', 'hand', 'marks', 'aura'],
+  names: { body: 'Torso', head: 'Head', eyes: 'Eyes', mouth: 'Mouth', horns: 'Horns', arms: 'Arms', legs: 'Legs', tail: 'Tail', wings: 'Wings', hand: 'Hand', marks: 'Marks', aura: 'Aura' },
+  paint: ['body', 'head', 'horns', 'arms', 'legs', 'tail', 'wings', 'hand', 'marks', 'aura'],
+  swappable: ['horns', 'tail', 'wings', 'hand', 'marks', 'aura'],
+  required: ['body', 'head', 'eyes', 'mouth', 'arms', 'legs'],
+  linked: [['arms', 'legs'], ['head', 'mouth']],
+  ground: ['body', 'legs'],
+  clipped: ['marks'],
+  tree: {
+    slot: 'body', anim: 'body',
+    behind: [
+      { slot: 'aura', fitBox: true },
+      { slot: 'wings', socket: 'wingFar', far: true, scale: 'wing', anim: 'flap' },
+      { slot: 'wings', socket: 'wing', scale: 'wing', anim: 'flap' },
+      { slot: 'tail', socket: 'tail', scale: 'tail', anim: 'tail' },
+      { slot: 'arms', socket: 'armFar', far: true, scale: 'leg' },
+      { slot: 'legs', socket: 'legFar', far: true, scale: 'leg' },
+    ],
+    front: [
+      { slot: 'legs', socket: 'leg', scale: 'leg' },
+      { slot: 'arms', socket: 'arm', scale: 'leg', front: [{ slot: 'hand', socket: 'hand', small: true }] },
+      {
+        slot: 'head', socket: 'head', scale: 'head', anim: 'head',
+        behind: [{ slot: 'horns', socket: 'horns' }],
+        front: [{ slot: 'eyes', socket: 'eyeFar', far: true, scale: 'eye', small: true }, { slot: 'eyes', socket: 'eye', scale: 'eye', small: true }, { slot: 'mouth', socket: 'mouth', small: true }],
+      },
+    ],
+  },
+  mannequin: {
+    parts: { body: 'e.body.imp', head: 'e.head.imp', eyes: 'e.eyes.ember', mouth: 'e.mouth.grin', horns: 'e.horns.none', arms: 'e.arms.clawed', legs: 'e.legs.digitigrade', tail: 'e.tail.none', wings: 'e.wings.none', hand: 'e.hand.none', marks: 'e.marks.none', aura: 'e.aura.none' },
+    forSlot: {},
+    accentSlots: ['horns', 'tail', 'wings', 'hand', 'marks', 'aura'],
+  },
+};
+
 export const RIG_IDS = Object.keys(RIGS);
 
 /** Rig used when a genome names none or an unknown one (old saves): the first class. */

@@ -60,5 +60,7 @@ export const SLOT_FAMILY = {
   seam: 'flat', facets: 'flat', aura: 'flat',
   // myriapod
   bristles: 'fur', venom: 'face',
+  // fiend
+  hand: 'face', marks: 'flat',
 };
 export function growthFor(slot) { return SLOT_GROWTH[SLOT_FAMILY[slot] || 'face']; }

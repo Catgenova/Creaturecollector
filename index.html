@@ -1209,6 +1209,43 @@ RIGS.myriapod = {
   },
 };
 
+RIGS.fiend = {
+  id: 'fiend', name: 'Fiend', prefix: 'e.',
+  slots: ['body', 'head', 'eyes', 'mouth', 'horns', 'arms', 'legs', 'tail', 'wings', 'hand', 'marks', 'aura'],
+  names: { body: 'Torso', head: 'Head', eyes: 'Eyes', mouth: 'Mouth', horns: 'Horns', arms: 'Arms', legs: 'Legs', tail: 'Tail', wings: 'Wings', hand: 'Hand', marks: 'Marks', aura: 'Aura' },
+  paint: ['body', 'head', 'horns', 'arms', 'legs', 'tail', 'wings', 'hand', 'marks', 'aura'],
+  swappable: ['horns', 'tail', 'wings', 'hand', 'marks', 'aura'],
+  required: ['body', 'head', 'eyes', 'mouth', 'arms', 'legs'],
+  linked: [['arms', 'legs'], ['head', 'mouth']],
+  ground: ['body', 'legs'],
+  clipped: ['marks'],
+  tree: {
+    slot: 'body', anim: 'body',
+    behind: [
+      { slot: 'aura', fitBox: true },
+      { slot: 'wings', socket: 'wingFar', far: true, scale: 'wing', anim: 'flap' },
+      { slot: 'wings', socket: 'wing', scale: 'wing', anim: 'flap' },
+      { slot: 'tail', socket: 'tail', scale: 'tail', anim: 'tail' },
+      { slot: 'arms', socket: 'armFar', far: true, scale: 'leg' },
+      { slot: 'legs', socket: 'legFar', far: true, scale: 'leg' },
+    ],
+    front: [
+      { slot: 'legs', socket: 'leg', scale: 'leg' },
+      { slot: 'arms', socket: 'arm', scale: 'leg', front: [{ slot: 'hand', socket: 'hand', small: true }] },
+      {
+        slot: 'head', socket: 'head', scale: 'head', anim: 'head',
+        behind: [{ slot: 'horns', socket: 'horns' }],
+        front: [{ slot: 'eyes', socket: 'eyeFar', far: true, scale: 'eye', small: true }, { slot: 'eyes', socket: 'eye', scale: 'eye', small: true }, { slot: 'mouth', socket: 'mouth', small: true }],
+      },
+    ],
+  },
+  mannequin: {
+    parts: { body: 'e.body.imp', head: 'e.head.imp', eyes: 'e.eyes.ember', mouth: 'e.mouth.grin', horns: 'e.horns.none', arms: 'e.arms.clawed', legs: 'e.legs.digitigrade', tail: 'e.tail.none', wings: 'e.wings.none', hand: 'e.hand.none', marks: 'e.marks.none', aura: 'e.aura.none' },
+    forSlot: {},
+    accentSlots: ['horns', 'tail', 'wings', 'hand', 'marks', 'aura'],
+  },
+};
+
 const RIG_IDS = Object.keys(RIGS);
 
 /** Rig used when a genome names none or an unknown one (old saves): the first class. */
@@ -9429,12 +9466,304 @@ const MYRIAPOD_PARTS = {
   tail: MY_TAILS, plates: MY_PLATES, bristles: MY_BRISTLES, glow: MY_GLOW, bands: MY_BANDS, venom: MY_VENOM,
 };
 
+// ---- src/data/parts/fiend/_shared.js ----
+// Fiend builders: the shared constructors namespaced with "e." (evil).
+// The first upright rig: torsos about 28 wide and 42 tall standing on two legs, a head on the neck, arms hanging
+// from the shoulders with the near hand holding something, a tail and wings behind, marks clipped to the torso and
+// an aura fitted behind it.
+
+
+const fiendBuilders = partBuilders('e.');
+const fdBody = fiendBuilders.body;
+const fdLeg = fiendBuilders.leg;
+const fdPart = fiendBuilders.part;
+
+// ---- src/data/parts/fiend/bodies.js ----
+// Fiend bodies (upright torsos). Origin = the middle of the chest; the creature faces right, so the chest bulges to
+// +x. Sockets: head (the neck, top), arm / armFar (the shoulders), leg / legFar (the hips), tail (low on the back),
+// wing / wingFar (high on the back).
+// kinds: 'fiend.imp', 'fiend.brute', 'fiend.lanky', 'fiend.stout', 'fiend.armoured', 'fiend.hunched', 'fiend.regal'.
+// Evolutions: stage 2 grows and raises shoulder spurs; stage 3 grows more, adds spurs and lights the chest.
+
+
+
+
+const fdBodyStages = (x2, y2, xf, yf) => ({
+  2: { grow: [1.06, 1.05], addBehind: [{ pts: evoSpike(x2, y2, -70, 10, 5), f: 'pd' }, { pts: evoSpike(xf, yf, -110, 9, 5), f: 'pd' }] },
+  3: { grow: [1.06, 1.06], addBehind: [{ pts: evoSpike(x2, y2, -70, 13, 6), f: 'pd' }, { pts: evoSpike(x2 + 3, y2 + 6, -60, 9, 4), f: 'pd' }, { pts: evoSpike(xf, yf, -110, 12, 6), f: 'pd' }], add: [C(4, -6, 4, 'a', { ns: true, op: 0.45 })] },
+});
+const fdSockets = (o) => ({ head: { x: 4, y: -22, a: 0, s: 1 }, arm: { x: 9, y: -13, a: 0, s: 1 }, armFar: { x: -7, y: -14, a: 0, s: 0.95 }, leg: { x: 6, y: 18, a: 0, s: 1 }, legFar: { x: -5, y: 17, a: 0, s: 0.95 }, tail: { x: -12, y: 12, a: 0, s: 1 }, wing: { x: -8, y: -14, a: 0, s: 1 }, wingFar: { x: -13, y: -14, a: 0, s: 0.95 }, ...o });
+/** A lighter belly and chest plate down the front, clipped to the torso. */
+const fdBelly = (x, y0, y1, w) => PATCH(`M${x - w},${y0} C${x + w * 0.4},${y0 - 2} ${x + w * 1.4},${y0 + 4} ${x + w * 1.3},${(y0 + y1) / 2} C${x + w * 1.4},${y1 - 4} ${x + w * 0.4},${y1 + 2} ${x - w},${y1} Z`, 's', { op: 0.75 });
+const fdRibs = (d) => L(d, 'k', 1.1, { op: 0.25 });
+
+const FD_BODIES = [
+  fdBody({
+    id: 'imp', name: 'Imp', kind: 'fiend.imp', tags: ['small'], dom: 0.45, w: 3,
+    pts: [[-10, -20], [6, -22], [14, -14], [14, 0], [12, 14], [6, 20], [-6, 20], [-12, 12], [-14, -4]],
+    shade: torsoShade(-14, 14, -22, 20, { shadeFrac: 0.5 }),
+    extra: [fdBelly(4, -8, 16, 6), fdRibs('M2,-10 L8,-9 M1,-4 L8,-3'), HL('M-8,-18 C-2,-22 4,-22 8,-18 C2,-18 -4,-16 -8,-12 Z', 0.2)],
+    sockets: fdSockets({}), stages: fdBodyStages(8, -20, -8, -20),
+  }),
+  fdBody({
+    id: 'brute', name: 'Brute', kind: 'fiend.brute', tags: ['broad'], dom: 0.55, w: 2,
+    pts: [[-16, -20], [4, -24], [18, -18], [20, -4], [16, 12], [8, 20], [-6, 20], [-14, 12], [-20, -4]],
+    shade: torsoShade(-20, 20, -24, 20, { shadeFrac: 0.5 }),
+    extra: [fdBelly(5, -12, 16, 8), fdRibs('M0,-12 L10,-11 M0,-6 L10,-5 M1,0 L10,1'), HL('M-14,-18 C-6,-24 4,-24 10,-20 C2,-20 -6,-18 -12,-12 Z', 0.2)],
+    sockets: fdSockets({ head: { x: 4, y: -24, a: 0, s: 1 }, arm: { x: 14, y: -16, a: 0, s: 1 }, armFar: { x: -12, y: -17, a: 0, s: 0.95 }, leg: { x: 6, y: 18, a: 0, s: 1 }, legFar: { x: -6, y: 17, a: 0, s: 0.95 }, tail: { x: -14, y: 12, a: 0, s: 1 }, wing: { x: -10, y: -16, a: 0, s: 1 }, wingFar: { x: -16, y: -16, a: 0, s: 0.95 } }),
+    stages: fdBodyStages(12, -22, -12, -22),
+  }),
+  fdBody({
+    id: 'lanky', name: 'Lanky', kind: 'fiend.lanky', tags: ['thin'], dom: 0.5, w: 2,
+    pts: [[-8, -24], [4, -26], [11, -18], [11, 0], [9, 16], [4, 24], [-4, 24], [-9, 16], [-11, -6]],
+    shade: torsoShade(-11, 11, -26, 24, { shadeFrac: 0.5 }),
+    extra: [fdBelly(3, -10, 20, 5), fdRibs('M0,-14 L6,-13 M0,-8 L6,-7 M0,-2 L6,-1'), HL('M-6,-22 C-1,-26 4,-26 7,-22 C2,-22 -3,-20 -6,-14 Z', 0.2)],
+    sockets: fdSockets({ head: { x: 3, y: -26, a: 0, s: 1 }, arm: { x: 7, y: -18, a: 0, s: 1 }, armFar: { x: -5, y: -19, a: 0, s: 0.95 }, leg: { x: 4, y: 22, a: 0, s: 1 }, legFar: { x: -4, y: 21, a: 0, s: 0.95 }, tail: { x: -9, y: 14, a: 0, s: 1 }, wing: { x: -6, y: -18, a: 0, s: 1 }, wingFar: { x: -10, y: -18, a: 0, s: 0.95 } }),
+    stages: fdBodyStages(6, -24, -6, -24),
+  }),
+  fdBody({
+    id: 'stout', name: 'Stout', kind: 'fiend.stout', tags: ['round'], dom: 0.5, w: 2,
+    pts: [[-12, -18], [4, -20], [14, -12], [18, 2], [16, 14], [8, 20], [-6, 20], [-16, 12], [-18, 0]],
+    shade: torsoShade(-18, 18, -20, 20, { shadeFrac: 0.5 }),
+    extra: [fdBelly(4, -6, 16, 8), fdRibs('M2,-8 L10,-7'), L('M0,4 C6,4 10,8 12,12', 'k', 1.1, { op: 0.25 }), HL('M-10,-16 C-4,-20 4,-20 8,-16 C2,-16 -4,-14 -8,-10 Z', 0.2)],
+    sockets: fdSockets({ head: { x: 4, y: -20, a: 0, s: 1 }, arm: { x: 10, y: -12, a: 0, s: 1 }, armFar: { x: -8, y: -13, a: 0, s: 0.95 }, leg: { x: 6, y: 18, a: 0, s: 1 }, legFar: { x: -6, y: 17, a: 0, s: 0.95 }, tail: { x: -14, y: 10, a: 0, s: 1 }, wing: { x: -8, y: -14, a: 0, s: 1 }, wingFar: { x: -13, y: -14, a: 0, s: 0.95 } }),
+    stages: fdBodyStages(8, -18, -8, -18),
+  }),
+  fdBody({
+    id: 'armoured', name: 'Armoured', kind: 'fiend.armoured', tags: ['plate'], dom: 0.55, w: 2,
+    pts: [[-14, -20, 'c'], [4, -24, 'c'], [18, -16, 'c'], [18, -2, 'c'], [14, 14, 'c'], [6, 20, 'c'], [-6, 20, 'c'], [-14, 12, 'c'], [-18, -4, 'c']],
+    shade: torsoShade(-18, 18, -24, 20, { shadeFrac: 0.5 }),
+    extra: [PATCH('M-8,-14 L12,-12 L14,2 L10,14 L-6,14 L-10,2 Z', 'pd', { op: 0.9 }), L('M-8,-14 L12,-12 M-9,-4 L13,-2 M-8,6 L12,8', 'k', 1.1, { op: 0.35 }), C(2, -8, 1.2, 'a', { ns: true, op: 0.85 }), C(2, 2, 1.2, 'a', { ns: true, op: 0.85 }), HL('M-12,-18 C-6,-23 2,-24 8,-20 C2,-20 -6,-18 -10,-12 Z', 0.2)],
+    sockets: fdSockets({ head: { x: 4, y: -24, a: 0, s: 1 }, arm: { x: 13, y: -15, a: 0, s: 1 }, armFar: { x: -11, y: -16, a: 0, s: 0.95 }, leg: { x: 6, y: 18, a: 0, s: 1 }, legFar: { x: -6, y: 17, a: 0, s: 0.95 }, tail: { x: -13, y: 12, a: 0, s: 1 }, wing: { x: -10, y: -16, a: 0, s: 1 }, wingFar: { x: -15, y: -16, a: 0, s: 0.95 } }),
+    stages: fdBodyStages(12, -22, -12, -22),
+  }),
+  fdBody({
+    id: 'hunched', name: 'Hunched', kind: 'fiend.hunched', tags: ['bent'], dom: 0.5, w: 2,
+    pts: [[-14, -14], [-4, -24], [10, -22], [18, -12], [16, 2], [12, 14], [4, 20], [-6, 20], [-14, 12], [-18, -2]],
+    shade: torsoShade(-18, 18, -24, 20, { shadeFrac: 0.5 }),
+    extra: [fdBelly(4, -6, 16, 7), fdRibs('M-4,-16 L6,-14 M-2,-8 L8,-6'), HL('M-10,-16 C-6,-22 2,-24 8,-22 C0,-20 -6,-16 -10,-10 Z', 0.2)],
+    sockets: fdSockets({ head: { x: 10, y: -20, a: 10, s: 1 }, arm: { x: 12, y: -12, a: 0, s: 1 }, armFar: { x: -8, y: -16, a: 0, s: 0.95 }, leg: { x: 4, y: 18, a: 0, s: 1 }, legFar: { x: -6, y: 17, a: 0, s: 0.95 }, tail: { x: -14, y: 10, a: 0, s: 1 }, wing: { x: -10, y: -18, a: 0, s: 1 }, wingFar: { x: -15, y: -16, a: 0, s: 0.95 } }),
+    stages: fdBodyStages(6, -22, -10, -20),
+  }),
+  fdBody({
+    id: 'regal', name: 'Regal', kind: 'fiend.regal', tags: ['tall'], dom: 0.55, w: 2,
+    pts: [[-14, -24], [4, -28], [16, -22], [16, -8], [12, 8], [8, 22], [-6, 22], [-10, 8], [-16, -8]],
+    shade: torsoShade(-16, 16, -28, 22, { shadeFrac: 0.5 }),
+    extra: [fdBelly(4, -14, 18, 6), fdRibs('M0,-16 L8,-15 M0,-10 L8,-9 M1,-4 L8,-3'), HL('M-12,-22 C-6,-27 2,-28 8,-24 C2,-24 -6,-22 -10,-16 Z', 0.2)],
+    sockets: fdSockets({ head: { x: 4, y: -28, a: 0, s: 1 }, arm: { x: 12, y: -20, a: 0, s: 1 }, armFar: { x: -10, y: -21, a: 0, s: 0.95 }, leg: { x: 6, y: 20, a: 0, s: 1 }, legFar: { x: -5, y: 19, a: 0, s: 0.95 }, tail: { x: -10, y: 12, a: 0, s: 1 }, wing: { x: -8, y: -20, a: 0, s: 1 }, wingFar: { x: -13, y: -20, a: 0, s: 0.95 } }),
+    stages: fdBodyStages(10, -26, -10, -26),
+  }),
+];
+
+// ---- src/data/parts/fiend/heads.js ----
+// Fiend heads. Origin = the neck (bottom centre); the head stands above it and the face looks right. Sockets: eye /
+// eyeFar, mouth (the front), horns (the crown of the skull).
+// Evolutions: stage 2 marks the brow; stage 3 grows a brow ridge spur and streaks the cheek.
+
+
+
+
+const fdHeadStages = {
+  2: { grow: [1.05, 1.05], add: [PATCH('M-2,-21 C2,-24 6,-24 10,-21 C6,-20 2,-20 -2,-21 Z', 'a')] },
+  3: { grow: [1.05, 1.06], addShapes: [{ pts: evoSpike(-4, -22, -120, 9, 4), f: 'pd' }], add: [PATCH('M-2,-21 C2,-24 6,-24 10,-21 C6,-20 2,-20 -2,-21 Z', 'a'), L('M8,-8 L12,-10 M9,-4 L14,-5', 'a', 1.4, { ns: true })] },
+};
+const fdHeadSockets = (o = {}) => ({ eye: { x: 6, y: -16, s: 1 }, eyeFar: { x: -3, y: -17, s: 0.9 }, mouth: { x: 9, y: -7, a: 0, s: 1 }, horns: { x: 0, y: -26, a: 0, s: 1 }, ...o });
+const fdCheek = (d) => L(d, 'k', 1.2, { op: 0.3 });
+
+const FD_HEADS = [
+  fdPart({ id: 'imp', slot: 'head', name: 'Imp', tags: ['round'], dom: 0.5, w: 3, shapes: [[[-8, -2], [-12, -12], [-8, -24], [2, -28], [12, -22], [14, -12], [10, -4], [4, 0]]], extra: [fdCheek('M-6,-8 L-9,-6 M12,-10 L13,-6'), HL('M-8,-22 C-4,-27 2,-28 8,-25 C2,-24 -4,-22 -8,-16 Z', 0.2)], sockets: fdHeadSockets(), stages: fdHeadStages }),
+  fdPart({ id: 'goat', slot: 'head', name: 'Goat', tags: ['long'], dom: 0.5, w: 2, shapes: [[[-8, -2], [-12, -12], [-8, -24], [2, -28], [10, -24], [14, -14], [22, -4], [14, 0], [4, 0]]], extra: [fdCheek('M-6,-8 L-9,-6 M8,-8 L16,-4'), L('M12,-14 C16,-10 19,-7 21,-5', 'k', 1.1, { op: 0.3 }), HL('M-8,-22 C-4,-27 2,-28 8,-25 C2,-24 -4,-22 -8,-16 Z', 0.2)], sockets: fdHeadSockets({ eye: { x: 5, y: -17, s: 1 }, mouth: { x: 18, y: -3, a: 0, s: 1 } }), stages: fdHeadStages }),
+  fdPart({ id: 'gaunt', slot: 'head', name: 'Gaunt', tags: ['skull'], dom: 0.5, w: 2, shapes: [[[-6, -2], [-10, -12], [-8, -26], [2, -30], [10, -26], [12, -14], [10, -6], [4, 0]]], extra: [fdCheek('M-4,-10 L-7,-6 M8,-10 L10,-6'), L('M-2,-8 C2,-6 6,-6 8,-8', 'k', 1.1, { op: 0.3 }), HL('M-6,-24 C-2,-29 2,-30 8,-27 C2,-26 -2,-24 -6,-18 Z', 0.2)], sockets: fdHeadSockets({ eye: { x: 5, y: -18, s: 1 }, eyeFar: { x: -3, y: -19, s: 0.9 }, mouth: { x: 8, y: -8, a: 0, s: 1 }, horns: { x: 0, y: -28, a: 0, s: 1 } }), stages: fdHeadStages }),
+  fdPart({ id: 'brute', slot: 'head', name: 'Brute', tags: ['heavy'], dom: 0.55, w: 2, shapes: [[[-10, -2], [-12, -12], [-10, -22], [0, -26], [12, -22], [16, -12], [16, -4], [8, 0]]], extra: [fdCheek('M-8,-8 L-10,-4 M12,-6 L14,-2'), L('M-8,-16 C-2,-18 8,-18 14,-14', 'k', 1.2, { op: 0.3 }), HL('M-8,-20 C-4,-25 2,-26 8,-23 C2,-22 -4,-20 -8,-14 Z', 0.2)], sockets: fdHeadSockets({ eye: { x: 7, y: -14, s: 1 }, eyeFar: { x: -3, y: -15, s: 0.9 }, mouth: { x: 11, y: -5, a: 0, s: 1 }, horns: { x: 0, y: -24, a: 0, s: 1 } }), stages: fdHeadStages }),
+  fdPart({ id: 'hound', slot: 'head', name: 'Hound', tags: ['snout'], dom: 0.5, w: 2, shapes: [[[-8, -2], [-12, -12], [-8, -24], [2, -27], [10, -22], [20, -14], [22, -8], [14, -2], [4, 0]]], extra: [fdCheek('M-6,-8 L-9,-6 M6,-6 L12,-4'), L('M10,-20 C14,-17 18,-14 20,-10', 'k', 1.1, { op: 0.3 }), HL('M-8,-22 C-4,-26 2,-27 8,-24 C2,-23 -4,-21 -8,-16 Z', 0.2)], sockets: fdHeadSockets({ eye: { x: 5, y: -16, s: 1 }, mouth: { x: 17, y: -6, a: 0, s: 1 } }), stages: fdHeadStages }),
+  fdPart({ id: 'sly', slot: 'head', name: 'Sly', tags: ['narrow'], dom: 0.5, w: 2, shapes: [[[-6, -2], [-10, -10], [-8, -22], [2, -26], [10, -22], [16, -14], [14, -6], [6, 0]]], extra: [fdCheek('M-4,-8 L-7,-6 M10,-8 L12,-5'), HL('M-6,-20 C-2,-25 2,-26 8,-23 C2,-22 -2,-20 -6,-14 Z', 0.2)], sockets: fdHeadSockets({ eye: { x: 6, y: -15, s: 1 }, eyeFar: { x: -2, y: -16, s: 0.9 }, mouth: { x: 11, y: -8, a: 0, s: 1 }, horns: { x: 0, y: -24, a: 0, s: 1 } }), stages: fdHeadStages }),
+  fdPart({ id: 'ridged', slot: 'head', name: 'Ridged', tags: ['bony'], dom: 0.5, w: 2, shapes: [[[-8, -2], [-12, -12], [-10, -22, 'c'], [-4, -26], [4, -30, 'c'], [10, -24], [14, -12], [12, -4], [4, 0]]], extra: [fdCheek('M-6,-8 L-9,-6 M10,-8 L12,-4'), L('M-8,-20 L-2,-24 L6,-22 M-6,-18 L0,-20 L6,-18', 'k', 1.1, { op: 0.3 }), HL('M-8,-20 C-4,-25 0,-27 6,-26 C0,-24 -4,-21 -8,-15 Z', 0.2)], sockets: fdHeadSockets({ eye: { x: 6, y: -15, s: 1 }, eyeFar: { x: -3, y: -16, s: 0.9 }, mouth: { x: 10, y: -6, a: 0, s: 1 }, horns: { x: 0, y: -27, a: 0, s: 1 } }), stages: fdHeadStages }),
+];
+
+// ---- src/data/parts/fiend/face.js ----
+// Fiend eyes (origin = the eye centre), mouths (origin = the front of the face) and horns (origin = the crown of
+// the skull, behind the head; they rise from there).
+// Evolutions: eyes ring then glow; mouths grow; horns grow.
+
+
+
+
+
+const fdEyeStages = (r) => ({ 2: { grow: [1.06, 1.06], add: [evoRing(0, 0, r * 1.3, 'a', 1, { op: 0.6 })] }, 3: { grow: [1.08, 1.08], add: [C(0, 0, r * 2, 'a', { ns: true, op: 0.16 })] } });
+
+const FD_EYES = [
+  fdPart({ id: 'ember', slot: 'eyes', name: 'Ember', tags: ['glow'], dom: 0.5, w: 3, extra: [C(0, 0, 4.4, 'a', { ns: true, op: 0.22 }), P('M-3.6,0.4 C-2,-3 2,-3 3.6,0.4 C2,2.4 -2,2.4 -3.6,0.4 Z', 'a', { ns: true }), C(0.4, 0.2, 1.1, 'k', { ns: true }), C(-1.2, -0.8, 0.6, 'w', { ns: true, op: 0.8 })], stages: fdEyeStages(3) }),
+  fdPart({ id: 'slit', slot: 'eyes', name: 'Slit', tags: ['sharp'], dom: 0.5, w: 3, extra: [P('M-4,0 C-2,-2.6 2,-2.6 4,0 C2,2.6 -2,2.6 -4,0 Z', 'e', { sw: 1.2 }), P('M0.4,-2.2 C1,-1 1,1 0.4,2.2 C-0.2,1 -0.2,-1 0.4,-2.2 Z', 'k', { ns: true }), C(-1.4, -1, 0.6, 'w', { ns: true, op: 0.85 })], stages: fdEyeStages(3) }),
+  fdPart({ id: 'wide', slot: 'eyes', name: 'Wide', tags: ['round'], dom: 0.55, w: 2, extra: [C(0, 0, 4, 'w'), C(0.6, 0.2, 2.6, 'e', { ns: true }), C(1, 0.4, 1.4, 'k', { ns: true }), C(-0.8, -1.4, 0.9, 'w', { ns: true, op: 0.9 })], stages: fdEyeStages(4) }),
+  fdPart({ id: 'hollow', slot: 'eyes', name: 'Hollow', tags: ['dark'], dom: 0.45, w: 2, extra: [P('M-4,-1 C-3,-4 3,-4 4,-1 C3,3 -3,3 -4,-1 Z', 'k', { ns: true, op: 0.9 }), C(0.6, 0, 0.9, 'a', { ns: true })], stages: fdEyeStages(3) }),
+  fdPart({ id: 'three', slot: 'eyes', name: 'Third eye', tags: ['three'], dom: 0.5, w: 2, extra: [P('M-3.6,0.4 C-2,-2.4 2,-2.4 3.6,0.4 C2,2.4 -2,2.4 -3.6,0.4 Z', 'e', { sw: 1.1 }), C(0.4, 0.4, 1, 'k', { ns: true }), P('M-3,-7 C-1.6,-9.4 1.6,-9.4 3,-7 C1.6,-4.8 -1.6,-4.8 -3,-7 Z', 'a', { ns: true }), C(0.2, -7, 0.8, 'k', { ns: true })], stages: fdEyeStages(3) }),
+  fdPart({ id: 'narrow', slot: 'eyes', name: 'Narrow', tags: ['mean'], dom: 0.5, w: 2, extra: [P('M-4,0 C-2,-1.8 2,-1.8 4,0 C2,1.8 -2,1.8 -4,0 Z', 'e', { sw: 1.1 }), C(0.6, 0.1, 1, 'k', { ns: true }), L('M-4,-1 C-2,-2.6 2,-2.6 4,-1', 'k', 1.3, { ns: true })], stages: fdEyeStages(3) }),
+  fdPart({ id: 'blank', slot: 'eyes', name: 'Blank', tags: ['white'], dom: 0.5, w: 2, extra: [P('M-3.8,0.4 C-2,-2.6 2,-2.6 3.8,0.4 C2,2.6 -2,2.6 -3.8,0.4 Z', 'w'), C(0, 0, 4.6, 'w', { ns: true, op: 0.16 })], stages: fdEyeStages(3) }),
+];
+
+const fdMouthStages = { 2: { grow: [1.06, 1.06] }, 3: { grow: [1.08, 1.08], add: [C(-2, 1, 0.8, 'a', { ns: true, op: 0.8 })] } };
+
+const FD_MOUTHS = [
+  fdPart({ id: 'grin', slot: 'mouth', name: 'Grin', tags: ['teeth'], dom: 0.5, w: 3, extra: [P('M3,-1 C0,3 -6,4 -12,1 C-7,0 -2,-1 3,-1 Z', 'k', { ns: true, op: 0.85 }), L('M0,-0.4 L-0.4,2 M-3,0 L-3.4,2.6 M-6,0.2 L-6.4,2.6 M-9,0.4 L-9.2,2.2', 'w', 1.2)], stages: fdMouthStages }),
+  fdPart({ id: 'fangs', slot: 'mouth', name: 'Fangs', tags: ['sharp'], dom: 0.5, w: 3, extra: [L('M3,0 L-10,1', 'k', 1.6), P('M1,0 L0,4.4 L-1.4,0.4 Z M-6,0.6 L-6.8,5 L-8,0.8 Z', 'w', { sw: 1 })], stages: fdMouthStages }),
+  fdPart({ id: 'tusks', slot: 'mouth', name: 'Tusks', tags: ['tusk'], dom: 0.5, w: 2, extra: [L('M3,0 L-10,1', 'k', 1.8), P('M0,1 C1,-2 2,-5 1,-8 C3,-4 3,-1 1,2 Z', 'w', { sw: 1 }), P('M-7,1.6 C-6,-1 -5,-4 -6,-7 C-4,-3 -4,0 -5,2 Z', 'w', { sw: 1 })], stages: fdMouthStages }),
+  fdPart({ id: 'frown', slot: 'mouth', name: 'Frown', tags: ['stern'], dom: 0.5, w: 2, extra: [L('M3,1 C0,-1 -6,-1 -10,1', 'k', 1.8), L('M-10,1 L-11,3', 'k', 1.2, { op: 0.6 })], stages: fdMouthStages }),
+  fdPart({ id: 'maw', slot: 'mouth', name: 'Maw', tags: ['open'], dom: 0.55, w: 2, extra: [P('M4,-3 C2,4 -6,7 -13,3 C-8,-1 -2,-3 4,-3 Z', 'k', { ns: true, op: 0.9 }), P('M2,-2 L1,1 L0,-2 Z M-3,-2 L-4,1.4 L-5,-1.6 Z M-8,-1 L-9,2 L-10,-0.6 Z', 'w', { ns: true }), P('M-10,3 C-6,5 -1,4 2,1 C-2,4 -6,4 -10,3 Z', 'a', { ns: true, op: 0.6 })], stages: fdMouthStages }),
+  fdPart({ id: 'smirk', slot: 'mouth', name: 'Smirk', tags: ['sly'], dom: 0.5, w: 2, extra: [L('M3,-2 C1,1 -4,2 -10,0', 'k', 1.6), P('M1,-1 L0.4,2 L-0.8,-0.6 Z', 'w', { sw: 1 })], stages: fdMouthStages }),
+  fdPart({ id: 'needle', slot: 'mouth', name: 'Needle teeth', tags: ['thin'], dom: 0.5, w: 2, extra: [L('M3,0 L-11,1', 'k', 1.6), P('M2,0 L1.6,4 L0.8,0.2 Z M-1,0.2 L-1.4,4.6 L-2.4,0.4 Z M-4,0.4 L-4.6,4.4 L-5.4,0.6 Z M-7,0.6 L-7.6,4 L-8.4,0.8 Z', 'w', { ns: true })], stages: fdMouthStages }),
+];
+
+const fdGrowHorns = { 2: { grow: [1.1, 1.1] }, 3: { grow: [1.12, 1.15] } };
+
+const FD_HORNS = [
+  NONE('horns', 0.3, 'e.'),
+  fdPart({ id: 'curled', slot: 'horns', name: 'Curled', tags: ['ram'], dom: 0.5, w: 3, shapes: [tube([[-6, 2], [-10, -6], [-14, -14], [-10, -20], [-4, -18]], 6, 1.6, { tipK: 'c' }), tube([[6, 2], [10, -6], [14, -14], [10, -20], [4, -18]], 6, 1.6, { tipK: 'c' })], extra: [L('M-9,-5 L-12,-9 M9,-5 L12,-9', 'k', 0.9, { op: 0.3 })], stages: fdGrowHorns }),
+  fdPart({ id: 'straight', slot: 'horns', name: 'Straight', tags: ['horn'], dom: 0.5, w: 3, shapes: [[[-8, 2], [-12, -22, 'c'], [-3, 1]], [[3, 1], [8, -24, 'c'], [8, 2]]], extra: [L('M-8,-4 L-10,-10 M6,-4 L7,-10', 'k', 0.9, { op: 0.3 })], stages: fdGrowHorns }),
+  fdPart({ id: 'ram', slot: 'horns', name: 'Ram', tags: ['spiral'], dom: 0.5, w: 2, extra: [L(spiralPath(-9, -6, 9, 1.6, 180), 'p', 5), L(spiralPath(9, -6, 9, 1.6, 0), 'p', 5), L(spiralPath(-9, -6, 9, 1.6, 180), 'k', 1, { op: 0.25 }), L(spiralPath(9, -6, 9, 1.6, 0), 'k', 1, { op: 0.25 })], stages: fdGrowHorns }),
+  fdPart({ id: 'crown', slot: 'horns', name: 'Crown of horns', tags: ['many'], dom: 0.5, w: 2, shapes: [[[-12, 2], [-16, -10, 'c'], [-8, 0]], [[-7, 0], [-8, -16, 'c'], [-2, -1]], [[-1, -1], [2, -20, 'c'], [5, -1]], [[6, -1], [12, -14, 'c'], [11, 1]]], extra: [L('M-14,-6 L-12,-2 M0,-14 L1,-6', 'k', 0.9, { op: 0.25 })], stages: fdGrowHorns }),
+  fdPart({ id: 'twin', slot: 'horns', name: 'Twin nubs', tags: ['small'], dom: 0.5, w: 2, shapes: [[[-9, 2], [-10, -8, 'c'], [-4, 1]], [[4, 1], [10, -9, 'c'], [9, 2]]], extra: [C(-9, -6, 0.9, 'w', { ns: true, op: 0.6 }), C(9, -7, 0.9, 'w', { ns: true, op: 0.6 })], stages: fdGrowHorns }),
+  fdPart({ id: 'antler', slot: 'horns', name: 'Antlers', tags: ['branch'], dom: 0.5, w: 2, extra: [L('M-4,0 L-9,-12 M-9,-12 L-16,-16 M-9,-12 L-8,-22 M-6,-6 L-12,-8 M4,0 L9,-12 M9,-12 L16,-16 M9,-12 L8,-22 M6,-6 L12,-8', 'p', 3.2), L('M-4,0 L-9,-12 M4,0 L9,-12', 'k', 0.9, { op: 0.25 })], stages: fdGrowHorns }),
+  fdPart({ id: 'stub', slot: 'horns', name: 'Stubs', tags: ['short'], dom: 0.5, w: 2, shapes: [[[-8, 2], [-10, -6, 0.5], [-6, -7, 0.5], [-3, 1]], [[3, 1], [6, -7, 0.5], [10, -6, 0.5], [8, 2]]], extra: [L('M-8,-2 L-6,-5 M8,-2 L6,-5', 'k', 0.9, { op: 0.3 })], stages: fdGrowHorns }),
+];
+
+// ---- src/data/parts/fiend/limbs.js ----
+// Fiend arms (origin = the shoulder; the arm hangs down and the forearm reaches forward to a wrist that carries the
+// `hand` socket), legs (origin = the hip; two-legged, standing) and hands (what the near hand holds, origin = the
+// wrist).
+// Evolutions: arms and legs grow and gain a band; hands grow.
+
+
+
+
+
+const fdLimbStages = { 2: { grow: [1.06, 1.08] }, 3: { grow: [1.1, 1.14], add: [evoRing(2, 9, 3, 'a', 1, { op: 0.6 })] } };
+const fdGrowHand = { 2: { grow: [1.1, 1.1] }, 3: { grow: [1.14, 1.14] } };
+const fdSeg = (a, b, w0, w1) => tube([a, b], w0, w1, { tipK: 1 });
+const fdJoint = (x, y, r = 2) => C(x, y, r, 'pd', { sw: 1 });
+const fdClaws = (x, y, n = 3) => Array.from({ length: n }, (_, i) => P(`M${x + i * 3 - 3},${y - 1} L${x + i * 3 - 1.5},${y + 4} L${x + i * 3},${y - 1} Z`, 'w', { sw: 1 }));
+const fdHand = (x, y) => ({ hand: { x, y, a: 0, s: 1 } });
+
+const FD_ARMS = [
+  fdPart({ id: 'clawed', slot: 'arms', name: 'Clawed', tags: ['claw'], dom: 0.5, w: 3, shapes: [fdSeg([0, 0], [2, 11], 6, 5), fdSeg([2, 11], [10, 17], 5, 4)], extra: [fdJoint(2, 11), ...fdClaws(11, 18)], sockets: fdHand(11, 18), stages: fdLimbStages }),
+  fdPart({ id: 'long', slot: 'arms', name: 'Long', tags: ['thin'], dom: 0.5, w: 2, shapes: [fdSeg([0, 0], [1, 14], 5, 4), fdSeg([1, 14], [12, 22], 4, 3.4)], extra: [fdJoint(1, 14, 1.8), ...fdClaws(13, 23)], sockets: fdHand(13, 23), stages: fdLimbStages }),
+  fdPart({ id: 'brawny', slot: 'arms', name: 'Brawny', tags: ['thick'], dom: 0.55, w: 2, shapes: [fdSeg([0, 0], [2, 11], 9, 7), fdSeg([2, 11], [10, 18], 7, 6)], extra: [fdJoint(2, 11, 2.6), P('M8,18 L14,17 L15,21 L8,22 Z', 'p', { sw: 1.2 }), ...fdClaws(11, 22)], sockets: fdHand(12, 20), stages: fdLimbStages }),
+  fdPart({ id: 'thin', slot: 'arms', name: 'Thin', tags: ['lean'], dom: 0.5, w: 2, shapes: [fdSeg([0, 0], [1, 10], 4, 3.4), fdSeg([1, 10], [9, 15], 3.4, 3)], extra: [fdJoint(1, 10, 1.6), ...fdClaws(10, 16)], sockets: fdHand(10, 16), stages: fdLimbStages }),
+  fdPart({ id: 'gauntlet', slot: 'arms', name: 'Gauntlet', tags: ['armour'], dom: 0.55, w: 2, shapes: [fdSeg([0, 0], [2, 11], 7, 6), { pts: [[0, 10, 'c'], [6, 9, 'c'], [13, 15, 'c'], [12, 20, 'c'], [5, 17, 'c'], [-1, 15, 'c']], f: 'pd' }], extra: [fdJoint(2, 11, 2.2), L('M3,14 L10,17', 'k', 1, { op: 0.3 }), C(7, 13, 1, 'a', { ns: true, op: 0.85 }), ...fdClaws(12, 20)], sockets: fdHand(12, 20), stages: fdLimbStages }),
+  fdPart({ id: 'talon', slot: 'arms', name: 'Talon', tags: ['bird'], dom: 0.5, w: 2, shapes: [fdSeg([0, 0], [2, 12], 5, 4), fdSeg([2, 12], [10, 16], 4, 3)], extra: [fdJoint(2, 12, 1.8), P('M9,16 L8,23 L11,18 Z M11,17 L13,24 L14,18 Z M12,15 L17,20 L15,15 Z', 'w', { sw: 1 })], sockets: fdHand(12, 18), stages: fdLimbStages }),
+  fdPart({ id: 'stubby', slot: 'arms', name: 'Stubby', tags: ['short'], dom: 0.5, w: 2, shapes: [fdSeg([0, 0], [2, 8], 6, 5), fdSeg([2, 8], [8, 11], 5, 4)], extra: [fdJoint(2, 8), ...fdClaws(9, 12)], sockets: fdHand(9, 12), stages: fdLimbStages }),
+];
+
+const FD_LEGS = [
+  fdLeg({ id: 'hoofed', slot: 'legs', name: 'Hoofed', tags: ['goat'], dom: 0.5, w: 3, shapes: [fdSeg([0, 0], [3, 10], 7, 5), fdSeg([3, 10], [-1, 20], 5, 4), [[-4, 19], [4, 19], [6, 25], [-5, 25]]], extra: [fdJoint(3, 10), L('M0,21 L0,25', 'k', 1, { op: 0.4 })], stages: fdLimbStages }),
+  fdLeg({ id: 'clawed', slot: 'legs', name: 'Clawed', tags: ['claw'], dom: 0.5, w: 3, shapes: [fdSeg([0, 0], [2, 10], 7, 5), fdSeg([2, 10], [0, 20], 5, 4), [[-4, 19], [4, 19], [8, 24], [-4, 24]]], extra: [fdJoint(2, 10), ...fdClaws(4, 24)], stages: fdLimbStages }),
+  fdLeg({ id: 'digitigrade', slot: 'legs', name: 'Dog-legged', tags: ['bent'], dom: 0.5, w: 2, shapes: [fdSeg([0, 0], [5, 9], 7, 5), fdSeg([5, 9], [-2, 17], 5, 4), fdSeg([-2, 17], [4, 23], 4, 3.4)], extra: [fdJoint(5, 9), fdJoint(-2, 17, 1.6), ...fdClaws(5, 24)], stages: fdLimbStages }),
+  fdLeg({ id: 'brawny', slot: 'legs', name: 'Brawny', tags: ['thick'], dom: 0.55, w: 2, shapes: [fdSeg([0, 0], [2, 11], 10, 7), fdSeg([2, 11], [0, 21], 7, 6), [[-5, 20], [5, 20], [8, 26], [-6, 26]]], extra: [fdJoint(2, 11, 2.6), ...fdClaws(4, 26)], stages: fdLimbStages }),
+  fdLeg({ id: 'thin', slot: 'legs', name: 'Thin', tags: ['lean'], dom: 0.5, w: 2, shapes: [fdSeg([0, 0], [2, 11], 4.4, 3.6), fdSeg([2, 11], [0, 22], 3.6, 3), [[-3, 21], [3, 21], [7, 25], [-3, 25]]], extra: [fdJoint(2, 11, 1.6), ...fdClaws(3, 25, 2)], stages: fdLimbStages }),
+  fdLeg({ id: 'armoured', slot: 'legs', name: 'Armoured', tags: ['plate'], dom: 0.55, w: 2, shapes: [fdSeg([0, 0], [2, 11], 8, 6), { pts: [[-2, 10, 'c'], [6, 10, 'c'], [5, 22, 'c'], [-3, 22, 'c']], f: 'pd' }, [[-5, 21, 'c'], [6, 21, 'c'], [8, 26, 'c'], [-6, 26, 'c']]], extra: [fdJoint(2, 11, 2.2), L('M-1,14 L4,14 M-1,18 L4,18', 'k', 1, { op: 0.3 }), C(1, 16, 1, 'a', { ns: true, op: 0.85 })], stages: fdLimbStages }),
+  fdLeg({ id: 'stubby', slot: 'legs', name: 'Stubby', tags: ['short'], dom: 0.5, w: 2, shapes: [fdSeg([0, 0], [1, 8], 8, 6), fdSeg([1, 8], [0, 14], 6, 5), [[-5, 13], [5, 13], [7, 18], [-5, 18]]], extra: [fdJoint(1, 8), ...fdClaws(3, 18)], stages: fdLimbStages }),
+];
+
+const FD_HANDS = [
+  NONE('hand', 0.3, 'e.'),
+  fdPart({ id: 'claws', slot: 'hand', name: 'Long claws', tags: ['claw'], dom: 0.5, w: 3, extra: [P('M-3,0 L-4,8 L-1,1 Z M0,0 L0,9 L2,1 Z M3,0 L5,8 L4,0 Z', 'w', { sw: 1 })], stages: fdGrowHand }),
+  fdPart({ id: 'pitchfork', slot: 'hand', name: 'Pitchfork', tags: ['tool'], dom: 0.5, w: 2, extra: [L('M0,12 L0,-30', 'pd', 2.6), L('M-6,-30 L6,-30 M-6,-30 L-6,-40 M0,-30 L0,-42 M6,-30 L6,-40', 'pd', 2.2), P('M-7.4,-40 L-6,-45 L-4.6,-40 Z M-1.4,-42 L0,-47 L1.4,-42 Z M4.6,-40 L6,-45 L7.4,-40 Z', 'a', { ns: true }), C(0, 0, 2.4, 'p', { sw: 1.2 })], stages: fdGrowHand }),
+  fdPart({ id: 'fireball', slot: 'hand', name: 'Fireball', tags: ['fire'], dom: 0.5, w: 2, extra: [C(5, 0, 7, 'a', { ns: true, op: 0.22 }), P(flamePath(5, 0, 6), 'a', { ns: true }), P(flamePath(5, 1, 3), 'w', { ns: true, op: 0.7 })], stages: fdGrowHand }),
+  fdPart({ id: 'orb', slot: 'hand', name: 'Orb', tags: ['magic'], dom: 0.5, w: 2, extra: [C(4, 0, 6, 'a', { ns: true, op: 0.2 }), C(4, 0, 3.8, 'a', { sw: 1 }), C(2.8, -1.4, 1.2, 'w', { ns: true, op: 0.85 }), C(4, 0, 1.2, 'k', { ns: true, op: 0.4 })], stages: fdGrowHand }),
+  fdPart({ id: 'chain', slot: 'hand', name: 'Chain', tags: ['iron'], dom: 0.5, w: 2, extra: [C(0, 0, 2.2, 'p', { sw: 1.2 }), ...[3, 7, 11, 15, 19].map((y, i) => C(1 + (i % 2) * 1.2, y, 2, 'pd', { sw: 1.4, op: 0.95 })), C(2, 23, 2.6, 'pd', { sw: 1.4 })], stages: fdGrowHand }),
+  fdPart({ id: 'dagger', slot: 'hand', name: 'Dagger', tags: ['blade'], dom: 0.5, w: 2, extra: [P('M2,-2 L18,-6 L20,-4 L4,3 Z', 'w', { sw: 1.2 }), L('M0,-4 L4,4', 'pd', 2.6), C(0, 0, 2, 'p', { sw: 1.2 }), L('M4,-2 L15,-4.6', 'k', 0.8, { op: 0.3 })], stages: fdGrowHand }),
+  fdPart({ id: 'torch', slot: 'hand', name: 'Torch', tags: ['fire'], dom: 0.5, w: 2, extra: [L('M0,4 L2,-16', 'pd', 3), C(0, 0, 2.2, 'p', { sw: 1.2 }), C(3, -22, 7, 'a', { ns: true, op: 0.2 }), P(flamePath(3, -22, 6), 'a', { ns: true }), P(flamePath(3, -21, 3), 'w', { ns: true, op: 0.7 })], stages: fdGrowHand }),
+];
+
+// ---- src/data/parts/fiend/back.js ----
+// Fiend tails (origin = low on the back, trailing behind and down) and wings (origin = high on the back; the
+// membrane spreads up and back, drawn behind the body).
+// Evolutions: tails grow and spike; wings grow and light accent motes.
+
+
+
+
+
+const fdTailStages = (x, y) => ({ 2: { grow: [1.1, 1.06] }, 3: { grow: [1.15, 1.1], addShapes: [{ pts: evoSpike(x, y, -100, 7, 3), f: 'a' }] } });
+const fdWingStages = { 2: { grow: [1.1, 1.1], add: [C(-24, -28, 1.6, 'a', { ns: true, op: 0.7 })] }, 3: { grow: [1.15, 1.15], add: [C(-24, -28, 1.8, 'a', { ns: true, op: 0.7 }), C(-32, -10, 1.5, 'a', { ns: true, op: 0.7 })] } };
+const fdSpade = (x, y, s = 5) => P(`M${x},${y - s} L${x + s},${y} L${x},${y + s} L${x - s},${y} Z`, 'a', { sw: 1.2 });
+const fdFingers = (d) => L(d, 'pd', 2.4);
+
+const FD_TAILS = [
+  NONE('tail', 0.3, 'e.'),
+  fdPart({ id: 'spade', slot: 'tail', name: 'Spade', tags: ['devil'], dom: 0.5, w: 3, shapes: [tube([[0, 0], [-10, 6], [-20, 8], [-28, 2]], 4, 1.6, { tipK: 1 })], extra: [fdSpade(-30, -1)], stages: fdTailStages(-24, 4) }),
+  fdPart({ id: 'whip', slot: 'tail', name: 'Whip', tags: ['long'], dom: 0.5, w: 2, shapes: [tube([[0, 0], [-12, 6], [-24, 4], [-34, -6]], 3.4, 1, { tipK: 'c' })], extra: [C(-33, -5, 1.2, 'a', { ns: true })], stages: fdTailStages(-28, -2) }),
+  fdPart({ id: 'tuft', slot: 'tail', name: 'Tufted', tags: ['fur'], dom: 0.5, w: 2, shapes: [tube([[0, 0], [-10, 6], [-20, 6]], 3.4, 1.8, { tipK: 1 }), { pts: puff(-23, 5, 4, 8, 2.4, { tip: 'c' }), f: 'a' }], stages: fdTailStages(-20, 2) }),
+  fdPart({ id: 'barbed', slot: 'tail', name: 'Barbed', tags: ['spikes'], dom: 0.5, w: 2, shapes: [tube([[0, 0], [-10, 6], [-22, 6], [-30, 0]], 4, 1.6, { tipK: 'c' })], extra: [P('M-8,4 L-10,-2 L-12,5 Z M-16,5 L-18,-1 L-20,6 Z M-24,3 L-25,-3 L-27,4 Z', 'w', { sw: 1 })], stages: fdTailStages(-26, 2) }),
+  fdPart({ id: 'thick', slot: 'tail', name: 'Thick', tags: ['heavy'], dom: 0.5, w: 2, shapes: [tube([[0, 0], [-10, 6], [-20, 10], [-26, 8]], 7, 3, { tipK: 0.6 })], extra: [L('M-6,2 L-7,7 M-14,6 L-14,11', 'k', 1, { op: 0.3 })], stages: fdTailStages(-22, 6) }),
+  fdPart({ id: 'forked', slot: 'tail', name: 'Forked', tags: ['fork'], dom: 0.5, w: 2, shapes: [tube([[0, 0], [-12, 6], [-22, 4]], 3.6, 2, { tipK: 1 }), tube([[-20, 4], [-28, -2], [-32, -8]], 2.4, 1, { tipK: 'c' }), tube([[-20, 4], [-28, 8], [-34, 10]], 2.4, 1, { tipK: 'c' })], extra: [C(-31, -7, 1, 'a', { ns: true }), C(-33, 9, 1, 'a', { ns: true })], stages: fdTailStages(-26, 0) }),
+  fdPart({ id: 'stub', slot: 'tail', name: 'Stub', tags: ['short'], dom: 0.5, w: 2, shapes: [tube([[0, 0], [-8, 3]], 4.6, 2.4, { tipK: 'c' })], stages: fdTailStages(-8, 1) }),
+];
+
+const FD_WINGS = [
+  NONE('wings', 0.3, 'e.'),
+  fdPart({ id: 'bat', slot: 'wings', name: 'Bat wings', tags: ['membrane'], dom: 0.5, w: 3, shapes: [{ pts: [[0, 0], [-6, -14], [-14, -28], [-28, -38, 'c'], [-28, -24], [-38, -12, 'c'], [-30, -4], [-38, 6, 'c'], [-24, 4], [-10, 6]], f: 's' }], extra: [fdFingers('M0,0 L-14,-28 M-14,-28 L-28,-38 M-14,-28 L-38,-12 M-14,-28 L-38,6'), L('M0,0 C-4,-10 -10,-20 -14,-28', 'p', 3.2)], stages: fdWingStages }),
+  fdPart({ id: 'small', slot: 'wings', name: 'Small', tags: ['stub'], dom: 0.5, w: 3, shapes: [{ pts: [[0, 0], [-4, -8], [-10, -16], [-20, -20, 'c'], [-20, -12], [-26, -6, 'c'], [-20, -2], [-22, 4, 'c'], [-14, 2], [-6, 4]], f: 's' }], extra: [fdFingers('M0,0 L-10,-16 M-10,-16 L-20,-20 M-10,-16 L-26,-6 M-10,-16 L-22,4'), L('M0,0 C-3,-6 -7,-12 -10,-16', 'p', 2.8)], stages: fdWingStages }),
+  fdPart({ id: 'ragged', slot: 'wings', name: 'Ragged', tags: ['torn'], dom: 0.5, w: 2, shapes: [{ pts: [[0, 0], [-6, -14], [-14, -28], [-28, -36, 'c'], [-24, -26], [-34, -20, 'c'], [-26, -14], [-36, -8, 'c'], [-26, -4], [-34, 6, 'c'], [-22, 2], [-10, 6]], f: 's' }], extra: [fdFingers('M0,0 L-14,-28 M-14,-28 L-28,-36 M-14,-28 L-36,-8 M-14,-28 L-34,6'), L('M0,0 C-4,-10 -10,-20 -14,-28', 'p', 3.2), C(-20, -14, 2, 'k', { ns: true, op: 0.4 })], stages: fdWingStages }),
+  fdPart({ id: 'feathered', slot: 'wings', name: 'Dark feathers', tags: ['bird'], dom: 0.5, w: 2, shapes: [{ pts: [[0, 0], [-8, -14], [-20, -26], [-36, -30, 'c'], [-30, -20], [-38, -14, 'c'], [-28, -10], [-36, -2, 'c'], [-24, 0], [-30, 8, 'c'], [-16, 4], [-6, 4]], f: 's' }], extra: [L('M-4,-4 C-14,-14 -24,-20 -34,-28 M-4,-2 C-14,-8 -24,-12 -34,-14 M-4,0 C-14,-2 -22,0 -30,4', 'k', 1, { op: 0.3 })], stages: fdWingStages }),
+  fdPart({ id: 'ember', slot: 'wings', name: 'Ember wings', tags: ['fire'], dom: 0.5, w: 2, shapes: [{ pts: [[0, 0], [-6, -14], [-14, -28], [-26, -40, 'c'], [-26, -26], [-36, -14, 'c'], [-30, -6], [-36, 4, 'c'], [-24, 2], [-10, 6]], f: 'a' }], extra: [P(flamePath(-24, -30, 6), 'w', { ns: true, op: 0.4 }), P(flamePath(-30, -14, 5), 'w', { ns: true, op: 0.35 }), fdFingers('M0,0 L-14,-28 M-14,-28 L-26,-40 M-14,-28 L-36,-14 M-14,-28 L-36,4')], stages: fdWingStages }),
+  fdPart({ id: 'bone', slot: 'wings', name: 'Bone wings', tags: ['bone'], dom: 0.5, w: 2, extra: [L('M0,0 L-10,-22 M-10,-22 L-30,-38 M-10,-22 L-36,-16 M-10,-22 L-34,4', 'p', 2.8), C(-10, -22, 2.4, 'pd', { sw: 1 }), C(-30, -38, 1.4, 'pd', { sw: 1 }), C(-36, -16, 1.4, 'pd', { sw: 1 }), C(-34, 4, 1.4, 'pd', { sw: 1 })], stages: fdWingStages }),
+  fdPart({ id: 'wide', slot: 'wings', name: 'Wide', tags: ['big'], dom: 0.55, w: 2, shapes: [{ pts: [[0, 0], [-8, -18], [-18, -34], [-38, -50, 'c'], [-36, -32], [-50, -20, 'c'], [-40, -8], [-48, 8, 'c'], [-32, 4], [-38, 16, 'c'], [-20, 8], [-10, 8]], f: 's' }], extra: [fdFingers('M0,0 L-18,-34 M-18,-34 L-38,-50 M-18,-34 L-50,-20 M-18,-34 L-48,8 M-18,-34 L-38,16'), L('M0,0 C-6,-12 -12,-24 -18,-34', 'p', 3.4)], stages: fdWingStages }),
+];
+
+// ---- src/data/parts/fiend/fx.js ----
+// Fiend marks (a pattern clipped to the torso, 100 x 60 frame) and auras (a light fitted behind the body, same
+// frame).
+// Evolutions: marks are flat; auras spread.
+
+
+
+
+const fdAuraStages = { 2: { grow: [1.08, 1.08] }, 3: { grow: [1.06, 1.06], add: [E(0, 0, 72, 46, 'a', { ns: true, op: 0.1 })] } };
+const fdMark = (d, w = 1.8) => L(d, 'a', w, { ns: true, cl: true, op: 0.9 });
+
+const FD_MARKS = [
+  NONE('marks', 0.3, 'e.'),
+  fdPart({ id: 'runes', slot: 'marks', name: 'Runes', tags: ['glyph'], dom: 0.5, w: 3, extra: [fdMark('M-24,-14 L-24,6 M-30,-6 L-18,-6 M-4,-16 L6,-4 L-4,8 M14,-12 L14,10 M8,-2 L22,-2 M24,10 L32,20', 1.6)] }),
+  fdPart({ id: 'stripes', slot: 'marks', name: 'Stripes', tags: ['stripe'], dom: 0.5, w: 2, extra: [PATCH('M-50,-20 C-20,-10 20,-30 50,-20 L50,-12 C20,-22 -20,-2 -50,-12 Z M-50,2 C-20,12 20,-8 50,2 L50,10 C20,0 -20,20 -50,10 Z', 's', { op: 0.8 })] }),
+  fdPart({ id: 'cracks', slot: 'marks', name: 'Ember cracks', tags: ['fire'], dom: 0.5, w: 2, extra: [fdMark('M-30,-20 L-22,-8 L-28,6 L-20,20 M-4,-26 L2,-12 L-6,2 L0,16 M20,-20 L16,-6 L26,8 L22,22', 1.6), C(-22, -8, 2, 'a', { ns: true, cl: true, op: 0.6 }), C(2, -12, 2, 'a', { ns: true, cl: true, op: 0.6 })] }),
+  fdPart({ id: 'sigil', slot: 'marks', name: 'Sigil', tags: ['star'], dom: 0.5, w: 2, extra: [L(starPath(0, -4, 20, 8, 5), 'a', 1.8, { ns: true, cl: true, op: 0.9 }), C(0, -4, 24, 'a', { ns: true, cl: true, op: 0.16 })] }),
+  fdPart({ id: 'scars', slot: 'marks', name: 'Scars', tags: ['cut'], dom: 0.5, w: 2, extra: [L('M-24,-18 L6,10 M-16,-4 L-14,2 M-10,2 L-8,8 M10,-16 L24,4 M14,-8 L18,-10', 'k', 1.8, { ns: true, cl: true, op: 0.45 }), L('M-24,-18 L6,10 M10,-16 L24,4', 'pl', 1, { ns: true, cl: true, op: 0.6 })] }),
+  fdPart({ id: 'spots', slot: 'marks', name: 'Spots', tags: ['spot'], dom: 0.5, w: 2, extra: [...[[-26, -12], [-10, 4], [8, -14], [22, 6], [-18, 18], [2, 22], [30, -20]].map(([x, y], i) => C(x, y, i % 2 ? 2.6 : 3.6, 's', { ns: true, cl: true, op: 0.8 }))] }),
+  fdPart({ id: 'glow', slot: 'marks', name: 'Chest glow', tags: ['light'], dom: 0.5, w: 2, extra: [C(2, -6, 18, 'a', { ns: true, cl: true, op: 0.22 }), P(flamePath(2, -6, 10), 'a', { ns: true, cl: true, op: 0.9 }), P(flamePath(2, -4, 5), 'w', { ns: true, cl: true, op: 0.7 })] }),
+];
+
+const FD_AURAS = [
+  NONE('aura', 0.3, 'e.'),
+  fdPart({ id: 'flames', slot: 'aura', name: 'Flames', tags: ['fire'], dom: 0.5, w: 3, extra: [E(0, 4, 60, 40, 'a', { ns: true, op: 0.12 }), P(flamePath(-44, -10, 16), 'a', { ns: true, op: 0.4 }), P(flamePath(44, -6, 14), 'a', { ns: true, op: 0.4 }), P(flamePath(-16, -36, 14), 'a', { ns: true, op: 0.4 }), P(flamePath(20, -34, 12), 'a', { ns: true, op: 0.4 })], stages: fdAuraStages }),
+  fdPart({ id: 'smoke', slot: 'aura', name: 'Smoke', tags: ['soft'], dom: 0.5, w: 2, extra: [E(-10, -20, 30, 22, 'k', { ns: true, op: 0.16 }), E(16, -30, 24, 18, 'k', { ns: true, op: 0.14 }), E(0, 4, 56, 36, 'k', { ns: true, op: 0.1 })], stages: fdAuraStages }),
+  fdPart({ id: 'sparks', slot: 'aura', name: 'Sparks', tags: ['dots'], dom: 0.5, w: 2, extra: [E(0, 0, 50, 34, 'a', { ns: true, op: 0.1 }), ...[[-56, -18], [-46, 22], [-18, -40], [8, 40], [26, -42], [50, 24], [58, -12], [-4, -48]].map(([x, y], i) => C(x, y, i % 2 ? 1.8 : 2.6, 'a', { ns: true, op: 0.75 }))], stages: fdAuraStages }),
+  fdPart({ id: 'halo', slot: 'aura', name: 'Dark halo', tags: ['ring'], dom: 0.5, w: 2, extra: [E(0, -34, 26, 8, 'k', { ns: true, op: 0.35 }), E(0, -34, 20, 5, 'a', { ns: true, op: 0.6 }), E(0, 0, 48, 34, 'a', { ns: true, op: 0.1 })], stages: fdAuraStages }),
+  fdPart({ id: 'embers', slot: 'aura', name: 'Embers', tags: ['fire'], dom: 0.5, w: 2, extra: [E(0, 6, 54, 36, 'a', { ns: true, op: 0.12 }), ...[[-50, 10], [-40, -20], [-20, -36], [10, -42], [34, -30], [52, -4], [46, 18], [-30, 30]].flatMap(([x, y], i) => [P(flamePath(x, y, i % 2 ? 4 : 5.5), 'a', { ns: true, op: 0.7 })])], stages: fdAuraStages }),
+  fdPart({ id: 'haze', slot: 'aura', name: 'Haze', tags: ['soft'], dom: 0.5, w: 2, extra: [E(0, 4, 66, 44, 'a', { ns: true, op: 0.1 }), E(-10, 0, 40, 30, 'a', { ns: true, op: 0.1 }), E(14, 2, 40, 28, 'a', { ns: true, op: 0.1 })], stages: fdAuraStages }),
+  fdPart({ id: 'ring', slot: 'aura', name: 'Ring', tags: ['ring'], dom: 0.5, w: 2, extra: [E(0, 0, 46, 30, 'a', { ns: true, op: 0.12 }), E(0, 0, 58, 38, 'a', { ns: true, op: 0.12 }), E(0, 0, 66, 44, 'a', { ns: true, op: 0.1 })], stages: fdAuraStages }),
+];
+
+// ---- src/data/parts/fiend/index.js ----
+// The fiend library, one list per rig slot.
+
+
+
+
+
+
+
+const FIEND_PARTS = {
+  body: FD_BODIES, head: FD_HEADS, eyes: FD_EYES, mouth: FD_MOUTHS, horns: FD_HORNS, arms: FD_ARMS,
+  legs: FD_LEGS, tail: FD_TAILS, wings: FD_WINGS, hand: FD_HANDS, marks: FD_MARKS, aura: FD_AURAS,
+};
+
 // ---- src/data/parts/index.js ----
 // Part registry. Part ids are stable forever: a saved creature must decode the
 // same way after the library grows, so never rename or reuse an id.
 //
 // Parts are grouped by rig, then slot. A part fits any body of its own rig
 // unless it lists the body kinds it accepts in `fit`.
+
 
 
 
@@ -9470,6 +9799,7 @@ const RIG_PARTS = {
   nightwing: NIGHTWING_PARTS,
   crystalline: CRYSTALLINE_PARTS,
   myriapod: MYRIAPOD_PARTS,
+  fiend: FIEND_PARTS,
 };
 
 const PARTS = new Map();
@@ -12176,6 +12506,147 @@ const SPECIES = [
     abilities: ['purebred','momentum'],
     desc: 'The oldest thing under the roots, and the longest. Miners who break into its gallery back out very quietly.',
   },
+  // ---- Roster expansion: fiends ----
+  {
+    id: 'impling', name: 'Impling', nameParts: ['Imp', 'ling'], clade: 'fiend', rig: 'fiend', types: ['Fire'], tier: 'common', bst: 395,
+    stats: { hp: 0.12, melee: 0.07, ranged: 0.09, magic: 0.23, meleeDef: 0.1, rangedDef: 0.1, magicDef: 0.11, spe: 0.18 },
+    recipe: { body: 'e.body.imp', head: 'e.head.imp', eyes: 'e.eyes.ember', mouth: 'e.mouth.grin', horns: ['e.horns.stub', 'e.horns.none'], arms: 'e.arms.stubby', legs: 'e.legs.digitigrade', tail: ['e.tail.spade', 'e.tail.none'], wings: ['e.wings.small', 'e.wings.none'], hand: ['e.hand.fireball', 'e.hand.none'], marks: 'e.marks.none', aura: ['e.aura.embers', 'e.aura.none'] },
+    palette: { c1: [0, 60, 50], c2: [355, 50, 35], c3: [40, 100, 60], eye: [50, 100, 60] }, vary: { h: 8, s: 6, l: 5 },
+    traits: T([0.2, 0.45], [0.55, 0.8], [0.3, 0.5], [0.5, 0.75], [0.3, 0.5], [0.55, 0.85]),
+    learnset: [[1,'flare'],[1,'glare'],[6,'cinder'],[11,'hex_glare'],[16,'scheme'],[22,'kindle_rush'],[28,'heat_wave'],[34,'ghostflame'],[40,'dread_pulse'],[46,'fire_stream'],[52,'meltdown']],
+    abilities: ['ember_heart','restless'],
+    desc: 'Knee-high, grinning and already on fire. It juggles the fireball because it was told not to.',
+  },
+  {
+    id: 'hornfiend', name: 'Hornfiend', nameParts: ['Horn', 'fiend'], clade: 'fiend', rig: 'fiend', types: ['Fire', 'Dark'], tier: 'uncommon', bst: 440,
+    stats: { hp: 0.14, melee: 0.22, ranged: 0.07, magic: 0.08, meleeDef: 0.13, rangedDef: 0.11, magicDef: 0.1, spe: 0.15 },
+    recipe: { body: 'e.body.brute', head: 'e.head.goat', eyes: 'e.eyes.slit', mouth: 'e.mouth.fangs', horns: ['e.horns.curled', 'e.horns.none'], arms: 'e.arms.clawed', legs: 'e.legs.hoofed', tail: ['e.tail.spade', 'e.tail.none'], wings: 'e.wings.none', hand: ['e.hand.claws', 'e.hand.none'], marks: ['e.marks.cracks', 'e.marks.none'], aura: ['e.aura.flames', 'e.aura.none'] },
+    palette: { c1: [350, 45, 40], c2: [345, 40, 30], c3: [25, 100, 58], eye: [40, 100, 60] }, vary: { h: 6, s: 6, l: 5 },
+    traits: T([0.45, 0.7], MID, [0.4, 0.6], [0.5, 0.75], MID, [0.35, 0.6]),
+    learnset: [[1,'swipe'],[1,'glare'],[6,'kindle_rush'],[11,'cheap_shot'],[16,'ember_bite'],[22,'scheme'],[28,'scorch_fist'],[34,'dusk_slash'],[40,'whetting'],[46,'crush_bite'],[52,'inferno_charge']],
+    abilities: ['menace','hot_blooded'],
+    desc: 'Goat-headed, hoofed and impatient. The horns are for arguments it does not intend to have.',
+  },
+  {
+    id: 'cinderjack', name: 'Cinderjack', nameParts: ['Cinder', 'jack'], clade: 'fiend', rig: 'fiend', types: ['Fire', 'Fighting'], tier: 'uncommon', bst: 440,
+    stats: { hp: 0.14, melee: 0.23, ranged: 0.07, magic: 0.07, meleeDef: 0.14, rangedDef: 0.11, magicDef: 0.09, spe: 0.15 },
+    recipe: { body: 'e.body.brute', head: 'e.head.brute', eyes: 'e.eyes.narrow', mouth: 'e.mouth.tusks', horns: ['e.horns.stub', 'e.horns.none'], arms: 'e.arms.brawny', legs: 'e.legs.brawny', tail: ['e.tail.stub', 'e.tail.none'], wings: 'e.wings.none', hand: ['e.hand.claws', 'e.hand.none'], marks: ['e.marks.scars', 'e.marks.none'], aura: ['e.aura.sparks', 'e.aura.none'] },
+    palette: { c1: [15, 55, 45], c2: [10, 45, 32], c3: [40, 100, 62], eye: [45, 100, 60] }, vary: { h: 6, s: 6, l: 5 },
+    traits: T([0.5, 0.8], [0.5, 0.75], [0.5, 0.75], [0.2, 0.4], MID, [0.3, 0.5]),
+    learnset: [[1,'blitz_punch'],[1,'glare'],[6,'kindle_rush'],[11,'chop'],[16,'ember_bite'],[22,'muscle_up'],[28,'scorch_fist'],[34,'slab_break'],[40,'whetting'],[46,'siphon_fist'],[52,'all_out_brawl']],
+    abilities: ['momentum','heavy_hands'],
+    desc: 'Fights with its fists and wins with its forehead. Every scar has a story and it will tell you all of them.',
+  },
+  {
+    id: 'sootling', name: 'Sootling', nameParts: ['Soot', 'ling'], clade: 'fiend', rig: 'fiend', types: ['Fire', 'Poison'], tier: 'common', bst: 405,
+    stats: { hp: 0.13, melee: 0.07, ranged: 0.22, magic: 0.09, meleeDef: 0.11, rangedDef: 0.12, magicDef: 0.1, spe: 0.16 },
+    recipe: { body: 'e.body.hunched', head: 'e.head.sly', eyes: 'e.eyes.wide', mouth: 'e.mouth.needle', horns: ['e.horns.twin', 'e.horns.none'], arms: 'e.arms.long', legs: 'e.legs.thin', tail: ['e.tail.whip', 'e.tail.none'], wings: 'e.wings.none', hand: ['e.hand.orb', 'e.hand.none'], marks: ['e.marks.spots', 'e.marks.none'], aura: ['e.aura.smoke', 'e.aura.none'] },
+    palette: { c1: [280, 12, 38], c2: [285, 15, 30], c3: [90, 90, 55], eye: [90, 90, 60] }, vary: { h: 8, s: 6, l: 5 },
+    traits: T([0.3, 0.55], [0.5, 0.75], [0.5, 0.75], [0.55, 0.8], MID, [0.55, 0.85]),
+    learnset: [[1,'cinder'],[1,'glare'],[6,'acid_spit'],[11,'sneer'],[16,'blight'],[22,'scheme'],[28,'shadow_shot'],[34,'sludge_blast'],[40,'slime_coat'],[46,'fire_stream'],[52,'sludge_hurl']],
+    abilities: ['venom_heart','hot_blooded'],
+    desc: 'Lives in the chimney flues and coughs up something that eats through brick. Polite about it, mostly.',
+  },
+  {
+    id: 'pactling', name: 'Pactling', nameParts: ['Pact', 'ling'], clade: 'fiend', rig: 'fiend', types: ['Fire', 'Psychic'], tier: 'rare', bst: 465,
+    stats: { hp: 0.13, melee: 0.06, ranged: 0.08, magic: 0.24, meleeDef: 0.11, rangedDef: 0.11, magicDef: 0.14, spe: 0.13 },
+    recipe: { body: 'e.body.lanky', head: 'e.head.gaunt', eyes: 'e.eyes.three', mouth: 'e.mouth.smirk', horns: ['e.horns.crown', 'e.horns.none'], arms: 'e.arms.long', legs: 'e.legs.thin', tail: ['e.tail.forked', 'e.tail.none'], wings: ['e.wings.bat', 'e.wings.none'], hand: ['e.hand.orb', 'e.hand.none'], marks: ['e.marks.runes', 'e.marks.none'], aura: ['e.aura.halo', 'e.aura.none'] },
+    palette: { c1: [265, 35, 50], c2: [270, 40, 35], c3: [45, 100, 65], eye: [45, 100, 65] }, vary: { h: 8, s: 6, l: 5 },
+    traits: T([0.4, 0.65], MID, [0.55, 0.8], [0.5, 0.75], [0.4, 0.6], [0.5, 0.8]),
+    learnset: [[1,'mind_jolt'],[1,'glare'],[6,'flare'],[11,'meditate'],[16,'thought_beam'],[22,'hex_glare'],[28,'heat_wave'],[34,'psi_shock'],[40,'lull'],[46,'mind_crush'],[52,'meltdown']],
+    abilities: ['inferno_core','finesse'],
+    desc: 'Has your signature already and is only waiting for you to notice. The third eye reads the small print.',
+  },
+  {
+    id: 'gloomhoof', name: 'Gloomhoof', nameParts: ['Gloom', 'hoof'], clade: 'fiend', rig: 'fiend', types: ['Fire', 'Ghost'], tier: 'uncommon', bst: 435,
+    stats: { hp: 0.13, melee: 0.07, ranged: 0.08, magic: 0.22, meleeDef: 0.11, rangedDef: 0.12, magicDef: 0.13, spe: 0.14 },
+    recipe: { body: 'e.body.lanky', head: 'e.head.goat', eyes: 'e.eyes.hollow', mouth: 'e.mouth.frown', horns: ['e.horns.antler', 'e.horns.none'], arms: 'e.arms.thin', legs: 'e.legs.hoofed', tail: ['e.tail.tuft', 'e.tail.none'], wings: ['e.wings.ragged', 'e.wings.none'], hand: ['e.hand.torch', 'e.hand.none'], marks: ['e.marks.sigil', 'e.marks.none'], aura: ['e.aura.haze', 'e.aura.none'] },
+    palette: { c1: [230, 15, 40], c2: [235, 20, 30], c3: [140, 70, 62], eye: [140, 80, 62] }, vary: { h: 8, s: 6, l: 5 },
+    traits: T([0.4, 0.65], MID, [0.5, 0.75], [0.4, 0.6], [0.4, 0.6], [0.4, 0.65]),
+    learnset: [[1,'flare'],[1,'glare'],[6,'cold_lick'],[11,'haunt'],[16,'curse_bolt'],[22,'ghostflame'],[28,'heat_wave'],[34,'umbral_orb'],[40,'scheme'],[46,'dread_pulse'],[52,'meltdown']],
+    abilities: ['umbral_core','second_wind'],
+    desc: 'Carries a torch that gives no light, only a colder kind of shadow. Its hooves do not quite touch the floor.',
+  },
+  {
+    id: 'brasslord', name: 'Brasslord', nameParts: ['Brass', 'lord'], clade: 'fiend', rig: 'fiend', types: ['Fire', 'Steel'], tier: 'uncommon', bst: 450,
+    stats: { hp: 0.15, melee: 0.2, ranged: 0.06, magic: 0.07, meleeDef: 0.19, rangedDef: 0.14, magicDef: 0.1, spe: 0.09 },
+    recipe: { body: 'e.body.armoured', head: 'e.head.brute', eyes: 'e.eyes.narrow', mouth: 'e.mouth.frown', horns: ['e.horns.crown', 'e.horns.none'], arms: 'e.arms.gauntlet', legs: 'e.legs.armoured', tail: ['e.tail.thick', 'e.tail.none'], wings: 'e.wings.none', hand: ['e.hand.chain', 'e.hand.none'], marks: ['e.marks.glow', 'e.marks.none'], aura: ['e.aura.ring', 'e.aura.none'] },
+    palette: { c1: [40, 55, 50], c2: [35, 45, 36], c3: [20, 100, 58], eye: [25, 100, 60] }, vary: { h: 5, s: 5, l: 5 },
+    traits: T([0.5, 0.8], [0.5, 0.75], [0.4, 0.6], [0.3, 0.5], MID, [0.3, 0.5]),
+    learnset: [[1,'bolt_jab'],[1,'plate_up'],[6,'kindle_rush'],[11,'iron_claw'],[16,'ember_bite'],[22,'brace'],[28,'scorch_fist'],[34,'steel_ram'],[40,'whetting'],[46,'comet_fist'],[52,'blaze_tackle']],
+    abilities: ['iron_hide','inferno_core'],
+    desc: 'Cast in brass and heated from within. The chain is for whoever tries to leave the sinks without paying.',
+  },
+  {
+    id: 'duskimp', name: 'Duskimp', nameParts: ['Dusk', 'imp'], clade: 'fiend', rig: 'fiend', types: ['Dark'], tier: 'common', bst: 400,
+    stats: { hp: 0.12, melee: 0.22, ranged: 0.08, magic: 0.07, meleeDef: 0.1, rangedDef: 0.1, magicDef: 0.09, spe: 0.22 },
+    recipe: { body: 'e.body.imp', head: 'e.head.sly', eyes: 'e.eyes.slit', mouth: 'e.mouth.grin', horns: ['e.horns.twin', 'e.horns.none'], arms: 'e.arms.clawed', legs: 'e.legs.digitigrade', tail: ['e.tail.barbed', 'e.tail.none'], wings: ['e.wings.small', 'e.wings.none'], hand: ['e.hand.dagger', 'e.hand.none'], marks: ['e.marks.stripes', 'e.marks.none'], aura: 'e.aura.none' },
+    palette: { c1: [260, 20, 42], c2: [265, 25, 30], c3: [320, 80, 62], eye: [320, 90, 60] }, vary: { h: 8, s: 6, l: 5 },
+    traits: T([0.25, 0.5], [0.5, 0.75], [0.4, 0.6], [0.55, 0.8], [0.3, 0.5], [0.45, 0.7]),
+    learnset: [[1,'swipe'],[1,'glare'],[6,'cheap_shot'],[11,'blindside'],[16,'chomp'],[22,'scheme'],[28,'dusk_slash'],[34,'mug'],[40,'blur'],[46,'crush_bite'],[52,'reckless_charge']],
+    abilities: ['restless','lucky_streak'],
+    desc: 'Steals the dagger, then the sheath, then the belt. It will sell all three back to you at dusk.',
+  },
+  {
+    id: 'ashwing', name: 'Ashwing', nameParts: ['Ash', 'wing'], clade: 'fiend', rig: 'fiend', types: ['Fire', 'Flying'], tier: 'uncommon', bst: 435,
+    stats: { hp: 0.12, melee: 0.08, ranged: 0.22, magic: 0.09, meleeDef: 0.1, rangedDef: 0.11, magicDef: 0.1, spe: 0.18 },
+    recipe: { body: 'e.body.lanky', head: 'e.head.hound', eyes: 'e.eyes.ember', mouth: 'e.mouth.fangs', horns: ['e.horns.straight', 'e.horns.none'], arms: 'e.arms.talon', legs: 'e.legs.clawed', tail: ['e.tail.whip', 'e.tail.none'], wings: ['e.wings.wide', 'e.wings.none'], hand: 'e.hand.none', marks: ['e.marks.cracks', 'e.marks.none'], aura: ['e.aura.smoke', 'e.aura.none'] },
+    palette: { c1: [20, 12, 45], c2: [20, 15, 32], c3: [25, 100, 58], eye: [30, 100, 60] }, vary: { h: 6, s: 5, l: 5 },
+    traits: T([0.4, 0.65], MID, [0.45, 0.7], [0.5, 0.75], [0.6, 0.9], [0.4, 0.65]),
+    learnset: [[1,'cinder'],[1,'glare'],[6,'gale'],[11,'sneer'],[16,'slipstream'],[22,'scheme'],[28,'wind_cutter'],[34,'shadow_shot'],[40,'preen'],[46,'fire_stream'],[52,'tempest_shot']],
+    abilities: ['gale_heart','ember_heart'],
+    desc: 'Rides the hot air off the sinks and rains cinders on the road below. Grey all over until it is angry.',
+  },
+  {
+    id: 'slagfiend', name: 'Slagfiend', nameParts: ['Slag', 'fiend'], clade: 'fiend', rig: 'fiend', types: ['Fire', 'Rock'], tier: 'uncommon', bst: 445,
+    stats: { hp: 0.16, melee: 0.21, ranged: 0.06, magic: 0.06, meleeDef: 0.17, rangedDef: 0.14, magicDef: 0.1, spe: 0.1 },
+    recipe: { body: 'e.body.stout', head: 'e.head.brute', eyes: 'e.eyes.hollow', mouth: 'e.mouth.maw', horns: ['e.horns.ram', 'e.horns.none'], arms: 'e.arms.brawny', legs: 'e.legs.stubby', tail: ['e.tail.stub', 'e.tail.none'], wings: 'e.wings.none', hand: ['e.hand.claws', 'e.hand.none'], marks: ['e.marks.cracks', 'e.marks.none'], aura: ['e.aura.embers', 'e.aura.none'] },
+    palette: { c1: [15, 20, 38], c2: [10, 25, 30], c3: [25, 100, 55], eye: [30, 100, 60] }, vary: { h: 6, s: 5, l: 5 },
+    traits: T([0.5, 0.8], [0.5, 0.75], [0.4, 0.6], [0.2, 0.4], MID, [0.35, 0.6]),
+    learnset: [[1,'bump'],[1,'brace'],[6,'kindle_rush'],[11,'rock_smash'],[16,'ember_bite'],[22,'smooth_stone'],[28,'scorch_fist'],[34,'headbonk'],[40,'whetting'],[46,'boulder_bash'],[52,'blaze_tackle']],
+    abilities: ['stone_heart','warm_core'],
+    desc: 'Cooled slag that never quite set. It shoulders through the furnace walls and leaves them glowing.',
+  },
+  {
+    id: 'hexling', name: 'Hexling', nameParts: ['Hex', 'ling'], clade: 'fiend', rig: 'fiend', types: ['Dark', 'Fairy'], tier: 'uncommon', bst: 430,
+    stats: { hp: 0.12, melee: 0.06, ranged: 0.08, magic: 0.22, meleeDef: 0.1, rangedDef: 0.11, magicDef: 0.14, spe: 0.17 },
+    recipe: { body: 'e.body.imp', head: 'e.head.imp', eyes: 'e.eyes.wide', mouth: 'e.mouth.smirk', horns: ['e.horns.curled', 'e.horns.none'], arms: 'e.arms.thin', legs: 'e.legs.thin', tail: ['e.tail.tuft', 'e.tail.none'], wings: ['e.wings.feathered', 'e.wings.none'], hand: ['e.hand.orb', 'e.hand.none'], marks: ['e.marks.runes', 'e.marks.none'], aura: ['e.aura.sparks', 'e.aura.none'] },
+    palette: { c1: [300, 40, 60], c2: [290, 40, 42], c3: [50, 90, 70], eye: [50, 90, 65] }, vary: { h: 10, s: 6, l: 5 },
+    traits: T([0.25, 0.5], [0.55, 0.8], [0.4, 0.6], [0.45, 0.7], [0.4, 0.6], [0.6, 0.9]),
+    learnset: [[1,'hex_glare'],[1,'glare'],[6,'glitter_gust'],[11,'doe_eyes'],[16,'sweet_sip'],[22,'scheme'],[28,'dazzle'],[34,'dread_pulse'],[40,'moonbathe'],[46,'lunar_burst'],[52,'star_shower']],
+    abilities: ['radiant_core','swagger'],
+    desc: 'Curses with a giggle and a wink. Nothing it does is serious and all of it sticks.',
+  },
+  {
+    id: 'frostfiend', name: 'Frostfiend', nameParts: ['Frost', 'fiend'], clade: 'fiend', rig: 'fiend', types: ['Dark', 'Ice'], tier: 'uncommon', bst: 430,
+    stats: { hp: 0.14, melee: 0.07, ranged: 0.08, magic: 0.22, meleeDef: 0.12, rangedDef: 0.12, magicDef: 0.13, spe: 0.12 },
+    recipe: { body: 'e.body.regal', head: 'e.head.gaunt', eyes: 'e.eyes.blank', mouth: 'e.mouth.frown', horns: ['e.horns.antler', 'e.horns.none'], arms: 'e.arms.long', legs: 'e.legs.hoofed', tail: ['e.tail.forked', 'e.tail.none'], wings: ['e.wings.bone', 'e.wings.none'], hand: ['e.hand.orb', 'e.hand.none'], marks: ['e.marks.sigil', 'e.marks.none'], aura: ['e.aura.haze', 'e.aura.none'] },
+    palette: { c1: [210, 25, 62], c2: [215, 30, 42], c3: [190, 85, 72], eye: [195, 90, 70] }, vary: { h: 6, s: 6, l: 4 },
+    traits: T([0.45, 0.7], MID, [0.5, 0.75], [0.45, 0.7], [0.4, 0.6], [0.4, 0.65]),
+    learnset: [[1,'chill_gust'],[1,'glare'],[6,'hex_glare'],[11,'sleet'],[16,'scheme'],[22,'brace'],[28,'dread_pulse'],[34,'glacier_ray'],[40,'mend'],[46,'whiteout'],[52,'glacier_toss']],
+    abilities: ['frost_heart','menace'],
+    desc: 'The one cold thing in the sinks. Where it stands the brimstone frosts over, and it stands very still.',
+  },
+  {
+    id: 'bramblefiend', name: 'Bramblefiend', nameParts: ['Bramble', 'fiend'], clade: 'fiend', rig: 'fiend', types: ['Dark', 'Grass'], tier: 'common', bst: 405,
+    stats: { hp: 0.15, melee: 0.08, ranged: 0.21, magic: 0.08, meleeDef: 0.13, rangedDef: 0.12, magicDef: 0.11, spe: 0.12 },
+    recipe: { body: 'e.body.hunched', head: 'e.head.hound', eyes: 'e.eyes.narrow', mouth: 'e.mouth.needle', horns: ['e.horns.antler', 'e.horns.none'], arms: 'e.arms.clawed', legs: 'e.legs.digitigrade', tail: ['e.tail.barbed', 'e.tail.none'], wings: 'e.wings.none', hand: ['e.hand.pitchfork', 'e.hand.none'], marks: ['e.marks.spots', 'e.marks.none'], aura: 'e.aura.none' },
+    palette: { c1: [100, 35, 38], c2: [95, 35, 30], c3: [330, 80, 62], eye: [330, 85, 60] }, vary: { h: 8, s: 6, l: 5 },
+    traits: T([0.35, 0.6], MID, [0.45, 0.7], [0.5, 0.75], MID, [0.35, 0.6]),
+    learnset: [[1,'seed_volley'],[1,'glare'],[6,'sneer'],[11,'leaf_razor'],[16,'drowse_dust'],[22,'scheme'],[28,'shadow_shot'],[34,'spore_burst'],[40,'photosynth'],[46,'night_volley'],[52,'leaf_tempest']],
+    abilities: ['thorn_hide','bloom_heart'],
+    desc: 'Grew in the thorn hedge at the edge of the sinks and took the pitchfork off a farmer who came too close.',
+  },
+  {
+    id: 'archfiend', name: 'Archfiend', nameParts: ['Arch', 'fiend'], clade: 'fiend', rig: 'fiend', types: ['Fire', 'Dragon'], tier: 'rare', bst: 470,
+    stats: { hp: 0.15, melee: 0.09, ranged: 0.08, magic: 0.22, meleeDef: 0.12, rangedDef: 0.11, magicDef: 0.12, spe: 0.11 },
+    recipe: { body: 'e.body.regal', head: 'e.head.ridged', eyes: 'e.eyes.ember', mouth: 'e.mouth.maw', horns: ['e.horns.ram', 'e.horns.none'], arms: 'e.arms.gauntlet', legs: 'e.legs.hoofed', tail: ['e.tail.spade', 'e.tail.none'], wings: ['e.wings.ember', 'e.wings.none'], hand: ['e.hand.pitchfork', 'e.hand.none'], marks: ['e.marks.glow', 'e.marks.none'], aura: ['e.aura.flames', 'e.aura.none'] },
+    palette: { c1: [350, 55, 42], c2: [345, 50, 30], c3: [45, 100, 62], eye: [45, 100, 60] }, vary: { h: 6, s: 6, l: 5 },
+    traits: T([0.55, 0.85], MID, [0.45, 0.7], [0.55, 0.85], [0.55, 0.85], [0.45, 0.7]),
+    learnset: [[1,'flare'],[1,'glare'],[6,'wyrm_breath'],[11,'hex_glare'],[16,'kindle_rush'],[22,'scheme'],[28,'heat_wave'],[34,'wyrm_pulse'],[40,'wyrm_dance'],[46,'meltdown'],[52,'comet_roar']],
+    abilities: ['purebred','inferno_core'],
+    desc: 'The sinks answer to it and so, eventually, does the fire. It does not raise its voice. It does not need to.',
+  },
 ];
 
 const SPECIES_BY_ID = Object.fromEntries(SPECIES.map((s) => [s.id, s]));
@@ -12848,6 +13319,7 @@ const CLADES = {
   nightwing: { name: 'Nightwing', plural: 'Nightwings', linked: [['wings', 'thumbs']], desc: 'Bats of every size. Leathern wings, big ears and a taste for dusk.' },
   crystalline: { name: 'Crystalline', plural: 'Crystallines', linked: [['legsFront', 'legsBack']], desc: 'Living geodes. Faceted bodies, crystal crowns and a glow along every seam.' },
   myriapod: { name: 'Myriapod', plural: 'Myriapods', linked: [['head', 'mandibles']], desc: 'Centipedes and millipedes. Segment after segment, and legs to match.' },
+  fiend: { name: 'Fiend', plural: 'Fiends', linked: [['arms', 'legs']], desc: 'Imps and devils on two legs. Horns, tails, held things and a bad attitude.' },
 };
 
 const CLADE_IDS = Object.keys(CLADES);
@@ -13357,6 +13829,8 @@ const SLOT_FAMILY = {
   seam: 'flat', facets: 'flat', aura: 'flat',
   // myriapod
   bristles: 'fur', venom: 'face',
+  // fiend
+  hand: 'face', marks: 'flat',
 };
 function growthFor(slot) { return SLOT_GROWTH[SLOT_FAMILY[slot] || 'face']; }
 
@@ -13740,6 +14214,15 @@ POSES.myriapod = {
   poise: { body: { da: -3, dy: -1 }, head: { da: -8, dy: -3 }, legs: { da: 4 }, antennae: { da: -12 }, plates: { ds: 1.05 }, glow: { ds: 1.06 } },
   attack: { body: { da: 3, dx: 6 }, head: { da: 6, dx: 5 }, mandibles: { ds: 1.2, da: 4 }, legs: { da: -18, far: { da: -8 } }, antennae: { da: 14 }, tail: { da: 12 }, venom: { ds: 1.2 } },
   hurt: { body: { da: -6, dx: -4 }, head: { da: -12 }, legs: { da: 12, far: { da: 6 } }, antennae: { da: -20 }, tail: { da: -10 } },
+};
+
+POSES.fiend = {
+  stand: {},
+  brace: { body: { da: 4, dx: 2 }, head: { da: 4, dx: 1 }, arms: { da: -14, far: { da: -6 } }, legs: { da: -4, far: { da: 4 } }, tail: { da: 8 }, wings: { da: -4 } },
+  crouch: { body: { dy: 4, da: 6 }, head: { da: 2, dy: 1 }, arms: { da: -20, far: { da: -10 } }, legs: { ds: 0.9, da: -6, far: { da: 6 } }, tail: { da: 12 }, wings: { da: 6 } },
+  poise: { body: { da: -3, dy: -1 }, head: { da: -5, dy: -2 }, arms: { da: 10, far: { da: -16 } }, wings: { da: -8 }, tail: { da: -4 }, horns: { ds: 1.04 }, aura: { ds: 1.06 } },
+  attack: { body: { da: 8, dx: 6 }, head: { da: 4, dx: 4 }, arms: { da: -34, far: { da: -12 } }, hand: { ds: 1.15 }, legs: { da: -10, far: { da: 10 } }, tail: { da: 14 }, wings: { da: 20, far: { da: 12 } }, mouth: { ds: 1.15 } },
+  hurt: { body: { da: -10, dx: -4 }, head: { da: -12 }, arms: { da: 18, far: { da: 10 } }, legs: { da: 8, far: { da: -6 } }, tail: { da: -10 }, wings: { da: 26, far: { da: 16 } } },
 };
 
 // ---- src/creature/render.js ----
@@ -16530,14 +17013,14 @@ function challengeTower(j, k, level) {
 
 
 /** Map size and ring geometry. `version` bumps whenever the layout changes, so saved positions from an older map reset to the Crossroads. */
-const WORLD = { version: 7, w: 224, h: 192, hubR: 6, ringR: 58, lairR: 84, trainersPerBiome: 6, encounterChance: 0.12, encounterCooldown: 4, homeSpawnShare: 0.72 };
+const WORLD = { version: 8, w: 224, h: 192, hubR: 6, ringR: 58, lairR: 84, trainersPerBiome: 6, encounterChance: 0.12, encounterCooldown: 4, homeSpawnShare: 0.72 };
 
 /** Tile kinds. */
 const TILE = { grass: 0, habitat: 1, path: 2, wall: 3, water: 4, hub: 5, lair: 6, door: 7, camp: 8, spire: 9, spireDoor: 10, shrine: 11, market: 12, marketDoor: 13, storage: 14, storageDoor: 15, tower: 16, towerDoor: 17 };
 const WALKABLE_TILES = new Set([TILE.grass, TILE.habitat, TILE.path, TILE.hub, TILE.door, TILE.camp, TILE.spireDoor, TILE.shrine, TILE.marketDoor, TILE.storageDoor, TILE.towerDoor]);
 
 /** Biomes in difficulty order, clockwise from the south of the hub. Levels climb 5 to the fifties; the gaps in the ladder are for classes still to come. */
-const BIOME_ORDER = ['mammal', 'amphibian', 'flora', 'insect', 'nightwing', 'fungus', 'bird', 'crystalline', 'ooze', 'fish', 'myriapod', 'wyrm', 'invertebrate', 'skeletal', 'reptile', 'draconic'];
+const BIOME_ORDER = ['mammal', 'amphibian', 'flora', 'insect', 'nightwing', 'fungus', 'bird', 'crystalline', 'ooze', 'fish', 'myriapod', 'wyrm', 'invertebrate', 'skeletal', 'reptile', 'fiend', 'draconic'];
 
 /** Per-class region: name, wild level, palette and the look of its walls. */
 const REGIONS = {
@@ -16551,6 +17034,7 @@ const REGIONS = {
   fungus:       { name: 'Sporewood',      level: 23, ground: '#7a7f5c', ground2: '#70754f', habitat: '#5b5f47', path: '#c7b48a', water: '#4e7aa0', wall: 'tree',     wallColor: '#5a4a6a', accent: '#d9a3ff', waterT: 0.6,  warden: 'Warden Morel',  badge: 'Spore Badge' },
   wyrm:         { name: 'Coiling Gorge',  level: 41, ground: '#8a8570', ground2: '#807b66', habitat: '#6b6a52', path: '#d2c39a', water: '#4f8fb8', wall: 'rock',     wallColor: '#5c5548', accent: '#8fd3ff', waterT: 0.62, warden: 'Warden Tempest', badge: 'Gorge Badge' },
   ooze:         { name: 'Slurry Sump',    level: 32, ground: '#7a8a4c', ground2: '#707f45', habitat: '#55703a', path: '#c0b27e', water: '#7fb84f', wall: 'rock',     wallColor: '#4c4a3e', accent: '#b6f06a', waterT: 0.6,  warden: 'Warden Dreg',   badge: 'Sump Badge' },
+  fiend:        { name: 'Brimstone Sinks', level: 52, ground: '#5a3a3a', ground2: '#523434', habitat: '#6a3028', path: '#b08064', water: '#e8642e', wall: 'ember',    wallColor: '#3a2424', accent: '#ff6a3a', waterT: 0.66, warden: 'Warden Sulfa',  badge: 'Brimstone Badge' },
   myriapod:     { name: 'Rootbound Warren', level: 38, ground: '#5d4a3a', ground2: '#554335', habitat: '#4a3a2c', path: '#a88c6a', water: '#4a6a5a', wall: 'root',     wallColor: '#6b4a34', accent: '#d8b34a', waterT: 0.64, warden: 'Warden Segra',  badge: 'Segment Badge' },
   crystalline:  { name: 'Prism Caverns',  level: 29, ground: '#5b5470', ground2: '#534c68', habitat: '#6a4f8a', path: '#a99cc4', water: '#4a6fb8', wall: 'crystal',  wallColor: '#b9a4ff', accent: '#ffd36a', waterT: 0.62, warden: 'Warden Facet',  badge: 'Prism Badge' },
   nightwing:    { name: 'Echo Chasm',     level: 20, ground: '#4c5566', ground2: '#454e5e', habitat: '#38404f', path: '#98a0ad', water: '#3a6f8a', wall: 'rock',     wallColor: '#5c667a', accent: '#9fd8ff', waterT: 0.62, warden: 'Warden Vesper', badge: 'Echo Badge' },
@@ -16711,6 +17195,7 @@ const TRAINER_TITLES = {
   nightwing: ['Cave Guide', 'Night Watch', 'Guano Sweeper'],
   crystalline: ['Gem Cutter', 'Lamp Bearer', 'Prospector'],
   myriapod: ['Tunneller', 'Compost Keeper', 'Root Cutter'],
+  fiend: ['Ash Broker', 'Pact Keeper', 'Imp Herder'],
 };
 const TRAINER_LINES = {
   mammal: ['My team was raised on these downs. Care for a bout?', 'Fur and fang against whatever you have. Fight?'],
@@ -16729,6 +17214,7 @@ const TRAINER_LINES = {
   nightwing: ['Mind your head in here. My team hangs from the ceiling. Fight?', 'They only come out at dusk, and so do I. Care for a bout?'],
   crystalline: ['Every stone in here is worth something. Prove your team is too?', 'Careful with the walls, they sing. Care for a bout?'],
   myriapod: ['Watch your step. Everything down here has more legs than you. Fight?', 'My team lives under the roots and likes it there. Care for a bout?'],
+  fiend: ['Sign here, fight there. My imps are waiting.', 'Everything down here costs something. Care for a bout?'],
 };
 const TRAINER_AFTER = ['Good match. Come back stronger.', 'Well fought. The Warden is another matter.', 'You earned that one.', 'My team will remember you.'];
 
@@ -16834,11 +17320,13 @@ function generateWorld(seed) {
 
   // biome centres on a ring, clockwise from the south, with a little jitter
   const biomes = BIOME_ORDER.map((clade, i) => {
-    const a = ((90 + (i * 360) / BIOME_ORDER.length + rng.range(-6, 6)) * Math.PI) / 180;
+    const a0 = ((90 + (i * 360) / BIOME_ORDER.length) * Math.PI) / 180, a = a0 + (rng.range(-6, 6) * Math.PI) / 180;
     const centre = { x: Math.round(hub.x + Math.cos(a) * WORLD.ringR), y: Math.round(hub.y + Math.sin(a) * WORLD.ringR) };
     const lair = { x: Math.max(4, Math.min(w - 5, Math.round(hub.x + Math.cos(a) * WORLD.lairR))), y: Math.max(4, Math.min(h - 5, Math.round(hub.y + Math.sin(a) * WORLD.lairR))) };
     const region = REGIONS[clade];
-    return { id: clade, clade, index: i, name: region.name, level: region.level, angle: a, centre, camp: { ...centre }, lair: { x: lair.x, y: lair.y, door: null } };
+    // the wedge direction, unjittered and in a space where the map is square, so every class gets an equal slice of a wide map
+    const wedge = Math.atan2(Math.sin(a0) / h, Math.cos(a0) / w);
+    return { id: clade, clade, index: i, name: region.name, level: region.level, angle: a, wedge, centre, camp: { ...centre }, lair: { x: lair.x, y: lair.y, door: null } };
   });
 
   // assign biomes (jittered Voronoi) and terrain
@@ -16849,9 +17337,9 @@ function generateWorld(seed) {
       const jit = 8 * Math.min(1, Math.max(0, (Math.hypot(x - hub.x, y - hub.y) - WORLD.hubR) / 24));
       const jx = x + (fbm(n1, x, y, 9) - 0.5) * jit, jy = y + (fbm(n2, x, y, 9) - 0.5) * jit;
       // wedges around the hub by angle: the centres sit on one ring, so this is their Voronoi split with even slices that stay put as classes are added
-      const ta = Math.atan2(jy - hub.y, jx - hub.x), TAU = Math.PI * 2;
+      const ta = Math.atan2((jy - hub.y) / h, (jx - hub.x) / w), TAU = Math.PI * 2;
       let best = 0, bd = Infinity;
-      biomes.forEach((b, i) => { let d = Math.abs((((ta - b.angle) % TAU) + TAU) % TAU); d = Math.min(d, TAU - d); if (d < bd) { bd = d; best = i; } });
+      biomes.forEach((b, i) => { let d = Math.abs((((ta - b.wedge) % TAU) + TAU) % TAU); d = Math.min(d, TAU - d); if (d < bd) { bd = d; best = i; } });
       const i = idx(x, y);
       bio[i] = best;
       const region = REGIONS[biomes[best].clade];
