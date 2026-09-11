@@ -789,6 +789,41 @@ RIGS.fiend = {
   },
 };
 
+RIGS.spirit = {
+  id: 'spirit', name: 'Spirit', prefix: 's.',
+  slots: ['body', 'eyes', 'mouth', 'arms', 'tail', 'hood', 'chains', 'lantern', 'aura', 'tatters', 'mask', 'veil'],
+  names: { body: 'Shroud', eyes: 'Eyes', mouth: 'Mouth', arms: 'Arms', tail: 'Wisp tail', hood: 'Hood', chains: 'Chains', lantern: 'Lantern', aura: 'Aura', tatters: 'Tatters', mask: 'Mask', veil: 'Veil' },
+  paint: ['body', 'arms', 'tail', 'hood', 'chains', 'lantern', 'aura', 'tatters', 'mask', 'veil'],
+  swappable: ['tail', 'hood', 'chains', 'lantern', 'aura', 'tatters', 'mask', 'veil'],
+  required: ['body', 'eyes', 'mouth', 'arms', 'tail'],
+  linked: [['hood', 'mask']],
+  ground: ['body', 'tail'],
+  clipped: ['veil'],
+  tree: {
+    slot: 'body', anim: 'body',
+    behind: [
+      { slot: 'aura', fitBox: true },
+      { slot: 'tail', socket: 'tail', scale: 'tail', anim: 'tail' },
+      { slot: 'tatters', socket: 'tatters', anim: 'sway' },
+      { slot: 'chains', socket: 'chains' },
+      { slot: 'arms', socket: 'armFar', far: true, scale: 'leg' },
+    ],
+    front: [
+      { slot: 'hood', socket: 'hood' },
+      { slot: 'mask', socket: 'mask', small: true },
+      { slot: 'eyes', socket: 'eyeFar', far: true, scale: 'eye', small: true },
+      { slot: 'eyes', socket: 'eye', scale: 'eye', small: true },
+      { slot: 'mouth', socket: 'mouth', small: true },
+      { slot: 'arms', socket: 'arm', scale: 'leg', front: [{ slot: 'lantern', socket: 'hand', small: true }] },
+    ],
+  },
+  mannequin: {
+    parts: { body: 's.body.wisp', eyes: 's.eyes.hollow', mouth: 's.mouth.o', arms: 's.arms.wisps', tail: 's.tail.wisp', hood: 's.hood.none', chains: 's.chains.none', lantern: 's.lantern.none', aura: 's.aura.none', tatters: 's.tatters.none', mask: 's.mask.none', veil: 's.veil.none' },
+    forSlot: {},
+    accentSlots: ['tail', 'hood', 'chains', 'lantern', 'aura', 'tatters', 'mask', 'veil'],
+  },
+};
+
 export const RIG_IDS = Object.keys(RIGS);
 
 /** Rig used when a genome names none or an unknown one (old saves): the first class. */

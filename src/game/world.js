@@ -19,14 +19,14 @@ import { speciesGenome, rollElemental } from '../creature/genome.js';
 import { fuse, canFuse } from '../creature/fusion.js';
 
 /** Map size and ring geometry. `version` bumps whenever the layout changes, so saved positions from an older map reset to the Crossroads. */
-export const WORLD = { version: 8, w: 224, h: 192, hubR: 6, ringR: 58, lairR: 84, trainersPerBiome: 6, encounterChance: 0.12, encounterCooldown: 4, homeSpawnShare: 0.72 };
+export const WORLD = { version: 9, w: 224, h: 192, hubR: 6, ringR: 58, lairR: 84, trainersPerBiome: 6, encounterChance: 0.12, encounterCooldown: 4, homeSpawnShare: 0.72 };
 
 /** Tile kinds. */
 export const TILE = { grass: 0, habitat: 1, path: 2, wall: 3, water: 4, hub: 5, lair: 6, door: 7, camp: 8, spire: 9, spireDoor: 10, shrine: 11, market: 12, marketDoor: 13, storage: 14, storageDoor: 15, tower: 16, towerDoor: 17 };
 export const WALKABLE_TILES = new Set([TILE.grass, TILE.habitat, TILE.path, TILE.hub, TILE.door, TILE.camp, TILE.spireDoor, TILE.shrine, TILE.marketDoor, TILE.storageDoor, TILE.towerDoor]);
 
 /** Biomes in difficulty order, clockwise from the south of the hub. Levels climb 5 to the fifties; the gaps in the ladder are for classes still to come. */
-export const BIOME_ORDER = ['mammal', 'amphibian', 'flora', 'insect', 'nightwing', 'fungus', 'bird', 'crystalline', 'ooze', 'fish', 'myriapod', 'wyrm', 'invertebrate', 'skeletal', 'reptile', 'fiend', 'draconic'];
+export const BIOME_ORDER = ['mammal', 'amphibian', 'flora', 'insect', 'nightwing', 'fungus', 'bird', 'crystalline', 'ooze', 'fish', 'myriapod', 'wyrm', 'invertebrate', 'skeletal', 'reptile', 'fiend', 'draconic', 'spirit'];
 
 /** Per-class region: name, wild level, palette and the look of its walls. */
 export const REGIONS = {
@@ -40,6 +40,7 @@ export const REGIONS = {
   fungus:       { name: 'Sporewood',      level: 23, ground: '#7a7f5c', ground2: '#70754f', habitat: '#5b5f47', path: '#c7b48a', water: '#4e7aa0', wall: 'tree',     wallColor: '#5a4a6a', accent: '#d9a3ff', waterT: 0.6,  warden: 'Warden Morel',  badge: 'Spore Badge' },
   wyrm:         { name: 'Coiling Gorge',  level: 41, ground: '#8a8570', ground2: '#807b66', habitat: '#6b6a52', path: '#d2c39a', water: '#4f8fb8', wall: 'rock',     wallColor: '#5c5548', accent: '#8fd3ff', waterT: 0.62, warden: 'Warden Tempest', badge: 'Gorge Badge' },
   ooze:         { name: 'Slurry Sump',    level: 32, ground: '#7a8a4c', ground2: '#707f45', habitat: '#55703a', path: '#c0b27e', water: '#7fb84f', wall: 'rock',     wallColor: '#4c4a3e', accent: '#b6f06a', waterT: 0.6,  warden: 'Warden Dreg',   badge: 'Sump Badge' },
+  spirit:       { name: 'Vigil Marsh',    level: 58, ground: '#3f4a5a', ground2: '#394352', habitat: '#2f3a4a', path: '#8a94a4', water: '#2e4a66', wall: 'grave',    wallColor: '#8a93a4', accent: '#a8f0e0', waterT: 0.55, warden: 'Warden Solace', badge: 'Vigil Badge' },
   fiend:        { name: 'Brimstone Sinks', level: 52, ground: '#5a3a3a', ground2: '#523434', habitat: '#6a3028', path: '#b08064', water: '#e8642e', wall: 'ember',    wallColor: '#3a2424', accent: '#ff6a3a', waterT: 0.66, warden: 'Warden Sulfa',  badge: 'Brimstone Badge' },
   myriapod:     { name: 'Rootbound Warren', level: 38, ground: '#5d4a3a', ground2: '#554335', habitat: '#4a3a2c', path: '#a88c6a', water: '#4a6a5a', wall: 'root',     wallColor: '#6b4a34', accent: '#d8b34a', waterT: 0.64, warden: 'Warden Segra',  badge: 'Segment Badge' },
   crystalline:  { name: 'Prism Caverns',  level: 29, ground: '#5b5470', ground2: '#534c68', habitat: '#6a4f8a', path: '#a99cc4', water: '#4a6fb8', wall: 'crystal',  wallColor: '#b9a4ff', accent: '#ffd36a', waterT: 0.62, warden: 'Warden Facet',  badge: 'Prism Badge' },
@@ -202,6 +203,7 @@ const TRAINER_TITLES = {
   crystalline: ['Gem Cutter', 'Lamp Bearer', 'Prospector'],
   myriapod: ['Tunneller', 'Compost Keeper', 'Root Cutter'],
   fiend: ['Ash Broker', 'Pact Keeper', 'Imp Herder'],
+  spirit: ['Vigil Keeper', 'Séance Host', 'Grave Tender'],
 };
 const TRAINER_LINES = {
   mammal: ['My team was raised on these downs. Care for a bout?', 'Fur and fang against whatever you have. Fight?'],
@@ -221,6 +223,7 @@ const TRAINER_LINES = {
   crystalline: ['Every stone in here is worth something. Prove your team is too?', 'Careful with the walls, they sing. Care for a bout?'],
   myriapod: ['Watch your step. Everything down here has more legs than you. Fight?', 'My team lives under the roots and likes it there. Care for a bout?'],
   fiend: ['Sign here, fight there. My imps are waiting.', 'Everything down here costs something. Care for a bout?'],
+  spirit: ['Keep your voice down, they are listening. Fight?', 'My team passed on years ago and still turns up for battles. Care for a bout?'],
 };
 const TRAINER_AFTER = ['Good match. Come back stronger.', 'Well fought. The Warden is another matter.', 'You earned that one.', 'My team will remember you.'];
 

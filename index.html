@@ -1246,6 +1246,41 @@ RIGS.fiend = {
   },
 };
 
+RIGS.spirit = {
+  id: 'spirit', name: 'Spirit', prefix: 's.',
+  slots: ['body', 'eyes', 'mouth', 'arms', 'tail', 'hood', 'chains', 'lantern', 'aura', 'tatters', 'mask', 'veil'],
+  names: { body: 'Shroud', eyes: 'Eyes', mouth: 'Mouth', arms: 'Arms', tail: 'Wisp tail', hood: 'Hood', chains: 'Chains', lantern: 'Lantern', aura: 'Aura', tatters: 'Tatters', mask: 'Mask', veil: 'Veil' },
+  paint: ['body', 'arms', 'tail', 'hood', 'chains', 'lantern', 'aura', 'tatters', 'mask', 'veil'],
+  swappable: ['tail', 'hood', 'chains', 'lantern', 'aura', 'tatters', 'mask', 'veil'],
+  required: ['body', 'eyes', 'mouth', 'arms', 'tail'],
+  linked: [['hood', 'mask']],
+  ground: ['body', 'tail'],
+  clipped: ['veil'],
+  tree: {
+    slot: 'body', anim: 'body',
+    behind: [
+      { slot: 'aura', fitBox: true },
+      { slot: 'tail', socket: 'tail', scale: 'tail', anim: 'tail' },
+      { slot: 'tatters', socket: 'tatters', anim: 'sway' },
+      { slot: 'chains', socket: 'chains' },
+      { slot: 'arms', socket: 'armFar', far: true, scale: 'leg' },
+    ],
+    front: [
+      { slot: 'hood', socket: 'hood' },
+      { slot: 'mask', socket: 'mask', small: true },
+      { slot: 'eyes', socket: 'eyeFar', far: true, scale: 'eye', small: true },
+      { slot: 'eyes', socket: 'eye', scale: 'eye', small: true },
+      { slot: 'mouth', socket: 'mouth', small: true },
+      { slot: 'arms', socket: 'arm', scale: 'leg', front: [{ slot: 'lantern', socket: 'hand', small: true }] },
+    ],
+  },
+  mannequin: {
+    parts: { body: 's.body.wisp', eyes: 's.eyes.hollow', mouth: 's.mouth.o', arms: 's.arms.wisps', tail: 's.tail.wisp', hood: 's.hood.none', chains: 's.chains.none', lantern: 's.lantern.none', aura: 's.aura.none', tatters: 's.tatters.none', mask: 's.mask.none', veil: 's.veil.none' },
+    forSlot: {},
+    accentSlots: ['tail', 'hood', 'chains', 'lantern', 'aura', 'tatters', 'mask', 'veil'],
+  },
+};
+
 const RIG_IDS = Object.keys(RIGS);
 
 /** Rig used when a genome names none or an unknown one (old saves): the first class. */
@@ -9757,12 +9792,289 @@ const FIEND_PARTS = {
   legs: FD_LEGS, tail: FD_TAILS, wings: FD_WINGS, hand: FD_HANDS, marks: FD_MARKS, aura: FD_AURAS,
 };
 
+// ---- src/data/parts/spirit/_shared.js ----
+// Spirit builders: the shared constructors namespaced with "s." (spirit).
+// Headless shrouds about 32 wide and 44 tall that hover above their shadow: the face sits on the body, arms of mist
+// hang from its sides with the near hand holding a lantern, a wisp tail trails below, and hoods, chains, tatters,
+// masks, veils and auras dress the shroud.
+
+
+const spiritBuilders = partBuilders('s.');
+const spBody = spiritBuilders.body;
+const spPart = spiritBuilders.part;
+
+// ---- src/data/parts/spirit/bodies.js ----
+// Spirit bodies (shrouds). Origin = the middle of the shroud; every body hovers above its shadow and carries the
+// face. Sockets: eye / eyeFar and mouth on the face, hood (the crown), mask (the face centre), arm / armFar (the
+// sides), tail (the bottom), chains and tatters (low on the shroud, behind).
+// kinds: 'spirit.wisp', 'spirit.sheet', 'spirit.orb', 'spirit.shade', 'spirit.flame', 'spirit.wraith', 'spirit.blob'.
+// Evolutions: stage 2 grows and raises wisps from the shoulders; stage 3 grows more, adds wisps and a heart light.
+
+
+
+
+const spBodyStages = (x2, y2, x3, y3) => ({
+  2: { grow: [1.06, 1.06], addBehind: [evoFan(x2, y2, -150, -30, 4, 4, 12, { tip: 'c' })] },
+  3: { grow: [1.06, 1.07], addBehind: [evoFan(x3, y3, -160, -20, 5, 4, 14, { tip: 'c' })], add: [C(2, 8, 4, 'a', { ns: true, op: 0.5 }), C(2, 8, 7, 'a', { ns: true, op: 0.18 })] },
+});
+const spSockets = (o) => ({ eye: { x: 8, y: -8, s: 1 }, eyeFar: { x: -2, y: -9, s: 0.9 }, mouth: { x: 6, y: 2, a: 0, s: 1 }, hood: { x: 2, y: -18, a: 0, s: 1 }, mask: { x: 4, y: -4, a: 0, s: 1 }, arm: { x: 13, y: 2, a: 0, s: 1 }, armFar: { x: -13, y: 0, a: 0, s: 0.95 }, tail: { x: -2, y: 20, a: 0, s: 1 }, chains: { x: 0, y: 10, a: 0, s: 1 }, tatters: { x: 0, y: 14, a: 0, s: 1 }, ...o });
+/** A paler heart of the shroud, clipped to it. */
+const spCore = (x, y, rx, ry) => PATCH(`M${x - rx},${y} C${x - rx},${y - ry * 1.35} ${x + rx},${y - ry * 1.35} ${x + rx},${y} C${x + rx},${y + ry * 1.35} ${x - rx},${y + ry * 1.35} ${x - rx},${y} Z`, 'pl', { op: 0.55 });
+const spFold = (d) => L(d, 'k', 1.1, { op: 0.2 });
+
+const SP_BODIES = [
+  spBody({
+    id: 'wisp', name: 'Wisp', kind: 'spirit.wisp', tags: ['teardrop'], dom: 0.5, w: 3, hover: 14,
+    pts: [[-16, -6], [-12, -18], [0, -24], [12, -18], [16, -6], [12, 8], [4, 18], [-2, 22], [-8, 16], [-14, 6]],
+    shade: torsoShade(-16, 16, -24, 22, { shadeFrac: 0.5 }),
+    extra: [spCore(0, -4, 8, 10), spFold('M-6,6 C-4,12 -2,16 -2,20 M6,8 C4,12 3,15 2,17'), HL('M-12,-14 C-8,-21 0,-24 6,-22 C0,-20 -6,-16 -10,-8 Z', 0.22)],
+    sockets: spSockets({}), stages: spBodyStages(4, -22, -6, -20),
+  }),
+  spBody({
+    id: 'sheet', name: 'Sheet', kind: 'spirit.sheet', tags: ['classic'], dom: 0.5, w: 3, hover: 14,
+    pts: [[-16, -4], [-12, -18], [0, -24], [12, -18], [16, -4], [16, 14], ...fur([16, 14], [-16, 14], 4, 6, { tip: 'c', lean: 0 }), [-16, 6]],
+    shade: torsoShade(-16, 16, -24, 20, { shadeFrac: 0.5 }),
+    extra: [spCore(0, -4, 8, 10), spFold('M-8,2 L-9,14 M0,4 L0,16 M8,2 L9,14'), HL('M-12,-14 C-8,-21 0,-24 6,-22 C0,-20 -6,-16 -10,-8 Z', 0.22)],
+    sockets: spSockets({ tail: { x: -4, y: 18, a: 0, s: 0.9 } }), stages: spBodyStages(4, -22, -6, -20),
+  }),
+  spBody({
+    id: 'orb', name: 'Orb', kind: 'spirit.orb', tags: ['round'], dom: 0.45, w: 2, hover: 16,
+    pts: [[-16, -2], [-12, -14], [0, -19], [12, -14], [17, -2], [13, 10], [2, 15], [-9, 12], [-15, 6]],
+    shade: torsoShade(-17, 17, -19, 15, { shadeFrac: 0.5 }),
+    extra: [spCore(0, -2, 8, 8), HL('M-12,-10 C-8,-16 0,-19 6,-17 C0,-15 -6,-12 -10,-5 Z', 0.22)],
+    sockets: spSockets({ eye: { x: 7, y: -5, s: 1 }, eyeFar: { x: -2, y: -6, s: 0.9 }, mouth: { x: 5, y: 4, a: 0, s: 1 }, hood: { x: 1, y: -14, a: 0, s: 1 }, mask: { x: 3, y: -1, a: 0, s: 1 }, arm: { x: 13, y: 2, a: 0, s: 1 }, armFar: { x: -13, y: 1, a: 0, s: 0.95 }, tail: { x: -2, y: 14, a: 0, s: 1 }, chains: { x: 0, y: 8, a: 0, s: 1 }, tatters: { x: 0, y: 10, a: 0, s: 1 } }),
+    stages: spBodyStages(4, -17, -6, -15),
+  }),
+  spBody({
+    id: 'shade', name: 'Shade', kind: 'spirit.shade', tags: ['tall'], dom: 0.5, w: 2, hover: 12,
+    pts: [[-12, -8], [-10, -22], [0, -28], [10, -22], [13, -8], [11, 10], [5, 22], [-2, 26], [-7, 20], [-12, 6]],
+    shade: torsoShade(-13, 13, -28, 26, { shadeFrac: 0.5 }),
+    extra: [spCore(0, -6, 6, 10), spFold('M-4,4 C-3,12 -3,18 -2,24 M5,6 C5,12 4,16 3,20'), HL('M-9,-18 C-6,-25 0,-28 5,-26 C0,-24 -4,-20 -8,-12 Z', 0.22)],
+    sockets: spSockets({ eye: { x: 6, y: -12, s: 1 }, eyeFar: { x: -2, y: -13, s: 0.9 }, mouth: { x: 5, y: -2, a: 0, s: 1 }, hood: { x: 1, y: -22, a: 0, s: 1 }, mask: { x: 3, y: -8, a: 0, s: 1 }, arm: { x: 11, y: 0, a: 0, s: 1 }, armFar: { x: -11, y: -2, a: 0, s: 0.95 }, tail: { x: -2, y: 24, a: 0, s: 1 }, chains: { x: 0, y: 12, a: 0, s: 1 }, tatters: { x: 0, y: 16, a: 0, s: 1 } }),
+    stages: spBodyStages(3, -26, -6, -24),
+  }),
+  spBody({
+    id: 'flame', name: 'Flame', kind: 'spirit.flame', tags: ['fire'], dom: 0.5, w: 2, hover: 14,
+    pts: [[-14, 0], [-12, -12], [-4, -20], [2, -30, 'c'], [6, -20], [14, -10], [16, 2], [10, 14], [2, 20], [-6, 16], [-13, 10]],
+    shade: torsoShade(-14, 16, -30, 20, { shadeFrac: 0.5 }),
+    extra: [spCore(1, 0, 8, 10), spFold('M-4,-14 C-2,-8 -2,-4 -3,0 M6,-12 C6,-6 5,-2 4,2'), HL('M-10,-10 C-8,-16 -4,-20 0,-24 C-2,-18 -4,-12 -8,-4 Z', 0.22)],
+    sockets: spSockets({ eye: { x: 8, y: -6, s: 1 }, eyeFar: { x: -2, y: -8, s: 0.9 }, mouth: { x: 7, y: 4, a: 0, s: 1 }, hood: { x: 2, y: -20, a: 0, s: 1 }, mask: { x: 4, y: -2, a: 0, s: 1 }, arm: { x: 14, y: 4, a: 0, s: 1 }, armFar: { x: -13, y: 2, a: 0, s: 0.95 }, tail: { x: -2, y: 18, a: 0, s: 1 }, chains: { x: 0, y: 10, a: 0, s: 1 }, tatters: { x: 0, y: 12, a: 0, s: 1 } }),
+    stages: spBodyStages(6, -18, -8, -14),
+  }),
+  spBody({
+    id: 'wraith', name: 'Wraith', kind: 'spirit.wraith', tags: ['hooded'], dom: 0.55, w: 2, hover: 12,
+    pts: [[-18, -2], [-16, -14], [-8, -22], [2, -26], [12, -20], [18, -10], [18, 4], [12, 16], [4, 24], [-4, 24], [-12, 16], [-18, 8]],
+    shade: torsoShade(-18, 18, -26, 24, { shadeFrac: 0.5 }),
+    extra: [spCore(1, -4, 8, 10), spFold('M-10,0 C-10,8 -8,16 -6,22 M10,0 C10,8 8,14 6,20'), HL('M-14,-12 C-10,-20 -2,-25 6,-24 C-2,-21 -8,-16 -12,-6 Z', 0.22)],
+    sockets: spSockets({ eye: { x: 8, y: -9, s: 1 }, eyeFar: { x: -2, y: -10, s: 0.9 }, mouth: { x: 6, y: 1, a: 0, s: 1 }, hood: { x: 2, y: -20, a: 0, s: 1 }, mask: { x: 4, y: -5, a: 0, s: 1 }, arm: { x: 16, y: 0, a: 0, s: 1 }, armFar: { x: -15, y: -2, a: 0, s: 0.95 }, tail: { x: -2, y: 22, a: 0, s: 1 }, chains: { x: 0, y: 12, a: 0, s: 1 }, tatters: { x: 0, y: 16, a: 0, s: 1 } }),
+    stages: spBodyStages(6, -24, -8, -22),
+  }),
+  spBody({
+    id: 'blob', name: 'Blob', kind: 'spirit.blob', tags: ['wide'], dom: 0.5, w: 2, hover: 10,
+    pts: [[-20, 0], [-16, -12], [-4, -18], [10, -16], [20, -8], [22, 4], [16, 12], [4, 16], [-8, 16], [-18, 10]],
+    shade: torsoShade(-20, 22, -18, 16, { shadeFrac: 0.5 }),
+    extra: [spCore(0, -2, 10, 8), spFold('M-10,6 C-8,10 -6,12 -6,14 M12,4 C12,8 10,11 8,13'), HL('M-16,-8 C-12,-15 -4,-18 4,-17 C-4,-14 -10,-11 -14,-3 Z', 0.22)],
+    sockets: spSockets({ eye: { x: 8, y: -6, s: 1 }, eyeFar: { x: -3, y: -7, s: 0.9 }, mouth: { x: 6, y: 3, a: 0, s: 1 }, hood: { x: 2, y: -15, a: 0, s: 1 }, mask: { x: 4, y: -3, a: 0, s: 1 }, arm: { x: 18, y: 2, a: 0, s: 1 }, armFar: { x: -16, y: 0, a: 0, s: 0.95 }, tail: { x: -2, y: 15, a: 0, s: 0.9 }, chains: { x: 0, y: 8, a: 0, s: 1 }, tatters: { x: 0, y: 12, a: 0, s: 1 } }),
+    stages: spBodyStages(6, -16, -8, -14),
+  }),
+];
+
+// ---- src/data/parts/spirit/face.js ----
+// Spirit eyes (origin = the eye centre), mouths (origin = the middle of the mouth) and masks (a face plate on the
+// shroud, drawn under the eyes; origin = the face centre).
+// Evolutions: eyes ring then glow; mouths grow; masks grow.
+
+
+
+
+
+const spEyeStages = (r) => ({ 2: { grow: [1.06, 1.06], add: [evoRing(0, 0, r * 1.3, 'a', 1, { op: 0.6 })] }, 3: { grow: [1.08, 1.08], add: [C(0, 0, r * 2, 'a', { ns: true, op: 0.16 })] } });
+
+const SP_EYES = [
+  spPart({ id: 'hollow', slot: 'eyes', name: 'Hollow', tags: ['dark'], dom: 0.5, w: 3, extra: [E(0, 0, 3.4, 4.2, 'k', { ns: true, op: 0.9 }), C(0.6, 0.4, 0.9, 'a', { ns: true, op: 0.8 })], stages: spEyeStages(3.4) }),
+  spPart({ id: 'glow', slot: 'eyes', name: 'Glow', tags: ['light'], dom: 0.5, w: 3, extra: [C(0, 0, 4.8, 'a', { ns: true, op: 0.22 }), C(0, 0, 2.8, 'a', { ns: true }), C(-0.8, -0.8, 0.9, 'w', { ns: true, op: 0.85 })], stages: spEyeStages(2.8) }),
+  spPart({ id: 'dot', slot: 'eyes', name: 'Dot', tags: ['small'], dom: 0.5, w: 2, extra: [C(0, 0, 2.2, 'k', { ns: true, op: 0.9 }), C(-0.6, -0.7, 0.7, 'w', { ns: true, op: 0.9 })], stages: spEyeStages(2.2) }),
+  spPart({ id: 'sad', slot: 'eyes', name: 'Sad', tags: ['slant'], dom: 0.5, w: 2, extra: [P('M-4,-1 C-2,-4 2,-3 4,1 C2,3 -2,3 -4,-1 Z', 'k', { ns: true, op: 0.9 }), C(0.4, 0.4, 0.8, 'a', { ns: true, op: 0.8 }), L('M-4,-3 L3,-1', 'k', 1.2, { ns: true, op: 0.6 })], stages: spEyeStages(3) }),
+  spPart({ id: 'slit', slot: 'eyes', name: 'Slit', tags: ['sharp'], dom: 0.5, w: 2, extra: [P('M-4.4,0 C-2,-2.6 2,-2.6 4.4,0 C2,2.6 -2,2.6 -4.4,0 Z', 'a', { ns: true }), P('M0.4,-2 C1,-1 1,1 0.4,2 C-0.2,1 -0.2,-1 0.4,-2 Z', 'k', { ns: true })], stages: spEyeStages(3) }),
+  spPart({ id: 'wide', slot: 'eyes', name: 'Wide', tags: ['round'], dom: 0.55, w: 2, extra: [C(0, 0, 4.2, 'w'), C(0.6, 0.2, 2.6, 'e', { ns: true }), C(1, 0.4, 1.4, 'k', { ns: true }), C(-0.8, -1.4, 0.9, 'w', { ns: true, op: 0.9 })], stages: spEyeStages(4.2) }),
+  spPart({ id: 'spiral', slot: 'eyes', name: 'Spiral', tags: ['hypnotic'], dom: 0.5, w: 2, extra: [C(0, 0, 4, 'w'), L(spiralPath(0, 0, 3.4, 2.2, 0), 'k', 1.2, { ns: true, op: 0.85 })], stages: spEyeStages(4) }),
+];
+
+const spMouthStages = { 2: { grow: [1.06, 1.06] }, 3: { grow: [1.08, 1.08], add: [C(-1, 3, 0.8, 'a', { ns: true, op: 0.8 })] } };
+
+const SP_MOUTHS = [
+  spPart({ id: 'o', slot: 'mouth', name: 'O', tags: ['round'], dom: 0.5, w: 3, extra: [E(0, 0, 2.6, 3.4, 'k', { ns: true, op: 0.85 })], stages: spMouthStages }),
+  spPart({ id: 'wail', slot: 'mouth', name: 'Wail', tags: ['open'], dom: 0.55, w: 2, extra: [P('M-6,-2 C-4,-5 4,-5 6,-2 C5,4 3,8 0,8 C-3,8 -5,4 -6,-2 Z', 'k', { ns: true, op: 0.9 }), P('M-4,0 C-2,2 2,2 4,0 C3,4 -3,4 -4,0 Z', 'a', { ns: true, op: 0.4 })], stages: spMouthStages }),
+  spPart({ id: 'smile', slot: 'mouth', name: 'Smile', tags: ['happy'], dom: 0.5, w: 3, extra: [L('M-6,-1 C-3,3 3,3 6,-1', 'k', 1.6, { ns: true, op: 0.85 })], stages: spMouthStages }),
+  spPart({ id: 'frown', slot: 'mouth', name: 'Frown', tags: ['sad'], dom: 0.5, w: 2, extra: [L('M-6,2 C-3,-2 3,-2 6,2', 'k', 1.6, { ns: true, op: 0.85 })], stages: spMouthStages }),
+  spPart({ id: 'jagged', slot: 'mouth', name: 'Jagged', tags: ['teeth'], dom: 0.5, w: 2, extra: [P('M-7,-2 L-4,2 L-1,-2 L2,2 L5,-2 L7,2 L-7,2 Z', 'k', { ns: true, op: 0.9 }), L('M-7,-2 L-4,2 L-1,-2 L2,2 L5,-2 L7,2', 'w', 0.9, { ns: true, op: 0.6 })], stages: spMouthStages }),
+  spPart({ id: 'line', slot: 'mouth', name: 'Line', tags: ['plain'], dom: 0.5, w: 2, extra: [L('M-5,0 L5,0', 'k', 1.6, { ns: true, op: 0.8 })], stages: spMouthStages }),
+  spPart({ id: 'fangs', slot: 'mouth', name: 'Fangs', tags: ['sharp'], dom: 0.5, w: 2, extra: [L('M-6,-1 C-3,2 3,2 6,-1', 'k', 1.6, { ns: true, op: 0.85 }), P('M-4,0 L-3,4 L-2,0.4 Z M2,0.4 L3,4 L4,0 Z', 'w', { sw: 1 })], stages: spMouthStages }),
+];
+
+const spGrowMask = { 2: { grow: [1.08, 1.08] }, 3: { grow: [1.1, 1.1], add: [C(-6, -2, 1, 'a', { ns: true, op: 0.8 }), C(6, -2, 1, 'a', { ns: true, op: 0.8 })] } };
+/** A face plate with two eye holes; the shroud's eyes sit on top of it. */
+const spPlate = (d, f = 'w') => P(d, f, { sw: 1.2 });
+
+const SP_MASKS = [
+  NONE('mask', 0.3, 's.'),
+  spPart({ id: 'porcelain', slot: 'mask', name: 'Porcelain', tags: ['pale'], dom: 0.5, w: 3, extra: [spPlate('M-10,-10 C-6,-16 8,-16 12,-10 C14,-2 12,8 4,12 C-4,12 -12,4 -10,-10 Z'), L('M-4,6 C-2,8 2,8 4,6', 'k', 0.9, { op: 0.35 })], stages: spGrowMask }),
+  spPart({ id: 'skull', slot: 'mask', name: 'Skull', tags: ['bone'], dom: 0.5, w: 2, extra: [spPlate('M-10,-8 C-8,-16 8,-16 12,-8 C13,0 10,6 8,10 L-6,10 C-10,6 -12,0 -10,-8 Z'), E(-4, -4, 3, 3.4, 'k', { ns: true, op: 0.7 }), E(6, -4, 3, 3.4, 'k', { ns: true, op: 0.7 }), L('M-3,6 L-3,9 M0,6 L0,10 M3,6 L3,9', 'k', 1, { op: 0.5 })], stages: spGrowMask }),
+  spPart({ id: 'fox', slot: 'mask', name: 'Fox', tags: ['kitsune'], dom: 0.5, w: 2, extra: [spPlate('M-12,-12 C-6,-14 6,-14 12,-12 C14,-4 10,6 2,12 C-6,8 -12,-2 -12,-12 Z'), P('M-9,-6 C-6,-9 -2,-8 -1,-4 C-4,-4 -7,-4 -9,-6 Z M3,-5 C4,-9 8,-9 11,-7 C9,-4 6,-4 3,-5 Z', 'a', { ns: true, op: 0.85 }), C(2, 9, 1.2, 'k', { ns: true, op: 0.7 })], stages: spGrowMask }),
+  spPart({ id: 'theatre', slot: 'mask', name: 'Theatre', tags: ['drama'], dom: 0.5, w: 2, extra: [spPlate('M-10,-10 C-6,-15 8,-15 12,-10 C13,-2 11,8 3,12 C-5,10 -12,2 -10,-10 Z', 'sl'), P('M-8,-4 C-6,-7 -2,-7 -1,-4 Z M3,-4 C5,-7 9,-7 10,-4 Z', 'k', { ns: true, op: 0.8 }), P('M-5,4 C-2,9 6,9 8,4 C6,6 -2,6 -5,4 Z', 'k', { ns: true, op: 0.8 })], stages: spGrowMask }),
+  spPart({ id: 'bandage', slot: 'mask', name: 'Bandaged', tags: ['wrapped'], dom: 0.5, w: 2, extra: [spPlate('M-10,-10 C-6,-14 8,-14 12,-10 C13,-2 11,8 3,12 C-5,10 -12,2 -10,-10 Z', 's'), L('M-10,-6 C-2,-4 6,-8 12,-6 M-10,0 C-2,2 6,-2 12,0 M-8,6 C-2,8 4,4 10,6', 'k', 1, { op: 0.3 })], stages: spGrowMask }),
+  spPart({ id: 'cracked', slot: 'mask', name: 'Cracked', tags: ['broken'], dom: 0.5, w: 2, extra: [spPlate('M-10,-10 C-6,-15 8,-15 12,-10 C13,-2 11,8 3,12 C-5,10 -12,2 -10,-10 Z'), L('M2,-14 L0,-6 L4,0 L1,8 M6,-8 L10,-4', 'k', 1.2, { op: 0.5 }), C(3, -1, 1.2, 'a', { ns: true, op: 0.8 })], stages: spGrowMask }),
+  spPart({ id: 'gilded', slot: 'mask', name: 'Gilded', tags: ['gold'], dom: 0.5, w: 2, extra: [spPlate('M-10,-10 C-6,-15 8,-15 12,-10 C13,-2 11,8 3,12 C-5,10 -12,2 -10,-10 Z', 'a'), L('M-8,-8 C-2,-12 6,-12 10,-8 M-6,8 C-2,10 4,10 8,6', 'w', 1, { ns: true, op: 0.5 }), C(1, -13, 1.4, 'w', { ns: true, op: 0.7 })], stages: spGrowMask }),
+];
+
+// ---- src/data/parts/spirit/limbs.js ----
+// Spirit arms (origin = the side of the shroud; mist arms hang down and reach forward to a wrist that carries the
+// `hand` socket), wisp tails (origin = the bottom of the shroud, trailing down and back) and lanterns (what the near
+// hand holds, origin = the wrist).
+// Evolutions: arms and tails grow; tails also gain a glowing tip; lanterns grow.
+
+
+
+
+
+const spArmStages = { 2: { grow: [1.06, 1.08] }, 3: { grow: [1.1, 1.14], add: [evoRing(2, 8, 2.8, 'a', 1, { op: 0.6 })] } };
+const spTailStages = { 2: { grow: [1.06, 1.1] }, 3: { grow: [1.1, 1.15], add: [C(-14, 18, 2.2, 'a', { ns: true, op: 0.8 }), C(-14, 18, 4.4, 'a', { ns: true, op: 0.2 })] } };
+const spGrowLantern = { 2: { grow: [1.1, 1.1] }, 3: { grow: [1.14, 1.14] } };
+const spHand = (x, y) => ({ hand: { x, y, a: 0, s: 1 } });
+const spFingers = (x, y) => L(`M${x - 2},${y} L${x - 3},${y + 5} M${x},${y + 1} L${x},${y + 6} M${x + 2},${y} L${x + 3},${y + 5}`, 'p', 1.6);
+
+const SP_ARMS = [
+  spPart({ id: 'wisps', slot: 'arms', name: 'Wisps', tags: ['mist'], dom: 0.5, w: 3, shapes: [tube([[0, 0], [3, 8], [9, 14], [16, 15]], 6, 1.5, { tipK: 'c' })], extra: [L('M2,4 C4,8 7,11 11,13', 'k', 0.9, { op: 0.2 })], sockets: spHand(12, 14), stages: spArmStages }),
+  spPart({ id: 'long', slot: 'arms', name: 'Long', tags: ['reach'], dom: 0.5, w: 2, shapes: [tube([[0, 0], [2, 10], [8, 18], [16, 22]], 5, 2.6, { tipK: 1 })], extra: [spFingers(16, 22)], sockets: spHand(16, 22), stages: spArmStages }),
+  spPart({ id: 'stubs', slot: 'arms', name: 'Stubs', tags: ['short'], dom: 0.5, w: 3, shapes: [tube([[0, 0], [3, 6], [7, 9]], 6, 3, { tipK: 0.6 })], sockets: spHand(8, 9), stages: spArmStages }),
+  spPart({ id: 'claws', slot: 'arms', name: 'Claws', tags: ['sharp'], dom: 0.5, w: 2, shapes: [tube([[0, 0], [3, 8], [9, 14]], 5.5, 3.4, { tipK: 1 })], extra: [P('M8,14 L6,22 L10,16 Z M11,15 L12,23 L14,16 Z M13,13 L18,19 L16,13 Z', 'w', { sw: 1 })], sockets: spHand(11, 16), stages: spArmStages }),
+  spPart({ id: 'sleeves', slot: 'arms', name: 'Sleeves', tags: ['cloth'], dom: 0.5, w: 2, shapes: [{ pts: [[-3, -2], [3, -2], [8, 8], [14, 14, 'c'], [8, 12], [12, 20, 'c'], [4, 14], [-2, 8]], f: 'p' }], extra: [L('M2,2 C4,6 6,9 8,11', 'k', 0.9, { op: 0.2 }), spFingers(10, 13)], sockets: spHand(10, 14), stages: spArmStages }),
+  spPart({ id: 'bony', slot: 'arms', name: 'Bony', tags: ['bone'], dom: 0.5, w: 2, shapes: [tube([[0, 0], [2, 9]], 4, 3.2, { tipK: 1 }), tube([[2, 9], [10, 15]], 3.4, 3, { tipK: 1 })], extra: [C(2, 9, 2, 'pd', { sw: 1 }), spFingers(11, 15)], sockets: spHand(11, 16), stages: spArmStages }),
+  spPart({ id: 'mist', slot: 'arms', name: 'Mist', tags: ['soft'], dom: 0.45, w: 2, shapes: [{ pts: puff(6, 8, 6, 7, 2.5, { tip: 'c' }), f: 'p' }], extra: [P(spline(puff(12, 13, 4, 6, 1.6)), 'p', { ns: true, op: 0.6 }), P(spline(puff(2, 14, 3, 5, 1.2)), 'p', { ns: true, op: 0.5 })], sockets: spHand(12, 13), stages: spArmStages }),
+];
+
+const SP_TAILS = [
+  spPart({ id: 'wisp', slot: 'tail', name: 'Wisp', tags: ['curl'], dom: 0.5, w: 3, shapes: [tube([[0, 0], [-1, 6], [-6, 12], [-14, 16]], 9, 1.5, { tipK: 'c' })], extra: [L('M-1,2 C-2,7 -6,11 -10,13', 'k', 0.9, { op: 0.2 })], stages: spTailStages }),
+  spPart({ id: 'split', slot: 'tail', name: 'Split', tags: ['two'], dom: 0.5, w: 2, shapes: [tube([[0, 0], [-4, 7], [-12, 12]], 6, 1.4, { tipK: 'c' }), tube([[2, 0], [4, 8], [2, 16]], 5, 1.2, { tipK: 'c' })], stages: spTailStages }),
+  spPart({ id: 'long', slot: 'tail', name: 'Long', tags: ['trail'], dom: 0.5, w: 2, shapes: [tube([[0, 0], [-2, 8], [-10, 14], [-20, 16], [-28, 12]], 8, 1.2, { tipK: 'c' })], extra: [L('M-2,3 C-4,8 -10,12 -18,14', 'k', 0.9, { op: 0.2 })], stages: spTailStages }),
+  spPart({ id: 'stub', slot: 'tail', name: 'Stub', tags: ['short'], dom: 0.5, w: 2, shapes: [tube([[0, 0], [-1, 5], [-4, 8]], 8, 2, { tipK: 'c' })], stages: spTailStages }),
+  spPart({ id: 'spiral', slot: 'tail', name: 'Spiral', tags: ['curl'], dom: 0.5, w: 2, shapes: [tube([[0, 0], [-2, 6], [-8, 10], [-12, 6], [-8, 2]], 8, 1.4, { tipK: 'c' })], extra: [C(-7, 4, 1.2, 'a', { ns: true, op: 0.8 })], stages: spTailStages }),
+  spPart({ id: 'drips', slot: 'tail', name: 'Drips', tags: ['drop'], dom: 0.5, w: 2, shapes: [tube([[0, 0], [-1, 4], [-2, 8]], 8, 3, { tipK: 'c' }), { pts: [[-7, 4], [-8, 10, 'c'], [-9, 4]], f: 'p' }, { pts: [[5, 3], [6, 12, 'c'], [7, 3]], f: 'p' }], extra: [C(-8, 10, 1.4, 'p'), C(6, 12, 1.4, 'p'), C(0, 14, 1, 'a', { ns: true, op: 0.7 })], stages: spTailStages }),
+  spPart({ id: 'smoke', slot: 'tail', name: 'Smoke', tags: ['soft'], dom: 0.45, w: 2, shapes: [{ pts: puff(-3, 5, 6, 7, 2.5, { tip: 'c' }), f: 'p' }], extra: [P(spline(puff(-10, 11, 4.5, 6, 1.8)), 'p', { ns: true, op: 0.6 }), P(spline(puff(-16, 14, 3, 5, 1.4)), 'p', { ns: true, op: 0.4 })], stages: spTailStages }),
+];
+
+const SP_LANTERNS = [
+  NONE('lantern', 0.3, 's.'),
+  spPart({ id: 'lantern', slot: 'lantern', name: 'Lantern', tags: ['light'], dom: 0.5, w: 3, extra: [L('M0,0 L0,4', 'pd', 1.6), P('M-4,4 L4,4 L5,14 L-5,14 Z', 'pd', { sw: 1.2 }), C(0, 9, 7, 'a', { ns: true, op: 0.22 }), P('M-3,6 L3,6 L3.6,12 L-3.6,12 Z', 'a', { ns: true, op: 0.9 }), C(-1, 8, 1, 'w', { ns: true, op: 0.8 })], stages: spGrowLantern }),
+  spPart({ id: 'candle', slot: 'lantern', name: 'Candle', tags: ['light'], dom: 0.5, w: 2, extra: [P('M-2,0 L2,0 L2,10 L-2,10 Z', 'w', { sw: 1.2 }), C(0, -4, 5, 'a', { ns: true, op: 0.22 }), P(flamePath(0, -4, 4), 'a', { ns: true }), P(flamePath(0, -3, 2), 'w', { ns: true, op: 0.7 })], stages: spGrowLantern }),
+  spPart({ id: 'skull', slot: 'lantern', name: 'Skull', tags: ['bone'], dom: 0.5, w: 2, extra: [P('M-5,0 C-5,-6 5,-6 5,0 C5,3 3,6 0,6 C-3,6 -5,3 -5,0 Z', 'w', { sw: 1.2 }), E(-2, -1, 1.4, 1.6, 'k', { ns: true, op: 0.8 }), E(2, -1, 1.4, 1.6, 'k', { ns: true, op: 0.8 }), L('M-1,4 L-1,6 M1,4 L1,6', 'k', 0.8, { op: 0.5 })], stages: spGrowLantern }),
+  spPart({ id: 'orb', slot: 'lantern', name: 'Orb', tags: ['magic'], dom: 0.5, w: 2, extra: [C(0, 3, 6.4, 'a', { ns: true, op: 0.2 }), C(0, 3, 4, 'a', { sw: 1 }), C(-1.4, 1.6, 1.2, 'w', { ns: true, op: 0.85 })], stages: spGrowLantern }),
+  spPart({ id: 'bell', slot: 'lantern', name: 'Bell', tags: ['sound'], dom: 0.5, w: 2, extra: [L('M0,0 L0,3', 'pd', 1.6), P('M-4,10 C-4,4 -2,3 0,3 C2,3 4,4 4,10 L5,12 L-5,12 Z', 'a', { sw: 1.2 }), C(0, 13, 1.2, 'k', { ns: true, op: 0.7 }), L('M-2,5 L-2,9', 'w', 1, { ns: true, op: 0.5 })], stages: spGrowLantern }),
+  spPart({ id: 'scythe', slot: 'lantern', name: 'Scythe', tags: ['blade'], dom: 0.5, w: 2, extra: [L('M-2,14 L4,-26', 'pd', 2.6), P('M4,-26 C12,-30 22,-26 26,-18 C20,-22 12,-22 6,-20 Z', 'w', { sw: 1.2 }), L('M6,-22 C12,-24 18,-22 22,-19', 'k', 0.8, { op: 0.3 }), C(0, 0, 2, 'p', { sw: 1 })], stages: spGrowLantern }),
+  spPart({ id: 'key', slot: 'lantern', name: 'Old key', tags: ['iron'], dom: 0.5, w: 2, extra: [L('M0,0 L0,14', 'pd', 2.4), C(0, -3, 3.4, 'pd', { sw: 1.6 }), C(0, -3, 1.2, 'k', { ns: true, op: 0.5 }), L('M0,10 L4,10 M0,13 L3,13', 'pd', 2)], stages: spGrowLantern }),
+];
+
+// ---- src/data/parts/spirit/dress.js ----
+// Spirit hoods (what sits on the crown of the shroud, in front of it and behind the eyes), chains (hanging low on
+// the shroud, behind it) and tatters (cloth trailing from the lower shroud, behind it).
+// Evolutions: all grow.
+
+
+
+
+const spGrowDress = { 2: { grow: [1.1, 1.1] }, 3: { grow: [1.12, 1.15] } };
+
+const SP_HOODS = [
+  NONE('hood', 0.3, 's.'),
+  spPart({ id: 'cowl', slot: 'hood', name: 'Cowl', tags: ['hood'], dom: 0.5, w: 3, shapes: [{ pts: [[-14, 8], [-14, -4], [-8, -12], [0, -14], [8, -12], [14, -4], [14, 8], [10, 2], [6, -4, 0.6], [0, -6], [-6, -4, 0.6], [-10, 2]], f: 'pd' }], extra: [L('M-12,-2 C-8,-9 -2,-12 0,-12', 'k', 1, { op: 0.25 })], stages: spGrowDress }),
+  spPart({ id: 'hat', slot: 'hood', name: 'Pointed hat', tags: ['witch'], dom: 0.5, w: 2, shapes: [{ pts: [[-16, 2], [16, 2], [16, 5], [-16, 5]], f: 'pd' }, { pts: [[-9, 3], [-4, -12], [4, -28, 'c'], [6, -12], [9, 3]], f: 'pd' }], extra: [L('M-9,-1 L9,-1', 'a', 1.6, { ns: true, op: 0.8 }), C(0, -1, 1.4, 'a', { ns: true })], stages: spGrowDress }),
+  spPart({ id: 'crown', slot: 'hood', name: 'Circlet', tags: ['royal'], dom: 0.5, w: 2, shapes: [{ pts: [[-10, 2], ...fur([-10, 2], [10, 2], 4, 7, { tip: 0.4 }), [10, 5], [-10, 5]], f: 'a' }], extra: [C(0, 1, 1.4, 'w', { ns: true, op: 0.8 })], stages: spGrowDress }),
+  spPart({ id: 'halo', slot: 'hood', name: 'Halo', tags: ['light'], dom: 0.5, w: 2, extra: [P('M-12,-4 C-12,-9 12,-9 12,-4 C12,1 -12,1 -12,-4 Z M-8,-4 C-8,-6 8,-6 8,-4 C8,-2 -8,-2 -8,-4 Z', 'a', { ns: true, op: 0.9 }), P('M-12,-4 C-12,-9 12,-9 12,-4 C12,1 -12,1 -12,-4 Z', 'a', { ns: true, op: 0.25 })], stages: spGrowDress }),
+  spPart({ id: 'bonnet', slot: 'hood', name: 'Bonnet', tags: ['cloth'], dom: 0.5, w: 2, shapes: [{ pts: [[-14, 6], [-12, -6], [-4, -12], [6, -12], [14, -4], [14, 6], [10, 4], [4, 0, 0.6], [-4, 0, 0.6], [-10, 4]], f: 's' }], extra: [L('M-10,-4 C-6,-9 0,-10 6,-8', 'k', 1, { op: 0.25 }), C(12, 4, 1.6, 'a', { ns: true })], stages: spGrowDress }),
+  spPart({ id: 'horns', slot: 'hood', name: 'Horns', tags: ['horn'], dom: 0.5, w: 2, shapes: [[[-10, 4], [-14, -8], [-10, -20, 'c'], [-6, -8], [-4, 4]], [[4, 4], [6, -8], [10, -20, 'c'], [14, -8], [10, 4]]], extra: [L('M-10,-6 L-11,-12 M10,-6 L11,-12', 'k', 0.9, { op: 0.3 })], stages: spGrowDress }),
+  spPart({ id: 'candle', slot: 'hood', name: 'Candle', tags: ['light'], dom: 0.5, w: 2, extra: [P('M-3,2 L3,2 L3,-10 L-3,-10 Z', 'w', { sw: 1.2 }), L('M-3,2 C-1,4 1,4 3,2', 'pd', 1.4), C(0, -14, 5, 'a', { ns: true, op: 0.22 }), P(flamePath(0, -14, 4), 'a', { ns: true }), P(flamePath(0, -13, 2), 'w', { ns: true, op: 0.7 })], stages: spGrowDress }),
+];
+
+const spLink = (x, y) => C(x, y, 2, 'pd', { sw: 1.4 });
+const spChain = (x0, n, sway = 1.2) => Array.from({ length: n }, (_, i) => spLink(x0 + (i % 2) * sway, 2 + i * 3.6));
+
+const SP_CHAINS = [
+  NONE('chains', 0.3, 's.'),
+  spPart({ id: 'chain', slot: 'chains', name: 'Chain', tags: ['iron'], dom: 0.5, w: 3, extra: [...spChain(-8, 5), C(-7, 21, 2.8, 'pd', { sw: 1.4 })], stages: spGrowDress }),
+  spPart({ id: 'double', slot: 'chains', name: 'Double', tags: ['iron'], dom: 0.5, w: 2, extra: [...spChain(-10, 5), ...spChain(8, 4, -1.2), C(-9, 21, 2.6, 'pd', { sw: 1.4 }), C(7, 17, 2.6, 'pd', { sw: 1.4 })], stages: spGrowDress }),
+  spPart({ id: 'shackles', slot: 'chains', name: 'Shackles', tags: ['cuff'], dom: 0.5, w: 2, extra: [P('M-14,0 L-4,0 L-4,5 L-14,5 Z', 'pd', { sw: 1.4 }), P('M4,0 L14,0 L14,5 L4,5 Z', 'pd', { sw: 1.4 }), ...spChain(-9, 3), ...spChain(9, 3, -1.2), L('M-12,2.5 L-6,2.5 M6,2.5 L12,2.5', 'k', 1, { op: 0.4 })], stages: spGrowDress }),
+  spPart({ id: 'heavy', slot: 'chains', name: 'Heavy links', tags: ['iron'], dom: 0.55, w: 2, extra: [...Array.from({ length: 4 }, (_, i) => C(-6 + (i % 2) * 2, 3 + i * 5, 3.2, 'pd', { sw: 1.8 })), P('M-8,20 L-2,20 L-1,28 L-9,28 Z', 'pd', { sw: 1.4 })], stages: spGrowDress }),
+  spPart({ id: 'beads', slot: 'chains', name: 'Beads', tags: ['jewel'], dom: 0.5, w: 2, extra: [L('M-12,0 C-8,12 8,12 12,0', 'k', 1.2), ...[-10, -6, -2, 2, 6, 10].map((x) => C(x, 8 - Math.abs(x) * 0.5, 1.8, 'a', { sw: 1 }))], stages: spGrowDress }),
+  spPart({ id: 'rope', slot: 'chains', name: 'Rope', tags: ['knot'], dom: 0.5, w: 2, extra: [L('M-12,0 C-8,10 8,10 12,0 M-2,7 C-3,12 -1,16 -2,20', 's', 3), L('M-10,3 L-8,6 M-4,7 L-3,9 M4,7 L6,5 M-3,12 L-1,13 M-3,16 L-1,17', 'k', 1, { op: 0.35 }), C(-2, 21, 2.4, 's', { sw: 1.2 })], stages: spGrowDress }),
+  spPart({ id: 'barbed', slot: 'chains', name: 'Barbed', tags: ['thorn'], dom: 0.5, w: 2, extra: [L('M-12,0 C-8,10 8,10 12,0 M-2,7 C-3,12 -1,16 -2,20', 'pd', 2.2), P('M-9,3 L-11,7 L-7,6 Z M-4,7 L-5,11 L-1,9 Z M4,7 L5,11 L1,9 Z M-2,12 L-6,13 L-3,15 Z M-2,17 L2,18 L-1,20 Z', 'w', { ns: true, op: 0.85 })], stages: spGrowDress }),
+];
+
+const spStrand = (x0, y0, x1, y1) => `M${x0},${y0} C${x0},${(y0 + y1) / 2} ${x1},${(y0 + y1) / 2} ${x1},${y1} `;
+
+const SP_TATTERS = [
+  NONE('tatters', 0.3, 's.'),
+  spPart({ id: 'strips', slot: 'tatters', name: 'Strips', tags: ['cloth'], dom: 0.5, w: 3, shapes: [{ pts: [[-14, -2], [14, -2], [14, 6], [10, 16, 'c'], [6, 6], [2, 18, 'c'], [-2, 6], [-8, 16, 'c'], [-10, 6], [-14, 12, 'c']], f: 'p' }], extra: [L('M-6,2 L-8,10 M4,2 L4,10', 'k', 0.9, { op: 0.2 })], stages: spGrowDress }),
+  spPart({ id: 'ribbons', slot: 'tatters', name: 'Ribbons', tags: ['ribbon'], dom: 0.5, w: 2, extra: [L(spStrand(-10, 0, -14, 20) + spStrand(0, 0, 4, 22) + spStrand(10, 0, 12, 18), 'a', 2.4), L(spStrand(-10, 0, -14, 20) + spStrand(10, 0, 12, 18), 'w', 0.8, { ns: true, op: 0.4 })], stages: spGrowDress }),
+  spPart({ id: 'rags', slot: 'tatters', name: 'Rags', tags: ['torn'], dom: 0.5, w: 2, shapes: [{ pts: [[-16, -2], [16, -2], [14, 8], [10, 4, 'c'], [8, 14, 'c'], [4, 6], [0, 16, 'c'], [-4, 6], [-8, 14, 'c'], [-10, 6], [-14, 10, 'c']], f: 'pd' }], extra: [C(-6, 4, 1.6, 'k', { ns: true, op: 0.3 }), C(8, 6, 1.4, 'k', { ns: true, op: 0.3 })], stages: spGrowDress }),
+  spPart({ id: 'trail', slot: 'tatters', name: 'Veil trail', tags: ['soft'], dom: 0.45, w: 2, shapes: [{ pts: [[-12, -2], [12, -2], [16, 10], [10, 22, 'c'], [4, 12], [-2, 24, 'c'], [-6, 12], [-14, 20, 'c']], f: 'sl' }], extra: [L('M-4,2 C-4,8 -6,14 -10,18 M6,2 C6,8 8,14 10,18', 'k', 0.9, { op: 0.15 })], stages: spGrowDress }),
+  spPart({ id: 'long', slot: 'tatters', name: 'Long', tags: ['trail'], dom: 0.5, w: 2, shapes: [{ pts: [[-10, -2], [10, -2], [12, 10], [6, 28, 'c'], [2, 12], [-2, 30, 'c'], [-6, 12], [-12, 26, 'c']], f: 'p' }], extra: [L('M-4,2 L-6,20 M4,2 L4,20', 'k', 0.9, { op: 0.2 })], stages: spGrowDress }),
+  spPart({ id: 'short', slot: 'tatters', name: 'Short', tags: ['fringe'], dom: 0.5, w: 2, shapes: [{ pts: [[-14, -2], [14, -2], [14, 4], ...fur([14, 4], [-14, 4], 6, 5, { tip: 'c' })], f: 'p' }], stages: spGrowDress }),
+  spPart({ id: 'web', slot: 'tatters', name: 'Cobweb', tags: ['thread'], dom: 0.45, w: 2, extra: [L('M-12,-2 L-14,18 M-4,-2 L-4,22 M4,-2 L6,20 M12,-2 L14,16 M-13,6 C-6,10 6,10 13,6 M-14,12 C-6,16 6,16 14,12', 'sl', 1.1, { op: 0.85 })], stages: spGrowDress }),
+];
+
+// ---- src/data/parts/spirit/fx.js ----
+// Spirit auras (a light fitted behind the shroud, 100 x 60 frame) and veils (a pattern clipped to the shroud, same
+// frame).
+// Evolutions: auras spread; veils are flat.
+
+
+
+
+const spAuraStages = { 2: { grow: [1.08, 1.08] }, 3: { grow: [1.06, 1.06], add: [E(0, 0, 72, 46, 'a', { ns: true, op: 0.1 })] } };
+const spVeilLine = (d, w = 1.6) => L(d, 'a', w, { ns: true, cl: true, op: 0.8 });
+
+const SP_AURAS = [
+  NONE('aura', 0.3, 's.'),
+  spPart({ id: 'glow', slot: 'aura', name: 'Glow', tags: ['light'], dom: 0.5, w: 3, extra: [E(0, 0, 62, 40, 'a', { ns: true, op: 0.14 }), E(0, 0, 52, 32, 'a', { ns: true, op: 0.14 })], stages: spAuraStages }),
+  spPart({ id: 'motes', slot: 'aura', name: 'Motes', tags: ['dots'], dom: 0.5, w: 2, extra: [E(0, 0, 50, 32, 'a', { ns: true, op: 0.1 }), ...[[-58, -20], [-50, 16], [56, -18], [58, 16], [-10, -42], [22, -40], [-30, 40], [30, 38], [0, -50]].map(([x, y], i) => C(x, y, i % 2 ? 2 : 2.8, 'a', { ns: true, op: 0.7 }))], stages: spAuraStages }),
+  spPart({ id: 'ring', slot: 'aura', name: 'Ring', tags: ['ring'], dom: 0.5, w: 2, extra: [E(0, 0, 46, 30, 'a', { ns: true, op: 0.12 }), E(0, 0, 58, 38, 'a', { ns: true, op: 0.12 }), E(0, 0, 66, 44, 'a', { ns: true, op: 0.1 })], stages: spAuraStages }),
+  spPart({ id: 'mist', slot: 'aura', name: 'Mist', tags: ['soft'], dom: 0.5, w: 2, extra: [P(spline(puff(-20, 10, 30, 8, 8)), 'w', { ns: true, op: 0.12 }), P(spline(puff(24, -6, 26, 8, 7)), 'w', { ns: true, op: 0.12 }), P(spline(puff(0, 24, 34, 9, 8)), 'w', { ns: true, op: 0.1 })], stages: spAuraStages }),
+  spPart({ id: 'sparks', slot: 'aura', name: 'Sparks', tags: ['fairy'], dom: 0.45, w: 2, extra: [E(0, 0, 50, 32, 'a', { ns: true, op: 0.1 }), ...[[-58, -22], [-50, 14], [56, -18], [58, 16], [-10, -42], [22, -40], [-30, 40], [30, 38]].flatMap(([x, y]) => [P(sparklePath(x, y, 5), 'a', { ns: true, op: 0.85 }), C(x, y, 1.6, 'w', { ns: true, op: 0.6 })])], stages: spAuraStages }),
+  spPart({ id: 'halo', slot: 'aura', name: 'Halo', tags: ['crown'], dom: 0.5, w: 2, extra: [P('M-56,-6 C-40,-48 40,-48 56,-6 C40,-34 -40,-34 -56,-6 Z', 'a', { ns: true, op: 0.3 }), E(0, -6, 50, 30, 'a', { ns: true, op: 0.1 })], stages: spAuraStages }),
+  spPart({ id: 'cold', slot: 'aura', name: 'Cold', tags: ['frost'], dom: 0.5, w: 2, extra: [E(0, 4, 60, 40, 'w', { ns: true, op: 0.1 }), ...[[-54, -16], [-44, 24], [-16, -44], [12, 42], [30, -40], [52, 20], [58, -10]].map(([x, y]) => P(starPath(x, y, 4, 1.6, 6), 'w', { ns: true, op: 0.6 }))], stages: spAuraStages }),
+];
+
+const SP_VEILS = [
+  NONE('veil', 0.3, 's.'),
+  spPart({ id: 'stripes', slot: 'veil', name: 'Stripes', tags: ['stripe'], dom: 0.5, w: 3, extra: [PATCH('M-50,-30 C-20,-20 20,-40 50,-30 L50,-20 C20,-30 -20,-10 -50,-20 Z M-50,0 C-20,10 20,-10 50,0 L50,10 C20,0 -20,20 -50,10 Z', 's', { op: 0.7 })] }),
+  spPart({ id: 'swirl', slot: 'veil', name: 'Swirl', tags: ['curl'], dom: 0.5, w: 2, extra: [spVeilLine('M-40,20 C-30,-10 -10,-20 10,-10 C26,-2 26,18 10,22 C-4,24 -10,10 2,4 C10,0 16,8 10,12', 1.8)] }),
+  spPart({ id: 'runes', slot: 'veil', name: 'Runes', tags: ['glyph'], dom: 0.5, w: 2, extra: [spVeilLine('M-28,-14 L-28,6 M-34,-6 L-22,-6 M-6,-18 L4,-6 L-6,6 M14,-12 L14,10 M8,-2 L22,-2 M24,10 L32,20', 1.6)] }),
+  spPart({ id: 'stars', slot: 'veil', name: 'Stars', tags: ['star'], dom: 0.5, w: 2, extra: [...[[-28, -12], [-8, 8], [12, -14], [28, 6], [-18, 20], [4, 24]].map(([x, y], i) => P(starPath(x, y, i % 2 ? 4 : 5.5, i % 2 ? 1.6 : 2.2, 5), 'a', { ns: true, cl: true, op: 0.85 }))] }),
+  spPart({ id: 'drips', slot: 'veil', name: 'Drips', tags: ['drop'], dom: 0.5, w: 2, extra: [PATCH('M-50,-30 L50,-30 L50,-18 C40,-14 36,-2 30,-6 C26,-10 26,-18 20,-16 C14,-14 16,-2 8,-6 C2,-10 4,-18 -4,-16 C-10,-14 -8,0 -16,-4 C-22,-8 -20,-18 -28,-16 C-34,-14 -34,-4 -40,-8 C-44,-12 -46,-18 -50,-16 Z', 's', { op: 0.75 })] }),
+  spPart({ id: 'ripples', slot: 'veil', name: 'Ripples', tags: ['wave'], dom: 0.5, w: 2, extra: [spVeilLine('M-46,-12 C-30,-20 -14,-4 2,-12 C18,-20 34,-4 48,-12 M-46,4 C-30,-4 -14,12 2,4 C18,-4 34,12 48,4 M-46,20 C-30,12 -14,28 2,20 C18,12 34,28 48,20', 1.4)] }),
+  spPart({ id: 'spots', slot: 'veil', name: 'Spots', tags: ['spot'], dom: 0.5, w: 2, extra: [...[[-26, -12], [-8, 6], [10, -16], [24, 8], [-18, 20], [4, 24], [30, -22]].map(([x, y], i) => C(x, y, i % 2 ? 2.8 : 4, 's', { ns: true, cl: true, op: 0.8 }))] }),
+];
+
+// ---- src/data/parts/spirit/index.js ----
+// The spirit library, one list per rig slot.
+
+
+
+
+
+
+const SPIRIT_PARTS = {
+  body: SP_BODIES, eyes: SP_EYES, mouth: SP_MOUTHS, arms: SP_ARMS, tail: SP_TAILS, hood: SP_HOODS,
+  chains: SP_CHAINS, lantern: SP_LANTERNS, aura: SP_AURAS, tatters: SP_TATTERS, mask: SP_MASKS, veil: SP_VEILS,
+};
+
 // ---- src/data/parts/index.js ----
 // Part registry. Part ids are stable forever: a saved creature must decode the
 // same way after the library grows, so never rename or reuse an id.
 //
 // Parts are grouped by rig, then slot. A part fits any body of its own rig
 // unless it lists the body kinds it accepts in `fit`.
+
 
 
 
@@ -9800,6 +10112,7 @@ const RIG_PARTS = {
   crystalline: CRYSTALLINE_PARTS,
   myriapod: MYRIAPOD_PARTS,
   fiend: FIEND_PARTS,
+  spirit: SPIRIT_PARTS,
 };
 
 const PARTS = new Map();
@@ -12647,6 +12960,147 @@ const SPECIES = [
     abilities: ['purebred','inferno_core'],
     desc: 'The sinks answer to it and so, eventually, does the fire. It does not raise its voice. It does not need to.',
   },
+  // ---- Roster expansion: spirits ----
+  {
+    id: 'wispling', name: 'Wispling', nameParts: ['Wisp', 'ling'], clade: 'spirit', rig: 'spirit', types: ['Ghost'], tier: 'common', bst: 395,
+    stats: { hp: 0.12, melee: 0.06, ranged: 0.09, magic: 0.23, meleeDef: 0.1, rangedDef: 0.11, magicDef: 0.13, spe: 0.16 },
+    recipe: { body: 's.body.wisp', eyes: 's.eyes.glow', mouth: 's.mouth.o', arms: 's.arms.wisps', tail: 's.tail.wisp', hood: 's.hood.none', chains: 's.chains.none', lantern: 's.lantern.none', aura: ['s.aura.glow', 's.aura.none'], tatters: 's.tatters.none', mask: 's.mask.none', veil: ['s.veil.swirl', 's.veil.none'] },
+    palette: { c1: [200, 25, 82], c2: [210, 30, 62], c3: [190, 80, 72], eye: [190, 90, 60] }, vary: { h: 8, s: 6, l: 4 },
+    traits: T([0.25, 0.5], MID, [0.3, 0.5], [0.4, 0.6], MID, [0.55, 0.85]),
+    learnset: [[1,'cold_lick'],[1,'glare'],[6,'haunt'],[11,'curse_bolt'],[16,'soul_dart'],[22,'wraith_touch'],[28,'umbral_orb'],[34,'mend'],[40,'grave_volley'],[46,'echo_burst'],[52,'dread_pulse']],
+    abilities: ['umbral_core','hover'],
+    desc: 'A candle flame that forgot its candle. Follows travellers through the marsh and hums when they are lost.',
+  },
+  {
+    id: 'lampwraith', name: 'Lampwraith', nameParts: ['Lamp', 'wraith'], clade: 'spirit', rig: 'spirit', types: ['Ghost', 'Fire'], tier: 'uncommon', bst: 435,
+    stats: { hp: 0.13, melee: 0.07, ranged: 0.09, magic: 0.23, meleeDef: 0.1, rangedDef: 0.11, magicDef: 0.12, spe: 0.15 },
+    recipe: { body: 's.body.wraith', eyes: 's.eyes.glow', mouth: 's.mouth.line', arms: 's.arms.sleeves', tail: 's.tail.long', hood: ['s.hood.cowl', 's.hood.none'], chains: 's.chains.none', lantern: ['s.lantern.lantern', 's.lantern.none'], aura: ['s.aura.glow', 's.aura.none'], tatters: ['s.tatters.strips', 's.tatters.none'], mask: 's.mask.none', veil: ['s.veil.drips', 's.veil.none'] },
+    palette: { c1: [40, 20, 70], c2: [35, 25, 50], c3: [35, 100, 60], eye: [40, 100, 60] }, vary: { h: 6, s: 6, l: 5 },
+    traits: T([0.4, 0.65], MID, [0.45, 0.7], [0.5, 0.75], MID, [0.45, 0.7]),
+    learnset: [[1,'flare'],[1,'glare'],[6,'cold_lick'],[11,'haunt'],[16,'curse_bolt'],[22,'ghostflame'],[28,'heat_wave'],[34,'umbral_orb'],[40,'mend'],[46,'fire_stream'],[52,'meltdown']],
+    abilities: ['ember_heart','hover'],
+    desc: 'Keeps the marsh lamps lit and the marsh folk lost. The lantern is the only warm thing about it.',
+  },
+  {
+    id: 'frostshade', name: 'Frostshade', nameParts: ['Frost', 'shade'], clade: 'spirit', rig: 'spirit', types: ['Ghost', 'Ice'], tier: 'uncommon', bst: 430,
+    stats: { hp: 0.14, melee: 0.06, ranged: 0.08, magic: 0.22, meleeDef: 0.12, rangedDef: 0.12, magicDef: 0.14, spe: 0.12 },
+    recipe: { body: 's.body.shade', eyes: 's.eyes.sad', mouth: 's.mouth.frown', arms: 's.arms.long', tail: 's.tail.spiral', hood: ['s.hood.crown', 's.hood.none'], chains: 's.chains.none', lantern: ['s.lantern.orb', 's.lantern.none'], aura: ['s.aura.cold', 's.aura.none'], tatters: ['s.tatters.trail', 's.tatters.none'], mask: ['s.mask.porcelain', 's.mask.none'], veil: ['s.veil.stars', 's.veil.none'] },
+    palette: { c1: [205, 35, 84], c2: [210, 35, 62], c3: [195, 90, 74], eye: [210, 90, 55] }, vary: { h: 6, s: 6, l: 4 },
+    traits: T([0.45, 0.7], MID, [0.5, 0.75], [0.45, 0.7], MID, [0.4, 0.65]),
+    learnset: [[1,'chill_gust'],[1,'glare'],[6,'cold_lick'],[11,'haunt'],[16,'curse_bolt'],[22,'sleet'],[28,'umbral_orb'],[34,'glacier_ray'],[40,'mend'],[46,'whiteout'],[52,'glacier_toss']],
+    abilities: ['frost_heart','steady'],
+    desc: 'Froze waiting for someone who never came back. The marsh ices over wherever it stops to look.',
+  },
+  {
+    id: 'marshwisp', name: 'Marshwisp', nameParts: ['Marsh', 'wisp'], clade: 'spirit', rig: 'spirit', types: ['Ghost', 'Water'], tier: 'common', bst: 405,
+    stats: { hp: 0.14, melee: 0.07, ranged: 0.21, magic: 0.09, meleeDef: 0.12, rangedDef: 0.13, magicDef: 0.11, spe: 0.13 },
+    recipe: { body: 's.body.blob', eyes: 's.eyes.dot', mouth: 's.mouth.o', arms: 's.arms.stubs', tail: 's.tail.drips', hood: 's.hood.none', chains: 's.chains.none', lantern: 's.lantern.none', aura: ['s.aura.mist', 's.aura.none'], tatters: ['s.tatters.short', 's.tatters.none'], mask: 's.mask.none', veil: ['s.veil.ripples', 's.veil.none'] },
+    palette: { c1: [170, 30, 66], c2: [175, 35, 46], c3: [160, 80, 62], eye: [165, 85, 55] }, vary: { h: 8, s: 6, l: 5 },
+    traits: T([0.3, 0.55], MID, [0.25, 0.45], [0.4, 0.6], MID, [0.5, 0.8]),
+    learnset: [[1,'squirt'],[1,'glare'],[6,'soul_dart'],[11,'haunt'],[16,'water_jet'],[22,'jetstream'],[28,'boiling_jet'],[34,'grave_volley'],[40,'mend'],[46,'geyser'],[52,'bellow']],
+    abilities: ['tide_heart','damp_coat'],
+    desc: 'Rises off the marsh water at dusk and drips its way back into it by dawn. Spits, mostly out of habit.',
+  },
+  {
+    id: 'dreamveil', name: 'Dreamveil', nameParts: ['Dream', 'veil'], clade: 'spirit', rig: 'spirit', types: ['Ghost', 'Psychic'], tier: 'rare', bst: 465,
+    stats: { hp: 0.12, melee: 0.06, ranged: 0.08, magic: 0.24, meleeDef: 0.11, rangedDef: 0.11, magicDef: 0.15, spe: 0.13 },
+    recipe: { body: 's.body.sheet', eyes: 's.eyes.wide', mouth: 's.mouth.smile', arms: 's.arms.mist', tail: 's.tail.smoke', hood: ['s.hood.halo', 's.hood.none'], chains: 's.chains.none', lantern: ['s.lantern.key', 's.lantern.none'], aura: ['s.aura.motes', 's.aura.none'], tatters: ['s.tatters.ribbons', 's.tatters.none'], mask: ['s.mask.theatre', 's.mask.none'], veil: ['s.veil.stars', 's.veil.none'] },
+    palette: { c1: [270, 30, 76], c2: [275, 35, 56], c3: [290, 80, 74], eye: [290, 90, 65] }, vary: { h: 8, s: 6, l: 4 },
+    traits: T([0.4, 0.65], MID, [0.4, 0.6], [0.45, 0.7], MID, [0.6, 0.9]),
+    learnset: [[1,'mind_jolt'],[1,'glare'],[6,'cold_lick'],[11,'meditate'],[16,'curse_bolt'],[22,'haunt'],[28,'thought_beam'],[34,'umbral_orb'],[40,'lull'],[46,'mind_crush'],[52,'psystorm']],
+    abilities: ['finesse','steady'],
+    desc: 'Carries the key to a door that only exists while you are asleep. It is very fond of you, apparently.',
+  },
+  {
+    id: 'gloomshade', name: 'Gloomshade', nameParts: ['Gloom', 'shade'], clade: 'spirit', rig: 'spirit', types: ['Ghost', 'Dark'], tier: 'uncommon', bst: 440,
+    stats: { hp: 0.12, melee: 0.22, ranged: 0.08, magic: 0.08, meleeDef: 0.11, rangedDef: 0.1, magicDef: 0.1, spe: 0.19 },
+    recipe: { body: 's.body.shade', eyes: 's.eyes.slit', mouth: 's.mouth.fangs', arms: 's.arms.claws', tail: 's.tail.split', hood: ['s.hood.cowl', 's.hood.none'], chains: ['s.chains.barbed', 's.chains.none'], lantern: 's.lantern.none', aura: 's.aura.none', tatters: ['s.tatters.rags', 's.tatters.none'], mask: ['s.mask.cracked', 's.mask.none'], veil: ['s.veil.stripes', 's.veil.none'] },
+    palette: { c1: [250, 15, 42], c2: [255, 20, 30], c3: [345, 80, 60], eye: [345, 90, 60] }, vary: { h: 6, s: 6, l: 5 },
+    traits: T([0.4, 0.65], MID, [0.5, 0.75], [0.5, 0.75], MID, [0.35, 0.6]),
+    learnset: [[1,'cold_lick'],[1,'glare'],[6,'cheap_shot'],[11,'shade_step'],[16,'chomp'],[22,'scheme'],[28,'phantom_claw'],[34,'dusk_slash'],[40,'haunt'],[46,'crush_bite'],[52,'blur']],
+    abilities: ['menace','umbral_core'],
+    desc: 'The shadow the marsh lamps cannot move. Its claws are the only part of it that is quite real.',
+  },
+  {
+    id: 'sparkwisp', name: 'Sparkwisp', nameParts: ['Spark', 'wisp'], clade: 'spirit', rig: 'spirit', types: ['Ghost', 'Electric'], tier: 'uncommon', bst: 430,
+    stats: { hp: 0.12, melee: 0.07, ranged: 0.22, magic: 0.1, meleeDef: 0.09, rangedDef: 0.1, magicDef: 0.1, spe: 0.2 },
+    recipe: { body: 's.body.orb', eyes: 's.eyes.wide', mouth: 's.mouth.jagged', arms: 's.arms.wisps', tail: 's.tail.split', hood: 's.hood.none', chains: 's.chains.none', lantern: 's.lantern.none', aura: ['s.aura.sparks', 's.aura.none'], tatters: 's.tatters.none', mask: 's.mask.none', veil: ['s.veil.runes', 's.veil.none'] },
+    palette: { c1: [55, 30, 78], c2: [50, 30, 56], c3: [55, 100, 62], eye: [55, 100, 60] }, vary: { h: 6, s: 6, l: 5 },
+    traits: T([0.25, 0.5], MID, [0.3, 0.5], [0.45, 0.7], MID, [0.55, 0.85]),
+    learnset: [[1,'zap'],[1,'glare'],[6,'soul_dart'],[11,'static_net'],[16,'haunt'],[22,'numb_pulse'],[28,'grave_volley'],[34,'shout'],[40,'brace'],[46,'skyfall_bolt'],[52,'bellow']],
+    abilities: ['capacitor','quick_start'],
+    desc: 'Ball lightning with opinions. It rolls along the marsh boardwalks and the nails all stand up to watch.',
+  },
+  {
+    id: 'fenwraith', name: 'Fenwraith', nameParts: ['Fen', 'wraith'], clade: 'spirit', rig: 'spirit', types: ['Ghost', 'Grass'], tier: 'common', bst: 405,
+    stats: { hp: 0.16, melee: 0.07, ranged: 0.2, magic: 0.09, meleeDef: 0.13, rangedDef: 0.13, magicDef: 0.12, spe: 0.1 },
+    recipe: { body: 's.body.wraith', eyes: 's.eyes.hollow', mouth: 's.mouth.frown', arms: 's.arms.sleeves', tail: 's.tail.wisp', hood: ['s.hood.bonnet', 's.hood.none'], chains: 's.chains.none', lantern: ['s.lantern.candle', 's.lantern.none'], aura: ['s.aura.mist', 's.aura.none'], tatters: ['s.tatters.long', 's.tatters.none'], mask: 's.mask.none', veil: ['s.veil.spots', 's.veil.none'] },
+    palette: { c1: [110, 25, 58], c2: [105, 30, 40], c3: [130, 70, 60], eye: [130, 80, 60] }, vary: { h: 8, s: 6, l: 5 },
+    traits: T([0.4, 0.65], MID, [0.4, 0.6], [0.45, 0.7], MID, [0.4, 0.65]),
+    learnset: [[1,'seed_volley'],[1,'glare'],[6,'soul_dart'],[11,'leaf_razor'],[16,'haunt'],[22,'drowse_dust'],[28,'grave_volley'],[34,'spore_burst'],[40,'photosynth'],[46,'leaf_tempest'],[52,'bellow']],
+    abilities: ['regrowth','sponge'],
+    desc: 'Moss grows on it and it grows on the moss. Wanders the fen with a candle nobody remembers lighting.',
+  },
+  {
+    id: 'mireveil', name: 'Mireveil', nameParts: ['Mire', 'veil'], clade: 'spirit', rig: 'spirit', types: ['Ghost', 'Poison'], tier: 'common', bst: 405,
+    stats: { hp: 0.14, melee: 0.07, ranged: 0.21, magic: 0.09, meleeDef: 0.12, rangedDef: 0.13, magicDef: 0.11, spe: 0.13 },
+    recipe: { body: 's.body.blob', eyes: 's.eyes.hollow', mouth: 's.mouth.wail', arms: 's.arms.stubs', tail: 's.tail.drips', hood: 's.hood.none', chains: ['s.chains.rope', 's.chains.none'], lantern: 's.lantern.none', aura: ['s.aura.mist', 's.aura.none'], tatters: ['s.tatters.rags', 's.tatters.none'], mask: ['s.mask.bandage', 's.mask.none'], veil: ['s.veil.drips', 's.veil.none'] },
+    palette: { c1: [90, 20, 52], c2: [85, 25, 36], c3: [90, 95, 55], eye: [90, 100, 60] }, vary: { h: 8, s: 6, l: 5 },
+    traits: T([0.35, 0.6], MID, [0.25, 0.45], [0.4, 0.6], MID, [0.45, 0.7]),
+    learnset: [[1,'acid_spit'],[1,'glare'],[6,'soul_dart'],[11,'blight'],[16,'haunt'],[22,'venom_prick'],[28,'grave_volley'],[34,'sludge_blast'],[40,'slime_coat'],[46,'sludge_hurl'],[52,'bellow']],
+    abilities: ['venom_heart','antitoxin'],
+    desc: 'Rose out of the bog with the bog still on it. Wails at night, which is fair, given the smell.',
+  },
+  {
+    id: 'chainwraith', name: 'Chainwraith', nameParts: ['Chain', 'wraith'], clade: 'spirit', rig: 'spirit', types: ['Ghost', 'Steel'], tier: 'uncommon', bst: 445,
+    stats: { hp: 0.15, melee: 0.2, ranged: 0.06, magic: 0.07, meleeDef: 0.19, rangedDef: 0.14, magicDef: 0.11, spe: 0.08 },
+    recipe: { body: 's.body.wraith', eyes: 's.eyes.slit', mouth: 's.mouth.line', arms: 's.arms.bony', tail: 's.tail.stub', hood: ['s.hood.cowl', 's.hood.none'], chains: ['s.chains.heavy', 's.chains.none'], lantern: ['s.lantern.bell', 's.lantern.none'], aura: 's.aura.none', tatters: ['s.tatters.strips', 's.tatters.none'], mask: ['s.mask.skull', 's.mask.none'], veil: ['s.veil.stripes', 's.veil.none'] },
+    palette: { c1: [215, 10, 62], c2: [215, 12, 44], c3: [45, 80, 62], eye: [45, 85, 60] }, vary: { h: 5, s: 5, l: 5 },
+    traits: T([0.5, 0.8], MID, [0.4, 0.6], [0.3, 0.5], MID, [0.3, 0.5]),
+    learnset: [[1,'cold_lick'],[1,'plate_up'],[6,'bolt_jab'],[11,'iron_claw'],[16,'shade_step'],[22,'brace'],[28,'steel_fin'],[34,'phantom_claw'],[40,'steel_ram'],[46,'comet_fist'],[52,'chrome_slam']],
+    abilities: ['iron_hide','bulwark'],
+    desc: 'Dragged its chains out of the prison marsh and never put them down. Rings the bell so you hear it coming.',
+  },
+  {
+    id: 'galeshade', name: 'Galeshade', nameParts: ['Gale', 'shade'], clade: 'spirit', rig: 'spirit', types: ['Ghost', 'Flying'], tier: 'uncommon', bst: 435,
+    stats: { hp: 0.12, melee: 0.08, ranged: 0.22, magic: 0.09, meleeDef: 0.09, rangedDef: 0.11, magicDef: 0.1, spe: 0.19 },
+    recipe: { body: 's.body.flame', eyes: 's.eyes.dot', mouth: 's.mouth.smile', arms: 's.arms.long', tail: 's.tail.long', hood: ['s.hood.hat', 's.hood.none'], chains: 's.chains.none', lantern: 's.lantern.none', aura: ['s.aura.ring', 's.aura.none'], tatters: ['s.tatters.ribbons', 's.tatters.none'], mask: ['s.mask.fox', 's.mask.none'], veil: ['s.veil.swirl', 's.veil.none'] },
+    palette: { c1: [195, 20, 78], c2: [200, 20, 58], c3: [50, 80, 70], eye: [50, 80, 60] }, vary: { h: 8, s: 6, l: 5 },
+    traits: T([0.35, 0.6], MID, [0.5, 0.75], [0.6, 0.9], MID, [0.45, 0.7]),
+    learnset: [[1,'gale'],[1,'glare'],[6,'soul_dart'],[11,'slipstream'],[16,'haunt'],[22,'wind_cutter'],[28,'grave_volley'],[34,'preen'],[40,'shout'],[46,'tempest_shot'],[52,'night_volley']],
+    abilities: ['gale_heart','hover'],
+    desc: 'Rides the marsh wind in a hat it stole from a scarecrow. The fox mask is for laughing behind.',
+  },
+  {
+    id: 'vigilwraith', name: 'Vigilwraith', nameParts: ['Vigil', 'wraith'], clade: 'spirit', rig: 'spirit', types: ['Ghost', 'Fighting'], tier: 'uncommon', bst: 440,
+    stats: { hp: 0.14, melee: 0.23, ranged: 0.07, magic: 0.07, meleeDef: 0.14, rangedDef: 0.11, magicDef: 0.1, spe: 0.14 },
+    recipe: { body: 's.body.wraith', eyes: 's.eyes.hollow', mouth: 's.mouth.jagged', arms: 's.arms.bony', tail: 's.tail.wisp', hood: ['s.hood.cowl', 's.hood.none'], chains: ['s.chains.shackles', 's.chains.none'], lantern: ['s.lantern.scythe', 's.lantern.none'], aura: 's.aura.none', tatters: ['s.tatters.strips', 's.tatters.none'], mask: ['s.mask.skull', 's.mask.none'], veil: 's.veil.none' },
+    palette: { c1: [230, 12, 58], c2: [235, 15, 40], c3: [140, 70, 62], eye: [140, 80, 62] }, vary: { h: 6, s: 6, l: 5 },
+    traits: T([0.45, 0.7], MID, [0.5, 0.75], [0.4, 0.6], MID, [0.35, 0.6]),
+    learnset: [[1,'cold_lick'],[1,'glare'],[6,'blitz_punch'],[11,'shade_step'],[16,'chop'],[22,'muscle_up'],[28,'phantom_claw'],[34,'slab_break'],[40,'haunt'],[46,'siphon_fist'],[52,'overpower']],
+    abilities: ['grit','second_wind'],
+    desc: 'Still keeping the watch it was set a hundred years ago. The scythe is ceremonial. It says.',
+  },
+  {
+    id: 'solacewisp', name: 'Solacewisp', nameParts: ['Solace', 'wisp'], clade: 'spirit', rig: 'spirit', types: ['Ghost', 'Fairy'], tier: 'uncommon', bst: 430,
+    stats: { hp: 0.13, melee: 0.06, ranged: 0.08, magic: 0.22, meleeDef: 0.1, rangedDef: 0.11, magicDef: 0.15, spe: 0.15 },
+    recipe: { body: 's.body.orb', eyes: 's.eyes.wide', mouth: 's.mouth.smile', arms: 's.arms.wisps', tail: 's.tail.spiral', hood: ['s.hood.halo', 's.hood.none'], chains: ['s.chains.beads', 's.chains.none'], lantern: ['s.lantern.candle', 's.lantern.none'], aura: ['s.aura.halo', 's.aura.none'], tatters: ['s.tatters.web', 's.tatters.none'], mask: ['s.mask.gilded', 's.mask.none'], veil: ['s.veil.stars', 's.veil.none'] },
+    palette: { c1: [320, 30, 82], c2: [310, 30, 62], c3: [50, 90, 74], eye: [320, 80, 60] }, vary: { h: 8, s: 6, l: 4 },
+    traits: T([0.3, 0.55], MID, [0.3, 0.5], [0.45, 0.7], MID, [0.6, 0.9]),
+    learnset: [[1,'glitter_gust'],[1,'glare'],[6,'cold_lick'],[11,'haunt'],[16,'curse_bolt'],[22,'doe_eyes'],[28,'dazzle'],[34,'umbral_orb'],[40,'moonbathe'],[46,'lunar_burst'],[52,'star_shower']],
+    abilities: ['radiant_core','mirror_scale'],
+    desc: 'Sits with whoever is grieving in the marsh until they are done. Then it takes the candle and goes.',
+  },
+  {
+    id: 'eldershade', name: 'Eldershade', nameParts: ['Elder', 'shade'], clade: 'spirit', rig: 'spirit', types: ['Ghost', 'Dragon'], tier: 'rare', bst: 470,
+    stats: { hp: 0.15, melee: 0.08, ranged: 0.08, magic: 0.23, meleeDef: 0.12, rangedDef: 0.11, magicDef: 0.12, spe: 0.11 },
+    recipe: { body: 's.body.flame', eyes: 's.eyes.spiral', mouth: 's.mouth.wail', arms: 's.arms.claws', tail: 's.tail.smoke', hood: ['s.hood.horns', 's.hood.none'], chains: ['s.chains.double', 's.chains.none'], lantern: ['s.lantern.skull', 's.lantern.none'], aura: ['s.aura.halo', 's.aura.none'], tatters: ['s.tatters.long', 's.tatters.none'], mask: ['s.mask.gilded', 's.mask.none'], veil: ['s.veil.runes', 's.veil.none'] },
+    palette: { c1: [260, 25, 48], c2: [265, 30, 34], c3: [280, 85, 66], eye: [280, 95, 66] }, vary: { h: 6, s: 6, l: 5 },
+    traits: T([0.55, 0.85], MID, [0.45, 0.7], [0.55, 0.85], MID, [0.5, 0.8]),
+    learnset: [[1,'cold_lick'],[1,'glare'],[6,'wyrm_breath'],[11,'haunt'],[16,'curse_bolt'],[22,'scheme'],[28,'umbral_orb'],[34,'wyrm_pulse'],[40,'wyrm_dance'],[46,'dread_pulse'],[52,'comet_roar']],
+    abilities: ['purebred','umbral_core'],
+    desc: 'What is left of a dragon after the dragon is gone. The marsh was its hoard, and it still counts the reeds.',
+  },
 ];
 
 const SPECIES_BY_ID = Object.fromEntries(SPECIES.map((s) => [s.id, s]));
@@ -13320,6 +13774,7 @@ const CLADES = {
   crystalline: { name: 'Crystalline', plural: 'Crystallines', linked: [['legsFront', 'legsBack']], desc: 'Living geodes. Faceted bodies, crystal crowns and a glow along every seam.' },
   myriapod: { name: 'Myriapod', plural: 'Myriapods', linked: [['head', 'mandibles']], desc: 'Centipedes and millipedes. Segment after segment, and legs to match.' },
   fiend: { name: 'Fiend', plural: 'Fiends', linked: [['arms', 'legs']], desc: 'Imps and devils on two legs. Horns, tails, held things and a bad attitude.' },
+  spirit: { name: 'Spirit', plural: 'Spirits', linked: [['hood', 'mask']], desc: 'Ghosts and wisps that never had a body. A face on a shroud, and something held in a hand of mist.' },
 };
 
 const CLADE_IDS = Object.keys(CLADES);
@@ -13831,6 +14286,8 @@ const SLOT_FAMILY = {
   bristles: 'fur', venom: 'face',
   // fiend
   hand: 'face', marks: 'flat',
+  // spirit
+  hood: 'crown', chains: 'fur', lantern: 'face', tatters: 'fur', mask: 'face', veil: 'flat',
 };
 function growthFor(slot) { return SLOT_GROWTH[SLOT_FAMILY[slot] || 'face']; }
 
@@ -14223,6 +14680,15 @@ POSES.fiend = {
   poise: { body: { da: -3, dy: -1 }, head: { da: -5, dy: -2 }, arms: { da: 10, far: { da: -16 } }, wings: { da: -8 }, tail: { da: -4 }, horns: { ds: 1.04 }, aura: { ds: 1.06 } },
   attack: { body: { da: 8, dx: 6 }, head: { da: 4, dx: 4 }, arms: { da: -34, far: { da: -12 } }, hand: { ds: 1.15 }, legs: { da: -10, far: { da: 10 } }, tail: { da: 14 }, wings: { da: 20, far: { da: 12 } }, mouth: { ds: 1.15 } },
   hurt: { body: { da: -10, dx: -4 }, head: { da: -12 }, arms: { da: 18, far: { da: 10 } }, legs: { da: 8, far: { da: -6 } }, tail: { da: -10 }, wings: { da: 26, far: { da: 16 } } },
+};
+
+POSES.spirit = {
+  stand: {},
+  brace: { body: { da: 4, dx: 2 }, arms: { da: -14, far: { da: -6 } }, tail: { da: 10 }, tatters: { da: 6 } },
+  crouch: { body: { dy: 4, da: 2 }, arms: { da: 8 }, tail: { da: 14 }, hood: { ds: 0.98 } },
+  poise: { body: { da: -4, dy: -3 }, arms: { da: 12, far: { da: -12 } }, tail: { da: -6 }, aura: { ds: 1.08 }, hood: { ds: 1.04 } },
+  attack: { body: { da: 6, dx: 6 }, arms: { da: -34, far: { da: -14 } }, lantern: { ds: 1.15 }, mouth: { ds: 1.2 }, tail: { da: 16 }, tatters: { da: 10 }, aura: { ds: 1.1 } },
+  hurt: { body: { da: -10, dx: -4 }, arms: { da: 18, far: { da: 10 } }, tail: { da: -12 }, tatters: { da: -8 }, aura: { ds: 0.9 } },
 };
 
 // ---- src/creature/render.js ----
@@ -17013,14 +17479,14 @@ function challengeTower(j, k, level) {
 
 
 /** Map size and ring geometry. `version` bumps whenever the layout changes, so saved positions from an older map reset to the Crossroads. */
-const WORLD = { version: 8, w: 224, h: 192, hubR: 6, ringR: 58, lairR: 84, trainersPerBiome: 6, encounterChance: 0.12, encounterCooldown: 4, homeSpawnShare: 0.72 };
+const WORLD = { version: 9, w: 224, h: 192, hubR: 6, ringR: 58, lairR: 84, trainersPerBiome: 6, encounterChance: 0.12, encounterCooldown: 4, homeSpawnShare: 0.72 };
 
 /** Tile kinds. */
 const TILE = { grass: 0, habitat: 1, path: 2, wall: 3, water: 4, hub: 5, lair: 6, door: 7, camp: 8, spire: 9, spireDoor: 10, shrine: 11, market: 12, marketDoor: 13, storage: 14, storageDoor: 15, tower: 16, towerDoor: 17 };
 const WALKABLE_TILES = new Set([TILE.grass, TILE.habitat, TILE.path, TILE.hub, TILE.door, TILE.camp, TILE.spireDoor, TILE.shrine, TILE.marketDoor, TILE.storageDoor, TILE.towerDoor]);
 
 /** Biomes in difficulty order, clockwise from the south of the hub. Levels climb 5 to the fifties; the gaps in the ladder are for classes still to come. */
-const BIOME_ORDER = ['mammal', 'amphibian', 'flora', 'insect', 'nightwing', 'fungus', 'bird', 'crystalline', 'ooze', 'fish', 'myriapod', 'wyrm', 'invertebrate', 'skeletal', 'reptile', 'fiend', 'draconic'];
+const BIOME_ORDER = ['mammal', 'amphibian', 'flora', 'insect', 'nightwing', 'fungus', 'bird', 'crystalline', 'ooze', 'fish', 'myriapod', 'wyrm', 'invertebrate', 'skeletal', 'reptile', 'fiend', 'draconic', 'spirit'];
 
 /** Per-class region: name, wild level, palette and the look of its walls. */
 const REGIONS = {
@@ -17034,6 +17500,7 @@ const REGIONS = {
   fungus:       { name: 'Sporewood',      level: 23, ground: '#7a7f5c', ground2: '#70754f', habitat: '#5b5f47', path: '#c7b48a', water: '#4e7aa0', wall: 'tree',     wallColor: '#5a4a6a', accent: '#d9a3ff', waterT: 0.6,  warden: 'Warden Morel',  badge: 'Spore Badge' },
   wyrm:         { name: 'Coiling Gorge',  level: 41, ground: '#8a8570', ground2: '#807b66', habitat: '#6b6a52', path: '#d2c39a', water: '#4f8fb8', wall: 'rock',     wallColor: '#5c5548', accent: '#8fd3ff', waterT: 0.62, warden: 'Warden Tempest', badge: 'Gorge Badge' },
   ooze:         { name: 'Slurry Sump',    level: 32, ground: '#7a8a4c', ground2: '#707f45', habitat: '#55703a', path: '#c0b27e', water: '#7fb84f', wall: 'rock',     wallColor: '#4c4a3e', accent: '#b6f06a', waterT: 0.6,  warden: 'Warden Dreg',   badge: 'Sump Badge' },
+  spirit:       { name: 'Vigil Marsh',    level: 58, ground: '#3f4a5a', ground2: '#394352', habitat: '#2f3a4a', path: '#8a94a4', water: '#2e4a66', wall: 'grave',    wallColor: '#8a93a4', accent: '#a8f0e0', waterT: 0.55, warden: 'Warden Solace', badge: 'Vigil Badge' },
   fiend:        { name: 'Brimstone Sinks', level: 52, ground: '#5a3a3a', ground2: '#523434', habitat: '#6a3028', path: '#b08064', water: '#e8642e', wall: 'ember',    wallColor: '#3a2424', accent: '#ff6a3a', waterT: 0.66, warden: 'Warden Sulfa',  badge: 'Brimstone Badge' },
   myriapod:     { name: 'Rootbound Warren', level: 38, ground: '#5d4a3a', ground2: '#554335', habitat: '#4a3a2c', path: '#a88c6a', water: '#4a6a5a', wall: 'root',     wallColor: '#6b4a34', accent: '#d8b34a', waterT: 0.64, warden: 'Warden Segra',  badge: 'Segment Badge' },
   crystalline:  { name: 'Prism Caverns',  level: 29, ground: '#5b5470', ground2: '#534c68', habitat: '#6a4f8a', path: '#a99cc4', water: '#4a6fb8', wall: 'crystal',  wallColor: '#b9a4ff', accent: '#ffd36a', waterT: 0.62, warden: 'Warden Facet',  badge: 'Prism Badge' },
@@ -17196,6 +17663,7 @@ const TRAINER_TITLES = {
   crystalline: ['Gem Cutter', 'Lamp Bearer', 'Prospector'],
   myriapod: ['Tunneller', 'Compost Keeper', 'Root Cutter'],
   fiend: ['Ash Broker', 'Pact Keeper', 'Imp Herder'],
+  spirit: ['Vigil Keeper', 'Séance Host', 'Grave Tender'],
 };
 const TRAINER_LINES = {
   mammal: ['My team was raised on these downs. Care for a bout?', 'Fur and fang against whatever you have. Fight?'],
@@ -17215,6 +17683,7 @@ const TRAINER_LINES = {
   crystalline: ['Every stone in here is worth something. Prove your team is too?', 'Careful with the walls, they sing. Care for a bout?'],
   myriapod: ['Watch your step. Everything down here has more legs than you. Fight?', 'My team lives under the roots and likes it there. Care for a bout?'],
   fiend: ['Sign here, fight there. My imps are waiting.', 'Everything down here costs something. Care for a bout?'],
+  spirit: ['Keep your voice down, they are listening. Fight?', 'My team passed on years ago and still turns up for battles. Care for a bout?'],
 };
 const TRAINER_AFTER = ['Good match. Come back stronger.', 'Well fought. The Warden is another matter.', 'You earned that one.', 'My team will remember you.'];
 

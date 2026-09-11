@@ -62,5 +62,7 @@ export const SLOT_FAMILY = {
   bristles: 'fur', venom: 'face',
   // fiend
   hand: 'face', marks: 'flat',
+  // spirit
+  hood: 'crown', chains: 'fur', lantern: 'face', tatters: 'fur', mask: 'face', veil: 'flat',
 };
 export function growthFor(slot) { return SLOT_GROWTH[SLOT_FAMILY[slot] || 'face']; }

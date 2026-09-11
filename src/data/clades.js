@@ -21,6 +21,7 @@ export const CLADES = {
   crystalline: { name: 'Crystalline', plural: 'Crystallines', linked: [['legsFront', 'legsBack']], desc: 'Living geodes. Faceted bodies, crystal crowns and a glow along every seam.' },
   myriapod: { name: 'Myriapod', plural: 'Myriapods', linked: [['head', 'mandibles']], desc: 'Centipedes and millipedes. Segment after segment, and legs to match.' },
   fiend: { name: 'Fiend', plural: 'Fiends', linked: [['arms', 'legs']], desc: 'Imps and devils on two legs. Horns, tails, held things and a bad attitude.' },
+  spirit: { name: 'Spirit', plural: 'Spirits', linked: [['hood', 'mask']], desc: 'Ghosts and wisps that never had a body. A face on a shroud, and something held in a hand of mist.' },
 };
 
 export const CLADE_IDS = Object.keys(CLADES);

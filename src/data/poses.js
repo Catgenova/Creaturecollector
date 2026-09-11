@@ -189,3 +189,12 @@ POSES.fiend = {
   attack: { body: { da: 8, dx: 6 }, head: { da: 4, dx: 4 }, arms: { da: -34, far: { da: -12 } }, hand: { ds: 1.15 }, legs: { da: -10, far: { da: 10 } }, tail: { da: 14 }, wings: { da: 20, far: { da: 12 } }, mouth: { ds: 1.15 } },
   hurt: { body: { da: -10, dx: -4 }, head: { da: -12 }, arms: { da: 18, far: { da: 10 } }, legs: { da: 8, far: { da: -6 } }, tail: { da: -10 }, wings: { da: 26, far: { da: 16 } } },
 };
+
+POSES.spirit = {
+  stand: {},
+  brace: { body: { da: 4, dx: 2 }, arms: { da: -14, far: { da: -6 } }, tail: { da: 10 }, tatters: { da: 6 } },
+  crouch: { body: { dy: 4, da: 2 }, arms: { da: 8 }, tail: { da: 14 }, hood: { ds: 0.98 } },
+  poise: { body: { da: -4, dy: -3 }, arms: { da: 12, far: { da: -12 } }, tail: { da: -6 }, aura: { ds: 1.08 }, hood: { ds: 1.04 } },
+  attack: { body: { da: 6, dx: 6 }, arms: { da: -34, far: { da: -14 } }, lantern: { ds: 1.15 }, mouth: { ds: 1.2 }, tail: { da: 16 }, tatters: { da: 10 }, aura: { ds: 1.1 } },
+  hurt: { body: { da: -10, dx: -4 }, arms: { da: 18, far: { da: 10 } }, tail: { da: -12 }, tatters: { da: -8 }, aura: { ds: 0.9 } },
+};
