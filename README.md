@@ -65,7 +65,7 @@ defense stat; Magic beats Ranged beats Melee beats Magic against a creature's
 style, and move cards say so in words. A move matching one of the creature's
 types earns +25%, one matching its style another +25%.
 
-Elementals: one wild creature in a thousand is born of one of eight elements.
+Elementals: one wild creature in a thousand is born of one of fourteen elements.
 Every part it has carries an animated element filter and it knows the element's
 core ability; parts keep their element when passed down in fusion, and the
 ability follows by chance.

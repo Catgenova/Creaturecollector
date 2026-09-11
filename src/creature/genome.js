@@ -143,7 +143,7 @@ export function makeElemental(g, elem) {
 export function rollElemental(g, rng, chance = ROLL.elemental) {
   if (!rng.chance(chance)) return null;
   const own = ELEMENT_IDS.filter((e) => ELEMENTS[e].types.some((t) => g.types.includes(t)));
-  const elem = own.length && rng.chance(0.5) ? rng.pick(own) : rng.pick(ELEMENT_IDS);
+  const elem = own.length && rng.chance(0.67) ? rng.pick(own) : rng.pick(ELEMENT_IDS);
   makeElemental(g, elem);
   return elem;
 }

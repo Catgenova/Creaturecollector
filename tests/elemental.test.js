@@ -15,7 +15,7 @@ import { WILD_ELEMENTAL, worldFor, wildSpawn, tileAt, TILE } from '../src/game/w
 const emberox = (seed) => speciesGenome(SPECIES_BY_ID.emberox, makeRng(seed));
 
 test('every element has a core ability, boosted types and a filter', () => {
-  assert.equal(ELEMENT_IDS.length, 8);
+  assert.equal(ELEMENT_IDS.length, 14);
   for (const id of ELEMENT_IDS) {
     const e = ELEMENTS[id];
     assert.ok(ABILITIES[e.ability], `${id} ability ${e.ability}`);

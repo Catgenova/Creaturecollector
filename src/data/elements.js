@@ -13,6 +13,12 @@ export const ELEMENTS = {
   shadow: { id: 'shadow', name: 'Shadow', ability: 'umbral_core',  types: ['Dark', 'Ghost'],    color: '#9d5cf0' },
   light:  { id: 'light',  name: 'Light',  ability: 'radiant_core', types: ['Fairy', 'Psychic'], color: '#fff1a8' },
   earth:  { id: 'earth',  name: 'Earth',  ability: 'quake_core',   types: ['Ground', 'Rock'],   color: '#c8913a' },
+  rust:    { id: 'rust',    name: 'Rust',    ability: 'corrosion_core', types: ['Steel', 'Poison'],  color: '#d07a3a' },
+  blood:   { id: 'blood',   name: 'Blood',   ability: 'vital_core',     types: ['Dark', 'Fighting'], color: '#e0304a' },
+  void:    { id: 'void',    name: 'Void',    ability: 'void_core',      types: ['Ghost', 'Psychic'], color: '#6a3ab8' },
+  moon:    { id: 'moon',    name: 'Moon',    ability: 'lunar_core',     types: ['Dark', 'Fairy'],    color: '#d6defc' },
+  crystal: { id: 'crystal', name: 'Crystal', ability: 'resonant_core',  types: ['Rock', 'Psychic'],  color: '#8ef0ff' },
+  mist:    { id: 'mist',    name: 'Mist',    ability: 'mist_core',      types: ['Water', 'Ghost'],   color: '#c4ecf4' },
 };
 export const ELEMENT_IDS = Object.keys(ELEMENTS);
 
@@ -33,6 +39,7 @@ const discrete = ' calcMode="discrete"';
 const IDENT = '1 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 1 0';
 const BRIGHT = '1.3 0 0 0 0.04 0 1.3 0 0 0.04 0 0 1.3 0 0.02 0 0 0 1 0';
 const WHITE = '0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 1 0';
+const INVERT = '-0.7 0 0 0 0.8 0 -0.7 0 0 0.75 0 0 -0.7 0 0.95 0 0 0 1 0';
 
 /** Soft coloured glow around the source alpha, as filter primitives producing `result`. */
 const glow = (live, result, color, radius, blur, opacity, pulse, dur) =>
@@ -105,6 +112,63 @@ const FILTERS = {
     `<feOffset in="tex" dx="0" dy="0" result="rum">${anim(live, 'dx', '0;0;1.2;-1.2;0.8;-0.8;0;0', '3s', `${discrete} keyTimes="0;0.7;0.74;0.78;0.82;0.86;0.9;1"`)}</feOffset>` +
     glow(live, 'glow', '#c8913a', 1.5, 2, 0.55, null, null) +
     `<feMerge><feMergeNode in="glow"/><feMergeNode in="rum"/></feMerge>`,
+
+  rust: (live) =>
+    `<feTurbulence type="fractalNoise" baseFrequency="0.09" numOctaves="2" seed="13" result="n"/>` +
+    `<feColorMatrix in="n" type="matrix" values="0 0 0 0 0.55 0 0 0 0 0.28 0 0 0 0 0.08 0 0 0 0.75 0" result="ore"/>` +
+    `<feComposite in="ore" in2="SourceAlpha" operator="in" result="ore2"/>` +
+    `<feBlend in="ore2" in2="SourceGraphic" mode="multiply" result="tex"/>` +
+    `<feTurbulence type="fractalNoise" baseFrequency="0.5" numOctaves="1" seed="2" result="fn">${anim(live, 'seed', '2;3;4;5;6;7', '1.6s', discrete)}</feTurbulence>` +
+    `<feComponentTransfer in="fn" result="ft"><feFuncA type="linear" slope="9" intercept="-7.2"/></feComponentTransfer>` +
+    `<feColorMatrix in="ft" type="matrix" values="0 0 0 0 0.85 0 0 0 0 0.45 0 0 0 0 0.15 0 0 0 1 0" result="fc"/>` +
+    `<feOffset in="fc" dx="0" dy="0" result="fo">${anim(live, 'dy', '-6;8', '2.2s')}</feOffset>` +
+    `<feMorphology in="SourceAlpha" operator="dilate" radius="3" result="fa"/>` +
+    `<feComposite in="fo" in2="fa" operator="in" result="flakes"/>` +
+    glow(live, 'glow', '#d07a3a', 1.5, 2.5, 0.5, null, null) +
+    `<feMerge><feMergeNode in="glow"/><feMergeNode in="tex"/><feMergeNode in="flakes"/></feMerge>`,
+
+  blood: (live) =>
+    `<feColorMatrix in="SourceGraphic" type="matrix" values="1.05 0.05 0.05 0 0 0.02 0.9 0.02 0 0 0.02 0.02 0.9 0 0 0 0 0 1 0" result="tint"/>` +
+    `<feMorphology in="SourceAlpha" operator="dilate" radius="0.5" result="sw">${anim(live, 'radius', '0.2;1.4;0.4;1.2;0.3;0.2;0.2', '1.1s')}</feMorphology>` +
+    `<feFlood flood-color="#7a0f20" flood-opacity="0.9" result="swc"/><feComposite in="swc" in2="sw" operator="in" result="swell"/>` +
+    glow(live, 'glow', '#e0304a', 2, 3, 0.7, '0.25;0.9;0.35;0.85;0.3;0.25;0.25', '1.1s') +
+    `<feMerge><feMergeNode in="glow"/><feMergeNode in="swell"/><feMergeNode in="tint"/></feMerge>`,
+
+  void: (live) =>
+    `<feColorMatrix in="SourceGraphic" type="matrix" values="0.5 0.1 0.2 0 -0.02 0.1 0.4 0.25 0 -0.02 0.2 0.15 0.75 0 0.02 0 0 0 1 0" result="dk"/>` +
+    `<feTurbulence type="turbulence" baseFrequency="0.02 0.02" numOctaves="1" seed="21" result="n">${anim(live, 'baseFrequency', '0.02 0.02;0.03 0.025;0.02 0.02', '4s')}</feTurbulence>` +
+    `<feDisplacementMap in="dk" in2="n" scale="5" xChannelSelector="R" yChannelSelector="G" result="d"/>` +
+    `<feColorMatrix in="d" type="matrix" values="${IDENT}" result="inv">${anim(live, 'values', `${IDENT};${IDENT};${INVERT};${IDENT};${IDENT};${IDENT}`, '3.4s', discrete)}</feColorMatrix>` +
+    glow(live, 'glow', '#6a3ab8', 3, 4, 0.75, '0.4;0.8;0.4', '3.4s') +
+    `<feMerge><feMergeNode in="glow"/><feMergeNode in="inv"/></feMerge>`,
+
+  moon: (live) =>
+    `<feColorMatrix in="SourceGraphic" type="matrix" values="0.92 0.03 0.08 0 0.02 0.03 0.95 0.08 0 0.03 0.05 0.06 1.1 0 0.06 0 0 0 1 0" result="cool"/>` +
+    `<feMorphology in="SourceAlpha" operator="dilate" radius="2.5" result="ma"/>` +
+    `<feGaussianBlur in="ma" stdDeviation="3" result="mb"/>` +
+    `<feOffset in="mb" dx="5" dy="0" result="mo">${anim(live, 'dx', '5;0;-5;0;5', '5s')}${anim(live, 'dy', '0;-5;0;5;0', '5s')}</feOffset>` +
+    `<feFlood flood-color="#d6defc" flood-opacity="0.85" result="mc"/><feComposite in="mc" in2="mo" operator="in" result="crescent"/>` +
+    glow(live, 'halo', '#9fb4ff', 1.5, 4, 0.45, null, null) +
+    `<feMerge><feMergeNode in="halo"/><feMergeNode in="crescent"/><feMergeNode in="cool"/></feMerge>`,
+
+  crystal: (live) =>
+    `<feComponentTransfer in="SourceGraphic" result="facet"><feFuncR type="discrete" tableValues="0.12 0.35 0.58 0.8 1"/><feFuncG type="discrete" tableValues="0.12 0.35 0.58 0.8 1"/><feFuncB type="discrete" tableValues="0.16 0.4 0.62 0.84 1"/></feComponentTransfer>` +
+    `<feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="1" seed="3" result="gn">${anim(live, 'seed', '3;8;13;18;23', '1.5s', discrete)}</feTurbulence>` +
+    `<feComponentTransfer in="gn" result="gt"><feFuncA type="linear" slope="10" intercept="-8.4"/></feComponentTransfer>` +
+    `<feColorMatrix in="gt" type="matrix" values="0 0 0 0 0.85 0 0 0 0 1 0 0 0 0 1 0 0 0 1 0" result="gc"/>` +
+    `<feMorphology in="gc" operator="dilate" radius="1" result="gd"/>` +
+    `<feComposite in="gd" in2="SourceAlpha" operator="in" result="glints"/>` +
+    glow(live, 'glow', '#8ef0ff', 2, 3, 0.65, '0.4;0.8;0.4', '2.2s') +
+    `<feMerge><feMergeNode in="glow"/><feMergeNode in="facet"/><feMergeNode in="glints"/></feMerge>`,
+
+  mist: (live) =>
+    `<feMorphology in="SourceGraphic" operator="erode" radius="0.4" result="er">${anim(live, 'radius', '0.2;1.2;0.4;1.5;0.2', '3.6s')}</feMorphology>` +
+    `<feGaussianBlur in="er" stdDeviation="0.6" result="soft"/>` +
+    `<feColorMatrix in="SourceGraphic" type="matrix" values="1 0 0 0 0.05 0 1 0 0 0.06 0 0 1 0 0.08 0 0 0 0.35 0" result="ghost"/>` +
+    `<feTurbulence type="fractalNoise" baseFrequency="0.02 0.04" numOctaves="1" seed="17" result="n">${anim(live, 'baseFrequency', '0.02 0.04;0.026 0.05;0.02 0.04', '4.4s')}</feTurbulence>` +
+    `<feDisplacementMap in="ghost" in2="n" scale="8" xChannelSelector="R" yChannelSelector="G" result="drift"/>` +
+    glow(live, 'glow', '#c4ecf4', 3, 5, 0.5, '0.3;0.6;0.3', '4.4s') +
+    `<feMerge><feMergeNode in="glow"/><feMergeNode in="drift"/><feMergeNode in="soft"/></feMerge>`,
 };
 
 /** The <filter> element for an element, with the given id attribute. */

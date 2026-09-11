@@ -283,6 +283,10 @@ function entryHooks(state, i, events) {
     events.push({ t: 'ability', side: i, name: me.name, ability: abilityName(me.ability) });
     changeStages(state, i, { spe: 1 }, events);
   }
+  if (me.ability === 'lunar_core' && me.stages.magicDef < 6) {
+    events.push({ t: 'ability', side: i, name: me.name, ability: abilityName(me.ability) });
+    changeStages(state, i, { magicDef: 1 }, events);
+  }
 }
 
 function canHaveStatus(b, status, mv) {
@@ -293,7 +297,7 @@ function canHaveStatus(b, status, mv) {
     case 'brn': return !t.includes('Fire') && b.ability !== 'damp_coat' && b.ability !== 'inferno_core';
     case 'psn': return !t.includes('Poison') && !t.includes('Steel') && b.ability !== 'antitoxin' && b.ability !== 'verdant_core';
     case 'par': return !t.includes('Electric') && b.ability !== 'loose_joints' && b.ability !== 'storm_core';
-    case 'slp': return b.ability !== 'restless';
+    case 'slp': return b.ability !== 'restless' && b.ability !== 'lunar_core';
     case 'frz': return !t.includes('Ice') && b.ability !== 'warm_core' && b.ability !== 'frost_core';
     default: return false;
   }
@@ -384,6 +388,7 @@ export function calcDamage(user, target, mv, eff, roll, crit) {
   if (user.status === 'brn' && mv.cat !== 'magic' && user.ability !== 'grit') dmg = Math.floor(dmg / 2);
   if (target.ability === 'blubber' && (mv.type === 'Fire' || mv.type === 'Ice')) dmg = Math.floor(dmg / 2);
   if (target.ability === 'quake_core' && mv.cat === 'melee') dmg = Math.floor(dmg * 0.75);
+  if (target.ability === 'void_core' && mv.cat === 'ranged') dmg = Math.floor(dmg / 2);
   if (target.ability === 'iron_hide' && mv.cat === 'melee') dmg = Math.floor(dmg * 0.75);
   if (target.ability === 'bulwark' && mv.cat === 'ranged') dmg = Math.floor(dmg * 0.75);
   if (target.ability === 'mirror_scale' && mv.cat === 'magic') dmg = Math.floor(dmg * 0.75);
@@ -412,9 +417,9 @@ export function moveEffectiveness(mv, target) {
 }
 
 function hitChance(user, target, mv) {
-  if (mv.acc == null) return 1;
   const stage = clamp(user.stages.acc - target.stages.eva, -6, 6);
-  return Math.min(1, (mv.acc / 100) * accMul(stage));
+  const base = mv.acc == null ? 1 : Math.min(1, (mv.acc / 100) * accMul(stage));
+  return target.ability === 'mist_core' ? base * 0.8 : base; // one attack in five slips through the mist
 }
 
 function executeMove(state, i, action, events, rng) {
@@ -483,6 +488,14 @@ function executeMove(state, i, action, events, rng) {
 
   const drain = moveFx(mv, 'drain');
   if (drain && total > 0) healBattler(state, i, Math.max(1, total * drain.r), events, 'drain');
+  if (user.ability === 'vital_core' && mv.flags.includes('contact') && total > 0 && user.hp < user.maxHp) {
+    events.push({ t: 'ability', side: i, name: user.name, ability: abilityName(user.ability) });
+    healBattler(state, i, Math.max(1, total / 4), events, 'drain');
+  }
+  if (target.ability === 'resonant_core' && mv.cat === 'magic' && total > 0 && !user.fainted) {
+    events.push({ t: 'ability', side: foeSide, name: target.name, ability: abilityName(target.ability) });
+    hurtBattler(state, i, Math.max(1, total / 4), events, 'thorns');
+  }
   const recoil = moveFx(mv, 'recoil');
   if (recoil && total > 0 && user.ability !== 'thick_skull') hurtBattler(state, i, Math.max(1, total * recoil.r), events, 'recoil');
   if (mv.struggle) hurtBattler(state, i, Math.max(1, user.maxHp / 4), events, 'struggle');
@@ -513,6 +526,9 @@ function contactEffects(state, i, events, rng) {
   if (ab === 'thorn_hide') {
     events.push({ t: 'ability', side: foeSide, name: target.name, ability: abilityName(ab) });
     hurtBattler(state, i, Math.max(1, user.maxHp / 8), events, 'thorns');
+  } else if (ab === 'corrosion_core' && user.stages.meleeDef > -6) {
+    events.push({ t: 'ability', side: foeSide, name: target.name, ability: abilityName(ab) });
+    changeStages(state, i, { meleeDef: -1 }, events, true);
   } else if (ab === 'frost_core' && rng.chance(0.3) && user.stages.spe > -6) {
     events.push({ t: 'ability', side: foeSide, name: target.name, ability: abilityName(ab) });
     changeStages(state, i, { spe: -1 }, events, true);

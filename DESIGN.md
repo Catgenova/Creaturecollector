@@ -29,7 +29,7 @@ src/data/rigs.js      class skeletons: slot lists, draw trees, sockets each part
 src/data/parts/       the part library: one folder per class (eighteen, mammal/ through spirit/),
                       shared builders (_builders.js), drawing DSL (_dsl.js), registry (index.js)
 src/data/species.js   base species recipes
-src/data/elements.js  Elementals: the eight elements, their core abilities and one SVG filter each
+src/data/elements.js  Elementals: the fourteen elements, their core abilities and one SVG filter each
 src/creature/         genome (schema, rolls, codes), palette, render (SVG)
 src/game/             world (map generation and content), journey (rules), party (members, xp), save
 src/ui/               dom helpers, the overworld screen, the creature sheet, the fight view, app shell (main.js = build entry)
@@ -266,7 +266,7 @@ events back, so a battle is replayable from its start state and action log.
   debuff or self buff; draining; each point of positive priority). Status
   moves: sleep or freeze 10, other major statuses 15, heals 10, sharp stat
   changes (±2, three stats, accuracy or evasion) 20, ordinary ones 30.
-- **Abilities** (`src/data/abilities.js`, 42 plus the eight Elemental cores):
+- **Abilities** (`src/data/abilities.js`, 42 plus the fourteen Elemental cores):
   entry (Menace, Quick Start), end of turn (Momentum, Regrowth), damage
   modifiers (Purebred, Finesse, Grit, Blubber, the eight type Hearts that
   surge at a third HP, Iron Hide / Bulwark / Mirror Scale that take three
@@ -556,7 +556,10 @@ announce it.
   dominant element with the share of slots that carry it (`pure` when all do).
   `validateGenome` keeps only known slots and elements, so codes round-trip.
 - **Render.** Each element is exactly one animated `<filter>` (turbulence
-  displacement, glows, flicker, sparkle grain, smoke, halo, grit and rumble).
+  displacement, glows, flicker, sparkle grain, smoke, halo, grit and rumble;
+  the six later elements add rust mottling with falling flakes, a heartbeat
+  swell, a slow inverting swirl, an orbiting crescent, posterised facets with
+  travelling glints, and edges that erode and re-form).
   Parts with an aura are wrapped in `filter="url(#…-fx-<element>)"`; when
   every drawn slot shares one element the whole creature gets a single filter
   instead, which is what a wild Elemental costs to draw. Static renders and
@@ -572,7 +575,12 @@ announce it.
   each turn), Storm (paralysis immunity, Speed on entry), Frost (freeze
   immunity, contact chills Speed), Verdant (poison immunity, absorbs Grass),
   Umbral (lowers the foe's Magic Atk on entry), Radiant (immune to Dark), Quake
-  (Melee hits do three quarters).
+  (Melee hits do three quarters), Corrosion (contact lowers the attacker's
+  Melee Def), Vital (contact moves heal a quarter of their damage), Void
+  (Ranged hits do half), Lunar (sleep immunity, Magic Def on entry), Resonant
+  (Magic hits reflect a quarter of their damage) and Mist (one attack in five
+  misses). The roll favours an element that shares a type with the species
+  two times in three.
 - **UI.** The encounter card announces "Fire Elemental!" with the element's
   glow, cards and sheets carry a "◆ Fire Elemental" badge, and the creature sheet
   has a preview selector so any creature can be seen as any Elemental

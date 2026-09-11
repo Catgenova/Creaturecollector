@@ -51,6 +51,12 @@ export const ABILITIES = {
   umbral_core: { name: 'Umbral Core', desc: 'Dark and Ghost moves hit 1.3x harder. Lowers the foe\u2019s Magic Atk on entry.' },
   radiant_core: { name: 'Radiant Core', desc: 'Fairy and Psychic moves hit 1.3x harder. Immune to Dark moves.' },
   quake_core: { name: 'Quake Core', desc: 'Ground and Rock moves hit 1.3x harder. Takes three quarters damage from Melee moves.' },
+  corrosion_core: { name: 'Corrosion Core', desc: 'Steel and Poison moves hit 1.3x harder. Contact lowers the attacker\u2019s Melee Def.' },
+  vital_core: { name: 'Vital Core', desc: 'Dark and Fighting moves hit 1.3x harder. Contact moves heal a quarter of the damage they deal.' },
+  void_core: { name: 'Void Core', desc: 'Ghost and Psychic moves hit 1.3x harder. Takes half damage from Ranged moves.' },
+  lunar_core: { name: 'Lunar Core', desc: 'Dark and Fairy moves hit 1.3x harder. Cannot be put to sleep; Magic Def rises on entry.' },
+  resonant_core: { name: 'Resonant Core', desc: 'Rock and Psychic moves hit 1.3x harder. Magic moves that hit it deal a quarter of their damage back to the attacker.' },
+  mist_core: { name: 'Mist Core', desc: 'Water and Ghost moves hit 1.3x harder. One attack in five misses it.' },
 };
 
 export const ABILITY_IDS = Object.keys(ABILITIES);
