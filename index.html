@@ -9199,28 +9199,8 @@ function freshSeed() {
   return s;
 }
 
-// ---- src/ui/state.js ----
-// Cross-screen state. In-memory for now; the save system (Phase 4) will persist it.
-const fusionPool = { seed: null, genomes: [] };
-
-const POOL_MAX = 24;
-
-/** Add a genome to the fusion pool, newest first. Returns false if it was already there. */
-function addToPool(g) {
-  if (fusionPool.genomes.some((x) => x === g || (x.seed === g.seed && x.name === g.name && x.gen === g.gen))) return false;
-  fusionPool.genomes.unshift(g);
-  if (fusionPool.genomes.length > POOL_MAX) fusionPool.genomes.length = POOL_MAX;
-  return true;
-}
-
-function removeFromPool(g) {
-  const i = fusionPool.genomes.indexOf(g);
-  if (i >= 0) fusionPool.genomes.splice(i, 1);
-}
-
 // ---- src/ui/lab.js ----
 // Creature Lab: roll seeded creatures, inspect genes, copy and load creature codes.
-
 
 
 
@@ -9369,12 +9349,6 @@ function openSheet(g, sheetOpts = {}) {
     h('div', { class: 'row' },
       h('button', { class: 'btn', onclick: () => { facing = facing === 'right' ? 'left' : 'right'; redraw(); } }, 'Flip'),
       h('button', { class: 'btn', onclick: async () => toast((await copyText(code)) ? 'Code copied' : 'Copy failed, select the text below') }, 'Copy code'),
-      h('button', { class: 'btn', onclick: () => {
-        toast(addToPool(g) ? 'Added to the fusion pool' : 'Already in the pool');
-        close();
-        if (location.hash === '#fusion') window.dispatchEvent(new CustomEvent('pool-changed'));
-        else location.hash = 'fusion';
-      } }, 'Fuse'),
       elementalOf(g) ? null : h('select', { class: 'btn elem-preview', title: 'Preview this creature as an Elemental (one wild creature in a thousand is born as one)', onchange: (e) => {
         const elem = e.target.value;
         shown = elem ? makeElemental(JSON.parse(JSON.stringify(g)), elem) : g;
@@ -9418,421 +9392,6 @@ function renderPartsScreen(root) {
       root.append(h('section', { class: 'slot-sec' }, h('h3', { class: 'sec' }, `${slotName(rigId, slot)} · ${parts.length}`), row));
     }
   }
-}
-
-// ---- src/creature/fusion.js ----
-// Fusion: two genomes in, one genome out, plus a report of what came from where.
-//
-// Heredity is diploid. For every slot the child draws one allele from each
-// parent at random; the allele with the higher dominance (plus a little noise)
-// is expressed and the other is carried. That keeps identities crisp across
-// generations and lets a grandparent's trait resurface.
-//
-// The "identity parent" is whichever parent supplied the expressed head (or the
-// body, for headless children). It gives the name prefix, the accent and eye
-// colours and the primary type. The other parent gives the suffix and the
-// secondary type. Base colours come from the "dominant parent", the one that
-// supplied more of the expressed parts, pulled part of the way toward the other,
-// so a child's coat matches the parts it mostly wears.
-
-
-
-
-
-
-
-
-
-
-
-const FUSE = {
-  dominanceNoise: 0.15,   // +/- added to each allele's dominance before comparing
-  expressedMutation: 0.03,
-  carriedMutation: 0.06,
-  bodyMutation: 0.01,
-  paintSwap: 0.05,
-  paletteBlend: { c1: [0.1, 0.35], c2: [0.2, 0.6] }, // how far each base colour is pulled toward the other parent
-  paletteBlendVisible: 0.3,  // above this the report calls the colour a blend rather than one parent's
-  elementalAbility: 0.5,  // chance an Elemental parent's core ability passes to the child
-  genBonusPerGen: 4,      // bst bonus per generation
-  genBonusCap: 5,         // generations that count toward the bonus
-  maxLineage: 16,
-};
-
-function dominanceOf(id) {
-  const p = getPart(id);
-  return p ? p.dom : 0.3;
-}
-
-function fitsBody(id, kind) {
-  const p = getPart(id);
-  return Boolean(p) && partFits(p, kind);
-}
-
-function nudgeColor(c, rng) {
-  return [c[0] + rng.gauss() * 3, clamp01((c[1] + rng.gauss() * 2) / 100) * 100, clamp01((c[2] + rng.gauss() * 2) / 100) * 100].map(round3);
-}
-
-function namePartsOf(g) {
-  return Array.isArray(g.nameParts) && g.nameParts.length === 2 ? g.nameParts : splitName(g.name);
-}
-
-/** Can these two fuse? Only creatures of the same class can. Returns { ok, reason }. */
-function canFuse(a, b) {
-  if (!a || !b) return { ok: false, reason: 'Pick two creatures.' };
-  if (a === b) return { ok: false, reason: 'Pick two different creatures.' };
-  const ca = cladeOf(a), cb = cladeOf(b);
-  if (ca !== cb) return { ok: false, reason: `${cladeName(ca)}s only fuse with ${cladeName(ca)}s.` };
-  if (rigOf(a) !== rigOf(b)) return { ok: false, reason: 'These two were built on different skeletons and cannot fuse.' };
-  return { ok: true, reason: '' };
-}
-
-/**
- * Fuse a and b. Deterministic for a given rng seed. Throws if the classes differ.
- * Returns { child, report } where report = { from: {slot: 0|1}, mutated: {slot: true},
- *   identity: 0|1, dominant: 0|1, palette: {c1|c2|c3|eye: 0|1|'blend'}, types: {primary: 0|1, secondary: 0|1|null} }.
- */
-function fuse(a, b, rng) {
-  const compat = canFuse(a, b);
-  if (!compat.ok) throw new Error(compat.reason);
-  const clade = cladeOf(a);
-  const rig = rigOf(a);
-  const rParts = rng.fork('parts');
-  const rMut = rng.fork('mutation');
-  const rPaint = rng.fork('paint');
-  const rPal = rng.fork('palette');
-  const rTraits = rng.fork('traits');
-  const rStats = rng.fork('stats');
-  const rAbility = rng.fork('ability');
-  const parents = [a, b];
-
-  const draw = (slot) => {
-    const fromA = a.parts[slot][rParts.int(2)];
-    const fromB = b.parts[slot][rParts.int(2)];
-    const dA = dominanceOf(fromA) + rParts.range(-FUSE.dominanceNoise, FUSE.dominanceNoise);
-    const dB = dominanceOf(fromB) + rParts.range(-FUSE.dominanceNoise, FUSE.dominanceNoise);
-    return dA >= dB ? { alleles: [fromA, fromB], from: 0 } : { alleles: [fromB, fromA], from: 1 };
-  };
-
-  const parts = {}, from = {}, mutated = {};
-  const bodyDraw = draw('body');
-  parts.body = bodyDraw.alleles;
-  from.body = bodyDraw.from;
-  if (rMut.chance(FUSE.bodyMutation)) { const nb = randomPartId(rig, 'body', getPart(parts.body[0]).kind, rMut); if (nb) { parts.body = [nb, parts.body[0]]; mutated.body = true; } }
-  const bodyKind = getPart(parts.body[0]).kind;
-
-  for (const slot of slotsFor(rig)) {
-    if (slot === 'body') continue;
-    const d = draw(slot);
-    let [e, c] = d.alleles;
-    let f = d.from;
-    if (!fitsBody(e, bodyKind) && fitsBody(c, bodyKind)) { [e, c] = [c, e]; f = 1 - f; }
-    if (rMut.chance(FUSE.expressedMutation)) { const ne = randomPartId(rig, slot, bodyKind, rMut); if (ne) { c = e; e = ne; mutated[slot] = true; } }
-    else if (rMut.chance(FUSE.carriedMutation)) c = randomPartId(rig, slot, bodyKind, rMut) || c;
-    parts[slot] = [e, c];
-    from[slot] = f;
-  }
-
-  // Linked slots inherit together so the class silhouette stays coherent.
-  const linked = getRig(rig).linked || (CLADES[clade] && CLADES[clade].linked) || [];
-  for (const group of linked) {
-    const lead = group[0];
-    if (from[lead] == null) continue;
-    for (const slot of group.slice(1)) {
-      if (from[slot] === from[lead] || mutated[slot]) continue;
-      const src = parents[from[lead]], other = parents[1 - from[lead]];
-      const want = src.parts[slot][0];
-      if (!fitsBody(want, bodyKind) && !getPart(want)?.none) continue;
-      parts[slot] = [want, other.parts[slot][0]];
-      from[slot] = from[lead];
-    }
-  }
-
-  // An Elemental's aura travels with the part it was expressed on; a mutated part is born plain.
-  const aura = {};
-  for (const slot of slotsFor(rig)) {
-    if (mutated[slot] || from[slot] == null) continue;
-    const src = parents[from[slot]];
-    if (src.aura && ELEMENTS[src.aura[slot]]) aura[slot] = src.aura[slot];
-  }
-
-  const headPart = parts.head ? getPart(parts.head[0]) : null;
-  const identity = headPart && !headPart.none && !mutated.head ? from.head : from.body;
-  const P1 = parents[identity], P2 = parents[1 - identity];
-
-  // Paint travels with the part that was expressed.
-  const paint = {};
-  const swappable = swappableSlotsFor(rig);
-  for (const slot of paintSlotsFor(rig)) {
-    const src = parents[from[slot] == null ? identity : from[slot]];
-    paint[slot] = (src.paint && PAINT_PERMS[src.paint[slot]]) ? src.paint[slot] : 0;
-    if (swappable.includes(slot) && rPaint.chance(FUSE.paintSwap)) paint[slot] = rPaint.int(PAINT_PERMS.length);
-  }
-
-  // Palette: the dominant parent (the one that supplied more of the expressed parts; the face's
-  // parent on a tie) sets the base colours, each pulled part of the way toward the other parent
-  // so the child is never a straight copy. The accent and the eyes travel with the face, so the
-  // head keeps the trim it was drawn with. Then the accent is pushed clear of the base colours.
-  const counted = slotsFor(rig).filter((slot) => !mutated[slot] && from[slot] != null);
-  const identityShare = counted.filter((slot) => from[slot] === identity).length;
-  const dominant = identityShare * 2 >= counted.length ? identity : 1 - identity;
-  const D = parents[dominant], O = parents[1 - dominant];
-  let palette = {};
-  const palFrom = {};
-  for (const k of ['c1', 'c2']) {
-    const [lo, hi] = FUSE.paletteBlend[k];
-    const t = rPal.range(lo, hi);
-    palette[k] = nudgeColor(blendColor(D.palette[k], O.palette[k], t), rPal);
-    palFrom[k] = t > FUSE.paletteBlendVisible ? 'blend' : dominant;
-  }
-  palette.c3 = nudgeColor(P1.palette.c3, rPal); palFrom.c3 = identity;
-  palette.eye = P1.palette.eye.slice(); palFrom.eye = identity;
-  palette = harmonizePalette(palette);
-
-  const traits = {};
-  for (const k of TRAIT_KEYS) {
-    const t = clamp01(0.5 + rTraits.gauss() * 0.15);
-    const av = a.traits && a.traits[k] != null ? a.traits[k] : 0.5;
-    const bv = b.traits && b.traits[k] != null ? b.traits[k] : 0.5;
-    traits[k] = round3(clamp01(lerp(av, bv, t) + rTraits.gauss() * 0.04));
-  }
-
-  const primary = P1.types[0];
-  let secondary = null, secondaryFrom = null;
-  const candidates = [[P2.types[0], 1 - identity], [P2.types[1], 1 - identity], [P1.types[1], identity]];
-  for (const [t, src] of candidates) if (t && t !== primary) { secondary = t; secondaryFrom = src; break; }
-
-  const wa = normalizeWeights(a.stats), wb = normalizeWeights(b.stats);
-  const stats = {};
-  for (const k of STAT_KEYS) stats[k] = round3((wa[k] + wb[k]) / 2);
-  const gen = Math.max(a.gen || 0, b.gen || 0) + 1;
-  const bst = Math.round(((a.bst || 400) + (b.bst || 400)) / 2 + Math.min(gen, FUSE.genBonusCap) * FUSE.genBonusPerGen);
-  const vigor = {};
-  for (const k of STAT_KEYS) {
-    const av = a.vigor && a.vigor[k] != null ? a.vigor[k] : 0.5;
-    const bv = b.vigor && b.vigor[k] != null ? b.vigor[k] : 0.5;
-    const base = rStats.chance(0.6) ? Math.max(av, bv) : (av + bv) / 2;
-    vigor[k] = round3(clamp01(base + rStats.gauss() * 0.03));
-  }
-
-  // Core abilities (born on Elementals) each get a chance to pass down; otherwise the usual
-  // draw between the parents' ordinary abilities, falling back to the identity species' own.
-  let ability = null;
-  for (const p of [P1, P2]) if (isCoreAbility(p.ability) && rAbility.chance(FUSE.elementalAbility)) { ability = p.ability; break; }
-  if (!ability) {
-    const plain = [P1, P2].filter((p) => !isCoreAbility(p.ability)).map((p) => p.ability);
-    if (plain.length === 2) ability = rAbility.chance(0.6) ? plain[0] : plain[1];
-    else if (plain.length === 1) ability = plain[0];
-    else { const sp = speciesOf(P1) || speciesOf(P2); ability = (sp && sp.abilities && sp.abilities[0]) || 'lucky_streak'; }
-  }
-
-  const nameParts = [namePartsOf(P1)[0], namePartsOf(P2)[1]];
-  const lineage = [...(a.lineage || []), ...(b.lineage || [])].filter((x, i, arr) => arr.indexOf(x) === i).slice(-FUSE.maxLineage);
-
-  const child = {
-    v: GENOME_VERSION,
-    seed: rng.seed,
-    species: null,
-    clade,
-    rig,
-    name: joinNameParts(nameParts[0], nameParts[1]),
-    nameParts,
-    gen,
-    shiny: Boolean(P1.shiny),
-    types: [primary, secondary],
-    parts, paint, palette, traits, stats, vigor, bst, lineage,
-    parents: [a.name, b.name],
-    learnset: fuseLearnsets(a, b, [primary, secondary]),
-    ability,
-  };
-  if (Object.keys(aura).length) child.aura = aura;
-  return {
-    child,
-    report: { from, mutated, identity, dominant, palette: palFrom, types: { primary: identity, secondary: secondaryFrom } },
-  };
-}
-
-/**
- * A child's learnset: both parents' moves that match the child's types (Normal
- * always counts), lowest level wins on duplicates, padded with universal moves
- * when thin, capped at twelve keeping the two earliest and the ten latest.
- */
-function fuseLearnsets(a, b, types) {
-  const ok = new Set(['Normal', ...types.filter(Boolean)]);
-  const byId = new Map();
-  for (const [lvl, id] of [...learnsetOf(a), ...learnsetOf(b)]) {
-    const mv = getMove(id);
-    if (!mv || !ok.has(mv.type)) continue;
-    if (!byId.has(id) || byId.get(id) > lvl) byId.set(id, lvl);
-  }
-  for (const [lvl, id] of UNIVERSAL_LEARNSET) if (byId.size < 6 && !byId.has(id)) byId.set(id, lvl);
-  const list = [...byId.entries()].map(([id, lvl]) => [lvl, id]).sort((p, q) => p[0] - q[0] || (p[1] < q[1] ? -1 : 1));
-  return list.length <= 12 ? list : [...list.slice(0, 2), ...list.slice(-10)];
-}
-
-/** Fuse a chain: start with `first`, then fold in each partner in turn. Returns every generation. */
-function fuseChain(first, partners, rng) {
-  const out = [first];
-  let cur = first;
-  partners.forEach((p, i) => {
-    if (!canFuse(cur, p).ok) return;
-    cur = fuse(cur, p, rng.fork(`gen${i}`)).child;
-    out.push(cur);
-  });
-  return out;
-}
-
-// ---- src/ui/fusion.js ----
-// Fusion Lab: pick two creatures from a pool, fuse them, read the inheritance
-// report, feed children back into the pool, and stress-test five generations.
-
-
-
-
-
-
-
-
-
-
-
-
-const fs = { a: null, b: null, child: null, report: null, rerolls: 0, chain: null, next: 'a' };
-
-function seedPool(seed) {
-  fusionPool.seed = seed;
-  fusionPool.genomes = [];
-  for (let i = 0; i < 8; i++) fusionPool.genomes.push(randomGenome(makeRng(`${seed}:pool:${i}`)));
-  Object.assign(fs, { a: null, b: null, child: null, report: null, chain: null, rerolls: 0, next: 'a' });
-}
-
-function badge(who, extra) {
-  if (who === 'blend') return h('span', { class: 'badge blend' }, 'A+B');
-  return h('span', { class: `badge ${who === 0 ? 'a' : 'b'}` }, who === 0 ? 'A' : 'B', extra || null);
-}
-
-let poolListener = null;
-
-function renderFusionScreen(root) {
-  if (!fusionPool.genomes.length) seedPool('FUSE');
-  else if (!fusionPool.seed) fusionPool.seed = 'FUSE';
-  clear(root);
-
-  const rerender = () => renderFusionScreen(root);
-  if (poolListener) window.removeEventListener('pool-changed', poolListener);
-  poolListener = () => { if (root.isConnected) rerender(); else window.removeEventListener('pool-changed', poolListener); };
-  window.addEventListener('pool-changed', poolListener);
-
-  const pick = (g) => {
-    const other = fs.a && fs.a !== g ? fs.a : fs.b && fs.b !== g ? fs.b : null;
-    if (other && g !== fs.a && g !== fs.b && !canFuse(other, g).ok) { toast(canFuse(other, g).reason); return; }
-    if (fs.a === g) { fs.a = null; fs.next = 'a'; }
-    else if (fs.b === g) { fs.b = null; fs.next = 'b'; }
-    else if (!fs.a) { fs.a = g; fs.next = fs.b ? 'a' : 'b'; }
-    else if (!fs.b) { fs.b = g; fs.next = 'a'; }
-    else if (fs.next === 'a') { fs.a = g; fs.next = 'b'; }
-    else { fs.b = g; fs.next = 'a'; }
-    rerender();
-  };
-
-  const slot = (who, g) => h('button', { class: `pslot${g ? ' filled' : ''}`, type: 'button', onclick: () => { if (g) pick(g); } },
-    h('span', { class: 'tag' }, `PARENT ${who}`),
-    g ? [creatureEl(g, { size: 150, animate: false }), h('b', {}, g.name), typeChips(g.types), h('span', { class: 'clade' }, cladeName(cladeOf(g)))] : h('span', { class: 'hint' }, 'Tap a creature in the pool'));
-
-  const doFuse = () => {
-    const rng = makeRng(`${fs.a.seed}|${fs.a.name}+${fs.b.seed}|${fs.b.name}#${fs.rerolls}`);
-    const { child, report } = fuse(fs.a, fs.b, rng);
-    fs.child = child; fs.report = report; fs.chain = null;
-    rerender();
-    setTimeout(() => { const r = root.querySelector('.result'); if (r) r.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 0);
-  };
-
-  root.append(
-    h('div', { class: 'parents' }, slot('A', fs.a), h('div', { class: 'times' }, '×'), slot('B', fs.b)),
-    h('button', { class: 'btn primary fuse-btn', type: 'button', disabled: !(fs.a && fs.b), onclick: () => { fs.rerolls = 0; doFuse(); } }, 'Fuse'),
-  );
-
-  if (fs.child) root.append(resultPanel(fs.child, fs.report, fs.a, fs.b, {
-    reroll: () => { fs.rerolls++; doFuse(); },
-    breed: () => {
-      const rng = makeRng(`${fs.child.seed}:chain`);
-      const partners = [];
-      const kin = fusionPool.genomes.filter((g) => canFuse(fs.child, g).ok);
-      for (let i = 0; i < 5; i++) partners.push(kin.length ? rng.pick(kin) : randomGenome(rng.fork(`kin${i}`), { clade: cladeOf(fs.child) }));
-      fs.chain = fuseChain(fs.child, partners, rng);
-      rerender();
-      setTimeout(() => { const c = root.querySelector('.chain'); if (c) c.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); }, 0);
-    },
-    chain: fs.chain,
-  }));
-
-  // pool
-  const codeInput = h('input', { class: 'seed code-in', type: 'text', placeholder: 'Paste a creature code to add it', 'aria-label': 'Creature code', autocapitalize: 'off', autocomplete: 'off', spellcheck: 'false' });
-  const poolGrid = h('div', { class: 'pool' });
-  const anchor = fs.a || fs.b;
-  for (const g of fusionPool.genomes) {
-    const incompatible = anchor && g !== fs.a && g !== fs.b && !canFuse(anchor, g).ok;
-    const cls = g === fs.a ? ' is-a' : g === fs.b ? ' is-b' : incompatible ? ' is-off' : '';
-    poolGrid.append(h('button', { class: `pcard${cls}`, type: 'button', onclick: () => pick(g), title: incompatible ? canFuse(anchor, g).reason : '' },
-      g === fs.a ? h('span', { class: 'sel badge a' }, 'A') : g === fs.b ? h('span', { class: 'sel badge b' }, 'B') : null,
-      h('span', { class: 'gen' }, `${g.gen ? `gen ${g.gen} · ` : ''}${cladeName(cladeOf(g))}`),
-      creatureEl(g, { size: 104, animate: false }),
-      h('span', {}, g.name)));
-  }
-  root.append(
-    ...section(`Pool · ${fusionPool.genomes.length}`,
-      h('div', { class: 'toolbar' },
-        h('button', { class: 'btn', type: 'button', onclick: () => { seedPool(freshSeed()); rerender(); } }, 'New pool'),
-        h('button', { class: 'btn', type: 'button', onclick: () => { for (let i = 0; i < 4; i++) addToPool(randomGenome(makeRng(freshSeed()))); rerender(); } }, '+4 wild')),
-      h('div', { class: 'toolbar' },
-        codeInput,
-        h('button', { class: 'btn', type: 'button', onclick: () => {
-          try { addToPool(decodeGenome(codeInput.value)); codeInput.value = ''; rerender(); } catch (e) { toast(e.message); }
-        } }, 'Add')),
-      h('p', { class: 'hint' }, 'Tap to choose parents. Only creatures of the same class can fuse: mammals with mammals, birds with birds. Tap a chosen one again to clear it.'),
-      poolGrid),
-  );
-}
-
-function resultPanel(child, report, a, b, actions) {
-  const parents = [a, b];
-  const parts = resolveParts(child);
-  const rig = rigOf(child);
-  const rows = [];
-  for (const slot of slotsFor(rig)) {
-    const p = parts[slot];
-    rows.push(h('span', {}, slotName(rig, slot)), h('span', {}, p ? p.name : 'None'),
-      h('span', {}, report.mutated[slot] ? h('span', { class: 'badge m' }, 'mutation') : badge(report.from[slot])));
-  }
-  const palRows = ['c1', 'c2', 'c3', 'eye'].map((k) => h('div', { class: 'sw-row' },
-    h('span', { class: 'sw small', style: { background: swatchCss(child.palette[k]) } }),
-    h('span', {}, { c1: 'Primary', c2: 'Secondary', c3: 'Accent', eye: 'Eyes' }[k]), badge(report.palette[k])));
-  const typeRow = h('div', { class: 'sw-row' }, typeChips([child.types[0]]), badge(report.types.primary),
-    child.types[1] ? [typeChips([child.types[1]]), badge(report.types.secondary)] : h('span', { class: 'hint', style: { margin: 0 } }, 'no second type'));
-
-  const panel = h('div', { class: 'result' },
-    h('div', { class: 'sheet-head' }, h('h2', {}, child.name, child.shiny ? ' ✦' : ''), typeChips(child.types), styleChip(child), elementalBadge(child)),
-    h('p', { class: 'meta' }, `${cladeName(cladeOf(child))} · gen ${child.gen} · ${a.name} × ${b.name} · face from ${parents[report.identity].name} · coat from ${parents[report.dominant].name}`),
-    h('div', { class: 'hero' }, creatureEl(child, { size: 240, fit: true })),
-    h('div', { class: 'row wrap' },
-      h('button', { class: 'btn', type: 'button', onclick: actions.reroll }, 'Re-roll'),
-      h('button', { class: 'btn', type: 'button', onclick: () => { toast(addToPool(child) ? 'Added to pool' : 'Already in pool'); window.dispatchEvent(new CustomEvent('pool-changed')); } }, 'Add to pool'),
-      h('button', { class: 'btn', type: 'button', onclick: () => openSheet(child) }, 'Details'),
-      h('button', { class: 'btn', type: 'button', onclick: async () => toast((await copyText(encodeGenome(child))) ? 'Code copied' : 'Copy failed') }, 'Copy code')),
-    ...section('Inheritance', h('div', { class: 'inherit' }, rows)),
-    ...section('Colours', h('div', { class: 'stack' }, palRows)),
-    ...section('Types', typeRow),
-    ...section('Stability test',
-      h('p', { class: 'hint' }, 'Breed this child with random pool members for five more generations to check that fusions stay coherent.'),
-      h('button', { class: 'btn', type: 'button', onclick: actions.breed }, 'Breed 5 generations')),
-  );
-  if (actions.chain) {
-    const strip = h('div', { class: 'chain' });
-    actions.chain.forEach((g, i) => strip.append(h('button', { class: 'pcard', type: 'button', onclick: () => openSheet(g) },
-      h('span', { class: 'gen' }, `gen ${g.gen}`), creatureEl(g, { size: 120, animate: false }), h('span', {}, g.name))));
-    panel.append(strip);
-  }
-  return panel;
 }
 
 // ---- src/battle/stats.js ----
@@ -10980,6 +10539,268 @@ function showFightResult(f) {
     buttons.length ? h('div', { class: 'row wrap' }, buttons) : null));
 }
 
+// ---- src/creature/fusion.js ----
+// Fusion: two genomes in, one genome out, plus a report of what came from where.
+//
+// Heredity is diploid. For every slot the child draws one allele from each
+// parent at random; the allele with the higher dominance (plus a little noise)
+// is expressed and the other is carried. That keeps identities crisp across
+// generations and lets a grandparent's trait resurface.
+//
+// The "identity parent" is whichever parent supplied the expressed head (or the
+// body, for headless children). It gives the name prefix, the accent and eye
+// colours and the primary type. The other parent gives the suffix and the
+// secondary type. Base colours come from the "dominant parent", the one that
+// supplied more of the expressed parts, pulled part of the way toward the other,
+// so a child's coat matches the parts it mostly wears.
+
+
+
+
+
+
+
+
+
+
+
+const FUSE = {
+  dominanceNoise: 0.15,   // +/- added to each allele's dominance before comparing
+  expressedMutation: 0.03,
+  carriedMutation: 0.06,
+  bodyMutation: 0.01,
+  paintSwap: 0.05,
+  paletteBlend: { c1: [0.1, 0.35], c2: [0.2, 0.6] }, // how far each base colour is pulled toward the other parent
+  paletteBlendVisible: 0.3,  // above this the report calls the colour a blend rather than one parent's
+  elementalAbility: 0.5,  // chance an Elemental parent's core ability passes to the child
+  genBonusPerGen: 4,      // bst bonus per generation
+  genBonusCap: 5,         // generations that count toward the bonus
+  maxLineage: 16,
+};
+
+function dominanceOf(id) {
+  const p = getPart(id);
+  return p ? p.dom : 0.3;
+}
+
+function fitsBody(id, kind) {
+  const p = getPart(id);
+  return Boolean(p) && partFits(p, kind);
+}
+
+function nudgeColor(c, rng) {
+  return [c[0] + rng.gauss() * 3, clamp01((c[1] + rng.gauss() * 2) / 100) * 100, clamp01((c[2] + rng.gauss() * 2) / 100) * 100].map(round3);
+}
+
+function namePartsOf(g) {
+  return Array.isArray(g.nameParts) && g.nameParts.length === 2 ? g.nameParts : splitName(g.name);
+}
+
+/** Can these two fuse? Only creatures of the same class can. Returns { ok, reason }. */
+function canFuse(a, b) {
+  if (!a || !b) return { ok: false, reason: 'Pick two creatures.' };
+  if (a === b) return { ok: false, reason: 'Pick two different creatures.' };
+  const ca = cladeOf(a), cb = cladeOf(b);
+  if (ca !== cb) return { ok: false, reason: `${cladeName(ca)}s only fuse with ${cladeName(ca)}s.` };
+  if (rigOf(a) !== rigOf(b)) return { ok: false, reason: 'These two were built on different skeletons and cannot fuse.' };
+  return { ok: true, reason: '' };
+}
+
+/**
+ * Fuse a and b. Deterministic for a given rng seed. Throws if the classes differ.
+ * Returns { child, report } where report = { from: {slot: 0|1}, mutated: {slot: true},
+ *   identity: 0|1, dominant: 0|1, palette: {c1|c2|c3|eye: 0|1|'blend'}, types: {primary: 0|1, secondary: 0|1|null} }.
+ */
+function fuse(a, b, rng) {
+  const compat = canFuse(a, b);
+  if (!compat.ok) throw new Error(compat.reason);
+  const clade = cladeOf(a);
+  const rig = rigOf(a);
+  const rParts = rng.fork('parts');
+  const rMut = rng.fork('mutation');
+  const rPaint = rng.fork('paint');
+  const rPal = rng.fork('palette');
+  const rTraits = rng.fork('traits');
+  const rStats = rng.fork('stats');
+  const rAbility = rng.fork('ability');
+  const parents = [a, b];
+
+  const draw = (slot) => {
+    const fromA = a.parts[slot][rParts.int(2)];
+    const fromB = b.parts[slot][rParts.int(2)];
+    const dA = dominanceOf(fromA) + rParts.range(-FUSE.dominanceNoise, FUSE.dominanceNoise);
+    const dB = dominanceOf(fromB) + rParts.range(-FUSE.dominanceNoise, FUSE.dominanceNoise);
+    return dA >= dB ? { alleles: [fromA, fromB], from: 0 } : { alleles: [fromB, fromA], from: 1 };
+  };
+
+  const parts = {}, from = {}, mutated = {};
+  const bodyDraw = draw('body');
+  parts.body = bodyDraw.alleles;
+  from.body = bodyDraw.from;
+  if (rMut.chance(FUSE.bodyMutation)) { const nb = randomPartId(rig, 'body', getPart(parts.body[0]).kind, rMut); if (nb) { parts.body = [nb, parts.body[0]]; mutated.body = true; } }
+  const bodyKind = getPart(parts.body[0]).kind;
+
+  for (const slot of slotsFor(rig)) {
+    if (slot === 'body') continue;
+    const d = draw(slot);
+    let [e, c] = d.alleles;
+    let f = d.from;
+    if (!fitsBody(e, bodyKind) && fitsBody(c, bodyKind)) { [e, c] = [c, e]; f = 1 - f; }
+    if (rMut.chance(FUSE.expressedMutation)) { const ne = randomPartId(rig, slot, bodyKind, rMut); if (ne) { c = e; e = ne; mutated[slot] = true; } }
+    else if (rMut.chance(FUSE.carriedMutation)) c = randomPartId(rig, slot, bodyKind, rMut) || c;
+    parts[slot] = [e, c];
+    from[slot] = f;
+  }
+
+  // Linked slots inherit together so the class silhouette stays coherent.
+  const linked = getRig(rig).linked || (CLADES[clade] && CLADES[clade].linked) || [];
+  for (const group of linked) {
+    const lead = group[0];
+    if (from[lead] == null) continue;
+    for (const slot of group.slice(1)) {
+      if (from[slot] === from[lead] || mutated[slot]) continue;
+      const src = parents[from[lead]], other = parents[1 - from[lead]];
+      const want = src.parts[slot][0];
+      if (!fitsBody(want, bodyKind) && !getPart(want)?.none) continue;
+      parts[slot] = [want, other.parts[slot][0]];
+      from[slot] = from[lead];
+    }
+  }
+
+  // An Elemental's aura travels with the part it was expressed on; a mutated part is born plain.
+  const aura = {};
+  for (const slot of slotsFor(rig)) {
+    if (mutated[slot] || from[slot] == null) continue;
+    const src = parents[from[slot]];
+    if (src.aura && ELEMENTS[src.aura[slot]]) aura[slot] = src.aura[slot];
+  }
+
+  const headPart = parts.head ? getPart(parts.head[0]) : null;
+  const identity = headPart && !headPart.none && !mutated.head ? from.head : from.body;
+  const P1 = parents[identity], P2 = parents[1 - identity];
+
+  // Paint travels with the part that was expressed.
+  const paint = {};
+  const swappable = swappableSlotsFor(rig);
+  for (const slot of paintSlotsFor(rig)) {
+    const src = parents[from[slot] == null ? identity : from[slot]];
+    paint[slot] = (src.paint && PAINT_PERMS[src.paint[slot]]) ? src.paint[slot] : 0;
+    if (swappable.includes(slot) && rPaint.chance(FUSE.paintSwap)) paint[slot] = rPaint.int(PAINT_PERMS.length);
+  }
+
+  // Palette: the dominant parent (the one that supplied more of the expressed parts; the face's
+  // parent on a tie) sets the base colours, each pulled part of the way toward the other parent
+  // so the child is never a straight copy. The accent and the eyes travel with the face, so the
+  // head keeps the trim it was drawn with. Then the accent is pushed clear of the base colours.
+  const counted = slotsFor(rig).filter((slot) => !mutated[slot] && from[slot] != null);
+  const identityShare = counted.filter((slot) => from[slot] === identity).length;
+  const dominant = identityShare * 2 >= counted.length ? identity : 1 - identity;
+  const D = parents[dominant], O = parents[1 - dominant];
+  let palette = {};
+  const palFrom = {};
+  for (const k of ['c1', 'c2']) {
+    const [lo, hi] = FUSE.paletteBlend[k];
+    const t = rPal.range(lo, hi);
+    palette[k] = nudgeColor(blendColor(D.palette[k], O.palette[k], t), rPal);
+    palFrom[k] = t > FUSE.paletteBlendVisible ? 'blend' : dominant;
+  }
+  palette.c3 = nudgeColor(P1.palette.c3, rPal); palFrom.c3 = identity;
+  palette.eye = P1.palette.eye.slice(); palFrom.eye = identity;
+  palette = harmonizePalette(palette);
+
+  const traits = {};
+  for (const k of TRAIT_KEYS) {
+    const t = clamp01(0.5 + rTraits.gauss() * 0.15);
+    const av = a.traits && a.traits[k] != null ? a.traits[k] : 0.5;
+    const bv = b.traits && b.traits[k] != null ? b.traits[k] : 0.5;
+    traits[k] = round3(clamp01(lerp(av, bv, t) + rTraits.gauss() * 0.04));
+  }
+
+  const primary = P1.types[0];
+  let secondary = null, secondaryFrom = null;
+  const candidates = [[P2.types[0], 1 - identity], [P2.types[1], 1 - identity], [P1.types[1], identity]];
+  for (const [t, src] of candidates) if (t && t !== primary) { secondary = t; secondaryFrom = src; break; }
+
+  const wa = normalizeWeights(a.stats), wb = normalizeWeights(b.stats);
+  const stats = {};
+  for (const k of STAT_KEYS) stats[k] = round3((wa[k] + wb[k]) / 2);
+  const gen = Math.max(a.gen || 0, b.gen || 0) + 1;
+  const bst = Math.round(((a.bst || 400) + (b.bst || 400)) / 2 + Math.min(gen, FUSE.genBonusCap) * FUSE.genBonusPerGen);
+  const vigor = {};
+  for (const k of STAT_KEYS) {
+    const av = a.vigor && a.vigor[k] != null ? a.vigor[k] : 0.5;
+    const bv = b.vigor && b.vigor[k] != null ? b.vigor[k] : 0.5;
+    const base = rStats.chance(0.6) ? Math.max(av, bv) : (av + bv) / 2;
+    vigor[k] = round3(clamp01(base + rStats.gauss() * 0.03));
+  }
+
+  // Core abilities (born on Elementals) each get a chance to pass down; otherwise the usual
+  // draw between the parents' ordinary abilities, falling back to the identity species' own.
+  let ability = null;
+  for (const p of [P1, P2]) if (isCoreAbility(p.ability) && rAbility.chance(FUSE.elementalAbility)) { ability = p.ability; break; }
+  if (!ability) {
+    const plain = [P1, P2].filter((p) => !isCoreAbility(p.ability)).map((p) => p.ability);
+    if (plain.length === 2) ability = rAbility.chance(0.6) ? plain[0] : plain[1];
+    else if (plain.length === 1) ability = plain[0];
+    else { const sp = speciesOf(P1) || speciesOf(P2); ability = (sp && sp.abilities && sp.abilities[0]) || 'lucky_streak'; }
+  }
+
+  const nameParts = [namePartsOf(P1)[0], namePartsOf(P2)[1]];
+  const lineage = [...(a.lineage || []), ...(b.lineage || [])].filter((x, i, arr) => arr.indexOf(x) === i).slice(-FUSE.maxLineage);
+
+  const child = {
+    v: GENOME_VERSION,
+    seed: rng.seed,
+    species: null,
+    clade,
+    rig,
+    name: joinNameParts(nameParts[0], nameParts[1]),
+    nameParts,
+    gen,
+    shiny: Boolean(P1.shiny),
+    types: [primary, secondary],
+    parts, paint, palette, traits, stats, vigor, bst, lineage,
+    parents: [a.name, b.name],
+    learnset: fuseLearnsets(a, b, [primary, secondary]),
+    ability,
+  };
+  if (Object.keys(aura).length) child.aura = aura;
+  return {
+    child,
+    report: { from, mutated, identity, dominant, palette: palFrom, types: { primary: identity, secondary: secondaryFrom } },
+  };
+}
+
+/**
+ * A child's learnset: both parents' moves that match the child's types (Normal
+ * always counts), lowest level wins on duplicates, padded with universal moves
+ * when thin, capped at twelve keeping the two earliest and the ten latest.
+ */
+function fuseLearnsets(a, b, types) {
+  const ok = new Set(['Normal', ...types.filter(Boolean)]);
+  const byId = new Map();
+  for (const [lvl, id] of [...learnsetOf(a), ...learnsetOf(b)]) {
+    const mv = getMove(id);
+    if (!mv || !ok.has(mv.type)) continue;
+    if (!byId.has(id) || byId.get(id) > lvl) byId.set(id, lvl);
+  }
+  for (const [lvl, id] of UNIVERSAL_LEARNSET) if (byId.size < 6 && !byId.has(id)) byId.set(id, lvl);
+  const list = [...byId.entries()].map(([id, lvl]) => [lvl, id]).sort((p, q) => p[0] - q[0] || (p[1] < q[1] ? -1 : 1));
+  return list.length <= 12 ? list : [...list.slice(0, 2), ...list.slice(-10)];
+}
+
+/** Fuse a chain: start with `first`, then fold in each partner in turn. Returns every generation. */
+function fuseChain(first, partners, rng) {
+  const out = [first];
+  let cur = first;
+  partners.forEach((p, i) => {
+    if (!canFuse(cur, p).ok) return;
+    cur = fuse(cur, p, rng.fork(`gen${i}`)).child;
+    out.push(cur);
+  });
+  return out;
+}
+
 // ---- src/game/world.js ----
 // The overworld: one large tile map, generated from a seed, with a hub town in the
 // middle and seven biomes around it, one per class. Each biome is home to its class:
@@ -11952,7 +11773,6 @@ function partyHealth(j) {
 
 
 
-
 const MOVE_MS = 150;
 const ow = {
   save: null, root: null, j: null, world: null, canvas: null, ctx: null, raf: 0, last: 0, tween: null, queue: [], held: null, keys: new Set(),
@@ -12002,6 +11822,7 @@ function owIntroView(root) {
         try { seed = new URLSearchParams(location.search).get('seed'); } catch { /* ignore */ }
         ow.save.journey = newJourney(seed || freshSeed()); ow.starterPick = -1; owSave(); rerender();
       } }, 'Set out')),
+    ...(ow.save.collection.length ? section(`Collection · ${ow.save.collection.length}`, h('p', { class: 'hint' }, 'Every species and fusion that has travelled with you. Tap one for its sheet and code.'), owCollectionGrid()) : []),
     ...section('Save',
       h('div', { class: 'toolbar' }, importInput,
         h('button', { class: 'btn', type: 'button', onclick: () => { try { ow.save = importSave(importInput.value); owSave(); toast('Save loaded'); rerender(); } catch (e) { toast(e.message); } } }, 'Import')),
@@ -12397,7 +12218,8 @@ function owMenuSheet(j) {
     appendChildren(body, [
       h('div', { class: 'toolbar' },
         h('button', { class: `btn small${ow.save.settings.fast ? ' on' : ''}`, type: 'button', onclick: () => { ow.save.settings.fast = !ow.save.settings.fast; owSave(); render(); } }, ow.save.settings.fast ? 'Fast battles ✓' : 'Fast battles'),
-        h('button', { class: 'btn small', type: 'button', onclick: () => { respawnJourney(j); owSave(); toast('Back at the last camp, rested.'); sheetRef.close(); renderWorldScreen(ow.root); } }, 'Return to camp')),
+        h('button', { class: 'btn small', type: 'button', onclick: () => { respawnJourney(j); owSave(); toast('Back at the last camp, rested.'); sheetRef.close(); renderWorldScreen(ow.root); } }, 'Return to camp'),
+        h('button', { class: 'btn small', type: 'button', onclick: () => { sheetRef.close(); owCollectionSheet(); } }, `Collection · ${ow.save.collection.length}`)),
       h('div', { class: 'toolbar' },
         h('button', { class: 'btn', type: 'button', onclick: async () => toast((await copyText(exportSave(ow.save))) ? 'Save code copied' : 'Copy failed') }, 'Export'),
         h('button', { class: `btn${ow.confirmReset ? ' danger' : ''}`, type: 'button', onclick: () => {
@@ -12405,11 +12227,27 @@ function owMenuSheet(j) {
           retireJourney(ow.save); ow.confirmReset = false; owSave(); toast('Journey abandoned'); sheetRef.close(); renderWorldScreen(ow.root);
         } }, ow.confirmReset ? 'Really abandon?' : 'Abandon journey')),
       h('div', { class: 'toolbar' }, importInput, h('button', { class: 'btn', type: 'button', onclick: () => { try { ow.save = importSave(importInput.value); owSave(); toast('Save loaded'); sheetRef.close(); renderWorldScreen(ow.root); } catch (e) { toast(e.message); } } }, 'Import')),
-      h('p', { class: 'hint' }, 'Abandoning sends your creatures to the collection, where the Fusion Lab can still use them.'),
+      h('p', { class: 'hint' }, 'Abandoning sends your creatures to the collection.'),
     ]);
   };
   render();
   const sheetRef = owSheet('Menu', body);
+}
+
+/** Grid of everything caught, chosen or fused, newest first. */
+function owCollectionGrid() {
+  const grid = h('div', { class: 'pool' });
+  for (const e of ow.save.collection.slice().reverse()) {
+    grid.append(h('button', { class: 'pcard', type: 'button', onclick: () => openSheet(e.genome) },
+      e.genome.gen ? h('span', { class: 'gen' }, `gen ${e.genome.gen}`) : null,
+      creatureEl(e.genome, { size: 104, animate: false }), h('span', {}, e.genome.name)));
+  }
+  return grid;
+}
+
+function owCollectionSheet() {
+  const n = ow.save.collection.length;
+  owSheet(`Collection · ${n}`, h('div', {}, h('p', { class: 'hint' }, n ? 'Every species and fusion that has travelled with you. Tap one for its sheet and code.' : 'Nothing yet. Creatures you choose, catch or fuse are remembered here, even after a journey ends.'), owCollectionGrid()));
 }
 
 function owShrineSheet(j) {
@@ -12440,7 +12278,7 @@ function owShrineSheet(j) {
         h('div', { class: 'row wrap' },
           h('button', { class: 'btn primary', type: 'button', onclick: () => {
             const { child: member } = shrineFuse(j, pick.a, pick.b);
-            recordCollection(ow.save, member.genome); addToPool(member.genome);
+            recordCollection(ow.save, member.genome);
             owSave(); toast(`${member.genome.name} is born!`); pick.a = null; pick.b = null; render();
           } }, 'Fuse them'),
           h('button', { class: 'btn', type: 'button', onclick: () => openSheet(child) }, 'Details'))) : null,
@@ -12631,10 +12469,8 @@ function owDraw(ts) {
 
 
 
-
 const SCREENS = [
   { id: 'world', title: 'World', render: renderWorldScreen },
-  { id: 'fusion', title: 'Fusion', render: renderFusionScreen },
   { id: 'lab', title: 'Lab', render: renderLabScreen },
   { id: 'parts', title: 'Parts', render: renderPartsScreen },
 ];

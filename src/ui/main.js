@@ -2,7 +2,6 @@
 import { h, clear } from './dom.js';
 import { renderLabScreen, closeSheet } from './lab.js';
 import { renderPartsScreen } from './parts.js';
-import { renderFusionScreen } from './fusion.js';
 import { renderWorldScreen } from './world.js';
 import { partCount } from '../data/parts/index.js';
 import { SPECIES } from '../data/species.js';
@@ -11,7 +10,6 @@ import { setRenderStyle, getRenderStyle, setReducedMotion } from '../creature/re
 
 const SCREENS = [
   { id: 'world', title: 'World', render: renderWorldScreen },
-  { id: 'fusion', title: 'Fusion', render: renderFusionScreen },
   { id: 'lab', title: 'Lab', render: renderLabScreen },
   { id: 'parts', title: 'Parts', render: renderPartsScreen },
 ];

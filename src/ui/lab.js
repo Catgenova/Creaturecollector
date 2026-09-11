@@ -10,7 +10,6 @@ import { swatchCss } from '../creature/palette.js';
 import { SPECIES, SPECIES_BY_ID } from '../data/species.js';
 import { getPart } from '../data/parts/index.js';
 import { slotsFor, slotName } from '../data/rigs.js';
-import { addToPool } from './state.js';
 import { cladeName } from '../data/clades.js';
 import { cladeOf } from '../creature/genome.js';
 
@@ -148,12 +147,6 @@ export function openSheet(g, sheetOpts = {}) {
     h('div', { class: 'row' },
       h('button', { class: 'btn', onclick: () => { facing = facing === 'right' ? 'left' : 'right'; redraw(); } }, 'Flip'),
       h('button', { class: 'btn', onclick: async () => toast((await copyText(code)) ? 'Code copied' : 'Copy failed, select the text below') }, 'Copy code'),
-      h('button', { class: 'btn', onclick: () => {
-        toast(addToPool(g) ? 'Added to the fusion pool' : 'Already in the pool');
-        close();
-        if (location.hash === '#fusion') window.dispatchEvent(new CustomEvent('pool-changed'));
-        else location.hash = 'fusion';
-      } }, 'Fuse'),
       elementalOf(g) ? null : h('select', { class: 'btn elem-preview', title: 'Preview this creature as an Elemental (one wild creature in a thousand is born as one)', onchange: (e) => {
         const elem = e.target.value;
         shown = elem ? makeElemental(JSON.parse(JSON.stringify(g)), elem) : g;

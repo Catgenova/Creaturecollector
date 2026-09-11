@@ -1,5 +1,5 @@
 // Screenshot the built index.html at phone size for visual checks.
-// Usage: node scripts/shot.mjs [seed]   -> shots/lab.png, sheet, fusion and parts screenshots (fights are covered by scripts/shot-world.mjs)
+// Usage: node scripts/shot.mjs [seed]   -> shots/lab.png, sheet.png, parts.png (the overworld and its fights are covered by scripts/shot-world.mjs)
 import { createRequire } from 'node:module';
 import fs from 'node:fs';
 import path from 'node:path';
@@ -27,25 +27,6 @@ await page.screenshot({ path: path.join(out, 'lab.png'), fullPage: true });
 await page.click('.card');
 await page.waitForSelector('.sheet');
 await page.screenshot({ path: path.join(out, 'sheet.png') });
-await page.goto(`${url}#fusion`);
-await page.waitForSelector('.pcard');
-// pick the first two pool creatures of the same class
-let pair = null;
-for (let tries = 0; tries < 4 && !pair; tries++) {
-  const labels = await page.$$eval('.pool .pcard .gen', (els) => els.map((e) => e.textContent.split('·').pop().trim()));
-  outer: for (let i = 0; i < labels.length; i++) for (let j = i + 1; j < labels.length; j++) if (labels[i] === labels[j]) { pair = [i, j]; break outer; }
-  if (!pair) { await page.click('text=+4 wild'); await page.waitForTimeout(200); }
-}
-const cards = page.locator('.pool .pcard');
-await cards.nth(pair[0]).click();
-await cards.nth(pair[1]).click();
-await page.click('.fuse-btn:not([disabled])');
-await page.waitForSelector('.result');
-await page.screenshot({ path: path.join(out, 'fusion.png'), fullPage: true });
-await page.click('text=Breed 5 generations');
-await page.waitForSelector('.chain');
-await page.locator('.chain').scrollIntoViewIfNeeded();
-await page.screenshot({ path: path.join(out, 'fusion-chain.png') });
 await page.goto(`${url}#parts`);
 await page.waitForSelector('.part svg');
 await page.screenshot({ path: path.join(out, 'parts.png'), fullPage: true });

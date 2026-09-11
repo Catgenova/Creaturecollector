@@ -32,7 +32,7 @@ src/data/species.js   base species recipes
 src/data/elements.js  Elementals: the eight elements, their core abilities and one SVG filter each
 src/creature/         genome (schema, rolls, codes), palette, render (SVG)
 src/game/             world (map generation and content), journey (rules), party (members, xp), save
-src/ui/               dom helpers, screens (world, fusion, lab, parts), the fight view, app shell (main.js = build entry)
+src/ui/               dom helpers, screens (world, lab, parts), the fight view, app shell (main.js = build entry)
 tests/                node:test suites
 scripts/              screenshot helpers for visual review (Playwright, dev only):
                       shot.mjs (app flow), shot-world.mjs (overworld flow), board.mjs <rig> + shot-board.mjs (library board), hero.mjs (close-ups)
@@ -196,7 +196,7 @@ Never rename or reuse an id: saved creatures reference ids forever.
 ## Fusion (Phase 2 — implemented)
 
 `fuse(a, b, rng) -> { child, report }` in `src/creature/fusion.js`. Deterministic
-per seed; the Fusion Lab seeds it from both parents plus a re-roll counter.
+per seed; the shrine seeds it from the journey, its fusion count and both parents.
 
 - **Parts.** Per slot the child draws one allele from each parent at random. The
   allele with the higher dominance (`dom` on the part, plus ±0.15 noise) is
@@ -232,8 +232,9 @@ per seed; the Fusion Lab seeds it from both parents plus a re-roll counter.
 
 The report lists, per slot, which parent supplied the expressed part and whether
 it mutated, where each colour came from, and where each type came from. The
-Fusion Lab shows it and can breed a child five more generations against random
-pool members to check that lines stay coherent.
+shrine shows a preview built from it. During development a Fusion Lab tab bred
+children five more generations against random pool members to check that lines
+stay coherent; the fusion tests still do.
 
 ## Battle (Phase 3 — implemented)
 
@@ -307,7 +308,7 @@ through `src/game/party.js` and `src/game/save.js`.
   the journey in progress and settings. Battles themselves are not persisted:
   a reload mid-fight returns you to the encounter card. Export and import as a
   `CCSAVE1.` code. Abandoning a journey retires the team into the collection,
-  where any creature can be inspected or sent to the Fusion Lab. A save from
+  where any creature can be inspected and its code copied. A save from
   the arena days folds its run's creatures into the collection on load.
 
 The fight view is a reusable component (`ui/fight.js`) mounted by the overworld.
@@ -318,7 +319,7 @@ Every species belongs to a **class** (`clade` in code): Mammal, Reptile, Fish,
 Bird, Insect, Invertebrate or Amphibian. Types stay elemental and independent.
 
 - **Fusion is same-class only.** `canFuse(a, b)` is the single rule; `fuse()`
-  throws otherwise. The Fusion Lab and the shrine grey out incompatible partners
+  throws otherwise. The shrine greys out incompatible partners
   and say why. Wild fusions and Warden leaders are built inside one class.
 - **Linked slots** keep each class's silhouette coherent: the second slot of a
   pair inherits from whichever parent supplied the first. Mammals and

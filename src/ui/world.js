@@ -18,7 +18,6 @@ import { getMove } from '../data/moves.js';
 import { cladeName } from '../data/clades.js';
 import { cladeOf, elementalOf } from '../creature/genome.js';
 import { sfx } from '../core/sfx.js';
-import { addToPool } from './state.js';
 
 const MOVE_MS = 150;
 const ow = {
@@ -69,6 +68,7 @@ function owIntroView(root) {
         try { seed = new URLSearchParams(location.search).get('seed'); } catch { /* ignore */ }
         ow.save.journey = newJourney(seed || freshSeed()); ow.starterPick = -1; owSave(); rerender();
       } }, 'Set out')),
+    ...(ow.save.collection.length ? section(`Collection · ${ow.save.collection.length}`, h('p', { class: 'hint' }, 'Every species and fusion that has travelled with you. Tap one for its sheet and code.'), owCollectionGrid()) : []),
     ...section('Save',
       h('div', { class: 'toolbar' }, importInput,
         h('button', { class: 'btn', type: 'button', onclick: () => { try { ow.save = importSave(importInput.value); owSave(); toast('Save loaded'); rerender(); } catch (e) { toast(e.message); } } }, 'Import')),
@@ -464,7 +464,8 @@ function owMenuSheet(j) {
     appendChildren(body, [
       h('div', { class: 'toolbar' },
         h('button', { class: `btn small${ow.save.settings.fast ? ' on' : ''}`, type: 'button', onclick: () => { ow.save.settings.fast = !ow.save.settings.fast; owSave(); render(); } }, ow.save.settings.fast ? 'Fast battles ✓' : 'Fast battles'),
-        h('button', { class: 'btn small', type: 'button', onclick: () => { respawnJourney(j); owSave(); toast('Back at the last camp, rested.'); sheetRef.close(); renderWorldScreen(ow.root); } }, 'Return to camp')),
+        h('button', { class: 'btn small', type: 'button', onclick: () => { respawnJourney(j); owSave(); toast('Back at the last camp, rested.'); sheetRef.close(); renderWorldScreen(ow.root); } }, 'Return to camp'),
+        h('button', { class: 'btn small', type: 'button', onclick: () => { sheetRef.close(); owCollectionSheet(); } }, `Collection · ${ow.save.collection.length}`)),
       h('div', { class: 'toolbar' },
         h('button', { class: 'btn', type: 'button', onclick: async () => toast((await copyText(exportSave(ow.save))) ? 'Save code copied' : 'Copy failed') }, 'Export'),
         h('button', { class: `btn${ow.confirmReset ? ' danger' : ''}`, type: 'button', onclick: () => {
@@ -472,11 +473,27 @@ function owMenuSheet(j) {
           retireJourney(ow.save); ow.confirmReset = false; owSave(); toast('Journey abandoned'); sheetRef.close(); renderWorldScreen(ow.root);
         } }, ow.confirmReset ? 'Really abandon?' : 'Abandon journey')),
       h('div', { class: 'toolbar' }, importInput, h('button', { class: 'btn', type: 'button', onclick: () => { try { ow.save = importSave(importInput.value); owSave(); toast('Save loaded'); sheetRef.close(); renderWorldScreen(ow.root); } catch (e) { toast(e.message); } } }, 'Import')),
-      h('p', { class: 'hint' }, 'Abandoning sends your creatures to the collection, where the Fusion Lab can still use them.'),
+      h('p', { class: 'hint' }, 'Abandoning sends your creatures to the collection.'),
     ]);
   };
   render();
   const sheetRef = owSheet('Menu', body);
+}
+
+/** Grid of everything caught, chosen or fused, newest first. */
+function owCollectionGrid() {
+  const grid = h('div', { class: 'pool' });
+  for (const e of ow.save.collection.slice().reverse()) {
+    grid.append(h('button', { class: 'pcard', type: 'button', onclick: () => openSheet(e.genome) },
+      e.genome.gen ? h('span', { class: 'gen' }, `gen ${e.genome.gen}`) : null,
+      creatureEl(e.genome, { size: 104, animate: false }), h('span', {}, e.genome.name)));
+  }
+  return grid;
+}
+
+function owCollectionSheet() {
+  const n = ow.save.collection.length;
+  owSheet(`Collection · ${n}`, h('div', {}, h('p', { class: 'hint' }, n ? 'Every species and fusion that has travelled with you. Tap one for its sheet and code.' : 'Nothing yet. Creatures you choose, catch or fuse are remembered here, even after a journey ends.'), owCollectionGrid()));
 }
 
 function owShrineSheet(j) {
@@ -507,7 +524,7 @@ function owShrineSheet(j) {
         h('div', { class: 'row wrap' },
           h('button', { class: 'btn primary', type: 'button', onclick: () => {
             const { child: member } = shrineFuse(j, pick.a, pick.b);
-            recordCollection(ow.save, member.genome); addToPool(member.genome);
+            recordCollection(ow.save, member.genome);
             owSave(); toast(`${member.genome.name} is born!`); pick.a = null; pick.b = null; render();
           } }, 'Fuse them'),
           h('button', { class: 'btn', type: 'button', onclick: () => openSheet(child) }, 'Details'))) : null,
