@@ -4,10 +4,10 @@ import { h, clear, toast, copyText, appendChildren } from './dom.js';
 import { creatureEl, typeChips, section } from './common.js';
 import { freshSeed } from '../core/rng.js';
 import { openSheet } from './lab.js';
-import { mountFight } from './fight.js';
+import { mountFight, xpRow } from './fight.js';
 import { STATUS_INFO } from '../battle/engine.js';
 import { loadSave, persistSave, exportSave, importSave, emptySave, clearSave, recordCollection, endRun } from '../game/save.js';
-import { ARENA, floorLevel, newRun, chooseStarter, buildBattle, applyBattle, previewFusion, fuseMembers, skipAltar, moveMember, setLead, memberMaxHp, xpForLevel, canFight, learnMove } from '../game/run.js';
+import { ARENA, floorLevel, newRun, chooseStarter, buildBattle, applyBattle, previewFusion, fuseMembers, skipAltar, moveMember, setLead, memberMaxHp, xpProgress, canFight, learnMove } from '../game/run.js';
 import { getMove } from '../data/moves.js';
 import { TYPE_INFO } from '../data/types.js';
 import { addToPool } from './state.js';
@@ -94,9 +94,7 @@ function starterView(root, run) {
 function memberRow(run, m, actions) {
   const max = memberMaxHp(m);
   const frac = m.hp / max;
-  const next = m.level < ARENA.maxLevel ? xpForLevel(m.level + 1) : m.xp;
-  const prev = xpForLevel(m.level);
-  const xpFrac = next > prev ? Math.min(1, (m.xp - prev) / (next - prev)) : 1;
+  const xp = xpProgress(m);
   return h('div', { class: `party-row static${m.hp <= 0 ? ' fainted' : ''}` },
     creatureEl(m.genome, { size: 64, animate: false }),
     h('div', { class: 'party-info' },
@@ -104,7 +102,7 @@ function memberRow(run, m, actions) {
         m.status ? h('span', { class: `status st-${m.status}` }, STATUS_INFO[m.status].short) : null,
         m.hp <= 0 ? h('span', { class: 'status' }, 'FAINTED') : null),
       h('div', { class: 'hpbar' }, h('i', { class: frac > 0.5 ? 'ok' : frac > 0.2 ? 'warn' : 'low', style: { width: `${Math.max(0, frac * 100)}%` } })),
-      h('div', { class: 'xpbar' }, h('i', { style: { width: `${xpFrac * 100}%` } })),
+      h('div', { class: 'xpline' }, xpRow(xp), h('span', { class: 'xpnum' }, xp.next > xp.prev ? `${xp.cur - xp.prev} / ${xp.next - xp.prev}` : 'MAX')),
       h('div', { class: 'move-chips' }, (m.moves || []).map((id) => { const mv = getMove(id); return mv ? h('span', { class: 'chip', style: { '--chip': TYPE_INFO[mv.type].color } }, mv.name) : null; })),
       h('div', { class: 'row-actions' }, h('span', { class: 'hint', style: { margin: 0 } }, `${m.hp} / ${max}`), ...actions)));
 }
@@ -193,6 +191,7 @@ function startArenaBattle(root, run) {
       if (report.captured) recordCollection(ar.save, report.captured.genome, report.floor);
       ar.showReport = true;
       save();
+      return { xp: report.xpGains || [] };
     },
     resultButtons: [{ label: 'Continue', primary: true, onclick: () => renderArenaScreen(root) }],
   });
@@ -213,7 +212,7 @@ function altarView(root, run) {
     } }, tag ? h('span', { class: `sel badge ${tag.toLowerCase()}` }, tag) : null, creatureEl(m.genome, { size: 104, animate: false }), h('span', {}, `${m.genome.name} · Lv ${m.level}`)));
   }
   const child = pick.a && pick.b ? previewFusion(run, pick.a, pick.b) : null;
-  root.append(
+  appendChildren(root, [
     h('h2', { class: 'screen-title' }, '✦ Fusion altar'),
     h('p', { class: 'hint' }, 'Fuse two of your creatures into one. Both are consumed; the child keeps the higher level and starts at full health. Everyone is fully healed when you leave.'),
     ...section('Choose two', list),
@@ -230,7 +229,7 @@ function altarView(root, run) {
         } }, 'Fuse them'),
         h('button', { class: 'btn', type: 'button', onclick: () => openSheet(child) }, 'Details'))) : null,
     h('div', { class: 'row wrap' }, h('button', { class: 'btn', type: 'button', onclick: () => { skipAltar(run); ar.altar = null; save(); rerender(); } }, 'Leave without fusing')),
-  );
+  ]);
 }
 
 // ---- game over --------------------------------------------------------------

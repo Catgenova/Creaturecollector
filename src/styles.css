@@ -230,3 +230,11 @@ h3.sec { font-size: 12px; text-transform: uppercase; letter-spacing: .1em; color
 .result-card.learn .moves { margin: 8px 0; }
 .topbar .sound { min-width: 36px; padding: 0 6px; font-size: 16px; }
 .topbar .ver { margin-left: auto; }
+
+/* EXP bars */
+.xprow { display: flex; align-items: center; gap: 6px; margin-top: 5px; font-size: 10px; font-weight: 800; letter-spacing: .1em; color: var(--fg2); }
+.xprow .xpbar { flex: 1; margin: 0; height: 5px; }
+.xpbar i { transition: width .6s ease; background: linear-gradient(90deg, #4f8ef7, #7fd6e6); }
+.xpline { display: flex; align-items: center; gap: 8px; }
+.xpline .xprow { flex: 1; }
+.xpline .xpnum { font-size: 11px; color: var(--fg2); font-variant-numeric: tabular-nums; white-space: nowrap; margin-top: 5px; }

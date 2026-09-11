@@ -241,6 +241,14 @@ h3.sec { font-size: 12px; text-transform: uppercase; letter-spacing: .1em; color
 .result-card.learn .moves { margin: 8px 0; }
 .topbar .sound { min-width: 36px; padding: 0 6px; font-size: 16px; }
 .topbar .ver { margin-left: auto; }
+
+/* EXP bars */
+.xprow { display: flex; align-items: center; gap: 6px; margin-top: 5px; font-size: 10px; font-weight: 800; letter-spacing: .1em; color: var(--fg2); }
+.xprow .xpbar { flex: 1; margin: 0; height: 5px; }
+.xpbar i { transition: width .6s ease; background: linear-gradient(90deg, #4f8ef7, #7fd6e6); }
+.xpline { display: flex; align-items: center; gap: 8px; }
+.xpline .xprow { flex: 1; }
+.xpline .xpnum { font-size: 11px; color: var(--fg2); font-variant-numeric: tabular-nums; white-space: nowrap; margin-top: 5px; }
 </style>
 </head>
 <body>
@@ -2866,6 +2874,7 @@ function makeBattler(genome, level, opts = {}) {
     hp: stats.hp,
     moves: moveIds.map((id) => { const mv = getMove(id) || getMove('bump'); return { id: mv.id, pp: mv.pp, maxPp: mv.pp }; }),
     ability: opts.ability || genome.ability || 'lucky_streak',
+    xp: opts.xp || null, // { cur, prev, next } progress toward the next level, for display only
     status: null,
     sleepTurns: 0,
     stages: { atk: 0, def: 0, spa: 0, spd: 0, spe: 0, acc: 0, eva: 0 },
@@ -3591,7 +3600,7 @@ function renderPanel(f, i) {
   const st = f.state, side = st.sides[i], b = activeOf(st, i);
   const el = i === 0 ? f.els.mePanel : f.els.foePanel;
   const frac = b.hp / b.maxHp;
-  clear(el).append(
+  appendChildren(clear(el), [
     h('div', { class: 'panel-head' }, h('b', {}, b.name), h('span', { class: 'lvl' }, `Lv ${b.level}`),
       b.status ? h('span', { class: `status st-${b.status}` }, STATUS_INFO[b.status].short) : null),
     typeChips(b.types),
@@ -3599,7 +3608,51 @@ function renderPanel(f, i) {
     h('div', { class: 'panel-foot' },
       h('span', { class: 'hpnum' }, i === 0 ? `${b.hp} / ${b.maxHp}` : `${Math.ceil(frac * 100)}%`),
       h('span', { class: 'balls' }, side.party.map((p) => h('i', { class: p.fainted ? 'out' : '' })))),
-  );
+    b.xp ? xpRow(b.xp) : null,
+  ]);
+}
+
+function xpFrac(xp) { return xp.next > xp.prev ? Math.max(0, Math.min(1, (xp.cur - xp.prev) / (xp.next - xp.prev))) : 1; }
+
+/** Labelled EXP bar. title carries the exact numbers. */
+function xpRow(xp) {
+  const frac = xpFrac(xp);
+  const toNext = Math.max(0, xp.next - xp.cur);
+  return h('div', { class: 'xprow', title: xp.next > xp.prev ? `${toNext} EXP to the next level` : 'Max level' },
+    h('span', {}, 'EXP'),
+    h('div', { class: 'xpbar' }, h('i', { style: { width: `${frac * 100}%` } })));
+}
+
+/** After a win: fill the active creature's EXP bar, rolling over on each level gained. */
+async function animateXp(f, gains) {
+  const st = f.state;
+  for (const g of gains) { const b = st.sides[0].party[g.index]; if (b && g.after) { b.xp = g.after; b.level = g.to.level; } }
+  const g = gains.find((x) => x.index === st.sides[0].active);
+  const panel = f.els.mePanel;
+  const bar = panel && panel.querySelector('.xpbar i');
+  if (!g || !bar) return;
+  const lvl = panel.querySelector('.lvl');
+  const name = activeOf(st, 0).name;
+  const speed = f.fast ? 0.35 : 1;
+  let level = g.from.level;
+  bar.style.transition = 'none';
+  bar.style.width = `${g.from.frac * 100}%`;
+  await wait(60);
+  while (level < g.to.level && f.alive) {
+    bar.style.transition = `width ${0.6 * speed}s ease`;
+    bar.style.width = '100%';
+    await wait(680 * speed);
+    level++;
+    sfx.levelUp();
+    if (lvl) lvl.textContent = `Lv ${level}`;
+    logLine(f, `${name} grew to Lv ${level}!`);
+    bar.style.transition = 'none';
+    bar.style.width = '0%';
+    await wait(90);
+  }
+  bar.style.transition = `width ${0.6 * speed}s ease`;
+  bar.style.width = `${g.to.frac * 100}%`;
+  await wait(720 * speed);
 }
 
 function renderStage(f, i) {
@@ -3686,7 +3739,12 @@ async function afterFightStep(f) {
   if (st.phase === 'over') {
     f.busy = false;
     renderFightControls(f);
-    if (!f.ended) { f.ended = true; showFightResult(f); f.onEnd(st); }
+    if (!f.ended) {
+      f.ended = true;
+      const after = f.onEnd(st);
+      if (after && Array.isArray(after.xp) && after.xp.length) await animateXp(f, after.xp);
+      if (f.alive) showFightResult(f);
+    }
     return;
   }
   if (st.phase === 'replace') {
@@ -3767,6 +3825,7 @@ function openFightParty(f, forced) {
       h('div', { class: 'party-info' },
         h('div', {}, h('b', {}, b.name), ' ', h('span', { class: 'lvl' }, `Lv ${b.level}`), ' ', b.status ? h('span', { class: `status st-${b.status}` }, STATUS_INFO[b.status].short) : null, i === side.active ? h('span', { class: 'status' }, 'ACTIVE') : null),
         h('div', { class: 'hpbar' }, h('i', { class: hpClass(frac), style: { width: `${frac * 100}%` } })),
+        b.xp ? xpRow(b.xp) : null,
         h('div', { class: 'hint', style: { margin: 0 } }, `${b.hp} / ${b.maxHp} · ${abilityName(b.ability)}`))));
   });
   const sheet = h('section', { class: 'sheet', role: 'dialog', 'aria-modal': 'true', 'aria-label': 'Party' },
@@ -4047,6 +4106,14 @@ function xpReward(level, bst, kind) {
 
 function memberMaxHp(m) { return statsAtLevel(m.genome, m.level).hp; }
 
+/** XP progress within the current level: { cur, prev, next, frac }. frac is 1 at the level cap. */
+function xpProgress(m) {
+  const prev = xpForLevel(m.level);
+  const next = m.level >= ARENA.maxLevel ? prev : xpForLevel(m.level + 1);
+  const frac = next > prev ? Math.max(0, Math.min(1, (m.xp - prev) / (next - prev))) : 1;
+  return { cur: m.xp, prev, next, frac };
+}
+
 function makeMember(genome, level, uid) {
   const m = { uid, genome, level, xp: xpForLevel(level), hp: 0, status: null, moves: movesAtLevel(learnsetOf(genome), level) };
   m.hp = memberMaxHp(m);
@@ -4145,7 +4212,7 @@ function buildBattle(run) {
     run.party.unshift(...run.party.splice(k, 1));
   }
   const mine = run.party.map((m) => {
-    const b = makeBattler(m.genome, m.level, { moves: m.moves });
+    const b = makeBattler(m.genome, m.level, { moves: m.moves, xp: xpProgress(m) });
     b.hp = Math.max(0, Math.min(m.hp, b.maxHp));
     b.status = m.status;
     b.fainted = b.hp <= 0;
@@ -4199,13 +4266,17 @@ function applyBattle(run, state) {
   if (!won) { run.phase = 'gameover'; run.lastReport = report; return { run, report }; }
   report.xp = xp;
   report.learned = [];
+  report.xpGains = [];
   run.pendingLearns = run.pendingLearns || [];
-  for (const m of run.party) {
+  run.party.forEach((m, index) => {
+    const before = xpProgress(m);
     const r = gainXp(m, xp);
+    const after = xpProgress(m);
+    report.xpGains.push({ uid: m.uid, index, from: { level: r.from, frac: before.frac }, to: { level: r.to, frac: after.frac }, after });
     if (r.to > r.from) report.levelUps.push({ name: m.genome.name, from: r.from, to: r.to });
     for (const id of r.learned) report.learned.push({ name: m.genome.name, move: getMove(id).name });
     for (const id of r.pending) run.pendingLearns.push({ uid: m.uid, moveId: id });
-  }
+  });
   if (capturedBattler) {
     const nm = makeMember(capturedBattler.genome, capturedBattler.level, nextUid(run));
     nm.hp = Math.max(1, capturedBattler.hp);
@@ -4371,9 +4442,7 @@ function starterView(root, run) {
 function memberRow(run, m, actions) {
   const max = memberMaxHp(m);
   const frac = m.hp / max;
-  const next = m.level < ARENA.maxLevel ? xpForLevel(m.level + 1) : m.xp;
-  const prev = xpForLevel(m.level);
-  const xpFrac = next > prev ? Math.min(1, (m.xp - prev) / (next - prev)) : 1;
+  const xp = xpProgress(m);
   return h('div', { class: `party-row static${m.hp <= 0 ? ' fainted' : ''}` },
     creatureEl(m.genome, { size: 64, animate: false }),
     h('div', { class: 'party-info' },
@@ -4381,7 +4450,7 @@ function memberRow(run, m, actions) {
         m.status ? h('span', { class: `status st-${m.status}` }, STATUS_INFO[m.status].short) : null,
         m.hp <= 0 ? h('span', { class: 'status' }, 'FAINTED') : null),
       h('div', { class: 'hpbar' }, h('i', { class: frac > 0.5 ? 'ok' : frac > 0.2 ? 'warn' : 'low', style: { width: `${Math.max(0, frac * 100)}%` } })),
-      h('div', { class: 'xpbar' }, h('i', { style: { width: `${xpFrac * 100}%` } })),
+      h('div', { class: 'xpline' }, xpRow(xp), h('span', { class: 'xpnum' }, xp.next > xp.prev ? `${xp.cur - xp.prev} / ${xp.next - xp.prev}` : 'MAX')),
       h('div', { class: 'move-chips' }, (m.moves || []).map((id) => { const mv = getMove(id); return mv ? h('span', { class: 'chip', style: { '--chip': TYPE_INFO[mv.type].color } }, mv.name) : null; })),
       h('div', { class: 'row-actions' }, h('span', { class: 'hint', style: { margin: 0 } }, `${m.hp} / ${max}`), ...actions)));
 }
@@ -4470,6 +4539,7 @@ function startArenaBattle(root, run) {
       if (report.captured) recordCollection(ar.save, report.captured.genome, report.floor);
       ar.showReport = true;
       save();
+      return { xp: report.xpGains || [] };
     },
     resultButtons: [{ label: 'Continue', primary: true, onclick: () => renderArenaScreen(root) }],
   });
@@ -4490,7 +4560,7 @@ function altarView(root, run) {
     } }, tag ? h('span', { class: `sel badge ${tag.toLowerCase()}` }, tag) : null, creatureEl(m.genome, { size: 104, animate: false }), h('span', {}, `${m.genome.name} · Lv ${m.level}`)));
   }
   const child = pick.a && pick.b ? previewFusion(run, pick.a, pick.b) : null;
-  root.append(
+  appendChildren(root, [
     h('h2', { class: 'screen-title' }, '✦ Fusion altar'),
     h('p', { class: 'hint' }, 'Fuse two of your creatures into one. Both are consumed; the child keeps the higher level and starts at full health. Everyone is fully healed when you leave.'),
     ...section('Choose two', list),
@@ -4507,7 +4577,7 @@ function altarView(root, run) {
         } }, 'Fuse them'),
         h('button', { class: 'btn', type: 'button', onclick: () => openSheet(child) }, 'Details'))) : null,
     h('div', { class: 'row wrap' }, h('button', { class: 'btn', type: 'button', onclick: () => { skipAltar(run); ar.altar = null; save(); rerender(); } }, 'Leave without fusing')),
-  );
+  ]);
 }
 
 // ---- game over --------------------------------------------------------------

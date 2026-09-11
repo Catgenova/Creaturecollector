@@ -44,6 +44,7 @@ export function makeBattler(genome, level, opts = {}) {
     hp: stats.hp,
     moves: moveIds.map((id) => { const mv = getMove(id) || getMove('bump'); return { id: mv.id, pp: mv.pp, maxPp: mv.pp }; }),
     ability: opts.ability || genome.ability || 'lucky_streak',
+    xp: opts.xp || null, // { cur, prev, next } progress toward the next level, for display only
     status: null,
     sleepTurns: 0,
     stages: { atk: 0, def: 0, spa: 0, spd: 0, spe: 0, acc: 0, eva: 0 },

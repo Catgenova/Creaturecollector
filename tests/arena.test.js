@@ -188,3 +188,23 @@ test('save round-trips, survives garbage, and retires runs into the collection',
   storage.setItem(SAVE_KEY, '{not json');
   assert.deepEqual(loadSave(storage), emptySave());
 });
+
+test('battlers carry xp progress and battle reports include per-member gains', () => {
+  const run = chooseStarter(newRun('xpbars'), 0);
+  const { state } = buildBattle(run);
+  const b = state.sides[0].party[0];
+  assert.ok(b.xp && b.xp.cur === run.party[0].xp && b.xp.next > b.xp.prev, 'xp progress attached');
+  assert.equal(state.sides[1].party[0].xp, null, 'foes carry no xp');
+  run.party[0].level = 30; run.party[0].xp = xpForLevel(30); run.party[0].hp = memberMaxHp(run.party[0]);
+  const built = buildBattle(run);
+  const final = playOut(built.state, 'xpbars');
+  const { report } = applyBattle(run, final);
+  if (report.won) {
+    assert.equal(report.xpGains.length, 1);
+    const g = report.xpGains[0];
+    assert.equal(g.index, 0);
+    assert.ok(g.from.frac >= 0 && g.from.frac <= 1 && g.to.frac >= 0 && g.to.frac <= 1);
+    assert.ok(g.to.level >= g.from.level);
+    assert.equal(g.after.cur, run.party[0].xp);
+  }
+});

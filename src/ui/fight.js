@@ -1,7 +1,7 @@
 // Reusable interactive battle view. Mount it with an engine state and it plays
 // events, takes the player's choices, asks the AI for the foe's, and reports
 // the final state. Used by the sandbox Battle tab and by the Arena.
-import { h, clear, toast } from './dom.js';
+import { h, clear, toast, appendChildren } from './dom.js';
 import { typeChips, creatureEl } from './common.js';
 import { makeRng } from '../core/rng.js';
 import { step, legalActions, activeOf, describeEvent, moveEffectiveness, aliveCount, captureChance, STATUS_INFO } from '../battle/engine.js';
@@ -58,7 +58,7 @@ function renderPanel(f, i) {
   const st = f.state, side = st.sides[i], b = activeOf(st, i);
   const el = i === 0 ? f.els.mePanel : f.els.foePanel;
   const frac = b.hp / b.maxHp;
-  clear(el).append(
+  appendChildren(clear(el), [
     h('div', { class: 'panel-head' }, h('b', {}, b.name), h('span', { class: 'lvl' }, `Lv ${b.level}`),
       b.status ? h('span', { class: `status st-${b.status}` }, STATUS_INFO[b.status].short) : null),
     typeChips(b.types),
@@ -66,7 +66,51 @@ function renderPanel(f, i) {
     h('div', { class: 'panel-foot' },
       h('span', { class: 'hpnum' }, i === 0 ? `${b.hp} / ${b.maxHp}` : `${Math.ceil(frac * 100)}%`),
       h('span', { class: 'balls' }, side.party.map((p) => h('i', { class: p.fainted ? 'out' : '' })))),
-  );
+    b.xp ? xpRow(b.xp) : null,
+  ]);
+}
+
+function xpFrac(xp) { return xp.next > xp.prev ? Math.max(0, Math.min(1, (xp.cur - xp.prev) / (xp.next - xp.prev))) : 1; }
+
+/** Labelled EXP bar. title carries the exact numbers. */
+export function xpRow(xp) {
+  const frac = xpFrac(xp);
+  const toNext = Math.max(0, xp.next - xp.cur);
+  return h('div', { class: 'xprow', title: xp.next > xp.prev ? `${toNext} EXP to the next level` : 'Max level' },
+    h('span', {}, 'EXP'),
+    h('div', { class: 'xpbar' }, h('i', { style: { width: `${frac * 100}%` } })));
+}
+
+/** After a win: fill the active creature's EXP bar, rolling over on each level gained. */
+async function animateXp(f, gains) {
+  const st = f.state;
+  for (const g of gains) { const b = st.sides[0].party[g.index]; if (b && g.after) { b.xp = g.after; b.level = g.to.level; } }
+  const g = gains.find((x) => x.index === st.sides[0].active);
+  const panel = f.els.mePanel;
+  const bar = panel && panel.querySelector('.xpbar i');
+  if (!g || !bar) return;
+  const lvl = panel.querySelector('.lvl');
+  const name = activeOf(st, 0).name;
+  const speed = f.fast ? 0.35 : 1;
+  let level = g.from.level;
+  bar.style.transition = 'none';
+  bar.style.width = `${g.from.frac * 100}%`;
+  await wait(60);
+  while (level < g.to.level && f.alive) {
+    bar.style.transition = `width ${0.6 * speed}s ease`;
+    bar.style.width = '100%';
+    await wait(680 * speed);
+    level++;
+    sfx.levelUp();
+    if (lvl) lvl.textContent = `Lv ${level}`;
+    logLine(f, `${name} grew to Lv ${level}!`);
+    bar.style.transition = 'none';
+    bar.style.width = '0%';
+    await wait(90);
+  }
+  bar.style.transition = `width ${0.6 * speed}s ease`;
+  bar.style.width = `${g.to.frac * 100}%`;
+  await wait(720 * speed);
 }
 
 function renderStage(f, i) {
@@ -153,7 +197,12 @@ async function afterFightStep(f) {
   if (st.phase === 'over') {
     f.busy = false;
     renderFightControls(f);
-    if (!f.ended) { f.ended = true; showFightResult(f); f.onEnd(st); }
+    if (!f.ended) {
+      f.ended = true;
+      const after = f.onEnd(st);
+      if (after && Array.isArray(after.xp) && after.xp.length) await animateXp(f, after.xp);
+      if (f.alive) showFightResult(f);
+    }
     return;
   }
   if (st.phase === 'replace') {
@@ -234,6 +283,7 @@ function openFightParty(f, forced) {
       h('div', { class: 'party-info' },
         h('div', {}, h('b', {}, b.name), ' ', h('span', { class: 'lvl' }, `Lv ${b.level}`), ' ', b.status ? h('span', { class: `status st-${b.status}` }, STATUS_INFO[b.status].short) : null, i === side.active ? h('span', { class: 'status' }, 'ACTIVE') : null),
         h('div', { class: 'hpbar' }, h('i', { class: hpClass(frac), style: { width: `${frac * 100}%` } })),
+        b.xp ? xpRow(b.xp) : null,
         h('div', { class: 'hint', style: { margin: 0 } }, `${b.hp} / ${b.maxHp} · ${abilityName(b.ability)}`))));
   });
   const sheet = h('section', { class: 'sheet', role: 'dialog', 'aria-modal': 'true', 'aria-label': 'Party' },

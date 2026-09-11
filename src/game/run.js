@@ -34,6 +34,14 @@ export function xpReward(level, bst, kind) {
 
 export function memberMaxHp(m) { return statsAtLevel(m.genome, m.level).hp; }
 
+/** XP progress within the current level: { cur, prev, next, frac }. frac is 1 at the level cap. */
+export function xpProgress(m) {
+  const prev = xpForLevel(m.level);
+  const next = m.level >= ARENA.maxLevel ? prev : xpForLevel(m.level + 1);
+  const frac = next > prev ? Math.max(0, Math.min(1, (m.xp - prev) / (next - prev))) : 1;
+  return { cur: m.xp, prev, next, frac };
+}
+
 export function makeMember(genome, level, uid) {
   const m = { uid, genome, level, xp: xpForLevel(level), hp: 0, status: null, moves: movesAtLevel(learnsetOf(genome), level) };
   m.hp = memberMaxHp(m);
@@ -132,7 +140,7 @@ export function buildBattle(run) {
     run.party.unshift(...run.party.splice(k, 1));
   }
   const mine = run.party.map((m) => {
-    const b = makeBattler(m.genome, m.level, { moves: m.moves });
+    const b = makeBattler(m.genome, m.level, { moves: m.moves, xp: xpProgress(m) });
     b.hp = Math.max(0, Math.min(m.hp, b.maxHp));
     b.status = m.status;
     b.fainted = b.hp <= 0;
@@ -186,13 +194,17 @@ export function applyBattle(run, state) {
   if (!won) { run.phase = 'gameover'; run.lastReport = report; return { run, report }; }
   report.xp = xp;
   report.learned = [];
+  report.xpGains = [];
   run.pendingLearns = run.pendingLearns || [];
-  for (const m of run.party) {
+  run.party.forEach((m, index) => {
+    const before = xpProgress(m);
     const r = gainXp(m, xp);
+    const after = xpProgress(m);
+    report.xpGains.push({ uid: m.uid, index, from: { level: r.from, frac: before.frac }, to: { level: r.to, frac: after.frac }, after });
     if (r.to > r.from) report.levelUps.push({ name: m.genome.name, from: r.from, to: r.to });
     for (const id of r.learned) report.learned.push({ name: m.genome.name, move: getMove(id).name });
     for (const id of r.pending) run.pendingLearns.push({ uid: m.uid, moveId: id });
-  }
+  });
   if (capturedBattler) {
     const nm = makeMember(capturedBattler.genome, capturedBattler.level, nextUid(run));
     nm.hp = Math.max(1, capturedBattler.hp);
