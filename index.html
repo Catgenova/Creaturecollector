@@ -849,6 +849,51 @@ RIGS.ooze = {
   },
 };
 
+RIGS.fungus = {
+  id: 'fungus', name: 'Fungus', prefix: 'g.',
+  slots: ['body', 'head', 'eyes', 'mouth', 'gills', 'spores', 'roots', 'ring', 'shelves', 'veil', 'glow', 'pattern'],
+  names: {
+    body: 'Cap', head: 'Stalk', eyes: 'Eyes', mouth: 'Mouth', gills: 'Gills', spores: 'Spores',
+    roots: 'Roots', ring: 'Ring', shelves: 'Shelves', veil: 'Veil', glow: 'Glow', pattern: 'Spots',
+  },
+  paint: ['body', 'head', 'gills', 'spores', 'roots', 'ring', 'shelves', 'veil', 'glow', 'pattern'],
+  swappable: ['spores', 'ring', 'shelves', 'veil', 'glow', 'pattern'],
+  required: ['body', 'head', 'eyes', 'mouth', 'gills', 'roots'],
+  linked: [['gills', 'veil'], ['head', 'roots']],
+  ground: ['head', 'roots'],
+  clipped: ['pattern'],
+  // The cap is the root: the stalk hangs from it and carries the face, the roots stand on the ground.
+  tree: {
+    slot: 'body', anim: 'body',
+    behind: [
+      { slot: 'glow', fitBox: true },
+      { slot: 'gills', socket: 'gills' },
+      {
+        slot: 'head', socket: 'stalk', scale: 'head', anim: 'head',
+        behind: [{ slot: 'roots', socket: 'rootFar', far: true, scale: 'leg' }],
+        front: [
+          { slot: 'roots', socket: 'root', scale: 'leg' },
+          { slot: 'shelves', socket: 'shelf' },
+          { slot: 'ring', socket: 'ring' },
+          { slot: 'eyes', socket: 'eyeFar', far: true, scale: 'eye', small: true },
+          { slot: 'eyes', socket: 'eye', scale: 'eye', small: true },
+          { slot: 'mouth', socket: 'mouth', small: true },
+        ],
+      },
+      { slot: 'veil', socket: 'veil', anim: 'sway' },
+    ],
+    front: [{ slot: 'spores', socket: 'spores', anim: 'sway', small: true }],
+  },
+  mannequin: {
+    parts: {
+      body: 'g.body.button', head: 'g.head.stout', eyes: 'g.eyes.round', mouth: 'g.mouth.smile', gills: 'g.gills.fine', roots: 'g.roots.mycelium',
+      spores: 'g.spores.none', ring: 'g.ring.none', shelves: 'g.shelves.none', veil: 'g.veil.none', glow: 'g.glow.none', pattern: 'g.pattern.none',
+    },
+    forSlot: {},
+    accentSlots: ['gills', 'spores', 'roots', 'ring', 'shelves', 'veil', 'glow', 'pattern'],
+  },
+};
+
 const RIG_IDS = Object.keys(RIGS);
 
 /** Rig used when a genome names none or an unknown one (old saves): the first class. */
@@ -7010,12 +7055,337 @@ const OOZE_PARTS = {
   crown: OZ_CROWNS, tendrils: OZ_TENDRILS, base: OZ_BASES, inclusions: OZ_INCLUSIONS, sheen: OZ_SHEEN, bumps: OZ_BUMPS,
 };
 
+// ---- src/data/parts/fungus/_shared.js ----
+// Fungus builders: the shared constructors namespaced with "g." (fungi).
+// Caps about 60 wide and 35 tall are the root part; the stalk (the "head" slot) hangs from the cap's stalk
+// socket, carries the face, and reaches the ground through the roots.
+
+
+const fungusBuilders = partBuilders('g.');
+const fgBody = fungusBuilders.body;
+const fgLeg = fungusBuilders.leg;
+const fgPart = fungusBuilders.part;
+
+// ---- src/data/parts/fungus/caps.js ----
+// Fungus caps (the body slot). Origin = centre of the cap. Sockets: stalk (bottom centre, where the stalk hangs),
+// gills and veil (the rim), spores (the top).
+// kinds: 'fungus.dome' (buttons), 'fungus.flat' (parasols and funnels), 'fungus.cone' (pointed),
+// 'fungus.tall' (morels and bells), 'fungus.ball' (puffballs).
+// Evolutions: stage 2 swells and buds a small side cap behind; stage 3 buds another and rings the crown.
+
+
+
+
+const fgBud = (x, y, r) => [[x - r, y], [x - r * 0.8, y - r * 0.5], [x - r * 0.4, y - r * 0.9], [x, y - r], [x + r * 0.4, y - r * 0.9], [x + r * 0.8, y - r * 0.5], [x + r, y], [x, y + r * 0.25]];
+const fgCapStages = (x2, y2, x3, y3, r = 10) => ({
+  2: { grow: [1.06, 1.06], addBehind: [{ pts: fgBud(x2, y2, r), f: 'p' }] },
+  3: { grow: [1.06, 1.07], addBehind: [{ pts: fgBud(x3, y3, r + 2), f: 'p' }], add: [evoRing(0, -4, r * 0.8, 'a', 1.2, { op: 0.45 })] },
+});
+const fgCapSockets = (rim, top, o = {}) => ({ stalk: { x: 0, y: rim - 2, a: 0, s: 1 }, gills: { x: 0, y: rim - 1, a: 0, s: 1 }, veil: { x: 0, y: rim, a: 0, s: 1 }, spores: { x: 0, y: top, a: 0, s: 1 }, ...o });
+
+const FG_CAPS = [
+  fgBody({
+    id: 'button', name: 'Button', kind: 'fungus.dome', tags: ['dome'], dom: 0.5, w: 3,
+    pts: [[-30, 10], [-30, 2], [-24, -10], [-12, -18], [0, -20], [12, -18], [24, -10], [30, 2], [30, 10], [0, 14]],
+    shade: torsoShade(-30, 30, -20, 14, { shadeFrac: 0.35 }),
+    extra: [HL('M-22,-6 C-18,-13 -10,-17 -2,-17 C-10,-15 -16,-11 -20,-4 Z', 0.22)],
+    sockets: fgCapSockets(12, -20), stages: fgCapStages(26, 4, -28, 2, 9),
+  }),
+  fgBody({
+    id: 'parasol', name: 'Parasol', kind: 'fungus.flat', tags: ['flat', 'wide'], dom: 0.5, w: 2,
+    pts: [[-40, 6], [-36, -2], [-24, -8], [-10, -12], [0, -13], [10, -12], [24, -8], [36, -2], [40, 6], [20, 9], [0, 10], [-20, 9]],
+    shade: torsoShade(-40, 40, -13, 10, { shadeFrac: 0.35 }),
+    extra: [HL('M-30,-2 C-24,-8 -14,-11 -4,-11 C-14,-9 -22,-6 -28,0 Z', 0.22), L('M-26,-4 L-22,6 M-8,-10 L-6,8 M10,-10 L8,8 M26,-4 L22,6', 'k', 1, { op: 0.16 })],
+    sockets: fgCapSockets(8, -13), stages: fgCapStages(34, 2, -36, 0, 8),
+  }),
+  fgBody({
+    id: 'cone', name: 'Cone', kind: 'fungus.cone', tags: ['pointed'], dom: 0.5, w: 2,
+    pts: [[-26, 12], [-22, 0], [-14, -14], [-6, -26], [0, -34], [6, -26], [14, -14], [22, 0], [26, 12], [0, 15]],
+    shade: torsoShade(-26, 26, -34, 15, { shadeFrac: 0.35 }),
+    extra: [HL('M-14,-6 C-11,-14 -7,-22 -2,-30 C-4,-22 -7,-14 -10,-4 Z', 0.22)],
+    sockets: fgCapSockets(13, -34), stages: fgCapStages(22, 6, -24, 4, 8),
+  }),
+  fgBody({
+    id: 'morel', name: 'Morel', kind: 'fungus.tall', tags: ['tall', 'honeycomb'], dom: 0.5, w: 2,
+    pts: [[-18, 14], [-22, 0], [-18, -16], [-10, -28], [0, -32], [10, -28], [18, -16], [22, 0], [18, 14], [0, 17]],
+    shade: torsoShade(-22, 22, -32, 17, { shadeFrac: 0.35 }),
+    extra: [L('M-14,-16 L-6,-22 L4,-18 L12,-22 M-16,-4 L-6,-8 L2,-2 L10,-8 L16,-2 M-14,8 L-4,4 L4,10 L12,4', 'k', 1.2, { op: 0.3 }), C(-8, -14, 1.6, 'k', { ns: true, op: 0.2 }), C(6, -12, 1.6, 'k', { ns: true, op: 0.2 }), C(-6, 2, 1.6, 'k', { ns: true, op: 0.2 }), C(8, 0, 1.6, 'k', { ns: true, op: 0.2 })],
+    sockets: fgCapSockets(15, -32), stages: fgCapStages(18, 8, -20, 6, 8),
+  }),
+  fgBody({
+    id: 'puffball', name: 'Puffball', kind: 'fungus.ball', tags: ['round'], dom: 0.5, w: 2,
+    pts: [[-24, 6], [-22, -8], [-14, -20], [0, -24], [14, -20], [22, -8], [24, 6], [16, 16], [0, 20], [-16, 16]],
+    shade: torsoShade(-24, 24, -24, 20, { shadeFrac: 0.35 }),
+    extra: [HL('M-16,-8 C-13,-15 -7,-20 0,-21 C-7,-18 -12,-13 -14,-4 Z', 0.22), C(-6, 4, 1.4, 'k', { ns: true, op: 0.18 }), C(8, -2, 1.4, 'k', { ns: true, op: 0.18 }), C(2, 12, 1.2, 'k', { ns: true, op: 0.18 })],
+    sockets: fgCapSockets(18, -24), stages: fgCapStages(22, 10, -24, 8, 8),
+  }),
+  fgBody({
+    id: 'bell', name: 'Bell', kind: 'fungus.tall', tags: ['tall', 'bell'], dom: 0.5, w: 2,
+    pts: [[-22, 14], [-22, -4], [-16, -18], [-8, -26], [0, -28], [8, -26], [16, -18], [22, -4], [22, 14], [12, 17], [0, 18], [-12, 17]],
+    shade: torsoShade(-22, 22, -28, 18, { shadeFrac: 0.35 }),
+    extra: [HL('M-16,-10 C-13,-18 -8,-23 -2,-25 C-7,-21 -11,-16 -14,-6 Z', 0.22), L('M-8,-22 L-9,12 M6,-23 L8,12', 'k', 1, { op: 0.16 })],
+    sockets: fgCapSockets(16, -28), stages: fgCapStages(20, 8, -22, 6, 8),
+  }),
+  fgBody({
+    id: 'funnel', name: 'Funnel', kind: 'fungus.flat', tags: ['flat', 'wavy'], dom: 0.5, w: 2,
+    pts: [[-34, 4], [-28, -8, 'c'], [-18, -4], [-10, -12, 'c'], [0, -6], [10, -12, 'c'], [18, -4], [28, -8, 'c'], [34, 4], [20, 8], [0, 10], [-20, 8]],
+    shade: torsoShade(-34, 34, -12, 10, { shadeFrac: 0.35 }),
+    extra: [HL('M-26,-4 C-22,-8 -14,-8 -8,-6 C-14,-4 -20,-2 -24,2 Z', 0.22), L('M-20,-3 L-16,6 M0,-5 L0,8 M20,-3 L16,6', 'k', 1, { op: 0.16 })],
+    sockets: fgCapSockets(8, -8), stages: fgCapStages(30, 2, -32, 0, 8),
+  }),
+];
+
+// ---- src/data/parts/fungus/stalks.js ----
+// Fungus stalks (the head slot). Origin = the top centre, where the stalk meets the cap; the stalk hangs down
+// from there. Sockets: eye / eyeFar and mouth on the front, ring (high), shelf (the side), root / rootFar (bottom).
+// Evolutions: stage 2 thickens; stage 3 bands the stalk like an old trunk.
+
+
+
+
+const fgStalkStages = (bandY) => ({
+  2: { grow: [1.04, 1.06] },
+  3: { grow: [1.06, 1.1], add: [...evoBands(bandY, 2, 2.2, 6), evoRing(0, bandY - 5, 4, 'a', 1, { op: 0.5 })] },
+});
+const fgStalkSockets = (L, o = {}) => ({ eye: { x: 5, y: 10, s: 1 }, eyeFar: { x: -4, y: 9, s: 0.9 }, mouth: { x: 3, y: 18, a: 0, s: 1 }, ring: { x: 0, y: 6, a: 0, s: 1 }, shelf: { x: 9, y: 22, a: 0, s: 1 }, root: { x: 4, y: L, a: 0 }, rootFar: { x: -4, y: L - 2, a: 0 }, ...o });
+
+const FG_STALKS = [
+  fgPart({
+    id: 'stout', slot: 'head', name: 'Stout', tags: ['stalk'], dom: 0.5, w: 3,
+    shapes: [[[-10, 0], [10, 0], [12, 14], [12, 28], [10, 36], [0, 38], [-10, 36], [-12, 28], [-12, 14]]],
+    extra: [HL('M-10,4 C-9,12 -9,22 -8,32 C-6,22 -6,12 -6,4 Z', 0.18)],
+    sockets: fgStalkSockets(36), stages: fgStalkStages(28),
+  }),
+  fgPart({
+    id: 'slender', slot: 'head', name: 'Slender', tags: ['thin', 'tall'], dom: 0.5, w: 2,
+    shapes: [[[-9, 0], [9, 0], [10, 16], [9, 34], [7, 42], [0, 44], [-7, 42], [-9, 34], [-10, 16]]],
+    extra: [HL('M-8,4 C-8,14 -7,26 -6,38 C-5,26 -5,14 -5,4 Z', 0.18)],
+    sockets: fgStalkSockets(42, { shelf: { x: 8, y: 26, a: 0, s: 1 } }), stages: fgStalkStages(32),
+  }),
+  fgPart({
+    id: 'bulb', slot: 'head', name: 'Bulbous', tags: ['fat'], dom: 0.5, w: 2,
+    shapes: [[[-10, 0], [10, 0], [11, 14], [14, 26], [16, 36], [10, 42], [0, 44], [-10, 42], [-16, 36], [-14, 26], [-11, 14]]],
+    extra: [HL('M-9,4 C-10,14 -12,26 -12,36 C-9,26 -7,14 -6,4 Z', 0.18)],
+    sockets: fgStalkSockets(42, { root: { x: 6, y: 42, a: 0 }, rootFar: { x: -6, y: 40, a: 0 } }), stages: fgStalkStages(32),
+  }),
+  fgPart({
+    id: 'bent', slot: 'head', name: 'Bent', tags: ['curved'], dom: 0.5, w: 2,
+    shapes: [tube([[0, 0], [5, 12], [3, 24], [-3, 36]], 20, 15, { tipK: 1 })],
+    extra: [HL('M-8,4 C-5,14 -6,24 -10,32 C-8,24 -6,14 -4,4 Z', 0.18)],
+    sockets: fgStalkSockets(40, { eye: { x: 7, y: 10, s: 1 }, eyeFar: { x: -2, y: 9, s: 0.9 }, mouth: { x: 5, y: 18, a: 0, s: 1 }, ring: { x: 2, y: 6, a: 0, s: 1 }, shelf: { x: 10, y: 22, a: 0, s: 1 }, root: { x: 0, y: 40, a: 0 }, rootFar: { x: -7, y: 38, a: 0 } }),
+    stages: fgStalkStages(28),
+  }),
+  fgPart({
+    id: 'ribbed', slot: 'head', name: 'Ribbed', tags: ['ribbed'], dom: 0.5, w: 2,
+    shapes: [[[-11, 0], [11, 0], [13, 14], [13, 30], [10, 38], [0, 40], [-10, 38], [-13, 30], [-13, 14]]],
+    extra: [L('M-6,4 L-7,34 M0,22 L0,36 M6,4 L7,34', 'k', 1.2, { op: 0.22 }), HL('M-11,4 C-11,14 -11,24 -10,34 C-9,24 -8,14 -8,4 Z', 0.16)],
+    sockets: fgStalkSockets(38), stages: fgStalkStages(30),
+  }),
+  fgPart({
+    id: 'woody', slot: 'head', name: 'Woody', tags: ['thick', 'trunk'], dom: 0.55, w: 2,
+    shapes: [[[-14, 0], [14, 0], [16, 12], [16, 30], [14, 40], [0, 42], [-14, 40], [-16, 30], [-16, 12]]],
+    extra: [L('M-10,24 C-8,30 -10,36 -8,40 M8,26 C10,30 8,36 10,40', 'k', 1.2, { op: 0.25 }), HL('M-13,4 C-13,14 -13,26 -12,36 C-10,26 -9,14 -9,4 Z', 0.16)],
+    sockets: fgStalkSockets(40, { eye: { x: 6, y: 11, s: 1 }, eyeFar: { x: -5, y: 10, s: 0.9 }, mouth: { x: 4, y: 20, a: 0, s: 1 }, shelf: { x: 13, y: 24, a: 0, s: 1 }, root: { x: 6, y: 40, a: 0 }, rootFar: { x: -6, y: 38, a: 0 } }),
+    stages: fgStalkStages(30),
+  }),
+  fgPart({
+    id: 'stubby', slot: 'head', name: 'Stubby', tags: ['short'], dom: 0.5, w: 2,
+    shapes: [[[-12, 0], [12, 0], [14, 10], [13, 20], [10, 26], [0, 28], [-10, 26], [-13, 20], [-14, 10]]],
+    extra: [HL('M-11,3 C-11,10 -11,17 -10,23 C-8,17 -7,10 -7,3 Z', 0.18)],
+    sockets: fgStalkSockets(26, { eye: { x: 5, y: 8, s: 1 }, eyeFar: { x: -4, y: 7, s: 0.9 }, mouth: { x: 3, y: 15, a: 0, s: 1 }, ring: { x: 0, y: 4, a: 0, s: 1 }, shelf: { x: 11, y: 16, a: 0, s: 1 }, root: { x: 4, y: 26, a: 0 }, rootFar: { x: -4, y: 24, a: 0 } }),
+    stages: fgStalkStages(20),
+  }),
+];
+
+// ---- src/data/parts/fungus/face.js ----
+// Fungus eyes and mouths, drawn on the stalk under the cap.
+// Evolutions: eyes ring the iris then glow; mouths grow with the face family.
+
+
+
+
+const fgEyeStages = (r) => ({
+  2: { grow: [1.05, 1.05], add: [evoRing(0.6, 0.2, r * 0.95, 'a', 1.2, { cl: true, op: 0.8 })] },
+  3: { grow: [1.05, 1.05], add: [evoGlow(0.6, 0.2, r * 1.5, 0.2), C(-1.2, -1.6, r * 0.3, 'w', { ns: true, op: 0.9 })] },
+});
+function fgEye({ id, name, shape, sclera = 'w', iris = [0.6, 0.2, 3.4], irisRole = 'e', pupil = [1, 0.5, 1.8], glint = [1.9, -1.6, 1.2], lid, extra = [], tags = [], w = 2 }) {
+  const prims = [P(shape, sclera, { sw: 2 })];
+  if (iris) prims.push(C(iris[0], iris[1], iris[2], irisRole, { ns: true, cl: true }));
+  if (pupil) prims.push(Array.isArray(pupil[2]) ? E(pupil[0], pupil[1], pupil[2][0], pupil[2][1], 'k', { ns: true, cl: true }) : C(pupil[0], pupil[1], pupil[2], 'k', { ns: true, cl: true }));
+  if (glint) prims.push(C(glint[0], glint[1], glint[2], 'w', { ns: true }));
+  if (lid) prims.push(L(lid, 'k', 1.6));
+  return fgPart({ id, slot: 'eyes', name, tags, dom: 0.5, w, extra: [...prims, ...extra], stages: fgEyeStages(iris ? iris[2] : 3) });
+}
+const FG_OVAL = spline([[0, -5.5], [5, -1.5], [4.6, 4], [0, 5.8], [-4.6, 4], [-5, -1.5]]);
+const FG_ROUND = spline([[0, -6], [5.6, -2.2], [5.6, 2.8], [0, 6.2], [-5.6, 2.8], [-5.6, -2.2]]);
+
+const FG_EYES = [
+  fgEye({ id: 'round', name: 'Round', tags: ['round'], w: 3, shape: FG_ROUND, iris: [0.6, 0.4, 4.2], pupil: [1, 0.8, 2.2], glint: [2.2, -2, 1.5] }),
+  fgEye({ id: 'bead', name: 'Bead', tags: ['bead'], w: 2, shape: spline([[0, -4], [3.8, -1.2], [3.6, 2.8], [0, 4.4], [-3.6, 2.8], [-3.8, -1.2]]), iris: [0.3, 0.2, 3], irisRole: 'k', pupil: null, glint: [1.2, -1.2, 1.1] }),
+  fgEye({ id: 'sleepy', name: 'Drowsy', tags: ['sleepy'], shape: FG_OVAL, iris: [0.6, 1, 3.4], pupil: [1, 1.2, 1.8], glint: [1.8, -0.4, 1], lid: 'M-5,-2 Q0,-3.5 5,-2' }),
+  fgEye({ id: 'wide', name: 'Wide', tags: ['cute'], shape: spline([[0, -7], [6.4, -2.4], [6, 5], [0, 7.4], [-6, 5], [-6.4, -2.4]]), iris: [0.6, 0.4, 4.8], pupil: [1, 0.8, 2.8], glint: [2.6, -2.4, 1.7] }),
+  fgEye({ id: 'glow', name: 'Glowing', tags: ['light'], w: 1, shape: FG_OVAL, sclera: 'e', iris: [0.4, 0, 3.6], irisRole: 'el', pupil: null, glint: [1.6, -1.6, 1.2] }),
+  fgEye({ id: 'squint', name: 'Squint', tags: ['sly'], shape: spline([[-6, 0, 'c'], [-1, -3.4], [6, 0, 'c'], [-1, 3.4]]), iris: [0.4, 0, 2.8], pupil: [0.8, 0, [1, 2.2]], glint: [1.6, -1.2, 0.9] }),
+  fgEye({ id: 'spore', name: 'Spore-eyed', tags: ['dotted'], shape: FG_ROUND, iris: [0.6, 0.2, 4], pupil: [0.8, 0.4, 1.4], glint: [2, -1.8, 1.1], extra: [C(-2.4, 1.8, 0.7, 'a', { ns: true, op: 0.8 }), C(2.8, 2.4, 0.6, 'a', { ns: true, op: 0.8 }), C(-1.6, -2.6, 0.6, 'a', { ns: true, op: 0.8 })] }),
+];
+
+const FG_MOUTHS = [
+  fgPart({ id: 'smile', slot: 'mouth', name: 'Smile', tags: ['happy'], dom: 0.5, w: 3, extra: [L('M4,-1 C0,3 -6,4 -12,1', 'k', 2)] }),
+  fgPart({ id: 'grin', slot: 'mouth', name: 'Grin', tags: ['happy'], dom: 0.5, w: 2, extra: [P('M4,-1 C0,4 -6,5 -12,1 C-6,2 0,1 4,-1 Z', 'k', { ns: true }), P('M1,0 C-2,2 -6,2.6 -10,1 C-6,1.6 -2,1 1,0 Z', 'w', { ns: true })] }),
+  fgPart({ id: 'gape', slot: 'mouth', name: 'Gape', tags: ['open'], dom: 0.5, w: 2, extra: [E(-3, 1, 4.2, 3.4, 'k', { ns: true }), E(-3, 2.4, 2.4, 1.4, 'a', { ns: true, op: 0.85 }), C(-4.6, -0.6, 0.8, 'w', { ns: true, op: 0.6 })] }),
+  fgPart({ id: 'frown', slot: 'mouth', name: 'Frown', tags: ['grumpy'], dom: 0.45, w: 2, extra: [L('M4,2 C0,-2 -6,-3 -12,0', 'k', 2)] }),
+  fgPart({ id: 'tooth', slot: 'mouth', name: 'Buck tooth', tags: ['tooth'], dom: 0.5, w: 2, extra: [L('M4,-1 C0,3 -6,4 -12,1', 'k', 2), P('M-2,2 L-2,6.5 L-6,6 L-6,2.6 Z', 'w', { sw: 1 })] }),
+  fgPart({ id: 'whistle', slot: 'mouth', name: 'Whistle', tags: ['round'], dom: 0.45, w: 2, extra: [C(-3, 0, 2.6, 'k', { ns: true }), C(-3, 0, 1.2, 'pd', { ns: true }), L('M1,-2 L3,-3 M1,2 L3,3', 'k', 1, { op: 0.5 })] }),
+  fgPart({ id: 'wavy', slot: 'mouth', name: 'Wavy', tags: ['queasy'], dom: 0.45, w: 2, extra: [L('M5,0 C3,-2.5 1,2.5 -1,0 C-3,-2.5 -5,2.5 -7,0 C-9,-2.5 -11,1.5 -13,0', 'k', 1.8)] }),
+];
+
+// ---- src/data/parts/fungus/growth.js ----
+// Fungus gills (a band under the cap's rim, drawn behind the stalk), spores (drifting above the cap, in front)
+// and roots (origin = the root socket at the stalk's foot; their lowest point stands on the ground).
+// Evolutions: gills and spores grow a little; roots grow and band.
+
+
+
+
+
+const fgGillStages = { 2: { grow: [1.05, 1.1] }, 3: { grow: [1.08, 1.2] } };
+const fgSporeStages = { 2: { grow: [1.1, 1.1] }, 3: { grow: [1.12, 1.12], add: [C(-14, -22, 1.4, 'a', { ns: true, op: 0.8 }), C(16, -24, 1.2, 'a', { ns: true, op: 0.8 })] } };
+const fgRootStages = (bandY) => ({
+  2: { grow: [1.06, 1.08] },
+  3: { reset: true, grow: [1.12, 1.16], add: [...evoBands(bandY, 2, 2.2, 5), evoRing(0, bandY - 4, 5, 'a', 1, { op: 0.5 })] },
+});
+const fgBand = (w, d) => [[-w, 0], [w, 0], [w * 0.85, d * 0.7], [0, d], [-w * 0.85, d * 0.7]];
+const fgRays = (n, w, d) => Array.from({ length: n }, (_, i) => { const t = -1 + (2 * (i + 0.5)) / n; return `M${(t * w * 0.9).toFixed(1)},0.5 L${(t * w * 0.8).toFixed(1)},${(d * (1 - 0.35 * t * t)).toFixed(1)}`; }).join(' ');
+
+const FG_GILLS = [
+  fgPart({ id: 'fine', slot: 'gills', name: 'Fine gills', tags: ['gill'], dom: 0.5, w: 3, shapes: [{ pts: fgBand(24, 8), f: 'sd' }], extra: [L(fgRays(11, 24, 7), 'k', 0.9, { op: 0.35 })], stages: fgGillStages }),
+  fgPart({ id: 'broad', slot: 'gills', name: 'Broad gills', tags: ['gill'], dom: 0.5, w: 2, shapes: [{ pts: fgBand(24, 9), f: 'sd' }], extra: [L(fgRays(6, 24, 8), 'k', 1.6, { op: 0.35 })], stages: fgGillStages }),
+  fgPart({ id: 'pores', slot: 'gills', name: 'Pores', tags: ['dots'], dom: 0.5, w: 2, shapes: [{ pts: fgBand(24, 8), f: 'sd' }], extra: [...[[-16, 3], [-8, 5], [0, 6], [8, 5], [16, 3], [-12, 1.5], [12, 1.5], [-4, 2.5], [4, 2.5]].map(([x, y]) => C(x, y, 1, 'k', { ns: true, op: 0.35 }))], stages: fgGillStages }),
+  fgPart({ id: 'teeth', slot: 'gills', name: 'Teeth', tags: ['spiky'], dom: 0.5, w: 2, shapes: [{ pts: [[22, 0], ...fur([22, 0], [-22, 0], 7, 7, { tip: 'c' }), [-22, -1], [22, -1]], f: 'sd' }], stages: fgGillStages }),
+  fgPart({ id: 'ruffle', slot: 'gills', name: 'Ruffle', tags: ['wavy'], dom: 0.5, w: 2, shapes: [[[-24, 0], [24, 0], [20, 6, 'c'], [14, 4], [8, 9, 'c'], [2, 5], [-4, 9, 'c'], [-10, 4], [-16, 8, 'c'], [-21, 5]]], extra: [L(fgRays(7, 22, 5), 'k', 0.9, { op: 0.3 })], stages: fgGillStages }),
+  fgPart({ id: 'dark', slot: 'gills', name: 'Dark gills', tags: ['dark'], dom: 0.5, w: 2, shapes: [{ pts: fgBand(24, 8), f: 'k' }], extra: [L(fgRays(9, 24, 7), 'w', 0.8, { op: 0.2 })], stages: fgGillStages }),
+  fgPart({ id: 'lace', slot: 'gills', name: 'Lace', tags: ['net'], dom: 0.5, w: 2, shapes: [{ pts: fgBand(24, 9), f: 'sl' }], extra: [L(fgRays(9, 24, 8), 'k', 0.8, { op: 0.3 }), L('M-20,3 C-10,6 10,6 20,3 M-14,6 C-6,8 6,8 14,6', 'k', 0.8, { op: 0.3 })], stages: fgGillStages }),
+];
+
+const FG_SPORES = [
+  NONE('spores', 0.3, 'g.'),
+  fgPart({ id: 'motes', slot: 'spores', name: 'Motes', tags: ['dots'], dom: 0.5, w: 3, extra: [C(-8, -6, 1.8, 'a', { ns: true, op: 0.85 }), C(4, -10, 1.4, 'a', { ns: true, op: 0.85 }), C(12, -4, 1.2, 'a', { ns: true, op: 0.85 })], stages: fgSporeStages }),
+  fgPart({ id: 'drift', slot: 'spores', name: 'Drift', tags: ['trail'], dom: 0.5, w: 2, extra: [...[[2, -4], [8, -9], [16, -12], [24, -13], [30, -18], [12, -18], [20, -22]].map(([x, y], i) => C(x, y, i % 2 ? 1.1 : 1.6, 'a', { ns: true, op: 0.8 }))], stages: fgSporeStages }),
+  fgPart({ id: 'cloud', slot: 'spores', name: 'Spore cloud', tags: ['puff'], dom: 0.5, w: 2, extra: [P(`${puff(0, -12, 14, 9, 3).map((p, i) => `${i ? 'L' : 'M'}${p[0].toFixed(1)},${p[1].toFixed(1)}`).join(' ')} Z`, 'a', { ns: true, op: 0.22 }), C(-6, -14, 1.4, 'a', { ns: true, op: 0.8 }), C(5, -18, 1.2, 'a', { ns: true, op: 0.8 }), C(10, -8, 1, 'a', { ns: true, op: 0.8 })], stages: fgSporeStages }),
+  fgPart({ id: 'sparkle', slot: 'spores', name: 'Sparkle', tags: ['light'], dom: 0.5, w: 2, extra: [P(sparklePath(-10, -8, 3.5), 'a', { ns: true }), P(sparklePath(6, -14, 3), 'a', { ns: true }), P(sparklePath(16, -4, 2.6), 'a', { ns: true }), C(-2, -18, 1, 'a', { ns: true, op: 0.8 })], stages: fgSporeStages }),
+  fgPart({ id: 'ring', slot: 'spores', name: 'Spore ring', tags: ['ring'], dom: 0.5, w: 2, extra: [...[0, 40, 80, 120, 160, 200, 240, 280, 320].map((a) => C(Math.cos((a * Math.PI) / 180) * 18, -8 + Math.sin((a * Math.PI) / 180) * 7, 1.4, 'a', { ns: true, op: 0.85 }))], stages: fgSporeStages }),
+  fgPart({ id: 'fall', slot: 'spores', name: 'Falling spores', tags: ['rain'], dom: 0.5, w: 2, extra: [...[[-30, 14], [-34, 26], [-28, 38], [30, 16], [34, 28], [28, 40], [-36, 6], [36, 6]].map(([x, y], i) => C(x, y, i % 3 ? 1.1 : 1.5, 'a', { ns: true, op: 0.8 }))], stages: fgSporeStages }),
+  fgPart({ id: 'swirl', slot: 'spores', name: 'Swirl', tags: ['spiral'], dom: 0.5, w: 2, extra: [L(spiralPath(4, -12, 11, 1.6, -40), 'a', 1, { op: 0.4 }), ...[[-6, -6], [8, -18], [14, -8], [-2, -20]].map(([x, y]) => C(x, y, 1.3, 'a', { ns: true, op: 0.85 }))], stages: fgSporeStages }),
+];
+
+const FG_ROOTS = [
+  fgLeg({ id: 'mycelium', slot: 'roots', name: 'Mycelium', tags: ['threads'], dom: 0.5, w: 3, shapes: [tube([[0, 0], [1, 6]], 8, 5, { tipK: 1 }), tube([[-3, 4], [-8, 10], [-11, 15]], 3, 1.5, { tipK: 1 }), tube([[0, 5], [1, 11], [0, 16]], 3, 1.5, { tipK: 1 }), tube([[3, 4], [8, 9], [11, 14]], 3, 1.5, { tipK: 1 })], stages: fgRootStages(4) }),
+  fgLeg({ id: 'stump', slot: 'roots', name: 'Stump foot', tags: ['thick'], dom: 0.55, w: 2, shapes: [[[-8, 0], [8, 0], [10, 10], [7, 15], [-7, 15], [-10, 10]]], extra: [L('M-4,15 L-4,11 M2,15 L2,11', 'k', 1.4, { op: 0.4 }), HL('M-8,0 L-3,0 L-4,12 L-8,10 Z', 0.13)], stages: fgRootStages(7) }),
+  fgLeg({ id: 'pad', slot: 'roots', name: 'Pad', tags: ['flat'], dom: 0.5, w: 2, shapes: [tube([[0, 0], [0, 8]], 8, 6, { tipK: 1 }), [[-12, 8], [12, 8], [13, 12], [0, 14], [-13, 12]]], extra: [HL('M-11,9 C-8,8 -4,8 -1,9 C-4,10 -8,10 -11,11 Z', 0.16)], stages: fgRootStages(5) }),
+  fgLeg({ id: 'toes', slot: 'roots', name: 'Toes', tags: ['nubs'], dom: 0.5, w: 2, shapes: [tube([[0, 0], [0, 7]], 9, 7, { tipK: 1 }), tube([[-4, 6], [-7, 12]], 4, 3, { tipK: 1 }), tube([[0, 7], [0, 13]], 4, 3, { tipK: 1 }), tube([[4, 6], [7, 12]], 4, 3, { tipK: 1 })], stages: fgRootStages(4) }),
+  fgLeg({ id: 'stilts', slot: 'roots', name: 'Stilt roots', tags: ['tall'], dom: 0.45, w: 2, shapes: [tube([[0, 0], [1, 10], [0, 20]], 4, 3, { tipK: 1 }), [[-6, 18], [8, 18], [8, 22], [-6, 22]]], stages: fgRootStages(8) }),
+  fgLeg({ id: 'knot', slot: 'roots', name: 'Knotted root', tags: ['gnarled'], dom: 0.5, w: 2, shapes: [tube([[0, 0], [-3, 5], [2, 10], [-1, 15]], 8, 4, { tipK: 'c' })], extra: [C(-2, 4, 2, 'pd', { sw: 1.2 }), C(2, 9, 1.8, 'pd', { sw: 1.2 })], stages: fgRootStages(6) }),
+  fgLeg({ id: 'bulb', slot: 'roots', name: 'Bulb', tags: ['round'], dom: 0.5, w: 2, shapes: [[[-6, 0], [6, 0], [10, 6], [10, 12], [6, 16], [-6, 16], [-10, 12], [-10, 6]]], extra: [HL('M-8,4 C-7,2 -4,1 -1,1 C-4,3 -6,6 -7,10 Z', 0.16), L('M-3,16 L-3,13 M3,16 L3,13', 'k', 1.2, { op: 0.35 })], stages: fgRootStages(8) }),
+];
+
+// ---- src/data/parts/fungus/dress.js ----
+// Fungus rings (the annulus around the stalk, origin = the ring socket), shelves (bracket fungi growing from the
+// stalk's side, origin = the shelf socket, reaching right) and veils (a short fringe hanging from the cap's rim,
+// origin = the veil socket, drawn over the stalk).
+// Evolutions: rings grow with the face family; shelves and veils grow.
+
+
+
+const fgDressStages = { 2: { grow: [1.08, 1.08] }, 3: { grow: [1.12, 1.12] } };
+const fgSkirt = (w, d) => [[-w, 0], [w, 0], [w * 0.85, d * 0.7], [0, d], [-w * 0.85, d * 0.7]];
+const fgBracket = (x, y, w, h) => [[x, y - h * 0.4], [x + w * 0.5, y - h], [x + w, y - h * 0.3], [x + w * 0.9, y + h * 0.4], [x + w * 0.4, y + h * 0.6], [x, y + h * 0.4]];
+
+const FG_RINGS = [
+  NONE('ring', 0.3, 'g.'),
+  fgPart({ id: 'skirt', slot: 'ring', name: 'Skirt', tags: ['ring'], dom: 0.5, w: 3, shapes: [{ pts: fgSkirt(16, 7), f: 'pd' }], extra: [HL('M-14,1 C-10,0 -4,0 0,1 C-4,2 -8,3 -12,3 Z', 0.2)], stages: fgDressStages }),
+  fgPart({ id: 'band', slot: 'ring', name: 'Band', tags: ['thin'], dom: 0.5, w: 2, shapes: [[[-13, 0], [13, 0], [13, 3.5], [0, 4.5], [-13, 3.5]]], extra: [L('M-11,2 L11,2', 'k', 0.8, { op: 0.25 })], stages: fgDressStages }),
+  fgPart({ id: 'frill', slot: 'ring', name: 'Frill', tags: ['wavy'], dom: 0.5, w: 2, shapes: [{ pts: [[16, 0], ...fur([16, 0], [-16, 0], 6, 5, { tip: 0.6 }), [-16, -1], [16, -1]], f: 'pd' }], stages: fgDressStages }),
+  fgPart({ id: 'collar', slot: 'ring', name: 'Collar', tags: ['upturned'], dom: 0.5, w: 2, shapes: [[[-15, 2], [-14, -6], [-10, -2], [0, -1], [10, -2], [14, -6], [15, 2], [0, 4]]], extra: [HL('M-13,-4 C-11,-2 -8,-1 -5,-1 C-8,0 -11,0 -13,1 Z', 0.2)], stages: fgDressStages }),
+  fgPart({ id: 'double', slot: 'ring', name: 'Double ring', tags: ['two'], dom: 0.5, w: 2, shapes: [{ pts: fgSkirt(15, 5), f: 'pd' }, { pts: fgSkirt(14, 5).map(([x, y]) => [x, y + 6]), f: 'pd' }], stages: fgDressStages }),
+  fgPart({ id: 'torn', slot: 'ring', name: 'Torn ring', tags: ['ragged'], dom: 0.5, w: 2, shapes: [[[-16, 0], [-4, 0], [-3, 5], [-7, 3], [-10, 7], [-13, 3], [-16, 5]], [[4, 0], [16, 0], [16, 4], [12, 7], [9, 3], [5, 6]]], stages: fgDressStages }),
+  fgPart({ id: 'cuff', slot: 'ring', name: 'Cuff', tags: ['thick'], dom: 0.5, w: 2, shapes: [[[-15, 0], [15, 0], [16, 6], [0, 8], [-16, 6]]], extra: [L('M-13,3 L13,3', 'k', 1, { op: 0.25 }), HL('M-13,1 C-9,0 -4,0 -1,1 C-4,2 -8,2 -12,3 Z', 0.18)], stages: fgDressStages }),
+];
+
+const FG_SHELVES = [
+  NONE('shelves', 0.3, 'g.'),
+  fgPart({ id: 'bracket', slot: 'shelves', name: 'Bracket', tags: ['shelf'], dom: 0.5, w: 3, shapes: [fgBracket(0, 0, 16, 6)], extra: [L('M3,3 L13,2', 'k', 0.9, { op: 0.3 }), HL('M2,-2 C6,-5 10,-5 13,-3 C9,-3 5,-2 3,0 Z', 0.2)], stages: fgDressStages }),
+  fgPart({ id: 'stack', slot: 'shelves', name: 'Stack', tags: ['many'], dom: 0.5, w: 2, shapes: [fgBracket(0, -6, 12, 4), fgBracket(0, 1, 14, 4.5), fgBracket(0, 8, 11, 4)], extra: [L('M2,-5 L10,-5 M2,2 L12,2 M2,9 L9,9', 'k', 0.8, { op: 0.3 })], stages: fgDressStages }),
+  fgPart({ id: 'ears', slot: 'shelves', name: 'Ears', tags: ['ear'], dom: 0.5, w: 2, shapes: [{ d: leaf([0, 0], [14, -8], 6, 1), f: 'p' }, { d: leaf([0, 4], [12, 10], 5, 1), f: 'p' }], extra: [L('M2,0 L11,-6 M2,5 L9,9', 'k', 0.9, { op: 0.3 })], stages: fgDressStages }),
+  fgPart({ id: 'shelf', slot: 'shelves', name: 'Flat shelf', tags: ['flat'], dom: 0.5, w: 2, shapes: [[[0, -2], [18, -3], [20, 0], [18, 3], [0, 3]]], extra: [L('M2,0 L17,0', 'k', 0.9, { op: 0.25 }), HL('M2,-1.5 L14,-2 L12,-0.5 L2,-0.5 Z', 0.2)], stages: fgDressStages }),
+  fgPart({ id: 'cups', slot: 'shelves', name: 'Cups', tags: ['cup'], dom: 0.5, w: 2, extra: [P('M1,-5 C1,-9 9,-9 9,-5 C9,-2 6,0 5,0 C4,0 1,-2 1,-5 Z', 'p', { sw: 1.2 }), C(5, -5.5, 2.4, 'a', { ns: true, op: 0.6 }), P('M3,3 C3,0 10,0 10,3 C10,5.5 7.6,7 6.5,7 C5.4,7 3,5.5 3,3 Z', 'p', { sw: 1.2 }), C(6.5, 2.6, 2, 'a', { ns: true, op: 0.6 })], stages: fgDressStages }),
+  fgPart({ id: 'buttons', slot: 'shelves', name: 'Buttons', tags: ['mini'], dom: 0.5, w: 2, extra: [L('M4,4 L4,-2 M11,6 L11,1', 'w', 2.4), P('M-1,-2 C0,-7 8,-7 9,-2 Z', 'a', { sw: 1.2 }), P('M7,1 C8,-3 14,-3 15,1 Z', 'a', { sw: 1.2 }), C(2, -4, 0.8, 'w', { ns: true, op: 0.8 }), C(9.4, -0.6, 0.6, 'w', { ns: true, op: 0.8 })], stages: fgDressStages }),
+  fgPart({ id: 'coral', slot: 'shelves', name: 'Coral', tags: ['branch'], dom: 0.5, w: 2, extra: [L('M0,2 L8,-2 M8,-2 L12,-8 M8,-2 L14,-3 M0,4 L9,6 M9,6 L13,3 M9,6 L14,10', 'p', 3), L('M0,2 L8,-2 M0,4 L9,6', 'k', 0.9, { op: 0.25 }), C(12, -8, 1.6, 'a', { ns: true }), C(14, -3, 1.4, 'a', { ns: true }), C(13, 3, 1.4, 'a', { ns: true }), C(14, 10, 1.6, 'a', { ns: true })], stages: fgDressStages }),
+];
+
+const FG_VEILS = [
+  NONE('veil', 0.3, 'g.'),
+  fgPart({ id: 'fringe', slot: 'veil', name: 'Fringe', tags: ['tassels'], dom: 0.5, w: 3, shapes: [{ pts: [[22, 0], ...fur([22, 0], [-22, 0], 9, 6, { tip: 0.5 }), [-22, -1], [22, -1]], f: 's' }], stages: fgDressStages }),
+  fgPart({ id: 'tatters', slot: 'veil', name: 'Tatters', tags: ['ragged'], dom: 0.5, w: 2, shapes: [[[-22, 0], [-16, 0], [-15, 7], [-18, 4], [-21, 8]], [[-8, 0], [-2, 0], [-1, 9], [-4, 5], [-7, 8]], [[8, 0], [15, 0], [15, 6], [12, 9], [10, 4]], [[18, 0], [23, 0], [23, 7], [20, 5]]], stages: fgDressStages }),
+  fgPart({ id: 'lace', slot: 'veil', name: 'Lace', tags: ['net'], dom: 0.5, w: 2, shapes: [{ pts: [[-22, 0], [22, 0], [20, 6], [0, 9], [-20, 6]], f: 'sl' }], extra: [L('M-18,1 L-14,6 L-10,1 L-6,7 L-2,1 L2,7 L6,1 L10,7 L14,1 L18,5', 'k', 0.8, { op: 0.3 })], stages: fgDressStages }),
+  fgPart({ id: 'cobweb', slot: 'veil', name: 'Cobweb', tags: ['thread'], dom: 0.45, w: 2, extra: [L('M-20,0 C-18,4 -14,7 -10,8 M-10,0 C-9,5 -6,8 -2,9 M4,0 C5,5 8,8 12,8 M14,0 C15,4 18,6 22,6 M-20,0 L-19,10 M0,0 L0,11 M14,0 L16,10', 'sl', 1.2, { op: 0.8 })], stages: fgDressStages }),
+  fgPart({ id: 'scallop', slot: 'veil', name: 'Scallop', tags: ['wavy'], dom: 0.5, w: 2, shapes: [[[-22, 0], [22, 0], [20, 4, 'c'], [16, 6], [10, 4, 'c'], [6, 7], [0, 5, 'c'], [-6, 7], [-10, 4, 'c'], [-16, 6], [-20, 4, 'c']]], extra: [L('M-16,4 L-16,1 M-6,5 L-6,1 M6,5 L6,1 M16,4 L16,1', 'k', 0.8, { op: 0.25 })], stages: fgDressStages }),
+  fgPart({ id: 'curtain', slot: 'veil', name: 'Curtain', tags: ['long'], dom: 0.5, w: 2, shapes: [{ pts: [[-20, 0], [20, 0], [19, 8], [17, 11], [15, 8], [-15, 8], [-17, 11], [-19, 8]], f: 's' }], extra: [L('M-12,1 L-12,7 M0,1 L0,7 M12,1 L12,7', 'k', 0.8, { op: 0.2 })], stages: fgDressStages }),
+  fgPart({ id: 'beads', slot: 'veil', name: 'Beaded', tags: ['drops'], dom: 0.45, w: 2, extra: [L('M-20,0 L-20,5 M-10,0 L-10,7 M0,0 L0,6 M10,0 L10,8 M20,0 L20,5', 'sd', 1.2), C(-20, 6, 1.6, 'a', { sw: 1 }), C(-10, 8.4, 1.6, 'a', { sw: 1 }), C(0, 7.4, 1.6, 'a', { sw: 1 }), C(10, 9.4, 1.6, 'a', { sw: 1 }), C(20, 6, 1.6, 'a', { sw: 1 })], stages: fgDressStages }),
+];
+
+// ---- src/data/parts/fungus/fx.js ----
+// Fungus glow (a light behind the cap, fitted to its box) and cap patterns (spots clipped to the cap, 100 x 60 frame).
+// Evolutions: glows spread; patterns are flat.
+
+
+
+
+const fgGlowStages = (extra = []) => ({ 2: { grow: [1.08, 1.08] }, 3: { grow: [1.06, 1.06], add: [E(0, 0, 74, 48, 'a', { ns: true, op: 0.1 }), ...extra] } });
+const fgArc = (rx, ry, a0, a1, n) => L(spline(arcPts(0, 4, rx, ry, a0, a1, n), { closed: false }), 'k', 1.2, { op: 0.22 });
+
+const FG_GLOW = [
+  NONE('glow', 0.3, 'g.'),
+  fgPart({ id: 'halo', slot: 'glow', name: 'Halo', tags: ['light'], dom: 0.5, w: 3, extra: [E(0, 0, 62, 40, 'a', { ns: true, op: 0.16 }), E(0, 0, 54, 34, 'a', { ns: true, op: 0.14 })], stages: fgGlowStages() }),
+  fgPart({ id: 'aura', slot: 'glow', name: 'Aura', tags: ['light'], dom: 0.5, w: 2, extra: [E(0, 2, 70, 46, 'a', { ns: true, op: 0.12 }), E(0, 0, 60, 38, 'a', { ns: true, op: 0.14 }), E(0, -2, 50, 30, 'a', { ns: true, op: 0.14 })], stages: fgGlowStages() }),
+  fgPart({ id: 'rays', slot: 'glow', name: 'Rays', tags: ['sun'], dom: 0.5, w: 2, extra: [E(0, 0, 56, 36, 'a', { ns: true, op: 0.14 }), ...[-70, -40, -10, 20, 50, 80, 110, 140, 170, 200, 230, 260].map((a) => { const r = (a * Math.PI) / 180; return L(`M${(Math.cos(r) * 40).toFixed(1)},${(Math.sin(r) * 26).toFixed(1)} L${(Math.cos(r) * 68).toFixed(1)},${(Math.sin(r) * 44).toFixed(1)}`, 'a', 2, { op: 0.3 }); })], stages: fgGlowStages() }),
+  fgPart({ id: 'motes', slot: 'glow', name: 'Motes', tags: ['dots'], dom: 0.5, w: 2, extra: [E(0, 0, 52, 34, 'a', { ns: true, op: 0.1 }), ...[[-58, -20], [-50, 16], [56, -18], [58, 16], [-10, -42], [22, -40], [-30, 40], [30, 38], [0, -50]].map(([x, y], i) => C(x, y, i % 2 ? 2 : 2.8, 'a', { ns: true, op: 0.7 }))], stages: fgGlowStages([C(-64, 0, 2, 'a', { ns: true, op: 0.7 }), C(64, 2, 2, 'a', { ns: true, op: 0.7 })]) }),
+  fgPart({ id: 'pulse', slot: 'glow', name: 'Pulse', tags: ['rings'], dom: 0.5, w: 2, extra: [E(0, 0, 48, 30, 'a', { ns: true, op: 0.12 }), L(spline(arcPts(0, 0, 58, 37, 0, 330, 12)), 'a', 1.6, { op: 0.45 }), L(spline(arcPts(0, 0, 68, 44, 0, 330, 12)), 'a', 1.2, { op: 0.3 })], stages: fgGlowStages() }),
+  fgPart({ id: 'crescent', slot: 'glow', name: 'Crescent', tags: ['moon'], dom: 0.5, w: 2, extra: [P('M-56,-6 C-40,-48 40,-48 56,-6 C40,-34 -40,-34 -56,-6 Z', 'a', { ns: true, op: 0.3 }), E(0, -6, 50, 30, 'a', { ns: true, op: 0.1 })], stages: fgGlowStages() }),
+  fgPart({ id: 'sparkles', slot: 'glow', name: 'Sparkles', tags: ['fairy'], dom: 0.45, w: 2, extra: [E(0, 0, 50, 32, 'a', { ns: true, op: 0.1 }), ...[[-58, -22], [-50, 14], [56, -18], [58, 16], [-10, -42], [22, -40], [-30, 40], [30, 38]].flatMap(([x, y]) => [P(sparklePath(x, y, 5), 'a', { ns: true, op: 0.85 }), C(x, y, 1.6, 'w', { ns: true, op: 0.6 })])], stages: fgGlowStages() }),
+];
+
+const FG_PATTERNS = [
+  NONE('pattern', 0.3, 'g.'),
+  fgPart({ id: 'spots', slot: 'pattern', name: 'Spots', tags: ['white'], dom: 0.5, w: 3, extra: [...[[-28, -8, 7], [-6, -18, 6], [16, -12, 8], [32, 2, 5], [-12, 6, 5], [8, 8, 4], [-36, 8, 4], [30, -20, 3.5]].map(([x, y, r]) => C(x, y, r, 'w', { ns: true, op: 0.9 }))] }),
+  fgPart({ id: 'dots', slot: 'pattern', name: 'Dots', tags: ['small'], dom: 0.5, w: 2, extra: [...[[-34, -6], [-24, -16], [-14, -4], [-4, -20], [6, -8], [16, -18], [26, -6], [36, -14], [-30, 8], [-10, 12], [10, 6], [30, 10], [0, 0], [-20, 20], [20, 20]].map(([x, y], i) => C(x, y, i % 3 ? 1.8 : 2.6, 'a', { ns: true, op: 0.85 }))] }),
+  fgPart({ id: 'rings', slot: 'pattern', name: 'Rings', tags: ['ring'], dom: 0.5, w: 2, extra: [fgArc(14, 9, 180, 360, 9), fgArc(26, 16, 180, 360, 11), fgArc(38, 23, 180, 360, 13)] }),
+  fgPart({ id: 'stripes', slot: 'pattern', name: 'Stripes', tags: ['radial'], dom: 0.5, w: 2, extra: [L('M-40,12 L-30,-26 M-24,16 L-18,-28 M-8,18 L-6,-30 M8,18 L6,-30 M24,16 L18,-28 M40,12 L30,-26', 'k', 2.6, { op: 0.2 })] }),
+  fgPart({ id: 'freckles', slot: 'pattern', name: 'Freckles', tags: ['dark'], dom: 0.5, w: 2, extra: [...[[-30, -10], [-22, 2], [-16, -18], [-8, -6], [0, -22], [4, 4], [12, -14], [20, -2], [28, -16], [34, 4], [-36, 6], [16, 12], [-4, 14]].map(([x, y], i) => C(x, y, i % 2 ? 1.2 : 1.7, 'ad', { ns: true, op: 0.6 }))] }),
+  fgPart({ id: 'scales', slot: 'pattern', name: 'Scales', tags: ['patches'], dom: 0.5, w: 2, extra: [...[[-30, -6, 7, 4], [-12, -16, 6, 3.5], [8, -10, 8, 4.5], [28, -4, 6, 3.5], [-18, 8, 6, 3.5], [6, 10, 7, 4], [30, 12, 5, 3], [-4, -26, 5, 3]].map(([x, y, rx, ry]) => E(x, y, rx, ry, 'sd', { ns: true, op: 0.85 }))] }),
+  fgPart({ id: 'crackle', slot: 'pattern', name: 'Crackle', tags: ['crack'], dom: 0.5, w: 2, extra: [L('M-34,-4 L-24,-12 L-26,2 L-14,8 M-8,-24 L-2,-10 L-10,0 L-4,14 M12,-20 L8,-8 L18,0 L14,12 M30,-12 L24,-2 L34,6', 'w', 1.3, { ns: true, op: 0.55 })] }),
+];
+
+// ---- src/data/parts/fungus/index.js ----
+// The fungus library, one list per rig slot.
+
+
+
+
+
+
+
+const FUNGUS_PARTS = {
+  body: FG_CAPS, head: FG_STALKS, eyes: FG_EYES, mouth: FG_MOUTHS, gills: FG_GILLS, spores: FG_SPORES,
+  roots: FG_ROOTS, ring: FG_RINGS, shelves: FG_SHELVES, veil: FG_VEILS, glow: FG_GLOW, pattern: FG_PATTERNS,
+};
+
 // ---- src/data/parts/index.js ----
 // Part registry. Part ids are stable forever: a saved creature must decode the
 // same way after the library grows, so never rename or reuse an id.
 //
 // Parts are grouped by rig, then slot. A part fits any body of its own rig
 // unless it lists the body kinds it accepts in `fit`.
+
 
 
 
@@ -7037,6 +7407,7 @@ const RIG_PARTS = {
   amphibian: AMPHIBIAN_PARTS,
   flora: FLORA_PARTS,
   ooze: OOZE_PARTS,
+  fungus: FUNGUS_PARTS,
 };
 
 const PARTS = new Map();
@@ -8718,6 +9089,160 @@ const SPECIES = [
     abilities: ['purebred','venom_heart'],
     desc: 'Dragon blood spilled in the sump and the sump drank it. Now it breathes fire like one, badly.',
   },
+  // ---- Roster expansion: fungi ----
+  {
+    id: 'capling', name: 'Capling', nameParts: ['Cap', 'ling'], clade: 'fungus', rig: 'fungus', types: ['Grass'], tier: 'common', bst: 395,
+    stats: { hp: 0.16, melee: 0.07, ranged: 0.08, magic: 0.19, meleeDef: 0.11, rangedDef: 0.12, magicDef: 0.12, spe: 0.15 },
+    recipe: { body: 'g.body.button', head: 'g.head.stout', eyes: 'g.eyes.round', mouth: 'g.mouth.smile', gills: 'g.gills.fine', spores: ['g.spores.motes', 'g.spores.none'], roots: 'g.roots.mycelium', ring: 'g.ring.none', shelves: 'g.shelves.none', veil: 'g.veil.none', glow: 'g.glow.none', pattern: ['g.pattern.spots', 'g.pattern.none'] },
+    palette: { c1: [10, 70, 52], c2: [40, 40, 88], c3: [45, 80, 70], eye: [0, 0, 15] }, vary: { h: 10, s: 8, l: 6 },
+    paint: { head: 3, roots: 3, gills: 3 },
+    traits: T([0.3, 0.55], MID, [0.3, 0.5], MID, MID, [0.55, 0.85]),
+    learnset: [[1,'seed_volley'],[1,'venom_haze'],[6,'drowse_dust'],[11,'leaf_razor'],[16,'sap_drain'],[22,'photosynth'],[28,'spore_burst'],[34,'toxic_wave'],[40,'mend'],[46,'sunlance'],[52,'leaf_tempest']],
+    abilities: ['bloom_heart','antitoxin'],
+    desc: 'Pops up overnight wherever the ground is damp and the company is good. Its cap is a hat and it knows it.',
+  },
+  {
+    id: 'banecap', name: 'Banecap', nameParts: ['Bane', 'cap'], clade: 'fungus', rig: 'fungus', types: ['Grass', 'Poison'], tier: 'common', bst: 410,
+    stats: { hp: 0.16, melee: 0.06, ranged: 0.08, magic: 0.2, meleeDef: 0.11, rangedDef: 0.12, magicDef: 0.13, spe: 0.14 },
+    recipe: { body: 'g.body.parasol', head: 'g.head.slender', eyes: 'g.eyes.sleepy', mouth: 'g.mouth.frown', gills: 'g.gills.broad', spores: ['g.spores.drift', 'g.spores.none'], roots: 'g.roots.toes', ring: ['g.ring.skirt', 'g.ring.none'], shelves: 'g.shelves.none', veil: 'g.veil.none', glow: 'g.glow.none', pattern: ['g.pattern.dots', 'g.pattern.none'] },
+    palette: { c1: [280, 35, 45], c2: [50, 25, 85], c3: [90, 60, 55], eye: [55, 90, 60] }, vary: { h: 10, s: 6, l: 5 },
+    paint: { head: 3, roots: 3, ring: 3 },
+    traits: T([0.3, 0.55], [0.5, 0.75], [0.3, 0.5], MID, MID, [0.5, 0.75]),
+    learnset: [[1,'venom_haze'],[1,'acid_spit'],[6,'toxin_dust'],[11,'seed_volley'],[16,'sap_drain'],[22,'blight'],[28,'spore_burst'],[34,'toxic_wave'],[40,'photosynth'],[46,'sunlance'],[52,'sludge_hurl']],
+    abilities: ['venom_heart','antitoxin'],
+    desc: 'Pretty, purple and not to be eaten under any circumstances. It sulks when nobody tries.',
+  },
+  {
+    id: 'morelord', name: 'Morelord', nameParts: ['More', 'lord'], clade: 'fungus', rig: 'fungus', types: ['Grass', 'Ground'], tier: 'uncommon', bst: 445,
+    stats: { hp: 0.19, melee: 0.17, ranged: 0.06, magic: 0.06, meleeDef: 0.17, rangedDef: 0.14, magicDef: 0.12, spe: 0.09 },
+    recipe: { body: 'g.body.morel', head: 'g.head.woody', eyes: 'g.eyes.bead', mouth: 'g.mouth.grin', gills: 'g.gills.pores', spores: 'g.spores.none', roots: 'g.roots.stump', ring: ['g.ring.band', 'g.ring.none'], shelves: ['g.shelves.stack', 'g.shelves.none'], veil: 'g.veil.none', glow: 'g.glow.none', pattern: 'g.pattern.none' },
+    palette: { c1: [35, 45, 40], c2: [40, 30, 70], c3: [90, 35, 45], eye: [40, 60, 55] }, vary: { h: 8, s: 5, l: 6 },
+    paint: { head: 3, shelves: 4 },
+    traits: T([0.45, 0.7], [0.45, 0.7], [0.4, 0.6], MID, MID, [0.35, 0.55]),
+    learnset: [[1,'bump'],[1,'mud_fling'],[6,'vine_lash'],[11,'headbonk'],[16,'brace'],[22,'stampede'],[28,'blade_leaf'],[34,'slab_break'],[40,'photosynth'],[46,'quake_stomp'],[52,'tremor']],
+    abilities: ['iron_hide','steady'],
+    desc: 'Old, wrinkled and immovable. Foragers who find one bow first and ask permission second.',
+  },
+  {
+    id: 'glowcap', name: 'Glowcap', nameParts: ['Glow', 'cap'], clade: 'fungus', rig: 'fungus', types: ['Grass', 'Fairy'], tier: 'uncommon', bst: 430,
+    stats: { hp: 0.14, melee: 0.06, ranged: 0.09, magic: 0.21, meleeDef: 0.1, rangedDef: 0.11, magicDef: 0.14, spe: 0.15 },
+    recipe: { body: 'g.body.bell', head: 'g.head.slender', eyes: 'g.eyes.glow', mouth: 'g.mouth.smile', gills: 'g.gills.fine', spores: ['g.spores.sparkle', 'g.spores.none'], roots: 'g.roots.mycelium', ring: 'g.ring.none', shelves: 'g.shelves.none', veil: ['g.veil.lace', 'g.veil.none'], glow: ['g.glow.halo', 'g.glow.none'], pattern: ['g.pattern.freckles', 'g.pattern.none'] },
+    palette: { c1: [170, 55, 60], c2: [175, 35, 80], c3: [55, 90, 70], eye: [55, 95, 60] }, vary: { h: 8, s: 6, l: 5 },
+    paint: { head: 3, glow: 4, spores: 4 },
+    traits: T([0.3, 0.55], [0.5, 0.75], [0.3, 0.5], MID, MID, [0.55, 0.85]),
+    learnset: [[1,'seed_volley'],[1,'glitter_gust'],[6,'doe_eyes'],[11,'drowse_dust'],[16,'sap_drain'],[22,'moonbathe'],[28,'dazzle'],[34,'photosynth'],[40,'lunar_burst'],[46,'sunlance'],[52,'star_shower']],
+    abilities: ['lucky_streak','mirror_scale'],
+    desc: 'Lights the deep woods with a soft green lamp. Travellers follow it home; some of them get there.',
+  },
+  {
+    id: 'puffpuff', name: 'Puffpuff', nameParts: ['Puff', 'puff'], clade: 'fungus', rig: 'fungus', types: ['Poison', 'Flying'], tier: 'common', bst: 400,
+    stats: { hp: 0.13, melee: 0.06, ranged: 0.2, magic: 0.09, meleeDef: 0.09, rangedDef: 0.11, magicDef: 0.1, spe: 0.22 },
+    recipe: { body: 'g.body.puffball', head: 'g.head.stubby', eyes: 'g.eyes.wide', mouth: 'g.mouth.whistle', gills: 'g.gills.pores', spores: ['g.spores.cloud', 'g.spores.none'], roots: 'g.roots.pad', ring: 'g.ring.none', shelves: 'g.shelves.none', veil: 'g.veil.none', glow: 'g.glow.none', pattern: ['g.pattern.crackle', 'g.pattern.none'] },
+    palette: { c1: [45, 20, 80], c2: [40, 25, 70], c3: [80, 45, 60], eye: [0, 0, 15] }, vary: { h: 10, s: 5, l: 6 },
+    traits: T([0.25, 0.5], [0.35, 0.55], [0.3, 0.5], MID, MID, [0.6, 0.9]),
+    learnset: [[1,'gale'],[1,'acid_spit'],[6,'toxin_dust'],[11,'slipstream'],[16,'venom_haze'],[22,'wind_cutter'],[28,'sludge_blast'],[34,'quicken'],[40,'preen'],[46,'tempest_shot'],[52,'sludge_hurl']],
+    abilities: ['hover','antitoxin'],
+    desc: 'Poke it and it sneezes a cloud you will be coughing up for a week. It thinks this is hilarious.',
+  },
+  {
+    id: 'wispcap', name: 'Wispcap', nameParts: ['Wisp', 'cap'], clade: 'fungus', rig: 'fungus', types: ['Ghost', 'Grass'], tier: 'uncommon', bst: 435,
+    stats: { hp: 0.14, melee: 0.06, ranged: 0.08, magic: 0.21, meleeDef: 0.1, rangedDef: 0.11, magicDef: 0.15, spe: 0.15 },
+    recipe: { body: 'g.body.cone', head: 'g.head.bent', eyes: 'g.eyes.glow', mouth: 'g.mouth.gape', gills: 'g.gills.dark', spores: ['g.spores.drift', 'g.spores.none'], roots: 'g.roots.mycelium', ring: 'g.ring.none', shelves: 'g.shelves.none', veil: ['g.veil.cobweb', 'g.veil.none'], glow: ['g.glow.aura', 'g.glow.none'], pattern: ['g.pattern.rings', 'g.pattern.none'] },
+    palette: { c1: [200, 25, 40], c2: [190, 20, 72], c3: [150, 80, 60], eye: [150, 95, 60] }, vary: { h: 10, s: 5, l: 5 },
+    paint: { head: 3, glow: 4, spores: 4 },
+    traits: T([0.3, 0.6], [0.5, 0.8], [0.3, 0.5], MID, MID, [0.5, 0.75]),
+    learnset: [[1,'cold_lick'],[1,'seed_volley'],[6,'wraith_touch'],[11,'drowse_dust'],[16,'curse_bolt'],[22,'sap_drain'],[28,'umbral_orb'],[34,'photosynth'],[40,'haunt'],[46,'sunlance'],[52,'grave_volley']],
+    abilities: ['restless','regrowth'],
+    desc: 'Grows on graves and glows on moonless nights. Says nothing, but you get the feeling it is listening.',
+  },
+  {
+    id: 'bruisecap', name: 'Bruisecap', nameParts: ['Bruise', 'cap'], clade: 'fungus', rig: 'fungus', types: ['Poison', 'Fighting'], tier: 'uncommon', bst: 440,
+    stats: { hp: 0.15, melee: 0.21, ranged: 0.07, magic: 0.05, meleeDef: 0.14, rangedDef: 0.12, magicDef: 0.1, spe: 0.16 },
+    recipe: { body: 'g.body.button', head: 'g.head.woody', eyes: 'g.eyes.squint', mouth: 'g.mouth.grin', gills: 'g.gills.broad', spores: 'g.spores.none', roots: 'g.roots.stump', ring: ['g.ring.cuff', 'g.ring.none'], shelves: ['g.shelves.bracket', 'g.shelves.none'], veil: 'g.veil.none', glow: 'g.glow.none', pattern: ['g.pattern.scales', 'g.pattern.none'] },
+    palette: { c1: [260, 40, 42], c2: [35, 30, 72], c3: [50, 70, 60], eye: [45, 80, 55] }, vary: { h: 8, s: 6, l: 5 },
+    paint: { head: 3, ring: 4 },
+    traits: T([0.4, 0.65], [0.45, 0.7], [0.45, 0.7], MID, MID, [0.4, 0.6]),
+    learnset: [[1,'chop'],[1,'venom_prick'],[6,'blitz_punch'],[11,'leg_sweep'],[16,'venom_slash'],[22,'muscle_up'],[28,'slab_break'],[34,'venom_stab'],[40,'siphon_fist'],[46,'venom_gore'],[52,'overpower']],
+    abilities: ['heavy_hands','venom_barbs'],
+    desc: 'Bruises blue when you touch it and bruises you back harder. Picks fights with boulders and sometimes wins.',
+  },
+  {
+    id: 'frostcap', name: 'Frostcap', nameParts: ['Frost', 'cap'], clade: 'fungus', rig: 'fungus', types: ['Ice', 'Grass'], tier: 'uncommon', bst: 430,
+    stats: { hp: 0.15, melee: 0.07, ranged: 0.2, magic: 0.09, meleeDef: 0.1, rangedDef: 0.12, magicDef: 0.12, spe: 0.15 },
+    recipe: { body: 'g.body.parasol', head: 'g.head.stout', eyes: 'g.eyes.sleepy', mouth: 'g.mouth.frown', gills: 'g.gills.teeth', spores: ['g.spores.fall', 'g.spores.none'], roots: 'g.roots.knot', ring: 'g.ring.none', shelves: 'g.shelves.none', veil: ['g.veil.fringe', 'g.veil.none'], glow: 'g.glow.none', pattern: ['g.pattern.crackle', 'g.pattern.none'] },
+    palette: { c1: [205, 40, 70], c2: [200, 20, 90], c3: [190, 60, 60], eye: [210, 70, 45] }, vary: { h: 8, s: 6, l: 5 },
+    paint: { head: 3, gills: 3, veil: 3 },
+    traits: T([0.3, 0.55], MID, [0.3, 0.5], MID, MID, [0.5, 0.8]),
+    learnset: [[1,'sleet'],[1,'seed_volley'],[6,'icicle_dart'],[11,'drowse_dust'],[16,'hail_volley'],[22,'leaf_razor'],[28,'glacier_toss'],[34,'photosynth'],[40,'spore_burst'],[46,'leaf_tempest'],[52,'snowslide']],
+    abilities: ['warm_core','frost_heart'],
+    desc: 'Grows through the snow with icicles for gills. Shakes them loose at anything that comes too close.',
+  },
+  {
+    id: 'emberspore', name: 'Emberspore', nameParts: ['Ember', 'spore'], clade: 'fungus', rig: 'fungus', types: ['Fire', 'Poison'], tier: 'uncommon', bst: 435,
+    stats: { hp: 0.14, melee: 0.08, ranged: 0.2, magic: 0.1, meleeDef: 0.1, rangedDef: 0.11, magicDef: 0.11, spe: 0.16 },
+    recipe: { body: 'g.body.cone', head: 'g.head.ribbed', eyes: 'g.eyes.bead', mouth: 'g.mouth.grin', gills: 'g.gills.dark', spores: ['g.spores.swirl', 'g.spores.none'], roots: 'g.roots.toes', ring: 'g.ring.none', shelves: 'g.shelves.none', veil: 'g.veil.none', glow: ['g.glow.rays', 'g.glow.none'], pattern: ['g.pattern.stripes', 'g.pattern.none'] },
+    palette: { c1: [15, 80, 48], c2: [30, 40, 35], c3: [45, 100, 60], eye: [45, 100, 60] }, vary: { h: 8, s: 5, l: 5 },
+    paint: { head: 3, glow: 4, spores: 4 },
+    traits: T([0.35, 0.6], MID, [0.3, 0.5], MID, MID, [0.45, 0.7]),
+    learnset: [[1,'cinder'],[1,'acid_spit'],[6,'flare'],[11,'toxin_dust'],[16,'kindle_rush'],[22,'sludge_blast'],[28,'fire_stream'],[34,'whetting'],[40,'heat_wave'],[46,'sludge_hurl'],[52,'inferno_charge']],
+    abilities: ['ember_heart','hot_blooded'],
+    desc: 'Sprouts from old campfires and smoulders for years. Its spores are sparks and its temper is short.',
+  },
+  {
+    id: 'mindcap', name: 'Mindcap', nameParts: ['Mind', 'cap'], clade: 'fungus', rig: 'fungus', types: ['Psychic', 'Poison'], tier: 'rare', bst: 460,
+    stats: { hp: 0.15, melee: 0.05, ranged: 0.08, magic: 0.22, meleeDef: 0.1, rangedDef: 0.11, magicDef: 0.15, spe: 0.14 },
+    recipe: { body: 'g.body.bell', head: 'g.head.slender', eyes: 'g.eyes.spore', mouth: 'g.mouth.smile', gills: 'g.gills.lace', spores: ['g.spores.swirl', 'g.spores.none'], roots: 'g.roots.mycelium', ring: ['g.ring.frill', 'g.ring.none'], shelves: 'g.shelves.none', veil: 'g.veil.none', glow: ['g.glow.pulse', 'g.glow.none'], pattern: ['g.pattern.rings', 'g.pattern.none'] },
+    palette: { c1: [300, 50, 55], c2: [280, 30, 80], c3: [190, 70, 60], eye: [200, 90, 55] }, vary: { h: 8, s: 6, l: 5 },
+    paint: { head: 3, glow: 4, ring: 3 },
+    traits: T([0.3, 0.55], [0.55, 0.8], [0.3, 0.5], MID, MID, [0.55, 0.85]),
+    learnset: [[1,'mind_jolt'],[1,'acid_spit'],[6,'drowse_dust'],[11,'thought_beam'],[16,'venom_haze'],[22,'meditate'],[28,'psi_shock'],[34,'toxic_wave'],[40,'lull'],[46,'psystorm'],[52,'mind_crush']],
+    abilities: ['steady','restless'],
+    desc: 'Its spores show you colours that do not exist. It finds your reaction fascinating every single time.',
+  },
+  {
+    id: 'nightgill', name: 'Nightgill', nameParts: ['Night', 'gill'], clade: 'fungus', rig: 'fungus', types: ['Dark', 'Grass'], tier: 'uncommon', bst: 425,
+    stats: { hp: 0.14, melee: 0.2, ranged: 0.08, magic: 0.06, meleeDef: 0.11, rangedDef: 0.11, magicDef: 0.09, spe: 0.21 },
+    recipe: { body: 'g.body.funnel', head: 'g.head.bent', eyes: 'g.eyes.squint', mouth: 'g.mouth.grin', gills: 'g.gills.dark', spores: 'g.spores.none', roots: 'g.roots.stilts', ring: ['g.ring.torn', 'g.ring.none'], shelves: 'g.shelves.none', veil: ['g.veil.tatters', 'g.veil.none'], glow: 'g.glow.none', pattern: 'g.pattern.none' },
+    palette: { c1: [230, 22, 32], c2: [220, 15, 54], c3: [30, 70, 55], eye: [40, 95, 60] }, vary: { h: 10, s: 4, l: 5 },
+    paint: { head: 3 },
+    traits: T([0.3, 0.55], [0.55, 0.8], [0.45, 0.7], MID, MID, [0.4, 0.6]),
+    learnset: [[1,'swipe'],[1,'sneer'],[6,'vine_lash'],[11,'blindside'],[16,'cheap_shot'],[22,'scheme'],[28,'blade_leaf'],[34,'dusk_slash'],[40,'photosynth'],[46,'crush_bite'],[52,'leaf_tempest']],
+    abilities: ['menace','keen_edge'],
+    desc: 'Hides among the ordinary mushrooms and waits for a basket. The forager is rarely seen again.',
+  },
+  {
+    id: 'cordycrawl', name: 'Cordycrawl', nameParts: ['Cordy', 'crawl'], clade: 'fungus', rig: 'fungus', types: ['Bug', 'Poison'], tier: 'uncommon', bst: 440,
+    stats: { hp: 0.14, melee: 0.21, ranged: 0.07, magic: 0.06, meleeDef: 0.12, rangedDef: 0.12, magicDef: 0.1, spe: 0.18 },
+    recipe: { body: 'g.body.morel', head: 'g.head.ribbed', eyes: 'g.eyes.bead', mouth: 'g.mouth.gape', gills: 'g.gills.pores', spores: ['g.spores.motes', 'g.spores.none'], roots: 'g.roots.toes', ring: ['g.ring.double', 'g.ring.none'], shelves: ['g.shelves.coral', 'g.shelves.none'], veil: 'g.veil.none', glow: 'g.glow.none', pattern: 'g.pattern.none' },
+    palette: { c1: [25, 55, 50], c2: [30, 35, 30], c3: [50, 80, 60], eye: [50, 20, 85] }, vary: { h: 8, s: 6, l: 5 },
+    paint: { head: 3, shelves: 4 },
+    traits: T([0.3, 0.55], [0.4, 0.6], [0.4, 0.65], MID, MID, [0.35, 0.55]),
+    learnset: [[1,'nibble'],[1,'venom_prick'],[6,'needle_volley'],[11,'swarm_buzz'],[16,'venom_slash'],[22,'web_shot'],[28,'scissor_slash'],[34,'venom_stab'],[40,'blight'],[46,'great_horn'],[52,'venom_gore']],
+    abilities: ['venom_barbs','momentum'],
+    desc: 'There was an insect in there once. The fungus wears it now, and it has kept the legs working.',
+  },
+  {
+    id: 'dewcap', name: 'Dewcap', nameParts: ['Dew', 'cap'], clade: 'fungus', rig: 'fungus', types: ['Water', 'Grass'], tier: 'common', bst: 405,
+    stats: { hp: 0.16, melee: 0.06, ranged: 0.08, magic: 0.19, meleeDef: 0.11, rangedDef: 0.12, magicDef: 0.14, spe: 0.14 },
+    recipe: { body: 'g.body.button', head: 'g.head.bulb', eyes: 'g.eyes.round', mouth: 'g.mouth.smile', gills: 'g.gills.fine', spores: ['g.spores.fall', 'g.spores.none'], roots: 'g.roots.pad', ring: 'g.ring.none', shelves: 'g.shelves.none', veil: ['g.veil.beads', 'g.veil.none'], glow: 'g.glow.none', pattern: ['g.pattern.dots', 'g.pattern.none'] },
+    palette: { c1: [200, 50, 55], c2: [190, 30, 85], c3: [140, 55, 60], eye: [210, 70, 40] }, vary: { h: 10, s: 6, l: 6 },
+    paint: { head: 3, spores: 3 },
+    traits: T([0.3, 0.55], MID, [0.3, 0.5], MID, MID, [0.55, 0.85]),
+    learnset: [[1,'ripple'],[1,'seed_volley'],[6,'squirt'],[11,'drowse_dust'],[16,'sap_drain'],[22,'water_jet'],[28,'tidal_wave'],[34,'photosynth'],[40,'spore_burst'],[46,'maelstrom'],[52,'sunlance']],
+    abilities: ['tide_heart','regrowth'],
+    desc: 'Wakes with the morning dew and wears it all day like jewellery. Dries out and grumbles by noon.',
+  },
+  {
+    id: 'drakecap', name: 'Drakecap', nameParts: ['Drake', 'cap'], clade: 'fungus', rig: 'fungus', types: ['Dragon', 'Grass'], tier: 'rare', bst: 465,
+    stats: { hp: 0.16, melee: 0.09, ranged: 0.07, magic: 0.21, meleeDef: 0.12, rangedDef: 0.11, magicDef: 0.13, spe: 0.11 },
+    recipe: { body: 'g.body.cone', head: 'g.head.woody', eyes: 'g.eyes.glow', mouth: 'g.mouth.gape', gills: 'g.gills.teeth', spores: ['g.spores.swirl', 'g.spores.none'], roots: 'g.roots.knot', ring: ['g.ring.collar', 'g.ring.none'], shelves: ['g.shelves.ears', 'g.shelves.none'], veil: 'g.veil.none', glow: ['g.glow.crescent', 'g.glow.none'], pattern: ['g.pattern.scales', 'g.pattern.none'] },
+    palette: { c1: [140, 50, 35], c2: [30, 40, 45], c3: [0, 75, 55], eye: [50, 95, 60] }, vary: { h: 8, s: 6, l: 5 },
+    paint: { head: 3, shelves: 4, gills: 4 },
+    traits: T([0.4, 0.65], [0.45, 0.7], [0.4, 0.6], MID, MID, [0.45, 0.7]),
+    learnset: [[1,'wyrm_breath'],[1,'venom_haze'],[6,'seed_volley'],[11,'toxin_dust'],[16,'sap_drain'],[22,'wyrm_claw'],[28,'wyrm_pulse'],[34,'photosynth'],[40,'wyrm_dance'],[46,'comet_roar'],[52,'sunlance']],
+    abilities: ['purebred','thorn_hide'],
+    desc: 'Grew from a spore that landed on a sleeping dragon and stayed for the warmth. It picked up habits.',
+  },
 ];
 
 const SPECIES_BY_ID = Object.fromEntries(SPECIES.map((s) => [s.id, s]));
@@ -9383,6 +9908,7 @@ const CLADES = {
   amphibian: { name: 'Amphibian', plural: 'Amphibians', linked: [['legs', 'arms']], desc: 'Wide heads and springy legs. Frogs, newts and swamp things.' },
   flora: { name: 'Flora', plural: 'Flora', linked: [['leaves', 'roots']], desc: 'Walking plants. Stems, blooms, leaves and roots.' },
   ooze: { name: 'Ooze', plural: 'Oozes', linked: [['pseudopods', 'base']], desc: 'Living slime. A core, a puddle and whatever it swallowed.' },
+  fungus: { name: 'Fungus', plural: 'Fungi', linked: [['head', 'roots']], desc: 'Walking mushrooms. A cap for a hat, a face on the stalk, roots for feet.' },
 };
 
 const CLADE_IDS = Object.keys(CLADES);
@@ -9878,6 +10404,8 @@ const SLOT_FAMILY = {
   leaves: 'fin', roots: 'limb', vines: 'tail', pods: 'fur', thorns: 'crown', canopy: 'fur', bark: 'flat', fruit: 'face',
   // ooze
   core: 'face', pseudopods: 'limb', drips: 'face', tendrils: 'tail', base: 'fur', inclusions: 'flat', sheen: 'flat', bumps: 'fur',
+  // fungus
+  spores: 'fur', ring: 'face', shelves: 'fur', veil: 'fur',
 };
 function growthFor(slot) { return SLOT_GROWTH[SLOT_FAMILY[slot] || 'face']; }
 
@@ -10188,6 +10716,15 @@ POSES.ooze = {
   poise: { body: { da: -3, dy: -2 }, core: { dy: -2, ds: 1.06 }, pseudopods: { da: 8, dy: -2 }, crown: { ds: 1.06 }, tendrils: { da: -6 } },
   attack: { body: { da: 4, dx: 6 }, core: { dx: 3, ds: 1.1 }, pseudopods: { da: -28, far: { da: -12 } }, tendrils: { da: 16 }, mouth: { ds: 1.15 }, drips: { dy: 2 } },
   hurt: { body: { da: -8, dx: -4, ds: 0.96 }, core: { dx: -2, dy: 1 }, pseudopods: { da: 18, far: { da: 10 } }, tendrils: { da: -10 }, crown: { da: -12 }, base: { ds: 1.08 } },
+};
+
+POSES.fungus = {
+  stand: {},
+  brace: { body: { da: 3, dx: 2 }, head: { da: 4, dx: 1 }, roots: { da: -4 }, spores: { dy: -2 }, gills: { ds: 1.04 } },
+  crouch: { body: { dy: 4, da: 2 }, head: { dy: 2, ds: 0.94 }, roots: { ds: 0.9 }, veil: { ds: 1.06 }, shelves: { ds: 0.96 } },
+  poise: { body: { da: -4, dy: -2 }, head: { da: -3, dy: -1 }, spores: { dy: -4, ds: 1.06 }, ring: { ds: 1.04 }, gills: { ds: 1.02 } },
+  attack: { body: { da: 8, dx: 6 }, head: { da: 6, dx: 4 }, roots: { da: -12, far: { da: -6 } }, spores: { dx: 6, dy: -4, ds: 1.15 }, mouth: { ds: 1.15 }, gills: { ds: 1.08 } },
+  hurt: { body: { da: -10, dx: -4 }, head: { da: -8, dx: -3 }, roots: { da: 10, far: { da: 6 } }, spores: { dy: 4 }, veil: { da: 6 }, shelves: { da: -6 } },
 };
 
 /** The slot deltas of a pose on a rig ({} for an unknown pose or 'stand'). */
@@ -12704,7 +13241,7 @@ const TILE = { grass: 0, habitat: 1, path: 2, wall: 3, water: 4, hub: 5, lair: 6
 const WALKABLE_TILES = new Set([TILE.grass, TILE.habitat, TILE.path, TILE.hub, TILE.door, TILE.camp, TILE.spireDoor, TILE.shrine, TILE.marketDoor, TILE.storageDoor]);
 
 /** Biomes in difficulty order, clockwise from the south of the hub. Levels climb 5 to the fifties; the gaps in the ladder are for classes still to come. */
-const BIOME_ORDER = ['mammal', 'amphibian', 'flora', 'insect', 'bird', 'ooze', 'fish', 'invertebrate', 'reptile'];
+const BIOME_ORDER = ['mammal', 'amphibian', 'flora', 'insect', 'fungus', 'bird', 'ooze', 'fish', 'invertebrate', 'reptile'];
 
 /** Per-class region: name, wild level, palette and the look of its walls. */
 const REGIONS = {
@@ -12715,6 +13252,7 @@ const REGIONS = {
   fish:         { name: 'Glass Lagoon',   level: 36, ground: '#d8c68e', ground2: '#cebb84', habitat: '#8fc7d3', path: '#e6d9a8', water: '#3aa7d8', wall: 'palm',     wallColor: '#4f8f5f', accent: '#7fe0ea', waterT: 0.5,  warden: 'Warden Brine',  badge: 'Lagoon Badge' },
   invertebrate: { name: 'Murk Hollow',    level: 45, ground: '#5a5470', ground2: '#524c68', habitat: '#443f5c', path: '#8c8494', water: '#3b3f6e', wall: 'rock',     wallColor: '#3a3448', accent: '#b98cff', waterT: 0.62, warden: 'Warden Gloam',  badge: 'Hollow Badge' },
   flora:        { name: 'Bramble Wilds',  level: 14, ground: '#5f9a3d', ground2: '#578f3a', habitat: '#3f7d31', path: '#c4ad76', water: '#3f86b8', wall: 'hedge',    wallColor: '#3b6b2a', accent: '#f2a5c8', waterT: 0.66, warden: 'Warden Bryony', badge: 'Bramble Badge' },
+  fungus:       { name: 'Sporewood',      level: 23, ground: '#7a7f5c', ground2: '#70754f', habitat: '#5b5f47', path: '#c7b48a', water: '#4e7aa0', wall: 'tree',     wallColor: '#5a4a6a', accent: '#d9a3ff', waterT: 0.6,  warden: 'Warden Morel',  badge: 'Spore Badge' },
   ooze:         { name: 'Slurry Sump',    level: 32, ground: '#7a8a4c', ground2: '#707f45', habitat: '#55703a', path: '#c0b27e', water: '#7fb84f', wall: 'rock',     wallColor: '#4c4a3e', accent: '#b6f06a', waterT: 0.6,  warden: 'Warden Dreg',   badge: 'Sump Badge' },
   reptile:      { name: 'Ember Scar',     level: 50, ground: '#9c6b4a', ground2: '#906244', habitat: '#7a4d38', path: '#d0a878', water: '#e0562a', wall: 'rock',     wallColor: '#5a3a2c', accent: '#ff9a4a', waterT: 0.7,  warden: 'Warden Cinder', badge: 'Scar Badge' },
 };
@@ -12863,6 +13401,7 @@ const TRAINER_TITLES = {
   bird: ['Falconer', 'Cliff Runner', 'Skywatch'], fish: ['Angler', 'Tide Watcher', 'Pearl Diver'], invertebrate: ['Cave Diver', 'Lamplighter', 'Shell Seller'], reptile: ['Ash Ranger', 'Scale Tamer', 'Kiln Hand'],
   flora: ['Gardener', 'Hedge Witch', 'Orchard Keeper'],
   ooze: ['Sump Dredger', 'Slime Wrangler', 'Vat Keeper'],
+  fungus: ['Forager', 'Spore Sweeper', 'Cellar Keeper'],
 };
 const TRAINER_LINES = {
   mammal: ['My team was raised on these downs. Care for a bout?', 'Fur and fang against whatever you have. Fight?'],
@@ -12874,6 +13413,7 @@ const TRAINER_LINES = {
   reptile: ['Ash in the air and fire in my team. Fight?', 'The Scar breaks the unready. Prove me wrong.'],
   flora: ['Everything in the Wilds grows back. Your pride might not. Fight?', 'My team put down roots here. Try pulling them up.'],
   ooze: ['Mind the puddles. Some of them mind you back. Fight?', 'My team has no bones to break. How about yours?'],
+  fungus: ['Everything down here is quietly eating something. Fight?', 'Breathe shallow and battle quick. Ready?'],
 };
 const TRAINER_AFTER = ['Good match. Come back stronger.', 'Well fought. The Warden is another matter.', 'You earned that one.', 'My team will remember you.'];
 

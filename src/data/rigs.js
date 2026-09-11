@@ -449,6 +449,51 @@ RIGS.ooze = {
   },
 };
 
+RIGS.fungus = {
+  id: 'fungus', name: 'Fungus', prefix: 'g.',
+  slots: ['body', 'head', 'eyes', 'mouth', 'gills', 'spores', 'roots', 'ring', 'shelves', 'veil', 'glow', 'pattern'],
+  names: {
+    body: 'Cap', head: 'Stalk', eyes: 'Eyes', mouth: 'Mouth', gills: 'Gills', spores: 'Spores',
+    roots: 'Roots', ring: 'Ring', shelves: 'Shelves', veil: 'Veil', glow: 'Glow', pattern: 'Spots',
+  },
+  paint: ['body', 'head', 'gills', 'spores', 'roots', 'ring', 'shelves', 'veil', 'glow', 'pattern'],
+  swappable: ['spores', 'ring', 'shelves', 'veil', 'glow', 'pattern'],
+  required: ['body', 'head', 'eyes', 'mouth', 'gills', 'roots'],
+  linked: [['gills', 'veil'], ['head', 'roots']],
+  ground: ['head', 'roots'],
+  clipped: ['pattern'],
+  // The cap is the root: the stalk hangs from it and carries the face, the roots stand on the ground.
+  tree: {
+    slot: 'body', anim: 'body',
+    behind: [
+      { slot: 'glow', fitBox: true },
+      { slot: 'gills', socket: 'gills' },
+      {
+        slot: 'head', socket: 'stalk', scale: 'head', anim: 'head',
+        behind: [{ slot: 'roots', socket: 'rootFar', far: true, scale: 'leg' }],
+        front: [
+          { slot: 'roots', socket: 'root', scale: 'leg' },
+          { slot: 'shelves', socket: 'shelf' },
+          { slot: 'ring', socket: 'ring' },
+          { slot: 'eyes', socket: 'eyeFar', far: true, scale: 'eye', small: true },
+          { slot: 'eyes', socket: 'eye', scale: 'eye', small: true },
+          { slot: 'mouth', socket: 'mouth', small: true },
+        ],
+      },
+      { slot: 'veil', socket: 'veil', anim: 'sway' },
+    ],
+    front: [{ slot: 'spores', socket: 'spores', anim: 'sway', small: true }],
+  },
+  mannequin: {
+    parts: {
+      body: 'g.body.button', head: 'g.head.stout', eyes: 'g.eyes.round', mouth: 'g.mouth.smile', gills: 'g.gills.fine', roots: 'g.roots.mycelium',
+      spores: 'g.spores.none', ring: 'g.ring.none', shelves: 'g.shelves.none', veil: 'g.veil.none', glow: 'g.glow.none', pattern: 'g.pattern.none',
+    },
+    forSlot: {},
+    accentSlots: ['gills', 'spores', 'roots', 'ring', 'shelves', 'veil', 'glow', 'pattern'],
+  },
+};
+
 export const RIG_IDS = Object.keys(RIGS);
 
 /** Rig used when a genome names none or an unknown one (old saves): the first class. */

@@ -13,6 +13,7 @@ export const CLADES = {
   amphibian: { name: 'Amphibian', plural: 'Amphibians', linked: [['legs', 'arms']], desc: 'Wide heads and springy legs. Frogs, newts and swamp things.' },
   flora: { name: 'Flora', plural: 'Flora', linked: [['leaves', 'roots']], desc: 'Walking plants. Stems, blooms, leaves and roots.' },
   ooze: { name: 'Ooze', plural: 'Oozes', linked: [['pseudopods', 'base']], desc: 'Living slime. A core, a puddle and whatever it swallowed.' },
+  fungus: { name: 'Fungus', plural: 'Fungi', linked: [['head', 'roots']], desc: 'Walking mushrooms. A cap for a hat, a face on the stalk, roots for feet.' },
 };
 
 export const CLADE_IDS = Object.keys(CLADES);
