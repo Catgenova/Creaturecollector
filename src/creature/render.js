@@ -90,7 +90,8 @@ const xf = (x, y, a = 0, s = 1) => ({ x, y, a, sx: s, sy: s });
 function tf(t) {
   let out = `translate(${num(t.x)} ${num(t.y)})`;
   if (t.a) out += ` rotate(${num(t.a)})`;
-  if (t.sx !== 1) out += ` scale(${num(t.sx)})`;
+  const sy = t.sy == null ? t.sx : t.sy;
+  if (t.sx !== 1 || sy !== 1) out += t.sx === sy ? ` scale(${num(t.sx)})` : ` scale(${num(t.sx)} ${num(sy)})`;
   return out;
 }
 

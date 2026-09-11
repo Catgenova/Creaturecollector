@@ -9,6 +9,8 @@ import { SPECIES, SPECIES_BY_ID, TIER_WEIGHT } from '../data/species.js';
 import { isType } from '../data/types.js';
 import { clamp01, round3, normalizeWeights, b64uEncode, b64uDecode } from '../core/util.js';
 import { splitName } from './naming.js';
+import { getMove, UNIVERSAL_LEARNSET } from '../data/moves.js';
+import { ABILITIES } from '../data/abilities.js';
 import { jitterPalette, shinyPalette } from './palette.js';
 
 export const GENOME_VERSION = 1;
@@ -54,6 +56,7 @@ export function speciesGenome(species, rng) {
   const rPal = rng.fork('palette');
   const rTraits = rng.fork('traits');
   const rStats = rng.fork('stats');
+  const rAbility = rng.fork('ability');
 
   const parts = {};
   const bodyAlleles = allelesFromRecipe(species.recipe.body, 'body');
@@ -105,7 +108,16 @@ export function speciesGenome(species, rng) {
     vigor,
     bst: species.bst,
     lineage: [species.id],
+    learnset: (species.learnset || UNIVERSAL_LEARNSET).map((e) => e.slice()),
+    ability: rAbility.pick(species.abilities || ['lucky_streak']),
   };
+}
+
+/** The learnset a genome battles with: its own, else its species', else the universal fallback. */
+export function learnsetOf(g) {
+  if (Array.isArray(g.learnset) && g.learnset.length) return g.learnset;
+  const sp = g.species && SPECIES_BY_ID[g.species];
+  return sp && sp.learnset ? sp.learnset : UNIVERSAL_LEARNSET;
 }
 
 /** A random wild creature: species weighted by rarity tier, then rolled. */
@@ -191,5 +203,9 @@ export function validateGenome(g) {
   if (g.parents === undefined) delete g.parents;
   g.lineage = Array.isArray(g.lineage) ? g.lineage.filter((x) => typeof x === 'string').slice(0, 16) : [];
   g.shiny = Boolean(g.shiny);
+  const sp = g.species ? SPECIES_BY_ID[g.species] : null;
+  g.learnset = Array.isArray(g.learnset) ? g.learnset.filter((e) => Array.isArray(e) && Number.isFinite(e[0]) && getMove(e[1])).map((e) => [e[0], e[1]]) : [];
+  if (!g.learnset.length) g.learnset = ((sp && sp.learnset) || UNIVERSAL_LEARNSET).map((e) => e.slice());
+  if (!ABILITIES[g.ability]) g.ability = (sp && sp.abilities && sp.abilities[0]) || 'lucky_streak';
   return g;
 }

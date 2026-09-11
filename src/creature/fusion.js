@@ -12,7 +12,8 @@
 // makes a fusion read as half and half.
 import { SLOTS, getPart, partFits } from '../data/parts/index.js';
 import { clamp01, lerp, round3, normalizeWeights } from '../core/util.js';
-import { GENOME_VERSION, PAINT_SLOTS, PAINT_PERMS, TRAIT_KEYS, STAT_KEYS, randomPartId } from './genome.js';
+import { GENOME_VERSION, PAINT_SLOTS, PAINT_PERMS, TRAIT_KEYS, STAT_KEYS, randomPartId, learnsetOf } from './genome.js';
+import { getMove, UNIVERSAL_LEARNSET } from '../data/moves.js';
 import { blendColor } from './palette.js';
 import { joinNameParts, splitName } from './naming.js';
 
@@ -57,6 +58,7 @@ export function fuse(a, b, rng) {
   const rPal = rng.fork('palette');
   const rTraits = rng.fork('traits');
   const rStats = rng.fork('stats');
+  const rAbility = rng.fork('ability');
   const parents = [a, b];
 
   const draw = (slot) => {
@@ -154,11 +156,31 @@ export function fuse(a, b, rng) {
     types: [primary, secondary],
     parts, paint, palette, traits, stats, vigor, bst, lineage,
     parents: [a.name, b.name],
+    learnset: fuseLearnsets(a, b, [primary, secondary]),
+    ability: rAbility.chance(0.6) ? P1.ability : P2.ability,
   };
   return {
     child,
     report: { from, mutated, identity, palette: palFrom, types: { primary: identity, secondary: secondaryFrom } },
   };
+}
+
+/**
+ * A child's learnset: both parents' moves that match the child's types (Normal
+ * always counts), lowest level wins on duplicates, padded with universal moves
+ * when thin, capped at twelve keeping the two earliest and the ten latest.
+ */
+export function fuseLearnsets(a, b, types) {
+  const ok = new Set(['Normal', ...types.filter(Boolean)]);
+  const byId = new Map();
+  for (const [lvl, id] of [...learnsetOf(a), ...learnsetOf(b)]) {
+    const mv = getMove(id);
+    if (!mv || !ok.has(mv.type)) continue;
+    if (!byId.has(id) || byId.get(id) > lvl) byId.set(id, lvl);
+  }
+  for (const [lvl, id] of UNIVERSAL_LEARNSET) if (byId.size < 6 && !byId.has(id)) byId.set(id, lvl);
+  const list = [...byId.entries()].map(([id, lvl]) => [lvl, id]).sort((p, q) => p[0] - q[0] || (p[1] < q[1] ? -1 : 1));
+  return list.length <= 12 ? list : [...list.slice(0, 2), ...list.slice(-10)];
 }
 
 /** Fuse a chain: start with `first`, then fold in each partner in turn. Returns every generation. */

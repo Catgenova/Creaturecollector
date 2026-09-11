@@ -141,14 +141,50 @@ it mutated, where each colour came from, and where each type came from. The
 Fusion Lab shows it and can breed a child five more generations against random
 pool members to check that lines stay coherent.
 
-## Battle (Phase 3)
+## Battle (Phase 3 — implemented)
 
-Pure engine: `step(state, actions, rng) -> { state, events }`. UI plays events
-back. Classic damage formula with STAB, type chart, crits, accuracy, stat
-stages, burn/poison/paralysis/sleep/freeze, priority, switching, parties of 5.
-A headless simulator runs thousands of battles for balance. Moves are a
-hand-authored table (~80) with a small set of effect templates; a creature's
-learnable pool is filtered by its types. Abilities are hooks on engine events.
+Pure engine in `src/battle/engine.js`: `createBattle({ sides, seed })` then
+`step(state, actions) -> { state, events }`. The input state is never mutated,
+every roll derives from the battle seed plus turn number, and the UI only plays
+events back, so a battle is replayable from its start state and action log.
+
+- **Battlers** come from `makeBattler(genome, level)`: classic level formula
+  with vigor genes as IVs, up to four moves from the learnset at that level
+  (always at least one damaging move), the genome's ability.
+- **Turn.** Switches first, then moves by priority, then speed, ties random.
+  Pre-move checks: flinch, sleep (1–3 turns), freeze (20% thaw, Fire moves
+  thaw), paralysis (25% skip). Accuracy uses the accuracy/evasion stage table.
+- **Damage.** `((2L/5+2) · P · A/D)/50 + 2`, crit 1.5 (1/24, 1/8 for high-crit
+  moves), random 85–100%, STAB 1.5, chart effectiveness, burn halves physical.
+  Multi-hit, drain, recoil, fixed damage, and secondary effects are data on the
+  move (`src/data/moves.js`, 157 moves, original names).
+- **Status:** burn, poison, paralysis, sleep, freeze with the usual type
+  immunities; status-inflicting moves also respect the move type's immunity.
+  Stat stages ±6. Struggle when all PP is gone.
+- **Abilities** (`src/data/abilities.js`, 30): entry (Menace), end of turn
+  (Momentum), damage modifiers (Purebred, Finesse, Grit, Blubber…), immunities
+  (Hover, Sponge, Capacitor, status guards), contact effects (Thorn Hide, Live
+  Fur…), Stonewall, Second Wind, Swagger, Lucky Streak. Implemented by id in the
+  engine; the table holds names and text.
+- **Phases:** `choose` → `replace` (a side whose active fainted sends in the
+  next one for free) → `over`. `legalActions(state, side)` is the single source
+  of truth for what a side may do, and `step` rejects anything else.
+- **Learnsets.** Species carry level-up lists; a fusion's learnset is both
+  parents' moves filtered to the child's types (Normal always allowed), capped
+  at twelve. Abilities pass from the identity parent 60% of the time.
+- **AI** (`ai.js`): scores each legal action — expected damage as a fraction of
+  the foe's HP, knockout bonus, secondary effects, status value, boosts when
+  healthy, heals when low, switching when badly matched. A little noise.
+- **Simulator** (`sim.js`, `node scripts/sim.mjs`): AI vs AI tournaments with
+  per-species and per-type win rates. Baseline at 200 games, level 50, 3v3:
+  about 7 turns per battle, no timeouts, win rates from 34% (Pufflet) to 65%
+  (Moltrix). Tuning happens in the polish phase.
+
+The battle screen (`ui/battle.js`) is portrait: foe panel and creature on top,
+yours below, a four-line log, a 2×2 move grid with type, PP and an
+effectiveness marker, party sheet for switching, Fast and Auto toggles, and a
+result card with rematch. Events play with lunge, hit-shake, HP transitions
+and faint animations.
 
 ## Arena and save (Phase 4)
 

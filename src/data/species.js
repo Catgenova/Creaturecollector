@@ -15,6 +15,8 @@ export const SPECIES = [
     recipe: { body: 'body.round', head: 'head.round', eyes: 'eye.round', mouth: 'mouth.smile', crown: ['crown.catears', 'crown.bunny'], legs: 'legs.stub', arms: 'arms.none', wings: 'wings.none', tail: 'tails.stubby', back: 'back.none', pattern: 'pat.belly' },
     palette: { c1: [38, 45, 72], c2: [36, 40, 88], c3: [350, 60, 72], eye: [205, 35, 28] }, vary: { h: 10, s: 8, l: 6 },
     traits: T([0.3, 0.55], MID, [0.3, 0.5], MID, MID, [0.5, 0.8]),
+    learnset: [[1,'bump'],[1,'yowl'],[8,'dash'],[14,'headbonk'],[20,'brace'],[27,'belly_flop'],[34,'rake'],[41,'mend'],[50,'reckless_charge']],
+    abilities: ['lucky_streak','second_wind'],
     desc: 'A soft, round creature that puffs up when startled. Happiest in a warm pocket.',
   },
   {
@@ -23,6 +25,8 @@ export const SPECIES = [
     recipe: { body: 'body.quad', head: 'head.snout', eyes: 'eye.angry', mouth: 'mouth.fangs', crown: ['crown.catears', 'crown.horns'], legs: 'legs.canine', arms: 'arms.none', wings: ['wings.none', 'wings.fire'], tail: 'tails.flame', back: 'back.none', pattern: 'pat.saddle' },
     palette: { c1: [22, 88, 52], c2: [40, 95, 58], c3: [8, 88, 52], eye: [48, 95, 55] }, vary: { h: 8, s: 6, l: 6 },
     traits: T([0.4, 0.7], MID, [0.45, 0.7], [0.6, 0.9], MID, MID),
+    learnset: [[1,'swipe'],[1,'yowl'],[6,'cinder'],[12,'dash'],[18,'ember_bite'],[24,'kindle_rush'],[32,'fire_stream'],[40,'whetting'],[48,'blaze_tackle']],
+    abilities: ['ember_heart','grit'],
     desc: 'Its tail flame burns hotter the more it wants to impress. Kicks up sparks when it runs.',
   },
   {
@@ -31,6 +35,8 @@ export const SPECIES = [
     recipe: { body: 'body.fish', head: 'head.none', eyes: 'eye.big', mouth: 'mouth.open', crown: 'crown.fin', legs: 'legs.none', arms: 'arms.fin', wings: 'wings.none', tail: 'tails.fish', back: 'back.fin', pattern: 'pat.stripes' },
     palette: { c1: [205, 80, 54], c2: [190, 70, 72], c3: [28, 90, 62], eye: [42, 90, 50] }, vary: { h: 10, s: 6, l: 6 },
     traits: T([0.35, 0.6], MID, MID, [0.5, 0.8], MID, [0.5, 0.8]),
+    learnset: [[1,'bump'],[4,'squirt'],[10,'ripple'],[16,'jetstream'],[22,'cascade'],[28,'chill_gust'],[35,'tidal_wave'],[42,'meditate'],[50,'geyser']],
+    abilities: ['tide_heart','sponge'],
     desc: 'Swims through air as easily as water by beating its fins very fast. Curious about shiny things.',
   },
   {
@@ -39,6 +45,8 @@ export const SPECIES = [
     recipe: { body: 'body.biped', head: 'head.bulb', eyes: 'eye.round', mouth: 'mouth.smile', crown: 'crown.sprout', legs: 'legs.stub', arms: 'arms.stub', wings: ['wings.none', 'wings.leaf'], tail: 'tails.leaf', back: 'back.none', pattern: 'pat.spots' },
     palette: { c1: [110, 45, 48], c2: [95, 55, 66], c3: [98, 55, 40], eye: [22, 60, 30] }, vary: { h: 12, s: 8, l: 6 },
     traits: T([0.3, 0.6], [0.5, 0.75], [0.3, 0.55], MID, MID, [0.5, 0.75]),
+    learnset: [[1,'bump'],[5,'vine_lash'],[10,'drowse_dust'],[15,'leaf_razor'],[22,'sap_drain'],[28,'photosynth'],[35,'spore_burst'],[42,'blade_leaf'],[50,'sunlance']],
+    abilities: ['bloom_heart','antitoxin'],
     desc: 'The sprout on its head leans toward sunlight. It naps in flowerbeds and wakes covered in pollen.',
   },
   {
@@ -47,6 +55,8 @@ export const SPECIES = [
     recipe: { body: 'body.round', head: 'head.none', eyes: 'eye.big', mouth: 'mouth.grin', crown: 'crown.bolts', legs: 'legs.stub', arms: 'arms.stub', wings: 'wings.none', tail: 'tails.whip', back: ['back.none', 'back.bolts'], pattern: 'pat.stripes' },
     palette: { c1: [50, 95, 58], c2: [222, 15, 22], c3: [30, 95, 55], eye: [222, 40, 22] }, vary: { h: 6, s: 5, l: 6 },
     traits: T([0.25, 0.5], MID, [0.3, 0.5], [0.5, 0.8], MID, [0.6, 0.9]),
+    learnset: [[1,'bump'],[4,'zap'],[9,'numb_pulse'],[14,'dash'],[20,'arc_beam'],[26,'static_net'],[33,'voltage'],[40,'quicken'],[48,'skyfall_bolt']],
+    abilities: ['live_fur','momentum'],
     desc: 'Static crackles in its fur. It clings to power lines and hums along with them.',
   },
   {
@@ -55,6 +65,8 @@ export const SPECIES = [
     recipe: { body: 'body.biped', head: 'head.round', eyes: 'eye.sleepy', mouth: 'mouth.flat', crown: 'crown.catears', legs: 'legs.chunky', arms: 'arms.paw', wings: 'wings.none', tail: 'tails.stubby', back: ['back.none', 'back.crystal'], pattern: 'pat.belly' },
     palette: { c1: [196, 55, 80], c2: [200, 30, 95], c3: [210, 60, 62], eye: [222, 50, 35] }, vary: { h: 8, s: 8, l: 5 },
     traits: T([0.5, 0.8], [0.45, 0.65], [0.4, 0.6], [0.3, 0.5], MID, [0.4, 0.6]),
+    learnset: [[1,'swipe'],[5,'sleet'],[9,'glare'],[15,'frost_fist'],[21,'chill_gust'],[27,'brace'],[34,'glacier_ray'],[41,'snowslide'],[50,'whiteout']],
+    abilities: ['blubber','warm_core'],
     desc: 'Sleeps through blizzards. Its breath leaves frost on anything it sniffs.',
   },
   {
@@ -63,6 +75,8 @@ export const SPECIES = [
     recipe: { body: 'body.biped', head: 'head.block', eyes: 'eye.angry', mouth: 'mouth.frown', crown: ['crown.horns', 'crown.mohawk'], legs: 'legs.chunky', arms: 'arms.claw', wings: 'wings.none', tail: 'tail.none', back: 'back.none', pattern: 'pat.chest' },
     palette: { c1: [15, 55, 46], c2: [30, 45, 70], c3: [40, 30, 88], eye: [10, 80, 40] }, vary: { h: 8, s: 8, l: 6 },
     traits: T([0.55, 0.85], [0.4, 0.6], [0.5, 0.75], MID, MID, [0.3, 0.5]),
+    learnset: [[1,'bump'],[1,'glare'],[7,'chop'],[13,'blitz_punch'],[19,'leg_sweep'],[25,'muscle_up'],[31,'slab_break'],[38,'siphon_fist'],[47,'all_out_brawl']],
+    abilities: ['grit','menace'],
     desc: 'Headbutts boulders to keep its horns sharp. Loyal to whoever beats it fairly.',
   },
   {
@@ -71,6 +85,8 @@ export const SPECIES = [
     recipe: { body: 'body.serpent', head: 'head.bulb', eyes: 'eye.slit', mouth: 'mouth.tongue', crown: 'crown.antennae', legs: 'legs.none', arms: 'arms.none', wings: 'wings.none', tail: 'tails.whip', back: ['back.none', 'back.spikes'], pattern: 'pat.spots' },
     palette: { c1: [280, 50, 46], c2: [95, 60, 52], c3: [305, 70, 66], eye: [95, 90, 55] }, vary: { h: 12, s: 8, l: 6 },
     traits: T([0.35, 0.65], [0.4, 0.6], MID, [0.5, 0.8], MID, [0.5, 0.75]),
+    learnset: [[1,'venom_prick'],[1,'yowl'],[8,'acid_spit'],[15,'venom_stab'],[21,'slime_coat'],[27,'blight'],[34,'sludge_blast'],[41,'venom_slash'],[49,'sludge_hurl']],
+    abilities: ['venom_barbs','antitoxin'],
     desc: 'Leaves a faintly glowing trail. Gardeners both dread and admire it.',
   },
   {
@@ -79,6 +95,8 @@ export const SPECIES = [
     recipe: { body: 'body.quad', head: 'head.snout', eyes: 'eye.dot', mouth: 'mouth.flat', crown: ['crown.none', 'crown.horns'], legs: 'legs.hoof', arms: 'arms.none', wings: 'wings.none', tail: 'tails.whip', back: 'back.none', pattern: 'pat.saddle' },
     palette: { c1: [32, 45, 50], c2: [40, 50, 76], c3: [25, 35, 30], eye: [30, 60, 25] }, vary: { h: 8, s: 8, l: 6 },
     traits: T([0.45, 0.75], MID, [0.4, 0.6], [0.3, 0.5], MID, [0.3, 0.5]),
+    learnset: [[1,'bump'],[4,'dust_kick'],[9,'mud_fling'],[15,'stampede'],[21,'silt_jet'],[27,'brace'],[33,'bull_rush'],[40,'fissure_burst'],[48,'tremor']],
+    abilities: ['stonewall','thick_skull'],
     desc: 'Digs shallow burrows and forgets where they are. Its hooves never seem to get dirty.',
   },
   {
@@ -87,6 +105,8 @@ export const SPECIES = [
     recipe: { body: 'body.bird', head: 'head.beak', eyes: 'eye.round', mouth: 'mouth.none', crown: 'crown.crest', legs: 'legs.bird', arms: 'arms.none', wings: 'wings.feather', tail: 'tails.feathers', back: 'back.none', pattern: 'pat.belly' },
     palette: { c1: [210, 70, 72], c2: [200, 20, 96], c3: [40, 90, 58], eye: [222, 60, 25] }, vary: { h: 12, s: 8, l: 6 },
     traits: T([0.3, 0.6], MID, [0.4, 0.6], MID, [0.55, 0.85], MID),
+    learnset: [[1,'gale'],[6,'dash'],[12,'wing_strike'],[18,'slipstream'],[24,'sky_strike'],[30,'preen'],[36,'wind_cutter'],[43,'quicken'],[50,'dive_bomb']],
+    abilities: ['hawkeye','hover'],
     desc: 'Rides thermals for hours without a single flap. Whistles at travellers to show them the way.',
   },
   {
@@ -95,6 +115,8 @@ export const SPECIES = [
     recipe: { body: 'body.float', head: 'head.none', eyes: 'eye.big', mouth: 'mouth.smile', crown: ['crown.antennae', 'crown.halo'], legs: 'legs.none', arms: 'arms.none', wings: 'wings.none', tail: 'tails.curl', back: 'back.wisps', pattern: 'pat.spots' },
     palette: { c1: [320, 60, 68], c2: [270, 50, 62], c3: [48, 90, 62], eye: [200, 70, 50] }, vary: { h: 14, s: 8, l: 6 },
     traits: T([0.35, 0.6], MID, MID, [0.5, 0.8], MID, [0.6, 0.9]),
+    learnset: [[1,'mind_jolt'],[7,'lull'],[13,'thought_beam'],[19,'meditate'],[25,'quicken'],[31,'psi_shock'],[38,'mind_crush'],[44,'blank_mind'],[50,'mind_ram']],
+    abilities: ['hover','restless'],
     desc: 'Hovers a hand-width above the ground and always seems to be listening to something far away.',
   },
   {
@@ -103,6 +125,8 @@ export const SPECIES = [
     recipe: { body: 'body.round', head: 'head.round', eyes: 'eye.bug', mouth: 'mouth.fangs', crown: 'crown.antennae', legs: 'legs.insect', arms: 'arms.none', wings: 'wings.bug', tail: 'tail.none', back: 'back.plates', pattern: 'pat.stripes' },
     palette: { c1: [95, 50, 42], c2: [222, 10, 18], c3: [50, 90, 55], eye: [0, 0, 12] }, vary: { h: 14, s: 8, l: 6 },
     traits: T([0.25, 0.5], [0.4, 0.6], [0.4, 0.7], MID, [0.4, 0.7], [0.5, 0.8]),
+    learnset: [[1,'nibble'],[5,'web_shot'],[11,'needle_volley'],[17,'swarm_buzz'],[24,'scissor_slash'],[30,'blood_sip'],[37,'drone'],[40,'quicken'],[48,'great_horn']],
+    abilities: ['finesse','lucky_streak'],
     desc: 'Chatters constantly by rubbing its plates together. Swarms are loud enough to hear from the next valley.',
   },
   {
@@ -111,6 +135,8 @@ export const SPECIES = [
     recipe: { body: 'body.biped', head: 'head.block', eyes: 'eye.dot', mouth: 'mouth.flat', crown: 'crown.spikes', legs: 'legs.chunky', arms: 'arms.claw', wings: 'wings.none', tail: 'tails.club', back: ['back.plates', 'back.crystal'], pattern: 'pat.scales' },
     palette: { c1: [30, 15, 50], c2: [30, 12, 36], c3: [32, 22, 68], eye: [45, 80, 50] }, vary: { h: 10, s: 6, l: 6 },
     traits: T([0.5, 0.85], [0.4, 0.6], [0.4, 0.6], [0.5, 0.75], MID, [0.3, 0.5]),
+    learnset: [[1,'stone_toss'],[1,'brace'],[8,'stone_trap'],[15,'primal_surge'],[22,'gem_gleam'],[29,'boulder_fall'],[36,'smooth_stone'],[44,'shard_spire'],[50,'tremor']],
+    abilities: ['stonewall','thorn_hide'],
     desc: 'Mistaken for a boulder until it yawns. Lichen grows on the ones that sit still longest.',
   },
   {
@@ -119,6 +145,8 @@ export const SPECIES = [
     recipe: { body: 'body.float', head: 'head.none', eyes: 'eye.sleepy', mouth: 'mouth.grin', crown: ['crown.none', 'crown.halo'], legs: 'legs.none', arms: 'arms.stub', wings: 'wings.none', tail: 'tail.none', back: 'back.wisps', pattern: 'pattern.none' },
     palette: { c1: [255, 40, 42], c2: [250, 30, 72], c3: [180, 60, 70], eye: [180, 80, 60] }, vary: { h: 12, s: 8, l: 6 },
     traits: T([0.35, 0.65], MID, MID, MID, MID, [0.5, 0.8]),
+    learnset: [[1,'cold_lick'],[6,'wraith_touch'],[12,'shade_step'],[18,'haunt'],[24,'curse_bolt'],[31,'phantom_claw'],[38,'umbral_orb'],[44,'scheme'],[50,'dread_pulse']],
+    abilities: ['hover','restless'],
     desc: 'Drifts through walls when it forgets they are there. Giggles in empty rooms.',
   },
   {
@@ -127,6 +155,8 @@ export const SPECIES = [
     recipe: { body: 'body.quad', head: 'head.long', eyes: 'eye.slit', mouth: 'mouth.fangs', crown: 'crown.horns', legs: 'legs.chunky', arms: 'arms.none', wings: 'wings.bat', tail: ['tails.whip', 'tails.club'], back: 'back.spikes', pattern: 'pat.gradient' },
     palette: { c1: [175, 55, 40], c2: [25, 80, 58], c3: [45, 70, 76], eye: [40, 90, 50] }, vary: { h: 12, s: 8, l: 6 },
     traits: T([0.5, 0.8], MID, [0.45, 0.7], [0.5, 0.8], [0.5, 0.8], [0.3, 0.5]),
+    learnset: [[1,'swipe'],[6,'wyrm_breath'],[10,'glare'],[17,'wyrm_claw'],[24,'wyrm_dance'],[31,'wyrm_pulse'],[38,'wyrm_rush'],[45,'rampage'],[52,'comet_roar']],
+    abilities: ['menace','vice_jaw'],
     desc: 'A young dragon that hoards pebbles and sleeps on them. Its wings are still too small to carry it far.',
   },
   {
@@ -135,6 +165,8 @@ export const SPECIES = [
     recipe: { body: 'body.quad', head: 'head.cat', eyes: 'eye.slit', mouth: 'mouth.smirk', crown: 'crown.catears', legs: 'legs.canine', arms: 'arms.none', wings: 'wings.none', tail: ['tails.curl', 'tails.spade'], back: 'back.none', pattern: 'pattern.none' },
     palette: { c1: [262, 22, 22], c2: [270, 30, 45], c3: [45, 90, 60], eye: [50, 95, 55] }, vary: { h: 12, s: 8, l: 5 },
     traits: T([0.35, 0.6], MID, [0.5, 0.75], [0.6, 0.9], MID, [0.5, 0.8]),
+    learnset: [[1,'swipe'],[6,'chomp'],[11,'dash'],[16,'blindside'],[22,'dusk_slash'],[28,'cheap_shot'],[34,'crush_bite'],[40,'scheme'],[47,'dread_pulse']],
+    abilities: ['loose_joints','swagger'],
     desc: 'Only ever seen out of the corner of the eye. Steals one sock, never the pair.',
   },
   {
@@ -143,6 +175,8 @@ export const SPECIES = [
     recipe: { body: 'body.biped', head: 'head.skull', eyes: 'eye.dot', mouth: 'mouth.teeth', crown: 'crown.spikes', legs: 'legs.peg', arms: ['arms.claw', 'arms.blade'], wings: 'wings.none', tail: 'tails.club', back: 'back.plates', pattern: 'pat.bands' },
     palette: { c1: [220, 12, 62], c2: [220, 15, 40], c3: [200, 60, 55], eye: [0, 90, 52] }, vary: { h: 8, s: 5, l: 6 },
     traits: T([0.5, 0.8], MID, [0.4, 0.6], [0.4, 0.6], MID, [0.3, 0.5]),
+    learnset: [[1,'iron_claw'],[1,'glare'],[8,'bolt_jab'],[14,'steel_fin'],[20,'plate_up'],[26,'grind_screech'],[33,'steel_ram'],[40,'chrome_beam'],[48,'comet_fist']],
+    abilities: ['heavy_hands','stonewall'],
     desc: 'Nobody knows whether it was built or born. It sharpens its teeth on rusty nails.',
   },
   {
@@ -151,6 +185,8 @@ export const SPECIES = [
     recipe: { body: 'body.round', head: 'head.bulb', eyes: 'eye.big', mouth: 'mouth.smile', crown: 'crown.bunny', legs: 'legs.stub', arms: 'arms.stub', wings: 'wings.bug', tail: 'tails.fluffy', back: 'back.none', pattern: 'pat.speckle' },
     palette: { c1: [335, 75, 78], c2: [330, 30, 97], c3: [48, 90, 66], eye: [200, 70, 55] }, vary: { h: 12, s: 8, l: 5 },
     traits: T([0.25, 0.5], [0.5, 0.75], [0.3, 0.5], MID, [0.4, 0.7], [0.6, 0.9]),
+    learnset: [[1,'glitter_gust'],[5,'doe_eyes'],[10,'sweet_sip'],[17,'dazzle'],[24,'moonbathe'],[30,'spirit_crack'],[37,'lunar_burst'],[43,'meditate'],[50,'roughhouse']],
+    abilities: ['lucky_streak','sponge'],
     desc: 'Sheds glitter when happy, which is nearly always. Impossible to stay angry at.',
   },
   // Dual-typed species
@@ -160,6 +196,8 @@ export const SPECIES = [
     recipe: { body: 'body.bird', head: 'head.beak', eyes: 'eye.angry', mouth: 'mouth.none', crown: 'crown.crest', legs: 'legs.bird', arms: 'arms.none', wings: 'wings.fire', tail: 'tails.feathers', back: 'back.none', pattern: 'pat.gradient' },
     palette: { c1: [18, 85, 50], c2: [40, 95, 60], c3: [48, 95, 58], eye: [48, 95, 55] }, vary: { h: 8, s: 6, l: 6 },
     traits: T([0.4, 0.7], MID, [0.4, 0.6], [0.5, 0.8], [0.6, 0.9], MID),
+    learnset: [[1,'gale'],[5,'cinder'],[10,'dash'],[15,'wing_strike'],[21,'kindle_rush'],[27,'wind_cutter'],[33,'fire_stream'],[39,'preen'],[46,'dive_bomb'],[52,'meltdown']],
+    abilities: ['ember_heart','hawkeye'],
     desc: 'Its wingbeats leave trails of embers. Nests on chimney tops in winter.',
   },
   {
@@ -168,6 +206,8 @@ export const SPECIES = [
     recipe: { body: 'body.serpent', head: 'head.long', eyes: 'eye.slit', mouth: 'mouth.fangs', crown: 'crown.fin', legs: 'legs.none', arms: 'arms.none', wings: 'wings.fin', tail: 'tails.fish', back: 'back.fin', pattern: 'pat.scales' },
     palette: { c1: [200, 65, 42], c2: [185, 60, 68], c3: [165, 70, 60], eye: [45, 90, 55] }, vary: { h: 10, s: 6, l: 6 },
     traits: T([0.55, 0.85], MID, MID, [0.5, 0.8], [0.4, 0.7], [0.3, 0.5]),
+    learnset: [[1,'squirt'],[7,'wyrm_breath'],[13,'ripple'],[19,'wyrm_claw'],[26,'tidal_wave'],[32,'riptide'],[38,'wyrm_pulse'],[44,'wyrm_dance'],[50,'geyser'],[56,'comet_roar']],
+    abilities: ['tide_heart','purebred'],
     desc: 'Coils around harbour posts during storms. Sailors leave it fish and it leaves them alone.',
   },
   {
@@ -176,6 +216,8 @@ export const SPECIES = [
     recipe: { body: 'body.biped', head: 'head.block', eyes: 'eye.angry', mouth: 'mouth.frown', crown: 'crown.sprout', legs: 'legs.chunky', arms: 'arms.claw', wings: 'wings.none', tail: 'tails.stubby', back: 'back.leaf', pattern: 'pat.spots' },
     palette: { c1: [100, 35, 40], c2: [80, 45, 55], c3: [95, 55, 62], eye: [40, 80, 50] }, vary: { h: 10, s: 8, l: 6 },
     traits: T([0.55, 0.85], [0.4, 0.6], [0.5, 0.75], [0.3, 0.5], MID, [0.3, 0.5]),
+    learnset: [[1,'bump'],[5,'vine_lash'],[10,'chop'],[16,'leg_sweep'],[22,'muscle_up'],[28,'leaf_razor'],[34,'slab_break'],[41,'blade_leaf'],[48,'overpower'],[54,'sunlance']],
+    abilities: ['bloom_heart','grit'],
     desc: 'Moss grows thick on its shoulders. It uproots trees to practise its throws, then replants them.',
   },
   {
@@ -184,6 +226,8 @@ export const SPECIES = [
     recipe: { body: 'body.float', head: 'head.none', eyes: 'eye.bug', mouth: 'mouth.flat', crown: 'crown.antennae', legs: 'legs.none', arms: 'arms.none', wings: 'wings.bug', tail: 'tail.none', back: 'back.wisps', pattern: 'pat.speckle' },
     palette: { c1: [250, 30, 38], c2: [260, 25, 60], c3: [170, 60, 68], eye: [170, 80, 65] }, vary: { h: 12, s: 8, l: 6 },
     traits: T([0.3, 0.6], MID, MID, MID, [0.6, 0.9], [0.5, 0.8]),
+    learnset: [[1,'nibble'],[5,'cold_lick'],[10,'web_shot'],[15,'wraith_touch'],[21,'swarm_buzz'],[27,'curse_bolt'],[34,'drone'],[41,'umbral_orb'],[46,'lull'],[50,'quicken']],
+    abilities: ['hover','finesse'],
     desc: 'Drawn to lanterns, but the light passes straight through it. Dust from its wings causes vivid dreams.',
   },
 ];
