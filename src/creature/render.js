@@ -1,10 +1,8 @@
 // Genome -> SVG string. Pure: no DOM access, so it runs in Node for tests.
 //
-// Creatures on a class rig are drawn by walking the rig's draw tree: every
-// part is placed on a named socket of its parent part, far-side copies are
-// drawn darker behind, and children move with their parent (ears and eyes ride
-// the head). Creatures still on the legacy rig use the original fixed
-// assembly order (wings, tail, back, legs, arms, body, head).
+// A creature is drawn by walking its rig's draw tree: every part is placed on
+// a named socket of its parent part, far-side copies are drawn darker behind,
+// and children move with their parent (ears and eyes ride the head).
 //
 // The frame is fixed so creatures are comparable in size: the ground line sits
 // at the same height in every render. opts.fit crops the viewBox to the
@@ -292,127 +290,6 @@ function glossSvg(body, id) {
   return `<g clip-path="url(#${id}-clip)"><ellipse cx="${num(cx)}" cy="${num(cy)}" rx="${num(w * 0.17)}" ry="${num(hh * 0.09)}" fill="#fff" opacity="0.22" transform="rotate(-24 ${num(cx)} ${num(cy)})"/></g>`;
 }
 
-// ---- legacy rig ---------------------------------------------------------------
-
-/**
- * Build the layered markup for a legacy-rig creature and measure it.
- * Returns { layers, defs, box, feet, hover, K, body, clip } where box is the
- * creature's bounds in creature space (body centre = 0,0).
- */
-function buildLegacy(g, id, styleName) {
-  const R = renderSetup(g, id, styleName);
-  const { st, styled, shared, ctxFor, wrap, farWrap } = R;
-  const P = resolveParts(g);
-  const body = P.body;
-  const S = body.sockets;
-  const K = traitScales(g.traits);
-  K.eye *= st.eye;
-
-  let feet = body.bottom;
-  if (P.legs && S.legs) for (const ls of S.legs) feet = Math.max(feet, ls.y + (P.legs.len || 40) * K.leg);
-  const hover = body.hover || 0;
-
-  let box = null;
-  const grow = (part, chain) => { box = union(box, boxThrough(partBounds(part), chain)); };
-
-  const assemble = (mode) => {
-    const L = [];
-    const pp = (part, slot, far = false, extra) => partPrimsCtx(part, ctxFor(slot, far, mode, extra));
-
-    if (P.wings && S.wing) {
-      const tn = xf(S.wing.x, S.wing.y, 0, K.wing), tfar = xf(S.wing.x - 6, S.wing.y - 6, 0, K.wing);
-      grow(P.wings, [tn]); grow(P.wings, [tfar]);
-      L.push(wrap('wings',
-        `<g transform="${tf(tfar)}"><g class="g-wing">${farWrap(pp(P.wings, 'wings', true))}</g></g>` +
-        `<g transform="${tf(tn)}"><g class="g-wing">${pp(P.wings, 'wings')}</g></g>`));
-    }
-    if (P.tail && S.tail) {
-      const t = xf(S.tail.x, S.tail.y, S.tail.a, K.tail);
-      grow(P.tail, [t]);
-      L.push(wrap('tail', `<g transform="${tf(t)}"><g class="g-tail">${pp(P.tail, 'tail')}</g></g>`));
-    }
-    if (P.back && S.back) {
-      const t = xf(S.back.x, S.back.y, S.back.a);
-      grow(P.back, [t]);
-      L.push(wrap('back', `<g transform="${tf(t)}">${pp(P.back, 'back')}</g>`));
-    }
-    if (P.legs && S.legs && S.legs.length) {
-      let far = '', near = '';
-      for (const ls of S.legs) {
-        const f = ls.far || FAR_DEFAULT;
-        const tfar = xf(ls.x + f.dx, ls.y + f.dy, 0, K.leg), tn = xf(ls.x, ls.y, 0, K.leg);
-        grow(P.legs, [tfar]); grow(P.legs, [tn]);
-        far += `<g transform="${tf(tfar)}">${farWrap(pp(P.legs, 'legs', true))}</g>`;
-        near += `<g transform="${tf(tn)}">${pp(P.legs, 'legs')}</g>`;
-      }
-      L.push(wrap('legs', far + near));
-    }
-    const armsFront = Boolean(body.armsFront);
-    const armSvg = () => {
-      const tn = xf(S.arm.x, S.arm.y), tfar = xf(S.arm.x - 14, S.arm.y - 3);
-      grow(P.arms, [tn]);
-      let s = '';
-      if (!armsFront) { grow(P.arms, [tfar]); s += `<g transform="${tf(tfar)}">${farWrap(pp(P.arms, 'arms', true))}</g>`; }
-      return wrap('arms', s + `<g transform="${tf(tn)}">${pp(P.arms, 'arms')}</g>`);
-    };
-    if (P.arms && S.arm && !armsFront) L.push(armSvg());
-
-    const face = (F, outer) => {
-      let behind = '', front = '';
-      if (P.crown && F.crown) {
-        const t = xf(F.crown.x, F.crown.y, F.crown.a, F.crown.s == null ? 1 : F.crown.s);
-        grow(P.crown, [t, ...outer]);
-        behind += wrap('crown', `<g transform="${tf(t)}">${pp(P.crown, 'crown')}</g>`);
-      }
-      if (P.eyes) {
-        if (F.eye2) {
-          const t = xf(F.eye2.x, F.eye2.y, 0, (F.eye2.s == null ? 0.85 : F.eye2.s) * K.eye);
-          grow(P.eyes, [t, ...outer]);
-          front += `<g transform="${tf(t)}">${farWrap(pp(P.eyes, 'eyes', true, { small: true, noOutline: true }))}</g>`;
-        }
-        if (F.eye) {
-          const t = xf(F.eye.x, F.eye.y, 0, (F.eye.s == null ? 1 : F.eye.s) * K.eye);
-          grow(P.eyes, [t, ...outer]);
-          front += `<g transform="${tf(t)}">${pp(P.eyes, 'eyes', false, { small: true, noOutline: true })}</g>`;
-        }
-      }
-      if (P.mouth && F.mouth) {
-        const t = xf(F.mouth.x, F.mouth.y, 0, F.mouth.s == null ? 1 : F.mouth.s);
-        grow(P.mouth, [t, ...outer]);
-        front += `<g transform="${tf(t)}">${pp(P.mouth, 'mouth', false, { small: true, noOutline: true })}</g>`;
-      }
-      return { behind, front };
-    };
-
-    const headless = !P.head || !S.head;
-    const bodyFace = headless && S.face ? face(S.face, []) : null;
-    grow(body, []);
-    let bodyInner = bodyFace ? bodyFace.behind : '';
-    bodyInner += pp(body, 'body');
-    if (mode !== 'outline') {
-      if (P.pattern) bodyInner += `<g clip-path="url(#${id}-clip)">${pp(P.pattern, 'body', false, { small: true })}</g>`;
-      if (st.gloss) bodyInner += glossSvg(body, id);
-    }
-    if (bodyFace) bodyInner += bodyFace.front;
-    L.push(`<g class="g-body">${styled ? bodyInner : `<g style="${paintOf(g, 'body')}">${bodyInner}</g>`}</g>`);
-
-    if (P.arms && S.arm && armsFront) L.push(armSvg());
-
-    if (!headless) {
-      const hs = S.head;
-      const th = xf(hs.x, hs.y, hs.a, (hs.s == null ? 1 : hs.s) * K.head);
-      grow(P.head, [th]);
-      const hf = face(P.head.sockets, [th]);
-      L.push(wrap('head', `<g transform="${tf(th)}"><g class="g-head">${hf.behind}${pp(P.head, 'head')}${hf.front}</g></g>`));
-    }
-    return L;
-  };
-
-  const outline = st.outlinePass ? assemble('outline') : [];
-  const layers = assemble('normal');
-  return { layers: [...outline, ...layers], defs: shared.defs.join(''), box: box || [-40, -40, 40, 40], feet, hover, K, body, clip: body.clip || [] };
-}
-
 // ---- class rigs -----------------------------------------------------------------
 
 const ANIM_CLASS = { body: 'g-body', head: 'g-head', tail: 'g-tail', sway: 'g-sway', flap: 'g-wing', ear: 'g-ear' };
@@ -420,7 +297,11 @@ const ANIM_CLASS = { body: 'g-body', head: 'g-head', tail: 'g-tail', sway: 'g-sw
 /** Frame markings and other box-fitted parts are authored in: 100 wide, 60 tall, centred on the origin. */
 export const FIT_FRAME = { w: 100, h: 60 };
 
-/** Build a creature on a class rig by walking the rig's draw tree. Same return shape as buildLegacy. */
+/**
+ * Build the layered markup for a creature by walking its rig's draw tree, and measure it.
+ * Returns { layers, defs, box, feet, hover, K, body, clip } where box is the
+ * creature's bounds in creature space (body centre = 0,0).
+ */
 function buildRigged(g, id, styleName, rig) {
   const R = renderSetup(g, id, styleName);
   const { st, styled, shared, ctxFor, wrap, farWrap } = R;
@@ -495,8 +376,7 @@ function buildRigged(g, id, styleName, rig) {
 }
 
 function buildCreature(g, id, styleName) {
-  const rig = getRig(rigOf(g));
-  return rig.tree ? buildRigged(g, id, styleName, rig) : buildLegacy(g, id, styleName);
+  return buildRigged(g, id, styleName, getRig(rigOf(g)));
 }
 
 /** Canvas-space transform that places a built creature on the ground line. */
@@ -561,7 +441,6 @@ export function mannequinGenome(part) {
   const parts = {};
   for (const slot of rig.slots) parts[slot] = [m.parts[slot], m.parts[slot]];
   for (const [slot, pid] of Object.entries(m.forSlot[part.slot] || {})) parts[slot] = [pid, pid];
-  if (rig.id === 'legacy' && part.slot === 'body' && part.sockets && !part.sockets.legs.length) parts.legs = ['legs.none', 'legs.none'];
   parts[part.slot] = [part.id, part.id];
   const paint = {};
   if (m.accentSlots.includes(part.slot)) paint[part.slot] = 4; // accent-first

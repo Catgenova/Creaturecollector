@@ -26,7 +26,7 @@ src/styles.css        all styles
 src/core/             rng, util — no game knowledge
 src/data/types.js     type list, chart, colours
 src/data/rigs.js      class skeletons: slot lists, draw trees, sockets each part must expose
-src/data/parts/       the part library: legacy slot files, one folder per rebuilt class (mammal/, reptile/, fish/, bird/, insect/, invertebrate/),
+src/data/parts/       the part library: one folder per class (mammal/, reptile/, fish/, bird/, insect/, invertebrate/, amphibian/),
                       shared builders (_builders.js), drawing DSL (_dsl.js), registry (index.js)
 src/data/species.js   base species recipes
 src/creature/         genome (schema, rolls, codes), palette, render (SVG)
@@ -88,9 +88,9 @@ marks detail parts that skip the heavy outline treatment. Slots in `clipped`
 100 × 60 authoring frame onto the body's box. The lowest point of the rig's
 `ground` slots is where the feet meet the floor.
 
-Creatures still on the `legacy` rig (classes not yet rebuilt) use the original
-fixed assembly order: wings, tail, back, legs, arms, body (+ pattern, + face when
-headless), head (crown, eyes, mouth).
+A genome that names no rig or an unknown one (a code saved before the rebuild)
+falls back to the default rig; its old part ids no longer resolve, so it is
+rejected by the code validator rather than drawn wrong.
 
 Colour roles: `p/pd/pl`, `s/sd/sl`, `a/ad/al`, `w/wd`, `e/ed`, `k`. The root SVG
 sets `--c1..--c3` (+ shade/highlight), `--e`, `--ol`, `--w`; each slot group
@@ -122,8 +122,8 @@ disabled under `prefers-reduced-motion`.
 
 ### Adding a part
 
-1. Add an entry to the slot's file (legacy: `src/data/parts/<slot>.js`; mammals:
-   `src/data/parts/mammal/<slot>.js`, built with the helpers in `_shared.js`).
+1. Add an entry to the slot's file in the class folder (mammals:
+   `src/data/parts/mammal/<slot>.js`), built with the helpers in its `_shared.js`.
 2. Draw facing right with the origin at the attachment point. Give it a stable
    `id` (mammal ids are `m.<slot>.<name>`), a `name`, a `dom` (dominance 0..1,
    used by fusion) and `w` (weight when rolled as a mutation). Add `fit` if it
@@ -280,15 +280,12 @@ Bird, Insect, Invertebrate or Amphibian. Types stay elemental and independent.
   Cavern, Reef, Canopy, Dunes, Peaks) whose two or three classes are four
   times as common, so a party finds fusion partners. Biomes are the seed of the
   overworld's regions.
-- Each class gets its own skeleton (rig) and slot list; see the next section.
-  Classes still on the shared legacy skeleton rely on the class lock plus
-  linked slots until they are rebuilt. Creatures on different rigs never fuse,
-  so a mammal saved before the rebuild stays playable but cannot breed with
-  the new library.
+- Each class has its own skeleton (rig) and slot list; see the next section.
+  Creatures on different rigs never fuse.
 
-## Class skeletons and the art rebuild (in progress)
+## Class skeletons and the art rebuild (done)
 
-The generic vector library looked amateurish, so the library is being rebuilt
+The generic vector library looked amateurish, so the library was rebuilt
 one class at a time to a higher bar: each class on its own rig, with seven
 detailed parts in every one of its slots, and enough species to use them.
 

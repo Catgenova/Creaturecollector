@@ -23,38 +23,7 @@
 //   clipped   slots drawn right after the body's shapes, clipped to the body
 //   mannequin parts and tweaks used by the Part Lab preview
 //
-// The 'legacy' rig is the original all-purpose skeleton. Classes still on it
-// are drawn by the original renderer path until they are rebuilt.
-
 export const RIGS = {
-  legacy: {
-    id: 'legacy', name: 'Classic', prefix: '',
-    slots: ['body', 'head', 'eyes', 'mouth', 'crown', 'legs', 'arms', 'wings', 'tail', 'back', 'pattern'],
-    names: {
-      body: 'Body', head: 'Head', eyes: 'Eyes', mouth: 'Mouth', crown: 'Crown', legs: 'Legs',
-      arms: 'Arms', wings: 'Wings', tail: 'Tail', back: 'Back', pattern: 'Pattern',
-    },
-    paint: ['body', 'head', 'crown', 'legs', 'arms', 'wings', 'tail', 'back'],
-    swappable: ['crown', 'wings', 'tail', 'back'],
-    required: ['body', 'eyes'],
-    linked: null, // taken from the class
-    ground: ['body', 'legs'],
-    tree: null,   // drawn by the legacy renderer
-    clipped: ['pattern'],
-    mannequin: {
-      parts: {
-        body: 'body.round', head: 'head.round', eyes: 'eye.round', mouth: 'mouth.smile', crown: 'crown.none', legs: 'legs.stub',
-        arms: 'arms.none', wings: 'wings.none', tail: 'tail.none', back: 'back.none', pattern: 'pattern.none',
-      },
-      // per-slot overrides so a previewed part has something sensible to sit on
-      forSlot: {
-        arms: { body: 'body.biped' }, wings: { body: 'body.quad' }, tail: { body: 'body.quad' }, back: { body: 'body.quad' },
-        eyes: { head: 'head.bulb' }, mouth: { head: 'head.bulb' },
-      },
-      accentSlots: ['head', 'crown', 'legs', 'arms', 'wings', 'tail', 'back'],
-    },
-  },
-
   mammal: {
     id: 'mammal', name: 'Mammal', prefix: 'm.',
     slots: ['body', 'head', 'ears', 'eyes', 'muzzle', 'legsFront', 'legsBack', 'tail', 'mane', 'horns', 'back', 'markings'],
@@ -393,7 +362,10 @@ export const RIGS = {
 
 export const RIG_IDS = Object.keys(RIGS);
 
-export function getRig(id) { return RIGS[id] || RIGS.legacy; }
+/** Rig used when a genome names none or an unknown one (old saves): the first class. */
+export const DEFAULT_RIG = 'mammal';
+
+export function getRig(id) { return RIGS[id] || RIGS[DEFAULT_RIG]; }
 export function slotsFor(rig) { return getRig(rig).slots; }
 export function paintSlotsFor(rig) { return getRig(rig).paint; }
 export function swappableSlotsFor(rig) { const r = getRig(rig); return r.swappable || r.paint; }

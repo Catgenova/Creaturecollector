@@ -4,14 +4,6 @@
 // Parts are grouped by rig, then slot. A part fits any body of its own rig
 // unless it lists the body kinds it accepts in `fit`.
 import { RIGS, slotsFor } from '../rigs.js';
-import { BODIES } from './bodies.js';
-import { HEADS } from './heads.js';
-import { EYES, MOUTHS } from './faces.js';
-import { CROWNS } from './crowns.js';
-import { LEGS, ARMS, WINGS } from './limbs.js';
-import { TAILS } from './tails.js';
-import { BACKS } from './backs.js';
-import { PATTERNS } from './patterns.js';
 import { MAMMAL_PARTS } from './mammal/index.js';
 import { REPTILE_PARTS } from './reptile/index.js';
 import { FISH_PARTS } from './fish/index.js';
@@ -21,10 +13,6 @@ import { INVERTEBRATE_PARTS } from './invertebrate/index.js';
 import { AMPHIBIAN_PARTS } from './amphibian/index.js';
 
 export const RIG_PARTS = {
-  legacy: {
-    body: BODIES, head: HEADS, eyes: EYES, mouth: MOUTHS, crown: CROWNS, legs: LEGS,
-    arms: ARMS, wings: WINGS, tail: TAILS, back: BACKS, pattern: PATTERNS,
-  },
   mammal: MAMMAL_PARTS,
   reptile: REPTILE_PARTS,
   fish: FISH_PARTS,
@@ -58,8 +46,8 @@ export function partFits(part, bodyKind) {
 
 /** All parts of a rig's slot. */
 export function partsOf(rig, slot) {
-  const r = RIG_PARTS[rig] || RIG_PARTS.legacy;
-  return r[slot] || [];
+  const r = RIG_PARTS[rig];
+  return (r && r[slot]) || [];
 }
 
 /** Parts of a rig's slot that fit the given body kind (includes the slot's "none" entry when it has one). */

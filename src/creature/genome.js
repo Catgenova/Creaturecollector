@@ -5,7 +5,7 @@
 // Diploid part genes: every slot holds [expressed, carried]. Only the expressed
 // allele is drawn; the carried one can resurface in offspring.
 import { getPart, partsFor, partsOf, partFits } from '../data/parts/index.js';
-import { RIGS, getRig, slotsFor, paintSlotsFor, swappableSlotsFor, noneId } from '../data/rigs.js';
+import { RIGS, getRig, slotsFor, paintSlotsFor, swappableSlotsFor, noneId, DEFAULT_RIG } from '../data/rigs.js';
 import { SPECIES, SPECIES_BY_ID, TIER_WEIGHT, WILD_SPECIES } from '../data/species.js';
 import { isType } from '../data/types.js';
 import { clamp01, round3, normalizeWeights, b64uEncode, b64uDecode } from '../core/util.js';
@@ -45,10 +45,10 @@ export function randomPartId(rig, slot, bodyKind, rng) {
   return rng.weighted(pool, (p) => p.w ?? 1).id;
 }
 
-/** The rig a genome is built on ('legacy' when unset or unknown). */
-export function rigOf(g) { return g && g.rig && RIGS[g.rig] ? g.rig : 'legacy'; }
+/** The rig a genome is built on (the default rig when unset or unknown, so old codes still decode to something). */
+export function rigOf(g) { return g && g.rig && RIGS[g.rig] ? g.rig : DEFAULT_RIG; }
 /** The rig a species is built on. */
-export function speciesRig(species) { return species && species.rig && RIGS[species.rig] ? species.rig : 'legacy'; }
+export function speciesRig(species) { return species && species.rig && RIGS[species.rig] ? species.rig : DEFAULT_RIG; }
 
 export function defaultTraits() {
   const t = {};

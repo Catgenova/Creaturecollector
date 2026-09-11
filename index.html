@@ -573,38 +573,7 @@ function swatchCss([h, s, l]) { return hsl(h, s, l); }
 //   clipped   slots drawn right after the body's shapes, clipped to the body
 //   mannequin parts and tweaks used by the Part Lab preview
 //
-// The 'legacy' rig is the original all-purpose skeleton. Classes still on it
-// are drawn by the original renderer path until they are rebuilt.
-
 const RIGS = {
-  legacy: {
-    id: 'legacy', name: 'Classic', prefix: '',
-    slots: ['body', 'head', 'eyes', 'mouth', 'crown', 'legs', 'arms', 'wings', 'tail', 'back', 'pattern'],
-    names: {
-      body: 'Body', head: 'Head', eyes: 'Eyes', mouth: 'Mouth', crown: 'Crown', legs: 'Legs',
-      arms: 'Arms', wings: 'Wings', tail: 'Tail', back: 'Back', pattern: 'Pattern',
-    },
-    paint: ['body', 'head', 'crown', 'legs', 'arms', 'wings', 'tail', 'back'],
-    swappable: ['crown', 'wings', 'tail', 'back'],
-    required: ['body', 'eyes'],
-    linked: null, // taken from the class
-    ground: ['body', 'legs'],
-    tree: null,   // drawn by the legacy renderer
-    clipped: ['pattern'],
-    mannequin: {
-      parts: {
-        body: 'body.round', head: 'head.round', eyes: 'eye.round', mouth: 'mouth.smile', crown: 'crown.none', legs: 'legs.stub',
-        arms: 'arms.none', wings: 'wings.none', tail: 'tail.none', back: 'back.none', pattern: 'pattern.none',
-      },
-      // per-slot overrides so a previewed part has something sensible to sit on
-      forSlot: {
-        arms: { body: 'body.biped' }, wings: { body: 'body.quad' }, tail: { body: 'body.quad' }, back: { body: 'body.quad' },
-        eyes: { head: 'head.bulb' }, mouth: { head: 'head.bulb' },
-      },
-      accentSlots: ['head', 'crown', 'legs', 'arms', 'wings', 'tail', 'back'],
-    },
-  },
-
   mammal: {
     id: 'mammal', name: 'Mammal', prefix: 'm.',
     slots: ['body', 'head', 'ears', 'eyes', 'muzzle', 'legsFront', 'legsBack', 'tail', 'mane', 'horns', 'back', 'markings'],
@@ -943,7 +912,10 @@ const RIGS = {
 
 const RIG_IDS = Object.keys(RIGS);
 
-function getRig(id) { return RIGS[id] || RIGS.legacy; }
+/** Rig used when a genome names none or an unknown one (old saves): the first class. */
+const DEFAULT_RIG = 'mammal';
+
+function getRig(id) { return RIGS[id] || RIGS[DEFAULT_RIG]; }
 function slotsFor(rig) { return getRig(rig).slots; }
 function paintSlotsFor(rig) { return getRig(rig).paint; }
 function swappableSlotsFor(rig) { const r = getRig(rig); return r.swappable || r.paint; }
@@ -1147,450 +1119,6 @@ function puff(cx, cy, r, n, amp, o = {}) {
   }
   return out;
 }
-
-// ---- src/data/parts/bodies.js ----
-// Body sockets (all in body coordinates, body centre = 0,0):
-//   head  {x,y,a,s}  neck point where a head's bottom-centre attaches
-//   face  {eye,eye2,mouth,crown}  used when the head slot is "none" (face drawn on the body)
-//   legs  [{x,y,far?}] near-leg hip points; a darker far copy is drawn automatically
-//   arm, wing {x,y}; tail, back {x,y,a}
-// bottom: lowest y of the silhouette. hover: floats this far above its shadow.
-
-const QUAD = 'M40,-22 C52,-14 52,14 40,22 C20,28 -30,28 -44,18 C-56,8 -54,-18 -42,-26 C-30,-34 20,-34 40,-22 Z';
-const BULK = 'M44,-14 C56,-6 56,18 44,26 C20,34 -32,34 -48,24 C-62,12 -58,-16 -44,-26 C-28,-38 24,-36 44,-14 Z';
-const ROUND = 'M0,-34 C21,-34 38,-19 38,0 C38,19 21,34 0,34 C-21,34 -38,19 -38,0 C-38,-19 -21,-34 0,-34 Z';
-const BIPED = 'M0,-36 C14,-36 24,-24 26,-6 C30,14 24,34 0,34 C-24,34 -30,14 -26,-6 C-24,-24 -14,-36 0,-36 Z';
-const BIRD = 'M0,-38 C22,-38 34,-16 30,8 C26,30 6,38 -6,36 C-26,32 -34,10 -28,-12 C-22,-30 -14,-38 0,-38 Z';
-const COIL = 'M-50,14 a44,16 0 1,0 88,0 a44,16 0 1,0 -88,0 Z';
-const NECK = 'M6,14 C10,-8 18,-26 32,-38 L46,-34 C36,-22 30,-4 34,16 Z';
-const FISH = 'M44,0 C40,-20 10,-30 -14,-26 C-34,-22 -46,-12 -50,0 C-46,12 -34,22 -14,26 C10,30 40,20 44,0 Z';
-const FLOAT = 'M-34,4 C-34,-30 34,-30 34,4 C28,14 22,4 16,14 C10,22 4,10 -2,16 C-8,22 -14,10 -20,14 C-26,20 -30,10 -34,4 Z';
-
-const BODIES = [
-  {
-    id: 'body.quad', slot: 'body', name: 'Quadruped', kind: 'quad', tags: ['mammal'], dom: 0.55, w: 3,
-    bottom: 27, clip: [QUAD], prims: [P(QUAD, 'p')],
-    sockets: {
-      head: { x: 42, y: -22, a: 0, s: 1 },
-      face: { eye: { x: 30, y: -12, s: 1 }, eye2: { x: 12, y: -14, s: 0.85 }, mouth: { x: 44, y: 4, s: 1 }, crown: { x: 26, y: -30, a: 0, s: 0.9 } },
-      legs: [{ x: 26, y: 16 }, { x: -30, y: 16 }],
-      arm: null, wing: { x: -8, y: -28 }, tail: { x: -46, y: -8, a: 0 }, back: { x: -4, y: -31, a: 0 },
-    },
-  },
-  {
-    id: 'body.bulk', slot: 'body', name: 'Heavy', kind: 'quad', tags: ['beast'], dom: 0.6, w: 2,
-    bottom: 33, clip: [BULK], prims: [P(BULK, 'p')],
-    sockets: {
-      head: { x: 44, y: -18, a: 0, s: 1.05 },
-      face: { eye: { x: 30, y: -8, s: 1.1 }, eye2: { x: 10, y: -10, s: 0.9 }, mouth: { x: 46, y: 8, s: 1.1 }, crown: { x: 24, y: -32, a: 0, s: 1 } },
-      legs: [{ x: 28, y: 22 }, { x: -32, y: 22 }],
-      arm: null, wing: { x: -10, y: -32 }, tail: { x: -50, y: 0, a: 0 }, back: { x: -6, y: -35, a: 0 },
-    },
-  },
-  {
-    id: 'body.round', slot: 'body', name: 'Round', kind: 'blob', tags: ['blob'], dom: 0.5, w: 3,
-    bottom: 34, clip: [ROUND], prims: [P(ROUND, 'p')],
-    sockets: {
-      head: { x: 6, y: -30, a: 0, s: 1 },
-      face: { eye: { x: 14, y: -8, s: 1.1 }, eye2: { x: -7, y: -9, s: 0.95 }, mouth: { x: 16, y: 7, s: 1 }, crown: { x: 2, y: -34, a: 0, s: 1 } },
-      legs: [{ x: 10, y: 26, far: { dx: -16, dy: -2 } }],
-      arm: { x: 32, y: -2 }, wing: { x: -16, y: -22 }, tail: { x: -36, y: 4, a: -25 }, back: { x: -8, y: -33, a: 0 },
-    },
-  },
-  {
-    id: 'body.biped', slot: 'body', name: 'Biped', kind: 'biped', tags: ['upright'], dom: 0.5, w: 3,
-    bottom: 34, clip: [BIPED], prims: [P(BIPED, 'p')],
-    sockets: {
-      head: { x: 2, y: -34, a: 0, s: 1 },
-      face: { eye: { x: 12, y: -14, s: 1 }, eye2: { x: -6, y: -15, s: 0.9 }, mouth: { x: 12, y: 2, s: 1 }, crown: { x: 0, y: -36, a: 0, s: 1 } },
-      legs: [{ x: 8, y: 28, far: { dx: -16, dy: -2 } }],
-      arm: { x: 25, y: -6 }, wing: { x: -18, y: -16 }, tail: { x: -26, y: 14, a: -20 }, back: { x: -10, y: -32, a: -10 },
-    },
-  },
-  {
-    id: 'body.bird', slot: 'body', name: 'Avian', kind: 'bird', tags: ['bird'], dom: 0.5, w: 2,
-    bottom: 38, clip: [BIRD], prims: [P(BIRD, 'p')],
-    sockets: {
-      head: { x: 6, y: -36, a: 0, s: 0.95 },
-      face: { eye: { x: 12, y: -18, s: 1 }, eye2: { x: -6, y: -20, s: 0.85 }, mouth: { x: 20, y: -4, s: 1 }, crown: { x: 2, y: -38, a: 0, s: 1 } },
-      legs: [{ x: 2, y: 30, far: { dx: -12, dy: -2 } }],
-      arm: null, wing: { x: -8, y: -10 }, tail: { x: -30, y: 12, a: 25 }, back: { x: -14, y: -30, a: -20 },
-    },
-  },
-  {
-    id: 'body.serpent', slot: 'body', name: 'Serpent', kind: 'serpent', tags: ['reptile'], dom: 0.55, w: 2,
-    bottom: 30, clip: [COIL, NECK], prims: [E(-6, 14, 44, 16, 'p'), P(NECK, 'p')],
-    sockets: {
-      head: { x: 40, y: -36, a: -12, s: 0.95 },
-      face: { eye: { x: 34, y: -26, s: 0.9 }, eye2: null, mouth: { x: 42, y: -16, s: 0.9 }, crown: { x: 40, y: -36, a: -12, s: 0.8 } },
-      legs: [],
-      arm: null, wing: { x: 2, y: -6 }, tail: { x: -48, y: 12, a: 0 }, back: { x: 26, y: -24, a: -50 },
-    },
-  },
-  {
-    id: 'body.fish', slot: 'body', name: 'Fish', kind: 'fish', tags: ['aquatic'], dom: 0.5, w: 2,
-    bottom: 30, hover: 12, armsFront: true, clip: [FISH], prims: [P(FISH, 'p')],
-    sockets: {
-      head: { x: 34, y: -10, a: 0, s: 0.85 },
-      face: { eye: { x: 24, y: -8, s: 1 }, eye2: null, mouth: { x: 40, y: 5, s: 0.9 }, crown: { x: 8, y: -27, a: 0, s: 0.9 } },
-      legs: [],
-      arm: { x: 10, y: 8 }, wing: { x: -4, y: -22 }, tail: { x: -48, y: 0, a: 0 }, back: { x: -6, y: -26, a: 0 },
-    },
-  },
-  {
-    id: 'body.float', slot: 'body', name: 'Wisp', kind: 'float', tags: ['spirit'], dom: 0.45, w: 2,
-    bottom: 22, hover: 18, clip: [FLOAT], prims: [P(FLOAT, 'p')],
-    sockets: {
-      head: { x: 2, y: -24, a: 0, s: 0.9 },
-      face: { eye: { x: 12, y: -8, s: 1.1 }, eye2: { x: -8, y: -9, s: 0.95 }, mouth: { x: 4, y: 6, s: 1 }, crown: { x: 0, y: -26, a: 0, s: 1 } },
-      legs: [],
-      arm: { x: 31, y: -2 }, wing: { x: -18, y: -16 }, tail: { x: -30, y: 0, a: -15 }, back: { x: -6, y: -26, a: 0 },
-    },
-  },
-  {
-    id: 'body.tall', slot: 'body', name: 'Long-necked', kind: 'quad', tags: ['hoofed'], dom: 0.5, w: 2,
-    bottom: 22, clip: ['M36,-30 C50,-24 50,6 36,14 C18,20 -26,20 -40,12 C-52,4 -50,-22 -38,-30 C-24,-38 18,-40 36,-30 Z', 'M24,-28 C30,-44 36,-56 46,-64 L58,-58 C50,-46 46,-34 44,-22 Z'],
-    prims: [P('M24,-28 C30,-44 36,-56 46,-64 L58,-58 C50,-46 46,-34 44,-22 Z', 'p'), P('M36,-30 C50,-24 50,6 36,14 C18,20 -26,20 -40,12 C-52,4 -50,-22 -38,-30 C-24,-38 18,-40 36,-30 Z', 'p')],
-    sockets: {
-      head: { x: 53, y: -62, a: -10, s: 0.9 },
-      face: { eye: { x: 28, y: -16, s: 1 }, eye2: { x: 10, y: -18, s: 0.85 }, mouth: { x: 40, y: -2, s: 1 }, crown: { x: 22, y: -36, a: 0, s: 0.9 } },
-      legs: [{ x: 26, y: 10 }, { x: -30, y: 10 }],
-      arm: null, wing: { x: -10, y: -34 }, tail: { x: -46, y: -8, a: 0 }, back: { x: -6, y: -37, a: 0 },
-    },
-  },
-  {
-    id: 'body.slug', slot: 'body', name: 'Grub', kind: 'serpent', tags: ['bug', 'slime'], dom: 0.45, w: 2,
-    bottom: 24, clip: ['M44,10 C50,-4 40,-20 20,-22 C0,-24 -30,-22 -46,-10 C-56,0 -52,14 -40,18 C-20,24 20,24 44,10 Z'],
-    prims: [P('M44,10 C50,-4 40,-20 20,-22 C0,-24 -30,-22 -46,-10 C-56,0 -52,14 -40,18 C-20,24 20,24 44,10 Z', 'p'), L('M-30,-8 C-28,4 -26,10 -24,16 M-14,-16 C-12,0 -10,8 -8,18 M2,-20 C4,-4 6,6 8,18 M18,-20 C20,-6 22,4 24,14', 'k', 1.3, { op: 0.25 })],
-    sockets: {
-      head: { x: 34, y: -16, a: 0, s: 0.9 },
-      face: { eye: { x: 30, y: -8, s: 1 }, eye2: { x: 14, y: -10, s: 0.85 }, mouth: { x: 42, y: 2, s: 0.9 }, crown: { x: 20, y: -22, a: 0, s: 0.9 } },
-      legs: [],
-      arm: null, wing: { x: -4, y: -20 }, tail: { x: -50, y: 4, a: 0 }, back: { x: -10, y: -23, a: 0 },
-    },
-  },
-];
-
-// ---- src/data/parts/heads.js ----
-// Head origin = neck point (bottom centre of the skull). Heads face right.
-// Sockets: eye (near), eye2 (far, optional), mouth (null = the head has its own, e.g. a beak), crown (top).
-
-const HEADS = [
-  NONE('head', 0.3),
-  {
-    id: 'head.round', slot: 'head', name: 'Round', tags: ['cute'], dom: 0.5, w: 3,
-    prims: [C(0, -18, 20, 'p')],
-    sockets: { eye: { x: 8, y: -22, s: 1 }, eye2: { x: -7, y: -23, s: 0.85 }, mouth: { x: 12, y: -10, s: 1 }, crown: { x: 0, y: -38, a: 0, s: 1 } },
-  },
-  {
-    id: 'head.snout', slot: 'head', name: 'Snout', tags: ['mammal', 'canine'], dom: 0.55, w: 3,
-    prims: [
-      P('M-19,-20 C-19,-34 -8,-42 4,-40 C14,-39 20,-32 22,-26 C30,-24 40,-16 40,-8 C40,-1 34,2 26,2 C14,6 -2,6 -10,0 C-17,-4 -19,-12 -19,-20 Z', 'p'),
-      E(37, -11, 3.2, 2.4, 'k', { ns: true }),
-    ],
-    sockets: { eye: { x: 8, y: -26, s: 1 }, eye2: { x: -7, y: -28, s: 0.8 }, mouth: { x: 32, y: -4, s: 0.9 }, crown: { x: 2, y: -40, a: 0, s: 1 } },
-  },
-  {
-    id: 'head.beak', slot: 'head', name: 'Beaked', tags: ['bird'], dom: 0.55, w: 2,
-    prims: [C(0, -18, 18, 'p'), P('M12,-22 L36,-14 L12,-6 Z', 'a'), P('M12,-14 L34,-14', 'none', { sw: 1.6 })],
-    sockets: { eye: { x: 6, y: -22, s: 1 }, eye2: { x: -8, y: -22, s: 0.8 }, mouth: null, crown: { x: 0, y: -36, a: 0, s: 1 } },
-  },
-  {
-    id: 'head.block', slot: 'head', name: 'Blocky', tags: ['reptile', 'sturdy'], dom: 0.5, w: 2,
-    prims: [P('M-18,-36 L30,-36 Q38,-36 38,-28 L38,-8 Q38,0 30,0 L-10,0 Q-18,0 -18,-8 Z', 'p'), E(33, -14, 2.4, 2, 'k', { ns: true })],
-    sockets: { eye: { x: 14, y: -24, s: 1 }, eye2: { x: -4, y: -26, s: 0.8 }, mouth: { x: 28, y: -6, s: 1 }, crown: { x: 4, y: -36, a: 0, s: 1 } },
-  },
-  {
-    id: 'head.cat', slot: 'head', name: 'Feline', tags: ['mammal', 'feline'], dom: 0.5, w: 2,
-    prims: [P('M-20,-14 C-22,-32 -8,-40 4,-40 C16,-40 26,-32 24,-14 C26,-6 22,0 14,2 L10,-1 L6,3 L0,0 L-6,3 L-10,-1 L-14,2 C-20,0 -22,-6 -20,-14 Z', 'p')],
-    sockets: { eye: { x: 8, y: -22, s: 1 }, eye2: { x: -6, y: -23, s: 0.85 }, mouth: { x: 12, y: -9, s: 1 }, crown: { x: 2, y: -40, a: 0, s: 1 } },
-  },
-  {
-    id: 'head.bulb', slot: 'head', name: 'Bulb', tags: ['cute', 'big'], dom: 0.5, w: 2,
-    prims: [E(2, -18, 25, 21, 'p')],
-    sockets: { eye: { x: 10, y: -20, s: 1.1 }, eye2: { x: -7, y: -22, s: 0.9 }, mouth: { x: 16, y: -8, s: 1 }, crown: { x: 2, y: -39, a: 0, s: 1 } },
-  },
-  {
-    id: 'head.skull', slot: 'head', name: 'Angular', tags: ['menacing'], dom: 0.5, w: 2,
-    prims: [P('M-16,-34 L26,-36 L34,-20 L30,-4 L14,2 L-10,0 L-18,-14 Z', 'p')],
-    sockets: { eye: { x: 12, y: -22, s: 1 }, eye2: { x: -4, y: -24, s: 0.8 }, mouth: { x: 22, y: -6, s: 1 }, crown: { x: 4, y: -36, a: 0, s: 1 } },
-  },
-  {
-    id: 'head.long', slot: 'head', name: 'Muzzle', tags: ['dragon', 'equine'], dom: 0.55, w: 2,
-    prims: [
-      P('M-18,-22 C-18,-40 2,-44 12,-38 C20,-34 40,-20 44,-10 C46,-2 38,2 30,2 C18,4 -6,6 -14,-2 C-18,-8 -18,-14 -18,-22 Z', 'p'),
-      E(40, -11, 2.6, 2, 'k', { ns: true }),
-    ],
-    sockets: { eye: { x: 10, y: -28, s: 1 }, eye2: { x: -4, y: -30, s: 0.8 }, mouth: { x: 34, y: -5, s: 0.9 }, crown: { x: 4, y: -41, a: 0, s: 1 } },
-  },
-  {
-    id: 'head.wide', slot: 'head', name: 'Wide', tags: ['amphibian'], dom: 0.45, w: 2,
-    prims: [P('M-22,-14 C-22,-30 -6,-34 6,-34 C22,-34 34,-26 34,-14 C36,-4 30,2 18,2 L-10,2 C-20,2 -24,-4 -22,-14 Z', 'p')],
-    sockets: { eye: { x: 14, y: -28, s: 1.1 }, eye2: { x: -6, y: -30, s: 0.9 }, mouth: { x: 16, y: -8, s: 1.3 }, crown: { x: 4, y: -34, a: 0, s: 0.9 } },
-  },
-  {
-    id: 'head.owl', slot: 'head', name: 'Owlish', tags: ['bird'], dom: 0.5, w: 2,
-    prims: [C(0, -18, 20, 'p'), P('M-20,-30 L-12,-42 L-4,-32 Z', 'p'), P('M4,-32 L12,-42 L20,-30 Z', 'p'), P('M10,-12 L24,-8 L10,-2 Z', 'a')],
-    sockets: { eye: { x: 6, y: -20, s: 1.15 }, eye2: { x: -9, y: -20, s: 0.9 }, mouth: null, crown: { x: 0, y: -38, a: 0, s: 1 } },
-  },
-  {
-    id: 'head.rodent', slot: 'head', name: 'Rodent', tags: ['mammal'], dom: 0.5, w: 2,
-    prims: [P('M-20,-16 C-22,-36 0,-42 10,-36 C22,-30 30,-18 26,-8 C24,0 14,4 4,4 C-6,4 -18,0 -20,-16 Z', 'p'), P('M14,-2 L14,4 L20,4 L20,-3 Z', 'w', { sw: 1 }), E(24, -14, 2.4, 2, 'k', { ns: true })],
-    sockets: { eye: { x: 8, y: -24, s: 1 }, eye2: { x: -6, y: -25, s: 0.85 }, mouth: { x: 17, y: -8, s: 0.9 }, crown: { x: 0, y: -40, a: 0, s: 1 } },
-  },
-  {
-    id: 'head.helm', slot: 'head', name: 'Helmed', tags: ['steel'], dom: 0.55, w: 1,
-    prims: [P('M-18,-30 L26,-34 L36,-22 L36,-6 L28,2 L-12,2 L-18,-8 Z', 'p'), L('M-12,-20 L30,-22', 'k', 2), P('M-6,-34 L0,-44 L10,-36 Z', 'a')],
-    sockets: { eye: { x: 12, y: -14, s: 0.9 }, eye2: { x: -4, y: -15, s: 0.75 }, mouth: { x: 26, y: -4, s: 0.9 }, crown: { x: 4, y: -34, a: 0, s: 0.9 } },
-  },
-];
-
-// ---- src/data/parts/faces.js ----
-// Eyes: origin at the eye centre, base radius about 7. Drawn for the near eye; the far eye is a scaled copy.
-const EYES = [
-  { id: 'eye.round', slot: 'eyes', name: 'Round', dom: 0.5, w: 3,
-    prims: [C(0, 0, 7, 'w'), C(1.2, 0.4, 4, 'k', { ns: true }), C(2.6, -2.2, 1.6, 'w', { ns: true })] },
-  { id: 'eye.big', slot: 'eyes', name: 'Big', dom: 0.5, w: 3,
-    prims: [E(0, 0, 8, 9, 'w'), C(1, 0.5, 5.5, 'e', { ns: true }), C(1.6, 1, 3, 'k', { ns: true }), C(3.2, -2.6, 2, 'w', { ns: true }), C(-1, 3, 1, 'w', { ns: true, op: 0.7 })] },
-  { id: 'eye.angry', slot: 'eyes', name: 'Fierce', dom: 0.55, w: 2,
-    prims: [C(0, 0, 7, 'w'), C(1.2, 0.6, 4, 'k', { ns: true }), C(2.6, -1.6, 1.4, 'w', { ns: true }), P('M-9,-9 L9,-9 L9,-3 L-9,-6 Z', 'p', { ns: true }), L('M-9,-6 L9,-3', 'k', 2.2)] },
-  { id: 'eye.sleepy', slot: 'eyes', name: 'Sleepy', dom: 0.45, w: 2,
-    prims: [C(0, 0, 7, 'w'), C(1, 1, 4, 'k', { ns: true }), C(2.4, -0.4, 1.4, 'w', { ns: true }), P('M-8,-1 A8,8 0 0,1 8,-1 Z', 'p', { ns: true }), L('M-8,-1 L8,-1', 'k', 2.2)] },
-  { id: 'eye.dot', slot: 'eyes', name: 'Dot', dom: 0.4, w: 2,
-    prims: [C(0, 0, 4.5, 'k', { ns: true }), C(1.5, -1.5, 1.6, 'w', { ns: true })] },
-  { id: 'eye.bug', slot: 'eyes', name: 'Compound', dom: 0.5, w: 1,
-    prims: [C(0, 0, 8, 'e'), C(0, 0, 5, 'k', { ns: true, op: 0.35 }), C(2.5, -2.5, 2.2, 'w', { ns: true }), L('M-4,3 L4,3 M-4,0 L5,0 M-3,-3 L4,-3', 'k', 0.8, { op: 0.35 })] },
-  { id: 'eye.slit', slot: 'eyes', name: 'Slit', dom: 0.55, w: 2,
-    prims: [C(0, 0, 7, 'e'), E(1, 0, 1.8, 5.2, 'k', { ns: true }), C(2.8, -2.4, 1.4, 'w', { ns: true })] },
-  { id: 'eye.sad', slot: 'eyes', name: 'Worried', dom: 0.4, w: 1,
-    prims: [C(0, 0, 7, 'w'), C(1, 0.6, 4, 'k', { ns: true }), C(2.4, -1.6, 1.4, 'w', { ns: true }), P('M-9,-4 L9,-9 L9,-11 L-9,-11 Z', 'p', { ns: true }), L('M-9,-4 L9,-9', 'k', 2.2)] },
-  { id: 'eye.spiral', slot: 'eyes', name: 'Spiral', dom: 0.4, w: 1,
-    prims: [C(0, 0, 7, 'w'), L('M0,0 C2,-1 3,1 1,2 C-2,3 -4,0 -2,-3 C1,-5 5,-3 5,1', 'k', 1.6)] },
-  { id: 'eye.happy', slot: 'eyes', name: 'Happy', dom: 0.45, w: 2, prims: [L('M-7,1 Q0,-7 7,1', 'k', 2.6)] },
-  { id: 'eye.void', slot: 'eyes', name: 'Void', dom: 0.45, w: 1, prims: [C(0, 0, 7, 'k'), C(1, 0, 2.6, 'e', { ns: true })] },
-];
-
-// Mouths: origin at the mouth centre.
-const MOUTHS = [
-  NONE('mouth', 0.2),
-  { id: 'mouth.smile', slot: 'mouth', name: 'Smile', dom: 0.5, w: 3, prims: [L('M-7,-1 Q0,5 7,-2', 'k', 2.4)] },
-  { id: 'mouth.grin', slot: 'mouth', name: 'Grin', dom: 0.5, w: 2,
-    prims: [P('M-9,-2 Q0,9 9,-2 Z', 'k', { ns: true }), P('M-6,-1 L6,-1 L5,2 L-5,2 Z', 'w', { ns: true })] },
-  { id: 'mouth.fangs', slot: 'mouth', name: 'Fangs', dom: 0.55, w: 2,
-    prims: [L('M-8,-1 Q0,4 8,-1', 'k', 2.2), P('M-5,0 L-3,6 L-1,1 Z', 'w', { sw: 1.2 }), P('M2,1 L4,6 L6,0 Z', 'w', { sw: 1.2 })] },
-  { id: 'mouth.flat', slot: 'mouth', name: 'Flat', dom: 0.4, w: 2, prims: [L('M-6,0 L6,0', 'k', 2.4)] },
-  { id: 'mouth.open', slot: 'mouth', name: 'Open', dom: 0.45, w: 2,
-    prims: [E(0, 1, 4.5, 5.5, 'k', { ns: true }), E(0, 3, 2.6, 2.2, 'a', { ns: true })] },
-  { id: 'mouth.tongue', slot: 'mouth', name: 'Tongue', dom: 0.45, w: 1,
-    prims: [L('M-7,-1 Q0,4 7,-2', 'k', 2.4), P('M-1,1 C0,7 5,8 6,3 L3,0 Z', 'a', { sw: 1.2 })] },
-  { id: 'mouth.frown', slot: 'mouth', name: 'Frown', dom: 0.45, w: 1, prims: [L('M-7,2 Q0,-4 7,2', 'k', 2.4)] },
-  { id: 'mouth.teeth', slot: 'mouth', name: 'Teeth', dom: 0.5, w: 1,
-    prims: [P('M-9,-3 L9,-3 L9,3 L-9,3 Z', 'w', { sw: 1.8 }), L('M-6,-3 L-6,3 M-2,-3 L-2,3 M2,-3 L2,3 M6,-3 L6,3', 'k', 1.4)] },
-  { id: 'mouth.smirk', slot: 'mouth', name: 'Smirk', dom: 0.45, w: 2, prims: [L('M-6,1 Q2,4 7,-3', 'k', 2.4)] },
-  { id: 'mouth.whiskers', slot: 'mouth', name: 'Whiskers', dom: 0.45, w: 2,
-    prims: [L('M-5,0 Q0,3 5,0', 'k', 2.2), L('M-14,-3 L-7,-1 M-14,3 L-7,1 M7,-1 L14,-3 M7,1 L14,3', 'k', 1.2, { op: 0.6 })] },
-  { id: 'mouth.tusks', slot: 'mouth', name: 'Tusks', dom: 0.5, w: 1,
-    prims: [L('M-8,-1 Q0,3 8,-1', 'k', 2.2), P('M-8,0 L-11,-9 L-4,0 Z', 'w', { sw: 1.2 }), P('M4,0 L11,-9 L8,0 Z', 'w', { sw: 1.2 })] },
-];
-
-// ---- src/data/parts/crowns.js ----
-// Crowns (ears, horns, crests...) attach at the top centre of the head and are
-// drawn BEHIND the skull, so every base extends down to about y=10 and the head
-// hides it. Both sides live in one part; the far side uses the shade roles.
-const CROWNS = [
-  NONE('crown', 0.35),
-  { id: 'crown.catears', slot: 'crown', name: 'Pointed ears', tags: ['mammal'], dom: 0.55, w: 3,
-    prims: [P('M-22,10 L-14,-18 L-2,8 Z', 'pd'), P('M-17,4 L-14,-10 L-8,3 Z', 'ad', { ns: true }), P('M2,8 L11,-19 L22,10 Z', 'p'), P('M7,3 L11,-12 L16,4 Z', 'a', { ns: true })] },
-  { id: 'crown.bunny', slot: 'crown', name: 'Long ears', tags: ['mammal'], dom: 0.5, w: 2,
-    prims: [P('M-14,10 C-19,-14 -12,-40 -5,-40 C1,-40 -1,-14 -5,10 Z', 'pd'), P('M4,10 C0,-14 6,-42 13,-40 C19,-38 17,-12 12,10 Z', 'p'), P('M7,0 C5,-14 8,-32 12,-32 C15,-32 14,-14 11,0 Z', 'a', { ns: true })] },
-  { id: 'crown.horns', slot: 'crown', name: 'Horns', tags: ['beast', 'dragon'], dom: 0.6, w: 2,
-    prims: [P('M-8,10 C-12,-6 -18,-14 -28,-14 C-18,-10 -14,-2 -14,10 Z', 'ad'), P('M6,10 C8,-6 16,-18 28,-16 C18,-12 14,-2 14,10 Z', 'a')] },
-  { id: 'crown.spikes', slot: 'crown', name: 'Spikes', tags: ['rock'], dom: 0.5, w: 2,
-    prims: [P('M-22,10 L-14,-13 L-6,10 Z', 'a'), P('M-8,10 L0,-17 L8,10 Z', 'a'), P('M6,10 L14,-13 L22,10 Z', 'a')] },
-  { id: 'crown.antennae', slot: 'crown', name: 'Antennae', tags: ['bug'], dom: 0.45, w: 2,
-    prims: [L('M-4,8 C-6,-8 -14,-18 -20,-26', 'k', 2.6), C(-21, -28, 3.5, 'a'), L('M4,8 C8,-8 14,-20 20,-26', 'k', 2.6), C(21, -28, 3.5, 'a')] },
-  { id: 'crown.fin', slot: 'crown', name: 'Head fin', tags: ['aquatic'], dom: 0.5, w: 2,
-    prims: [P('M-16,10 C-12,-14 6,-24 18,10 Z', 'a'), L('M-8,4 C-4,-10 2,-14 8,-6 M-2,4 C0,-6 4,-8 10,-2', 'k', 1.2, { op: 0.4 })] },
-  { id: 'crown.sprout', slot: 'crown', name: 'Sprout', tags: ['plant'], dom: 0.45, w: 2,
-    prims: [L('M0,8 C0,-4 -2,-10 -2,-16', 'k', 2.6), P('M-2,-16 C-12,-14 -16,-22 -14,-30 C-6,-30 -2,-24 -2,-16 Z', 'a'), P('M-2,-16 C8,-16 12,-26 8,-32 C2,-30 -2,-24 -2,-16 Z', 'a')] },
-  { id: 'crown.crest', slot: 'crown', name: 'Feather crest', tags: ['bird'], dom: 0.5, w: 2,
-    prims: [P('M-2,10 C-6,-6 -16,-18 -24,-16 C-16,-12 -10,-2 -6,10 Z', 'ad'), P('M0,10 C-2,-10 -8,-26 -14,-32 C-4,-26 2,-10 4,10 Z', 'a'), P('M2,10 C6,-6 14,-24 22,-26 C16,-16 10,-4 8,10 Z', 'al')] },
-  { id: 'crown.halo', slot: 'crown', name: 'Halo', tags: ['spirit'], dom: 0.4, w: 1,
-    prims: [E(0, -24, 16, 5, 'a'), E(0, -24, 10, 2.6, 'w', { ns: true, op: 0.6 })] },
-  { id: 'crown.mohawk', slot: 'crown', name: 'Mohawk', tags: ['fighter'], dom: 0.5, w: 1,
-    prims: [P('M-18,10 C-14,-4 -12,-14 -10,-22 C-6,-12 -4,-10 -2,-18 C2,-10 4,-12 6,-24 C10,-12 12,-8 16,-2 C20,4 18,10 14,10 Z', 'a')] },
-  { id: 'crown.bolts', slot: 'crown', name: 'Static tufts', tags: ['electric'], dom: 0.5, w: 1,
-    prims: [P('M-12,10 L-20,-10 L-14,-8 L-18,-22 L-8,-6 L-13,-6 L-6,10 Z', 'a'), P('M6,10 L16,-12 L10,-10 L18,-24 L4,-8 L10,-8 L2,10 Z', 'a')] },
-  { id: 'crown.leafhat', slot: 'crown', name: 'Leaf cap', tags: ['plant'], dom: 0.45, w: 2,
-    prims: [P('M-22,10 C-18,-12 18,-12 22,10 Z', 'a'), L('M0,8 C0,-2 2,-6 6,-10', 'k', 1.2, { op: 0.45 })] },
-  { id: 'crown.flame', slot: 'crown', name: 'Flame tuft', tags: ['fire'], dom: 0.5, w: 1,
-    prims: [P('M-10,10 C-14,-6 -6,-12 -4,-20 C0,-10 6,-14 4,-24 C12,-14 14,-4 10,10 Z', 'a'), P('M-4,10 C-6,0 -2,-4 0,-10 C2,-4 6,-2 4,10 Z', 'al', { ns: true })] },
-  { id: 'crown.gem', slot: 'crown', name: 'Gem', tags: ['rock', 'fairy'], dom: 0.45, w: 1,
-    prims: [P('M-8,10 L-6,-14 L0,-24 L6,-14 L8,10 Z', 'al'), L('M-6,-14 L6,-14 M0,-24 L0,8', 'k', 1, { op: 0.35 })] },
-];
-
-// ---- src/data/parts/limbs.js ----
-// Legs: origin at the hip, one leg hanging down with the sole at y = len (scale 1).
-const LEGS = [
-  NONE('legs', 0.3),
-  { id: 'legs.stub', slot: 'legs', name: 'Stubby', dom: 0.5, w: 3, len: 40,
-    prims: [P('M-8,-4 L8,-4 L9,34 Q9,40 3,40 L-6,40 Q-11,40 -10,34 Z', 'p')] },
-  { id: 'legs.canine', slot: 'legs', name: 'Canine', tags: ['mammal'], dom: 0.55, w: 3, len: 40,
-    prims: [P('M-10,-6 C-14,8 -8,18 -3,24 L-3,34 Q-3,40 5,40 L13,40 Q15,38 11,36 L5,34 L5,22 C9,12 9,4 6,-6 Z', 'p'), L('M2,40 L2,36 M6,40 L6,36', 'k', 1.2, { op: 0.5 })] },
-  { id: 'legs.bird', slot: 'legs', name: 'Talons', tags: ['bird'], dom: 0.5, w: 2, len: 40,
-    prims: [L('M0,-2 L0,30', 'a', 4.5), L('M0,30 L9,40 M0,30 L1,40 M0,30 L-7,40 M0,30 L-5,24', 'a', 3.5)] },
-  { id: 'legs.hoof', slot: 'legs', name: 'Hooves', tags: ['mammal'], dom: 0.5, w: 2, len: 40,
-    prims: [P('M-7,-4 L7,-4 L6,30 L-6,30 Z', 'p'), P('M-8,29 L8,29 L9,40 L-9,40 Z', 'k')] },
-  { id: 'legs.frog', slot: 'legs', name: 'Springy', tags: ['amphibian'], dom: 0.45, w: 2, len: 40,
-    prims: [P('M-6,-4 C-18,2 -22,18 -14,28 L-2,34 L14,40 L15,36 L4,30 L-3,22 C-8,14 -2,6 5,0 Z', 'p')] },
-  { id: 'legs.tentacle', slot: 'legs', name: 'Tentacles', tags: ['aquatic'], dom: 0.45, w: 1, len: 40,
-    prims: [P('M-7,-2 C-11,10 -3,16 -7,26 C-11,36 -3,42 5,40 C9,36 5,30 7,22 C9,12 8,6 7,-2 Z', 'p'), C(-4, 30, 1.6, 'a', { ns: true }), C(-2, 22, 1.6, 'a', { ns: true }), C(-4, 14, 1.6, 'a', { ns: true })] },
-  { id: 'legs.chunky', slot: 'legs', name: 'Clawed', tags: ['dragon', 'beast'], dom: 0.55, w: 2, len: 40,
-    prims: [P('M-13,-6 C-17,10 -11,20 -7,26 L-7,34 Q-7,40 3,40 L15,40 Q17,36 11,36 L7,34 L7,26 C11,16 11,6 9,-6 Z', 'p'), P('M12,40 L15,36 L17,40 Z', 'w', { sw: 1.2 }), P('M6,40 L8,36 L10,40 Z', 'w', { sw: 1.2 })] },
-  { id: 'legs.insect', slot: 'legs', name: 'Jointed', tags: ['bug'], dom: 0.45, w: 1, len: 40,
-    prims: [L('M0,-2 C-10,4 -14,16 -10,30', 'k', 3.4), L('M-10,30 L-8,40', 'k', 3), C(-10, 30, 3, 'p')] },
-  { id: 'legs.peg', slot: 'legs', name: 'Pegs', tags: ['steel'], dom: 0.4, w: 1, len: 40,
-    prims: [P('M-5,-4 L5,-4 L4,40 L-4,40 Z', 'a')] },
-  { id: 'legs.flipper', slot: 'legs', name: 'Flippers', tags: ['aquatic'], dom: 0.45, w: 1, len: 40,
-    prims: [P('M-8,-2 C-12,10 -10,26 -4,34 C4,40 14,40 16,36 C10,30 6,20 6,8 C6,2 4,-2 0,-4 Z', 'a')] },
-  { id: 'legs.stilts', slot: 'legs', name: 'Stilts', tags: ['bird', 'hoofed'], dom: 0.45, w: 1, len: 40,
-    prims: [L('M0,-2 L0,34', 'k', 3.5), P('M-7,33 L7,33 L8,40 L-8,40 Z', 'p')] },
-];
-
-// Arms: origin at the shoulder, near arm reaching forward and down.
-const ARMS = [
-  NONE('arms', 0.35),
-  { id: 'arms.stub', slot: 'arms', name: 'Nubs', dom: 0.5, w: 3, prims: [P('M0,-7 C9,-9 17,-2 15,7 C13,13 3,13 0,7 Z', 'p')] },
-  { id: 'arms.claw', slot: 'arms', name: 'Claws', dom: 0.55, w: 2,
-    prims: [P('M0,-6 C10,-8 19,-1 19,8 L24,16 L18,12 L19,19 L14,13 L12,19 L9,10 C4,10 0,6 0,0 Z', 'p')] },
-  { id: 'arms.fin', slot: 'arms', name: 'Fins', tags: ['aquatic'], dom: 0.5, w: 2,
-    prims: [P('M0,-7 C10,-11 24,-3 22,10 C15,8 6,11 0,9 Z', 'a'), L('M4,-2 C10,0 14,4 16,8 M3,3 C8,4 11,6 12,9', 'k', 1.1, { op: 0.4 })] },
-  { id: 'arms.paw', slot: 'arms', name: 'Paws', tags: ['mammal'], dom: 0.5, w: 2,
-    prims: [P('M0,-7 C8,-9 15,0 13,10 C11,17 3,17 0,10 Z', 'p'), L('M4,15 L4,12 M8,15 L8,12', 'k', 1.2, { op: 0.5 })] },
-  { id: 'arms.tentacle', slot: 'arms', name: 'Tendrils', dom: 0.45, w: 1,
-    prims: [P('M0,-6 C10,-4 18,4 16,14 C14,22 6,24 2,20 C6,18 10,14 8,8 C6,2 2,0 0,2 Z', 'p')] },
-  { id: 'arms.blade', slot: 'arms', name: 'Blades', tags: ['steel', 'bug'], dom: 0.5, w: 1,
-    prims: [P('M0,-6 C6,-8 12,-4 12,2 L30,14 L12,10 C8,10 2,8 0,2 Z', 'a')] },
-  { id: 'arms.pincer', slot: 'arms', name: 'Pincers', tags: ['bug', 'aquatic'], dom: 0.55, w: 1,
-    prims: [P('M0,-6 C10,-8 18,-2 20,6 L27,0 L25,10 L27,18 L18,12 C12,14 4,12 0,6 Z', 'p')] },
-  { id: 'arms.scythe', slot: 'arms', name: 'Scythes', tags: ['bug', 'dark'], dom: 0.5, w: 1,
-    prims: [P('M0,-6 C8,-8 14,-2 12,4 C22,4 30,12 32,22 C26,14 18,12 12,12 C6,12 0,8 0,2 Z', 'a')] },
-];
-
-// Wings: origin at the wing root, extending up and back (left). A far copy is drawn behind the body.
-const WINGS = [
-  NONE('wings', 0.4),
-  { id: 'wings.feather', slot: 'wings', name: 'Feathered', tags: ['bird'], dom: 0.55, w: 3,
-    prims: [P('M0,0 C-10,-12 -30,-30 -56,-30 C-50,-22 -44,-16 -40,-10 C-46,-10 -52,-8 -56,-4 C-46,0 -30,2 -14,6 C-8,6 -2,4 0,0 Z', 'p'), L('M-14,4 C-24,-6 -36,-16 -46,-24 M-18,5 C-28,-2 -38,-6 -48,-8', 'k', 1.2, { op: 0.35 })] },
-  { id: 'wings.bat', slot: 'wings', name: 'Membrane', tags: ['dragon', 'dark'], dom: 0.55, w: 2,
-    prims: [P('M0,0 C-6,-16 -20,-30 -50,-34 L-40,-20 L-54,-18 L-38,-8 L-50,0 L-30,2 C-20,6 -8,6 0,0 Z', 'a'), L('M-4,-2 L-40,-20 M-4,-2 L-38,-8 M-4,-2 L-30,2', 'k', 1.4, { op: 0.5 })] },
-  { id: 'wings.bug', slot: 'wings', name: 'Gossamer', tags: ['bug', 'fairy'], dom: 0.5, w: 2,
-    prims: [P('M0,0 C-6,-20 -36,-36 -48,-26 C-56,-16 -30,2 0,0 Z', 'w', { op: 0.8 }), P('M0,2 C-10,-4 -34,-6 -40,4 C-42,12 -20,12 0,2 Z', 'w', { op: 0.7 }), L('M-4,-2 C-16,-12 -30,-20 -42,-24', 'k', 1, { op: 0.3 })] },
-  { id: 'wings.leaf', slot: 'wings', name: 'Leaf wings', tags: ['plant'], dom: 0.5, w: 2,
-    prims: [P('M0,0 C-10,-14 -30,-30 -52,-24 C-44,-8 -20,2 0,0 Z', 'a'), L('M-4,-2 C-16,-10 -30,-18 -46,-22', 'k', 1.2, { op: 0.45 })] },
-  { id: 'wings.fire', slot: 'wings', name: 'Blazing', tags: ['fire'], dom: 0.5, w: 1,
-    prims: [P('M0,0 C-8,-10 -18,-14 -30,-14 C-26,-22 -34,-30 -46,-34 C-42,-24 -48,-20 -54,-20 C-46,-12 -40,-4 -30,0 C-20,4 -8,4 0,0 Z', 'a'), P('M-6,-2 C-14,-8 -22,-10 -30,-10 C-26,-16 -30,-22 -38,-26 C-36,-18 -40,-14 -44,-14 C-38,-8 -30,-4 -22,-2 Z', 'al', { ns: true })] },
-  { id: 'wings.fin', slot: 'wings', name: 'Fin wings', tags: ['aquatic'], dom: 0.45, w: 1,
-    prims: [P('M0,0 C-8,-12 -26,-22 -44,-16 C-40,-8 -30,-2 -20,2 C-12,4 -6,4 0,0 Z', 'a'), L('M-6,-2 C-16,-8 -26,-12 -36,-12 M-8,0 C-18,-4 -26,-4 -34,-4', 'k', 1.1, { op: 0.4 })] },
-  { id: 'wings.crystal', slot: 'wings', name: 'Crystal wings', tags: ['rock', 'ice'], dom: 0.5, w: 1,
-    prims: [P('M0,0 L-14,-24 L-30,-36 L-34,-18 L-52,-22 L-40,-6 L-30,4 L-14,6 Z', 'al'), L('M-4,-2 L-30,-36 M-4,-2 L-34,-18 M-4,-2 L-40,-6', 'k', 1, { op: 0.35 })] },
-  { id: 'wings.ghost', slot: 'wings', name: 'Wisp wings', tags: ['spirit'], dom: 0.45, w: 1,
-    prims: [P('M0,0 C-10,-14 -30,-26 -50,-22 C-44,-12 -40,-6 -46,0 C-34,2 -20,4 -12,6 C-6,6 -2,4 0,0 Z', 'w', { op: 0.6 })] },
-];
-
-// ---- src/data/parts/tails.js ----
-// Tails: origin at the base on the rump, pointing left (back).
-const TAILS = [
-  NONE('tail', 0.3),
-  { id: 'tails.fluffy', slot: 'tail', name: 'Fluffy', tags: ['mammal'], dom: 0.55, w: 3,
-    prims: [P('M0,-8 C-14,-22 -40,-30 -52,-14 C-60,-2 -50,12 -38,8 C-30,14 -14,12 0,6 Z', 'p'), P('M-40,-16 C-52,-14 -58,-2 -50,6 C-44,8 -38,4 -40,-2 C-36,-8 -34,-14 -40,-16 Z', 'a', { ns: true })] },
-  { id: 'tails.whip', slot: 'tail', name: 'Whip', dom: 0.5, w: 3,
-    prims: [P('M0,-4 C-20,-6 -40,-2 -52,-22 C-54,-26 -50,-28 -48,-24 C-40,-10 -24,2 0,4 Z', 'p')] },
-  { id: 'tails.fish', slot: 'tail', name: 'Fin tail', tags: ['aquatic'], dom: 0.55, w: 2,
-    prims: [P('M0,-6 C-12,-6 -20,-8 -28,-4 L-42,-22 L-38,0 L-42,22 L-28,4 C-20,8 -12,6 0,6 Z', 'a'), L('M-30,-2 L-38,-14 M-30,2 L-38,14', 'k', 1.1, { op: 0.4 })] },
-  { id: 'tails.flame', slot: 'tail', name: 'Flame', tags: ['fire'], dom: 0.55, w: 2,
-    prims: [
-      P('M0,-6 C-12,-8 -22,-6 -30,-2 C-36,-10 -34,-20 -40,-26 C-38,-14 -44,-8 -46,-2 C-48,6 -40,14 -30,10 C-22,12 -10,8 0,6 Z', 'p'),
-      P('M-8,-2 C-20,-4 -28,-2 -32,0 C-34,-6 -34,-12 -38,-16 C-38,-8 -42,-4 -42,0 C-42,6 -36,10 -30,6 C-24,6 -14,4 -8,2 Z', 'a', { ns: true }),
-      P('M-16,0 C-26,-2 -30,0 -32,2 C-34,-2 -34,-6 -36,-8 C-36,-2 -38,0 -38,2 C-36,6 -30,6 -26,4 C-22,4 -18,2 -16,0 Z', 'al', { ns: true }),
-    ] },
-  { id: 'tails.leaf', slot: 'tail', name: 'Leaf', tags: ['plant'], dom: 0.5, w: 2,
-    prims: [P('M0,-4 C-12,-4 -22,-2 -30,-4 C-44,-20 -58,-16 -60,-8 C-54,0 -40,6 -30,4 C-22,6 -12,6 0,4 Z', 'a'), L('M-30,0 C-40,-4 -50,-8 -56,-8', 'k', 1.2, { op: 0.45 })] },
-  { id: 'tails.club', slot: 'tail', name: 'Club', tags: ['rock', 'dragon'], dom: 0.55, w: 2,
-    prims: [P('M0,-4 C-14,-6 -26,-6 -34,-8 L-34,6 C-26,6 -14,6 0,4 Z', 'p'), C(-40, -1, 10, 'a'), P('M-46,-9 L-50,-16 L-44,-11 Z', 'w', { sw: 1.2 }), P('M-49,2 L-56,0 L-49,-3 Z', 'w', { sw: 1.2 }), P('M-44,8 L-48,14 L-40,10 Z', 'w', { sw: 1.2 })] },
-  { id: 'tails.curl', slot: 'tail', name: 'Curly', dom: 0.45, w: 2,
-    prims: [P('M0,-5 C-14,-8 -30,-10 -36,-22 C-40,-32 -28,-38 -22,-30 C-18,-24 -26,-20 -28,-24 C-30,-28 -26,-30 -24,-28 C-20,-22 -26,-14 -30,-12 C-26,-8 -12,-6 0,5 Z', 'p')] },
-  { id: 'tails.stubby', slot: 'tail', name: 'Stubby', dom: 0.4, w: 2,
-    prims: [P('M0,-6 C-8,-9 -16,-5 -14,3 C-12,10 -4,8 0,6 Z', 'p')] },
-  { id: 'tails.spade', slot: 'tail', name: 'Spade', tags: ['dark'], dom: 0.5, w: 1,
-    prims: [P('M0,-3 C-16,-4 -30,-4 -40,-6 L-40,4 C-30,2 -16,3 0,3 Z', 'p'), P('M-38,-1 L-52,-14 L-58,2 L-44,7 Z', 'a')] },
-  { id: 'tails.feathers', slot: 'tail', name: 'Tail fan', tags: ['bird'], dom: 0.5, w: 1,
-    prims: [P('M0,-4 L-30,-20 L-26,-6 L-40,-8 L-28,0 L-40,8 L-26,6 L-30,20 L0,4 Z', 'p'), L('M-4,0 L-28,-12 M-4,0 L-34,0 M-4,0 L-28,12', 'k', 1.1, { op: 0.4 })] },
-  { id: 'tails.scorpion', slot: 'tail', name: 'Stinger', tags: ['bug', 'poison'], dom: 0.55, w: 1,
-    prims: [P('M0,-4 C-16,-8 -32,-12 -36,-28 C-38,-40 -26,-44 -20,-36 C-18,-30 -24,-28 -26,-32 L-24,-24 C-30,-20 -30,-8 0,4 Z', 'p'), P('M-20,-36 L-12,-48 L-15,-31 Z', 'a')] },
-  { id: 'tails.paddle', slot: 'tail', name: 'Paddle', tags: ['aquatic', 'mammal'], dom: 0.5, w: 1,
-    prims: [P('M0,-4 C-10,-6 -18,-6 -26,-8 C-44,-10 -56,0 -54,10 C-50,18 -34,18 -24,10 C-16,6 -8,6 0,4 Z', 'a'), L('M-30,-4 L-46,8 M-36,-6 L-50,4 M-28,2 L-40,12', 'k', 1, { op: 0.35 })] },
-  { id: 'tails.bolt', slot: 'tail', name: 'Bolt tail', tags: ['electric'], dom: 0.5, w: 1,
-    prims: [P('M0,-4 L-18,-10 L-14,-2 L-34,-12 L-28,-2 L-48,-8 L-30,6 L-36,10 L-16,6 L-20,12 Z', 'a')] },
-];
-
-// ---- src/data/parts/backs.js ----
-// Back features: origin on the spine near its highest point; bases are sunk a few units into the body.
-const BACKS = [
-  NONE('back', 0.4),
-  { id: 'back.spikes', slot: 'back', name: 'Spines', tags: ['dragon', 'rock'], dom: 0.55, w: 3,
-    prims: [P('M4,6 L10,-12 L16,6 Z', 'a'), P('M-10,6 L-4,-14 L2,6 Z', 'a'), P('M-24,8 L-18,-8 L-12,8 Z', 'a'), P('M-36,12 L-32,-2 L-26,12 Z', 'a')] },
-  { id: 'back.shell', slot: 'back', name: 'Shell', tags: ['sturdy'], dom: 0.6, w: 2,
-    prims: [P('M-34,10 C-34,-24 30,-24 30,10 Z', 'a'), L('M-30,4 L28,4 M-16,-18 L-16,4 M6,-18 L6,4 M-28,-8 L26,-8', 'k', 1.3, { op: 0.35 })] },
-  { id: 'back.fin', slot: 'back', name: 'Dorsal fin', tags: ['aquatic'], dom: 0.5, w: 2,
-    prims: [P('M-6,6 C-4,-14 6,-28 22,-30 C14,-18 12,-6 14,6 Z', 'a'), L('M0,4 C2,-8 8,-16 14,-22', 'k', 1.1, { op: 0.4 })] },
-  { id: 'back.mane', slot: 'back', name: 'Mane', tags: ['mammal'], dom: 0.5, w: 2,
-    prims: [P('M-32,10 C-34,-4 -22,-10 -18,-2 C-16,-14 -6,-16 -2,-6 C0,-18 12,-18 12,-6 C18,-10 26,-4 22,8 Z', 's')] },
-  { id: 'back.plates', slot: 'back', name: 'Plates', tags: ['rock', 'steel'], dom: 0.5, w: 2,
-    prims: [P('M6,6 C6,-8 20,-8 20,6 Z', 'a'), P('M-12,6 C-12,-12 4,-12 4,6 Z', 'a'), P('M-30,8 C-30,-6 -16,-6 -16,8 Z', 'a')] },
-  { id: 'back.wisps', slot: 'back', name: 'Wisps', tags: ['spirit'], dom: 0.4, w: 2,
-    prims: [P('M-10,6 C-14,-6 -6,-14 -2,-8 C0,-16 8,-16 6,-8 C12,-12 16,-2 10,4 Z', 'w', { op: 0.55 }), C(-20, -2, 4, 'w', { op: 0.4, ns: true }), C(16, -6, 3, 'w', { op: 0.4, ns: true })] },
-  { id: 'back.crystal', slot: 'back', name: 'Crystals', tags: ['rock', 'ice'], dom: 0.5, w: 1,
-    prims: [P('M-4,8 L0,-24 L8,8 Z', 'al'), P('M-20,10 L-14,-10 L-8,10 Z', 'a'), P('M8,10 L14,-6 L20,10 Z', 'a')] },
-  { id: 'back.bolts', slot: 'back', name: 'Sparks', tags: ['electric'], dom: 0.45, w: 1,
-    prims: [P('M-2,6 L4,-8 L0,-8 L8,-22 L-2,-8 L2,-8 L-4,6 Z', 'a'), P('M-22,8 L-16,-4 L-20,-4 L-12,-16 L-22,-4 L-18,-4 L-24,8 Z', 'a')] },
-  { id: 'back.leaf', slot: 'back', name: 'Foliage', tags: ['plant'], dom: 0.5, w: 1,
-    prims: [P('M0,6 C-4,-10 8,-26 24,-26 C22,-10 12,2 0,6 Z', 'a'), P('M-4,8 C-10,-6 -22,-14 -34,-10 C-26,0 -14,6 -4,8 Z', 'a'), L('M2,4 C6,-6 12,-14 20,-20', 'k', 1.1, { op: 0.4 })] },
-  { id: 'back.sail', slot: 'back', name: 'Sail', tags: ['reptile', 'aquatic'], dom: 0.55, w: 1,
-    prims: [P('M-36,10 C-30,-14 -14,-34 4,-34 C18,-34 22,-14 24,8 Z', 'a'), L('M-24,6 C-16,-12 -4,-24 4,-28 M-8,8 C-2,-8 6,-18 12,-22 M8,8 C12,-4 16,-10 20,-12', 'k', 1.1, { op: 0.4 })] },
-  { id: 'back.mushrooms', slot: 'back', name: 'Mushrooms', tags: ['plant', 'poison'], dom: 0.45, w: 1,
-    prims: [P('M-18,4 L-18,-4 L-14,-4 L-14,4 Z', 'pl'), E(-16, -4, 8, 5, 'a'), P('M6,6 L6,-8 L10,-8 L10,6 Z', 'pl'), E(8, -8, 6, 4, 'a'), C(-16, -5, 1.5, 'w', { ns: true }), C(9, -9, 1.2, 'w', { ns: true })] },
-];
-
-// ---- src/data/parts/patterns.js ----
-// Patterns are drawn in body coordinates and clipped to the body silhouette.
-// They inherit the body's paint, so "s" is the secondary colour and "pd"/"pl" the body shade/highlight.
-const SCALE_ROW = 'q5,-6 10,0 q5,-6 10,0 q5,-6 10,0 q5,-6 10,0 q5,-6 10,0 q5,-6 10,0 q5,-6 10,0 q5,-6 10,0 q5,-6 10,0 q5,-6 10,0';
-
-const PATTERNS = [
-  NONE('pattern', 0.4),
-  { id: 'pat.stripes', slot: 'pattern', name: 'Stripes', dom: 0.55, w: 3,
-    prims: [-34, -12, 10, 32].map((x) => P(`M${x},-40 L${x + 12},-40 L${x + 4},40 L${x - 8},40 Z`, 'pd', { ns: true, op: 0.85 })) },
-  { id: 'pat.spots', slot: 'pattern', name: 'Spots', dom: 0.5, w: 3,
-    prims: [C(-20, -10, 7, 's', { ns: true }), C(4, -18, 5, 's', { ns: true }), C(20, 2, 6, 's', { ns: true }), C(-6, 10, 8, 's', { ns: true }), C(-30, 12, 4, 's', { ns: true }), C(28, -16, 4, 's', { ns: true })] },
-  { id: 'pat.belly', slot: 'pattern', name: 'Belly', dom: 0.5, w: 3, prims: [E(6, 16, 34, 17, 'pl', { ns: true })] },
-  { id: 'pat.saddle', slot: 'pattern', name: 'Saddle', dom: 0.5, w: 2, prims: [E(-6, -24, 38, 20, 'pd', { ns: true, op: 0.9 })] },
-  { id: 'pat.scales', slot: 'pattern', name: 'Scales', dom: 0.45, w: 2,
-    prims: [-16, -4, 8, 20].map((y, i) => L(`M${i % 2 ? -45 : -50},${y} ${SCALE_ROW}`, 'k', 1.2, { op: 0.28 })) },
-  { id: 'pat.gradient', slot: 'pattern', name: 'Shaded', dom: 0.45, w: 2,
-    prims: [P('M-60,10 L60,10 L60,60 L-60,60 Z', 'pd', { ns: true, op: 0.25 }), P('M-60,22 L60,22 L60,60 L-60,60 Z', 'pd', { ns: true, op: 0.3 })] },
-  { id: 'pat.speckle', slot: 'pattern', name: 'Speckled', dom: 0.4, w: 2,
-    prims: [[-28, -6], [-18, -20], [-6, -26], [8, -22], [22, -14], [30, 2], [18, 12], [4, 20], [-12, 18], [-26, 10], [-2, 2], [14, -4]].map(([x, y]) => C(x, y, 1.7, 'pl', { ns: true, op: 0.9 })) },
-  { id: 'pat.chest', slot: 'pattern', name: 'Chest patch', dom: 0.45, w: 2, prims: [E(22, -2, 14, 18, 'pl', { ns: true })] },
-  { id: 'pat.bands', slot: 'pattern', name: 'Bands', dom: 0.5, w: 1,
-    prims: [P('M-60,-14 L60,-14 L60,-6 L-60,-6 Z', 'pd', { ns: true, op: 0.8 }), P('M-60,6 L60,6 L60,14 L-60,14 Z', 'pd', { ns: true, op: 0.8 })] },
-  { id: 'pat.diamonds', slot: 'pattern', name: 'Diamonds', dom: 0.45, w: 1,
-    prims: [P('M-20,-8 L-12,-20 L-4,-8 L-12,4 Z', 's', { ns: true }), P('M6,-4 L14,-16 L22,-4 L14,8 Z', 's', { ns: true }), P('M-40,4 L-34,-6 L-28,4 L-34,14 Z', 's', { ns: true })] },
-  { id: 'pat.tiger', slot: 'pattern', name: 'Tiger stripes', dom: 0.55, w: 1,
-    prims: [P('M-30,-40 L-16,-40 L-34,12 L-46,12 Z', 'pd', { ns: true, op: 0.9 }), P('M-6,-40 L8,-40 L-10,14 L-22,14 Z', 'pd', { ns: true, op: 0.9 }), P('M18,-40 L32,-40 L14,14 L2,14 Z', 'pd', { ns: true, op: 0.9 }), P('M42,-40 L56,-40 L38,14 L26,14 Z', 'pd', { ns: true, op: 0.9 })] },
-  { id: 'pat.hex', slot: 'pattern', name: 'Hex plates', dom: 0.45, w: 1,
-    prims: [[-30, -10], [-10, -22], [10, -10], [30, -22], [-20, 12], [0, 2], [20, 14]].map(([x, y]) => L(`M${x - 7},${y - 4} L${x},${y - 8} L${x + 7},${y - 4} L${x + 7},${y + 4} L${x},${y + 8} L${x - 7},${y + 4} Z`, 'k', 1.1, { op: 0.28 })) },
-];
 
 // ---- src/data/parts/_builders.js ----
 // Part builders shared by the class libraries. partBuilders(prefix) returns
@@ -4606,19 +4134,7 @@ const AMPHIBIAN_PARTS = {
 
 
 
-
-
-
-
-
-
-
-
 const RIG_PARTS = {
-  legacy: {
-    body: BODIES, head: HEADS, eyes: EYES, mouth: MOUTHS, crown: CROWNS, legs: LEGS,
-    arms: ARMS, wings: WINGS, tail: TAILS, back: BACKS, pattern: PATTERNS,
-  },
   mammal: MAMMAL_PARTS,
   reptile: REPTILE_PARTS,
   fish: FISH_PARTS,
@@ -4652,8 +4168,8 @@ function partFits(part, bodyKind) {
 
 /** All parts of a rig's slot. */
 function partsOf(rig, slot) {
-  const r = RIG_PARTS[rig] || RIG_PARTS.legacy;
-  return r[slot] || [];
+  const r = RIG_PARTS[rig];
+  return (r && r[slot]) || [];
 }
 
 /** Parts of a rig's slot that fit the given body kind (includes the slot's "none" entry when it has one). */
@@ -5693,10 +5209,10 @@ function randomPartId(rig, slot, bodyKind, rng) {
   return rng.weighted(pool, (p) => p.w ?? 1).id;
 }
 
-/** The rig a genome is built on ('legacy' when unset or unknown). */
-function rigOf(g) { return g && g.rig && RIGS[g.rig] ? g.rig : 'legacy'; }
+/** The rig a genome is built on (the default rig when unset or unknown, so old codes still decode to something). */
+function rigOf(g) { return g && g.rig && RIGS[g.rig] ? g.rig : DEFAULT_RIG; }
 /** The rig a species is built on. */
-function speciesRig(species) { return species && species.rig && RIGS[species.rig] ? species.rig : 'legacy'; }
+function speciesRig(species) { return species && species.rig && RIGS[species.rig] ? species.rig : DEFAULT_RIG; }
 
 function defaultTraits() {
   const t = {};
@@ -5885,11 +5401,9 @@ function validateGenome(g) {
 // ---- src/creature/render.js ----
 // Genome -> SVG string. Pure: no DOM access, so it runs in Node for tests.
 //
-// Creatures on a class rig are drawn by walking the rig's draw tree: every
-// part is placed on a named socket of its parent part, far-side copies are
-// drawn darker behind, and children move with their parent (ears and eyes ride
-// the head). Creatures still on the legacy rig use the original fixed
-// assembly order (wings, tail, back, legs, arms, body, head).
+// A creature is drawn by walking its rig's draw tree: every part is placed on
+// a named socket of its parent part, far-side copies are drawn darker behind,
+// and children move with their parent (ears and eyes ride the head).
 //
 // The frame is fixed so creatures are comparable in size: the ground line sits
 // at the same height in every render. opts.fit crops the viewBox to the
@@ -6177,127 +5691,6 @@ function glossSvg(body, id) {
   return `<g clip-path="url(#${id}-clip)"><ellipse cx="${num(cx)}" cy="${num(cy)}" rx="${num(w * 0.17)}" ry="${num(hh * 0.09)}" fill="#fff" opacity="0.22" transform="rotate(-24 ${num(cx)} ${num(cy)})"/></g>`;
 }
 
-// ---- legacy rig ---------------------------------------------------------------
-
-/**
- * Build the layered markup for a legacy-rig creature and measure it.
- * Returns { layers, defs, box, feet, hover, K, body, clip } where box is the
- * creature's bounds in creature space (body centre = 0,0).
- */
-function buildLegacy(g, id, styleName) {
-  const R = renderSetup(g, id, styleName);
-  const { st, styled, shared, ctxFor, wrap, farWrap } = R;
-  const P = resolveParts(g);
-  const body = P.body;
-  const S = body.sockets;
-  const K = traitScales(g.traits);
-  K.eye *= st.eye;
-
-  let feet = body.bottom;
-  if (P.legs && S.legs) for (const ls of S.legs) feet = Math.max(feet, ls.y + (P.legs.len || 40) * K.leg);
-  const hover = body.hover || 0;
-
-  let box = null;
-  const grow = (part, chain) => { box = union(box, boxThrough(partBounds(part), chain)); };
-
-  const assemble = (mode) => {
-    const L = [];
-    const pp = (part, slot, far = false, extra) => partPrimsCtx(part, ctxFor(slot, far, mode, extra));
-
-    if (P.wings && S.wing) {
-      const tn = xf(S.wing.x, S.wing.y, 0, K.wing), tfar = xf(S.wing.x - 6, S.wing.y - 6, 0, K.wing);
-      grow(P.wings, [tn]); grow(P.wings, [tfar]);
-      L.push(wrap('wings',
-        `<g transform="${tf(tfar)}"><g class="g-wing">${farWrap(pp(P.wings, 'wings', true))}</g></g>` +
-        `<g transform="${tf(tn)}"><g class="g-wing">${pp(P.wings, 'wings')}</g></g>`));
-    }
-    if (P.tail && S.tail) {
-      const t = xf(S.tail.x, S.tail.y, S.tail.a, K.tail);
-      grow(P.tail, [t]);
-      L.push(wrap('tail', `<g transform="${tf(t)}"><g class="g-tail">${pp(P.tail, 'tail')}</g></g>`));
-    }
-    if (P.back && S.back) {
-      const t = xf(S.back.x, S.back.y, S.back.a);
-      grow(P.back, [t]);
-      L.push(wrap('back', `<g transform="${tf(t)}">${pp(P.back, 'back')}</g>`));
-    }
-    if (P.legs && S.legs && S.legs.length) {
-      let far = '', near = '';
-      for (const ls of S.legs) {
-        const f = ls.far || FAR_DEFAULT;
-        const tfar = xf(ls.x + f.dx, ls.y + f.dy, 0, K.leg), tn = xf(ls.x, ls.y, 0, K.leg);
-        grow(P.legs, [tfar]); grow(P.legs, [tn]);
-        far += `<g transform="${tf(tfar)}">${farWrap(pp(P.legs, 'legs', true))}</g>`;
-        near += `<g transform="${tf(tn)}">${pp(P.legs, 'legs')}</g>`;
-      }
-      L.push(wrap('legs', far + near));
-    }
-    const armsFront = Boolean(body.armsFront);
-    const armSvg = () => {
-      const tn = xf(S.arm.x, S.arm.y), tfar = xf(S.arm.x - 14, S.arm.y - 3);
-      grow(P.arms, [tn]);
-      let s = '';
-      if (!armsFront) { grow(P.arms, [tfar]); s += `<g transform="${tf(tfar)}">${farWrap(pp(P.arms, 'arms', true))}</g>`; }
-      return wrap('arms', s + `<g transform="${tf(tn)}">${pp(P.arms, 'arms')}</g>`);
-    };
-    if (P.arms && S.arm && !armsFront) L.push(armSvg());
-
-    const face = (F, outer) => {
-      let behind = '', front = '';
-      if (P.crown && F.crown) {
-        const t = xf(F.crown.x, F.crown.y, F.crown.a, F.crown.s == null ? 1 : F.crown.s);
-        grow(P.crown, [t, ...outer]);
-        behind += wrap('crown', `<g transform="${tf(t)}">${pp(P.crown, 'crown')}</g>`);
-      }
-      if (P.eyes) {
-        if (F.eye2) {
-          const t = xf(F.eye2.x, F.eye2.y, 0, (F.eye2.s == null ? 0.85 : F.eye2.s) * K.eye);
-          grow(P.eyes, [t, ...outer]);
-          front += `<g transform="${tf(t)}">${farWrap(pp(P.eyes, 'eyes', true, { small: true, noOutline: true }))}</g>`;
-        }
-        if (F.eye) {
-          const t = xf(F.eye.x, F.eye.y, 0, (F.eye.s == null ? 1 : F.eye.s) * K.eye);
-          grow(P.eyes, [t, ...outer]);
-          front += `<g transform="${tf(t)}">${pp(P.eyes, 'eyes', false, { small: true, noOutline: true })}</g>`;
-        }
-      }
-      if (P.mouth && F.mouth) {
-        const t = xf(F.mouth.x, F.mouth.y, 0, F.mouth.s == null ? 1 : F.mouth.s);
-        grow(P.mouth, [t, ...outer]);
-        front += `<g transform="${tf(t)}">${pp(P.mouth, 'mouth', false, { small: true, noOutline: true })}</g>`;
-      }
-      return { behind, front };
-    };
-
-    const headless = !P.head || !S.head;
-    const bodyFace = headless && S.face ? face(S.face, []) : null;
-    grow(body, []);
-    let bodyInner = bodyFace ? bodyFace.behind : '';
-    bodyInner += pp(body, 'body');
-    if (mode !== 'outline') {
-      if (P.pattern) bodyInner += `<g clip-path="url(#${id}-clip)">${pp(P.pattern, 'body', false, { small: true })}</g>`;
-      if (st.gloss) bodyInner += glossSvg(body, id);
-    }
-    if (bodyFace) bodyInner += bodyFace.front;
-    L.push(`<g class="g-body">${styled ? bodyInner : `<g style="${paintOf(g, 'body')}">${bodyInner}</g>`}</g>`);
-
-    if (P.arms && S.arm && armsFront) L.push(armSvg());
-
-    if (!headless) {
-      const hs = S.head;
-      const th = xf(hs.x, hs.y, hs.a, (hs.s == null ? 1 : hs.s) * K.head);
-      grow(P.head, [th]);
-      const hf = face(P.head.sockets, [th]);
-      L.push(wrap('head', `<g transform="${tf(th)}"><g class="g-head">${hf.behind}${pp(P.head, 'head')}${hf.front}</g></g>`));
-    }
-    return L;
-  };
-
-  const outline = st.outlinePass ? assemble('outline') : [];
-  const layers = assemble('normal');
-  return { layers: [...outline, ...layers], defs: shared.defs.join(''), box: box || [-40, -40, 40, 40], feet, hover, K, body, clip: body.clip || [] };
-}
-
 // ---- class rigs -----------------------------------------------------------------
 
 const ANIM_CLASS = { body: 'g-body', head: 'g-head', tail: 'g-tail', sway: 'g-sway', flap: 'g-wing', ear: 'g-ear' };
@@ -6305,7 +5698,11 @@ const ANIM_CLASS = { body: 'g-body', head: 'g-head', tail: 'g-tail', sway: 'g-sw
 /** Frame markings and other box-fitted parts are authored in: 100 wide, 60 tall, centred on the origin. */
 const FIT_FRAME = { w: 100, h: 60 };
 
-/** Build a creature on a class rig by walking the rig's draw tree. Same return shape as buildLegacy. */
+/**
+ * Build the layered markup for a creature by walking its rig's draw tree, and measure it.
+ * Returns { layers, defs, box, feet, hover, K, body, clip } where box is the
+ * creature's bounds in creature space (body centre = 0,0).
+ */
 function buildRigged(g, id, styleName, rig) {
   const R = renderSetup(g, id, styleName);
   const { st, styled, shared, ctxFor, wrap, farWrap } = R;
@@ -6380,8 +5777,7 @@ function buildRigged(g, id, styleName, rig) {
 }
 
 function buildCreature(g, id, styleName) {
-  const rig = getRig(rigOf(g));
-  return rig.tree ? buildRigged(g, id, styleName, rig) : buildLegacy(g, id, styleName);
+  return buildRigged(g, id, styleName, getRig(rigOf(g)));
 }
 
 /** Canvas-space transform that places a built creature on the ground line. */
@@ -6446,7 +5842,6 @@ function mannequinGenome(part) {
   const parts = {};
   for (const slot of rig.slots) parts[slot] = [m.parts[slot], m.parts[slot]];
   for (const [slot, pid] of Object.entries(m.forSlot[part.slot] || {})) parts[slot] = [pid, pid];
-  if (rig.id === 'legacy' && part.slot === 'body' && part.sockets && !part.sockets.legs.length) parts.legs = ['legs.none', 'legs.none'];
   parts[part.slot] = [part.id, part.id];
   const paint = {};
   if (m.accentSlots.includes(part.slot)) paint[part.slot] = 4; // accent-first

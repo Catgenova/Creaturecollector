@@ -14,16 +14,6 @@ test('every part has the fields the renderer needs', () => {
     if (p.none) continue;
     assert.ok(Array.isArray(p.prims) && p.prims.length > 0, `${id} prims`);
     for (const pr of p.prims) assert.ok(['path', 'ellipse', 'circle', 'line'].includes(pr.t), `${id} prim type`);
-    if (p.rig !== 'legacy') continue;
-    if (p.slot === 'body') {
-      assert.ok(p.kind && typeof p.bottom === 'number' && Array.isArray(p.clip), `${id} body fields`);
-      for (const k of ['head', 'face', 'legs', 'wing', 'tail', 'back']) assert.ok(k in p.sockets, `${id} socket ${k}`);
-      assert.ok(Array.isArray(p.sockets.legs), `${id} legs socket list`);
-    }
-    if (p.slot === 'head') {
-      assert.ok(p.sockets && p.sockets.eye && p.sockets.crown, `${id} head sockets`);
-    }
-    if (p.slot === 'legs') assert.ok(p.len > 0, `${id} leg length`);
   }
 });
 
@@ -70,6 +60,7 @@ test('species recipes only reference real parts in the right slots', () => {
     assert.ok(!ids.has(s.id), `duplicate species ${s.id}`); ids.add(s.id);
     assert.ok(s.types.every((t) => TYPE_LIST.includes(t)), `${s.id} types`);
     assert.ok(s.bst > 300 && s.bst < 700, `${s.id} bst`);
+    assert.ok(s.rig && RIGS[s.rig] && s.rig === s.clade, `${s.id} must name its class rig`);
     const rig = speciesRig(s);
     for (const slot of slotsFor(rig)) {
       const entry = s.recipe[slot];
