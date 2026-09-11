@@ -749,6 +749,53 @@ const RIGS = {
       accentSlots: ['dorsal', 'pectoral', 'tail', 'belly', 'gills', 'crest', 'barbels', 'spines', 'pattern'],
     },
   },
+
+  bird: {
+    id: 'bird', name: 'Bird', prefix: 'b.',
+    slots: ['body', 'head', 'eyes', 'beak', 'crest', 'face', 'wings', 'tail', 'legs', 'chest', 'back', 'pattern'],
+    names: {
+      body: 'Body', head: 'Head', eyes: 'Eyes', beak: 'Beak', crest: 'Crest', face: 'Face', wings: 'Wings', tail: 'Tail',
+      legs: 'Legs', chest: 'Chest', back: 'Back', pattern: 'Pattern',
+    },
+    paint: ['body', 'head', 'beak', 'crest', 'face', 'wings', 'tail', 'legs', 'chest', 'back', 'pattern'],
+    swappable: ['crest', 'tail', 'chest', 'back', 'pattern'],
+    required: ['body', 'head', 'eyes', 'beak', 'wings', 'tail', 'legs'],
+    linked: [['wings', 'tail'], ['head', 'beak']],
+    ground: ['body', 'legs'],
+    clipped: ['pattern'],
+    tree: {
+      slot: 'body', anim: 'body',
+      behind: [
+        { slot: 'tail', socket: 'tail', scale: 'tail', anim: 'tail' },
+        { slot: 'wings', socket: 'wingFar', far: true, scale: 'wing', anim: 'flap' },
+        { slot: 'back', socket: 'back' },
+        { slot: 'legs', socket: 'legFar', far: true, scale: 'leg' },
+      ],
+      front: [
+        { slot: 'chest', socket: 'chest' },
+        { slot: 'legs', socket: 'leg', scale: 'leg' },
+        { slot: 'wings', socket: 'wing', scale: 'wing', anim: 'flap' },
+        {
+          slot: 'head', socket: 'head', scale: 'head', anim: 'head',
+          behind: [{ slot: 'crest', socket: 'crest' }],
+          front: [
+            { slot: 'face', socket: 'face', small: true },
+            { slot: 'eyes', socket: 'eyeFar', far: true, scale: 'eye', small: true },
+            { slot: 'eyes', socket: 'eye', scale: 'eye', small: true },
+            { slot: 'beak', socket: 'beak', small: true },
+          ],
+        },
+      ],
+    },
+    mannequin: {
+      parts: {
+        body: 'b.body.songbird', head: 'b.head.round', eyes: 'b.eyes.bead', beak: 'b.beak.short', crest: 'b.crest.none', face: 'b.face.none',
+        wings: 'b.wings.rounded', tail: 'b.tail.fan', legs: 'b.legs.thin', chest: 'b.chest.none', back: 'b.back.none', pattern: 'b.pattern.none',
+      },
+      forSlot: {},
+      accentSlots: ['beak', 'crest', 'face', 'wings', 'tail', 'legs', 'chest', 'back', 'pattern'],
+    },
+  },
 };
 
 const RIG_IDS = Object.keys(RIGS);
@@ -3231,12 +3278,320 @@ const FISH_PARTS = {
   belly: F_BELLIES, gills: F_GILLS, crest: F_CRESTS, barbels: F_BARBELS, spines: F_SPINES, pattern: F_PATTERNS,
 };
 
+// ---- src/data/parts/bird/_shared.js ----
+// Bird builders: the shared constructors namespaced with "b.".
+// Birds perch upright: a mid-sized body is about 60 wide and 65 tall, the head about 34 across,
+// legs 16 to 28 long. Wings are drawn folded along the flank.
+
+
+const birdBuilders = partBuilders('b.');
+const bBody = birdBuilders.body;
+const bPart = birdBuilders.part;
+
+// ---- src/data/parts/bird/bodies.js ----
+// Bird bodies. Origin = centre of the body. Sockets: head (neck point on the top front),
+// wing / wingFar (shoulder, wings fold down the flank), tail (rear), leg / legFar (bottom),
+// chest (breast, front), back (mantle, top rear). kinds: 'bird.perched', 'bird.upright', 'bird.swim'.
+
+
+
+const B_BODIES = [
+  bBody({
+    id: 'songbird', name: 'Songbird', kind: 'bird.perched', tags: ['small'], dom: 0.5, w: 3,
+    pts: [[10, -30], [24, -22], [30, -6], [26, 12], [14, 26], [-4, 30], [-20, 24], [-30, 8], [-28, -10], [-16, -26], [-2, -32]],
+    shade: torsoShade(-30, 30, -32, 30, { shadeFrac: 0.3 }),
+    sockets: {
+      head: { x: 8, y: -28, a: 0, s: 1 }, wing: { x: -2, y: -10, a: 0, s: 1 }, wingFar: { x: -14, y: -14, a: 0, s: 0.95 },
+      tail: { x: -28, y: 10, a: 20 }, leg: { x: 6, y: 24 }, legFar: { x: -6, y: 22 }, chest: { x: 20, y: 2, a: 0, s: 1 }, back: { x: -12, y: -26, a: -20 },
+    },
+  }),
+  bBody({
+    id: 'owl', name: 'Stout', kind: 'bird.perched', tags: ['owl'], dom: 0.5, w: 2,
+    pts: [[12, -34], [26, -26], [30, -4], [26, 16], [14, 28], [-4, 32], [-20, 28], [-30, 12], [-30, -10], [-22, -28], [-6, -36]],
+    shade: torsoShade(-30, 30, -36, 32, { shadeFrac: 0.3 }),
+    sockets: {
+      head: { x: 4, y: -32, a: 0, s: 1 }, wing: { x: 2, y: -12, a: 0, s: 1 }, wingFar: { x: -12, y: -16, a: 0, s: 0.95 },
+      tail: { x: -26, y: 18, a: 30 }, leg: { x: 6, y: 26 }, legFar: { x: -6, y: 24 }, chest: { x: 16, y: 0, a: 0, s: 1 }, back: { x: -14, y: -30, a: -20 },
+    },
+  }),
+  bBody({
+    id: 'hawk', name: 'Sleek', kind: 'bird.perched', tags: ['raptor'], dom: 0.55, w: 2,
+    pts: [[16, -32], [30, -20], [34, -2], [26, 14], [12, 24], [-6, 26], [-22, 20], [-32, 6], [-30, -12], [-18, -28], [-2, -34]],
+    shade: torsoShade(-32, 34, -34, 26, { shadeFrac: 0.3 }),
+    sockets: {
+      head: { x: 12, y: -30, a: -10, s: 1 }, wing: { x: 0, y: -10, a: 0, s: 1 }, wingFar: { x: -14, y: -14, a: 0, s: 0.95 },
+      tail: { x: -30, y: 12, a: 15 }, leg: { x: 8, y: 22 }, legFar: { x: -4, y: 20 }, chest: { x: 24, y: -2, a: 0, s: 1 }, back: { x: -14, y: -28, a: -25 },
+    },
+  }),
+  bBody({
+    id: 'penguin', name: 'Upright', kind: 'bird.upright', tags: ['penguin'], dom: 0.5, w: 2,
+    pts: [[6, -40], [20, -32], [26, -10], [24, 14], [16, 30], [0, 36], [-16, 30], [-24, 14], [-26, -10], [-20, -32], [-6, -40]],
+    shade: torsoShade(-26, 26, -40, 36, { shadeFrac: 0.3 }),
+    sockets: {
+      head: { x: 2, y: -38, a: 0, s: 1 }, wing: { x: -6, y: -14, a: 0, s: 1 }, wingFar: { x: -18, y: -18, a: 0, s: 0.95 },
+      tail: { x: -22, y: 26, a: 40 }, leg: { x: 6, y: 30 }, legFar: { x: -8, y: 28 }, chest: { x: 14, y: -8, a: 0, s: 1 }, back: { x: -12, y: -34, a: -15 },
+    },
+  }),
+  bBody({
+    id: 'duck', name: 'Waterfowl', kind: 'bird.swim', tags: ['duck'], dom: 0.5, w: 2,
+    pts: [[20, -32], [30, -30], [34, -16], [36, -4], [30, 10], [14, 18], [-10, 20], [-30, 14], [-40, 2], [-34, -10], [-18, -18], [4, -20], [16, -24]],
+    shade: torsoShade(-40, 36, -20, 20, { shadeFrac: 0.35 }),
+    extra: [L('M8,-18 C14,-14 18,-8 22,-2', 'k', 1.2, { op: 0.2 })],
+    sockets: {
+      head: { x: 26, y: -30, a: 0, s: 0.95 }, wing: { x: -4, y: -8, a: 0, s: 1 }, wingFar: { x: -16, y: -12, a: 0, s: 0.95 },
+      tail: { x: -38, y: -2, a: -20 }, leg: { x: 4, y: 16 }, legFar: { x: -8, y: 14 }, chest: { x: 26, y: 0, a: 0, s: 1 }, back: { x: -14, y: -18, a: -10 },
+    },
+  }),
+  bBody({
+    id: 'parrot', name: 'Slim', kind: 'bird.perched', tags: ['parrot'], dom: 0.5, w: 2,
+    pts: [[10, -32], [22, -24], [26, -6], [22, 12], [12, 26], [-2, 30], [-18, 24], [-26, 8], [-26, -10], [-18, -26], [-4, -32]],
+    shade: torsoShade(-26, 26, -32, 30, { shadeFrac: 0.3 }),
+    sockets: {
+      head: { x: 6, y: -30, a: 0, s: 1 }, wing: { x: -2, y: -10, a: 0, s: 1 }, wingFar: { x: -14, y: -14, a: 0, s: 0.95 },
+      tail: { x: -24, y: 12, a: 35 }, leg: { x: 4, y: 26 }, legFar: { x: -6, y: 24 }, chest: { x: 16, y: 0, a: 0, s: 1 }, back: { x: -12, y: -28, a: -20 },
+    },
+  }),
+  bBody({
+    id: 'peacock', name: 'Elegant', kind: 'bird.perched', tags: ['peacock'], dom: 0.5, w: 1,
+    pts: [[12, -38], [20, -34], [26, -16], [26, 4], [18, 20], [2, 26], [-14, 22], [-26, 8], [-26, -8], [-18, -24], [-4, -34]],
+    shade: torsoShade(-26, 26, -38, 26, { shadeFrac: 0.3 }),
+    sockets: {
+      head: { x: 14, y: -36, a: -8, s: 0.95 }, wing: { x: -2, y: -8, a: 0, s: 1 }, wingFar: { x: -14, y: -12, a: 0, s: 0.95 },
+      tail: { x: -26, y: 4, a: 10 }, leg: { x: 4, y: 22 }, legFar: { x: -6, y: 20 }, chest: { x: 18, y: -4, a: 0, s: 1 }, back: { x: -12, y: -28, a: -20 },
+    },
+  }),
+];
+
+// ---- src/data/parts/bird/heads.js ----
+// Bird heads. Origin = neck point (bottom centre of the head). Sockets: eye / eyeFar (null on
+// side-view heads), beak {x,y,a,s} at the front, crest {x,y,a,s} on the crown, face {x,y,s} centre of the face.
+
+
+
+const B_HEADS = [
+  bPart({
+    id: 'round', slot: 'head', name: 'Round', tags: ['songbird'], dom: 0.5, w: 3,
+    shapes: [[[0, -34], [14, -30], [20, -18], [18, -6], [8, 2], [-6, 2], [-16, -6], [-18, -18], [-12, -30]]],
+    extra: [PATCH('M22,-10 C14,-4 4,-2 -8,-4 C-14,-6 -18,-8 -20,-12 L-22,6 L22,6 Z', 's'), SH('M-18,-8 C-8,0 8,2 20,-6 L20,6 L-18,6 Z', 0.1), HL('M-8,-31 C-2,-36 8,-36 14,-30 C8,-32 0,-32 -6,-28 Z', 0.2)],
+    sockets: { eye: { x: 8, y: -20, s: 1 }, eyeFar: { x: -8, y: -21, s: 0.8 }, beak: { x: 19, y: -14, a: 0, s: 1 }, crest: { x: 2, y: -34, a: 0, s: 1 }, face: { x: 4, y: -16, s: 1 } },
+  }),
+  bPart({
+    id: 'owl', slot: 'head', name: 'Owl', tags: ['owl', 'wide'], dom: 0.55, w: 2,
+    shapes: [[[-16, -34, 0.3], [0, -36], [16, -34, 0.3], [24, -20], [22, -6], [12, 2], [-12, 2], [-22, -6], [-24, -20]]],
+    extra: [SH('M-24,-8 C-10,2 10,2 24,-8 L24,6 L-24,6 Z', 0.1), HL('M-12,-33 C-4,-37 6,-37 14,-33 C6,-34 -4,-34 -10,-31 Z', 0.18)],
+    sockets: { eye: { x: 9, y: -20, s: 1.2 }, eyeFar: { x: -9, y: -20, s: 1.1 }, beak: { x: 0, y: -10, a: 0, s: 0.8 }, crest: { x: 0, y: -36, a: 0, s: 1 }, face: { x: 0, y: -18, s: 1 } },
+  }),
+  bPart({
+    id: 'hawk', slot: 'head', name: 'Hawk', tags: ['raptor'], dom: 0.55, w: 2,
+    shapes: [[[-2, -32], [14, -30], [22, -22], [24, -12], [16, -2], [4, 2], [-10, 2], [-18, -8], [-18, -20], [-12, -28]]],
+    extra: [PATCH('M26,-10 C16,-4 4,-2 -8,-4 C-14,-6 -18,-8 -20,-12 L-22,6 L26,6 Z', 's'), L('M-4,-24 C4,-28 12,-26 18,-20', 'k', 1.5, { op: 0.4 }), SH('M-18,-8 C-8,0 8,2 22,-6 L22,6 L-18,6 Z', 0.1), HL('M-8,-29 C-2,-34 8,-34 14,-28 C8,-30 0,-30 -6,-26 Z', 0.18)],
+    sockets: { eye: { x: 10, y: -19, s: 0.95 }, eyeFar: null, beak: { x: 23, y: -16, a: 0, s: 1 }, crest: { x: 2, y: -32, a: 0, s: 1 }, face: { x: 6, y: -16, s: 1 } },
+  }),
+  bPart({
+    id: 'penguin', slot: 'head', name: 'Small round', tags: ['penguin'], dom: 0.45, w: 2,
+    shapes: [[[0, -30], [12, -26], [16, -16], [14, -6], [6, 2], [-6, 2], [-14, -6], [-16, -16], [-12, -26]]],
+    extra: [PATCH('M12,-20 C14,-12 10,-4 2,-2 C-6,-2 -12,-8 -12,-16 C-10,-22 -4,-22 0,-18 C4,-22 10,-24 12,-20 Z', 's'), SH('M-16,-6 C-8,2 8,2 16,-6 L16,6 L-16,6 Z', 0.1), HL('M-8,-27 C-2,-32 6,-32 12,-26 C6,-28 0,-28 -6,-24 Z', 0.18)],
+    sockets: { eye: { x: 6, y: -18, s: 0.85 }, eyeFar: { x: -7, y: -19, s: 0.75 }, beak: { x: 15, y: -12, a: 0, s: 0.9 }, crest: { x: 0, y: -30, a: 0, s: 0.9 }, face: { x: 2, y: -14, s: 0.9 } },
+  }),
+  bPart({
+    id: 'duck', slot: 'head', name: 'Duck', tags: ['duck', 'long'], dom: 0.5, w: 2,
+    shapes: [[[-4, -30], [10, -30], [20, -24], [22, -14], [16, -4], [4, 2], [-8, 2], [-16, -8], [-16, -20], [-12, -28]]],
+    extra: [SH('M-16,-8 C-6,0 8,2 20,-6 L20,6 L-16,6 Z', 0.1), HL('M-8,-28 C-2,-33 8,-33 14,-27 C8,-29 0,-29 -6,-25 Z', 0.18), L('M2,-8 C6,-6 10,-6 14,-8', 'k', 1.2, { op: 0.2 })],
+    sockets: { eye: { x: 8, y: -20, s: 0.9 }, eyeFar: null, beak: { x: 21, y: -14, a: 0, s: 1 }, crest: { x: 2, y: -30, a: 0, s: 1 }, face: { x: 4, y: -16, s: 1 } },
+  }),
+  bPart({
+    id: 'parrot', slot: 'head', name: 'Parrot', tags: ['parrot'], dom: 0.5, w: 2,
+    shapes: [[[-2, -36], [14, -32], [22, -20], [20, -8], [10, 2], [-6, 2], [-16, -6], [-20, -18], [-14, -30]]],
+    extra: [PATCH('M22,-14 C20,-6 14,-2 6,-4 C2,-8 4,-16 10,-20 C16,-22 22,-20 22,-14 Z', 's'), SH('M-20,-8 C-8,0 8,2 20,-6 L20,6 L-20,6 Z', 0.1), HL('M-10,-32 C-2,-38 8,-38 14,-30 C8,-33 0,-33 -6,-29 Z', 0.18)],
+    sockets: { eye: { x: 10, y: -22, s: 0.9 }, eyeFar: { x: -8, y: -23, s: 0.8 }, beak: { x: 20, y: -16, a: 0, s: 1 }, crest: { x: 2, y: -35, a: 0, s: 1 }, face: { x: 6, y: -18, s: 1 } },
+  }),
+  bPart({
+    id: 'peacock', slot: 'head', name: 'Dainty', tags: ['peacock'], dom: 0.5, w: 1,
+    shapes: [[[0, -30], [12, -27], [17, -18], [16, -8], [8, 0], [-4, 2], [-12, -4], [-16, -14], [-12, -26]]],
+    extra: [PATCH('M8,-20 C12,-18 14,-14 12,-10 C8,-8 4,-10 2,-14 C2,-18 4,-21 8,-20 Z', 's', { op: 0.8 }), SH('M-14,-6 C-6,2 8,2 16,-6 L16,6 L-14,6 Z', 0.1), HL('M-8,-27 C-2,-32 6,-32 12,-26 C6,-28 0,-28 -6,-24 Z', 0.18)],
+    sockets: { eye: { x: 7, y: -18, s: 0.9 }, eyeFar: null, beak: { x: 16, y: -13, a: 0, s: 0.9 }, crest: { x: 2, y: -30, a: 0, s: 1 }, face: { x: 4, y: -14, s: 0.9 } },
+  }),
+];
+
+// ---- src/data/parts/bird/face.js ----
+// Bird eyes, beaks, crests and face markings. Eye origin = eye centre; beak origin = its base on the
+// head's beak socket (beaks point right); crest origin = crown (drawn behind the head); face origin = the
+// centre of the face (drawn on the head under the eyes).
+
+
+
+function bEye({ id, name, shape, sclera = 'w', iris = [0.8, 0.2, 3.8], irisRole = 'e', pupil = [1.2, 0.5, 2], glint = [2.2, -1.8, 1.3], glint2 = [-1, 1.8, 0.7], lid, lidFill, ring, dom = 0.5, w = 2, tags = [] }) {
+  const prims = [];
+  if (ring) prims.push(C(0, 0, ring[0], ring[1], { ns: true, op: ring[2] }));
+  prims.push(P(shape, sclera, { sw: 2 }));
+  if (iris) {
+    prims.push(C(iris[0], iris[1], iris[2], irisRole, { ns: true, cl: true }));
+    prims.push(C(iris[0] + 0.5, iris[1] + 1, iris[2] * 0.72, 'ed', { ns: true, cl: true, op: 0.5 }));
+  }
+  if (pupil) prims.push(C(pupil[0], pupil[1], pupil[2], 'k', { ns: true, cl: true }));
+  if (glint) prims.push(C(glint[0], glint[1], glint[2], 'w', { ns: true }));
+  if (glint2) prims.push(C(glint2[0], glint2[1], glint2[2], 'w', { ns: true, op: 0.7 }));
+  if (lidFill) prims.push(P(lidFill, 'p', { ns: true, cl: true }));
+  if (lid) prims.push(L(lid, 'k', 1.8));
+  return bPart({ id, slot: 'eyes', name, tags, dom, w, extra: prims });
+}
+
+const B_OVAL = spline([[0, -6.5], [6, -2], [5.4, 5], [0, 6.8], [-5.4, 5], [-6, -2]]);
+const B_BIG = spline([[0, -8.5], [8, -3], [7.4, 6.4], [0, 9], [-7.4, 6.4], [-8, -3]]);
+
+const B_EYES = [
+  bEye({ id: 'bead', name: 'Bead', tags: ['songbird'], w: 3, shape: spline([[0, -5.2], [5, -1.5], [4.4, 3.8], [0, 5.4], [-4.4, 3.8], [-5, -1.5]]), iris: [0.4, 0, 4.6], irisRole: 'k', pupil: null, glint: [1.9, -1.9, 1.4], glint2: [-1, 1.6, 0.6], lid: null }),
+  bEye({ id: 'big', name: 'Big', tags: ['owl'], w: 2, shape: B_BIG, iris: [0.6, 0.4, 6.2], pupil: [1, 0.8, 3.2], glint: [3, -2.6, 1.8], glint2: [-1.4, 2.6, 0.9], lid: 'M-7,-6 Q0,-10.6 7,-6' }),
+  bEye({ id: 'fierce', name: 'Fierce', tags: ['raptor'], w: 2, shape: spline([[-6.5, -4], [0, -5.5], [6.5, -2], [6.5, 3], [2, 5.5], [-4, 5], [-7, 1]]), iris: [1, 0.6, 3.6], pupil: [1.4, 0.9, 1.9], glint: [2.4, -1, 1.1], lidFill: 'M-9,-10 L9,-10 L9,-1.5 L-9,-5.8 Z', lid: 'M-7,-5.5 L6.5,-1.5' }),
+  bEye({ id: 'round', name: 'Round', tags: ['cute'], w: 3, shape: B_OVAL, lid: 'M-5,-5 Q0,-8.4 5,-5' }),
+  bEye({ id: 'sleepy', name: 'Sleepy', tags: ['calm'], w: 2, shape: B_OVAL, iris: [0.8, 1.2, 3.8], pupil: [1.2, 1.5, 2], glint: [2.2, -0.4, 1.1], glint2: null, lidFill: 'M-9,-10 L9,-10 L9,-1 L-9,-1 Z', lid: 'M-6,-1 L6,-1' }),
+  bEye({ id: 'sparkle', name: 'Sparkle', tags: ['fairy'], w: 2, shape: B_BIG, iris: [0.6, 0.4, 6], pupil: [1, 0.8, 3], glint: [3, -2.8, 2], glint2: [-2, 3, 1.2], lid: 'M-7,-6 Q0,-10.6 7,-6' }),
+  bEye({ id: 'ring', name: 'Eye ring', tags: ['ringed'], w: 2, shape: B_OVAL, iris: [0.6, 0.2, 4.2], irisRole: 'k', pupil: null, glint: [2, -2, 1.4], lid: null, ring: [8.5, 'w', 0.9] }),
+];
+
+const B_BEAKS = [
+  bPart({ id: 'short', slot: 'beak', name: 'Short', tags: ['songbird'], dom: 0.5, w: 3, extra: [P('M-4,-5 L12,-1 L-4,4 Z', 'p', { sw: 2 }), L('M-3,-1 L10,-1', 'k', 1.2, { op: 0.5 }), HL('M-2,-4 L6,-2 L-2,-1 Z', 0.3)] }),
+  bPart({ id: 'hooked', slot: 'beak', name: 'Hooked', tags: ['raptor'], dom: 0.55, w: 2, extra: [P('M-4,-7 C6,-8 14,-4 14,2 C14,6 12,9 10,10 C10,6 8,4 4,3 L-4,4 Z', 'p', { sw: 2 }), L('M-3,0 L8,1', 'k', 1.2, { op: 0.5 }), HL('M-2,-6 C4,-6 8,-4 10,-1 L6,-1 C4,-3 0,-4 -2,-4 Z', 0.3)] }),
+  bPart({ id: 'long', slot: 'beak', name: 'Dagger', tags: ['heron'], dom: 0.5, w: 2, extra: [P('M-4,-5 L26,-1 L-4,4 Z', 'p', { sw: 2 }), L('M-3,-0.5 L22,-0.5', 'k', 1.2, { op: 0.5 }), HL('M-2,-4 L14,-2 L-2,-1 Z', 0.3)] }),
+  bPart({ id: 'flat', slot: 'beak', name: 'Bill', tags: ['duck'], dom: 0.5, w: 2, extra: [P('M-4,-6 C6,-8 16,-6 20,-1 C16,4 6,6 -4,4 Z', 'p', { sw: 2 }), L('M-3,-1 C4,0 12,0 18,-1', 'k', 1.2, { op: 0.5 }), C(12, -4, 1, 'k', { ns: true, op: 0.5 }), HL('M-2,-5 C4,-6 12,-5 16,-2 L10,-2 C6,-3 2,-3 -2,-2 Z', 0.3)] }),
+  bPart({ id: 'stout', slot: 'beak', name: 'Stout', tags: ['finch'], dom: 0.5, w: 2, extra: [P('M-4,-8 C4,-9 12,-6 14,0 C12,6 4,8 -4,7 Z', 'p', { sw: 2 }), L('M-3,0 L12,0', 'k', 1.2, { op: 0.5 }), HL('M-2,-6 C4,-7 8,-5 10,-2 L4,-2 C2,-4 0,-4 -2,-4 Z', 0.3)] }),
+  bPart({ id: 'needle', slot: 'beak', name: 'Needle', tags: ['hummingbird'], dom: 0.45, w: 2, extra: [P('M-3,-2.5 L24,-0.5 L-3,2 Z', 'p', { sw: 1.8 }), L('M-2,0 L20,0', 'k', 1, { op: 0.4 })] }),
+  bPart({ id: 'parrot', slot: 'beak', name: 'Parrot', tags: ['parrot'], dom: 0.55, w: 2, extra: [P('M-6,-9 C4,-11 14,-6 14,2 C14,8 12,12 8,13 C8,8 6,6 2,5 L-6,6 Z', 'p', { sw: 2 }), P('M-4,5 C0,4 5,5 7,8 C4,10 0,9 -4,8 Z', 'pd', { sw: 1.4 }), L('M-3,2 L6,3', 'k', 1.2, { op: 0.5 }), HL('M-3,-8 C4,-9 9,-6 11,-1 L7,-1 C5,-4 1,-6 -3,-6 Z', 0.3)] }),
+];
+
+const B_CRESTS = [
+  NONE('crest', 0.3, 'b.'),
+  bPart({ id: 'tuft', slot: 'crest', name: 'Tuft', tags: ['small'], dom: 0.45, w: 3, shapes: [[[-6, 4], [-4, -6], [-8, -14, 0.2], [-2, -8], [2, -18, 0.2], [4, -8], [10, -12, 0.2], [8, -2], [8, 4]]], extra: [HL('M-2,-6 L2,-14 L4,-6 Z', 0.25)] }),
+  bPart({ id: 'cockatoo', slot: 'crest', name: 'Cockatoo', tags: ['parrot'], dom: 0.55, w: 2, shapes: [[[-8, 4], [-6, -8], [-14, -22, 0.2], [-4, -14], [-6, -32, 0.2], [2, -16], [8, -34, 0.2], [8, -14], [18, -24, 0.2], [12, -8], [10, 4]]], extra: [S([[-4, 0], [-4, -10], [-2, -22], [2, -12], [6, -24], [6, -10], [8, 0]], 's', { ns: true, cl: true, op: 0.45 }), L('M-4,0 L-8,-18 M0,0 L-2,-26 M4,0 L6,-28 M8,0 L14,-20', 'k', 1, { op: 0.3 })] }),
+  bPart({ id: 'eartufts', slot: 'crest', name: 'Ear tufts', tags: ['owl'], dom: 0.5, w: 2, extra: [S([[-20, 2], [-18, -8], [-22, -20, 0.2], [-12, -10], [-8, 2]], 'p'), S([[8, 2], [12, -10], [22, -20, 0.2], [18, -8], [20, 2]], 'p'), HL('M-18,-6 L-20,-16 L-14,-8 Z M12,-8 L20,-16 L16,-6 Z', 0.25)] }),
+  bPart({ id: 'halo', slot: 'crest', name: 'Halo', tags: ['holy'], dom: 0.5, w: 1, extra: [E(0, -14, 16, 5, 'none', { sw: 4 }), E(0, -14, 16, 5, 'a', { ns: true, op: 0.9 }), E(0, -14, 10, 2.5, 'k', { ns: true, op: 0.35 }), HL('M-12,-16 C-6,-19 6,-19 12,-16 L12,-14 C6,-16 -6,-16 -12,-14 Z', 0.4)] }),
+  bPart({ id: 'mohawk', slot: 'crest', name: 'Mohawk', tags: ['punk'], dom: 0.5, w: 2, shapes: [[[-16, 4], [-14, -6], [-10, -18, 'c'], [-6, -8], [-2, -22, 'c'], [2, -8], [6, -20, 'c'], [10, -8], [14, -14, 'c'], [16, 0], [16, 4]]], extra: [HL('M-4,-8 L-2,-18 L0,-8 Z', 0.25)] }),
+  bPart({ id: 'plume', slot: 'crest', name: 'Crown plumes', tags: ['peacock'], dom: 0.5, w: 1, extra: [L('M-4,2 L-8,-16 M0,2 L0,-20 M4,2 L8,-16', 'k', 1.6), C(-9, -18, 3.5, 'p', { sw: 1.6 }), C(0, -23, 3.5, 'p', { sw: 1.6 }), C(9, -18, 3.5, 'p', { sw: 1.6 })] }),
+  bPart({ id: 'fluff', slot: 'crest', name: 'Fluff', tags: ['chick'], dom: 0.45, w: 2, shapes: [[[-14, 4], ...fur([-14, 4], [14, 4], 5, 12, { lean: 0.1, tip: 0.5, wobble: 0.25 }), [16, 6], [-16, 6]]], extra: [HL('M-8,-2 C-4,-8 4,-8 8,-2 L6,2 C2,-2 -2,-2 -6,2 Z', 0.2)] }),
+];
+
+const B_FACES = [
+  NONE('face', 0.3, 'b.'),
+  bPart({ id: 'disc', slot: 'face', name: 'Facial disc', tags: ['owl'], dom: 0.55, w: 2, extra: [P('M-11,-14 C-2,-18 2,-18 11,-14 C20,-8 20,6 11,12 C4,16 -4,16 -11,12 C-20,6 -20,-8 -11,-14 Z', 's', { sw: 2 }), L('M0,-16 L0,12', 'k', 1.2, { op: 0.3 }), SH('M-20,4 C-10,12 10,12 20,4 L20,16 L-20,16 Z', 0.1)] }),
+  bPart({ id: 'cheeks', slot: 'face', name: 'Cheek patches', tags: ['songbird'], dom: 0.5, w: 3, extra: [E(6, 4, 6, 4.5, 'a', { ns: true, op: 0.85 }), E(-8, 3, 4.5, 3.5, 'a', { ns: true, op: 0.65 })] }),
+  bPart({ id: 'mask', slot: 'face', name: 'Mask', tags: ['bandit'], dom: 0.5, w: 2, extra: [P('M-16,-8 C-8,-12 8,-12 18,-6 C16,0 10,2 4,0 C0,-2 -4,-2 -8,0 C-12,2 -16,0 -16,-8 Z', 'a', { ns: true, op: 0.9 })] }),
+  bPart({ id: 'brows', slot: 'face', name: 'Brow tufts', tags: ['stern'], dom: 0.5, w: 2, extra: [S([[-14, -6], [-6, -10], [2, -8], [4, -5], [-4, -6], [-12, -3]], 'p', { sw: 1.6 }), S([[4, -7], [12, -11], [18, -9], [18, -6], [12, -7], [6, -4]], 'p', { sw: 1.6 })] }),
+  bPart({ id: 'wattle', slot: 'face', name: 'Wattle', tags: ['rooster'], dom: 0.45, w: 2, extra: [S([[6, 4], [10, 8], [9, 16], [4, 18], [0, 14], [2, 8]], 'a', { sw: 1.6 }), HL('M4,8 C6,8 7,10 6,13 L4,13 C4,10 3,9 4,8 Z', 0.3)] }),
+  bPart({ id: 'beard', slot: 'face', name: 'Beard', tags: ['feathers'], dom: 0.45, w: 2, shapes: [[[-10, 4], [8, 4], [10, 8], ...fur([10, 10], [-8, 14], 4, 5, { lean: 0.2, tip: 0.4 }), [-12, 8]]], extra: [S([[-6, 6], [4, 6], [4, 10], [-4, 12]], 's', { ns: true, cl: true, op: 0.4 })] }),
+  bPart({ id: 'spectacles', slot: 'face', name: 'Spectacles', tags: ['ringed'], dom: 0.45, w: 1, extra: [E(6, -2, 8, 7, 'w', { ns: true, op: 0.85 }), E(-9, -3, 6, 5.5, 'w', { ns: true, op: 0.6 })] }),
+];
+
+// ---- src/data/parts/bird/limbs.js ----
+// Bird wings (folded along the flank, origin = shoulder), tails (origin = rear, extend left),
+// legs (origin = hip at the body's bottom; near leg drawn in front, far leg behind).
+
+
+
+const feathers = (root, tips, op = 0.3) => L(tips.map(([x, y]) => `M${root[0]},${root[1]} L${x},${y}`).join(' '), 'k', 1.1, { op });
+const covert = (pts, op = 0.4) => S(pts, 's', { ns: true, cl: true, op });
+
+const B_WINGS = [
+  bPart({ id: 'rounded', slot: 'wings', name: 'Rounded', tags: ['songbird'], dom: 0.5, w: 3, shapes: [[[0, -6], [12, -2], [16, 10], [10, 26], [-4, 34], [-18, 28], [-22, 12], [-14, 0]]], extra: [covert([[-2, -3], [8, 0], [12, 10], [8, 20], [-2, 26], [-12, 22], [-16, 12], [-10, 2]]), feathers([-4, 2], [[10, 24], [0, 32], [-12, 28], [-18, 16]]), SH('M-24,14 C-16,26 -4,32 10,26 L10,40 L-24,40 Z', 0.12)] }),
+  bPart({ id: 'pointed', slot: 'wings', name: 'Pointed', tags: ['swift'], dom: 0.5, w: 2, shapes: [[[0, -6], [12, -2], [16, 10], [8, 28], [-8, 46, 'c'], [-16, 30], [-20, 12], [-14, 0]]], extra: [covert([[-2, -3], [8, 0], [12, 10], [6, 24], [-6, 38], [-12, 26], [-14, 12], [-10, 2]]), feathers([-4, 2], [[8, 26], [-6, 42], [-14, 28]]), SH('M-22,16 C-14,30 -6,40 -6,46 L10,46 L10,26 Z', 0.12)] }),
+  bPart({ id: 'long', slot: 'wings', name: 'Long', tags: ['albatross'], dom: 0.5, w: 2, shapes: [[[0, -6], [12, -2], [16, 8], [12, 22], [2, 38], [-12, 56, 'c'], [-16, 40], [-20, 20], [-16, 4]]], extra: [covert([[-2, -3], [8, 0], [12, 8], [8, 20], [0, 32], [-10, 46], [-14, 32], [-14, 12], [-10, 2]]), feathers([-4, 2], [[10, 22], [0, 38], [-10, 52], [-16, 36]]), SH('M-22,20 C-16,36 -12,48 -12,56 L14,56 L14,30 Z', 0.12)] }),
+  bPart({ id: 'flipper', slot: 'wings', name: 'Flipper', tags: ['penguin'], dom: 0.5, w: 2, shapes: [[[0, -6], [8, -4], [10, 8], [8, 26], [2, 40, 0.4], [-6, 30], [-8, 10], [-6, 0]]], extra: [covert([[0, -3], [6, -1], [7, 8], [5, 24], [1, 34], [-3, 26], [-4, 10], [-3, 2]], 0.35), SH('M-10,20 C-6,32 0,38 2,40 L12,40 L12,24 Z', 0.12)] }),
+  bPart({ id: 'stubby', slot: 'wings', name: 'Stubby', tags: ['chick'], dom: 0.4, w: 2, shapes: [[[0, -4], [8, -2], [10, 6], [6, 16], [-2, 20], [-10, 16], [-12, 6], [-8, 0]]], extra: [covert([[0, -1], [5, 1], [7, 6], [4, 13], [-2, 16], [-8, 12], [-8, 5], [-5, 1]]), feathers([-2, 1], [[6, 14], [-2, 18], [-9, 13]])] }),
+  bPart({ id: 'broad', slot: 'wings', name: 'Broad', tags: ['eagle'], dom: 0.55, w: 2, shapes: [[[0, -8], [14, -4], [20, 10], [16, 24], [8, 34, 0.3], [4, 26], [-2, 38, 0.3], [-6, 26], [-14, 36, 0.3], [-18, 22], [-22, 10], [-16, -2]]], extra: [covert([[-2, -4], [10, -1], [16, 10], [12, 22], [4, 24], [-6, 24], [-16, 20], [-16, 10], [-12, 2]]), feathers([-4, 0], [[12, 22], [6, 30], [-2, 34], [-12, 32], [-18, 20]]), SH('M-24,12 C-18,26 -8,32 10,30 L18,34 L18,40 L-24,40 Z', 0.12)] }),
+  bPart({ id: 'lacy', slot: 'wings', name: 'Lacy', tags: ['fairy'], dom: 0.45, w: 1, shapes: [[[0, -6], [12, -2], [16, 8], [14, 18, 0.4], [10, 26], [6, 22, 0.4], [0, 34], [-6, 28, 0.4], [-12, 36], [-16, 26, 0.4], [-20, 12], [-14, 0]]], extra: [covert([[-2, -3], [8, 0], [12, 8], [10, 20], [2, 28], [-8, 28], [-14, 20], [-14, 10], [-10, 2]], 0.5), feathers([-4, 2], [[10, 24], [0, 32], [-12, 34], [-16, 22]]), SH('M-22,14 C-14,28 -4,34 10,26 L10,40 L-22,40 Z', 0.1)] }),
+];
+
+const B_TAILS = [
+  bPart({ id: 'fan', slot: 'tail', name: 'Fan', tags: ['classic'], dom: 0.5, w: 3, shapes: [[[0, -6], [-14, -10], [-30, -8], [-36, 0], [-30, 8], [-14, 10], [0, 6]]], extra: [covert([[-2, -4], [-14, -7], [-28, -5], [-32, 0], [-28, 5], [-14, 7], [-2, 4]]), feathers([-2, 0], [[-30, -6], [-34, 0], [-30, 6]]), SH('M-38,2 C-26,10 -10,12 2,8 L2,20 L-38,20 Z', 0.12)] }),
+  bPart({ id: 'forked', slot: 'tail', name: 'Forked', tags: ['swallow'], dom: 0.5, w: 2, shapes: [[[0, -6], [-14, -12], [-34, -24], [-42, -26, 'c'], [-30, -8], [-24, 0], [-30, 8], [-42, 26, 'c'], [-34, 24], [-14, 12], [0, 6]]], extra: [covert([[-2, -4], [-14, -9], [-34, -20], [-26, -6], [-22, 0], [-26, 6], [-34, 20], [-14, 9], [-2, 4]]), feathers([-2, 0], [[-38, -22], [-28, -6], [-28, 6], [-38, 22]])] }),
+  bPart({ id: 'long', slot: 'tail', name: 'Long train', tags: ['pheasant'], dom: 0.5, w: 2, shapes: [[[0, -6], [-16, -8], [-40, -8], [-64, -4], [-74, 2, 'c'], [-64, 6], [-40, 10], [-16, 10], [0, 6]]], extra: [covert([[-2, -4], [-16, -5], [-40, -5], [-64, -1], [-68, 2], [-64, 4], [-40, 7], [-16, 7], [-2, 4]]), L('M-10,-6 L-10,8 M-24,-7 L-24,9 M-38,-7 L-38,9 M-52,-5 L-52,8', 'k', 1.1, { op: 0.25 }), SH('M-76,4 C-50,12 -20,14 2,8 L2,20 L-76,20 Z', 0.12)] }),
+  bPart({ id: 'wedge', slot: 'tail', name: 'Wedge', tags: ['crow'], dom: 0.5, w: 2, shapes: [[[0, -6], [-14, -10], [-30, -10], [-40, -4], [-42, 2, 0.4], [-36, 8], [-22, 10], [0, 6]]], extra: [covert([[-2, -4], [-14, -7], [-30, -7], [-36, -2], [-34, 4], [-22, 7], [-2, 4]]), feathers([-2, 0], [[-34, -8], [-40, 0], [-34, 7]]), SH('M-44,2 C-30,10 -12,12 2,8 L2,20 L-44,20 Z', 0.12)] }),
+  bPart({ id: 'pintail', slot: 'tail', name: 'Pintail', tags: ['duck'], dom: 0.45, w: 2, shapes: [[[0, -6], [-12, -8], [-28, -6], [-46, -14, 'c'], [-30, 0], [-24, 4], [-12, 8], [0, 6]]], extra: [covert([[-2, -4], [-12, -5], [-28, -3], [-38, -10], [-28, 0], [-12, 5], [-2, 4]]), feathers([-2, 0], [[-40, -12], [-28, -2], [-22, 4]])] }),
+  bPart({ id: 'fantail', slot: 'tail', name: 'Fantail', tags: ['peacock'], dom: 0.6, w: 1,
+    shapes: [[[0, -10], [-18, -40], [-40, -58, 0.3], [-60, -50], [-74, -30, 0.3], [-80, -8], [-76, 14, 0.3], [-64, 30], [-44, 38, 0.3], [-22, 36], [0, 10]]],
+    extra: [
+      covert([[-2, -8], [-18, -34], [-40, -50], [-58, -44], [-70, -26], [-74, -6], [-70, 12], [-60, 26], [-44, 32], [-22, 30], [-2, 8]], 0.35),
+      feathers([-4, 0], [[-30, -50], [-56, -46], [-70, -20], [-74, 4], [-66, 24], [-40, 34]], 0.25),
+      ...[[-34, -40], [-58, -32], [-66, -6], [-62, 18], [-40, 28], [-16, -24], [-38, -12], [-40, 12]].flatMap(([x, y]) => [{ t: 'ellipse', cx: x, cy: y, rx: 6, ry: 8, f: 'a', ns: true, cl: true }, { t: 'ellipse', cx: x, cy: y, rx: 3.5, ry: 4.5, f: 'e', ns: true, cl: true }, { t: 'circle', cx: x, cy: y - 1, r: 1.6, f: 'k', ns: true, cl: true }]),
+      SH('M-82,-8 C-70,20 -40,38 -2,12 L-2,50 L-82,50 Z', 0.12),
+    ] }),
+  bPart({ id: 'stubby', slot: 'tail', name: 'Stubby', tags: ['penguin'], dom: 0.4, w: 2, shapes: [[[0, -6], [-8, -8], [-18, -6], [-22, 0], [-18, 6], [-8, 8], [0, 6]]], extra: [feathers([-2, 0], [[-18, -4], [-20, 0], [-18, 4]])] }),
+];
+
+/** A thin bird leg as an outlined stroke: shin from (0,0) down to (x, len), then toes. */
+function thinLeg(len, toesD, o = {}) {
+  const shin = `M0,0 L${o.lean == null ? 1 : o.lean},${len}`;
+  return [L(shin, 'k', 6.5), L(shin, 'p', 3.5), L(toesD, 'k', 5), L(toesD, 'p', 2.4)];
+}
+
+const B_LEGS = [
+  bPart({ id: 'thin', slot: 'legs', name: 'Thin', tags: ['songbird'], dom: 0.5, w: 3, extra: thinLeg(16, 'M1,16 L9,20 M1,16 L2,23 M1,16 L-6,20 M1,16 L-6,14') }),
+  bPart({ id: 'raptor', slot: 'legs', name: 'Talons', tags: ['raptor'], dom: 0.55, w: 2, extra: [S([[-8, -4], [4, -6], [10, 4], [8, 14], [-2, 16], [-8, 8]], 'p'), ...thinLeg(24, 'M1,24 L9,29 M1,24 L2,32 M1,24 L-7,29 M1,24 L-6,20', { lean: 1 }), P('M9,29 L12,33 L10,28 Z M2,32 L3,36 L4,31 Z M-7,29 L-10,33 L-8,28 Z', 'w', { sw: 1 })] }),
+  bPart({ id: 'penguin', slot: 'legs', name: 'Flat feet', tags: ['penguin'], dom: 0.45, w: 2, extra: [L('M0,0 L1,8', 'k', 7), L('M0,0 L1,8', 'p', 4), S([[-6, 8], [4, 6], [14, 9], [16, 12, 0.3], [10, 14], [-2, 14], [-8, 12]], 'p'), L('M6,9 L8,13 M11,9 L12,13', 'k', 1.2, { op: 0.4 })] }),
+  bPart({ id: 'webbed', slot: 'legs', name: 'Webbed', tags: ['duck'], dom: 0.5, w: 2, extra: [L('M0,0 L1,14', 'k', 6.5), L('M0,0 L1,14', 'p', 3.5), S([[-6, 14], [4, 12], [14, 15], [16, 18, 0.3], [8, 20], [-2, 20], [-8, 18]], 'p'), L('M4,14 L6,19 M10,15 L11,19', 'k', 1.2, { op: 0.4 })] }),
+  bPart({ id: 'stilts', slot: 'legs', name: 'Stilts', tags: ['wader'], dom: 0.5, w: 2, extra: thinLeg(30, 'M1,30 L12,34 M1,30 L2,38 M1,30 L-8,34 M1,30 L-6,27', { lean: 1 }) }),
+  bPart({ id: 'zygo', slot: 'legs', name: 'Gripping', tags: ['parrot'], dom: 0.5, w: 2, extra: thinLeg(14, 'M1,14 L9,19 M1,14 L5,21 M1,14 L-4,21 M1,14 L-8,18', { lean: 1 }) }),
+  bPart({ id: 'feathered', slot: 'legs', name: 'Feathered', tags: ['owl'], dom: 0.5, w: 2, extra: [S([[-9, -4], [4, -6], [10, 6], [8, 16, 0.3], [2, 12], [-2, 18, 0.3], [-6, 12], [-10, 6]], 'p'), ...thinLeg(20, 'M1,20 L9,25 M1,20 L2,28 M1,20 L-7,25 M1,20 L-6,17', { lean: 1 }), P('M9,25 L11,29 L10,24 Z M2,28 L3,32 L4,27 Z M-7,25 L-10,29 L-8,24 Z', 'w', { sw: 1 })] }),
+];
+
+// ---- src/data/parts/bird/plumage.js ----
+// Bird chest plumage (front of the breast, drawn over the body), back features (mantle and capes,
+// drawn behind the body from the back socket) and patterns (clipped to the body, 100 x 60 frame).
+
+
+
+const B_CHESTS = [
+  NONE('chest', 0.3, 'b.'),
+  bPart({ id: 'ruff', slot: 'chest', name: 'Ruff', tags: ['collar'], dom: 0.5, w: 2, shapes: [[[-16, -12], [0, -16], [12, -10], ...fur([12, -6], [6, 18], 4, 5, { lean: 0.3, tip: 0.4 }), [-6, 22], [-18, 14], [-22, 0]]], extra: [SH('M-24,8 C-14,20 0,22 10,14 L12,30 L-24,30 Z', 0.12)] }),
+  bPart({ id: 'bib', slot: 'chest', name: 'Bib', tags: ['patch'], dom: 0.5, w: 3, extra: [S([[-14, -10], [2, -14], [12, -6], [12, 10], [4, 22], [-8, 22], [-16, 10]], 's', { sw: 2 }), SH('M-18,10 C-10,20 4,22 12,12 L12,28 L-18,28 Z', 0.1)] }),
+  bPart({ id: 'fluffy', slot: 'chest', name: 'Fluffy', tags: ['down'], dom: 0.45, w: 2, shapes: [[[-16, -10], [2, -14], [12, -6], ...fur([12, -2], [8, 22], 5, 4, { lean: 0.2, tip: 0.6 }), ...fur([4, 26], [-14, 22], 3, 4, { lean: 0.2, tip: 0.6 }), [-20, 8]]], extra: [S([[-10, -6], [2, -8], [8, 0], [6, 14], [-4, 18], [-12, 8]], 's', { ns: true, cl: true, op: 0.4 })] }),
+  bPart({ id: 'speckled', slot: 'chest', name: 'Speckled', tags: ['thrush'], dom: 0.45, w: 2, extra: [...[[-8, -8], [2, -10], [8, -2], [-4, 0], [4, 8], [-8, 10], [0, 16], [-12, 18], [8, 18]].map(([x, y]) => ({ t: 'ellipse', cx: x, cy: y, rx: 2.6, ry: 3.4, f: 'a', ns: true, op: 0.8 }))] }),
+  bPart({ id: 'tuxedo', slot: 'chest', name: 'Tuxedo', tags: ['penguin'], dom: 0.5, w: 2, extra: [S([[-8, -30], [8, -32], [18, -14], [20, 6], [14, 24], [0, 30], [-14, 24], [-20, 6], [-18, -14]], 's', { ns: true }), SH('M-22,10 C-12,24 12,26 22,10 L22,34 L-22,34 Z', 0.1)] }),
+  bPart({ id: 'medallion', slot: 'chest', name: 'Medallion', tags: ['mark'], dom: 0.45, w: 1, extra: [E(0, 2, 9, 11, 'a', { sw: 2 }), E(0, 2, 5, 6.5, 's', { ns: true }), C(0, 2, 2.2, 'k', { ns: true, op: 0.5 })] }),
+  bPart({ id: 'scales', slot: 'chest', name: 'Scaled breast', tags: ['pattern'], dom: 0.45, w: 2, extra: [L('M-12,-6 Q-8,0 -4,-6 Q0,0 4,-6 Q8,0 12,-6 M-10,4 Q-6,10 -2,4 Q2,10 6,4 Q10,10 14,4 M-12,14 Q-8,20 -4,14 Q0,20 4,14 Q8,20 12,14', 'k', 1.3, { op: 0.3 })] }),
+];
+
+const B_BACKS = [
+  NONE('back', 0.3, 'b.'),
+  bPart({ id: 'mantle', slot: 'back', name: 'Mantle', tags: ['cape'], dom: 0.5, w: 2, shapes: [[[14, 2], [4, -8], [-12, -10], [-28, -4], [-36, 10], [-34, 24, 0.3], [-26, 18], [-22, 30, 0.3], [-14, 20], [-8, 30, 0.3], [-2, 18], [8, 12]]], extra: [L('M-4,-4 L-6,24 M-14,-6 L-20,26 M-24,-2 L-30,20', 'k', 1.1, { op: 0.25 }), SH('M-38,12 C-28,26 -12,30 8,16 L10,36 L-38,36 Z', 0.12)] }),
+  bPart({ id: 'flame', slot: 'back', name: 'Flame cape', tags: ['fire'], dom: 0.5, w: 1, shapes: [[[14, 2], [6, -12], [-2, -30, 0.2], [-8, -12], [-18, -34, 0.2], [-20, -12], [-32, -26, 0.2], [-30, -6], [-44, -8, 0.2], [-32, 6], [-40, 20, 0.2], [-24, 16], [-10, 20]]], extra: [S([[10, 0], [4, -12], [-4, -20], [-10, -8], [-18, -18], [-20, -4], [-30, -6], [-24, 6], [-14, 10]], 's', { ns: true, cl: true }), HL('M-2,-6 C-6,-14 -10,-16 -14,-24 L-10,-24 C-6,-16 -2,-12 2,-6 Z', 0.3)] }),
+  bPart({ id: 'starcloak', slot: 'back', name: 'Star cloak', tags: ['night'], dom: 0.5, w: 1, shapes: [[[14, 2], [2, -10], [-14, -12], [-30, -6], [-40, 10], [-38, 28, 0.3], [-28, 22], [-20, 32, 0.3], [-10, 22], [0, 30, 0.3], [8, 14]]], extra: [...[[-10, 0], [-24, 8], [-30, 22], [-14, 18], [0, 12], [-22, -4]].flatMap(([x, y]) => [{ t: 'circle', cx: x, cy: y, r: 3, f: 'a', ns: true, cl: true, op: 0.4 }, { t: 'circle', cx: x, cy: y, r: 1.3, f: 'w', ns: true, cl: true }]), SH('M-42,14 C-30,28 -12,32 10,18 L12,38 L-42,38 Z', 0.12)] }),
+  bPart({ id: 'coverts', slot: 'back', name: 'Coverts', tags: ['feathers'], dom: 0.45, w: 2, shapes: [[[14, 2], [6, -6], [-8, -8], [-22, -4], [-30, 6, 0.4], [-24, 8], [-28, 16, 0.4], [-18, 14], [-20, 22, 0.4], [-10, 18], [-8, 26, 0.4], [0, 16], [8, 10]]], extra: [L('M-2,-2 Q-8,4 -2,10 M-12,-4 Q-18,4 -12,12 M-22,0 Q-26,6 -22,12', 'k', 1.1, { op: 0.3 }), SH('M-32,10 C-22,24 -8,28 8,14 L10,34 L-32,34 Z', 0.12)] }),
+  bPart({ id: 'saddle', slot: 'back', name: 'Saddle', tags: ['patch'], dom: 0.45, w: 2, shapes: [[[16, 0], [4, -8], [-12, -10], [-26, -6], [-32, 4], [-26, 14], [-12, 18], [4, 14]]], extra: [S([[10, 0], [2, -5], [-12, -7], [-24, -4], [-26, 4], [-22, 10], [-12, 13], [2, 10]], 's', { ns: true, cl: true, op: 0.45 })] }),
+  bPart({ id: 'icicles', slot: 'back', name: 'Icicles', tags: ['ice'], dom: 0.45, w: 1, extra: [P('M8,0 L2,-14 L-4,-30 L-2,-10 Z', 'pl'), P('M-6,2 L-14,-10 L-22,-26 L-16,-8 Z', 'p'), P('M-18,6 L-28,-2 L-40,-12 L-30,0 Z', 'pd'), HL('M2,-12 L-2,-24 L0,-24 L4,-12 Z M-14,-8 L-20,-20 L-18,-20 L-12,-8 Z', 0.35)] }),
+  bPart({ id: 'leaves', slot: 'back', name: 'Leaf cloak', tags: ['grass'], dom: 0.45, w: 1, extra: [S([[8, 0], [0, -14], [-10, -22, 'c'], [-12, -8], [-6, 2]], 'p'), S([[-4, 4], [-16, -6], [-30, -8, 'c'], [-26, 4], [-14, 12]], 'pd'), S([[-6, 12], [-20, 14], [-34, 24, 'c'], [-22, 24], [-10, 20]], 'p'), L('M0,-2 L-8,-18 M-8,6 L-26,-4 M-10,16 L-30,22', 'k', 1.2, { op: 0.35 })] }),
+];
+
+const B_PATTERNS = [
+  NONE('pattern', 0.3, 'b.'),
+  bPart({ id: 'belly', slot: 'pattern', name: 'Light belly', tags: ['soft'], dom: 0.5, w: 3, extra: [S([[54, -10], [36, -20], [10, -22], [-14, -14], [-28, 6], [-24, 28], [0, 40], [54, 40]], 's', { ns: true })] }),
+  bPart({ id: 'stripes', slot: 'pattern', name: 'Stripes', tags: ['striped'], dom: 0.5, w: 2, extra: [S([[-40, -22], [40, -20], [40, -12], [-40, -14]], 'a', { ns: true }), S([[-40, -2], [40, 0], [40, 8], [-40, 6]], 'a', { ns: true }), S([[-40, 18], [40, 20], [40, 28], [-40, 26]], 'a', { ns: true })] }),
+  bPart({ id: 'spots', slot: 'pattern', name: 'Spots', tags: ['spotted'], dom: 0.45, w: 2, extra: [...[[-28, -16, 4], [-10, -24, 3.5], [8, -18, 4.5], [26, -22, 3.5], [-22, 0, 3.5], [-4, -4, 3], [14, -2, 4], [30, 4, 3], [-16, 16, 3.5], [4, 14, 3]].map(([x, y, r]) => ({ t: 'ellipse', cx: x, cy: y, rx: r * 1.05, ry: r * 1.25, f: 'a', ns: true }))] }),
+  bPart({ id: 'bars', slot: 'pattern', name: 'Barred', tags: ['hawk'], dom: 0.45, w: 2, extra: [L('M-44,-26 Q-20,-20 4,-26 Q28,-32 52,-26 M-46,-12 Q-20,-6 4,-12 Q28,-18 52,-12 M-46,2 Q-20,8 4,2 Q28,-4 52,2 M-44,16 Q-20,22 4,16 Q28,10 50,16 M-40,30 Q-20,36 4,30 Q26,24 46,30', 'k', 3, { op: 0.3 })] }),
+  bPart({ id: 'patches', slot: 'pattern', name: 'Patches', tags: ['pied'], dom: 0.45, w: 2, extra: [S([[-44, -34], [-16, -38], [-8, -18], [-22, -6], [-46, -12]], 'a', { ns: true }), S([[6, -30], [30, -36], [42, -20], [30, -4], [10, -8]], 'a', { ns: true }), S([[-12, 8], [8, 4], [14, 20], [-2, 28], [-16, 18]], 'a', { ns: true })] }),
+  bPart({ id: 'gradient', slot: 'pattern', name: 'Dark back', tags: ['gradient'], dom: 0.5, w: 2, extra: [S([[-54, -40], [54, -40], [54, -10], [26, 2], [-8, 4], [-36, -2], [-56, -10]], 'a', { ns: true }), S([[-46, -40], [46, -40], [46, -24], [22, -14], [-6, -12], [-30, -16], [-48, -24]], 'k', { ns: true, op: 0.12 })] }),
+  bPart({ id: 'speckles', slot: 'pattern', name: 'Speckles', tags: ['starling'], dom: 0.45, w: 2, extra: [...Array.from({ length: 22 }, (_, i) => { const x = -42 + (i % 6) * 16 + (Math.floor(i / 6) % 2 ? 8 : 0), y = -28 + Math.floor(i / 6) * 16; return { t: 'ellipse', cx: x, cy: y, rx: 1.8, ry: 2.6, f: 's', ns: true, op: 0.85 }; })] }),
+];
+
+// ---- src/data/parts/bird/index.js ----
+// The bird library, one list per rig slot.
+
+
+
+
+
+
+const BIRD_PARTS = {
+  body: B_BODIES, head: B_HEADS, eyes: B_EYES, beak: B_BEAKS, crest: B_CRESTS, face: B_FACES,
+  wings: B_WINGS, tail: B_TAILS, legs: B_LEGS, chest: B_CHESTS, back: B_BACKS, pattern: B_PATTERNS,
+};
+
 // ---- src/data/parts/index.js ----
 // Part registry. Part ids are stable forever: a saved creature must decode the
 // same way after the library grows, so never rename or reuse an id.
 //
 // Parts are grouped by rig, then slot. A part fits any body of its own rig
 // unless it lists the body kinds it accepts in `fit`.
+
 
 
 
@@ -3258,6 +3613,7 @@ const RIG_PARTS = {
   mammal: MAMMAL_PARTS,
   reptile: REPTILE_PARTS,
   fish: FISH_PARTS,
+  bird: BIRD_PARTS,
 };
 
 const PARTS = new Map();
@@ -3403,12 +3759,13 @@ const SPECIES = [
     desc: 'Digs shallow burrows and forgets where they are. Its hooves never seem to get dirty.',
   },
   {
-    id: 'zephyrn', name: 'Zephyrn', nameParts: ['Zeph', 'yrn'], clade: 'bird', types: ['Flying'], tier: 'common', bst: 395,
-    stats: { hp: 0.14, atk: 0.17, def: 0.12, spa: 0.16, spd: 0.13, spe: 0.28 },
-    recipe: { body: 'body.bird', head: 'head.beak', eyes: 'eye.round', mouth: 'mouth.none', crown: 'crown.crest', legs: 'legs.bird', arms: 'arms.none', wings: 'wings.feather', tail: 'tails.feathers', back: 'back.none', pattern: 'pat.belly' },
-    palette: { c1: [210, 70, 72], c2: [200, 20, 96], c3: [40, 90, 58], eye: [222, 60, 25] }, vary: { h: 12, s: 8, l: 6 },
+    id: 'zephyrn', name: 'Zephyrn', nameParts: ['Zeph', 'yrn'], clade: 'bird', rig: 'bird', types: ['Flying'], tier: 'common', bst: 405,
+    stats: { hp: 0.15, atk: 0.2, def: 0.12, spa: 0.12, spd: 0.13, spe: 0.28 },
+    recipe: { body: 'b.body.songbird', head: 'b.head.round', eyes: 'b.eyes.bead', beak: 'b.beak.short', crest: ['b.crest.none', 'b.crest.tuft'], face: 'b.face.cheeks', wings: 'b.wings.pointed', tail: 'b.tail.forked', legs: 'b.legs.thin', chest: 'b.chest.none', back: 'b.back.none', pattern: 'b.pattern.belly' },
+    palette: { c1: [210, 70, 68], c2: [200, 20, 96], c3: [40, 90, 58], eye: [222, 60, 25] }, vary: { h: 12, s: 8, l: 6 },
+    paint: { beak: 4, legs: 4 },
     traits: T([0.3, 0.6], MID, [0.4, 0.6], MID, [0.55, 0.85], MID),
-    learnset: [[1,'gale'],[1,'dash'],[6,'wing_strike'],[11,'slipstream'],[16,'sky_strike'],[22,'preen'],[28,'wind_cutter'],[34,'quicken'],[40,'dive_bomb'],[46,'cyclone'],[52,'blur']],
+    learnset: [[1,'gale'],[1,'dash'],[6,'wing_strike'],[11,'swipe'],[16,'sky_strike'],[22,'quicken'],[28,'slipstream'],[34,'rake'],[40,'dive_bomb'],[46,'blur'],[52,'cyclone']],
     abilities: ['hawkeye','hover'],
     desc: 'Rides thermals for hours without a single flap. Whistles at travellers to show them the way.',
   },
@@ -3498,10 +3855,11 @@ const SPECIES = [
   },
   // Dual-typed species
   {
-    id: 'moltrix', name: 'Moltrix', nameParts: ['Mol', 'trix'], clade: 'bird', types: ['Fire', 'Flying'], tier: 'uncommon', bst: 435,
+    id: 'moltrix', name: 'Moltrix', nameParts: ['Mol', 'trix'], clade: 'bird', rig: 'bird', types: ['Fire', 'Flying'], tier: 'uncommon', bst: 435,
     stats: { hp: 0.14, atk: 0.18, def: 0.12, spa: 0.22, spd: 0.12, spe: 0.22 },
-    recipe: { body: 'body.bird', head: 'head.beak', eyes: 'eye.angry', mouth: 'mouth.none', crown: 'crown.crest', legs: 'legs.bird', arms: 'arms.none', wings: 'wings.fire', tail: 'tails.feathers', back: 'back.none', pattern: 'pat.gradient' },
-    palette: { c1: [18, 85, 50], c2: [40, 95, 60], c3: [48, 95, 58], eye: [48, 95, 55] }, vary: { h: 8, s: 6, l: 6 },
+    recipe: { body: 'b.body.hawk', head: 'b.head.hawk', eyes: 'b.eyes.fierce', beak: 'b.beak.hooked', crest: ['b.crest.mohawk', 'b.crest.tuft'], face: 'b.face.none', wings: 'b.wings.pointed', tail: 'b.tail.forked', legs: 'b.legs.raptor', chest: ['b.chest.none', 'b.chest.ruff'], back: 'b.back.flame', pattern: 'b.pattern.gradient' },
+    palette: { c1: [18, 85, 50], c2: [40, 95, 60], c3: [48, 95, 62], eye: [48, 95, 55] }, vary: { h: 8, s: 6, l: 6 },
+    paint: { back: 1, crest: 4, beak: 4, legs: 4 },
     traits: T([0.4, 0.7], MID, [0.4, 0.6], [0.5, 0.8], [0.6, 0.9], MID),
     learnset: [[1,'gale'],[1,'cinder'],[6,'wing_strike'],[11,'kindle_rush'],[16,'ember_bite'],[22,'wind_cutter'],[28,'preen'],[34,'fire_stream'],[40,'quicken'],[46,'dive_bomb'],[52,'meltdown']],
     abilities: ['ember_heart','hawkeye'],
@@ -3593,10 +3951,11 @@ const SPECIES = [
     desc: 'Hunts by moonless nights. The glow of its stinger is the last thing many beetles see.',
   },
   {
-    id: 'halowl', name: 'Halowl', nameParts: ['Hal', 'owl'], clade: 'bird', types: ['Psychic', 'Flying'], tier: 'rare', bst: 470,
+    id: 'halowl', name: 'Halowl', nameParts: ['Hal', 'owl'], clade: 'bird', rig: 'bird', types: ['Psychic', 'Flying'], tier: 'rare', bst: 470,
     stats: { hp: 0.15, atk: 0.1, def: 0.14, spa: 0.24, spd: 0.17, spe: 0.2 },
-    recipe: { body: 'body.bird', head: 'head.owl', eyes: 'eye.void', mouth: 'mouth.none', crown: 'crown.halo', legs: 'legs.bird', arms: 'arms.none', wings: 'wings.feather', tail: 'tails.feathers', back: 'back.wisps', pattern: 'pat.chest' },
+    recipe: { body: 'b.body.owl', head: 'b.head.owl', eyes: 'b.eyes.big', beak: 'b.beak.hooked', crest: ['b.crest.halo', 'b.crest.eartufts'], face: 'b.face.disc', wings: 'b.wings.rounded', tail: 'b.tail.fan', legs: 'b.legs.feathered', chest: ['b.chest.bib', 'b.chest.none'], back: ['b.back.starcloak', 'b.back.none'], pattern: 'b.pattern.bars' },
     palette: { c1: [45, 30, 86], c2: [260, 40, 62], c3: [48, 90, 60], eye: [48, 100, 65] }, vary: { h: 10, s: 6, l: 5 },
+    paint: { crest: 4, back: 2, beak: 4, legs: 4 },
     traits: T([0.45, 0.7], [0.5, 0.7], [0.4, 0.6], [0.5, 0.75], [0.6, 0.9], [0.6, 0.9]),
     learnset: [[1,'gale'],[1,'mind_jolt'],[6,'wing_strike'],[11,'thought_beam'],[16,'lull'],[22,'wind_cutter'],[28,'meditate'],[34,'psi_shock'],[40,'quicken'],[46,'mind_crush'],[52,'cyclone']],
     abilities: ['hawkeye', 'restless'],
@@ -3738,6 +4097,61 @@ const SPECIES = [
     learnset: [[1,'squirt'],[1,'mind_jolt'],[6,'ripple'],[11,'lull'],[16,'thought_beam'],[22,'mend'],[28,'cascade'],[34,'psi_shock'],[40,'blank_mind'],[46,'tidal_wave'],[52,'lunar_burst']],
     abilities: ['second_wind','sponge'],
     desc: 'Grants a small wish to anyone who guesses its age. Nobody has guessed correctly.',
+  },
+  {
+    id: 'pengloo', name: 'Pengloo', nameParts: ['Peng', 'loo'], clade: 'bird', rig: 'bird', types: ['Ice', 'Water'], tier: 'common', bst: 410,
+    stats: { hp: 0.2, atk: 0.14, def: 0.2, spa: 0.16, spd: 0.18, spe: 0.12 },
+    recipe: { body: 'b.body.penguin', head: 'b.head.penguin', eyes: 'b.eyes.bead', beak: 'b.beak.short', crest: ['b.crest.none', 'b.crest.tuft'], face: 'b.face.none', wings: 'b.wings.flipper', tail: 'b.tail.stubby', legs: 'b.legs.penguin', chest: 'b.chest.tuxedo', back: ['b.back.none', 'b.back.icicles'], pattern: 'b.pattern.none' },
+    palette: { c1: [215, 25, 24], c2: [210, 15, 96], c3: [35, 90, 60], eye: [220, 20, 15] }, vary: { h: 10, s: 6, l: 5 },
+    paint: { beak: 4, legs: 4, back: 2 },
+    traits: T([0.35, 0.65], MID, [0.3, 0.5], [0.3, 0.5], MID, [0.5, 0.75]),
+    learnset: [[1,'squirt'],[1,'bump'],[6,'sleet'],[11,'icicle_dart'],[16,'belly_flop'],[22,'chill_gust'],[28,'brace'],[34,'glacier_ray'],[40,'cascade'],[46,'snowslide'],[52,'whiteout']],
+    abilities: ['blubber','damp_coat'],
+    desc: 'Slides on its belly wherever it goes, ice or not. Huddles with strangers without asking.',
+  },
+  {
+    id: 'corvex', name: 'Corvex', nameParts: ['Cor', 'vex'], clade: 'bird', rig: 'bird', types: ['Dark', 'Flying'], tier: 'uncommon', bst: 440,
+    stats: { hp: 0.15, atk: 0.25, def: 0.12, spa: 0.11, spd: 0.13, spe: 0.24 },
+    recipe: { body: 'b.body.hawk', head: 'b.head.hawk', eyes: 'b.eyes.fierce', beak: 'b.beak.stout', crest: ['b.crest.none', 'b.crest.mohawk'], face: ['b.face.none', 'b.face.mask'], wings: 'b.wings.long', tail: 'b.tail.wedge', legs: 'b.legs.thin', chest: ['b.chest.none', 'b.chest.ruff'], back: ['b.back.mantle', 'b.back.starcloak'], pattern: 'b.pattern.gradient' },
+    palette: { c1: [250, 18, 26], c2: [250, 12, 44], c3: [270, 50, 56], eye: [45, 20, 88] }, vary: { h: 12, s: 6, l: 5 },
+    paint: { back: 2, beak: 2, legs: 2 },
+    traits: T([0.4, 0.7], MID, MID, [0.5, 0.8], [0.5, 0.8], MID),
+    learnset: [[1,'swipe'],[1,'sneer'],[6,'gale'],[11,'cheap_shot'],[16,'wing_strike'],[22,'scheme'],[28,'blindside'],[34,'wind_cutter'],[40,'dusk_slash'],[46,'crush_bite'],[52,'dive_bomb']],
+    abilities: ['hawkeye','menace'],
+    desc: 'Collects keys, coins and grudges. It remembers every face that ever shooed it.',
+  },
+  {
+    id: 'squawkeet', name: 'Squawkeet', nameParts: ['Squaw', 'keet'], clade: 'bird', rig: 'bird', types: ['Grass', 'Flying'], tier: 'common', bst: 395,
+    stats: { hp: 0.16, atk: 0.14, def: 0.13, spa: 0.21, spd: 0.16, spe: 0.2 },
+    recipe: { body: 'b.body.parrot', head: 'b.head.parrot', eyes: 'b.eyes.ring', beak: 'b.beak.parrot', crest: ['b.crest.tuft', 'b.crest.cockatoo'], face: 'b.face.cheeks', wings: 'b.wings.long', tail: 'b.tail.long', legs: 'b.legs.zygo', chest: 'b.chest.none', back: ['b.back.none', 'b.back.leaves'], pattern: 'b.pattern.patches' },
+    palette: { c1: [120, 55, 40], c2: [55, 80, 62], c3: [10, 70, 55], eye: [40, 60, 40] }, vary: { h: 14, s: 8, l: 6 },
+    paint: { beak: 2, crest: 4 },
+    traits: T([0.35, 0.6], [0.5, 0.7], MID, [0.6, 0.9], MID, [0.5, 0.75]),
+    learnset: [[1,'bump'],[1,'yowl'],[6,'vine_lash'],[11,'gale'],[16,'leaf_razor'],[22,'wing_strike'],[28,'seed_volley'],[34,'sap_drain'],[40,'blade_leaf'],[46,'slipstream'],[52,'cyclone']],
+    abilities: ['bloom_heart','restless'],
+    desc: 'Repeats the last thing it heard, louder. Grows a leaf for every word it learns.',
+  },
+  {
+    id: 'plumaura', name: 'Plumaura', nameParts: ['Plum', 'aura'], clade: 'bird', rig: 'bird', types: ['Fairy', 'Flying'], tier: 'rare', bst: 450,
+    stats: { hp: 0.16, atk: 0.1, def: 0.15, spa: 0.24, spd: 0.21, spe: 0.14 },
+    recipe: { body: 'b.body.peacock', head: 'b.head.peacock', eyes: 'b.eyes.sparkle', beak: 'b.beak.short', crest: 'b.crest.plume', face: ['b.face.none', 'b.face.spectacles'], wings: 'b.wings.lacy', tail: 'b.tail.fantail', legs: 'b.legs.stilts', chest: ['b.chest.scales', 'b.chest.medallion'], back: ['b.back.none', 'b.back.coverts'], pattern: 'b.pattern.none' },
+    palette: { c1: [200, 70, 42], c2: [160, 60, 50], c3: [45, 90, 60], eye: [200, 60, 30] }, vary: { h: 12, s: 6, l: 5 },
+    paint: { beak: 4, legs: 4, tail: 2 },
+    traits: T([0.45, 0.75], MID, [0.5, 0.75], [0.6, 0.9], MID, MID),
+    learnset: [[1,'glitter_gust'],[1,'doe_eyes'],[6,'gale'],[11,'sweet_sip'],[16,'slipstream'],[22,'dazzle'],[28,'wind_cutter'],[34,'moonbathe'],[40,'slipstream'],[46,'lunar_burst'],[52,'cyclone']],
+    abilities: ['swagger','finesse'],
+    desc: 'Every eye on its tail is said to be watching a different admirer. It has never been short of them.',
+  },
+  {
+    id: 'quackle', name: 'Quackle', nameParts: ['Quack', 'le'], clade: 'bird', rig: 'bird', types: ['Water', 'Flying'], tier: 'common', bst: 400,
+    stats: { hp: 0.18, atk: 0.14, def: 0.15, spa: 0.18, spd: 0.17, spe: 0.18 },
+    recipe: { body: 'b.body.duck', head: 'b.head.duck', eyes: 'b.eyes.round', beak: 'b.beak.flat', crest: ['b.crest.none', 'b.crest.tuft'], face: 'b.face.none', wings: 'b.wings.pointed', tail: 'b.tail.pintail', legs: 'b.legs.webbed', chest: 'b.chest.bib', back: ['b.back.none', 'b.back.coverts'], pattern: ['b.pattern.none', 'b.pattern.speckles'] },
+    palette: { c1: [140, 40, 30], c2: [45, 30, 88], c3: [40, 85, 55], eye: [30, 50, 20] }, vary: { h: 12, s: 8, l: 6 },
+    paint: { beak: 4, legs: 4 },
+    traits: T([0.35, 0.65], MID, MID, [0.4, 0.7], MID, MID),
+    learnset: [[1,'squirt'],[1,'bump'],[6,'gale'],[11,'ripple'],[16,'wing_strike'],[22,'preen'],[28,'cascade'],[34,'slipstream'],[40,'riptide'],[46,'wind_cutter'],[52,'geyser']],
+    abilities: ['damp_coat','hover'],
+    desc: 'Paddles in circles when thinking. It has opinions about bread.',
   },
 ];
 

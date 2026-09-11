@@ -26,7 +26,7 @@ src/styles.css        all styles
 src/core/             rng, util — no game knowledge
 src/data/types.js     type list, chart, colours
 src/data/rigs.js      class skeletons: slot lists, draw trees, sockets each part must expose
-src/data/parts/       the part library: legacy slot files, one folder per rebuilt class (mammal/, reptile/, fish/),
+src/data/parts/       the part library: legacy slot files, one folder per rebuilt class (mammal/, reptile/, fish/, bird/),
                       shared builders (_builders.js), drawing DSL (_dsl.js), registry (index.js)
 src/data/species.js   base species recipes
 src/creature/         genome (schema, rolls, codes), palette, render (SVG)
@@ -354,11 +354,28 @@ Glimmerfin rebuilt, plus Sharkid (Water/Dark), Lurelight (Water/Ghost),
 Puffugu (Water/Poison), Hippodrake (Water/Dragon), Zapeel (Electric/Water)
 and Koiwish (Water/Psychic).
 
+**Bird rig** (done). Slots: body, head, eyes, beak, crest, face, wings, tail,
+legs, chest, back, pattern. Linked: wings with tail, head with beak. Wings
+are drawn folded along the flank (far one behind the body, near one in front,
+behind the head); the tail and back features hang behind; legs are a thin
+outlined stroke with toes so they stay crisp at card size. The `face` slot
+carries facial discs, cheek patches, masks and brows drawn on the head under
+the eyes. Archetypes: songbird, owl (stout), hawk (sleek), penguin (upright),
+duck (waterfowl, with a neck), parrot (slim), peacock (elegant); beaks: short,
+hooked, dagger, bill, stout, needle, parrot; crests: tuft, cockatoo, ear
+tufts, halo, mohawk, crown plumes, fluff; wings: rounded, pointed, long,
+flipper, stubby, broad, lacy; tails: fan, forked, long train, wedge, pintail,
+fantail (with eyespots), stubby; legs: thin, talons, flat feet, webbed, stilts,
+gripping, feathered; chests, backs and patterns each have seven. Eight
+species: Zephyrn, Moltrix and Halowl rebuilt, plus Pengloo (Ice/Water),
+Corvex (Dark/Flying), Squawkeet (Grass/Flying), Plumaura (Fairy/Flying) and
+Quackle (Water/Flying).
+
 **Next classes**, one per step, each with its own slot list and seven parts per
-slot: bird (beaks, wings, tail fans), insect (segments, antennae, six legs,
-wing pairs), invertebrate (shells, tentacles, spirits), amphibian (wide heads,
-webbed feet). Each needs species added to reach seven. When all seven classes
-are on rigs the legacy skeleton and its parts go away.
+slot: insect (segments, antennae, six legs, wing pairs), invertebrate (shells,
+tentacles, spirits), amphibian (wide heads, webbed feet). Each needs species
+added to reach seven. When all seven classes are on rigs the legacy skeleton
+and its parts go away.
 
 ## Polish and balance (Phase 5 — implemented)
 

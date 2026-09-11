@@ -32,9 +32,10 @@ Phase 6 — Art rebuild, class by class: every class gets its own skeleton
 (rig) with its own slots, and a hand-drawn library of seven parts per slot.
 Done so far: mammals (fox, cat, bear, rabbit, deer, wolf, mouse; 85 parts,
 twelve species), reptiles (lizard, croc, turtle, dragon, serpent, chameleon,
-raptor; 85 parts, nine species) and fish (round, betta, shark, angler,
-puffer, seahorse, eel; 84 parts, eight species). Classes lock fusion to the
-same anatomy. Birds, insects, invertebrates and amphibians are next. See
+raptor; 85 parts, nine species), fish (round, betta, shark, angler, puffer,
+seahorse, eel; 84 parts, eight species) and birds (songbird, owl, hawk,
+penguin, duck, parrot, peacock; 84 parts, eight species). Classes lock fusion
+to the same anatomy. Insects, invertebrates and amphibians are next. See
 `DESIGN.md`.
 
 ## Develop

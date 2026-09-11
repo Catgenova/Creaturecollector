@@ -1,0 +1,37 @@
+// Bird chest plumage (front of the breast, drawn over the body), back features (mantle and capes,
+// drawn behind the body from the back socket) and patterns (clipped to the body, 100 x 60 frame).
+import { bPart } from './_shared.js';
+import { NONE, S, L, P, C, E, SH, HL, fur } from '../_dsl.js';
+
+export const B_CHESTS = [
+  NONE('chest', 0.3, 'b.'),
+  bPart({ id: 'ruff', slot: 'chest', name: 'Ruff', tags: ['collar'], dom: 0.5, w: 2, shapes: [[[-16, -12], [0, -16], [12, -10], ...fur([12, -6], [6, 18], 4, 5, { lean: 0.3, tip: 0.4 }), [-6, 22], [-18, 14], [-22, 0]]], extra: [SH('M-24,8 C-14,20 0,22 10,14 L12,30 L-24,30 Z', 0.12)] }),
+  bPart({ id: 'bib', slot: 'chest', name: 'Bib', tags: ['patch'], dom: 0.5, w: 3, extra: [S([[-14, -10], [2, -14], [12, -6], [12, 10], [4, 22], [-8, 22], [-16, 10]], 's', { sw: 2 }), SH('M-18,10 C-10,20 4,22 12,12 L12,28 L-18,28 Z', 0.1)] }),
+  bPart({ id: 'fluffy', slot: 'chest', name: 'Fluffy', tags: ['down'], dom: 0.45, w: 2, shapes: [[[-16, -10], [2, -14], [12, -6], ...fur([12, -2], [8, 22], 5, 4, { lean: 0.2, tip: 0.6 }), ...fur([4, 26], [-14, 22], 3, 4, { lean: 0.2, tip: 0.6 }), [-20, 8]]], extra: [S([[-10, -6], [2, -8], [8, 0], [6, 14], [-4, 18], [-12, 8]], 's', { ns: true, cl: true, op: 0.4 })] }),
+  bPart({ id: 'speckled', slot: 'chest', name: 'Speckled', tags: ['thrush'], dom: 0.45, w: 2, extra: [...[[-8, -8], [2, -10], [8, -2], [-4, 0], [4, 8], [-8, 10], [0, 16], [-12, 18], [8, 18]].map(([x, y]) => ({ t: 'ellipse', cx: x, cy: y, rx: 2.6, ry: 3.4, f: 'a', ns: true, op: 0.8 }))] }),
+  bPart({ id: 'tuxedo', slot: 'chest', name: 'Tuxedo', tags: ['penguin'], dom: 0.5, w: 2, extra: [S([[-8, -30], [8, -32], [18, -14], [20, 6], [14, 24], [0, 30], [-14, 24], [-20, 6], [-18, -14]], 's', { ns: true }), SH('M-22,10 C-12,24 12,26 22,10 L22,34 L-22,34 Z', 0.1)] }),
+  bPart({ id: 'medallion', slot: 'chest', name: 'Medallion', tags: ['mark'], dom: 0.45, w: 1, extra: [E(0, 2, 9, 11, 'a', { sw: 2 }), E(0, 2, 5, 6.5, 's', { ns: true }), C(0, 2, 2.2, 'k', { ns: true, op: 0.5 })] }),
+  bPart({ id: 'scales', slot: 'chest', name: 'Scaled breast', tags: ['pattern'], dom: 0.45, w: 2, extra: [L('M-12,-6 Q-8,0 -4,-6 Q0,0 4,-6 Q8,0 12,-6 M-10,4 Q-6,10 -2,4 Q2,10 6,4 Q10,10 14,4 M-12,14 Q-8,20 -4,14 Q0,20 4,14 Q8,20 12,14', 'k', 1.3, { op: 0.3 })] }),
+];
+
+export const B_BACKS = [
+  NONE('back', 0.3, 'b.'),
+  bPart({ id: 'mantle', slot: 'back', name: 'Mantle', tags: ['cape'], dom: 0.5, w: 2, shapes: [[[14, 2], [4, -8], [-12, -10], [-28, -4], [-36, 10], [-34, 24, 0.3], [-26, 18], [-22, 30, 0.3], [-14, 20], [-8, 30, 0.3], [-2, 18], [8, 12]]], extra: [L('M-4,-4 L-6,24 M-14,-6 L-20,26 M-24,-2 L-30,20', 'k', 1.1, { op: 0.25 }), SH('M-38,12 C-28,26 -12,30 8,16 L10,36 L-38,36 Z', 0.12)] }),
+  bPart({ id: 'flame', slot: 'back', name: 'Flame cape', tags: ['fire'], dom: 0.5, w: 1, shapes: [[[14, 2], [6, -12], [-2, -30, 0.2], [-8, -12], [-18, -34, 0.2], [-20, -12], [-32, -26, 0.2], [-30, -6], [-44, -8, 0.2], [-32, 6], [-40, 20, 0.2], [-24, 16], [-10, 20]]], extra: [S([[10, 0], [4, -12], [-4, -20], [-10, -8], [-18, -18], [-20, -4], [-30, -6], [-24, 6], [-14, 10]], 's', { ns: true, cl: true }), HL('M-2,-6 C-6,-14 -10,-16 -14,-24 L-10,-24 C-6,-16 -2,-12 2,-6 Z', 0.3)] }),
+  bPart({ id: 'starcloak', slot: 'back', name: 'Star cloak', tags: ['night'], dom: 0.5, w: 1, shapes: [[[14, 2], [2, -10], [-14, -12], [-30, -6], [-40, 10], [-38, 28, 0.3], [-28, 22], [-20, 32, 0.3], [-10, 22], [0, 30, 0.3], [8, 14]]], extra: [...[[-10, 0], [-24, 8], [-30, 22], [-14, 18], [0, 12], [-22, -4]].flatMap(([x, y]) => [{ t: 'circle', cx: x, cy: y, r: 3, f: 'a', ns: true, cl: true, op: 0.4 }, { t: 'circle', cx: x, cy: y, r: 1.3, f: 'w', ns: true, cl: true }]), SH('M-42,14 C-30,28 -12,32 10,18 L12,38 L-42,38 Z', 0.12)] }),
+  bPart({ id: 'coverts', slot: 'back', name: 'Coverts', tags: ['feathers'], dom: 0.45, w: 2, shapes: [[[14, 2], [6, -6], [-8, -8], [-22, -4], [-30, 6, 0.4], [-24, 8], [-28, 16, 0.4], [-18, 14], [-20, 22, 0.4], [-10, 18], [-8, 26, 0.4], [0, 16], [8, 10]]], extra: [L('M-2,-2 Q-8,4 -2,10 M-12,-4 Q-18,4 -12,12 M-22,0 Q-26,6 -22,12', 'k', 1.1, { op: 0.3 }), SH('M-32,10 C-22,24 -8,28 8,14 L10,34 L-32,34 Z', 0.12)] }),
+  bPart({ id: 'saddle', slot: 'back', name: 'Saddle', tags: ['patch'], dom: 0.45, w: 2, shapes: [[[16, 0], [4, -8], [-12, -10], [-26, -6], [-32, 4], [-26, 14], [-12, 18], [4, 14]]], extra: [S([[10, 0], [2, -5], [-12, -7], [-24, -4], [-26, 4], [-22, 10], [-12, 13], [2, 10]], 's', { ns: true, cl: true, op: 0.45 })] }),
+  bPart({ id: 'icicles', slot: 'back', name: 'Icicles', tags: ['ice'], dom: 0.45, w: 1, extra: [P('M8,0 L2,-14 L-4,-30 L-2,-10 Z', 'pl'), P('M-6,2 L-14,-10 L-22,-26 L-16,-8 Z', 'p'), P('M-18,6 L-28,-2 L-40,-12 L-30,0 Z', 'pd'), HL('M2,-12 L-2,-24 L0,-24 L4,-12 Z M-14,-8 L-20,-20 L-18,-20 L-12,-8 Z', 0.35)] }),
+  bPart({ id: 'leaves', slot: 'back', name: 'Leaf cloak', tags: ['grass'], dom: 0.45, w: 1, extra: [S([[8, 0], [0, -14], [-10, -22, 'c'], [-12, -8], [-6, 2]], 'p'), S([[-4, 4], [-16, -6], [-30, -8, 'c'], [-26, 4], [-14, 12]], 'pd'), S([[-6, 12], [-20, 14], [-34, 24, 'c'], [-22, 24], [-10, 20]], 'p'), L('M0,-2 L-8,-18 M-8,6 L-26,-4 M-10,16 L-30,22', 'k', 1.2, { op: 0.35 })] }),
+];
+
+export const B_PATTERNS = [
+  NONE('pattern', 0.3, 'b.'),
+  bPart({ id: 'belly', slot: 'pattern', name: 'Light belly', tags: ['soft'], dom: 0.5, w: 3, extra: [S([[54, -10], [36, -20], [10, -22], [-14, -14], [-28, 6], [-24, 28], [0, 40], [54, 40]], 's', { ns: true })] }),
+  bPart({ id: 'stripes', slot: 'pattern', name: 'Stripes', tags: ['striped'], dom: 0.5, w: 2, extra: [S([[-40, -22], [40, -20], [40, -12], [-40, -14]], 'a', { ns: true }), S([[-40, -2], [40, 0], [40, 8], [-40, 6]], 'a', { ns: true }), S([[-40, 18], [40, 20], [40, 28], [-40, 26]], 'a', { ns: true })] }),
+  bPart({ id: 'spots', slot: 'pattern', name: 'Spots', tags: ['spotted'], dom: 0.45, w: 2, extra: [...[[-28, -16, 4], [-10, -24, 3.5], [8, -18, 4.5], [26, -22, 3.5], [-22, 0, 3.5], [-4, -4, 3], [14, -2, 4], [30, 4, 3], [-16, 16, 3.5], [4, 14, 3]].map(([x, y, r]) => ({ t: 'ellipse', cx: x, cy: y, rx: r * 1.05, ry: r * 1.25, f: 'a', ns: true }))] }),
+  bPart({ id: 'bars', slot: 'pattern', name: 'Barred', tags: ['hawk'], dom: 0.45, w: 2, extra: [L('M-44,-26 Q-20,-20 4,-26 Q28,-32 52,-26 M-46,-12 Q-20,-6 4,-12 Q28,-18 52,-12 M-46,2 Q-20,8 4,2 Q28,-4 52,2 M-44,16 Q-20,22 4,16 Q28,10 50,16 M-40,30 Q-20,36 4,30 Q26,24 46,30', 'k', 3, { op: 0.3 })] }),
+  bPart({ id: 'patches', slot: 'pattern', name: 'Patches', tags: ['pied'], dom: 0.45, w: 2, extra: [S([[-44, -34], [-16, -38], [-8, -18], [-22, -6], [-46, -12]], 'a', { ns: true }), S([[6, -30], [30, -36], [42, -20], [30, -4], [10, -8]], 'a', { ns: true }), S([[-12, 8], [8, 4], [14, 20], [-2, 28], [-16, 18]], 'a', { ns: true })] }),
+  bPart({ id: 'gradient', slot: 'pattern', name: 'Dark back', tags: ['gradient'], dom: 0.5, w: 2, extra: [S([[-54, -40], [54, -40], [54, -10], [26, 2], [-8, 4], [-36, -2], [-56, -10]], 'a', { ns: true }), S([[-46, -40], [46, -40], [46, -24], [22, -14], [-6, -12], [-30, -16], [-48, -24]], 'k', { ns: true, op: 0.12 })] }),
+  bPart({ id: 'speckles', slot: 'pattern', name: 'Speckles', tags: ['starling'], dom: 0.45, w: 2, extra: [...Array.from({ length: 22 }, (_, i) => { const x = -42 + (i % 6) * 16 + (Math.floor(i / 6) % 2 ? 8 : 0), y = -28 + Math.floor(i / 6) * 16; return { t: 'ellipse', cx: x, cy: y, rx: 1.8, ry: 2.6, f: 's', ns: true, op: 0.85 }; })] }),
+];

@@ -199,6 +199,53 @@ export const RIGS = {
       accentSlots: ['dorsal', 'pectoral', 'tail', 'belly', 'gills', 'crest', 'barbels', 'spines', 'pattern'],
     },
   },
+
+  bird: {
+    id: 'bird', name: 'Bird', prefix: 'b.',
+    slots: ['body', 'head', 'eyes', 'beak', 'crest', 'face', 'wings', 'tail', 'legs', 'chest', 'back', 'pattern'],
+    names: {
+      body: 'Body', head: 'Head', eyes: 'Eyes', beak: 'Beak', crest: 'Crest', face: 'Face', wings: 'Wings', tail: 'Tail',
+      legs: 'Legs', chest: 'Chest', back: 'Back', pattern: 'Pattern',
+    },
+    paint: ['body', 'head', 'beak', 'crest', 'face', 'wings', 'tail', 'legs', 'chest', 'back', 'pattern'],
+    swappable: ['crest', 'tail', 'chest', 'back', 'pattern'],
+    required: ['body', 'head', 'eyes', 'beak', 'wings', 'tail', 'legs'],
+    linked: [['wings', 'tail'], ['head', 'beak']],
+    ground: ['body', 'legs'],
+    clipped: ['pattern'],
+    tree: {
+      slot: 'body', anim: 'body',
+      behind: [
+        { slot: 'tail', socket: 'tail', scale: 'tail', anim: 'tail' },
+        { slot: 'wings', socket: 'wingFar', far: true, scale: 'wing', anim: 'flap' },
+        { slot: 'back', socket: 'back' },
+        { slot: 'legs', socket: 'legFar', far: true, scale: 'leg' },
+      ],
+      front: [
+        { slot: 'chest', socket: 'chest' },
+        { slot: 'legs', socket: 'leg', scale: 'leg' },
+        { slot: 'wings', socket: 'wing', scale: 'wing', anim: 'flap' },
+        {
+          slot: 'head', socket: 'head', scale: 'head', anim: 'head',
+          behind: [{ slot: 'crest', socket: 'crest' }],
+          front: [
+            { slot: 'face', socket: 'face', small: true },
+            { slot: 'eyes', socket: 'eyeFar', far: true, scale: 'eye', small: true },
+            { slot: 'eyes', socket: 'eye', scale: 'eye', small: true },
+            { slot: 'beak', socket: 'beak', small: true },
+          ],
+        },
+      ],
+    },
+    mannequin: {
+      parts: {
+        body: 'b.body.songbird', head: 'b.head.round', eyes: 'b.eyes.bead', beak: 'b.beak.short', crest: 'b.crest.none', face: 'b.face.none',
+        wings: 'b.wings.rounded', tail: 'b.tail.fan', legs: 'b.legs.thin', chest: 'b.chest.none', back: 'b.back.none', pattern: 'b.pattern.none',
+      },
+      forSlot: {},
+      accentSlots: ['beak', 'crest', 'face', 'wings', 'tail', 'legs', 'chest', 'back', 'pattern'],
+    },
+  },
 };
 
 export const RIG_IDS = Object.keys(RIGS);
