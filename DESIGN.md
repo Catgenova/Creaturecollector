@@ -714,8 +714,8 @@ into the collection on load.
   the box. Deposit and withdraw happen only there (the Party sheet elsewhere
   reorders and inspects); a capture with a full party goes straight to
   storage, and scrolls teach party members only. Release (Party or Storage
-  sheet, or the creature's own Info sheet; two taps, the button arms in
-  place) lets a creature go for good; the party always keeps at least one,
+  sheet, or the Release button in the head of the creature's own Info sheet;
+  two taps, the button arms in place) lets a creature go for good; the party always keeps at least one,
   and released creatures remain in the collection. Sheet re-renders keep
   the scroll position (`owKeepScroll`).
 - **Wipe.** When nobody can fight after a loss the party returns to the last

@@ -78,19 +78,19 @@ function abilityCard(g) {
 }
 
 /**
- * Release from the sheet: two taps, the second within a few seconds. opts = { can, reason?, onRelease() -> boolean };
- * the sheet closes when onRelease reports success.
+ * Release, in the sheet head beside the close button: two taps, the second within a few seconds.
+ * opts = { can, reason?, onRelease() -> boolean }; the sheet closes when onRelease reports success.
  */
-function releaseSection(g, opts, close) {
+function releaseButton(opts, close) {
   let armed = false, timer = 0;
-  const paint = () => { btn.textContent = armed ? `Really release ${g.name}?` : `Release ${g.name}`; btn.classList.toggle('danger', armed); };
-  const btn = h('button', { class: 'btn', type: 'button', disabled: !opts.can, title: opts.can ? '' : (opts.reason || ''), onclick: () => {
+  const paint = () => { btn.textContent = armed ? 'Really release?' : 'Release'; btn.classList.toggle('danger', armed); };
+  const btn = h('button', { class: 'btn small head-release', type: 'button', disabled: !opts.can, title: opts.can ? 'Let this creature go for good; it stays in your Collection' : (opts.reason || ''), onclick: () => {
     if (!armed) { armed = true; paint(); clearTimeout(timer); timer = setTimeout(() => { armed = false; if (btn.isConnected) paint(); }, 4000); return; }
     clearTimeout(timer); armed = false;
     if (opts.onRelease()) close(); else paint();
   } }, '');
   paint();
-  return section('Release', h('p', { class: 'hint' }, opts.can ? 'Lets this creature go for good. It stays in your Collection. Tap twice.' : (opts.reason || 'This creature cannot be released right now.')), h('div', { class: 'row' }, btn));
+  return btn;
 }
 
 let activeSheet = null;
@@ -116,6 +116,7 @@ export function openSheet(g, sheetOpts = {}) {
       typeChips(g.types),
       styleChip(g),
       elementalBadge(g),
+      sheetOpts.release ? releaseButton(sheetOpts.release, close) : null,
       h('button', { class: 'btn close', onclick: close, 'aria-label': 'Close' }, '✕')),
     h('p', { class: 'meta' }, sp ? `${sp.name} · ${sp.tier}` : 'Fusion', ` · ${cladeName(cladeOf(g))} · gen ${g.gen} · seed ${g.seed}`),
     abilityCard(g),
@@ -135,7 +136,6 @@ export function openSheet(g, sheetOpts = {}) {
     ...section('Parts', partRows(g)),
     ...section('Palette', h('div', { class: 'swatches' }, ['c1', 'c2', 'c3', 'eye'].map((k) => h('span', { class: 'sw', title: k, style: { background: swatchCss(g.palette[k]) } })))),
     ...section('Traits', traitRows(g)),
-    ...(sheetOpts.release ? releaseSection(g, sheetOpts.release, close) : []),
   );
   document.body.append(backdrop, sheet);
   document.addEventListener('keydown', onKey);
