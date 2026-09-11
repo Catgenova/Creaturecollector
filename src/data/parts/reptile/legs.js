@@ -7,8 +7,8 @@ import { rLeg, claws } from './_shared.js';
 import { SH, HL, L, C, P } from '../_dsl.js';
 import { evoFan, evoBands, evoRing } from '../_evo.js';
 
-const rShadeBack = SH('M-16,-20 L-4,-20 L-3,46 L-16,46 Z', 0.12);
-const rLightFront = HL('M2,-6 L6,-6 L6,12 L3,12 Z', 0.16);
+const rShadeFront = SH('M1,-20 L13,-20 L13,46 L1,46 Z', 0.12);
+const rLightBack = HL('M-7,-6 L-3,-6 L-3,12 L-6,12 Z', 0.16);
 const pads = (x, y, r = 2.2) => [C(x, y, r, 'a', { sw: 1 }), C(x + 6, y + 1, r, 'a', { sw: 1 }), C(x + 12, y, r, 'a', { sw: 1 })];
 
 /** foot = [x0, x1, y, n] claw row (null for clawless feet), ankleY = band start, spur = [x, y, angle] at the joint, o.pads = [x, y]. */
@@ -26,43 +26,43 @@ export const R_LEGS_FRONT = [
   rLeg({
     id: 'lizard', slot: 'legsFront', name: 'Splayed', tags: ['lizard'], dom: 0.5, w: 3,
     shapes: [[[-7, -6], [4, -9], [10, -2], [10, 10], [10, 18], [18, 22], [22, 26, 'c'], [16, 28], [4, 28], [-4, 26], [-6, 18], [-7, 8]]],
-    extra: [rShadeBack, rLightFront, L('M-4,10 C0,12 6,12 9,10', 'k', 1.2, { op: 0.25 }), ...claws(6, 20, 27, 3, 4)],
+    extra: [rShadeFront, rLightBack, L('M-4,10 C0,12 6,12 9,10', 'k', 1.2, { op: 0.25 }), ...claws(6, 20, 27, 3, 4)],
     stages: rLegStages([6, 20, 27, 3], 14, [-4, 20, 160]),
   }),
   rLeg({
     id: 'croc', slot: 'legsFront', name: 'Stubby', tags: ['croc'], dom: 0.5, w: 2,
     shapes: [[[-9, -6], [4, -9], [12, -2], [12, 10], [14, 18], [20, 20], [22, 24, 'c'], [14, 26], [0, 26], [-8, 22], [-9, 12]]],
-    extra: [rShadeBack, rLightFront, L('M-6,6 C0,8 6,8 11,6 M-6,12 C0,14 8,14 12,12', 'k', 1.1, { op: 0.25 }), ...claws(4, 20, 25, 3, 4)],
+    extra: [rShadeFront, rLightBack, L('M-6,6 C0,8 6,8 11,6 M-6,12 C0,14 8,14 12,12', 'k', 1.1, { op: 0.25 }), ...claws(4, 20, 25, 3, 4)],
     stages: rLegStages([4, 20, 25, 3], 12, [-6, 18, 160]),
   }),
   rLeg({
     id: 'turtle', slot: 'legsFront', name: 'Stump', tags: ['turtle'], dom: 0.45, w: 2,
     shapes: [[[-10, -4], [2, -8], [12, -2], [13, 10], [12, 20], [6, 24], [-6, 24], [-12, 18], [-12, 8]]],
-    extra: [rShadeBack, L('M-8,4 C-2,6 6,6 11,4 M-8,12 C-2,14 6,14 11,12', 'k', 1.1, { op: 0.25 }), ...claws(-4, 8, 23, 3, 3)],
+    extra: [rShadeFront, L('M-8,4 C-2,6 6,6 11,4 M-8,12 C-2,14 6,14 11,12', 'k', 1.1, { op: 0.25 }), ...claws(-4, 8, 23, 3, 3)],
     stages: rLegStages([-4, 8, 23, 3], 10, [-10, 14, 170]),
   }),
   rLeg({
     id: 'dragon', slot: 'legsFront', name: 'Talon', tags: ['dragon'], dom: 0.55, w: 2,
     shapes: [[[-8, -8], [4, -12], [11, -4], [10, 10], [10, 22], [16, 28], [20, 32, 'c'], [14, 34], [2, 34], [-5, 30], [-6, 20], [-8, 8]]],
-    extra: [rShadeBack, rLightFront, L('M-4,12 C0,14 6,14 9,12', 'k', 1.2, { op: 0.25 }), ...claws(2, 18, 33, 3, 5)],
+    extra: [rShadeFront, rLightBack, L('M-4,12 C0,14 6,14 9,12', 'k', 1.2, { op: 0.25 }), ...claws(2, 18, 33, 3, 5)],
     stages: rLegStages([2, 18, 33, 3], 18, [-4, 24, 160]),
   }),
   rLeg({
     id: 'chameleon', slot: 'legsFront', name: 'Mitten', tags: ['chameleon'], dom: 0.5, w: 2,
     shapes: [[[-7, -6], [4, -9], [10, -2], [9, 10], [8, 20], [14, 24], [16, 28, 'c'], [10, 32], [-2, 32], [-6, 28], [-6, 18], [-7, 8]]],
-    extra: [rShadeBack, rLightFront, L('M4,24 L4,31', 'k', 1.4, { op: 0.5 }), L('M-4,10 C0,12 6,12 8,10', 'k', 1.2, { op: 0.25 })],
+    extra: [rShadeFront, rLightBack, L('M4,24 L4,31', 'k', 1.4, { op: 0.5 }), L('M-4,10 C0,12 6,12 8,10', 'k', 1.2, { op: 0.25 })],
     stages: rLegStages(null, 18, [-4, 22, 160]),
   }),
   rLeg({
     id: 'raptor', slot: 'legsFront', name: 'Grasper', tags: ['raptor', 'small'], dom: 0.45, w: 2,
     shapes: [[[-6, -6], [3, -8], [8, -2], [7, 8], [6, 16], [12, 18], [14, 22, 'c'], [8, 24], [-2, 22], [-5, 16], [-6, 8]]],
-    extra: [rShadeBack, rLightFront, ...claws(2, 12, 23, 3, 4)],
+    extra: [rShadeFront, rLightBack, ...claws(2, 12, 23, 3, 4)],
     stages: rLegStages([2, 12, 23, 3], 10, [-4, 16, 160]),
   }),
   rLeg({
     id: 'gecko', slot: 'legsFront', name: 'Padded', tags: ['gecko'], dom: 0.5, w: 2,
     shapes: [[[-7, -6], [4, -9], [10, -2], [10, 10], [10, 18], [18, 20], [22, 24, 'c'], [16, 28], [4, 28], [-4, 26], [-6, 18], [-7, 8]]],
-    extra: [rShadeBack, rLightFront, ...pads(6, 26)],
+    extra: [rShadeFront, rLightBack, ...pads(6, 26)],
     stages: rLegStages(null, 14, [-4, 20, 160], { pads: [6, 26] }),
   }),
 ];

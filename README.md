@@ -63,7 +63,9 @@ Creature polish: accents are kept a clear perceptual step away from the base
 colours on every roll, fusion and load; a fusion's coat follows the parent that
 supplied most of its parts while the accent and eyes travel with the face; and
 a head that was not drawn for its body is eased toward the body's designed
-proportion.
+proportion. Every creature is lit from the upper left, small renders drop fine
+detail so silhouettes stay clean in lists, and shadows are sized to the body
+with contact shadows under standing feet.
 
 ## Develop
 

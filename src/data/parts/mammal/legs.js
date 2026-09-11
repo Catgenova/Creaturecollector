@@ -7,51 +7,51 @@ import { mLeg, toes, sock } from './_shared.js';
 import { SH, HL, L } from '../_dsl.js';
 import { evoLegStages } from '../_evo.js';
 
-const shadeBack = SH('M-14,-16 L-3,-16 L-2,50 L-14,50 Z', 0.12);
-const lightFront = HL('M2,-6 L6,-6 L6,20 L3,20 Z', 0.16);
+const shadeFront = SH('M1,-16 L12,-16 L12,50 L1,50 Z', 0.12);
+const lightBack = HL('M-8,-6 L-4,-6 L-4,20 L-7,20 Z', 0.16);
 
 export const M_LEGS_FRONT = [
   mLeg({
     id: 'fox', slot: 'legsFront', name: 'Slim', tags: ['fox'], dom: 0.5, w: 3,
     shapes: [[[-9, -8], [2, -12], [10, -6], [9, 8], [8, 26], [13, 33], [15, 39, 0.3], [9, 43], [-5, 42], [-8, 36], [-8, 26], [-9, 8]]],
-    extra: [sock(22, 'a'), shadeBack, lightFront, toes(-2, 12, 42, 2, 3)],
+    extra: [sock(22, 'a'), shadeFront, lightBack, toes(-2, 12, 42, 2, 3)],
     stages: evoLegStages([-2, 12, 42], 30),
   }),
   mLeg({
     id: 'cat', slot: 'legsFront', name: 'Dainty', tags: ['cat'], dom: 0.5, w: 3,
     shapes: [[[-8, -8], [3, -11], [9, -5], [8, 10], [7, 28], [10, 34], [12, 39, 0.3], [6, 42], [-6, 41], [-8, 35], [-8, 26], [-9, 10]]],
-    extra: [sock(32, 's'), shadeBack, lightFront, toes(-2, 10, 41, 2, 3)],
+    extra: [sock(32, 's'), shadeFront, lightBack, toes(-2, 10, 41, 2, 3)],
     stages: evoLegStages([-2, 10, 41], 30),
   }),
   mLeg({
     id: 'bear', slot: 'legsFront', name: 'Thick', tags: ['bear'], dom: 0.55, w: 2,
     shapes: [[[-11, -8], [2, -12], [12, -6], [12, 10], [12, 28], [16, 34], [17, 40, 0.3], [9, 44], [-8, 43], [-12, 36], [-12, 26], [-12, 10]]],
-    extra: [shadeBack, SH('M-14,34 L20,34 L20,48 L-14,48 Z', 0.1), HL('M2,-6 L7,-6 L7,22 L3,22 Z', 0.14), toes(-6, 14, 43, 3, 4)],
+    extra: [shadeFront, SH('M-14,34 L20,34 L20,48 L-14,48 Z', 0.1), HL('M-9,-6 L-5,-6 L-5,22 L-8,22 Z', 0.14), toes(-6, 14, 43, 3, 4)],
     stages: evoLegStages([-6, 14, 43], 30, { claws: 4 }),
   }),
   mLeg({
     id: 'rabbit', slot: 'legsFront', name: 'Short', tags: ['rabbit'], dom: 0.45, w: 2,
     shapes: [[[-7, -6], [2, -9], [8, -4], [7, 8], [6, 20], [10, 26], [12, 31, 0.3], [6, 34], [-5, 33], [-7, 28], [-7, 20], [-8, 8]]],
-    extra: [shadeBack, HL('M2,-4 L5,-4 L5,16 L3,16 Z', 0.16), toes(-2, 10, 33, 2, 2.5)],
+    extra: [shadeFront, HL('M-7,-4 L-4,-4 L-4,16 L-6,16 Z', 0.16), toes(-2, 10, 33, 2, 2.5)],
     stages: evoLegStages([-2, 10, 33], 22),
   }),
 
   mLeg({
     id: 'deer', slot: 'legsFront', name: 'Slender', tags: ['deer', 'hoofed'], dom: 0.5, w: 2,
     shapes: [[[-7, -8], [3, -11], [8, -5], [7, 10], [6, 30], [7, 40], [9, 46, 'c'], [8, 50], [-4, 50], [-6, 46], [-5, 40], [-6, 26], [-7, 10]]],
-    extra: [sock(43, 'a', -30, 30, 1.5), L('M1,45 L1,50', 'k', 1.2, { op: 0.5 }), SH('M-10,-14 L-2,-14 L-1,54 L-10,54 Z', 0.12), HL('M2,-4 L5,-4 L5,22 L3,22 Z', 0.16)],
+    extra: [sock(43, 'a', -30, 30, 1.5), L('M1,45 L1,50', 'k', 1.2, { op: 0.5 }), SH('M1,-14 L9,-14 L9,54 L1,54 Z', 0.12), HL('M-7,-4 L-4,-4 L-4,22 L-6,22 Z', 0.16)],
     stages: evoLegStages([0, 0, 50], 36, { hoof: [-4, 44] }),
   }),
   mLeg({
     id: 'wolf', slot: 'legsFront', name: 'Sturdy', tags: ['wolf'], dom: 0.55, w: 2,
     shapes: [[[-10, -8], [2, -12], [11, -6], [10, 8], [9, 26], [14, 33], [16, 39, 0.3], [10, 44], [-6, 43], [-10, 36], [-9, 26], [-10, 8]]],
-    extra: [shadeBack, SH('M-12,34 L20,34 L20,48 L-12,48 Z', 0.1), lightFront, toes(-4, 14, 43, 3, 3.5)],
+    extra: [shadeFront, SH('M-12,34 L20,34 L20,48 L-12,48 Z', 0.1), lightBack, toes(-4, 14, 43, 3, 3.5)],
     stages: evoLegStages([-4, 14, 43], 30, { claws: 4 }),
   }),
   mLeg({
     id: 'mouse', slot: 'legsFront', name: 'Tiny', tags: ['mouse'], dom: 0.4, w: 3,
     shapes: [[[-6, -6], [2, -8], [7, -3], [6, 8], [5, 18], [9, 22], [10, 26, 0.3], [5, 29], [-4, 28], [-6, 24], [-6, 16], [-7, 8]]],
-    extra: [sock(20, 'a', -30, 30, 2), SH('M-9,-10 L-2,-10 L-1,32 L-9,32 Z', 0.12), HL('M2,-3 L4.5,-3 L4.5,12 L2.5,12 Z', 0.16), toes(-2, 8, 28, 2, 2.2)],
+    extra: [sock(20, 'a', -30, 30, 2), SH('M1,-10 L8,-10 L8,32 L1,32 Z', 0.12), HL('M-6,-3 L-3.5,-3 L-3.5,12 L-5.5,12 Z', 0.16), toes(-2, 8, 28, 2, 2.2)],
     stages: evoLegStages([-2, 8, 28], 18, { claws: 2 }),
   }),
 ];

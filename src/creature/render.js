@@ -80,7 +80,7 @@ function primSvg(pr, ctx) {
   else fill = hsl(...fam.base);
   const stroke = pr.ns ? ' stroke="none"' : ` stroke="${ctx.ol}" stroke-width="${num(pr.sw != null ? pr.sw : st.lineIn)}" stroke-linejoin="round" stroke-linecap="round" paint-order="stroke"`;
   let out = shapeTag(pr, `fill="${fill}"${stroke}${op}`);
-  if (st.rims && !pr.ns && pr.f !== 'none' && pr.f !== 'k' && !ctx.small) {
+  if (st.rims && !pr.ns && pr.f !== 'none' && pr.f !== 'k' && !ctx.small && !ctx.low) {
     const id = `${ctx.uid}-c${ctx.shared.n++}`;
     out += `<clipPath id="${id}">${shapeTag(pr, '')}</clipPath><g clip-path="url(#${id})">`;
     if (st.rims === 'white') {
@@ -104,7 +104,10 @@ function partClipShapes(part) {
 /** All prims of a part in a context. Prims flagged `cl` are clipped to the part's own silhouette. */
 function partPrimsCtx(part, ctx) {
   let out = '', clipped = '';
-  for (const pr of part.prims) {
+  const fine = ctx.low && ctx.slot !== 'eyes' ? finePrimIndexes(part) : null;
+  for (let i = 0; i < part.prims.length; i++) {
+    const pr = part.prims[i];
+    if (fine && fine.has(i)) continue;
     if (pr.cl) { if (ctx.mode !== 'outline') clipped += primSvg(pr, ctx); }
     else {
       if (clipped) { out += flushClip(part, ctx, clipped); clipped = ''; }
@@ -121,6 +124,38 @@ function flushClip(part, ctx, inner) {
 
 /** Classic-style primitives for a part (used by tests and tools). */
 export function partPrims(part) { return part.prims.map(classicPrim).join(''); }
+
+// ---- level of detail ------------------------------------------------------------
+//
+// Below about half a pixel per creature unit (party rows, pool grids, the Part Lab) fine
+// detail is noise: hairline strokes, dots and faint washes blur into the fill and only cost
+// clip paths. Such prims are tagged once per part and skipped at low detail, so small
+// renders keep the silhouette and the big shapes. Eyes are never thinned.
+
+export const LOD = { minPx: 0.5, dot: 1.8, line: 1.2, mark: 5, wash: 0.14 };
+const fineCache = new WeakMap();
+
+function pathExtent(d) {
+  let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
+  for (const [x, y] of pathPoints(d)) { if (x < x0) x0 = x; if (x > x1) x1 = x; if (y < y0) y0 = y; if (y > y1) y1 = y; }
+  return x0 === Infinity ? 0 : Math.max(x1 - x0, y1 - y0);
+}
+
+/** Is this primitive fine detail a small render can drop: a faint wash, a dot, a hairline or a tiny unstroked mark? */
+export function isFinePrim(pr) {
+  if (pr.cl && (pr.op == null ? 1 : pr.op) <= LOD.wash) return true;
+  if (pr.t === 'circle') return pr.r < LOD.dot;
+  if (pr.t === 'ellipse') return Math.max(pr.rx, pr.ry) < LOD.dot;
+  if (pr.t === 'line') return pr.w <= LOD.line;
+  return Boolean(pr.ns) && !pr.cl && pathExtent(pr.d) < LOD.mark;
+}
+
+/** Indexes of a part's fine-detail prims, cached per part object. */
+export function finePrimIndexes(part) {
+  let s = fineCache.get(part);
+  if (!s) { s = new Set(); (part.prims || []).forEach((pr, i) => { if (isFinePrim(pr)) s.add(i); }); fineCache.set(part, s); }
+  return s;
+}
 
 // ---- colours for the styled renderers ------------------------------------------
 
@@ -268,7 +303,7 @@ export function traitScales(traits = {}) {
 }
 
 /** Shared per-render state: style, outline colour, gradient defs and the per-slot context cache. */
-function renderSetup(g, id, styleName) {
+function renderSetup(g, id, styleName, low = false) {
   const st = STYLE[styleName] || STYLE.classic;
   const styled = st !== STYLE.classic;
   const shared = { n: 0, defs: [], grads: new Map() };
@@ -279,7 +314,7 @@ function renderSetup(g, id, styleName) {
     if (ctxCache.has(key)) return ctxCache.get(key);
     const colors = styled ? styledColors(g, slot, far, st) : null;
     const ctx = {
-      st, uid: id, slot, far, mode, ol, shared, colors, small: Boolean(extra.small), noOutline: Boolean(extra.noOutline),
+      st, uid: id, slot, far, mode, ol, shared, colors, small: Boolean(extra.small), noOutline: Boolean(extra.noOutline), low,
       grad(role) {
         const gid = `${id}-g-${slot}${far ? 'f' : ''}-${role}`;
         if (!shared.grads.has(gid)) {
@@ -327,8 +362,8 @@ export const FIT_FRAME = { w: 100, h: 60 };
  * Returns { layers, defs, box, feet, hover, K, body, clip } where box is the
  * creature's bounds in creature space (body centre = 0,0).
  */
-function buildRigged(g, id, styleName, rig, stage = 1) {
-  const R = renderSetup(g, id, styleName);
+function buildRigged(g, id, styleName, rig, stage = 1, low = false) {
+  const R = renderSetup(g, id, styleName, low);
   const { st, styled, shared, ctxFor, wrap, farWrap, fxWrap } = R;
   const base = resolveParts(g);
   const P = {};
@@ -343,10 +378,13 @@ function buildRigged(g, id, styleName, rig, stage = 1) {
   const bodyBox = body.box || partBounds(body);
 
   let box = null, feet = -Infinity;
-  const grow = (part, chain, slot) => {
+  const contacts = [];
+  const grow = (part, chain, node) => {
     const b = boxThrough(partBounds(part), chain);
     box = union(box, b);
-    if (ground.has(slot)) feet = Math.max(feet, b[3] - 2);
+    if (!ground.has(node.slot)) return;
+    feet = Math.max(feet, b[3] - 2);
+    if (node.slot !== 'body') contacts.push({ x: (b[0] + b[2]) / 2, y: b[3] - 2, w: b[2] - b[0], far: Boolean(node.far) });
   };
 
   /** The slots drawn on the body under its clip (markings), scaled from the authoring frame onto the body box. */
@@ -382,7 +420,7 @@ function buildRigged(g, id, styleName, rig, stage = 1) {
         if (sk.flip) t.sx = -t.sx;
       } else t = xf(0, 0, 0, 1);
       const chain = [t, ...outer];
-      if (measure) grow(part, chain, node.slot);
+      if (measure) grow(part, chain, node);
       let inner = '';
       for (const c of node.behind || []) inner += drawNode(c, part, chain);
       let own = pp(part, node.slot, Boolean(node.far), { small: node.small, noOutline: node.noOutline });
@@ -401,12 +439,42 @@ function buildRigged(g, id, styleName, rig, stage = 1) {
   const layers = assemble('normal');
   if (!Number.isFinite(feet)) feet = bodyBox[3];
   if (typeof body.bottom === 'number') feet = Math.max(feet, body.bottom);
-  return { layers: [...outline, ...layers], defs: shared.defs.join(''), box: box || [-40, -40, 40, 40], feet, hover, K, body, clip: body.clip || [], elems: R.elems, wholeAura: R.wholeAura };
+  return {
+    layers: [...outline, ...layers], defs: shared.defs.join(''), box: box || [-40, -40, 40, 40], feet, hover, K, body, bodyBox,
+    contacts: mergeContacts(contacts.filter((c) => c.y >= feet - 5)), clip: body.clip || [], elems: R.elems, wholeAura: R.wholeAura,
+  };
 }
 
-function buildCreature(g, id, styleName, stage = 1) {
-  return buildRigged(g, id, styleName, getRig(rigOf(g)), stage);
+/** Feet that stand close together (a near and a far leg) share one contact shadow; at most six. */
+function mergeContacts(list) {
+  const out = [];
+  for (const c of [...list].sort((p, q) => p.x - q.x)) {
+    const last = out[out.length - 1];
+    if (last && c.x - last.x < 7) { if (!c.far) { last.x = c.x; last.far = false; } last.w = Math.max(last.w, c.w); }
+    else out.push({ ...c });
+  }
+  return out.slice(0, 6);
 }
+
+function buildCreature(g, id, styleName, stage = 1, low = false) {
+  return buildRigged(g, id, styleName, getRig(rigOf(g)), stage, low);
+}
+
+/**
+ * Ground shadow: sized to the body and centred under it, falling a little to the right because
+ * the light comes from the upper left; smaller, lighter and further right under a hovering creature.
+ */
+function shadowGeom(built, facing) {
+  const sc = built.K.size, flip = facing === 'left' ? -1 : 1;
+  const bb = built.bodyBox;
+  const lift = built.hover ? Math.min(1, built.hover / 20) : 0;
+  const rx = clamp((bb[2] - bb[0]) * sc * 0.5, 14, 60) * (1 - 0.35 * lift);
+  const ry = rx * 0.2 * (1 - 0.25 * lift);
+  const cx = FRAME.w / 2 + (flip * sc * (bb[0] + bb[2])) / 2 + rx * (0.08 + 0.18 * lift);
+  return { cx, cy: FRAME.ground, rx, ry, op: 0.18 - 0.08 * lift };
+}
+
+const shadowBox = (s) => [s.cx - s.rx, s.cy - s.ry, s.cx + s.rx, s.cy + s.ry];
 
 /** Canvas-space transform that places a built creature on the ground line. */
 function placement(built, facing) {
@@ -422,10 +490,7 @@ function placement(built, facing) {
 export function measureCreature(g, facing = 'right', stage = 1) {
   const built = buildCreature(g, 'm', 'classic', stage);
   const chain = placement(built, facing);
-  const box = boxThrough(built.box, chain);
-  const sc = built.K.size;
-  const shadowRx = 36 * sc * (built.hover ? 0.7 : 1), shadowRy = 7 * sc;
-  return union(box, [FRAME.w / 2 - shadowRx, FRAME.ground - shadowRy, FRAME.w / 2 + shadowRx, FRAME.ground + shadowRy]);
+  return union(boxThrough(built.box, chain), shadowBox(shadowGeom(built, facing)));
 }
 
 /**
@@ -433,21 +498,23 @@ export function measureCreature(g, facing = 'right', stage = 1) {
  * opts: size (px width), facing ('right' | 'left'), animate (bool), id (svg id prefix),
  *       label (aria), fit (crop the viewBox to the creature instead of the fixed frame),
  *       style (one of RENDER_STYLES; defaults to the global render style),
- *       stage (1..3 evolution stage) or level (the stage is derived from it)
+ *       stage (1..3 evolution stage) or level (the stage is derived from it),
+ *       detail ('low' | 'full'; by default small renders drop fine detail, see LOD)
  */
 export function renderCreatureSvg(g, opts = {}) {
   const { size = 200, facing = 'right', animate = true, fit = false } = opts;
   const styleName = RENDER_STYLES.includes(opts.style) ? opts.style : renderStyle;
   const id = opts.id || uid('cr');
   const stage = opts.stage ? Math.max(1, Math.min(3, Math.round(opts.stage))) : stageOf(opts.level);
-  const built = buildCreature(g, id, styleName, stage);
+  const scale0 = traitScales(g.traits).size * (STAGE_SIZE[stage] || 1);
+  const low = opts.detail === 'low' || (opts.detail !== 'full' && (size * scale0) / FRAME.w < LOD.minPx);
+  const built = buildCreature(g, id, styleName, stage, low);
   const chain = placement(built, facing);
-  const sc = built.K.size;
-  const shadowRx = 36 * sc * (built.hover ? 0.7 : 1), shadowRy = 7 * sc;
+  const sh = shadowGeom(built, facing);
 
   let vb = [0, 0, FRAME.w, FRAME.h];
   if (fit) {
-    const b = union(boxThrough(built.box, chain), [FRAME.w / 2 - shadowRx, FRAME.ground - shadowRy, FRAME.w / 2 + shadowRx, FRAME.ground + shadowRy]);
+    const b = union(boxThrough(built.box, chain), shadowBox(sh));
     const pad = 8;
     vb = [b[0] - pad, b[1] - pad, b[2] - b[0] + pad * 2, b[3] - b[1] + pad * 2];
   }
@@ -459,11 +526,15 @@ export function renderCreatureSvg(g, opts = {}) {
   const shadowFill = styleName === 'classic' ? 'var(--k)' : hsl(g.palette.c1[0], 30, 10);
   const fxDefs = [...(built.elems || [])].map((e) => elementFilterSvg(e, `${id}-fx-${e}`, live && !reducedMotion)).join('');
   const layers = built.wholeAura ? `<g filter="url(#${id}-fx-${built.wholeAura})">${built.layers.join('')}</g>` : built.layers.join('');
+  // Contact shadows: a small dark pool under each standing foot, on the ground line so the idle bob lifts the body off it.
+  const contact = !low && !built.hover && built.contacts.length
+    ? `<g class="cr-contact">${built.contacts.map((c) => { const rx = clamp(c.w * 0.4, 4, 14); return `<ellipse cx="${num(c.x)}" cy="${num(built.feet)}" rx="${num(rx)}" ry="${num(rx * 0.3)}" fill="${shadowFill}" opacity="${c.far ? 0.1 : 0.16}"/>`; }).join('')}</g>`
+    : '';
 
   return `<svg class="cr cr-${styleName}${live ? ' cr-live' : ''}" xmlns="http://www.w3.org/2000/svg" viewBox="${vb.map(num).join(' ')}" width="${size}" height="${height}" role="img" aria-label="${escapeHtml(label)}" style="${paletteVars(g.palette)}">` +
     `<defs><clipPath id="${id}-clip">${clip}</clipPath>${built.defs}${fxDefs}</defs>` +
-    `<ellipse class="cr-shadow" cx="${num(FRAME.w / 2)}" cy="${FRAME.ground}" rx="${num(shadowRx)}" ry="${num(shadowRy)}" fill="${shadowFill}" opacity="0.18"/>` +
-    `<g transform="${tf(chain[1])} translate(0 ${num(chain[0].y)})">` +
+    `<ellipse class="cr-shadow" cx="${num(sh.cx)}" cy="${sh.cy}" rx="${num(sh.rx)}" ry="${num(sh.ry)}" fill="${shadowFill}" opacity="${num(sh.op)}"/>` +
+    `<g transform="${tf(chain[1])} translate(0 ${num(chain[0].y)})">${contact}` +
     `<g class="cr-anim"${delay}>${layers}</g></g></svg>`;
 }
 

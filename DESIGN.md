@@ -118,6 +118,29 @@ shade variants. Outlines come from one CSS rule (`.cr .o`) with
 outline-colour washes (`SH`) and white washes (`HL`) clipped to the part's own
 silhouette, so they survive any recolour.
 
+**One light.** Every creature is lit from the upper left: highlight washes
+(`HL`) sit on upper-left faces and shade washes (`SH`) on lower-right ones, the
+styled renderers' gradients run light top-left to dark bottom-right and their
+rims put the light edge top-left. A data test scores each translucent path wash
+by its position in the part's box and fails when a highlight drifts lower-right
+or a shade upper-left. Dots and eyespots drawn in the same roles are pattern,
+not lighting, and are exempt.
+
+**Level of detail.** Below about half a pixel per creature unit (`LOD.minPx`:
+party rows, pool grids, the Part Lab) hairline strokes (width ≤ 1.2), dots
+(radius < 1.8), tiny unstroked marks and faint clipped washes (opacity ≤ 0.14)
+only blur the fill and cost clip paths, so `renderCreatureSvg` drops them;
+`isFinePrim` tags them once per part. Eyes are never thinned, and the styled
+rims are skipped too. `opts.detail: 'full' | 'low'` overrides the size rule.
+
+**Grounding.** The ground shadow is an ellipse half the body's width (clamped
+14–60), one fifth as tall, centred under the body box and shifted a little to
+the right so it agrees with the light; a hovering body gets a smaller, lighter
+shadow pushed further right. Standing feet (the rig's `ground` slots whose
+lowest point reaches the floor) each get a small contact shadow on the ground
+line, drawn outside the idle-bob group so the body lifts off them; a near and
+a far foot that stand together share one. Small renders skip contact shadows.
+
 The frame is fixed (200 × 230, ground at y = 208) so sizes are comparable.
 `opts.fit` crops to the creature's bounds, computed by flattening every path,
 for hero shots. Animation is CSS only: idle bob, head nod, tail sway, wing flap;
