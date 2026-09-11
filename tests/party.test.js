@@ -5,7 +5,7 @@ import { SPECIES_BY_ID } from '../src/data/species.js';
 import { getMove } from '../src/data/moves.js';
 import { speciesGenome, learnsetOf } from '../src/creature/genome.js';
 import { createBattle, makeBattler, captureChance, legalActions, step } from '../src/battle/engine.js';
-import { PARTY, XP, xpForLevel, xpReward, makeMember, memberMaxHp, xpProgress, gainXp, movesLearnedBetween, learnMove, healParty, moveMember, setLead, canFight, memberById } from '../src/game/party.js';
+import { PARTY, XP, xpForLevel, xpReward, makeMember, memberMaxHp, xpProgress, gainXp, movesLearnedBetween, learnMove, healParty, moveMember, setLead, canFight, memberById, releaseMember } from '../src/game/party.js';
 
 const ember = (seed, level = 8) => makeMember(speciesGenome(SPECIES_BY_ID.emberox, makeRng(seed)), level, `u-${seed}`);
 
@@ -101,4 +101,19 @@ test('capture odds behave and a capture ends the battle as a win', () => {
   assert.ok(caught, 'a capture landed within 40 seeds');
   assert.equal(caught.state.phase, 'over');
   assert.equal(caught.state.winner, 0);
+});
+
+test('release lets a creature go from the party or the box, but never the last one with you', () => {
+  const owner = { party: [ember('r1'), ember('r2')], box: [ember('r3')], pendingLearns: [{ uid: 'u-r2', moveId: 'rake' }, { uid: 'u-r1', moveId: 'mend' }] };
+  assert.equal(releaseMember(owner, 'nobody').ok, false);
+  assert.equal(releaseMember(owner, 'u-r3').ok, true);
+  assert.deepEqual(owner.box, []);
+  const r = releaseMember(owner, 'u-r2');
+  assert.equal(r.ok, true); assert.equal(r.member.uid, 'u-r2');
+  assert.deepEqual(owner.party.map((m) => m.uid), ['u-r1']);
+  assert.deepEqual(owner.pendingLearns, [{ uid: 'u-r1', moveId: 'mend' }], 'queued learns for the released creature are dropped');
+  const last = releaseMember(owner, 'u-r1');
+  assert.equal(last.ok, false); assert.match(last.reason, /at least one/);
+  assert.equal(owner.party.length, 1);
+  assert.equal(memberById(owner, 'u-r2'), null);
 });

@@ -4,6 +4,8 @@
 import { MOVES, getMove } from '../data/moves.js';
 import { ITEMS, ITEM_IDS, getItem, potionHeal, potionUseful } from '../data/items.js';
 import { memberMaxHp } from './party.js';
+import { elementalOf } from '../creature/genome.js';
+import { ELEMENTS } from '../data/elements.js';
 
 /** A thousand gold per twenty points of power beyond the first forty; status and weak moves cost the base. */
 export const MARKET = { unit: 1000, powerPerUnit: 20, maxStack: 99 };
@@ -110,13 +112,37 @@ export function buyMove(j, moveId) {
 
 function bagMember(j, uid) { return [...j.party, ...j.box].find((m) => m.uid === uid) || null; }
 
-/** Can this scroll be taught to this creature? { ok, reason?, needsReplace } */
+/** The move types a creature can learn from scrolls: its own types, plus its Elemental aura's element when it has one. */
+export function scrollTypes(g) {
+  const out = [...(g && g.types ? g.types : [])];
+  const elem = elementalOf(g);
+  if (elem) for (const t of ELEMENTS[elem.id].types) if (!out.includes(t)) out.push(t);
+  return out;
+}
+
+/** Could this creature ever learn this scroll? Only moves of its own types, or of its Elemental element. { ok, reason? } */
+export function canLearnScroll(g, moveId) {
+  const mv = getMove(moveId);
+  if (!mv) return { ok: false, reason: 'No such move.' };
+  const types = scrollTypes(g);
+  if (types.includes(mv.type)) return { ok: true };
+  return { ok: false, reason: `${g.name} cannot learn ${mv.type} moves from a scroll; it learns ${types.join(' and ')}.` };
+}
+
+/** Names of the party and box members who can learn this scroll's type. */
+export function scrollLearners(j, moveId) {
+  return [...j.party, ...j.box].filter((m) => canLearnScroll(m.genome, moveId).ok).map((m) => m.genome.name);
+}
+
+/** Can this scroll be taught to this creature now? { ok, reason?, code?: 'type'|'known', needsReplace } */
 export function canTeach(j, uid, moveId) {
   const mv = getMove(moveId);
   if (!mv || bagCount(j, moveId) <= 0) return { ok: false, reason: 'No such scroll in the bag.', needsReplace: false };
   const m = bagMember(j, uid);
   if (!m) return { ok: false, reason: 'No such creature.', needsReplace: false };
-  if (m.moves.includes(moveId)) return { ok: false, reason: `${m.genome.name} already knows ${mv.name}.`, needsReplace: false };
+  const learn = canLearnScroll(m.genome, moveId);
+  if (!learn.ok) return { ok: false, reason: learn.reason, code: 'type', needsReplace: false };
+  if (m.moves.includes(moveId)) return { ok: false, reason: `${m.genome.name} already knows ${mv.name}.`, code: 'known', needsReplace: false };
   return { ok: true, needsReplace: m.moves.length >= 4 };
 }
 

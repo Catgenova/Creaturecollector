@@ -690,8 +690,11 @@ into the collection on load.
   1,000 (`moveCost`: 1,000 up to 40 power, 2,000 at 60, 3,000 at 70–80, 4,000
   at 85–100, 5,000 at 120, 6,000 at 130; status moves 1,000), filterable by
   type. Scrolls stack in the Bag (`journey.bag`, up to 99 each); teaching one
-  to any creature, party or box, adds the move or replaces a chosen one when it
-  already knows four, and uses the scroll up. The Market also sells potions
+  to a party member adds the move or replaces a chosen one when it already
+  knows four, and uses the scroll up. A creature learns only scrolls of its
+  own types, plus its Elemental element's types when it is one (a Water
+  creature born a Fire Elemental learns Water and Fire; `scrollTypes`,
+  `canLearnScroll`); the Market says who on the team can learn each scroll. The Market also sells potions
   (`src/data/items.js`): Potion 20 HP for 300, Super Potion 60 for 700, Hyper
   Potion 150 for 1,500, Max Potion full for 2,500, Full Restore full plus any
   status cured for 3,000. A potion works on a standing party member from the
@@ -705,7 +708,9 @@ into the collection on load.
 - **Creature Storage.** The Market's twin on the hub's north-west edge holds
   the box. Deposit and withdraw happen only there (the Party sheet elsewhere
   reorders and inspects); a capture with a full party goes straight to
-  storage, and scrolls teach party members only.
+  storage, and scrolls teach party members only. Release (Party or Storage
+  sheet, two taps) lets a creature go for good; the party always keeps at
+  least one, and released creatures remain in the collection.
 - **Wipe.** When nobody can fight after a loss the party returns to the last
   camp at full health (`respawnJourney`). No other penalty.
 - **Journey state.** `{ seed, phase: starter|roam|champion, party, box,

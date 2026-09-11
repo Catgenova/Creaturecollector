@@ -67,8 +67,9 @@ class's species by element type, with stronger and rarer creatures turning up
 less often; trainers on the roads fight when asked; each biome's Warden holds
 a badge; camps heal and set the respawn point; a shrine fuses; trainers pay
 gold that the Market turns into potions and single-use move scrolls for your
-Bag (potions work in battle too, and take the turn); the Creature Storage
-holds the box; experience follows Pokémon Red's formula, is shared by the
+Bag (potions work in battle too, and take the turn; a creature learns only
+scrolls of its own types or of its Elemental element); the Creature Storage
+holds the box and either sheet can release a creature for good; experience follows Pokémon Red's formula, is shared by the
 creatures that fought and reaches the rest of the party at half rate; move
 cards show accuracy and every side effect's odds, and PP follows power (the
 harder a move hits or the nastier its status, the fewer uses); and with seven badges the Council

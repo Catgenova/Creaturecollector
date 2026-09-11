@@ -95,6 +95,18 @@ export function moveMember(owner, uid, to) {
   return owner;
 }
 
+/** Let a creature go for good, from the party or the box. The party always keeps at least one. { ok, reason?, member? } */
+export function releaseMember(owner, uid) {
+  const m = memberById(owner, uid);
+  if (!m) return { ok: false, reason: 'No such creature.' };
+  if (owner.party.includes(m)) {
+    if (owner.party.length <= 1) return { ok: false, reason: 'Keep at least one creature with you.' };
+    owner.party = owner.party.filter((x) => x !== m);
+  } else owner.box = owner.box.filter((x) => x !== m);
+  if (Array.isArray(owner.pendingLearns)) owner.pendingLearns = owner.pendingLearns.filter((p) => p.uid !== uid);
+  return { ok: true, member: m };
+}
+
 export function setLead(owner, uid) {
   const i = owner.party.findIndex((m) => m.uid === uid);
   if (i > 0) owner.party.unshift(...owner.party.splice(i, 1));
