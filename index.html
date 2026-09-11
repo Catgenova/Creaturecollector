@@ -796,6 +796,56 @@ const RIGS = {
       accentSlots: ['beak', 'crest', 'face', 'wings', 'tail', 'legs', 'chest', 'back', 'pattern'],
     },
   },
+
+  insect: {
+    id: 'insect', name: 'Insect', prefix: 'i.',
+    slots: ['body', 'head', 'eyes', 'mandibles', 'antennae', 'wings', 'legsFront', 'legsMid', 'legsBack', 'tail', 'shell', 'pattern'],
+    names: {
+      body: 'Body', head: 'Head', eyes: 'Eyes', mandibles: 'Mandibles', antennae: 'Antennae', wings: 'Wings', legsFront: 'Front legs',
+      legsMid: 'Middle legs', legsBack: 'Hind legs', tail: 'Tail tip', shell: 'Shell', pattern: 'Pattern',
+    },
+    paint: ['body', 'head', 'antennae', 'wings', 'legsFront', 'legsMid', 'legsBack', 'tail', 'shell', 'pattern'],
+    swappable: ['antennae', 'wings', 'tail', 'shell', 'pattern'],
+    required: ['body', 'head', 'eyes', 'mandibles', 'antennae', 'legsFront', 'legsMid', 'legsBack'],
+    linked: [['legsFront', 'legsMid', 'legsBack'], ['head', 'mandibles']],
+    ground: ['body', 'legsFront', 'legsMid', 'legsBack'],
+    clipped: ['pattern'],
+    tree: {
+      slot: 'body', anim: 'body',
+      behind: [
+        { slot: 'legsBack', socket: 'legBackFar', far: true, scale: 'leg' },
+        { slot: 'legsMid', socket: 'legMidFar', far: true, scale: 'leg' },
+        { slot: 'legsFront', socket: 'legFrontFar', far: true, scale: 'leg' },
+        { slot: 'wings', socket: 'wingFar', far: true, scale: 'wing', anim: 'flap' },
+        { slot: 'tail', socket: 'tail', scale: 'tail' },
+      ],
+      front: [
+        { slot: 'shell', socket: 'shell' },
+        { slot: 'legsBack', socket: 'legBack', scale: 'leg' },
+        { slot: 'legsMid', socket: 'legMid', scale: 'leg' },
+        { slot: 'legsFront', socket: 'legFront', scale: 'leg' },
+        { slot: 'wings', socket: 'wing', scale: 'wing', anim: 'flap' },
+        {
+          slot: 'head', socket: 'head', scale: 'head', anim: 'head',
+          behind: [{ slot: 'antennae', socket: 'antennae' }],
+          front: [
+            { slot: 'eyes', socket: 'eyeFar', far: true, scale: 'eye', small: true },
+            { slot: 'eyes', socket: 'eye', scale: 'eye', small: true },
+            { slot: 'mandibles', socket: 'mandibles', small: true },
+          ],
+        },
+      ],
+    },
+    mannequin: {
+      parts: {
+        body: 'i.body.beetle', head: 'i.head.beetle', eyes: 'i.eyes.round', mandibles: 'i.mandibles.grin', antennae: 'i.antennae.short',
+        wings: 'i.wings.none', legsFront: 'i.legsFront.thin', legsMid: 'i.legsMid.thin', legsBack: 'i.legsBack.thin', tail: 'i.tail.none',
+        shell: 'i.shell.none', pattern: 'i.pattern.none',
+      },
+      forSlot: {},
+      accentSlots: ['antennae', 'wings', 'tail', 'shell', 'pattern'],
+    },
+  },
 };
 
 const RIG_IDS = Object.keys(RIGS);
@@ -3585,12 +3635,308 @@ const BIRD_PARTS = {
   wings: B_WINGS, tail: B_TAILS, legs: B_LEGS, chest: B_CHESTS, back: B_BACKS, pattern: B_PATTERNS,
 };
 
+// ---- src/data/parts/insect/_shared.js ----
+// Insect builders: the shared constructors namespaced with "i.".
+// Insects are small and low: a body is 60 to 90 wide and 30 tall, the head about 24 across,
+// legs jointed sticks about 26 long. Three leg pairs hang from the thorax and abdomen.
+
+
+
+const insectBuilders = partBuilders('i.');
+const iBody = insectBuilders.body;
+const iPart = insectBuilders.part;
+
+
+/** An outlined stick: a dark wide stroke under a coloured narrower one. */
+function stick(d, w = 3, role = 'p') {
+  return [L(d, 'k', w + 2.6), L(d, role, w)];
+}
+
+// ---- src/data/parts/insect/bodies.js ----
+// Insect bodies (thorax and abdomen). Origin = centre. Sockets: head (front of the thorax),
+// legFront / legMid / legBack and their Far copies (underside), wing / wingFar (top of the thorax),
+// tail (abdomen tip, rear), shell (top of the abdomen). Flyers hover.
+
+
+
+const I_BODIES = [
+  iBody({
+    id: 'beetle', name: 'Beetle', kind: 'insect.crawler', tags: ['beetle'], dom: 0.5, w: 3,
+    pts: [[26, -16], [36, -6], [34, 8], [22, 14], [0, 16], [-24, 14], [-40, 4], [-38, -10], [-24, -20], [-4, -22], [14, -20]],
+    shade: torsoShade(-40, 36, -22, 16, { shadeFrac: 0.35 }),
+    extra: [L('M18,-19 C15,-8 15,4 20,13', 'k', 1.6, { op: 0.35 })],
+    sockets: {
+      head: { x: 34, y: -6, a: 0, s: 1 }, legFront: { x: 26, y: 10 }, legFrontFar: { x: 18, y: 6 }, legMid: { x: 8, y: 14 }, legMidFar: { x: 0, y: 10 },
+      legBack: { x: -12, y: 14 }, legBackFar: { x: -20, y: 10 }, wing: { x: 6, y: -20, a: 0, s: 1 }, wingFar: { x: -4, y: -22, a: 0, s: 0.95 },
+      tail: { x: -40, y: -2, a: 0 }, shell: { x: -8, y: -6, a: 0, s: 1 },
+    },
+  }),
+  iBody({
+    id: 'bee', name: 'Bee', kind: 'insect.flyer', tags: ['bee', 'fuzzy'], dom: 0.5, w: 2, hover: 10,
+    pts: [[24, -18], [34, -8], [32, 6], [22, 12], [4, 14], [-16, 14], [-34, 8], [-46, 0, 'c'], [-34, -8], [-16, -16], [2, -20], ...fur([10, -20], [24, -18], 3, 4, { tip: 0.5 })],
+    shade: torsoShade(-46, 34, -20, 14, { shadeFrac: 0.35 }),
+    extra: [L('M2,-19 C0,-8 0,4 4,13', 'k', 1.6, { op: 0.35 })],
+    sockets: {
+      head: { x: 32, y: -8, a: 0, s: 1 }, legFront: { x: 24, y: 10 }, legFrontFar: { x: 16, y: 6 }, legMid: { x: 10, y: 12 }, legMidFar: { x: 2, y: 8 },
+      legBack: { x: -6, y: 12 }, legBackFar: { x: -14, y: 8 }, wing: { x: 14, y: -17, a: 0, s: 1 }, wingFar: { x: 6, y: -19, a: 0, s: 0.95 },
+      tail: { x: -46, y: 0, a: 0 }, shell: { x: -12, y: -8, a: 0, s: 1 },
+    },
+  }),
+  iBody({
+    id: 'mantis', name: 'Mantis', kind: 'insect.upright', tags: ['mantis', 'slender'], dom: 0.5, w: 2,
+    pts: [[18, -34], [26, -30], [22, -14], [14, 0], [4, 8], [-12, 12], [-32, 10], [-44, 2], [-40, -6], [-24, -8], [-8, -8], [6, -16]],
+    shade: [SH('M-46,2 C-30,10 -10,12 8,6 L10,20 L-46,20 Z', 0.12), HL('M12,-30 C16,-34 22,-34 24,-30 L20,-22 C18,-26 14,-26 12,-24 Z', 0.18)],
+    extra: [L('M8,-12 C4,-4 -2,0 -8,2', 'k', 1.4, { op: 0.3 })],
+    sockets: {
+      head: { x: 24, y: -32, a: -10, s: 1 }, legFront: { x: 16, y: -6 }, legFrontFar: { x: 8, y: -10 }, legMid: { x: 0, y: 10 }, legMidFar: { x: -8, y: 6 },
+      legBack: { x: -20, y: 10 }, legBackFar: { x: -28, y: 6 }, wing: { x: -4, y: -8, a: 0, s: 1 }, wingFar: { x: -12, y: -10, a: 0, s: 0.95 },
+      tail: { x: -44, y: -2, a: 0 }, shell: { x: -20, y: -4, a: 0, s: 1 },
+    },
+  }),
+  iBody({
+    id: 'dragonfly', name: 'Darter', kind: 'insect.flyer', tags: ['dragonfly', 'long'], dom: 0.5, w: 2, hover: 14,
+    pts: [[22, -14], [30, -6], [28, 6], [18, 10], [6, 8], [-20, 6], [-56, 4], [-70, 2, 'c'], [-56, -2], [-20, -4], [4, -8], [12, -14]],
+    shade: [SH('M-70,0 C-40,6 -10,10 26,4 L28,16 L-70,16 Z', 0.12), HL('M6,-12 C12,-16 20,-16 26,-10 L22,-6 C16,-10 10,-10 6,-8 Z', 0.18)],
+    extra: [L('M-14,-3 L-14,5 M-26,-3 L-26,5 M-38,-2 L-38,4 M-50,-1 L-50,3', 'k', 1.2, { op: 0.3 })],
+    sockets: {
+      head: { x: 28, y: -6, a: 0, s: 1 }, legFront: { x: 22, y: 8 }, legFrontFar: { x: 14, y: 4 }, legMid: { x: 12, y: 8 }, legMidFar: { x: 4, y: 4 },
+      legBack: { x: 2, y: 8 }, legBackFar: { x: -6, y: 4 }, wing: { x: 8, y: -12, a: 0, s: 1 }, wingFar: { x: -2, y: -14, a: 0, s: 0.95 },
+      tail: { x: -70, y: 0, a: 0 }, shell: { x: -10, y: -2, a: 0, s: 0.8 },
+    },
+  }),
+  iBody({
+    id: 'ladybug', name: 'Dome', kind: 'insect.crawler', tags: ['ladybug', 'round'], dom: 0.5, w: 3,
+    pts: [[22, -16], [30, -4], [26, 10], [10, 18], [-10, 18], [-26, 10], [-30, -4], [-22, -16], [-6, -20], [8, -20]],
+    shade: torsoShade(-30, 30, -20, 18, { shadeFrac: 0.35 }),
+    sockets: {
+      head: { x: 28, y: -2, a: 0, s: 0.9 }, legFront: { x: 20, y: 12 }, legFrontFar: { x: 12, y: 8 }, legMid: { x: 4, y: 16 }, legMidFar: { x: -4, y: 12 },
+      legBack: { x: -14, y: 14 }, legBackFar: { x: -22, y: 10 }, wing: { x: 2, y: -18, a: 0, s: 0.9 }, wingFar: { x: -8, y: -20, a: 0, s: 0.85 },
+      tail: { x: -30, y: -2, a: 0 }, shell: { x: -4, y: -4, a: 0, s: 1 },
+    },
+  }),
+  iBody({
+    id: 'ant', name: 'Segmented', kind: 'insect.crawler', tags: ['ant'], dom: 0.5, w: 2,
+    pts: [[22, -10], [30, -2], [26, 8], [14, 10], [6, 4], [-4, 2], [-10, 6], [-30, 12], [-44, 4], [-40, -8], [-24, -12], [-10, -4], [2, -8], [12, -12]],
+    shade: [SH('M-44,4 C-30,12 -10,10 8,6 C16,6 26,6 30,2 L30,16 L-44,16 Z', 0.12), HL('M-30,-10 C-24,-14 -14,-12 -12,-6 L-16,-4 C-20,-8 -26,-8 -30,-6 Z', 0.18), HL('M6,-10 C12,-14 22,-12 26,-6 L22,-4 C18,-8 12,-8 8,-6 Z', 0.18)],
+    sockets: {
+      head: { x: 28, y: -4, a: 0, s: 1 }, legFront: { x: 20, y: 8 }, legFrontFar: { x: 12, y: 4 }, legMid: { x: 12, y: 10 }, legMidFar: { x: 4, y: 6 },
+      legBack: { x: 2, y: 4 }, legBackFar: { x: -6, y: 0 }, wing: { x: 10, y: -12, a: 0, s: 0.9 }, wingFar: { x: 2, y: -14, a: 0, s: 0.85 },
+      tail: { x: -44, y: 0, a: 0 }, shell: { x: -22, y: -6, a: 0, s: 0.9 },
+    },
+  }),
+  iBody({
+    id: 'moth', name: 'Fuzzy', kind: 'insect.flyer', tags: ['moth', 'fuzzy'], dom: 0.5, w: 2, hover: 12,
+    pts: [[18, -16], [28, -8], [26, 6], [16, 12], [-2, 14], [-22, 12], [-36, 4], [-38, -6], [-26, -14], ...fur([-14, -18], [12, -18], 4, 5, { tip: 0.5, lean: 0.2 })],
+    shade: torsoShade(-38, 28, -18, 14, { shadeFrac: 0.35 }),
+    sockets: {
+      head: { x: 26, y: -8, a: 0, s: 1 }, legFront: { x: 18, y: 10 }, legFrontFar: { x: 10, y: 6 }, legMid: { x: 6, y: 12 }, legMidFar: { x: -2, y: 8 },
+      legBack: { x: -8, y: 12 }, legBackFar: { x: -16, y: 8 }, wing: { x: 2, y: -16, a: 0, s: 1 }, wingFar: { x: -8, y: -18, a: 0, s: 0.95 },
+      tail: { x: -38, y: -2, a: 0 }, shell: { x: -12, y: -6, a: 0, s: 1 },
+    },
+  }),
+];
+
+// ---- src/data/parts/insect/heads.js ----
+// Insect heads. Origin = neck point on the thorax front. Sockets: eye / eyeFar, mandibles {x,y,a,s}
+// at the front, antennae {x,y,a,s} on the crown.
+
+
+
+const I_HEADS = [
+  iPart({ id: 'beetle', slot: 'head', name: 'Beetle', tags: ['beetle'], dom: 0.5, w: 3, shapes: [[[-4, -18], [8, -20], [16, -14], [18, -4], [12, 4], [0, 6], [-8, 2], [-12, -8]]], extra: [SH('M-12,-4 C-4,4 8,6 18,0 L18,8 L-12,8 Z', 0.12), HL('M-4,-16 C2,-20 10,-19 14,-14 C8,-16 2,-16 -2,-14 Z', 0.2)],
+    sockets: { eye: { x: 8, y: -10, s: 0.9 }, eyeFar: { x: -4, y: -12, s: 0.7 }, mandibles: { x: 16, y: -2, a: 0, s: 1 }, antennae: { x: 8, y: -19, a: 0, s: 1 } } }),
+  iPart({ id: 'bee', slot: 'head', name: 'Bee', tags: ['bee'], dom: 0.5, w: 2, shapes: [[[-2, -18], [10, -16], [16, -8], [14, 2], [6, 8], [-6, 6], [-12, -2], [-10, -12]]], extra: [SH('M-12,-2 C-4,6 6,8 16,2 L16,10 L-12,10 Z', 0.12), HL('M-4,-16 C2,-19 8,-18 12,-13 C6,-15 0,-15 -4,-13 Z', 0.2)],
+    sockets: { eye: { x: 7, y: -6, s: 1.1 }, eyeFar: null, mandibles: { x: 12, y: 4, a: 0, s: 0.9 }, antennae: { x: 6, y: -17, a: 0, s: 1 } } }),
+  iPart({ id: 'mantis', slot: 'head', name: 'Mantis', tags: ['mantis', 'triangle'], dom: 0.55, w: 2, shapes: [[[-8, -20], [10, -22], [20, -14, 'c'], [10, -4], [4, 4, 'c'], [-4, 0], [-14, -8]]], extra: [SH('M-14,-10 C-6,-2 4,0 12,-6 L14,6 L-14,6 Z', 0.12), HL('M-6,-19 C2,-22 10,-21 16,-16 C8,-18 2,-18 -4,-16 Z', 0.2)],
+    sockets: { eye: { x: 12, y: -14, s: 1 }, eyeFar: { x: -6, y: -16, s: 0.8 }, mandibles: { x: 6, y: 1, a: 0, s: 0.9 }, antennae: { x: 4, y: -21, a: 0, s: 1 } } }),
+  iPart({ id: 'dragonfly', slot: 'head', name: 'Bulb', tags: ['dragonfly'], dom: 0.5, w: 2, shapes: [[[-4, -18], [8, -18], [16, -10], [16, 0], [8, 6], [-4, 6], [-12, 0], [-12, -10]]], extra: [SH('M-12,-2 C-4,6 8,8 16,2 L16,10 L-12,10 Z', 0.12)],
+    sockets: { eye: { x: 6, y: -8, s: 1.3 }, eyeFar: null, mandibles: { x: 14, y: 2, a: 0, s: 0.8 }, antennae: { x: 4, y: -17, a: 0, s: 0.8 } } }),
+  iPart({ id: 'ladybug', slot: 'head', name: 'Small', tags: ['ladybug'], dom: 0.45, w: 3, shapes: [[[-4, -14], [6, -14], [12, -8], [12, 0], [6, 4], [-4, 4], [-10, 0], [-10, -8]]], extra: [SH('M-10,-2 C-4,4 6,6 12,0 L12,8 L-10,8 Z', 0.12), HL('M-4,-12 C0,-15 6,-14 9,-10 C5,-12 0,-12 -3,-10 Z', 0.2)],
+    sockets: { eye: { x: 5, y: -6, s: 0.8 }, eyeFar: { x: -4, y: -7, s: 0.65 }, mandibles: { x: 11, y: 0, a: 0, s: 0.8 }, antennae: { x: 4, y: -13, a: 0, s: 0.9 } } }),
+  iPart({ id: 'ant', slot: 'head', name: 'Ant', tags: ['ant'], dom: 0.5, w: 2, shapes: [[[-6, -18], [10, -20], [18, -12], [20, -2], [14, 6], [2, 8], [-8, 4], [-14, -6]]], extra: [SH('M-14,-4 C-6,4 6,8 20,0 L20,10 L-14,10 Z', 0.12), HL('M-6,-16 C2,-20 10,-19 16,-13 C8,-15 2,-15 -4,-13 Z', 0.2)],
+    sockets: { eye: { x: 8, y: -9, s: 0.85 }, eyeFar: { x: -4, y: -11, s: 0.7 }, mandibles: { x: 18, y: 2, a: 0, s: 1.1 }, antennae: { x: 8, y: -19, a: 0, s: 1 } } }),
+  iPart({ id: 'moth', slot: 'head', name: 'Fluffy', tags: ['moth'], dom: 0.45, w: 2, shapes: [[[-6, -16], [6, -18], [14, -12], [16, -4], [10, 4], [0, 6], [-8, 2], [-12, -6]]], extra: [L('M-6,-14 L-10,-20 M0,-16 L-2,-22 M6,-16 L6,-22', 'k', 1.4, { op: 0.3 }), SH('M-12,-2 C-4,6 6,8 16,0 L16,10 L-12,10 Z', 0.12)],
+    sockets: { eye: { x: 7, y: -7, s: 1 }, eyeFar: { x: -4, y: -9, s: 0.75 }, mandibles: { x: 14, y: 0, a: 0, s: 0.9 }, antennae: { x: 4, y: -17, a: 0, s: 1 } } }),
+];
+
+// ---- src/data/parts/insect/face.js ----
+// Insect eyes (compound and otherwise), mandibles and antennae. Antennae draw both the near and the
+// far feeler from the crown socket; they sit behind the head.
+
+
+
+function iEye({ id, name, shape, sclera = 'e', iris, pupil, glint = [2.2, -1.8, 1.3], glint2 = [-1, 1.8, 0.7], facets, lid, dom = 0.5, w = 2, tags = [] }) {
+  const prims = [P(shape, sclera, { sw: 2 })];
+  if (iris) { prims.push(C(iris[0], iris[1], iris[2], 'el', { ns: true, cl: true, op: 0.6 })); }
+  if (pupil) prims.push(Array.isArray(pupil[2]) ? E(pupil[0], pupil[1], pupil[2][0], pupil[2][1], 'k', { ns: true, cl: true }) : C(pupil[0], pupil[1], pupil[2], 'k', { ns: true, cl: true }));
+  if (facets) prims.push(L(facets, 'k', 0.9, { op: 0.3, cl: true }));
+  if (glint) prims.push(C(glint[0], glint[1], glint[2], 'w', { ns: true }));
+  if (glint2) prims.push(C(glint2[0], glint2[1], glint2[2], 'w', { ns: true, op: 0.7 }));
+  if (lid) prims.push(L(lid, 'k', 1.8));
+  return iPart({ id, slot: 'eyes', name, tags, dom, w, extra: prims });
+}
+
+const I_OVAL = spline([[0, -6.5], [6, -2], [5.4, 5], [0, 6.8], [-5.4, 5], [-6, -2]]);
+const HEX = 'M-4,-4 L0,-6 L4,-4 L4,0 L0,2 L-4,0 Z M0,2 L0,6 M4,0 L8,2 M-4,0 L-8,2 M0,-6 L0,-9';
+
+const I_EYES = [
+  iEye({ id: 'compound', name: 'Compound', tags: ['bug'], w: 3, shape: spline([[0, -8], [7, -4], [7.5, 4], [1, 8.5], [-6, 5], [-7, -3]]), facets: HEX, pupil: null, glint: [2.6, -3, 1.6] }),
+  iEye({ id: 'round', name: 'Round', tags: ['cute'], w: 3, shape: I_OVAL, sclera: 'w', iris: [0.8, 0.2, 3.8], pupil: [1.2, 0.5, 2], lid: 'M-5,-5 Q0,-8.4 5,-5' }),
+  iEye({ id: 'dot', name: 'Dot', tags: ['small'], w: 3, shape: spline([[0, -4.5], [4.2, -1.3], [3.8, 3.2], [0, 4.6], [-3.8, 3.2], [-4.2, -1.3]]), sclera: 'k', pupil: null, glint: [1.6, -1.6, 1.2], glint2: null }),
+  iEye({ id: 'fierce', name: 'Fierce', tags: ['angry'], w: 2, shape: spline([[-6.5, -4], [0, -5.5], [6.5, -2], [6.5, 3], [2, 5.5], [-4, 5], [-7, 1]]), pupil: [1.4, 0.9, [1.4, 3.2]], glint: [2.4, -1, 1.1], lid: 'M-7,-5.5 L6.5,-1.5' }),
+  iEye({ id: 'wide', name: 'Wide', tags: ['cute'], w: 2, shape: spline([[0, -8], [7.4, -2.6], [6.8, 6], [0, 8.4], [-6.8, 6], [-7.4, -2.6]]), sclera: 'w', iris: [0.8, 0.4, 5], pupil: [1.4, 0.8, 2.8], glint: [2.8, -2.4, 1.7], lid: 'M-6,-6.5 Q0,-10 6,-6.5' }),
+  iEye({ id: 'ocelli', name: 'Ocelli', tags: ['many'], w: 1, shape: I_OVAL, facets: HEX, pupil: null, glint: [2.2, -2.2, 1.4], glint2: null, lid: null }),
+  iEye({ id: 'glow', name: 'Glowing', tags: ['light'], w: 1, shape: I_OVAL, iris: [0.4, 0, 4.4], pupil: [0.8, 0.2, [1.4, 4.6]], glint: [2.4, -2.4, 1.3] }),
+];
+// the ocelli eye gets three small extra eyes on top
+I_EYES[5].prims.push(C(-5, -9, 1.6, 'e', { sw: 1 }), C(0, -11, 1.6, 'e', { sw: 1 }), C(5, -9, 1.6, 'e', { sw: 1 }));
+// glowing eyes get a halo
+I_EYES[6].prims.unshift(C(0, 0, 9, 'e', { ns: true, op: 0.3 }));
+
+const I_MANDIBLES = [
+  iPart({ id: 'grin', slot: 'mandibles', name: 'Grin', tags: ['happy'], dom: 0.5, w: 3, extra: [L('M2,-2 C-2,3 -8,4 -14,2', 'k', 1.8)] }),
+  iPart({ id: 'pincers', slot: 'mandibles', name: 'Pincers', tags: ['beetle', 'ant'], dom: 0.55, w: 2, extra: [P('M-2,-6 C6,-8 12,-4 12,2 C10,-1 6,-2 2,-1 Z', 'pd', { sw: 1.6 }), P('M-2,6 C6,8 12,4 12,-2 C10,1 6,2 2,1 Z', 'pd', { sw: 1.6 }), L('M-2,0 L2,0', 'k', 1.6)] }),
+  iPart({ id: 'proboscis', slot: 'mandibles', name: 'Proboscis', tags: ['moth'], dom: 0.5, w: 2, extra: [L('M0,0 C6,0 10,4 8,8 C6,11 2,10 3,7 C4,5 6,6 6,7', 'k', 2.6), L('M0,0 C6,0 10,4 8,8 C6,11 2,10 3,7 C4,5 6,6 6,7', 'pd', 1.2)] }),
+  iPart({ id: 'fangs', slot: 'mandibles', name: 'Fangs', tags: ['mantis'], dom: 0.55, w: 2, extra: [L('M2,-2 C-2,3 -8,4 -14,2', 'k', 1.8), P('M-3,2.4 L-1.5,8 L0,2 Z M-10,3.2 L-8.5,8.5 L-7,3.2 Z', 'w', { sw: 1 })] }),
+  iPart({ id: 'beak', slot: 'mandibles', name: 'Sucking tube', tags: ['bug'], dom: 0.5, w: 2, extra: [P('M-2,-3 L14,0 L-2,3 Z', 'pd', { sw: 1.6 }), L('M-1,0 L11,0', 'k', 1, { op: 0.4 })] }),
+  iPart({ id: 'smile', slot: 'mandibles', name: 'Smile', tags: ['cute'], dom: 0.5, w: 3, extra: [L('M2,-3 C0,3 -6,5 -12,3', 'k', 1.8), C(-4, -6, 1.2, 'k', { ns: true, op: 0.5 })] }),
+  iPart({ id: 'tiny', slot: 'mandibles', name: 'Tiny', tags: ['small'], dom: 0.4, w: 2, extra: [L('M1,-1 L-3,3 M1,1 L-3,4', 'k', 1.6)] }),
+];
+
+const antenna = (near, far, w = 2.4) => [...stick(far, w - 0.6, 'pd'), ...stick(near, w)];
+
+const I_ANTENNAE = [
+  iPart({ id: 'short', slot: 'antennae', name: 'Short', tags: ['beetle'], dom: 0.5, w: 3, extra: [...antenna('M0,0 C4,-8 8,-12 14,-16', 'M-5,0 C-3,-8 -1,-14 4,-18'), C(15, -17, 2.2, 'p', { sw: 1.4 }), C(5, -19, 2, 'pd', { sw: 1.4 })] }),
+  iPart({ id: 'straight', slot: 'antennae', name: 'Long', tags: ['thin'], dom: 0.5, w: 2, extra: antenna('M0,0 C8,-12 16,-22 30,-30', 'M-5,0 C-2,-14 4,-26 14,-36', 2) }),
+  iPart({ id: 'clubbed', slot: 'antennae', name: 'Clubbed', tags: ['butterfly'], dom: 0.5, w: 2, extra: [...antenna('M0,0 C6,-10 12,-18 22,-24', 'M-5,0 C-3,-12 2,-22 10,-30', 2), E(23, -25, 3.6, 2.4, 'p', { sw: 1.4 }), E(11, -31, 3.2, 2.2, 'pd', { sw: 1.4 })] }),
+  iPart({ id: 'elbowed', slot: 'antennae', name: 'Elbowed', tags: ['ant'], dom: 0.5, w: 2, extra: antenna('M0,0 L8,-12 L24,-10', 'M-5,0 L-2,-16 L12,-18', 2.4) }),
+  iPart({ id: 'feathered', slot: 'antennae', name: 'Feathered', tags: ['moth'], dom: 0.55, w: 2, extra: [S([[-4, -2], [-2, -12], [2, -24], [6, -30, 0.3], [10, -22], [10, -12], [6, -2]], 'pd'), L('M-2,-6 L6,-8 M-1,-12 L8,-14 M0,-18 L8,-20 M2,-24 L8,-25', 'k', 1, { op: 0.3 }), S([[2, 0], [6, -10], [12, -22], [18, -28, 0.3], [20, -20], [18, -10], [12, 0]], 'p'), L('M6,-4 L14,-6 M8,-10 L16,-12 M10,-16 L18,-18 M12,-22 L18,-23', 'k', 1, { op: 0.3 })] }),
+  iPart({ id: 'curly', slot: 'antennae', name: 'Curly', tags: ['cute'], dom: 0.45, w: 2, extra: antenna('M0,0 C6,-10 14,-16 18,-10 C20,-6 16,-4 14,-8', 'M-5,0 C-2,-12 4,-20 8,-14 C10,-10 6,-8 4,-12', 2.2) }),
+  iPart({ id: 'horn', slot: 'antennae', name: 'Horn', tags: ['rhino'], dom: 0.55, w: 1, shapes: [[[-6, 2], [-2, -10], [4, -22], [12, -30, 'c'], [10, -18], [8, -8], [8, 2]]], extra: [HL('M0,-8 L4,-20 L8,-26 L6,-14 L4,-6 Z', 0.22), L('M-2,-6 L6,-8 M0,-14 L7,-16', 'k', 1, { op: 0.25 })] }),
+];
+
+// ---- src/data/parts/insect/limbs.js ----
+// Insect wings (origin = wing root on the thorax top; wings rise up and back), legs (origin = the
+// coxa on the body's underside; jointed sticks that reach the ground) and tail tips (abdomen end).
+
+
+
+const veins = (d, op = 0.3) => L(d, 'k', 1, { op });
+
+const I_WINGS = [
+  NONE('wings', 0.3, 'i.'),
+  iPart({ id: 'clear', slot: 'wings', name: 'Clear pair', tags: ['bee'], dom: 0.5, w: 3, shapes: [[[0, 0], [-4, -14], [-14, -30], [-30, -40], [-46, -38, 0.3], [-40, -24], [-26, -10], [-10, 2]]], extra: [S([[-2, -2], [-8, -16], [-18, -28], [-30, -34], [-40, -32], [-34, -22], [-22, -10], [-8, 0]], 'w', { ns: true, cl: true, op: 0.55 }), veins('M-2,-2 C-14,-14 -26,-24 -42,-34 M-4,-8 C-14,-14 -24,-18 -36,-24 M-8,-2 C-16,-8 -24,-12 -34,-14')] }),
+  iPart({ id: 'long', slot: 'wings', name: 'Long pair', tags: ['dragonfly'], dom: 0.5, w: 2, shapes: [[[0, 0], [-2, -10], [-16, -22], [-44, -34], [-72, -38, 0.3], [-68, -28], [-46, -18], [-20, -8], [-8, 2]]], extra: [S([[-2, -2], [-4, -10], [-18, -20], [-44, -30], [-64, -34], [-60, -26], [-42, -16], [-18, -6], [-6, 0]], 'w', { ns: true, cl: true, op: 0.5 }), veins('M-2,-4 C-20,-14 -44,-24 -70,-34 M-4,-10 C-24,-16 -44,-20 -64,-30 M-8,-4 C-24,-8 -40,-12 -60,-22 M-14,-16 L-16,-8 M-30,-24 L-32,-14 M-46,-30 L-48,-18')] }),
+  iPart({ id: 'moth', slot: 'wings', name: 'Moth', tags: ['moth', 'wide'], dom: 0.55, w: 2, shapes: [[[0, 0], [-2, -16], [-14, -36], [-36, -50], [-60, -50, 0.3], [-56, -32], [-44, -18], [-52, -6, 0.3], [-36, 2], [-16, 4]]], extra: [S([[-4, -4], [-6, -18], [-16, -32], [-36, -44], [-52, -44], [-48, -30], [-38, -18], [-44, -6], [-32, 0], [-14, 0]], 's', { ns: true, cl: true, op: 0.6 }), E(-34, -34, 7, 5, 'a', { ns: true, cl: true }), E(-34, -34, 3.5, 2.5, 'k', { ns: true, cl: true, op: 0.6 }), veins('M-4,-4 C-20,-20 -36,-34 -56,-46 M-6,-2 C-22,-10 -36,-12 -50,-10')] }),
+  iPart({ id: 'butterfly', slot: 'wings', name: 'Butterfly', tags: ['butterfly', 'wide'], dom: 0.55, w: 2, shapes: [[[0, 0], [-2, -18], [-12, -40], [-30, -56, 0.3], [-58, -54, 0.3], [-52, -34], [-38, -22], [-48, -12, 0.3], [-56, 4, 0.3], [-40, 8], [-20, 6]]], extra: [S([[-4, -4], [-6, -20], [-14, -38], [-30, -50], [-50, -48], [-46, -32], [-34, -20], [-44, -10], [-48, 2], [-38, 4], [-18, 2]], 's', { ns: true, cl: true }), ...[[-20, -34], [-40, -42], [-36, -4]].flatMap(([x, y]) => [{ t: 'circle', cx: x, cy: y, r: 5, f: 'a', ns: true, cl: true }, { t: 'circle', cx: x, cy: y, r: 2.4, f: 'k', ns: true, cl: true, op: 0.55 }]), veins('M-4,-4 C-16,-22 -30,-40 -54,-52 M-6,-2 C-24,-4 -40,-2 -54,4')] }),
+  iPart({ id: 'beetle', slot: 'wings', name: 'Flight wings', tags: ['beetle', 'small'], dom: 0.45, w: 2, shapes: [[[0, 0], [-2, -8], [-14, -20], [-34, -26], [-48, -22, 0.3], [-40, -12], [-26, -4], [-12, 2]]], extra: [S([[-2, -2], [-4, -8], [-14, -16], [-34, -22], [-42, -20], [-36, -12], [-24, -4], [-10, 0]], 'w', { ns: true, cl: true, op: 0.5 }), veins('M-2,-2 C-16,-12 -30,-18 -46,-22 M-6,-2 C-16,-6 -28,-8 -40,-12')] }),
+  iPart({ id: 'lacewing', slot: 'wings', name: 'Lacewing', tags: ['delicate'], dom: 0.45, w: 2, shapes: [[[0, 0], [-4, -12], [-18, -28], [-40, -40], [-60, -40, 0.3], [-54, -26], [-38, -12], [-16, 2]]], extra: [S([[-2, -2], [-6, -12], [-18, -24], [-40, -34], [-52, -34], [-48, -24], [-34, -10], [-14, 0]], 'w', { ns: true, cl: true, op: 0.45 }), veins('M-2,-2 C-18,-16 -36,-28 -58,-38 M-4,-8 C-18,-16 -34,-22 -52,-28 M-8,-2 C-20,-8 -32,-12 -48,-16 M-12,-10 L-14,-2 M-24,-20 L-26,-8 M-38,-30 L-40,-14', 0.35)] }),
+  iPart({ id: 'fairy', slot: 'wings', name: 'Glow wings', tags: ['fairy', 'light'], dom: 0.45, w: 1, shapes: [[[0, 0], [-2, -16], [-12, -38], [-32, -52, 0.3], [-50, -46, 0.3], [-44, -28], [-34, -16], [-46, -4, 0.3], [-32, 4], [-14, 4]]], extra: [S([[-4, -4], [-6, -18], [-14, -36], [-32, -46], [-44, -42], [-40, -28], [-30, -14], [-38, -4], [-28, 0], [-12, 0]], 'a', { ns: true, cl: true, op: 0.5 }), ...[[-18, -30], [-34, -38], [-30, -6]].map(([x, y]) => ({ t: 'circle', cx: x, cy: y, r: 2.2, f: 'w', ns: true, cl: true })), veins('M-4,-4 C-16,-22 -28,-38 -48,-46 M-6,-2 C-20,-4 -32,-2 -44,0', 0.25)] }),
+];
+
+/**
+ * A jointed leg: coxa at the origin, femur to the knee, tibia to the foot, tarsus to the tip.
+ * dir = 1 for front legs (reaching forward), 0 middle, -1 hind (reaching back). Styles change the
+ * proportions and add spines or hairs.
+ */
+function insectLeg(slot, style, dir) {
+  const S_ = {
+    thin: { knee: [8, -10], foot: [10, 16], tip: [8, 2], w: 2 },
+    spiny: { knee: [9, -12], foot: [10, 16], tip: [8, 2], w: 2.2, spines: true },
+    sturdy: { knee: [8, -8], foot: [8, 16], tip: [8, 2], w: 3 },
+    hairy: { knee: [8, -10], foot: [9, 16], tip: [7, 2], w: 2.3, hairs: true },
+    hooked: { knee: [8, -10], foot: [9, 16], tip: [4, 4], w: 2.2, hook: true },
+    long: { knee: [12, -18], foot: [12, 24], tip: [8, 2], w: 1.9 },
+    raptorial: null, jumping: null, stubby: { knee: [5, -5], foot: [5, 10], tip: [6, 2], w: 3 },
+  }[style];
+  const name = { thin: 'Thin', spiny: 'Spiny', sturdy: 'Sturdy', hairy: 'Hairy', hooked: 'Hooked', long: 'Long', raptorial: 'Raptorial', jumping: 'Jumping', stubby: 'Stubby' }[style];
+  if (style === 'raptorial') {
+    // praying arm: upper arm forward-up, forearm folded back down with a spiked edge
+    const d = 'M0,0 L14,-14 L22,-2';
+    return iPart({ id: style, slot, name, tags: ['mantis'], dom: 0.55, w: 1, extra: [...stick(d, 3.4), P('M14,-14 L18,-8 L22,-2 L20,-2 L16,-6 L13,-12 Z', 'pd', { sw: 1 }), L('M15,-10 L18,-9 M17,-6 L20,-5', 'k', 1.2, { op: 0.5 }), P('M22,-2 L25,3 L21,1 Z', 'w', { sw: 1 })] });
+  }
+  if (style === 'jumping') {
+    const d = 'M0,0 L-10,-16 L-4,14 L4,16';
+    return iPart({ id: style, slot, name, tags: ['grasshopper'], dom: 0.55, w: 1, extra: [S([[-2, -4], [-8, -14], [-12, -16], [-14, -8], [-8, 2], [-2, 4]], 'p', { sw: 2 }), ...stick(d, 2.6), L('M-6,4 L-8,6 M-5,8 L-7,10', 'k', 1.2, { op: 0.5 })] });
+  }
+  const f = (v) => v * dir;
+  const kx = dir === 0 ? -2 : f(S_.knee[0]), ky = S_.knee[1];
+  const fx = kx + (dir === 0 ? 2 : f(S_.foot[0]) * 0.5), fy = S_.foot[1];
+  const tx = fx + S_.tip[0], ty = fy + S_.tip[1];
+  const d = `M0,0 L${kx},${ky} L${fx},${fy} L${tx},${ty}`;
+  const extra = [...stick(d, S_.w)];
+  if (S_.spines) extra.push(L(`M${(kx + fx) / 2 - 2},${(ky + fy) / 2} L${(kx + fx) / 2 - 5},${(ky + fy) / 2 + 3} M${(kx + fx) / 2},${(ky + fy) / 2 + 6} L${(kx + fx) / 2 - 3},${(ky + fy) / 2 + 9}`, 'k', 1.4, { op: 0.6 }));
+  if (S_.hairs) extra.push(L(`M${kx - 1},${ky + 4} L${kx - 4},${ky + 5} M${kx},${ky + 9} L${kx - 3},${ky + 11} M${(kx + fx) / 2},${(ky + fy) / 2 + 4} L${(kx + fx) / 2 - 3},${(ky + fy) / 2 + 6}`, 'k', 1.2, { op: 0.45 }));
+  if (S_.hook) extra.push(P(`M${tx},${ty} L${tx + 3},${ty - 3} L${tx + 1},${ty + 1} Z`, 'w', { sw: 1 }));
+  return iPart({ id: style, slot, name, tags: [style], dom: style === 'thin' ? 0.5 : 0.5, w: style === 'thin' ? 3 : 2, extra });
+}
+
+const LEG_STYLES_FRONT = ['thin', 'spiny', 'sturdy', 'hairy', 'hooked', 'long', 'raptorial'];
+const LEG_STYLES_MID = ['thin', 'spiny', 'sturdy', 'hairy', 'hooked', 'long', 'stubby'];
+const LEG_STYLES_BACK = ['thin', 'spiny', 'sturdy', 'hairy', 'hooked', 'long', 'jumping'];
+const I_LEGS_FRONT = LEG_STYLES_FRONT.map((s) => insectLeg('legsFront', s, 1));
+const I_LEGS_MID = LEG_STYLES_MID.map((s) => insectLeg('legsMid', s, 0));
+const I_LEGS_BACK = LEG_STYLES_BACK.map((s) => insectLeg('legsBack', s, -1));
+
+const I_TAILS = [
+  NONE('tail', 0.3, 'i.'),
+  iPart({ id: 'stinger', slot: 'tail', name: 'Stinger', tags: ['bee'], dom: 0.55, w: 3, extra: [P('M2,-4 L-14,-1 L2,4 Z', 'k', { sw: 1.6 }), HL('M0,-2 L-8,-1 L0,1 Z', 0.3)] }),
+  iPart({ id: 'lantern', slot: 'tail', name: 'Lantern', tags: ['firefly', 'light'], dom: 0.5, w: 2, extra: [C(-6, 0, 12, 'a', { ns: true, op: 0.3 }), E(-4, 0, 8, 6.5, 'a', { sw: 1.8 }), E(-6, -2, 3, 2, 'w', { ns: true, op: 0.7 })] }),
+  iPart({ id: 'cerci', slot: 'tail', name: 'Cerci', tags: ['prongs'], dom: 0.45, w: 2, extra: [...stick('M0,-2 C-8,-4 -14,-8 -20,-14', 2, 'pd'), ...stick('M0,2 C-8,4 -14,8 -20,14', 2, 'pd')] }),
+  iPart({ id: 'pincers', slot: 'tail', name: 'Forceps', tags: ['earwig'], dom: 0.5, w: 2, extra: [P('M2,-4 C-8,-6 -16,-4 -20,2 C-16,0 -10,-1 -4,0 Z', 'pd', { sw: 1.6 }), P('M2,4 C-8,6 -16,4 -20,-2 C-16,0 -10,1 -4,0 Z', 'pd', { sw: 1.6 })] }),
+  iPart({ id: 'club', slot: 'tail', name: 'Club', tags: ['heavy'], dom: 0.5, w: 2, extra: [L('M0,0 L-10,0', 'k', 6), L('M0,0 L-10,0', 'p', 3.4), C(-15, 0, 6, 'p', { sw: 2 }), L('M-13,-3 L-17,-3 M-13,3 L-17,3', 'k', 1.2, { op: 0.4 })] }),
+  iPart({ id: 'plume', slot: 'tail', name: 'Plume', tags: ['tufts'], dom: 0.45, w: 2, shapes: [[[2, -4], [-8, -8], [-20, -12, 0.2], [-12, -3], [-24, 0, 0.2], [-12, 3], [-20, 12, 0.2], [-8, 8], [2, 4]]], extra: [HL('M-4,-4 L-14,-8 L-10,-2 Z', 0.25)] }),
+  iPart({ id: 'silk', slot: 'tail', name: 'Silk thread', tags: ['spinner'], dom: 0.4, w: 1, extra: [L('M0,0 C-8,2 -16,-2 -24,4 C-30,8 -36,4 -42,8', 'w', 1.8, { op: 0.85 }), C(-1, 0, 3.5, 'pd', { sw: 1.4 })] }),
+];
+
+// ---- src/data/parts/insect/plating.js ----
+// Insect shells (wing cases and back armour over the abdomen; origin = the body's shell socket)
+// and patterns (clipped to the body, authored in the 100 x 60 frame).
+
+
+
+const I_SHELLS = [
+  NONE('shell', 0.3, 'i.'),
+  iPart({ id: 'elytra', slot: 'shell', name: 'Wing cases', tags: ['beetle'], dom: 0.55, w: 3, shapes: [[[22, -8], [8, -16], [-16, -16], [-32, -8], [-30, 4], [-16, 10], [4, 10], [20, 4]]], extra: [L('M20,-2 C4,-4 -14,-4 -30,-2', 'k', 1.6, { op: 0.5 }), HL('M4,-14 C-6,-15 -20,-12 -26,-6 L-22,-2 C-16,-8 -6,-10 4,-10 Z', 0.2), SH('M-32,2 C-16,10 4,12 20,6 L20,14 L-32,14 Z', 0.12)] }),
+  iPart({ id: 'dome', slot: 'shell', name: 'Dome', tags: ['ladybug'], dom: 0.55, w: 2, extra: [L('M18,-6 C10,-14 -10,-18 -26,-10 C-32,-4 -30,4 -24,10', 'k', 1.8, { op: 0.45 }), L('M-4,-17 L-6,12', 'k', 1.8, { op: 0.5 }), HL('M6,-14 C-4,-16 -18,-12 -24,-6 L-20,-2 C-14,-8 -4,-10 6,-10 Z', 0.22)] }),
+  iPart({ id: 'armour', slot: 'shell', name: 'Armour plates', tags: ['hard'], dom: 0.5, w: 2, shapes: [[[22, -8], [8, -16], [-16, -16], [-32, -8], [-30, 4], [-16, 10], [4, 10], [20, 4]]], extra: [L('M12,-14 C10,-4 10,4 14,10 M-4,-16 C-6,-4 -6,4 -2,10 M-20,-14 C-22,-4 -22,4 -18,8', 'k', 1.4, { op: 0.4 }), HL('M6,-14 C-2,-14 -10,-13 -14,-10 L-12,-6 C-8,-9 -2,-10 6,-10 Z', 0.2)] }),
+  iPart({ id: 'spiky', slot: 'shell', name: 'Spiked carapace', tags: ['spiky'], dom: 0.5, w: 2, shapes: [[[22, -8], ...fur([22, -8], [-32, -8], 5, 10, { tip: 'c', lean: 0.3 }), [-30, 4], [-16, 10], [4, 10], [20, 4]]], extra: [SH('M-32,2 C-16,10 4,12 20,6 L20,14 L-32,14 Z', 0.12)] }),
+  iPart({ id: 'fuzz', slot: 'shell', name: 'Fuzz', tags: ['bee', 'fuzzy'], dom: 0.45, w: 2, shapes: [[[22, -4], ...fur([22, -4], [2, -10], 4, 6, { tip: 0.5, lean: 0.1, wobble: 0.3 }), [-2, -2], [2, 6], [14, 8], [24, 4]]], extra: [S([[18, -2], [10, -6], [2, -4], [4, 2], [14, 4]], 's', { ns: true, cl: true, op: 0.4 })] }),
+  iPart({ id: 'crystal', slot: 'shell', name: 'Crystal back', tags: ['gem'], dom: 0.45, w: 1, extra: [P('M16,4 L12,-8 L4,-20 L-4,-8 L-6,4 Z', 'pl'), P('M-6,4 L-10,-12 L-18,-24 L-26,-10 L-28,4 Z', 'p'), HL('M4,-18 L8,-8 L4,-6 Z M-18,-22 L-12,-10 L-16,-8 Z', 0.35)] }),
+  iPart({ id: 'leaf', slot: 'shell', name: 'Leaf back', tags: ['grass', 'camouflage'], dom: 0.45, w: 1, shapes: [[[24, -4], [8, -16], [-14, -18], [-34, -10, 'c'], [-20, -2], [-32, 6, 'c'], [-12, 10], [8, 10]]], extra: [L('M22,-4 C6,-6 -12,-6 -30,-2', 'k', 1.4, { op: 0.4 }), L('M6,-6 L2,-14 M-6,-6 L-10,-15 M-18,-4 L-22,-12', 'k', 1, { op: 0.3 })] }),
+];
+
+const I_PATTERNS = [
+  NONE('pattern', 0.3, 'i.'),
+  iPart({ id: 'stripes', slot: 'pattern', name: 'Stripes', tags: ['bee'], dom: 0.5, w: 3, extra: [S([[-30, -40], [-18, -40], [-20, 40], [-32, 40]], 'a', { ns: true }), S([[-4, -40], [8, -40], [6, 40], [-6, 40]], 'a', { ns: true }), S([[20, -40], [32, -40], [30, 40], [18, 40]], 'a', { ns: true })] }),
+  iPart({ id: 'spots', slot: 'pattern', name: 'Spots', tags: ['ladybug'], dom: 0.5, w: 3, extra: [...[[-30, -12, 6], [-8, -22, 5], [14, -14, 6], [34, -20, 4.5], [-18, 10, 5], [8, 8, 5.5], [30, 6, 4]].map(([x, y, r]) => ({ t: 'circle', cx: x, cy: y, r, f: 'a', ns: true }))] }),
+  iPart({ id: 'bands', slot: 'pattern', name: 'Bands', tags: ['ringed'], dom: 0.5, w: 2, extra: [S([[-44, -40], [-36, -40], [-38, 40], [-46, 40]], 'a', { ns: true }), S([[-22, -40], [-14, -40], [-16, 40], [-24, 40]], 'a', { ns: true }), S([[0, -40], [8, -40], [6, 40], [-2, 40]], 'a', { ns: true }), S([[22, -40], [30, -40], [28, 40], [20, 40]], 'a', { ns: true })] }),
+  iPart({ id: 'chevrons', slot: 'pattern', name: 'Chevrons', tags: ['arrows'], dom: 0.45, w: 2, extra: [L('M-36,-16 L-26,0 L-36,16 M-20,-16 L-10,0 L-20,16 M-4,-16 L6,0 L-4,16 M12,-16 L22,0 L12,16 M28,-16 L38,0 L28,16', 'a', 3.2)] }),
+  iPart({ id: 'eyespots', slot: 'pattern', name: 'Eyespots', tags: ['moth'], dom: 0.45, w: 2, extra: [...[[-24, -8], [16, -10]].flatMap(([x, y]) => [{ t: 'ellipse', cx: x, cy: y, rx: 11, ry: 9, f: 'a', ns: true }, { t: 'ellipse', cx: x, cy: y, rx: 6.5, ry: 5.5, f: 's', ns: true }, { t: 'circle', cx: x + 1, cy: y, r: 3, f: 'k', ns: true, op: 0.7 }])] }),
+  iPart({ id: 'gradient', slot: 'pattern', name: 'Dark back', tags: ['gradient'], dom: 0.5, w: 2, extra: [S([[-54, -40], [54, -40], [54, -12], [26, 0], [-8, 2], [-36, -2], [-56, -12]], 'a', { ns: true }), S([[-46, -40], [46, -40], [46, -26], [22, -16], [-6, -14], [-30, -18], [-48, -26]], 'k', { ns: true, op: 0.12 })] }),
+  iPart({ id: 'speckles', slot: 'pattern', name: 'Speckles', tags: ['texture'], dom: 0.45, w: 2, extra: [...Array.from({ length: 24 }, (_, i) => { const x = -44 + (i % 8) * 12 + (Math.floor(i / 8) % 2 ? 6 : 0), y = -22 + Math.floor(i / 8) * 18; return { t: 'circle', cx: x, cy: y, r: 2, f: 's', ns: true, op: 0.8 }; })] }),
+];
+
+// ---- src/data/parts/insect/index.js ----
+// The insect library, one list per rig slot.
+
+
+
+
+
+
+const INSECT_PARTS = {
+  body: I_BODIES, head: I_HEADS, eyes: I_EYES, mandibles: I_MANDIBLES, antennae: I_ANTENNAE, wings: I_WINGS,
+  legsFront: I_LEGS_FRONT, legsMid: I_LEGS_MID, legsBack: I_LEGS_BACK, tail: I_TAILS, shell: I_SHELLS, pattern: I_PATTERNS,
+};
+
 // ---- src/data/parts/index.js ----
 // Part registry. Part ids are stable forever: a saved creature must decode the
 // same way after the library grows, so never rename or reuse an id.
 //
 // Parts are grouped by rig, then slot. A part fits any body of its own rig
 // unless it lists the body kinds it accepts in `fit`.
+
 
 
 
@@ -3614,6 +3960,7 @@ const RIG_PARTS = {
   reptile: REPTILE_PARTS,
   fish: FISH_PARTS,
   bird: BIRD_PARTS,
+  insect: INSECT_PARTS,
 };
 
 const PARTS = new Map();
@@ -3780,10 +4127,11 @@ const SPECIES = [
     desc: 'Hovers a hand-width above the ground and always seems to be listening to something far away.',
   },
   {
-    id: 'chitterbug', name: 'Chitterbug', nameParts: ['Chitter', 'bug'], clade: 'insect', types: ['Bug'], tier: 'common', bst: 410,
+    id: 'chitterbug', name: 'Chitterbug', nameParts: ['Chitter', 'bug'], clade: 'insect', rig: 'insect', types: ['Bug'], tier: 'common', bst: 410,
     stats: { hp: 0.16, atk: 0.18, def: 0.17, spa: 0.12, spd: 0.15, spe: 0.22 },
-    recipe: { body: 'body.round', head: 'head.round', eyes: 'eye.bug', mouth: 'mouth.fangs', crown: 'crown.antennae', legs: 'legs.insect', arms: 'arms.none', wings: 'wings.bug', tail: 'tail.none', back: 'back.plates', pattern: 'pat.stripes' },
-    palette: { c1: [95, 50, 42], c2: [222, 10, 18], c3: [50, 90, 55], eye: [0, 0, 12] }, vary: { h: 14, s: 8, l: 6 },
+    recipe: { body: 'i.body.beetle', head: 'i.head.beetle', eyes: 'i.eyes.round', mandibles: 'i.mandibles.grin', antennae: 'i.antennae.short', wings: ['i.wings.none', 'i.wings.beetle'], legsFront: 'i.legsFront.thin', legsMid: 'i.legsMid.thin', legsBack: 'i.legsBack.thin', tail: 'i.tail.none', shell: 'i.shell.elytra', pattern: 'i.pattern.stripes' },
+    palette: { c1: [95, 50, 42], c2: [50, 90, 55], c3: [222, 12, 18], eye: [0, 0, 12] }, vary: { h: 14, s: 8, l: 6 },
+    paint: { shell: 1 },
     traits: T([0.25, 0.5], [0.4, 0.6], [0.4, 0.7], MID, [0.4, 0.7], [0.5, 0.8]),
     learnset: [[1,'nibble'],[1,'web_shot'],[6,'needle_volley'],[11,'swarm_buzz'],[16,'sky_strike'],[22,'scissor_slash'],[28,'blood_sip'],[34,'drone'],[40,'quicken'],[46,'great_horn'],[52,'wind_cutter']],
     abilities: ['finesse','lucky_streak'],
@@ -3887,10 +4235,11 @@ const SPECIES = [
     desc: 'Moss grows thick on its shoulders. It uproots trees to practise its throws, then replants them.',
   },
   {
-    id: 'gloamoth', name: 'Gloamoth', nameParts: ['Gloa', 'moth'], clade: 'insect', types: ['Bug', 'Ghost'], tier: 'uncommon', bst: 415,
+    id: 'gloamoth', name: 'Gloamoth', nameParts: ['Gloa', 'moth'], clade: 'insect', rig: 'insect', types: ['Bug', 'Ghost'], tier: 'uncommon', bst: 415,
     stats: { hp: 0.15, atk: 0.12, def: 0.13, spa: 0.21, spd: 0.19, spe: 0.2 },
-    recipe: { body: 'body.float', head: 'head.none', eyes: 'eye.bug', mouth: 'mouth.flat', crown: 'crown.antennae', legs: 'legs.none', arms: 'arms.none', wings: 'wings.bug', tail: 'tail.none', back: 'back.wisps', pattern: 'pat.speckle' },
-    palette: { c1: [250, 30, 38], c2: [260, 25, 60], c3: [170, 60, 68], eye: [170, 80, 65] }, vary: { h: 12, s: 8, l: 6 },
+    recipe: { body: 'i.body.moth', head: 'i.head.moth', eyes: 'i.eyes.glow', mandibles: 'i.mandibles.proboscis', antennae: 'i.antennae.feathered', wings: 'i.wings.moth', legsFront: 'i.legsFront.hairy', legsMid: 'i.legsMid.hairy', legsBack: 'i.legsBack.hairy', tail: 'i.tail.none', shell: ['i.shell.fuzz', 'i.shell.none'], pattern: 'i.pattern.eyespots' },
+    palette: { c1: [250, 30, 38], c2: [260, 25, 62], c3: [170, 60, 68], eye: [170, 80, 65] }, vary: { h: 12, s: 8, l: 6 },
+    paint: { wings: 2 },
     traits: T([0.3, 0.6], MID, MID, MID, [0.6, 0.9], [0.5, 0.8]),
     learnset: [[1,'nibble'],[1,'cold_lick'],[6,'web_shot'],[11,'wraith_touch'],[16,'swarm_buzz'],[22,'curse_bolt'],[28,'umbral_orb'],[34,'drone'],[40,'lull'],[46,'dread_pulse'],[52,'quicken']],
     abilities: ['hover','finesse'],
@@ -4152,6 +4501,78 @@ const SPECIES = [
     learnset: [[1,'squirt'],[1,'bump'],[6,'gale'],[11,'ripple'],[16,'wing_strike'],[22,'preen'],[28,'cascade'],[34,'slipstream'],[40,'riptide'],[46,'wind_cutter'],[52,'geyser']],
     abilities: ['damp_coat','hover'],
     desc: 'Paddles in circles when thinking. It has opinions about bread.',
+  },
+  {
+    id: 'scarabolt', name: 'Scarabolt', nameParts: ['Scara', 'bolt'], clade: 'insect', rig: 'insect', types: ['Bug', 'Steel'], tier: 'uncommon', bst: 445,
+    stats: { hp: 0.17, atk: 0.22, def: 0.25, spa: 0.08, spd: 0.16, spe: 0.12 },
+    recipe: { body: 'i.body.beetle', head: 'i.head.beetle', eyes: 'i.eyes.dot', mandibles: 'i.mandibles.pincers', antennae: ['i.antennae.horn', 'i.antennae.clubbed'], wings: 'i.wings.none', legsFront: 'i.legsFront.sturdy', legsMid: 'i.legsMid.sturdy', legsBack: 'i.legsBack.sturdy', tail: 'i.tail.none', shell: 'i.shell.armour', pattern: 'i.pattern.gradient' },
+    palette: { c1: [215, 18, 42], c2: [210, 15, 70], c3: [45, 70, 55], eye: [45, 90, 55] }, vary: { h: 10, s: 6, l: 6 },
+    paint: { antennae: 4 },
+    traits: T([0.45, 0.75], MID, [0.4, 0.6], MID, MID, [0.3, 0.5]),
+    learnset: [[1,'nibble'],[1,'brace'],[6,'bolt_jab'],[11,'iron_claw'],[16,'headbonk'],[22,'plate_up'],[28,'scissor_slash'],[34,'steel_ram'],[40,'muscle_up'],[46,'great_horn'],[52,'comet_fist']],
+    abilities: ['stonewall','thick_skull'],
+    desc: 'Its horn can flip a cart. It polishes its shell on rocks until it can see itself.',
+  },
+  {
+    id: 'stingbuzz', name: 'Stingbuzz', nameParts: ['Sting', 'buzz'], clade: 'insect', rig: 'insect', types: ['Bug', 'Poison'], tier: 'common', bst: 415,
+    stats: { hp: 0.14, atk: 0.22, def: 0.12, spa: 0.14, spd: 0.14, spe: 0.24 },
+    recipe: { body: 'i.body.bee', head: 'i.head.bee', eyes: 'i.eyes.compound', mandibles: 'i.mandibles.tiny', antennae: 'i.antennae.straight', wings: 'i.wings.clear', legsFront: 'i.legsFront.hairy', legsMid: 'i.legsMid.hairy', legsBack: 'i.legsBack.hairy', tail: 'i.tail.stinger', shell: ['i.shell.fuzz', 'i.shell.none'], pattern: 'i.pattern.stripes' },
+    palette: { c1: [45, 95, 56], c2: [45, 80, 82], c3: [220, 15, 14], eye: [220, 15, 14] }, vary: { h: 6, s: 6, l: 6 },
+    traits: T([0.3, 0.55], MID, MID, MID, [0.5, 0.8], [0.5, 0.75]),
+    learnset: [[1,'venom_prick'],[1,'swarm_buzz'],[6,'nibble'],[11,'dash'],[16,'venom_slash'],[22,'quicken'],[28,'scissor_slash'],[34,'venom_stab'],[40,'whetting'],[46,'blood_sip'],[52,'sludge_hurl']],
+    abilities: ['venom_barbs','restless'],
+    desc: 'Dances to tell the hive where the flowers are. Dances differently to tell it where you are.',
+  },
+  {
+    id: 'mantislash', name: 'Mantislash', nameParts: ['Mantis', 'lash'], clade: 'insect', rig: 'insect', types: ['Bug', 'Fighting'], tier: 'uncommon', bst: 440,
+    stats: { hp: 0.14, atk: 0.26, def: 0.13, spa: 0.1, spd: 0.13, spe: 0.24 },
+    recipe: { body: 'i.body.mantis', head: 'i.head.mantis', eyes: 'i.eyes.compound', mandibles: 'i.mandibles.fangs', antennae: 'i.antennae.straight', wings: ['i.wings.lacewing', 'i.wings.none'], legsFront: 'i.legsFront.raptorial', legsMid: 'i.legsMid.long', legsBack: 'i.legsBack.long', tail: 'i.tail.none', shell: ['i.shell.leaf', 'i.shell.none'], pattern: 'i.pattern.none' },
+    palette: { c1: [100, 50, 44], c2: [70, 60, 74], c3: [40, 70, 55], eye: [50, 90, 55] }, vary: { h: 12, s: 8, l: 6 },
+    traits: T([0.45, 0.75], MID, [0.5, 0.8], MID, MID, MID),
+    learnset: [[1,'chop'],[1,'glare'],[6,'nibble'],[11,'blitz_punch'],[16,'scissor_slash'],[22,'leg_sweep'],[28,'whetting'],[34,'slab_break'],[40,'blood_sip'],[46,'overpower'],[52,'great_horn']],
+    abilities: ['finesse','menace'],
+    desc: 'Holds perfectly still for hours, then does not. Prays before every meal, briefly.',
+  },
+  {
+    id: 'skimmerfly', name: 'Skimmerfly', nameParts: ['Skimmer', 'fly'], clade: 'insect', rig: 'insect', types: ['Bug', 'Flying'], tier: 'common', bst: 400,
+    stats: { hp: 0.13, atk: 0.16, def: 0.12, spa: 0.18, spd: 0.13, spe: 0.28 },
+    recipe: { body: 'i.body.dragonfly', head: 'i.head.dragonfly', eyes: 'i.eyes.compound', mandibles: 'i.mandibles.tiny', antennae: 'i.antennae.short', wings: 'i.wings.long', legsFront: 'i.legsFront.thin', legsMid: 'i.legsMid.thin', legsBack: 'i.legsBack.thin', tail: 'i.tail.cerci', shell: 'i.shell.none', pattern: 'i.pattern.bands' },
+    palette: { c1: [190, 70, 45], c2: [200, 60, 82], c3: [40, 90, 60], eye: [160, 80, 50] }, vary: { h: 14, s: 8, l: 6 },
+    traits: T([0.3, 0.6], MID, MID, [0.6, 0.9], [0.6, 0.9], [0.5, 0.75]),
+    learnset: [[1,'gale'],[1,'nibble'],[6,'dash'],[11,'wing_strike'],[16,'swarm_buzz'],[22,'slipstream'],[28,'quicken'],[34,'wind_cutter'],[40,'scissor_slash'],[46,'drone'],[52,'cyclone']],
+    abilities: ['hover','restless'],
+    desc: 'Can fly backwards and does so to admire where it has been. Eats gnats by the thousand.',
+  },
+  {
+    id: 'antlas', name: 'Antlas', nameParts: ['Ant', 'las'], clade: 'insect', rig: 'insect', types: ['Bug', 'Ground'], tier: 'common', bst: 415,
+    stats: { hp: 0.18, atk: 0.24, def: 0.2, spa: 0.08, spd: 0.14, spe: 0.16 },
+    recipe: { body: 'i.body.ant', head: 'i.head.ant', eyes: 'i.eyes.dot', mandibles: 'i.mandibles.pincers', antennae: 'i.antennae.elbowed', wings: 'i.wings.none', legsFront: 'i.legsFront.sturdy', legsMid: 'i.legsMid.sturdy', legsBack: 'i.legsBack.sturdy', tail: 'i.tail.none', shell: 'i.shell.none', pattern: ['i.pattern.none', 'i.pattern.bands'] },
+    palette: { c1: [18, 60, 40], c2: [30, 50, 62], c3: [20, 60, 25], eye: [0, 0, 12] }, vary: { h: 10, s: 8, l: 6 },
+    traits: T([0.3, 0.6], MID, MID, MID, MID, [0.3, 0.5]),
+    learnset: [[1,'nibble'],[1,'mud_fling'],[6,'brace'],[11,'stampede'],[16,'scissor_slash'],[22,'dust_kick'],[28,'muscle_up'],[34,'bull_rush'],[40,'blood_sip'],[46,'tremor'],[52,'great_horn']],
+    abilities: ['grit','heavy_hands'],
+    desc: 'Carries fifty times its weight and complains about none of it. Its tunnels have tunnels.',
+  },
+  {
+    id: 'glimbug', name: 'Glimbug', nameParts: ['Glim', 'bug'], clade: 'insect', rig: 'insect', types: ['Bug', 'Electric'], tier: 'uncommon', bst: 430,
+    stats: { hp: 0.15, atk: 0.12, def: 0.14, spa: 0.25, spd: 0.16, spe: 0.18 },
+    recipe: { body: 'i.body.beetle', head: 'i.head.beetle', eyes: 'i.eyes.round', mandibles: 'i.mandibles.smile', antennae: 'i.antennae.short', wings: ['i.wings.none', 'i.wings.beetle'], legsFront: 'i.legsFront.thin', legsMid: 'i.legsMid.thin', legsBack: 'i.legsBack.thin', tail: 'i.tail.lantern', shell: 'i.shell.elytra', pattern: 'i.pattern.none' },
+    palette: { c1: [30, 40, 30], c2: [50, 95, 66], c3: [52, 100, 60], eye: [50, 90, 55] }, vary: { h: 8, s: 6, l: 6 },
+    paint: { tail: 4 },
+    traits: T([0.3, 0.55], MID, MID, MID, MID, [0.5, 0.8]),
+    learnset: [[1,'zap'],[1,'nibble'],[6,'numb_pulse'],[11,'static_net'],[16,'swarm_buzz'],[22,'arc_beam'],[28,'quicken'],[34,'voltage'],[40,'drone'],[46,'live_wire'],[52,'skyfall_bolt']],
+    abilities: ['capacitor','lucky_streak'],
+    desc: 'Blinks in patterns only other Glimbugs understand. Travellers follow them at their own risk.',
+  },
+  {
+    id: 'dottalie', name: 'Dottalie', nameParts: ['Dot', 'talie'], clade: 'insect', rig: 'insect', types: ['Bug', 'Fairy'], tier: 'common', bst: 410,
+    stats: { hp: 0.18, atk: 0.1, def: 0.16, spa: 0.22, spd: 0.18, spe: 0.16 },
+    recipe: { body: 'i.body.ladybug', head: 'i.head.ladybug', eyes: 'i.eyes.round', mandibles: 'i.mandibles.smile', antennae: 'i.antennae.clubbed', wings: ['i.wings.none', 'i.wings.beetle'], legsFront: 'i.legsFront.sturdy', legsMid: 'i.legsMid.stubby', legsBack: 'i.legsBack.sturdy', tail: 'i.tail.none', shell: 'i.shell.dome', pattern: 'i.pattern.spots' },
+    palette: { c1: [5, 80, 52], c2: [40, 30, 92], c3: [220, 15, 14], eye: [220, 15, 14] }, vary: { h: 10, s: 6, l: 6 },
+    traits: T([0.25, 0.5], [0.5, 0.7], [0.3, 0.5], MID, MID, [0.6, 0.9]),
+    learnset: [[1,'nibble'],[1,'glitter_gust'],[6,'sweet_sip'],[11,'brace'],[16,'swarm_buzz'],[22,'dazzle'],[28,'mend'],[34,'drone'],[40,'doe_eyes'],[46,'lunar_burst'],[52,'roughhouse']],
+    abilities: ['lucky_streak','second_wind'],
+    desc: 'Counting its spots is said to bring luck. It will not hold still long enough to check.',
   },
 ];
 

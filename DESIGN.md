@@ -26,7 +26,7 @@ src/styles.css        all styles
 src/core/             rng, util — no game knowledge
 src/data/types.js     type list, chart, colours
 src/data/rigs.js      class skeletons: slot lists, draw trees, sockets each part must expose
-src/data/parts/       the part library: legacy slot files, one folder per rebuilt class (mammal/, reptile/, fish/, bird/),
+src/data/parts/       the part library: legacy slot files, one folder per rebuilt class (mammal/, reptile/, fish/, bird/, insect/),
                       shared builders (_builders.js), drawing DSL (_dsl.js), registry (index.js)
 src/data/species.js   base species recipes
 src/creature/         genome (schema, rolls, codes), palette, render (SVG)
@@ -371,11 +371,24 @@ species: Zephyrn, Moltrix and Halowl rebuilt, plus Pengloo (Ice/Water),
 Corvex (Dark/Flying), Squawkeet (Grass/Flying), Plumaura (Fairy/Flying) and
 Quackle (Water/Flying).
 
+**Insect rig** (done). Slots: body, head, eyes, mandibles, antennae, wings,
+front / middle / hind legs, tail tip, shell, pattern. All three leg slots are
+linked (one leg style per creature) and head with mandibles. Legs are
+generated jointed sticks (coxa, knee, foot, tarsus) in seven styles per pair,
+angled forward, straight or back by slot, plus a mantis' raptorial forelegs
+and a grasshopper's jumping hind legs; the antennae part draws both feelers;
+shells (wing cases, domes, armour, fuzz, leaf) sit on the abdomen in front of
+the body; wings rise from the thorax, far one behind, near one in front.
+Archetypes: beetle, bee, mantis (upright), darter (dragonfly), dome
+(ladybug), segmented (ant), fuzzy (moth). Nine species: Chitterbug and
+Gloamoth rebuilt, plus Scarabolt (Bug/Steel), Stingbuzz (Bug/Poison),
+Mantislash (Bug/Fighting), Skimmerfly (Bug/Flying), Antlas (Bug/Ground),
+Glimbug (Bug/Electric) and Dottalie (Bug/Fairy).
+
 **Next classes**, one per step, each with its own slot list and seven parts per
-slot: insect (segments, antennae, six legs, wing pairs), invertebrate (shells,
-tentacles, spirits), amphibian (wide heads, webbed feet). Each needs species
-added to reach seven. When all seven classes are on rigs the legacy skeleton
-and its parts go away.
+slot: invertebrate (shells, tentacles, spirits), amphibian (wide heads, webbed
+feet). Each needs species added to reach seven. When all seven classes are on
+rigs the legacy skeleton and its parts go away.
 
 ## Polish and balance (Phase 5 — implemented)
 

@@ -246,6 +246,56 @@ export const RIGS = {
       accentSlots: ['beak', 'crest', 'face', 'wings', 'tail', 'legs', 'chest', 'back', 'pattern'],
     },
   },
+
+  insect: {
+    id: 'insect', name: 'Insect', prefix: 'i.',
+    slots: ['body', 'head', 'eyes', 'mandibles', 'antennae', 'wings', 'legsFront', 'legsMid', 'legsBack', 'tail', 'shell', 'pattern'],
+    names: {
+      body: 'Body', head: 'Head', eyes: 'Eyes', mandibles: 'Mandibles', antennae: 'Antennae', wings: 'Wings', legsFront: 'Front legs',
+      legsMid: 'Middle legs', legsBack: 'Hind legs', tail: 'Tail tip', shell: 'Shell', pattern: 'Pattern',
+    },
+    paint: ['body', 'head', 'antennae', 'wings', 'legsFront', 'legsMid', 'legsBack', 'tail', 'shell', 'pattern'],
+    swappable: ['antennae', 'wings', 'tail', 'shell', 'pattern'],
+    required: ['body', 'head', 'eyes', 'mandibles', 'antennae', 'legsFront', 'legsMid', 'legsBack'],
+    linked: [['legsFront', 'legsMid', 'legsBack'], ['head', 'mandibles']],
+    ground: ['body', 'legsFront', 'legsMid', 'legsBack'],
+    clipped: ['pattern'],
+    tree: {
+      slot: 'body', anim: 'body',
+      behind: [
+        { slot: 'legsBack', socket: 'legBackFar', far: true, scale: 'leg' },
+        { slot: 'legsMid', socket: 'legMidFar', far: true, scale: 'leg' },
+        { slot: 'legsFront', socket: 'legFrontFar', far: true, scale: 'leg' },
+        { slot: 'wings', socket: 'wingFar', far: true, scale: 'wing', anim: 'flap' },
+        { slot: 'tail', socket: 'tail', scale: 'tail' },
+      ],
+      front: [
+        { slot: 'shell', socket: 'shell' },
+        { slot: 'legsBack', socket: 'legBack', scale: 'leg' },
+        { slot: 'legsMid', socket: 'legMid', scale: 'leg' },
+        { slot: 'legsFront', socket: 'legFront', scale: 'leg' },
+        { slot: 'wings', socket: 'wing', scale: 'wing', anim: 'flap' },
+        {
+          slot: 'head', socket: 'head', scale: 'head', anim: 'head',
+          behind: [{ slot: 'antennae', socket: 'antennae' }],
+          front: [
+            { slot: 'eyes', socket: 'eyeFar', far: true, scale: 'eye', small: true },
+            { slot: 'eyes', socket: 'eye', scale: 'eye', small: true },
+            { slot: 'mandibles', socket: 'mandibles', small: true },
+          ],
+        },
+      ],
+    },
+    mannequin: {
+      parts: {
+        body: 'i.body.beetle', head: 'i.head.beetle', eyes: 'i.eyes.round', mandibles: 'i.mandibles.grin', antennae: 'i.antennae.short',
+        wings: 'i.wings.none', legsFront: 'i.legsFront.thin', legsMid: 'i.legsMid.thin', legsBack: 'i.legsBack.thin', tail: 'i.tail.none',
+        shell: 'i.shell.none', pattern: 'i.pattern.none',
+      },
+      forSlot: {},
+      accentSlots: ['antennae', 'wings', 'tail', 'shell', 'pattern'],
+    },
+  },
 };
 
 export const RIG_IDS = Object.keys(RIGS);
