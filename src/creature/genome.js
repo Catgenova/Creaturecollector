@@ -7,7 +7,8 @@
 import { SLOTS, PARTS_BY_SLOT, getPart, partsFor, partFits } from '../data/parts/index.js';
 import { SPECIES, SPECIES_BY_ID, TIER_WEIGHT } from '../data/species.js';
 import { isType } from '../data/types.js';
-import { clamp01, normalizeWeights, b64uEncode, b64uDecode } from '../core/util.js';
+import { clamp01, round3, normalizeWeights, b64uEncode, b64uDecode } from '../core/util.js';
+import { splitName } from './naming.js';
 import { jitterPalette, shinyPalette } from './palette.js';
 
 export const GENOME_VERSION = 1;
@@ -28,15 +29,14 @@ export const ROLL = {
   shiny: 1 / 64,
 };
 
-const round3 = (x) => Math.round(x * 1000) / 1000;
-
 function allelesFromRecipe(entry, slot) {
   if (Array.isArray(entry)) return [entry[0], entry[1] ?? entry[0]];
   if (typeof entry === 'string') return [entry, entry];
   return [`${slot}.none`, `${slot}.none`];
 }
 
-function randomPartId(slot, bodyKind, rng) {
+/** Random part id for a slot that fits the body kind, weighted by part rarity. */
+export function randomPartId(slot, bodyKind, rng) {
   const pool = partsFor(slot, bodyKind);
   return rng.weighted(pool, (p) => p.w ?? 1).id;
 }
@@ -93,6 +93,7 @@ export function speciesGenome(species, rng) {
     seed: rng.seed,
     species: species.id,
     name: species.name,
+    nameParts: species.nameParts ? species.nameParts.slice() : splitName(species.name),
     gen: 0,
     shiny,
     types: [species.types[0], species.types[1] || null],
@@ -181,6 +182,13 @@ export function validateGenome(g) {
   g.bst = Number.isFinite(g.bst) ? g.bst : 400;
   g.gen = Number.isFinite(g.gen) ? g.gen : 0;
   g.name = typeof g.name === 'string' && g.name.trim() ? g.name.trim().slice(0, 24) : 'Unknown';
+  if (!Array.isArray(g.nameParts) || g.nameParts.length !== 2 || !g.nameParts.every((x) => typeof x === 'string' && x)) {
+    const sp = g.species && SPECIES_BY_ID[g.species];
+    g.nameParts = sp && sp.nameParts ? sp.nameParts.slice() : splitName(g.name);
+  }
+  g.species = typeof g.species === 'string' && SPECIES_BY_ID[g.species] ? g.species : null;
+  g.parents = Array.isArray(g.parents) ? g.parents.filter((x) => typeof x === 'string').slice(0, 2) : undefined;
+  if (g.parents === undefined) delete g.parents;
   g.lineage = Array.isArray(g.lineage) ? g.lineage.filter((x) => typeof x === 'string').slice(0, 16) : [];
   g.shiny = Boolean(g.shiny);
   return g;

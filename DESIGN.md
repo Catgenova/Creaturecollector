@@ -103,24 +103,43 @@ under `prefers-reduced-motion`.
 
 Never rename or reuse an id: saved creatures reference ids forever.
 
-## Fusion (Phase 2 — next)
+## Fusion (Phase 2 — implemented)
 
-`fuse(a, b, rng) -> child`:
-- Parts: per slot, take one random allele from each parent; the higher dominance
-  (plus a small random tiebreak) is expressed. Small mutation chance per slot.
-- Body: same rule; parts that no longer fit fall back as above.
-- Paint: per slot, inherit the paint gene from whichever parent supplied the
-  expressed allele.
-- Palette: per colour, inherit from one parent or blend (short way round the hue
-  wheel) with a little noise; eye colour from one parent.
-- Traits: blend with noise, clamped.
-- Types: primary from one parent, secondary from the other (dedupe; may end up
-  mono-typed).
-- Stats: average the weights, renormalise; `bst` = mean of parents + a small
-  generation bonus capped at gen 5. Fusion changes shape, not raw power.
-- Name: portmanteau at a syllable boundary. `gen` = max(parents) + 1.
-  `lineage` = merged, most recent 16.
-- Fusion consumes both parents (party stays bounded, decisions matter).
+`fuse(a, b, rng) -> { child, report }` in `src/creature/fusion.js`. Deterministic
+per seed; the Fusion Lab seeds it from both parents plus a re-roll counter.
+
+- **Parts.** Per slot the child draws one allele from each parent at random. The
+  allele with the higher dominance (`dom` on the part, plus ±0.15 noise) is
+  expressed, the other carried. A part that does not fit the chosen body swaps
+  with the carried allele when that one fits. Mutation: 3% expressed, 6% carried,
+  1% body.
+- **Identity parent.** Whichever parent supplied the expressed head (or the body
+  when the child is headless). It gives the name prefix, the palette base, the
+  primary type and the shiny flag. The other parent gives the name suffix, one
+  colour and the secondary type. Shape from one side, colours from the other.
+- **Paint** travels with the part: each slot's paint gene comes from the parent
+  whose allele is expressed there (5% random permutation).
+- **Palette.** c1–c3 from the identity parent with slight jitter, then one of:
+  55% the other parent's primary replaces c2 or c3; 30% c1 is blended between
+  the parents' primaries and one of c2/c3 comes from the other parent; 15% pure.
+  Eyes from either parent.
+- **Traits** blend at a random point between the parents with a little noise.
+- **Types.** Primary = identity parent's primary. Secondary = the first of the
+  other parent's primary, the other parent's secondary, the identity parent's
+  secondary that differs from the primary; else none.
+- **Stats.** Weights averaged and renormalised. `bst` = mean of parents +
+  4 × min(gen, 5). Because the bonus sits on top of a mean, a line fused over
+  and over converges to about 40 above its partners and never runs away.
+  Vigor takes the better parent 60% of the time, else the mean.
+- **Name** = identity prefix + other suffix, joined at a clean boundary
+  (`naming.js`). `gen` = max + 1; `lineage` merged and deduped, most recent 16;
+  `parents` = the two names.
+- Fusion consumes both parents in the game (the Lab keeps them for experiments).
+
+The report lists, per slot, which parent supplied the expressed part and whether
+it mutated, where each colour came from, and where each type came from. The
+Fusion Lab shows it and can breed a child five more generations against random
+pool members to check that lines stay coherent.
 
 ## Battle (Phase 3)
 

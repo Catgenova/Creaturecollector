@@ -6,6 +6,7 @@ import { randomGenome, speciesGenome, baseStats, encodeGenome, decodeGenome, res
 import { swatchCss } from '../creature/palette.js';
 import { SPECIES, SPECIES_BY_ID } from '../data/species.js';
 import { SLOTS, SLOT_NAMES, getPart } from '../data/parts/index.js';
+import { addToPool } from './state.js';
 
 const labState = { seed: null, species: 'random', count: 12 };
 
@@ -132,7 +133,13 @@ export function openSheet(g) {
     hero,
     h('div', { class: 'row' },
       h('button', { class: 'btn', onclick: () => { facing = facing === 'right' ? 'left' : 'right'; clear(hero).append(creatureEl(g, { size: 260, facing, fit: true })); } }, 'Flip'),
-      h('button', { class: 'btn', onclick: async () => toast((await copyText(code)) ? 'Code copied' : 'Copy failed, select the text below') }, 'Copy code')),
+      h('button', { class: 'btn', onclick: async () => toast((await copyText(code)) ? 'Code copied' : 'Copy failed, select the text below') }, 'Copy code'),
+      h('button', { class: 'btn', onclick: () => {
+        toast(addToPool(g) ? 'Added to the fusion pool' : 'Already in the pool');
+        close();
+        if (location.hash === '#fusion') window.dispatchEvent(new CustomEvent('pool-changed'));
+        else location.hash = 'fusion';
+      } }, 'Fuse')),
     sp ? h('p', { class: 'desc' }, sp.desc) : null,
     ...section('Base stats', statRows(g)),
     ...section('Parts', partRows(g)),

@@ -109,6 +109,38 @@ h3.sec { font-size: 12px; text-transform: uppercase; letter-spacing: .1em; color
   .toolbar select { flex: 1 1 220px; }
   .grid { grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); }
 }
+
+/* Fusion Lab */
+.parents { display: grid; grid-template-columns: 1fr 28px 1fr; gap: 6px; align-items: stretch; }
+.pslot { border: 2px dashed var(--line); border-radius: var(--radius); min-height: 190px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; padding: 6px; background: var(--bg2); color: inherit; cursor: pointer; text-align: center; }
+.pslot.filled { border-style: solid; }
+.pslot .tag { font-size: 11px; font-weight: 800; letter-spacing: .12em; color: var(--fg2); }
+.pslot .hint { margin: 0; }
+.pslot svg { width: 100%; max-width: 150px; height: auto; }
+.times { align-self: center; text-align: center; color: var(--fg2); font-size: 22px; }
+.fuse-btn { width: 100%; margin: 10px 0 4px; min-height: 52px; font-size: 17px; }
+.fuse-btn:disabled { opacity: .45; }
+.result { border: 1px solid var(--line); border-radius: var(--radius); background: var(--bg2); padding: 12px; margin-top: 12px; scroll-margin-top: 70px; }
+.result .hero svg { width: min(60vw, 240px); }
+.row.wrap { flex-wrap: wrap; }
+.inherit { display: grid; grid-template-columns: 72px 1fr auto; gap: 5px 10px; font-size: 13px; align-items: center; }
+.badge { display: inline-block; min-width: 22px; text-align: center; font-size: 11px; font-weight: 800; padding: 2px 7px; border-radius: 6px; background: var(--bg3); color: var(--fg); line-height: 1.3; }
+.badge.a { background: #4f8ef7; color: #fff; }
+.badge.b { background: #f26aa3; color: #fff; }
+.badge.m { background: var(--acc); color: #1a1400; }
+.badge.blend { background: linear-gradient(90deg, #4f8ef7, #f26aa3); color: #fff; }
+.stack { display: flex; flex-direction: column; gap: 6px; }
+.sw-row { display: flex; align-items: center; gap: 8px; font-size: 13px; flex-wrap: wrap; }
+.sw.small { width: 22px; height: 22px; border-radius: 6px; }
+.pool { display: grid; grid-template-columns: repeat(auto-fill, minmax(104px, 1fr)); gap: 8px; }
+.pcard { position: relative; display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 4px 4px 6px; border: 1px solid var(--line); border-radius: 12px; background: var(--bg2); color: inherit; cursor: pointer; font-size: 12px; }
+.pcard svg { width: 100%; height: auto; }
+.pcard .sel { position: absolute; top: 6px; left: 6px; }
+.pcard .gen { position: absolute; top: 6px; right: 6px; font-size: 10px; color: var(--fg2); }
+.pcard.is-a { outline: 2px solid #4f8ef7; }
+.pcard.is-b { outline: 2px solid #f26aa3; }
+.chain { display: flex; gap: 8px; overflow-x: auto; padding: 8px 0 10px; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; }
+.chain .pcard { flex: 0 0 122px; scroll-snap-align: start; }
 </style>
 </head>
 <body>
@@ -258,6 +290,7 @@ const clamp = (v, lo, hi) => (v < lo ? lo : v > hi ? hi : v);
 const clamp01 = (v) => clamp(v, 0, 1);
 const lerp = (a, b, t) => a + (b - a) * t;
 const round1 = (v) => Math.round(v * 10) / 10;
+const round3 = (v) => Math.round(v * 1000) / 1000;
 const sum = (arr) => arr.reduce((a, b) => a + b, 0);
 
 /** Wrap a hue into [0,360). */
@@ -851,7 +884,7 @@ const MID = [0.35, 0.65];
 
 const SPECIES = [
   {
-    id: 'pufflet', name: 'Pufflet', types: ['Normal'], tier: 'common', bst: 385,
+    id: 'pufflet', name: 'Pufflet', nameParts: ['Puff', 'let'], types: ['Normal'], tier: 'common', bst: 385,
     stats: { hp: 0.2, atk: 0.16, def: 0.16, spa: 0.14, spd: 0.16, spe: 0.18 },
     recipe: { body: 'body.round', head: 'head.round', eyes: 'eye.round', mouth: 'mouth.smile', crown: ['crown.catears', 'crown.bunny'], legs: 'legs.stub', arms: 'arms.none', wings: 'wings.none', tail: 'tails.stubby', back: 'back.none', pattern: 'pat.belly' },
     palette: { c1: [38, 45, 72], c2: [36, 40, 88], c3: [350, 60, 72], eye: [205, 35, 28] }, vary: { h: 10, s: 8, l: 6 },
@@ -859,7 +892,7 @@ const SPECIES = [
     desc: 'A soft, round creature that puffs up when startled. Happiest in a warm pocket.',
   },
   {
-    id: 'emberox', name: 'Emberox', types: ['Fire'], tier: 'common', bst: 405,
+    id: 'emberox', name: 'Emberox', nameParts: ['Ember', 'ox'], types: ['Fire'], tier: 'common', bst: 405,
     stats: { hp: 0.14, atk: 0.19, def: 0.13, spa: 0.2, spd: 0.13, spe: 0.21 },
     recipe: { body: 'body.quad', head: 'head.snout', eyes: 'eye.angry', mouth: 'mouth.fangs', crown: ['crown.catears', 'crown.horns'], legs: 'legs.canine', arms: 'arms.none', wings: ['wings.none', 'wings.fire'], tail: 'tails.flame', back: 'back.none', pattern: 'pat.saddle' },
     palette: { c1: [22, 88, 52], c2: [40, 95, 58], c3: [8, 88, 52], eye: [48, 95, 55] }, vary: { h: 8, s: 6, l: 6 },
@@ -867,7 +900,7 @@ const SPECIES = [
     desc: 'Its tail flame burns hotter the more it wants to impress. Kicks up sparks when it runs.',
   },
   {
-    id: 'finnip', name: 'Finnip', types: ['Water'], tier: 'common', bst: 395,
+    id: 'finnip', name: 'Finnip', nameParts: ['Fin', 'nip'], types: ['Water'], tier: 'common', bst: 395,
     stats: { hp: 0.16, atk: 0.14, def: 0.17, spa: 0.19, spd: 0.18, spe: 0.16 },
     recipe: { body: 'body.fish', head: 'head.none', eyes: 'eye.big', mouth: 'mouth.open', crown: 'crown.fin', legs: 'legs.none', arms: 'arms.fin', wings: 'wings.none', tail: 'tails.fish', back: 'back.fin', pattern: 'pat.stripes' },
     palette: { c1: [205, 80, 54], c2: [190, 70, 72], c3: [28, 90, 62], eye: [42, 90, 50] }, vary: { h: 10, s: 6, l: 6 },
@@ -875,7 +908,7 @@ const SPECIES = [
     desc: 'Swims through air as easily as water by beating its fins very fast. Curious about shiny things.',
   },
   {
-    id: 'sprigget', name: 'Sprigget', types: ['Grass'], tier: 'common', bst: 395,
+    id: 'sprigget', name: 'Sprigget', nameParts: ['Sprig', 'get'], types: ['Grass'], tier: 'common', bst: 395,
     stats: { hp: 0.18, atk: 0.15, def: 0.18, spa: 0.17, spd: 0.18, spe: 0.14 },
     recipe: { body: 'body.biped', head: 'head.bulb', eyes: 'eye.round', mouth: 'mouth.smile', crown: 'crown.sprout', legs: 'legs.stub', arms: 'arms.stub', wings: ['wings.none', 'wings.leaf'], tail: 'tails.leaf', back: 'back.none', pattern: 'pat.spots' },
     palette: { c1: [110, 45, 48], c2: [95, 55, 66], c3: [98, 55, 40], eye: [22, 60, 30] }, vary: { h: 12, s: 8, l: 6 },
@@ -883,7 +916,7 @@ const SPECIES = [
     desc: 'The sprout on its head leans toward sunlight. It naps in flowerbeds and wakes covered in pollen.',
   },
   {
-    id: 'voltmite', name: 'Voltmite', types: ['Electric'], tier: 'common', bst: 400,
+    id: 'voltmite', name: 'Voltmite', nameParts: ['Volt', 'mite'], types: ['Electric'], tier: 'common', bst: 400,
     stats: { hp: 0.13, atk: 0.16, def: 0.12, spa: 0.21, spd: 0.14, spe: 0.24 },
     recipe: { body: 'body.round', head: 'head.none', eyes: 'eye.big', mouth: 'mouth.grin', crown: 'crown.bolts', legs: 'legs.stub', arms: 'arms.stub', wings: 'wings.none', tail: 'tails.whip', back: ['back.none', 'back.bolts'], pattern: 'pat.stripes' },
     palette: { c1: [50, 95, 58], c2: [222, 15, 22], c3: [30, 95, 55], eye: [222, 40, 22] }, vary: { h: 6, s: 5, l: 6 },
@@ -891,7 +924,7 @@ const SPECIES = [
     desc: 'Static crackles in its fur. It clings to power lines and hums along with them.',
   },
   {
-    id: 'glacub', name: 'Glacub', types: ['Ice'], tier: 'uncommon', bst: 420,
+    id: 'glacub', name: 'Glacub', nameParts: ['Gla', 'cub'], types: ['Ice'], tier: 'uncommon', bst: 420,
     stats: { hp: 0.2, atk: 0.18, def: 0.17, spa: 0.14, spd: 0.17, spe: 0.14 },
     recipe: { body: 'body.biped', head: 'head.round', eyes: 'eye.sleepy', mouth: 'mouth.flat', crown: 'crown.catears', legs: 'legs.chunky', arms: 'arms.paw', wings: 'wings.none', tail: 'tails.stubby', back: ['back.none', 'back.crystal'], pattern: 'pat.belly' },
     palette: { c1: [196, 55, 80], c2: [200, 30, 95], c3: [210, 60, 62], eye: [222, 50, 35] }, vary: { h: 8, s: 8, l: 5 },
@@ -899,7 +932,7 @@ const SPECIES = [
     desc: 'Sleeps through blizzards. Its breath leaves frost on anything it sniffs.',
   },
   {
-    id: 'bruxor', name: 'Bruxor', types: ['Fighting'], tier: 'uncommon', bst: 430,
+    id: 'bruxor', name: 'Bruxor', nameParts: ['Brux', 'or'], types: ['Fighting'], tier: 'uncommon', bst: 430,
     stats: { hp: 0.17, atk: 0.25, def: 0.18, spa: 0.08, spd: 0.14, spe: 0.18 },
     recipe: { body: 'body.biped', head: 'head.block', eyes: 'eye.angry', mouth: 'mouth.frown', crown: ['crown.horns', 'crown.mohawk'], legs: 'legs.chunky', arms: 'arms.claw', wings: 'wings.none', tail: 'tail.none', back: 'back.none', pattern: 'pat.chest' },
     palette: { c1: [15, 55, 46], c2: [30, 45, 70], c3: [40, 30, 88], eye: [10, 80, 40] }, vary: { h: 8, s: 8, l: 6 },
@@ -907,7 +940,7 @@ const SPECIES = [
     desc: 'Headbutts boulders to keep its horns sharp. Loyal to whoever beats it fairly.',
   },
   {
-    id: 'slugmire', name: 'Slugmire', types: ['Poison'], tier: 'common', bst: 390,
+    id: 'slugmire', name: 'Slugmire', nameParts: ['Slug', 'mire'], types: ['Poison'], tier: 'common', bst: 390,
     stats: { hp: 0.19, atk: 0.14, def: 0.15, spa: 0.18, spd: 0.2, spe: 0.14 },
     recipe: { body: 'body.serpent', head: 'head.bulb', eyes: 'eye.slit', mouth: 'mouth.tongue', crown: 'crown.antennae', legs: 'legs.none', arms: 'arms.none', wings: 'wings.none', tail: 'tails.whip', back: ['back.none', 'back.spikes'], pattern: 'pat.spots' },
     palette: { c1: [280, 50, 46], c2: [95, 60, 52], c3: [305, 70, 66], eye: [95, 90, 55] }, vary: { h: 12, s: 8, l: 6 },
@@ -915,7 +948,7 @@ const SPECIES = [
     desc: 'Leaves a faintly glowing trail. Gardeners both dread and admire it.',
   },
   {
-    id: 'dustoat', name: 'Dustoat', types: ['Ground'], tier: 'common', bst: 400,
+    id: 'dustoat', name: 'Dustoat', nameParts: ['Dust', 'oat'], types: ['Ground'], tier: 'common', bst: 400,
     stats: { hp: 0.18, atk: 0.2, def: 0.2, spa: 0.1, spd: 0.16, spe: 0.16 },
     recipe: { body: 'body.quad', head: 'head.snout', eyes: 'eye.dot', mouth: 'mouth.flat', crown: ['crown.none', 'crown.horns'], legs: 'legs.hoof', arms: 'arms.none', wings: 'wings.none', tail: 'tails.whip', back: 'back.none', pattern: 'pat.saddle' },
     palette: { c1: [32, 45, 50], c2: [40, 50, 76], c3: [25, 35, 30], eye: [30, 60, 25] }, vary: { h: 8, s: 8, l: 6 },
@@ -923,7 +956,7 @@ const SPECIES = [
     desc: 'Digs shallow burrows and forgets where they are. Its hooves never seem to get dirty.',
   },
   {
-    id: 'zephyrn', name: 'Zephyrn', types: ['Flying'], tier: 'common', bst: 395,
+    id: 'zephyrn', name: 'Zephyrn', nameParts: ['Zeph', 'yrn'], types: ['Flying'], tier: 'common', bst: 395,
     stats: { hp: 0.14, atk: 0.17, def: 0.12, spa: 0.16, spd: 0.13, spe: 0.28 },
     recipe: { body: 'body.bird', head: 'head.beak', eyes: 'eye.round', mouth: 'mouth.none', crown: 'crown.crest', legs: 'legs.bird', arms: 'arms.none', wings: 'wings.feather', tail: 'tails.feathers', back: 'back.none', pattern: 'pat.belly' },
     palette: { c1: [210, 70, 72], c2: [200, 20, 96], c3: [40, 90, 58], eye: [222, 60, 25] }, vary: { h: 12, s: 8, l: 6 },
@@ -931,7 +964,7 @@ const SPECIES = [
     desc: 'Rides thermals for hours without a single flap. Whistles at travellers to show them the way.',
   },
   {
-    id: 'mystril', name: 'Mystril', types: ['Psychic'], tier: 'uncommon', bst: 440,
+    id: 'mystril', name: 'Mystril', nameParts: ['Mys', 'tril'], types: ['Psychic'], tier: 'uncommon', bst: 440,
     stats: { hp: 0.14, atk: 0.08, def: 0.13, spa: 0.26, spd: 0.21, spe: 0.18 },
     recipe: { body: 'body.float', head: 'head.none', eyes: 'eye.big', mouth: 'mouth.smile', crown: ['crown.antennae', 'crown.halo'], legs: 'legs.none', arms: 'arms.none', wings: 'wings.none', tail: 'tails.curl', back: 'back.wisps', pattern: 'pat.spots' },
     palette: { c1: [320, 60, 68], c2: [270, 50, 62], c3: [48, 90, 62], eye: [200, 70, 50] }, vary: { h: 14, s: 8, l: 6 },
@@ -939,7 +972,7 @@ const SPECIES = [
     desc: 'Hovers a hand-width above the ground and always seems to be listening to something far away.',
   },
   {
-    id: 'chitterbug', name: 'Chitterbug', types: ['Bug'], tier: 'common', bst: 380,
+    id: 'chitterbug', name: 'Chitterbug', nameParts: ['Chitter', 'bug'], types: ['Bug'], tier: 'common', bst: 380,
     stats: { hp: 0.16, atk: 0.18, def: 0.17, spa: 0.12, spd: 0.15, spe: 0.22 },
     recipe: { body: 'body.round', head: 'head.round', eyes: 'eye.bug', mouth: 'mouth.fangs', crown: 'crown.antennae', legs: 'legs.insect', arms: 'arms.none', wings: 'wings.bug', tail: 'tail.none', back: 'back.plates', pattern: 'pat.stripes' },
     palette: { c1: [95, 50, 42], c2: [222, 10, 18], c3: [50, 90, 55], eye: [0, 0, 12] }, vary: { h: 14, s: 8, l: 6 },
@@ -947,7 +980,7 @@ const SPECIES = [
     desc: 'Chatters constantly by rubbing its plates together. Swarms are loud enough to hear from the next valley.',
   },
   {
-    id: 'craggon', name: 'Craggon', types: ['Rock'], tier: 'uncommon', bst: 430,
+    id: 'craggon', name: 'Craggon', nameParts: ['Crag', 'gon'], types: ['Rock'], tier: 'uncommon', bst: 430,
     stats: { hp: 0.17, atk: 0.21, def: 0.27, spa: 0.08, spd: 0.15, spe: 0.12 },
     recipe: { body: 'body.biped', head: 'head.block', eyes: 'eye.dot', mouth: 'mouth.flat', crown: 'crown.spikes', legs: 'legs.chunky', arms: 'arms.claw', wings: 'wings.none', tail: 'tails.club', back: ['back.plates', 'back.crystal'], pattern: 'pat.scales' },
     palette: { c1: [30, 15, 50], c2: [30, 12, 36], c3: [32, 22, 68], eye: [45, 80, 50] }, vary: { h: 10, s: 6, l: 6 },
@@ -955,7 +988,7 @@ const SPECIES = [
     desc: 'Mistaken for a boulder until it yawns. Lichen grows on the ones that sit still longest.',
   },
   {
-    id: 'phantoom', name: 'Phantoom', types: ['Ghost'], tier: 'uncommon', bst: 425,
+    id: 'phantoom', name: 'Phantoom', nameParts: ['Phan', 'toom'], types: ['Ghost'], tier: 'uncommon', bst: 425,
     stats: { hp: 0.13, atk: 0.1, def: 0.14, spa: 0.24, spd: 0.2, spe: 0.19 },
     recipe: { body: 'body.float', head: 'head.none', eyes: 'eye.sleepy', mouth: 'mouth.grin', crown: ['crown.none', 'crown.halo'], legs: 'legs.none', arms: 'arms.stub', wings: 'wings.none', tail: 'tail.none', back: 'back.wisps', pattern: 'pattern.none' },
     palette: { c1: [255, 40, 42], c2: [250, 30, 72], c3: [180, 60, 70], eye: [180, 80, 60] }, vary: { h: 12, s: 8, l: 6 },
@@ -963,7 +996,7 @@ const SPECIES = [
     desc: 'Drifts through walls when it forgets they are there. Giggles in empty rooms.',
   },
   {
-    id: 'drakelet', name: 'Drakelet', types: ['Dragon'], tier: 'rare', bst: 480,
+    id: 'drakelet', name: 'Drakelet', nameParts: ['Drake', 'let'], types: ['Dragon'], tier: 'rare', bst: 480,
     stats: { hp: 0.17, atk: 0.21, def: 0.16, spa: 0.18, spd: 0.14, spe: 0.14 },
     recipe: { body: 'body.quad', head: 'head.long', eyes: 'eye.slit', mouth: 'mouth.fangs', crown: 'crown.horns', legs: 'legs.chunky', arms: 'arms.none', wings: 'wings.bat', tail: ['tails.whip', 'tails.club'], back: 'back.spikes', pattern: 'pat.gradient' },
     palette: { c1: [175, 55, 40], c2: [25, 80, 58], c3: [45, 70, 76], eye: [40, 90, 50] }, vary: { h: 12, s: 8, l: 6 },
@@ -971,7 +1004,7 @@ const SPECIES = [
     desc: 'A young dragon that hoards pebbles and sleeps on them. Its wings are still too small to carry it far.',
   },
   {
-    id: 'nyxcat', name: 'Nyxcat', types: ['Dark'], tier: 'uncommon', bst: 425,
+    id: 'nyxcat', name: 'Nyxcat', nameParts: ['Nyx', 'cat'], types: ['Dark'], tier: 'uncommon', bst: 425,
     stats: { hp: 0.14, atk: 0.21, def: 0.13, spa: 0.15, spd: 0.13, spe: 0.24 },
     recipe: { body: 'body.quad', head: 'head.cat', eyes: 'eye.slit', mouth: 'mouth.smirk', crown: 'crown.catears', legs: 'legs.canine', arms: 'arms.none', wings: 'wings.none', tail: ['tails.curl', 'tails.spade'], back: 'back.none', pattern: 'pattern.none' },
     palette: { c1: [262, 22, 22], c2: [270, 30, 45], c3: [45, 90, 60], eye: [50, 95, 55] }, vary: { h: 12, s: 8, l: 5 },
@@ -979,7 +1012,7 @@ const SPECIES = [
     desc: 'Only ever seen out of the corner of the eye. Steals one sock, never the pair.',
   },
   {
-    id: 'boltmaw', name: 'Boltmaw', types: ['Steel'], tier: 'rare', bst: 470,
+    id: 'boltmaw', name: 'Boltmaw', nameParts: ['Bolt', 'maw'], types: ['Steel'], tier: 'rare', bst: 470,
     stats: { hp: 0.16, atk: 0.22, def: 0.26, spa: 0.1, spd: 0.16, spe: 0.1 },
     recipe: { body: 'body.biped', head: 'head.skull', eyes: 'eye.dot', mouth: 'mouth.teeth', crown: 'crown.spikes', legs: 'legs.peg', arms: ['arms.claw', 'arms.blade'], wings: 'wings.none', tail: 'tails.club', back: 'back.plates', pattern: 'pat.bands' },
     palette: { c1: [220, 12, 62], c2: [220, 15, 40], c3: [200, 60, 55], eye: [0, 90, 52] }, vary: { h: 8, s: 5, l: 6 },
@@ -987,7 +1020,7 @@ const SPECIES = [
     desc: 'Nobody knows whether it was built or born. It sharpens its teeth on rusty nails.',
   },
   {
-    id: 'twinklet', name: 'Twinklet', types: ['Fairy'], tier: 'common', bst: 400,
+    id: 'twinklet', name: 'Twinklet', nameParts: ['Twink', 'let'], types: ['Fairy'], tier: 'common', bst: 400,
     stats: { hp: 0.17, atk: 0.1, def: 0.15, spa: 0.22, spd: 0.21, spe: 0.15 },
     recipe: { body: 'body.round', head: 'head.bulb', eyes: 'eye.big', mouth: 'mouth.smile', crown: 'crown.bunny', legs: 'legs.stub', arms: 'arms.stub', wings: 'wings.bug', tail: 'tails.fluffy', back: 'back.none', pattern: 'pat.speckle' },
     palette: { c1: [335, 75, 78], c2: [330, 30, 97], c3: [48, 90, 66], eye: [200, 70, 55] }, vary: { h: 12, s: 8, l: 5 },
@@ -996,7 +1029,7 @@ const SPECIES = [
   },
   // Dual-typed species
   {
-    id: 'moltrix', name: 'Moltrix', types: ['Fire', 'Flying'], tier: 'uncommon', bst: 445,
+    id: 'moltrix', name: 'Moltrix', nameParts: ['Mol', 'trix'], types: ['Fire', 'Flying'], tier: 'uncommon', bst: 445,
     stats: { hp: 0.14, atk: 0.18, def: 0.12, spa: 0.22, spd: 0.12, spe: 0.22 },
     recipe: { body: 'body.bird', head: 'head.beak', eyes: 'eye.angry', mouth: 'mouth.none', crown: 'crown.crest', legs: 'legs.bird', arms: 'arms.none', wings: 'wings.fire', tail: 'tails.feathers', back: 'back.none', pattern: 'pat.gradient' },
     palette: { c1: [18, 85, 50], c2: [40, 95, 60], c3: [48, 95, 58], eye: [48, 95, 55] }, vary: { h: 8, s: 6, l: 6 },
@@ -1004,7 +1037,7 @@ const SPECIES = [
     desc: 'Its wingbeats leave trails of embers. Nests on chimney tops in winter.',
   },
   {
-    id: 'tidalisk', name: 'Tidalisk', types: ['Water', 'Dragon'], tier: 'rare', bst: 490,
+    id: 'tidalisk', name: 'Tidalisk', nameParts: ['Tida', 'lisk'], types: ['Water', 'Dragon'], tier: 'rare', bst: 490,
     stats: { hp: 0.18, atk: 0.17, def: 0.17, spa: 0.2, spd: 0.15, spe: 0.13 },
     recipe: { body: 'body.serpent', head: 'head.long', eyes: 'eye.slit', mouth: 'mouth.fangs', crown: 'crown.fin', legs: 'legs.none', arms: 'arms.none', wings: 'wings.fin', tail: 'tails.fish', back: 'back.fin', pattern: 'pat.scales' },
     palette: { c1: [200, 65, 42], c2: [185, 60, 68], c3: [165, 70, 60], eye: [45, 90, 55] }, vary: { h: 10, s: 6, l: 6 },
@@ -1012,7 +1045,7 @@ const SPECIES = [
     desc: 'Coils around harbour posts during storms. Sailors leave it fish and it leaves them alone.',
   },
   {
-    id: 'mossbrute', name: 'Mossbrute', types: ['Grass', 'Fighting'], tier: 'uncommon', bst: 440,
+    id: 'mossbrute', name: 'Mossbrute', nameParts: ['Moss', 'brute'], types: ['Grass', 'Fighting'], tier: 'uncommon', bst: 440,
     stats: { hp: 0.19, atk: 0.23, def: 0.2, spa: 0.1, spd: 0.16, spe: 0.12 },
     recipe: { body: 'body.biped', head: 'head.block', eyes: 'eye.angry', mouth: 'mouth.frown', crown: 'crown.sprout', legs: 'legs.chunky', arms: 'arms.claw', wings: 'wings.none', tail: 'tails.stubby', back: 'back.leaf', pattern: 'pat.spots' },
     palette: { c1: [100, 35, 40], c2: [80, 45, 55], c3: [95, 55, 62], eye: [40, 80, 50] }, vary: { h: 10, s: 8, l: 6 },
@@ -1020,7 +1053,7 @@ const SPECIES = [
     desc: 'Moss grows thick on its shoulders. It uproots trees to practise its throws, then replants them.',
   },
   {
-    id: 'gloamoth', name: 'Gloamoth', types: ['Bug', 'Ghost'], tier: 'uncommon', bst: 430,
+    id: 'gloamoth', name: 'Gloamoth', nameParts: ['Gloa', 'moth'], types: ['Bug', 'Ghost'], tier: 'uncommon', bst: 430,
     stats: { hp: 0.14, atk: 0.12, def: 0.12, spa: 0.22, spd: 0.18, spe: 0.22 },
     recipe: { body: 'body.float', head: 'head.none', eyes: 'eye.bug', mouth: 'mouth.flat', crown: 'crown.antennae', legs: 'legs.none', arms: 'arms.none', wings: 'wings.bug', tail: 'tail.none', back: 'back.wisps', pattern: 'pat.speckle' },
     palette: { c1: [250, 30, 38], c2: [260, 25, 60], c3: [170, 60, 68], eye: [170, 80, 65] }, vary: { h: 12, s: 8, l: 6 },
@@ -1033,6 +1066,34 @@ const SPECIES_BY_ID = Object.fromEntries(SPECIES.map((s) => [s.id, s]));
 
 const TIER_WEIGHT = { common: 1, uncommon: 0.55, rare: 0.25 };
 
+// ---- src/creature/naming.js ----
+// Names. Species carry hand-picked [prefix, suffix] halves; a fusion takes the
+// prefix of the parent that gives its face and the suffix of the other one.
+
+const VOWELS = 'aeiouy';
+
+/** Join two name halves at a clean boundary. "Gla"+"ox" -> "Glox", "Puff"+"fin" -> "Puffin". */
+function joinNameParts(prefix, suffix) {
+  let p = String(prefix || '').trim(), s = String(suffix || '').trim();
+  if (!p) return capitalize(s || 'Fusion');
+  if (!s) return capitalize(p);
+  const pl = p[p.length - 1].toLowerCase(), s0 = s[0].toLowerCase();
+  if (pl === s0) p = p.slice(0, -1);
+  else if (VOWELS.includes(pl) && VOWELS.includes(s0)) p = p.slice(0, -1);
+  return capitalize((p + s).slice(0, 20));
+}
+
+/** Fallback split for names without authored halves: after the first vowel cluster and the consonants that follow it. */
+function splitName(name) {
+  const n = String(name || 'Fusion');
+  const m = n.match(/^([^aeiouy]*[aeiouy]+[^aeiouy]+)(.+)$/i);
+  if (m && m[2].length >= 2 && m[1].length >= 2) return [m[1], m[2].toLowerCase()];
+  const cut = Math.ceil(n.length / 2);
+  return [n.slice(0, cut), n.slice(cut).toLowerCase()];
+}
+
+function capitalize(s) { return s ? s[0].toUpperCase() + s.slice(1) : s; }
+
 // ---- src/creature/genome.js ----
 // The genome is the single source of truth for a creature. It is a plain JSON
 // object with a fixed shape, so fusing two genomes always yields another valid
@@ -1040,6 +1101,7 @@ const TIER_WEIGHT = { common: 1, uncommon: 0.55, rare: 0.25 };
 //
 // Diploid part genes: every slot holds [expressed, carried]. Only the expressed
 // allele is drawn; the carried one can resurface in offspring.
+
 
 
 
@@ -1064,14 +1126,13 @@ const ROLL = {
   shiny: 1 / 64,
 };
 
-const round3 = (x) => Math.round(x * 1000) / 1000;
-
 function allelesFromRecipe(entry, slot) {
   if (Array.isArray(entry)) return [entry[0], entry[1] ?? entry[0]];
   if (typeof entry === 'string') return [entry, entry];
   return [`${slot}.none`, `${slot}.none`];
 }
 
+/** Random part id for a slot that fits the body kind, weighted by part rarity. */
 function randomPartId(slot, bodyKind, rng) {
   const pool = partsFor(slot, bodyKind);
   return rng.weighted(pool, (p) => p.w ?? 1).id;
@@ -1129,6 +1190,7 @@ function speciesGenome(species, rng) {
     seed: rng.seed,
     species: species.id,
     name: species.name,
+    nameParts: species.nameParts ? species.nameParts.slice() : splitName(species.name),
     gen: 0,
     shiny,
     types: [species.types[0], species.types[1] || null],
@@ -1217,6 +1279,13 @@ function validateGenome(g) {
   g.bst = Number.isFinite(g.bst) ? g.bst : 400;
   g.gen = Number.isFinite(g.gen) ? g.gen : 0;
   g.name = typeof g.name === 'string' && g.name.trim() ? g.name.trim().slice(0, 24) : 'Unknown';
+  if (!Array.isArray(g.nameParts) || g.nameParts.length !== 2 || !g.nameParts.every((x) => typeof x === 'string' && x)) {
+    const sp = g.species && SPECIES_BY_ID[g.species];
+    g.nameParts = sp && sp.nameParts ? sp.nameParts.slice() : splitName(g.name);
+  }
+  g.species = typeof g.species === 'string' && SPECIES_BY_ID[g.species] ? g.species : null;
+  g.parents = Array.isArray(g.parents) ? g.parents.filter((x) => typeof x === 'string').slice(0, 2) : undefined;
+  if (g.parents === undefined) delete g.parents;
   g.lineage = Array.isArray(g.lineage) ? g.lineage.filter((x) => typeof x === 'string').slice(0, 16) : [];
   g.shiny = Boolean(g.shiny);
   return g;
@@ -1641,8 +1710,28 @@ function freshSeed() {
   return s;
 }
 
+// ---- src/ui/state.js ----
+// Cross-screen state. In-memory for now; the save system (Phase 4) will persist it.
+const fusionPool = { seed: null, genomes: [] };
+
+const POOL_MAX = 24;
+
+/** Add a genome to the fusion pool, newest first. Returns false if it was already there. */
+function addToPool(g) {
+  if (fusionPool.genomes.some((x) => x === g || (x.seed === g.seed && x.name === g.name && x.gen === g.gen))) return false;
+  fusionPool.genomes.unshift(g);
+  if (fusionPool.genomes.length > POOL_MAX) fusionPool.genomes.length = POOL_MAX;
+  return true;
+}
+
+function removeFromPool(g) {
+  const i = fusionPool.genomes.indexOf(g);
+  if (i >= 0) fusionPool.genomes.splice(i, 1);
+}
+
 // ---- src/ui/lab.js ----
 // Creature Lab: roll seeded creatures, inspect genes, copy and load creature codes.
+
 
 
 
@@ -1776,7 +1865,13 @@ function openSheet(g) {
     hero,
     h('div', { class: 'row' },
       h('button', { class: 'btn', onclick: () => { facing = facing === 'right' ? 'left' : 'right'; clear(hero).append(creatureEl(g, { size: 260, facing, fit: true })); } }, 'Flip'),
-      h('button', { class: 'btn', onclick: async () => toast((await copyText(code)) ? 'Code copied' : 'Copy failed, select the text below') }, 'Copy code')),
+      h('button', { class: 'btn', onclick: async () => toast((await copyText(code)) ? 'Code copied' : 'Copy failed, select the text below') }, 'Copy code'),
+      h('button', { class: 'btn', onclick: () => {
+        toast(addToPool(g) ? 'Added to the fusion pool' : 'Already in the pool');
+        close();
+        if (location.hash === '#fusion') window.dispatchEvent(new CustomEvent('pool-changed'));
+        else location.hash = 'fusion';
+      } }, 'Fuse')),
     sp ? h('p', { class: 'desc' }, sp.desc) : null,
     ...section('Base stats', statRows(g)),
     ...section('Parts', partRows(g)),
@@ -1810,8 +1905,329 @@ function renderPartsScreen(root) {
   }
 }
 
+// ---- src/creature/fusion.js ----
+// Fusion: two genomes in, one genome out, plus a report of what came from where.
+//
+// Heredity is diploid. For every slot the child draws one allele from each
+// parent at random; the allele with the higher dominance (plus a little noise)
+// is expressed and the other is carried. That keeps identities crisp across
+// generations and lets a grandparent's trait resurface.
+//
+// The "identity parent" is whichever parent supplied the expressed head (or the
+// body, for headless children). It gives the name prefix, the palette base and
+// the primary type. The other parent gives the suffix, one accent colour and the
+// secondary type. Shape from one side, colours from the other: that is what
+// makes a fusion read as half and half.
+
+
+
+
+
+
+const FUSE = {
+  dominanceNoise: 0.15,   // +/- added to each allele's dominance before comparing
+  expressedMutation: 0.03,
+  carriedMutation: 0.06,
+  bodyMutation: 0.01,
+  paintSwap: 0.05,
+  genBonusPerGen: 4,      // bst bonus per generation
+  genBonusCap: 5,         // generations that count toward the bonus
+  maxLineage: 16,
+};
+
+function dominanceOf(id) {
+  const p = getPart(id);
+  return p ? p.dom : 0.3;
+}
+
+function fitsBody(id, kind) {
+  const p = getPart(id);
+  return Boolean(p) && partFits(p, kind);
+}
+
+function nudgeColor(c, rng) {
+  return [c[0] + rng.gauss() * 3, clamp01((c[1] + rng.gauss() * 2) / 100) * 100, clamp01((c[2] + rng.gauss() * 2) / 100) * 100].map(round3);
+}
+
+function namePartsOf(g) {
+  return Array.isArray(g.nameParts) && g.nameParts.length === 2 ? g.nameParts : splitName(g.name);
+}
+
+/**
+ * Fuse a and b. Deterministic for a given rng seed.
+ * Returns { child, report } where report = { from: {slot: 0|1}, mutated: {slot: true},
+ *   identity: 0|1, palette: {c1|c2|c3|eye: 0|1|'blend'}, types: {primary: 0|1, secondary: 0|1|null} }.
+ */
+function fuse(a, b, rng) {
+  const rParts = rng.fork('parts');
+  const rMut = rng.fork('mutation');
+  const rPaint = rng.fork('paint');
+  const rPal = rng.fork('palette');
+  const rTraits = rng.fork('traits');
+  const rStats = rng.fork('stats');
+  const parents = [a, b];
+
+  const draw = (slot) => {
+    const fromA = a.parts[slot][rParts.int(2)];
+    const fromB = b.parts[slot][rParts.int(2)];
+    const dA = dominanceOf(fromA) + rParts.range(-FUSE.dominanceNoise, FUSE.dominanceNoise);
+    const dB = dominanceOf(fromB) + rParts.range(-FUSE.dominanceNoise, FUSE.dominanceNoise);
+    return dA >= dB ? { alleles: [fromA, fromB], from: 0 } : { alleles: [fromB, fromA], from: 1 };
+  };
+
+  const parts = {}, from = {}, mutated = {};
+  const bodyDraw = draw('body');
+  parts.body = bodyDraw.alleles;
+  from.body = bodyDraw.from;
+  if (rMut.chance(FUSE.bodyMutation)) { parts.body = [randomPartId('body', null, rMut), parts.body[0]]; mutated.body = true; }
+  const bodyKind = getPart(parts.body[0]).kind;
+
+  for (const slot of SLOTS) {
+    if (slot === 'body') continue;
+    const d = draw(slot);
+    let [e, c] = d.alleles;
+    let f = d.from;
+    if (!fitsBody(e, bodyKind) && fitsBody(c, bodyKind)) { [e, c] = [c, e]; f = 1 - f; }
+    if (rMut.chance(FUSE.expressedMutation)) { c = e; e = randomPartId(slot, bodyKind, rMut); mutated[slot] = true; }
+    else if (rMut.chance(FUSE.carriedMutation)) c = randomPartId(slot, bodyKind, rMut);
+    parts[slot] = [e, c];
+    from[slot] = f;
+  }
+
+  const headPart = getPart(parts.head[0]);
+  const identity = headPart && !headPart.none && !mutated.head ? from.head : from.body;
+  const P1 = parents[identity], P2 = parents[1 - identity];
+
+  // Paint travels with the part that was expressed.
+  const paint = {};
+  for (const slot of PAINT_SLOTS) {
+    const src = parents[from[slot] == null ? identity : from[slot]];
+    paint[slot] = (src.paint && PAINT_PERMS[src.paint[slot]]) ? src.paint[slot] : 0;
+    if (rPaint.chance(FUSE.paintSwap)) paint[slot] = rPaint.int(PAINT_PERMS.length);
+  }
+
+  // Palette: base from the identity parent, one colour from the other parent.
+  const palette = {}, palFrom = {};
+  for (const k of ['c1', 'c2', 'c3']) { palette[k] = nudgeColor(P1.palette[k], rPal); palFrom[k] = identity; }
+  const roll = rPal.next();
+  if (roll < 0.55) {
+    const k = rPal.pick(['c2', 'c3']);
+    palette[k] = nudgeColor(P2.palette.c1, rPal); palFrom[k] = 1 - identity;
+  } else if (roll < 0.85) {
+    palette.c1 = blendColor(P1.palette.c1, P2.palette.c1, rPal.range(0.35, 0.65)); palFrom.c1 = 'blend';
+    const k = rPal.pick(['c2', 'c3']);
+    palette[k] = nudgeColor(P2.palette[k], rPal); palFrom[k] = 1 - identity;
+  }
+  const eyeFrom = rPal.chance(0.5) ? identity : 1 - identity;
+  palette.eye = parents[eyeFrom].palette.eye.slice();
+  palFrom.eye = eyeFrom;
+
+  const traits = {};
+  for (const k of TRAIT_KEYS) {
+    const t = clamp01(0.5 + rTraits.gauss() * 0.15);
+    const av = a.traits && a.traits[k] != null ? a.traits[k] : 0.5;
+    const bv = b.traits && b.traits[k] != null ? b.traits[k] : 0.5;
+    traits[k] = round3(clamp01(lerp(av, bv, t) + rTraits.gauss() * 0.04));
+  }
+
+  const primary = P1.types[0];
+  let secondary = null, secondaryFrom = null;
+  const candidates = [[P2.types[0], 1 - identity], [P2.types[1], 1 - identity], [P1.types[1], identity]];
+  for (const [t, src] of candidates) if (t && t !== primary) { secondary = t; secondaryFrom = src; break; }
+
+  const wa = normalizeWeights(a.stats), wb = normalizeWeights(b.stats);
+  const stats = {};
+  for (const k of STAT_KEYS) stats[k] = round3((wa[k] + wb[k]) / 2);
+  const gen = Math.max(a.gen || 0, b.gen || 0) + 1;
+  const bst = Math.round(((a.bst || 400) + (b.bst || 400)) / 2 + Math.min(gen, FUSE.genBonusCap) * FUSE.genBonusPerGen);
+  const vigor = {};
+  for (const k of STAT_KEYS) {
+    const av = a.vigor && a.vigor[k] != null ? a.vigor[k] : 0.5;
+    const bv = b.vigor && b.vigor[k] != null ? b.vigor[k] : 0.5;
+    const base = rStats.chance(0.6) ? Math.max(av, bv) : (av + bv) / 2;
+    vigor[k] = round3(clamp01(base + rStats.gauss() * 0.03));
+  }
+
+  const nameParts = [namePartsOf(P1)[0], namePartsOf(P2)[1]];
+  const lineage = [...(a.lineage || []), ...(b.lineage || [])].filter((x, i, arr) => arr.indexOf(x) === i).slice(-FUSE.maxLineage);
+
+  const child = {
+    v: GENOME_VERSION,
+    seed: rng.seed,
+    species: null,
+    name: joinNameParts(nameParts[0], nameParts[1]),
+    nameParts,
+    gen,
+    shiny: Boolean(P1.shiny),
+    types: [primary, secondary],
+    parts, paint, palette, traits, stats, vigor, bst, lineage,
+    parents: [a.name, b.name],
+  };
+  return {
+    child,
+    report: { from, mutated, identity, palette: palFrom, types: { primary: identity, secondary: secondaryFrom } },
+  };
+}
+
+/** Fuse a chain: start with `first`, then fold in each partner in turn. Returns every generation. */
+function fuseChain(first, partners, rng) {
+  const out = [first];
+  let cur = first;
+  partners.forEach((p, i) => {
+    cur = fuse(cur, p, rng.fork(`gen${i}`)).child;
+    out.push(cur);
+  });
+  return out;
+}
+
+// ---- src/ui/fusion.js ----
+// Fusion Lab: pick two creatures from a pool, fuse them, read the inheritance
+// report, feed children back into the pool, and stress-test five generations.
+
+
+
+
+
+
+
+
+
+
+const fs = { a: null, b: null, child: null, report: null, rerolls: 0, chain: null, next: 'a' };
+
+function seedPool(seed) {
+  fusionPool.seed = seed;
+  fusionPool.genomes = [];
+  for (let i = 0; i < 8; i++) fusionPool.genomes.push(randomGenome(makeRng(`${seed}:pool:${i}`)));
+  Object.assign(fs, { a: null, b: null, child: null, report: null, chain: null, rerolls: 0, next: 'a' });
+}
+
+function badge(who, extra) {
+  if (who === 'blend') return h('span', { class: 'badge blend' }, 'A+B');
+  return h('span', { class: `badge ${who === 0 ? 'a' : 'b'}` }, who === 0 ? 'A' : 'B', extra || null);
+}
+
+let poolListener = null;
+
+function renderFusionScreen(root) {
+  if (!fusionPool.genomes.length) seedPool('FUSE');
+  else if (!fusionPool.seed) fusionPool.seed = 'FUSE';
+  clear(root);
+
+  const rerender = () => renderFusionScreen(root);
+  if (poolListener) window.removeEventListener('pool-changed', poolListener);
+  poolListener = () => { if (root.isConnected) rerender(); else window.removeEventListener('pool-changed', poolListener); };
+  window.addEventListener('pool-changed', poolListener);
+
+  const pick = (g) => {
+    if (fs.a === g) { fs.a = null; fs.next = 'a'; }
+    else if (fs.b === g) { fs.b = null; fs.next = 'b'; }
+    else if (!fs.a) { fs.a = g; fs.next = fs.b ? 'a' : 'b'; }
+    else if (!fs.b) { fs.b = g; fs.next = 'a'; }
+    else if (fs.next === 'a') { fs.a = g; fs.next = 'b'; }
+    else { fs.b = g; fs.next = 'a'; }
+    rerender();
+  };
+
+  const slot = (who, g) => h('button', { class: `pslot${g ? ' filled' : ''}`, type: 'button', onclick: () => { if (g) pick(g); } },
+    h('span', { class: 'tag' }, `PARENT ${who}`),
+    g ? [creatureEl(g, { size: 150, animate: false }), h('b', {}, g.name), typeChips(g.types)] : h('span', { class: 'hint' }, 'Tap a creature in the pool'));
+
+  const doFuse = () => {
+    const rng = makeRng(`${fs.a.seed}|${fs.a.name}+${fs.b.seed}|${fs.b.name}#${fs.rerolls}`);
+    const { child, report } = fuse(fs.a, fs.b, rng);
+    fs.child = child; fs.report = report; fs.chain = null;
+    rerender();
+    setTimeout(() => { const r = root.querySelector('.result'); if (r) r.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 0);
+  };
+
+  root.append(
+    h('div', { class: 'parents' }, slot('A', fs.a), h('div', { class: 'times' }, '×'), slot('B', fs.b)),
+    h('button', { class: 'btn primary fuse-btn', type: 'button', disabled: !(fs.a && fs.b), onclick: () => { fs.rerolls = 0; doFuse(); } }, 'Fuse'),
+  );
+
+  if (fs.child) root.append(resultPanel(fs.child, fs.report, fs.a, fs.b, {
+    reroll: () => { fs.rerolls++; doFuse(); },
+    breed: () => {
+      const rng = makeRng(`${fs.child.seed}:chain`);
+      const partners = [];
+      for (let i = 0; i < 5; i++) partners.push(rng.pick(fusionPool.genomes));
+      fs.chain = fuseChain(fs.child, partners, rng);
+      rerender();
+      setTimeout(() => { const c = root.querySelector('.chain'); if (c) c.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); }, 0);
+    },
+    chain: fs.chain,
+  }));
+
+  // pool
+  const codeInput = h('input', { class: 'seed code-in', type: 'text', placeholder: 'Paste a creature code to add it', 'aria-label': 'Creature code', autocapitalize: 'off', autocomplete: 'off', spellcheck: 'false' });
+  const poolGrid = h('div', { class: 'pool' });
+  for (const g of fusionPool.genomes) {
+    const cls = g === fs.a ? ' is-a' : g === fs.b ? ' is-b' : '';
+    poolGrid.append(h('button', { class: `pcard${cls}`, type: 'button', onclick: () => pick(g) },
+      g === fs.a ? h('span', { class: 'sel badge a' }, 'A') : g === fs.b ? h('span', { class: 'sel badge b' }, 'B') : null,
+      g.gen ? h('span', { class: 'gen' }, `gen ${g.gen}`) : null,
+      creatureEl(g, { size: 104, animate: false }),
+      h('span', {}, g.name)));
+  }
+  root.append(
+    ...section(`Pool · ${fusionPool.genomes.length}`,
+      h('div', { class: 'toolbar' },
+        h('button', { class: 'btn', type: 'button', onclick: () => { seedPool(freshSeed()); rerender(); } }, 'New pool'),
+        h('button', { class: 'btn', type: 'button', onclick: () => { for (let i = 0; i < 4; i++) addToPool(randomGenome(makeRng(freshSeed()))); rerender(); } }, '+4 wild')),
+      h('div', { class: 'toolbar' },
+        codeInput,
+        h('button', { class: 'btn', type: 'button', onclick: () => {
+          try { addToPool(decodeGenome(codeInput.value)); codeInput.value = ''; rerender(); } catch (e) { toast(e.message); }
+        } }, 'Add')),
+      h('p', { class: 'hint' }, 'Tap to choose parents. Tap a chosen one again to clear it. Long lists scroll.'),
+      poolGrid),
+  );
+}
+
+function resultPanel(child, report, a, b, actions) {
+  const parents = [a, b];
+  const parts = resolveParts(child);
+  const rows = [];
+  for (const slot of SLOTS) {
+    const p = parts[slot];
+    rows.push(h('span', {}, SLOT_NAMES[slot]), h('span', {}, p ? p.name : 'None'),
+      h('span', {}, report.mutated[slot] ? h('span', { class: 'badge m' }, 'mutation') : badge(report.from[slot])));
+  }
+  const palRows = ['c1', 'c2', 'c3', 'eye'].map((k) => h('div', { class: 'sw-row' },
+    h('span', { class: 'sw small', style: { background: swatchCss(child.palette[k]) } }),
+    h('span', {}, { c1: 'Primary', c2: 'Secondary', c3: 'Accent', eye: 'Eyes' }[k]), badge(report.palette[k])));
+  const typeRow = h('div', { class: 'sw-row' }, typeChips([child.types[0]]), badge(report.types.primary),
+    child.types[1] ? [typeChips([child.types[1]]), badge(report.types.secondary)] : h('span', { class: 'hint', style: { margin: 0 } }, 'no second type'));
+
+  const panel = h('div', { class: 'result' },
+    h('div', { class: 'sheet-head' }, h('h2', {}, child.name, child.shiny ? ' ✦' : ''), typeChips(child.types)),
+    h('p', { class: 'meta' }, `gen ${child.gen} · ${a.name} × ${b.name} · face from ${parents[report.identity].name}`),
+    h('div', { class: 'hero' }, creatureEl(child, { size: 240, fit: true })),
+    h('div', { class: 'row wrap' },
+      h('button', { class: 'btn', type: 'button', onclick: actions.reroll }, 'Re-roll'),
+      h('button', { class: 'btn', type: 'button', onclick: () => { toast(addToPool(child) ? 'Added to pool' : 'Already in pool'); window.dispatchEvent(new CustomEvent('pool-changed')); } }, 'Add to pool'),
+      h('button', { class: 'btn', type: 'button', onclick: () => openSheet(child) }, 'Details'),
+      h('button', { class: 'btn', type: 'button', onclick: async () => toast((await copyText(encodeGenome(child))) ? 'Code copied' : 'Copy failed') }, 'Copy code')),
+    ...section('Inheritance', h('div', { class: 'inherit' }, rows)),
+    ...section('Colours', h('div', { class: 'stack' }, palRows)),
+    ...section('Types', typeRow),
+    ...section('Stability test',
+      h('p', { class: 'hint' }, 'Breed this child with random pool members for five more generations to check that fusions stay coherent.'),
+      h('button', { class: 'btn', type: 'button', onclick: actions.breed }, 'Breed 5 generations')),
+  );
+  if (actions.chain) {
+    const strip = h('div', { class: 'chain' });
+    actions.chain.forEach((g, i) => strip.append(h('button', { class: 'pcard', type: 'button', onclick: () => openSheet(g) },
+      h('span', { class: 'gen' }, `gen ${g.gen}`), creatureEl(g, { size: 120, animate: false }), h('span', {}, g.name))));
+    panel.append(strip);
+  }
+  return panel;
+}
+
 // ---- src/ui/main.js ----
 // App shell: header, tabs, hash routing between screens.
+
 
 
 
@@ -1821,7 +2237,7 @@ function renderPartsScreen(root) {
 const SCREENS = [
   { id: 'lab', title: 'Lab', render: renderLabScreen },
   { id: 'parts', title: 'Parts', render: renderPartsScreen },
-  { id: 'fusion', title: 'Fusion', soon: true },
+  { id: 'fusion', title: 'Fusion', render: renderFusionScreen },
   { id: 'battle', title: 'Battle', soon: true },
 ];
 

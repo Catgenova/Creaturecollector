@@ -4,6 +4,7 @@ export const clamp = (v, lo, hi) => (v < lo ? lo : v > hi ? hi : v);
 export const clamp01 = (v) => clamp(v, 0, 1);
 export const lerp = (a, b, t) => a + (b - a) * t;
 export const round1 = (v) => Math.round(v * 10) / 10;
+export const round3 = (v) => Math.round(v * 1000) / 1000;
 export const sum = (arr) => arr.reduce((a, b) => a + b, 0);
 
 /** Wrap a hue into [0,360). */

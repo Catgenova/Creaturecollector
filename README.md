@@ -10,8 +10,12 @@ dependencies; the whole game ships as a single `index.html`.
 
 Phase 1 — Creature Lab: seeded procedural creatures assembled from a part
 library, with recolouring, diploid part genes, species, stats and shareable
-creature codes. Fusion and battles are next. See `DESIGN.md` for the plan and
-the decisions behind it.
+creature codes.
+
+Phase 2 — Fusion Lab: fuse any two creatures, read the inheritance report,
+feed children back into the pool, stress-test five generations.
+
+Battles are next. See `DESIGN.md` for the plan and the decisions behind it.
 
 ## Develop
 

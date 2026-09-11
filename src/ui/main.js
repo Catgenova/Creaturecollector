@@ -2,13 +2,14 @@
 import { h, clear } from './dom.js';
 import { renderLabScreen, closeSheet } from './lab.js';
 import { renderPartsScreen } from './parts.js';
+import { renderFusionScreen } from './fusion.js';
 import { partCount } from '../data/parts/index.js';
 import { SPECIES } from '../data/species.js';
 
 const SCREENS = [
   { id: 'lab', title: 'Lab', render: renderLabScreen },
   { id: 'parts', title: 'Parts', render: renderPartsScreen },
-  { id: 'fusion', title: 'Fusion', soon: true },
+  { id: 'fusion', title: 'Fusion', render: renderFusionScreen },
   { id: 'battle', title: 'Battle', soon: true },
 ];
 
