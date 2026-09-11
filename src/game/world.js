@@ -19,14 +19,14 @@ import { speciesGenome, rollElemental } from '../creature/genome.js';
 import { fuse, canFuse } from '../creature/fusion.js';
 
 /** Map size and ring geometry. `version` bumps whenever the layout changes, so saved positions from an older map reset to the Crossroads. */
-export const WORLD = { version: 6, w: 224, h: 192, hubR: 6, ringR: 58, lairR: 84, trainersPerBiome: 6, encounterChance: 0.12, encounterCooldown: 4, homeSpawnShare: 0.72 };
+export const WORLD = { version: 7, w: 224, h: 192, hubR: 6, ringR: 58, lairR: 84, trainersPerBiome: 6, encounterChance: 0.12, encounterCooldown: 4, homeSpawnShare: 0.72 };
 
 /** Tile kinds. */
 export const TILE = { grass: 0, habitat: 1, path: 2, wall: 3, water: 4, hub: 5, lair: 6, door: 7, camp: 8, spire: 9, spireDoor: 10, shrine: 11, market: 12, marketDoor: 13, storage: 14, storageDoor: 15, tower: 16, towerDoor: 17 };
 export const WALKABLE_TILES = new Set([TILE.grass, TILE.habitat, TILE.path, TILE.hub, TILE.door, TILE.camp, TILE.spireDoor, TILE.shrine, TILE.marketDoor, TILE.storageDoor, TILE.towerDoor]);
 
 /** Biomes in difficulty order, clockwise from the south of the hub. Levels climb 5 to the fifties; the gaps in the ladder are for classes still to come. */
-export const BIOME_ORDER = ['mammal', 'amphibian', 'flora', 'insect', 'nightwing', 'fungus', 'bird', 'crystalline', 'ooze', 'fish', 'wyrm', 'invertebrate', 'skeletal', 'reptile', 'draconic'];
+export const BIOME_ORDER = ['mammal', 'amphibian', 'flora', 'insect', 'nightwing', 'fungus', 'bird', 'crystalline', 'ooze', 'fish', 'myriapod', 'wyrm', 'invertebrate', 'skeletal', 'reptile', 'draconic'];
 
 /** Per-class region: name, wild level, palette and the look of its walls. */
 export const REGIONS = {
@@ -40,6 +40,7 @@ export const REGIONS = {
   fungus:       { name: 'Sporewood',      level: 23, ground: '#7a7f5c', ground2: '#70754f', habitat: '#5b5f47', path: '#c7b48a', water: '#4e7aa0', wall: 'tree',     wallColor: '#5a4a6a', accent: '#d9a3ff', waterT: 0.6,  warden: 'Warden Morel',  badge: 'Spore Badge' },
   wyrm:         { name: 'Coiling Gorge',  level: 41, ground: '#8a8570', ground2: '#807b66', habitat: '#6b6a52', path: '#d2c39a', water: '#4f8fb8', wall: 'rock',     wallColor: '#5c5548', accent: '#8fd3ff', waterT: 0.62, warden: 'Warden Tempest', badge: 'Gorge Badge' },
   ooze:         { name: 'Slurry Sump',    level: 32, ground: '#7a8a4c', ground2: '#707f45', habitat: '#55703a', path: '#c0b27e', water: '#7fb84f', wall: 'rock',     wallColor: '#4c4a3e', accent: '#b6f06a', waterT: 0.6,  warden: 'Warden Dreg',   badge: 'Sump Badge' },
+  myriapod:     { name: 'Rootbound Warren', level: 38, ground: '#5d4a3a', ground2: '#554335', habitat: '#4a3a2c', path: '#a88c6a', water: '#4a6a5a', wall: 'root',     wallColor: '#6b4a34', accent: '#d8b34a', waterT: 0.64, warden: 'Warden Segra',  badge: 'Segment Badge' },
   crystalline:  { name: 'Prism Caverns',  level: 29, ground: '#5b5470', ground2: '#534c68', habitat: '#6a4f8a', path: '#a99cc4', water: '#4a6fb8', wall: 'crystal',  wallColor: '#b9a4ff', accent: '#ffd36a', waterT: 0.62, warden: 'Warden Facet',  badge: 'Prism Badge' },
   nightwing:    { name: 'Echo Chasm',     level: 20, ground: '#4c5566', ground2: '#454e5e', habitat: '#38404f', path: '#98a0ad', water: '#3a6f8a', wall: 'rock',     wallColor: '#5c667a', accent: '#9fd8ff', waterT: 0.62, warden: 'Warden Vesper', badge: 'Echo Badge' },
   skeletal:     { name: 'Barrow Downs',   level: 47, ground: '#6f7466', ground2: '#666b5e', habitat: '#535a4c', path: '#bfb59a', water: '#4a6f88', wall: 'bone',     wallColor: '#e6dfc8', accent: '#9fe8b0', waterT: 0.6,  warden: 'Warden Ossa',   badge: 'Marrow Badge' },
@@ -198,6 +199,7 @@ const TRAINER_TITLES = {
   skeletal: ['Gravedigger', 'Bone Setter', 'Mourner'],
   nightwing: ['Cave Guide', 'Night Watch', 'Guano Sweeper'],
   crystalline: ['Gem Cutter', 'Lamp Bearer', 'Prospector'],
+  myriapod: ['Tunneller', 'Compost Keeper', 'Root Cutter'],
 };
 const TRAINER_LINES = {
   mammal: ['My team was raised on these downs. Care for a bout?', 'Fur and fang against whatever you have. Fight?'],
@@ -215,6 +217,7 @@ const TRAINER_LINES = {
   skeletal: ['Nothing down here stays buried for long. Fight?', 'My team has been dead for years and still beats most of the living.'],
   nightwing: ['Mind your head in here. My team hangs from the ceiling. Fight?', 'They only come out at dusk, and so do I. Care for a bout?'],
   crystalline: ['Every stone in here is worth something. Prove your team is too?', 'Careful with the walls, they sing. Care for a bout?'],
+  myriapod: ['Watch your step. Everything down here has more legs than you. Fight?', 'My team lives under the roots and likes it there. Care for a bout?'],
 };
 const TRAINER_AFTER = ['Good match. Come back stronger.', 'Well fought. The Warden is another matter.', 'You earned that one.', 'My team will remember you.'];
 
@@ -331,9 +334,13 @@ export function generateWorld(seed) {
   const habTypes = Object.fromEntries(BIOME_ORDER.map((c) => [c, habitatTypesFor(c)]));
   for (let y = 0; y < h; y++) {
     for (let x = 0; x < w; x++) {
-      const jx = x + (fbm(n1, x, y, 9) - 0.5) * 8, jy = y + (fbm(n2, x, y, 9) - 0.5) * 8;
+      // boundaries stay crisp near the Crossroads, so the gentlest biome always begins straight south of town, and wander further out
+      const jit = 8 * Math.min(1, Math.max(0, (Math.hypot(x - hub.x, y - hub.y) - WORLD.hubR) / 24));
+      const jx = x + (fbm(n1, x, y, 9) - 0.5) * jit, jy = y + (fbm(n2, x, y, 9) - 0.5) * jit;
+      // wedges around the hub by angle: the centres sit on one ring, so this is their Voronoi split with even slices that stay put as classes are added
+      const ta = Math.atan2(jy - hub.y, jx - hub.x), TAU = Math.PI * 2;
       let best = 0, bd = Infinity;
-      biomes.forEach((b, i) => { const d = (jx - b.centre.x) ** 2 + (jy - b.centre.y) ** 2; if (d < bd) { bd = d; best = i; } });
+      biomes.forEach((b, i) => { let d = Math.abs((((ta - b.angle) % TAU) + TAU) % TAU); d = Math.min(d, TAU - d); if (d < bd) { bd = d; best = i; } });
       const i = idx(x, y);
       bio[i] = best;
       const region = REGIONS[biomes[best].clade];

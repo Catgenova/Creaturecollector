@@ -713,6 +713,45 @@ RIGS.crystalline = {
   },
 };
 
+RIGS.myriapod = {
+  id: 'myriapod', name: 'Myriapod', prefix: 'y.',
+  slots: ['body', 'head', 'eyes', 'mandibles', 'antennae', 'legs', 'tail', 'plates', 'bristles', 'glow', 'bands', 'venom'],
+  names: { body: 'Body', head: 'Head', eyes: 'Eyes', mandibles: 'Mandibles', antennae: 'Antennae', legs: 'Legs', tail: 'Tail end', plates: 'Plates', bristles: 'Bristles', glow: 'Glow', bands: 'Bands', venom: 'Venom' },
+  paint: ['body', 'head', 'mandibles', 'antennae', 'legs', 'tail', 'plates', 'bristles', 'glow', 'bands', 'venom'],
+  swappable: ['tail', 'plates', 'bristles', 'glow', 'bands', 'venom'],
+  required: ['body', 'head', 'eyes', 'mandibles', 'antennae', 'legs', 'tail'],
+  linked: [['head', 'mandibles']],
+  ground: ['body', 'legs'],
+  clipped: ['bands'],
+  tree: {
+    slot: 'body', anim: 'body',
+    behind: [
+      { slot: 'glow', fitBox: true },
+      { slot: 'legs', socket: 'leg1Far', far: true, scale: 'leg' },
+      { slot: 'legs', socket: 'leg2Far', far: true, scale: 'leg' },
+      { slot: 'legs', socket: 'leg3Far', far: true, scale: 'leg' },
+      { slot: 'bristles', socket: 'bristles' },
+      { slot: 'plates', socket: 'plates' },
+      { slot: 'tail', socket: 'tail', scale: 'tail', anim: 'tail' },
+    ],
+    front: [
+      { slot: 'legs', socket: 'leg3', scale: 'leg' },
+      { slot: 'legs', socket: 'leg2', scale: 'leg' },
+      { slot: 'legs', socket: 'leg1', scale: 'leg' },
+      {
+        slot: 'head', socket: 'head', scale: 'head', anim: 'head',
+        behind: [{ slot: 'antennae', socket: 'antennae', anim: 'sway' }],
+        front: [{ slot: 'eyes', socket: 'eyeFar', far: true, scale: 'eye', small: true }, { slot: 'eyes', socket: 'eye', scale: 'eye', small: true }, { slot: 'mandibles', socket: 'mandibles', small: true }, { slot: 'venom', socket: 'venom', small: true }],
+      },
+    ],
+  },
+  mannequin: {
+    parts: { body: 'y.body.segmented', head: 'y.head.capsule', eyes: 'y.eyes.bead', mandibles: 'y.mandibles.pincers', antennae: 'y.antennae.long', legs: 'y.legs.thin', tail: 'y.tail.forks', plates: 'y.plates.none', bristles: 'y.bristles.none', glow: 'y.glow.none', bands: 'y.bands.none', venom: 'y.venom.none' },
+    forSlot: {},
+    accentSlots: ['mandibles', 'antennae', 'tail', 'plates', 'bristles', 'glow', 'bands', 'venom'],
+  },
+};
+
 export const RIG_IDS = Object.keys(RIGS);
 
 /** Rig used when a genome names none or an unknown one (old saves): the first class. */

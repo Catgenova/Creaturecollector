@@ -19,6 +19,7 @@ export const CLADES = {
   skeletal: { name: 'Skeletal', plural: 'Skeletals', linked: [['legsFront', 'legsBack']], desc: 'Walking bone. Skulls, ribcages and a light where the heart was.' },
   nightwing: { name: 'Nightwing', plural: 'Nightwings', linked: [['wings', 'thumbs']], desc: 'Bats of every size. Leathern wings, big ears and a taste for dusk.' },
   crystalline: { name: 'Crystalline', plural: 'Crystallines', linked: [['legsFront', 'legsBack']], desc: 'Living geodes. Faceted bodies, crystal crowns and a glow along every seam.' },
+  myriapod: { name: 'Myriapod', plural: 'Myriapods', linked: [['head', 'mandibles']], desc: 'Centipedes and millipedes. Segment after segment, and legs to match.' },
 };
 
 export const CLADE_IDS = Object.keys(CLADES);

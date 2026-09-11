@@ -171,3 +171,12 @@ POSES.crystalline = mergePose(quadCore, {
   attack: { mouth: { ds: 1.15 }, spines: { ds: 1.08 }, aura: { ds: 1.1 } },
   hurt: { aura: { ds: 0.9 }, spines: { da: 6 } },
 });
+
+POSES.myriapod = {
+  stand: {},
+  brace: { body: { da: 2, dx: 2 }, head: { da: 5, dx: 2 }, legs: { da: -5 }, antennae: { da: 8 }, mandibles: { ds: 1.05 }, tail: { da: 6 } },
+  crouch: { body: { dy: 3 }, head: { dy: 2, da: 3 }, legs: { ds: 0.88 }, antennae: { da: -6 }, plates: { ds: 0.98 } },
+  poise: { body: { da: -3, dy: -1 }, head: { da: -8, dy: -3 }, legs: { da: 4 }, antennae: { da: -12 }, plates: { ds: 1.05 }, glow: { ds: 1.06 } },
+  attack: { body: { da: 3, dx: 6 }, head: { da: 6, dx: 5 }, mandibles: { ds: 1.2, da: 4 }, legs: { da: -18, far: { da: -8 } }, antennae: { da: 14 }, tail: { da: 12 }, venom: { ds: 1.2 } },
+  hurt: { body: { da: -6, dx: -4 }, head: { da: -12 }, legs: { da: 12, far: { da: 6 } }, antennae: { da: -20 }, tail: { da: -10 } },
+};
