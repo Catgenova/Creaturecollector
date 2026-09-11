@@ -8,7 +8,15 @@
 //   body, head, crown, legs, arms, wings, tail, back  (eyes, mouth, pattern are baked into images)
 //
 // Records are added as images arrive; anchors come from the Art tab's "Copy entry".
-export const RASTER_RECORDS = [];
+export const RASTER_RECORDS = [
+  // Mammal style test: grey fox drawn by ChatGPT image generation, 640px assets.
+  { id: 'r.mammal.body.fox', clade: 'mammal', slot: 'body', name: 'fox', img: { src: 'assets/parts/mammal/body/fox.png', w: 640, h: 326 },
+    origin: [330, 180], scale: 0.16, sockets: { head: { x: 548, y: 34 }, legFront: { x: 520, y: 235 }, legBack: { x: 140, y: 240 }, tail: { x: 25, y: 170 }, back: { x: 300, y: 55 }, wing: { x: 240, y: 100 } }, dom: 0.55, weight: 3 },
+  { id: 'r.mammal.head.fox', clade: 'mammal', slot: 'head', name: 'fox', img: { src: 'assets/parts/mammal/head/fox.png', w: 543, h: 640 },
+    origin: [340, 530], scale: 0.1, sockets: { crown: { x: 300, y: 130 } }, dom: 0.55, weight: 3 },
+  { id: 'r.mammal.legs.fox', clade: 'mammal', slot: 'legs', name: 'fox', img: { src: 'assets/parts/mammal/legs/fox.png', w: 221, h: 640 },
+    origin: [125, 30], scale: 0.085, dom: 0.5, weight: 3 },
+];
 
 /** Default anchor and size guesses for a freshly uploaded image, by slot. */
 export function rasterDefaults(slot, w, h) {

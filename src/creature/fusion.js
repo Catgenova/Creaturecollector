@@ -86,7 +86,7 @@ export function fuse(a, b, rng) {
   const bodyDraw = draw('body');
   parts.body = bodyDraw.alleles;
   from.body = bodyDraw.from;
-  if (rMut.chance(FUSE.bodyMutation)) { parts.body = [randomPartId('body', null, rMut), parts.body[0]]; mutated.body = true; }
+  if (rMut.chance(FUSE.bodyMutation)) { const nb = randomPartId('body', getPart(parts.body[0]).kind, rMut); if (nb) { parts.body = [nb, parts.body[0]]; mutated.body = true; } }
   const bodyKind = getPart(parts.body[0]).kind;
 
   for (const slot of SLOTS) {
@@ -95,8 +95,8 @@ export function fuse(a, b, rng) {
     let [e, c] = d.alleles;
     let f = d.from;
     if (!fitsBody(e, bodyKind) && fitsBody(c, bodyKind)) { [e, c] = [c, e]; f = 1 - f; }
-    if (rMut.chance(FUSE.expressedMutation)) { c = e; e = randomPartId(slot, bodyKind, rMut); mutated[slot] = true; }
-    else if (rMut.chance(FUSE.carriedMutation)) c = randomPartId(slot, bodyKind, rMut);
+    if (rMut.chance(FUSE.expressedMutation)) { const ne = randomPartId(slot, bodyKind, rMut); if (ne) { c = e; e = ne; mutated[slot] = true; } }
+    else if (rMut.chance(FUSE.carriedMutation)) c = randomPartId(slot, bodyKind, rMut) || c;
     parts[slot] = [e, c];
     from[slot] = f;
   }

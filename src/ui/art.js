@@ -133,7 +133,9 @@ export function renderArtScreen(root) {
   for (const slot of RASTER_SLOTS) {
     const options = mine.filter((r) => r.slot === slot);
     if (!options.length) continue;
-    const sel = h('select', { 'aria-label': `${SLOT_NAMES[slot]} part` }, slot === 'body' ? [] : [h('option', { value: `${slot}.none` }, `${SLOT_NAMES[slot]}: none`)], options.map((r) => h('option', { value: r.id, selected: art.preview[`${art.clade}.${slot}`] === r.id }, `${SLOT_NAMES[slot]}: ${r.name}`)));
+    const current = art.preview[`${art.clade}.${slot}`] || options[0].id;
+    art.preview[`${art.clade}.${slot}`] = current;
+    const sel = h('select', { 'aria-label': `${SLOT_NAMES[slot]} part` }, slot === 'body' ? [] : [h('option', { value: `${slot}.none`, selected: current === `${slot}.none` }, `${SLOT_NAMES[slot]}: none`)], options.map((r) => h('option', { value: r.id, selected: current === r.id }, `${SLOT_NAMES[slot]}: ${r.name}`)));
     sel.addEventListener('change', () => { art.preview[`${art.clade}.${slot}`] = sel.value; drawPreview(); });
     slotPickers.append(sel);
   }

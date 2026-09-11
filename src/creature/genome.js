@@ -5,7 +5,7 @@
 // Diploid part genes: every slot holds [expressed, carried]. Only the expressed
 // allele is drawn; the carried one can resurface in offspring.
 import { SLOTS, PARTS_BY_SLOT, getPart, partsFor, partFits } from '../data/parts/index.js';
-import { SPECIES, SPECIES_BY_ID, TIER_WEIGHT } from '../data/species.js';
+import { SPECIES, SPECIES_BY_ID, TIER_WEIGHT, WILD_SPECIES } from '../data/species.js';
 import { isType } from '../data/types.js';
 import { clamp01, round3, normalizeWeights, b64uEncode, b64uDecode } from '../core/util.js';
 import { splitName } from './naming.js';
@@ -38,9 +38,10 @@ function allelesFromRecipe(entry, slot) {
   return [`${slot}.none`, `${slot}.none`];
 }
 
-/** Random part id for a slot that fits the body kind, weighted by part rarity. */
+/** Random part id for a slot that fits the body kind, weighted by part rarity. Null when nothing fits. */
 export function randomPartId(slot, bodyKind, rng) {
   const pool = partsFor(slot, bodyKind);
+  if (!pool.length) return null;
   return rng.weighted(pool, (p) => p.w ?? 1).id;
 }
 
@@ -61,14 +62,14 @@ export function speciesGenome(species, rng) {
 
   const parts = {};
   const bodyAlleles = allelesFromRecipe(species.recipe.body, 'body');
-  if (rParts.chance(ROLL.bodyCarriedMutation)) bodyAlleles[1] = randomPartId('body', null, rParts);
+  if (rParts.chance(ROLL.bodyCarriedMutation)) bodyAlleles[1] = randomPartId('body', getPart(bodyAlleles[0]).kind, rParts) || bodyAlleles[1];
   parts.body = bodyAlleles;
   const bodyKind = getPart(bodyAlleles[0]).kind;
   for (const slot of SLOTS) {
     if (slot === 'body') continue;
     const a = allelesFromRecipe(species.recipe[slot], slot);
-    if (rParts.chance(ROLL.carriedMutation)) a[1] = randomPartId(slot, bodyKind, rParts);
-    if (rParts.chance(ROLL.expressedMutation)) a[0] = randomPartId(slot, bodyKind, rParts);
+    if (rParts.chance(ROLL.carriedMutation)) a[1] = randomPartId(slot, bodyKind, rParts) || a[1];
+    if (rParts.chance(ROLL.expressedMutation)) a[0] = randomPartId(slot, bodyKind, rParts) || a[0];
     parts[slot] = a;
   }
 
@@ -124,8 +125,8 @@ export function learnsetOf(g) {
 
 /** A random wild creature: species weighted by rarity tier, then rolled. opts.clade restricts the class. */
 export function randomGenome(rng, opts = {}) {
-  const pool = opts.clade ? SPECIES.filter((s) => s.clade === opts.clade) : SPECIES;
-  const species = rng.fork('species').weighted(pool.length ? pool : SPECIES, (s) => TIER_WEIGHT[s.tier] || 1);
+  const pool = opts.clade ? WILD_SPECIES.filter((s) => s.clade === opts.clade) : WILD_SPECIES;
+  const species = rng.fork('species').weighted(pool.length ? pool : WILD_SPECIES, (s) => TIER_WEIGHT[s.tier] || 1);
   return speciesGenome(species, rng);
 }
 

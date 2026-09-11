@@ -1,0 +1,25 @@
+import { createRequire } from 'node:module';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+const require = createRequire(import.meta.url);
+let chromium;
+try { ({ chromium } = require('playwright')); } catch { ({ chromium } = require('/opt/node22/lib/node_modules/playwright')); }
+const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
+const browser = await chromium.launch();
+const page = await browser.newPage({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 2 });
+page.on('pageerror', (e) => console.error('PAGE ERROR', e.message));
+await page.goto(`file://${path.join(root, 'index.html')}?seed=FOX#lab`);
+await page.waitForSelector('.card svg');
+await page.selectOption('select[aria-label="Species"]', 'foxling');
+await page.waitForTimeout(800);
+await page.screenshot({ path: path.join(root, 'shots', 'fox-lab.png'), fullPage: true });
+await page.click('.card');
+await page.waitForSelector('.sheet');
+await page.waitForTimeout(500);
+await page.screenshot({ path: path.join(root, 'shots', 'fox-sheet.png') });
+await page.goto(`file://${path.join(root, 'index.html')}#art`);
+await page.waitForSelector('.art-preview');
+await page.waitForTimeout(800);
+await page.screenshot({ path: path.join(root, 'shots', 'fox-art.png'), fullPage: true });
+await browser.close();
+console.log('fox shots written');

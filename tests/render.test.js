@@ -88,7 +88,7 @@ test('raster parts render as tinted images and never mix with vector parts', asy
     const svg = renderCreatureSvg(g, { id: 't', style, animate: false });
     checkSvg(svg, `raster ${style}`);
     assert.equal((svg.match(/<image /g) || []).length, 6, 'body, head, four legs');
-    assert.ok(svg.includes('<feComponentTransfer>'), 'tint filter present');
+    assert.ok(svg.includes('feComponentTransfer') && svg.includes('luminanceToAlpha'), 'tint filter present');
     assert.ok(!svg.includes('eye.round') && !/<circle/.test(svg), 'no vector eyes on a raster head');
   }
   const over = renderCreatureSvg(g, { id: 't', animate: false, images: { [body.id]: 'data:image/png;base64,QUJD' } });

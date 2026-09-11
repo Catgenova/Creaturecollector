@@ -1,7 +1,7 @@
 // Endless arena rules. Pure game logic over a plain `run` object; the UI calls
 // these and persists the result. Every roll is seeded by the run seed and floor.
 import { makeRng } from '../core/rng.js';
-import { SPECIES, TIER_WEIGHT } from '../data/species.js';
+import { WILD_SPECIES as SPECIES, TIER_WEIGHT } from '../data/species.js';
 import { speciesGenome, learnsetOf } from '../creature/genome.js';
 import { getMove } from '../data/moves.js';
 import { fuse, canFuse } from '../creature/fusion.js';

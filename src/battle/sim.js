@@ -1,6 +1,6 @@
 // Headless simulation for balance checks and tests.
 import { makeRng } from '../core/rng.js';
-import { SPECIES } from '../data/species.js';
+import { WILD_SPECIES as SPECIES } from '../data/species.js';
 import { speciesGenome } from '../creature/genome.js';
 import { createBattle, step, makeBattler } from './engine.js';
 import { chooseAction } from './ai.js';

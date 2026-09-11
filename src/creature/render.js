@@ -86,18 +86,39 @@ function primSvg(pr, ctx) {
   return out;
 }
 
-/** Piecewise gradient map for a raster part: black -> shade, mid grey -> base, light grey -> light, white -> near white. */
+/**
+ * Tint filter for a raster part. Grey pixels go through a piecewise gradient map
+ * (black -> shade, mid grey -> base, light grey -> light, white -> near white);
+ * saturated pixels (eyes, noses, claws) are composited back on top untouched.
+ */
 function tintFilter(id, fam) {
   const rgb = ([h, s, l]) => {
     const c = (1 - Math.abs(2 * (l / 100) - 1)) * (s / 100), x = c * (1 - Math.abs(((h / 60) % 2) - 1)), m = l / 100 - c / 2;
     const [r1, g1, b1] = h < 60 ? [c, x, 0] : h < 120 ? [x, c, 0] : h < 180 ? [0, c, x] : h < 240 ? [0, x, c] : h < 300 ? [x, 0, c] : [c, 0, x];
     return [r1 + m, g1 + m, b1 + m];
   };
-  const stops = [rgb(fam.shade), rgb(fam.base), rgb(fam.light), rgb([fam.light[0], Math.max(0, fam.light[1] - 20), 95])];
+  // nine evenly spaced luminance stops: black outlines stay dark, shadow greys take the
+  // shade, mid grey takes the base, white fur stays near white
+  const ink = [fam.base[0], Math.min(60, fam.base[1] + 10), 12];
+  const deep = [fam.shade[0], fam.shade[1], Math.max(8, fam.shade[2] - 12)];
+  const mid = [fam.base[0], (fam.base[1] + fam.shade[1]) / 2, (fam.base[2] + fam.shade[2]) / 2];
+  const snow = [fam.light[0], Math.max(0, fam.light[1] - 25), 95];
+  const stops = [ink, ink, deep, fam.shade, fam.shade, mid, fam.base, fam.light, snow].map(rgb);
   const table = (i) => stops.map((c) => num(Math.max(0, Math.min(1, c[i])))).join(' ');
+  const diff = (a, b, res) => `<feColorMatrix in="SourceGraphic" type="matrix" values="${[0, 1, 2].map(() => [0, 1, 2].map((k) => (k === a ? 1 : k === b ? -1 : 0)).join(' ') + ' 0 0').join(' ')} 0 0 0 1 0" result="${res}"/>`;
   return `<filter id="${id}" color-interpolation-filters="sRGB" x="-5%" y="-5%" width="110%" height="110%">` +
-    '<feColorMatrix type="matrix" values="0.2126 0.7152 0.0722 0 0 0.2126 0.7152 0.0722 0 0 0.2126 0.7152 0.0722 0 0 0 0 0 1 0"/>' +
-    `<feComponentTransfer><feFuncR type="table" tableValues="${table(0)}"/><feFuncG type="table" tableValues="${table(1)}"/><feFuncB type="table" tableValues="${table(2)}"/></feComponentTransfer></filter>`;
+    // tinted layer
+    '<feColorMatrix in="SourceGraphic" type="matrix" values="0.2126 0.7152 0.0722 0 0 0.2126 0.7152 0.0722 0 0 0.2126 0.7152 0.0722 0 0 0 0 0 1 0" result="lum"/>' +
+    `<feComponentTransfer in="lum" result="tinted"><feFuncR type="table" tableValues="${table(0)}"/><feFuncG type="table" tableValues="${table(1)}"/><feFuncB type="table" tableValues="${table(2)}"/></feComponentTransfer>` +
+    // chroma = |R-G| + |G-B|, thresholded into a mask of saturated pixels
+    diff(0, 1, 'rg') + diff(1, 0, 'gr') + diff(1, 2, 'gb') + diff(2, 1, 'bg') +
+    '<feComposite in="rg" in2="gr" operator="arithmetic" k2="1" k3="1" result="c1"/>' +
+    '<feComposite in="gb" in2="bg" operator="arithmetic" k2="1" k3="1" result="c2"/>' +
+    '<feComposite in="c1" in2="c2" operator="arithmetic" k2="1" k3="1" result="chroma"/>' +
+    '<feComponentTransfer in="chroma" result="maskrgb"><feFuncR type="table" tableValues="0 0 1 1 1 1 1 1"/><feFuncG type="table" tableValues="0 0 1 1 1 1 1 1"/><feFuncB type="table" tableValues="0 0 1 1 1 1 1 1"/></feComponentTransfer>' +
+    '<feColorMatrix in="maskrgb" type="luminanceToAlpha" result="maskA"/>' +
+    '<feComposite in="SourceGraphic" in2="maskA" operator="in" result="detail"/>' +
+    '<feMerge><feMergeNode in="tinted"/><feMergeNode in="detail"/></feMerge></filter>';
 }
 
 function imagePart(part, ctx) {
@@ -424,11 +445,12 @@ export function renderCreatureSvg(g, opts = {}) {
   }
   const height = Math.round((size * vb[3]) / vb[2]);
   const label = opts.label || `${g.name}, ${typeLabel(g)}`;
-  const delay = animate ? ` style="animation-delay:-${num(((g.seed || '').length * 0.37 + (g.traits ? g.traits.size * 3 : 0)) % 3)}s"` : '';
+  const live = animate && !built.body.img;
+  const delay = live ? ` style="animation-delay:-${num(((g.seed || '').length * 0.37 + (g.traits ? g.traits.size * 3 : 0)) % 3)}s"` : '';
   const clip = built.clip.map((d) => `<path d="${d}"/>`).join('');
   const shadowFill = styleName === 'classic' ? 'var(--k)' : hsl(g.palette.c1[0], 30, 10);
 
-  return `<svg class="cr cr-${styleName}${animate ? ' cr-live' : ''}" xmlns="http://www.w3.org/2000/svg" viewBox="${vb.map(num).join(' ')}" width="${size}" height="${height}" role="img" aria-label="${escapeHtml(label)}" style="${paletteVars(g.palette)}">` +
+  return `<svg class="cr cr-${styleName}${live ? ' cr-live' : ''}" xmlns="http://www.w3.org/2000/svg" viewBox="${vb.map(num).join(' ')}" width="${size}" height="${height}" role="img" aria-label="${escapeHtml(label)}" style="${paletteVars(g.palette)}">` +
     `<defs><clipPath id="${id}-clip">${clip}</clipPath>${built.defs}</defs>` +
     `<ellipse class="cr-shadow" cx="${num(FRAME.w / 2)}" cy="${FRAME.ground}" rx="${num(shadowRx)}" ry="${num(shadowRy)}" fill="${shadowFill}" opacity="0.18"/>` +
     `<g transform="${tf(chain[1])} translate(0 ${num(chain[0].y)})">` +
