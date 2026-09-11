@@ -5,7 +5,12 @@ import { validateGenome } from '../src/creature/genome.js';
 import { createBattle, step, makeBattler, captureChance, legalActions } from '../src/battle/engine.js';
 import { chooseAction } from '../src/battle/ai.js';
 import { ARENA, floorLevel, xpForLevel, newRun, chooseStarter, encounterFor, buildBattle, applyBattle, previewFusion, fuseMembers, moveMember, setLead, memberMaxHp, gainXp, makeMember } from '../src/game/run.js';
+import { speciesGenome } from '../src/creature/genome.js';
+import { SPECIES_BY_ID } from '../src/data/species.js';
 import { emptySave, normalizeSave, exportSave, importSave, loadSave, persistSave, recordCollection, endRun, SAVE_KEY } from '../src/game/save.js';
+import { biomeFor, canFuseMembers } from '../src/game/run.js';
+import { cladeOf } from '../src/creature/genome.js';
+import { BIOMES } from '../src/data/clades.js';
 
 function fakeStorage() { const m = new Map(); return { getItem: (k) => (m.has(k) ? m.get(k) : null), setItem: (k, v) => m.set(k, String(v)), removeItem: (k) => m.delete(k) }; }
 
@@ -137,10 +142,11 @@ test('capture odds behave and a capture adds a member', () => {
 test('party overflow goes to the box; altar fusion consumes two members', () => {
   const run = chooseStarter(newRun('box'), 0);
   for (let i = 0; i < 6; i++) {
-    const g = newRun(`extra${i}`).starters[0];
+    const g = speciesGenome(SPECIES_BY_ID.emberox, makeRng(`extra${i}`));
     const nm = makeMember(g, 10, `x${i}`);
     (run.party.length < ARENA.partyMax ? run.party : run.box).push(nm);
   }
+  run.party[0].genome = speciesGenome(SPECIES_BY_ID.emberox, makeRng('lead'));
   assert.equal(run.party.length, 5);
   assert.equal(run.box.length, 2);
   moveMember(run, run.box[0].uid, 'party');
@@ -149,6 +155,7 @@ test('party overflow goes to the box; altar fusion consumes two members', () => 
   assert.equal(run.box.length, 3);
   setLead(run, run.party[2].uid);
   const a = run.party[0].uid, b = run.box[0].uid;
+  assert.ok(canFuseMembers(run, a, b).ok, 'same-class members can fuse');
   const preview = previewFusion(run, a, b);
   const { child } = fuseMembers(run, a, b);
   assert.deepEqual(child.genome, preview, 'preview matches the real child');
@@ -207,4 +214,49 @@ test('battlers carry xp progress and battle reports include per-member gains', (
     assert.ok(g.to.level >= g.from.level);
     assert.equal(g.after.cur, run.party[0].xp);
   }
+});
+
+
+test('biomes favour their classes and wild fusions and bosses stay inside a class', () => {
+  const run = newRun('biome');
+  let inBiome = 0, total = 0;
+  for (let f = 1; f <= 35; f++) {
+    const biome = biomeFor(f);
+    assert.ok(BIOMES.includes(biome));
+    const e = encounterFor(run, f);
+    assert.equal(e.biome, biome.id);
+    for (const foe of e.foes) {
+      total++;
+      if (biome.clades.includes(cladeOf(foe.genome))) inBiome++;
+      if (foe.genome.gen > 0) {
+        const clade = cladeOf(foe.genome);
+        for (const sid of foe.genome.lineage) assert.equal(SPECIES_BY_ID[sid].clade, clade, `floor ${f} fusion mixes classes`);
+      }
+    }
+  }
+  assert.ok(inBiome / total > 0.6, `biome share ${inBiome}/${total}`);
+  const alt = newRun('altar-lock');
+  chooseStarter(alt, 0);
+  const other = Object.values(SPECIES_BY_ID).find((s) => s.clade !== cladeOf(alt.party[0].genome));
+  alt.box.push(makeMember(speciesGenome(other, makeRng('o')), 10, 'o1'));
+  assert.equal(canFuseMembers(alt, alt.party[0].uid, 'o1').ok, false);
+  assert.equal(previewFusion(alt, alt.party[0].uid, 'o1'), null);
+  assert.throws(() => fuseMembers(alt, alt.party[0].uid, 'o1'));
+});
+
+test('the first floors do not counter the starter', async () => {
+  const { typeEffectiveness } = await import('../src/data/types.js');
+  let checked = 0, countered = 0;
+  for (let i = 0; i < 40; i++) {
+    const run = chooseStarter(newRun(`gentle${i}`), i % 3);
+    const lead = run.party[0].genome.types;
+    for (let f = 1; f <= ARENA.gentleFloors; f++) {
+      const e = encounterFor(run, f);
+      if (e.kind !== 'wild') continue;
+      checked++;
+      if (e.foes[0].genome.types.some((t) => t && typeEffectiveness(t, lead) >= 2)) countered++;
+    }
+  }
+  assert.ok(checked > 60);
+  assert.ok(countered <= checked * 0.05, `${countered}/${checked} early wilds counter the starter`);
 });

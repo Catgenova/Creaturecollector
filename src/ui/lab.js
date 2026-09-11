@@ -7,6 +7,8 @@ import { swatchCss } from '../creature/palette.js';
 import { SPECIES, SPECIES_BY_ID } from '../data/species.js';
 import { SLOTS, SLOT_NAMES, getPart } from '../data/parts/index.js';
 import { addToPool } from './state.js';
+import { cladeName } from '../data/clades.js';
+import { cladeOf } from '../creature/genome.js';
 
 const labState = { seed: null, species: 'random', count: 12 };
 
@@ -129,7 +131,7 @@ export function openSheet(g) {
       h('h2', {}, g.name, g.shiny ? ' ✦' : ''),
       typeChips(g.types),
       h('button', { class: 'btn close', onclick: close, 'aria-label': 'Close' }, '✕')),
-    h('p', { class: 'meta' }, sp ? `${sp.name} · ${sp.tier}` : 'Fusion', ` · gen ${g.gen} · seed ${g.seed}`),
+    h('p', { class: 'meta' }, sp ? `${sp.name} · ${sp.tier}` : 'Fusion', ` · ${cladeName(cladeOf(g))} · gen ${g.gen} · seed ${g.seed}`),
     hero,
     h('div', { class: 'row' },
       h('button', { class: 'btn', onclick: () => { facing = facing === 'right' ? 'left' : 'right'; clear(hero).append(creatureEl(g, { size: 260, facing, fit: true })); } }, 'Flip'),

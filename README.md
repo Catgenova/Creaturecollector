@@ -28,7 +28,9 @@ Phase 5 — Polish and balance: learnsets rebuilt on one curve, arena curve tune
 with a whole-run simulator, move-learning prompts, procedural sound, 28 species
 and 130 parts.
 
-Next: the overworld. See `DESIGN.md` for the plan and the decisions behind it.
+Now: classes lock fusion to the same anatomy, and the art is moving to an
+AI-drawn part library assembled by the engine (see `docs/ART_PIPELINE.md`).
+See `DESIGN.md` for the plan and the decisions behind it.
 
 ## Develop
 

@@ -238,3 +238,5 @@ h3.sec { font-size: 12px; text-transform: uppercase; letter-spacing: .1em; color
 .xpline { display: flex; align-items: center; gap: 8px; }
 .xpline .xprow { flex: 1; }
 .xpline .xpnum { font-size: 11px; color: var(--fg2); font-variant-numeric: tabular-nums; white-space: nowrap; margin-top: 5px; }
+.pcard.is-off { opacity: .35; filter: grayscale(.6); }
+.pslot .clade { font-size: 11px; color: var(--fg2); }

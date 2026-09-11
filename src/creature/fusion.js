@@ -12,7 +12,8 @@
 // makes a fusion read as half and half.
 import { SLOTS, getPart, partFits } from '../data/parts/index.js';
 import { clamp01, lerp, round3, normalizeWeights } from '../core/util.js';
-import { GENOME_VERSION, PAINT_SLOTS, PAINT_PERMS, TRAIT_KEYS, STAT_KEYS, randomPartId, learnsetOf } from './genome.js';
+import { GENOME_VERSION, PAINT_SLOTS, PAINT_PERMS, TRAIT_KEYS, STAT_KEYS, randomPartId, learnsetOf, cladeOf } from './genome.js';
+import { CLADES, cladeName } from '../data/clades.js';
 import { getMove, UNIVERSAL_LEARNSET } from '../data/moves.js';
 import { blendColor } from './palette.js';
 import { joinNameParts, splitName } from './naming.js';
@@ -46,12 +47,24 @@ function namePartsOf(g) {
   return Array.isArray(g.nameParts) && g.nameParts.length === 2 ? g.nameParts : splitName(g.name);
 }
 
+/** Can these two fuse? Only creatures of the same class can. Returns { ok, reason }. */
+export function canFuse(a, b) {
+  if (!a || !b) return { ok: false, reason: 'Pick two creatures.' };
+  if (a === b) return { ok: false, reason: 'Pick two different creatures.' };
+  const ca = cladeOf(a), cb = cladeOf(b);
+  if (ca !== cb) return { ok: false, reason: `${cladeName(ca)}s only fuse with ${cladeName(ca)}s.` };
+  return { ok: true, reason: '' };
+}
+
 /**
- * Fuse a and b. Deterministic for a given rng seed.
+ * Fuse a and b. Deterministic for a given rng seed. Throws if the classes differ.
  * Returns { child, report } where report = { from: {slot: 0|1}, mutated: {slot: true},
  *   identity: 0|1, palette: {c1|c2|c3|eye: 0|1|'blend'}, types: {primary: 0|1, secondary: 0|1|null} }.
  */
 export function fuse(a, b, rng) {
+  const compat = canFuse(a, b);
+  if (!compat.ok) throw new Error(compat.reason);
+  const clade = cladeOf(a);
   const rParts = rng.fork('parts');
   const rMut = rng.fork('mutation');
   const rPaint = rng.fork('paint');
@@ -86,6 +99,20 @@ export function fuse(a, b, rng) {
     else if (rMut.chance(FUSE.carriedMutation)) c = randomPartId(slot, bodyKind, rMut);
     parts[slot] = [e, c];
     from[slot] = f;
+  }
+
+  // Linked slots inherit together so the class silhouette stays coherent.
+  for (const group of (CLADES[clade] && CLADES[clade].linked) || []) {
+    const lead = group[0];
+    if (from[lead] == null) continue;
+    for (const slot of group.slice(1)) {
+      if (from[slot] === from[lead] || mutated[slot]) continue;
+      const src = parents[from[lead]], other = parents[1 - from[lead]];
+      const want = src.parts[slot][0];
+      if (!fitsBody(want, bodyKind) && !getPart(want)?.none) continue;
+      parts[slot] = [want, other.parts[slot][0]];
+      from[slot] = from[lead];
+    }
   }
 
   const headPart = getPart(parts.head[0]);
@@ -149,6 +176,7 @@ export function fuse(a, b, rng) {
     v: GENOME_VERSION,
     seed: rng.seed,
     species: null,
+    clade,
     name: joinNameParts(nameParts[0], nameParts[1]),
     nameParts,
     gen,
@@ -188,6 +216,7 @@ export function fuseChain(first, partners, rng) {
   const out = [first];
   let cur = first;
   partners.forEach((p, i) => {
+    if (!canFuse(cur, p).ok) return;
     cur = fuse(cur, p, rng.fork(`gen${i}`)).child;
     out.push(cur);
   });

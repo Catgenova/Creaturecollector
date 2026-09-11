@@ -7,7 +7,9 @@ import { openSheet } from './lab.js';
 import { mountFight, xpRow } from './fight.js';
 import { STATUS_INFO } from '../battle/engine.js';
 import { loadSave, persistSave, exportSave, importSave, emptySave, clearSave, recordCollection, endRun } from '../game/save.js';
-import { ARENA, floorLevel, newRun, chooseStarter, buildBattle, applyBattle, previewFusion, fuseMembers, skipAltar, moveMember, setLead, memberMaxHp, xpProgress, canFight, learnMove } from '../game/run.js';
+import { ARENA, floorLevel, newRun, chooseStarter, buildBattle, applyBattle, previewFusion, fuseMembers, skipAltar, moveMember, setLead, memberMaxHp, xpProgress, canFight, learnMove, biomeFor, canFuseMembers } from '../game/run.js';
+import { cladeName } from '../data/clades.js';
+import { cladeOf } from '../creature/genome.js';
 import { getMove } from '../data/moves.js';
 import { TYPE_INFO } from '../data/types.js';
 import { addToPool } from './state.js';
@@ -148,7 +150,7 @@ function floorView(root, run) {
     h('span', {}, `${f.genome.name} · Lv ${f.level}`))));
   appendChildren(root, [
     h('div', { class: 'floor-head' },
-      h('div', {}, h('h2', { class: 'screen-title' }, `Floor ${run.floor}`), h('span', { class: 'hint' }, `wild level ${L} · ${run.stats.captures} caught · ${run.stats.fusions} fused`)),
+      h('div', {}, h('h2', { class: 'screen-title' }, `Floor ${run.floor} · ${biomeFor(run.floor).name}`), h('span', { class: 'hint' }, `wild level ${L} · ${run.stats.captures} caught · ${run.stats.fusions} fused`)),
       h('button', { class: 'btn small', type: 'button', onclick: () => { if (confirm('Abandon this run? Your party retires to the collection.')) { run.phase = 'gameover'; endRun(ar.save); save(); rerender(); } } }, 'Abandon')),
     ar.showReport ? reportCard(run.lastReport) : null,
     learnCard(run),
@@ -204,17 +206,20 @@ function altarView(root, run) {
   const pick = ar.altar;
   const all = [...run.party, ...run.box];
   const list = h('div', { class: 'pool' });
+  const anchorUid = pick.a || pick.b;
   for (const m of all) {
     const tag = pick.a === m.uid ? 'A' : pick.b === m.uid ? 'B' : null;
-    list.append(h('button', { class: `pcard${tag === 'A' ? ' is-a' : tag === 'B' ? ' is-b' : ''}`, type: 'button', onclick: () => {
+    const off = anchorUid && !tag && !canFuseMembers(run, anchorUid, m.uid).ok;
+    list.append(h('button', { class: `pcard${tag === 'A' ? ' is-a' : tag === 'B' ? ' is-b' : off ? ' is-off' : ''}`, type: 'button', onclick: () => {
+      if (off) { toast(canFuseMembers(run, anchorUid, m.uid).reason); return; }
       if (pick.a === m.uid) pick.a = null; else if (pick.b === m.uid) pick.b = null; else if (!pick.a) pick.a = m.uid; else if (!pick.b) pick.b = m.uid; else pick.b = m.uid;
       rerender();
-    } }, tag ? h('span', { class: `sel badge ${tag.toLowerCase()}` }, tag) : null, creatureEl(m.genome, { size: 104, animate: false }), h('span', {}, `${m.genome.name} · Lv ${m.level}`)));
+    } }, tag ? h('span', { class: `sel badge ${tag.toLowerCase()}` }, tag) : null, h('span', { class: 'gen' }, cladeName(cladeOf(m.genome))), creatureEl(m.genome, { size: 104, animate: false }), h('span', {}, `${m.genome.name} · Lv ${m.level}`)));
   }
   const child = pick.a && pick.b ? previewFusion(run, pick.a, pick.b) : null;
   appendChildren(root, [
     h('h2', { class: 'screen-title' }, '✦ Fusion altar'),
-    h('p', { class: 'hint' }, 'Fuse two of your creatures into one. Both are consumed; the child keeps the higher level and starts at full health. Everyone is fully healed when you leave.'),
+    h('p', { class: 'hint' }, 'Fuse two creatures of the same class into one. Both are consumed; the child keeps the higher level and starts at full health. Everyone is fully healed when you leave.'),
     ...section('Choose two', list),
     child ? h('div', { class: 'result' },
       h('div', { class: 'sheet-head' }, h('h2', {}, child.name), typeChips(child.types)),

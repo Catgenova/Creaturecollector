@@ -42,11 +42,25 @@ function scoreMove(state, side, action, rng) {
       if (foe.status) s -= 25;
       else s += (f.s === 'slp' ? 50 : f.s === 'par' ? 38 : f.s === 'brn' ? (foe.stats.atk > foe.stats.spa ? 42 : 24) : f.s === 'psn' ? 30 : 30) * acc;
     } else if (f.k === 'stat' && f.who === 'self') {
-      const room = Object.entries(f.stats).reduce((a, [k, n]) => a + Math.max(0, Math.min(n, 6 - me.stages[k])), 0);
+      // Boosts are worth it early and healthy, and not past +2 in a stat we already raised.
+      const room = Object.entries(f.stats).reduce((a, [k, n]) => a + Math.max(0, Math.min(n, 2 - me.stages[k])), 0);
       s += me.hp > me.maxHp * 0.55 ? 15 * room + (state.turn < 2 ? 6 : 0) : 4 * room;
     } else if (f.k === 'stat' && f.who === 'foe') {
-      const room = Object.entries(f.stats).reduce((a, [k, n]) => a + Math.max(0, Math.min(-n, 6 + foe.stages[k])), 0);
-      s += 9 * room * acc;
+      // Lowering a stat is only worth it while the foe actually uses that stat, and it decays fast.
+      let v = 0;
+      for (const [k, n] of Object.entries(f.stats)) {
+        const already = -foe.stages[k];
+        const room = Math.max(0, Math.min(-n, 6 - already));
+        let use = 1;
+        if (k === 'spe') use = faster ? 0 : 1;
+        else if (k === 'atk') use = foe.stats.atk >= foe.stats.spa ? 1 : 0.2;
+        else if (k === 'spa') use = foe.stats.spa >= foe.stats.atk ? 1 : 0.2;
+        else if (k === 'def') use = me.stats.atk >= me.stats.spa ? 0.8 : 0.2;
+        else if (k === 'spd') use = me.stats.spa >= me.stats.atk ? 0.8 : 0.2;
+        else if (k === 'acc') use = 0.6;
+        v += 9 * room * use * (already >= 2 ? 0.3 : 1);
+      }
+      s += v * acc;
     } else if (f.k === 'heal') {
       s += me.hp < me.maxHp * 0.45 ? 55 : me.hp < me.maxHp * 0.7 ? 18 : -30;
     }

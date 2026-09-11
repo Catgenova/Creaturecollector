@@ -11,6 +11,7 @@ import { clamp01, round3, normalizeWeights, b64uEncode, b64uDecode } from '../co
 import { splitName } from './naming.js';
 import { getMove, UNIVERSAL_LEARNSET } from '../data/moves.js';
 import { ABILITIES } from '../data/abilities.js';
+import { CLADES } from '../data/clades.js';
 import { jitterPalette, shinyPalette } from './palette.js';
 
 export const GENOME_VERSION = 1;
@@ -95,6 +96,7 @@ export function speciesGenome(species, rng) {
     v: GENOME_VERSION,
     seed: rng.seed,
     species: species.id,
+    clade: species.clade,
     name: species.name,
     nameParts: species.nameParts ? species.nameParts.slice() : splitName(species.name),
     gen: 0,
@@ -120,10 +122,18 @@ export function learnsetOf(g) {
   return sp && sp.learnset ? sp.learnset : UNIVERSAL_LEARNSET;
 }
 
-/** A random wild creature: species weighted by rarity tier, then rolled. */
-export function randomGenome(rng) {
-  const species = rng.fork('species').weighted(SPECIES, (s) => TIER_WEIGHT[s.tier] || 1);
+/** A random wild creature: species weighted by rarity tier, then rolled. opts.clade restricts the class. */
+export function randomGenome(rng, opts = {}) {
+  const pool = opts.clade ? SPECIES.filter((s) => s.clade === opts.clade) : SPECIES;
+  const species = rng.fork('species').weighted(pool.length ? pool : SPECIES, (s) => TIER_WEIGHT[s.tier] || 1);
   return speciesGenome(species, rng);
+}
+
+/** The class a genome belongs to, inferred from its species or lineage for older genomes. */
+export function cladeOf(g) {
+  if (g.clade && CLADES[g.clade]) return g.clade;
+  const sp = (g.species && SPECIES_BY_ID[g.species]) || (g.lineage && SPECIES_BY_ID[g.lineage[0]]);
+  return sp ? sp.clade : 'mammal';
 }
 
 export function speciesOf(g) { return SPECIES_BY_ID[g.species] || null; }
@@ -199,6 +209,7 @@ export function validateGenome(g) {
     g.nameParts = sp && sp.nameParts ? sp.nameParts.slice() : splitName(g.name);
   }
   g.species = typeof g.species === 'string' && SPECIES_BY_ID[g.species] ? g.species : null;
+  g.clade = cladeOf(g);
   g.parents = Array.isArray(g.parents) ? g.parents.filter((x) => typeof x === 'string').slice(0, 2) : undefined;
   if (g.parents === undefined) delete g.parents;
   g.lineage = Array.isArray(g.lineage) ? g.lineage.filter((x) => typeof x === 'string').slice(0, 16) : [];

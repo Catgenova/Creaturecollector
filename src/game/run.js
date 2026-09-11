@@ -4,7 +4,10 @@ import { makeRng } from '../core/rng.js';
 import { SPECIES, TIER_WEIGHT } from '../data/species.js';
 import { speciesGenome, learnsetOf } from '../creature/genome.js';
 import { getMove } from '../data/moves.js';
-import { fuse } from '../creature/fusion.js';
+import { fuse, canFuse } from '../creature/fusion.js';
+import { BIOMES, CLADE_IDS } from '../data/clades.js';
+import { cladeOf } from '../creature/genome.js';
+import { typeEffectiveness } from '../data/types.js';
 import { statsAtLevel, movesAtLevel } from '../battle/stats.js';
 import { createBattle, makeBattler, MAX_PARTY } from '../battle/engine.js';
 
@@ -20,6 +23,7 @@ export const ARENA = {
   xpK: 7,
   wildFusionFrom: 8,
   rareFrom: 4,
+  gentleFloors: 3,
 };
 
 const TRAINER_NAMES = ['Ranger Ivy', 'Scout Bram', 'Herder Tobin', 'Keeper Sable', 'Drifter Wren', 'Tamer Oakes', 'Courier Pim', 'Warden’s Aide Lise'];
@@ -94,17 +98,32 @@ export function chooseStarter(run, index) {
   return run;
 }
 
-function wildGenome(rng, floor) {
-  const sp = rng.weighted(SPECIES, (s) => (s.tier === 'rare' ? (floor < ARENA.rareFrom ? 0 : Math.min(0.9, 0.15 + floor * 0.02)) : s.tier === 'uncommon' ? Math.min(1, 0.5 + floor * 0.01) : 1));
+/** The biome of a floor: one per Warden stretch, cycling through the list. */
+export function biomeFor(floor) { return BIOMES[Math.floor((floor - 1) / ARENA.bossEvery) % BIOMES.length]; }
+
+function tierWeight(s, floor) {
+  if (s.tier === 'rare') return floor < ARENA.rareFrom ? 0 : Math.min(0.9, 0.15 + floor * 0.02);
+  if (s.tier === 'uncommon') return floor < 3 ? 0 : Math.min(1, 0.5 + floor * 0.01);
+  return 1;
+}
+
+/** A wild creature for a floor. Biome classes are four times as common; opts.clade forces a class. */
+function wildGenome(rng, floor, opts = {}) {
+  const biome = biomeFor(floor);
+  let pool = opts.clade ? SPECIES.filter((s) => s.clade === opts.clade) : SPECIES;
+  if (!pool.length) pool = SPECIES;
+  let sp = rng.weighted(pool, (s) => tierWeight(s, floor) * (opts.clade || !biome.clades.includes(s.clade) ? 1 : 4));
+  if (!sp) sp = rng.pick(pool);
   return speciesGenome(sp, rng.fork(`w${sp.id}`));
 }
 
+/** Wild creature, or on deeper floors sometimes a wild fusion of two same-class creatures. */
 function wildOrFusion(rng, floor) {
   const fusionChance = floor >= ARENA.wildFusionFrom ? Math.min(0.35, (floor - ARENA.wildFusionFrom + 1) * 0.04) : 0;
   const a = wildGenome(rng.fork('a'), floor);
   if (!rng.chance(fusionChance)) return a;
-  const b = wildGenome(rng.fork('b'), floor);
-  return fuse(a, b, rng.fork('fuse')).child;
+  const b = wildGenome(rng.fork('b'), floor, { clade: cladeOf(a) });
+  return canFuse(a, b).ok ? fuse(a, b, rng.fork('fuse')).child : a;
 }
 
 /** The encounter waiting on a floor. Deterministic per run seed and floor. */
@@ -114,20 +133,29 @@ export function encounterFor(run, floor) {
   const cap = (x) => Math.max(2, Math.min(ARENA.maxLevel, x));
   if (floor % ARENA.bossEvery === 0) {
     const count = Math.min(ARENA.partyMax, 1 + Math.floor(floor / ARENA.bossEvery));
-    const a = wildGenome(rng.fork('b1'), floor), b = wildGenome(rng.fork('b2'), floor), c = wildGenome(rng.fork('b3'), floor);
+    const a = wildGenome(rng.fork('b1'), floor);
+    const clade = cladeOf(a);
+    const b = wildGenome(rng.fork('b2'), floor, { clade }), c = wildGenome(rng.fork('b3'), floor, { clade });
     const leader = fuse(fuse(a, b, rng.fork('f1')).child, c, rng.fork('f2')).child;
     const foes = [{ genome: leader, level: cap(L) }];
     for (let i = 1; i < count; i++) foes.push({ genome: wildOrFusion(rng.fork(`m${i}`), floor), level: cap(L - 1) });
-    return { kind: 'boss', name: `Warden ${rng.pick(WARDEN_NAMES)}`, foes, capturable: false };
+    return { kind: 'boss', name: `Warden ${rng.pick(WARDEN_NAMES)}`, foes, capturable: false, biome: biomeFor(floor).id };
   }
   if (floor % ARENA.trainerEvery === 0) {
     const count = Math.max(1, Math.min(ARENA.partyMax, Math.floor(floor / ARENA.trainerEvery)));
     const foes = [];
     for (let i = 0; i < count; i++) foes.push({ genome: wildOrFusion(rng.fork(`t${i}`), floor), level: cap(L - 1 - rng.int(2)) });
-    return { kind: 'trainer', name: rng.pick(TRAINER_NAMES), foes, capturable: false };
+    return { kind: 'trainer', name: rng.pick(TRAINER_NAMES), foes, capturable: false, biome: biomeFor(floor).id };
   }
-  const g = wildOrFusion(rng.fork('wild'), floor);
-  return { kind: 'wild', name: `Wild ${g.name}`, foes: [{ genome: g, level: cap(L + rng.between(-1, 1)) }], capturable: true };
+  // The first floors never throw a hard counter at a lone starter: re-roll wilds whose
+  // types hit the lead super effectively until one does not (or give up after a few tries).
+  let g = wildOrFusion(rng.fork('wild'), floor);
+  if (floor <= ARENA.gentleFloors && run.party && run.party[0]) {
+    const leadTypes = run.party[0].genome.types;
+    const counters = (w) => w.types.some((t) => t && typeEffectiveness(t, leadTypes) >= 2);
+    for (let i = 0; i < 8 && counters(g); i++) g = wildOrFusion(rng.fork(`wild${i}`), floor);
+  }
+  return { kind: 'wild', name: `Wild ${g.name}`, foes: [{ genome: g, level: cap(L + rng.between(-1, 1)) }], capturable: true, biome: biomeFor(floor).id };
 }
 
 /** Build the engine state for the current floor. Rotates a fainted lead out of the first slot. */
@@ -228,10 +256,17 @@ function findMember(run, uid) { return [...run.party, ...run.box].find((m) => m.
 
 export function altarSeed(run, uidA, uidB) { return `${run.seed}:altar:${run.floor}:${uidA}:${uidB}`; }
 
-/** Preview the altar child without changing the run. */
+/** Can two members fuse at the altar? Same class only. */
+export function canFuseMembers(run, uidA, uidB) {
+  const a = findMember(run, uidA), b = findMember(run, uidB);
+  if (!a || !b) return { ok: false, reason: 'Pick two creatures.' };
+  return canFuse(a.genome, b.genome);
+}
+
+/** Preview the altar child without changing the run. Null when the pair cannot fuse. */
 export function previewFusion(run, uidA, uidB) {
   const a = findMember(run, uidA), b = findMember(run, uidB);
-  if (!a || !b || a === b) return null;
+  if (!a || !b || a === b || !canFuse(a.genome, b.genome).ok) return null;
   return fuse(a.genome, b.genome, makeRng(altarSeed(run, uidA, uidB))).child;
 }
 
@@ -239,6 +274,8 @@ export function previewFusion(run, uidA, uidB) {
 export function fuseMembers(run, uidA, uidB) {
   const a = findMember(run, uidA), b = findMember(run, uidB);
   if (!a || !b || a === b) throw new Error('Pick two different creatures.');
+  const compat = canFuse(a.genome, b.genome);
+  if (!compat.ok) throw new Error(compat.reason);
   const child = previewFusion(run, uidA, uidB);
   const member = makeMember(child, Math.max(a.level, b.level), nextUid(run));
   run.party = run.party.filter((m) => m !== a && m !== b);

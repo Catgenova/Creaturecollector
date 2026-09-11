@@ -49,41 +49,53 @@ export function tournament({ games = 100, level = 50, seed = 'tourney', partySiz
 }
 
 // ---- arena run simulation ----------------------------------------------------
-import { activeOf, captureChance } from './engine.js';
-import { newRun, chooseStarter, buildBattle, applyBattle, fuseMembers, skipAltar, canFight } from '../game/run.js';
+import { activeOf, captureChance, describeEvent } from './engine.js';
+import { newRun, chooseStarter, buildBattle, applyBattle, fuseMembers, skipAltar, canFight, canFuseMembers } from '../game/run.js';
 
 /**
  * Play an arena run with the AI driving the player's side. Captures when the
  * odds are decent and the team has room; fuses the two weakest at altars.
  */
-export function simulateRun(seed, { maxFloors = 40, capture = true, fuseAtAltar = true, teamCap = 8 } = {}) {
+export function simulateRun(seed, { maxFloors = 40, capture = true, fuseAtAltar = true, teamCap = 8, trace = false } = {}) {
+  let lastLog = [];
   const run = chooseStarter(newRun(seed), 0);
   const floors = [];
   while (run.phase === 'floor' && run.floor <= maxFloors) {
     if (run.altar) {
+      let fused = false;
       if (fuseAtAltar && run.party.length >= 3) {
         const sorted = [...run.party].sort((a, b) => a.level - b.level);
-        fuseMembers(run, sorted[0].uid, sorted[1].uid);
-      } else skipAltar(run);
+        outer: for (let i = 0; i < sorted.length; i++) for (let j = i + 1; j < sorted.length; j++) {
+          if (canFuseMembers(run, sorted[i].uid, sorted[j].uid).ok) { fuseMembers(run, sorted[i].uid, sorted[j].uid); fused = true; break outer; }
+        }
+      }
+      if (!fused) skipAltar(run);
     }
     if (!canFight(run)) break;
     let { state } = buildBattle(run);
     let guard = 0;
+    if (trace) {
+      const fmt = (b) => `${b.name} L${b.level} [${b.types.filter(Boolean).join('/')}] hp ${b.hp}/${b.maxHp} :: ${b.moves.map((m) => m.id).join(', ')} · ${b.ability}`;
+      lastLog = [`floor ${run.floor} · ${run.encounter.name}`, ...state.sides[0].party.map((b) => '  ME  ' + fmt(b)), ...state.sides[1].party.map((b) => '  FOE ' + fmt(b))];
+    }
+    let attempts = 0;
     while (state.phase !== 'over' && guard++ < 600) {
       const rng = makeRng(`${seed}:run:${run.floor}:${state.turn}:${state.phase}`);
       let a0 = chooseAction(state, 0, rng.fork('s0'));
-      if (capture && state.phase === 'choose' && state.capturable && run.party.length + run.box.length < teamCap) {
-        const foe = activeOf(state, 1);
-        if (captureChance(foe) >= 0.5) a0 = { type: 'capture' };
+      if (capture && state.phase === 'choose' && state.capturable && attempts < 3 && run.party.length + run.box.length < teamCap) {
+        const foe = activeOf(state, 1), me = activeOf(state, 0);
+        if (captureChance(foe) >= 0.5 && me.hp > me.maxHp * 0.3) { a0 = { type: 'capture' }; attempts++; }
       }
       const a1 = chooseAction(state, 1, rng.fork('s1'));
-      ({ state } = step(state, [a0, a1]));
+      const r = step(state, [a0, a1]);
+      state = r.state;
+      if (trace) for (const e of r.events) { if (e.t === 'damage') lastLog.push(`    -> ${e.name} takes ${e.amount} (${e.hp}/${e.maxHp}) x${e.eff}${e.crit ? ' crit' : ''}`); else if (['move', 'faint', 'capture', 'status', 'switch'].includes(e.t)) lastLog.push('  ' + describeEvent(e, ['You', 'Wild'], { wild: true })); }
     }
     const { report } = applyBattle(run, state);
     floors.push({ floor: report.floor, won: report.won, kind: report.kind, captured: Boolean(report.captured), party: run.party.length, lead: run.party[0] ? run.party[0].level : 0, foeLevel: state.sides[1].party[0].level, turns: state.turn });
     if (!report.won) break;
   }
-  return { reached: run.phase === 'gameover' ? run.floor - 1 : Math.min(maxFloors, run.floor - 1), floors, run };
+  return { reached: run.phase === 'gameover' ? run.floor - 1 : Math.min(maxFloors, run.floor - 1), floors, run, lastLog };
 }
 
 /** Many runs; returns the distribution of floors reached and where runs die. */

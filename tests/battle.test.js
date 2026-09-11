@@ -39,7 +39,7 @@ test('genomes carry learnsets and abilities through validation and fusion', () =
   const v = validateGenome(JSON.parse(JSON.stringify({ ...g, learnset: [[1, 'nope']], ability: 'x' })));
   assert.equal(v.learnset.length, SPECIES_BY_ID.emberox.learnset.length);
   assert.ok(ABILITIES[v.ability]);
-  const { child } = fuse(g, speciesGenome(SPECIES_BY_ID.finnip, makeRng('m')), makeRng('f'));
+  const { child } = fuse(g, speciesGenome(SPECIES_BY_ID.glacub, makeRng('m')), makeRng('f'));
   assert.ok(child.learnset.length >= 6 && child.learnset.length <= 12);
   for (const [, id] of child.learnset) assert.ok(['Normal', ...child.types].includes(getMove(id).type));
   assert.ok(ABILITIES[child.ability]);

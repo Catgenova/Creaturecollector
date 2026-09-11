@@ -229,6 +229,27 @@ and faint animations.
 The fight view is a reusable component (`ui/fight.js`) shared by the Arena and
 the sandbox Battle tab.
 
+## Classes and fusion locks (implemented)
+
+Every species belongs to a **class** (`clade` in code): Mammal, Reptile, Fish,
+Bird, Insect, Invertebrate or Amphibian. Types stay elemental and independent.
+
+- **Fusion is same-class only.** `canFuse(a, b)` is the single rule; `fuse()`
+  throws otherwise. The Fusion Lab and the altar grey out incompatible partners
+  and say why. Wild fusions and Warden leaders are built inside one class.
+- **Linked slots** keep each class's silhouette coherent: the second slot of a
+  pair inherits from whichever parent supplied the first. Mammals and
+  amphibians link legs and arms, reptiles back and tail, fish body and tail,
+  birds wings and tail, insects wings and back, invertebrates arms and legs.
+- **Biomes.** Each Warden stretch of five floors has a biome (Meadow, Marsh,
+  Cavern, Reef, Canopy, Dunes, Peaks) whose two or three classes are four
+  times as common, so a party finds fusion partners. Biomes are the seed of the
+  overworld's regions.
+- Each class will get its own skeleton and slot list in the raster art
+  pipeline (see `docs/ART_PIPELINE.md`), which is where the "own body
+  structure per class" rule really lives; the current vector parts share one
+  skeleton and rely on the class lock plus linked slots.
+
 ## Polish and balance (Phase 5 — implemented)
 
 Balance was done with the two simulators, not by feel:

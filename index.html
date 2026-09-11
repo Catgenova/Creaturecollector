@@ -249,6 +249,8 @@ h3.sec { font-size: 12px; text-transform: uppercase; letter-spacing: .1em; color
 .xpline { display: flex; align-items: center; gap: 8px; }
 .xpline .xprow { flex: 1; }
 .xpline .xpnum { font-size: 11px; color: var(--fg2); font-variant-numeric: tabular-nums; white-space: nowrap; margin-top: 5px; }
+.pcard.is-off { opacity: .35; filter: grayscale(.6); }
+.pslot .clade { font-size: 11px; color: var(--fg2); }
 </style>
 </head>
 <body>
@@ -1070,7 +1072,7 @@ const MID = [0.35, 0.65];
 
 const SPECIES = [
   {
-    id: 'pufflet', name: 'Pufflet', nameParts: ['Puff', 'let'], types: ['Normal'], tier: 'common', bst: 420,
+    id: 'pufflet', name: 'Pufflet', nameParts: ['Puff', 'let'], clade: 'mammal', types: ['Normal'], tier: 'common', bst: 420,
     stats: { hp: 0.24, atk: 0.18, def: 0.16, spa: 0.12, spd: 0.16, spe: 0.14 },
     recipe: { body: 'body.round', head: 'head.round', eyes: 'eye.round', mouth: 'mouth.smile', crown: ['crown.catears', 'crown.bunny'], legs: 'legs.stub', arms: 'arms.none', wings: 'wings.none', tail: 'tails.stubby', back: 'back.none', pattern: 'pat.belly' },
     palette: { c1: [38, 45, 72], c2: [36, 40, 88], c3: [350, 60, 72], eye: [205, 35, 28] }, vary: { h: 10, s: 8, l: 6 },
@@ -1080,7 +1082,7 @@ const SPECIES = [
     desc: 'A soft, round creature that puffs up when startled. Happiest in a warm pocket.',
   },
   {
-    id: 'emberox', name: 'Emberox', nameParts: ['Ember', 'ox'], types: ['Fire'], tier: 'common', bst: 405,
+    id: 'emberox', name: 'Emberox', nameParts: ['Ember', 'ox'], clade: 'mammal', types: ['Fire'], tier: 'common', bst: 405,
     stats: { hp: 0.14, atk: 0.19, def: 0.13, spa: 0.2, spd: 0.13, spe: 0.21 },
     recipe: { body: 'body.quad', head: 'head.snout', eyes: 'eye.angry', mouth: 'mouth.fangs', crown: ['crown.catears', 'crown.horns'], legs: 'legs.canine', arms: 'arms.none', wings: ['wings.none', 'wings.fire'], tail: 'tails.flame', back: 'back.none', pattern: 'pat.saddle' },
     palette: { c1: [22, 88, 52], c2: [40, 95, 58], c3: [8, 88, 52], eye: [48, 95, 55] }, vary: { h: 8, s: 6, l: 6 },
@@ -1090,7 +1092,7 @@ const SPECIES = [
     desc: 'Its tail flame burns hotter the more it wants to impress. Kicks up sparks when it runs.',
   },
   {
-    id: 'finnip', name: 'Finnip', nameParts: ['Fin', 'nip'], types: ['Water'], tier: 'common', bst: 405,
+    id: 'finnip', name: 'Finnip', nameParts: ['Fin', 'nip'], clade: 'fish', types: ['Water'], tier: 'common', bst: 405,
     stats: { hp: 0.16, atk: 0.12, def: 0.17, spa: 0.21, spd: 0.18, spe: 0.16 },
     recipe: { body: 'body.fish', head: 'head.none', eyes: 'eye.big', mouth: 'mouth.open', crown: 'crown.fin', legs: 'legs.none', arms: 'arms.fin', wings: 'wings.none', tail: 'tails.fish', back: 'back.fin', pattern: 'pat.stripes' },
     palette: { c1: [205, 80, 54], c2: [190, 70, 72], c3: [28, 90, 62], eye: [42, 90, 50] }, vary: { h: 10, s: 6, l: 6 },
@@ -1100,7 +1102,7 @@ const SPECIES = [
     desc: 'Swims through air as easily as water by beating its fins very fast. Curious about shiny things.',
   },
   {
-    id: 'sprigget', name: 'Sprigget', nameParts: ['Sprig', 'get'], types: ['Grass'], tier: 'common', bst: 430,
+    id: 'sprigget', name: 'Sprigget', nameParts: ['Sprig', 'get'], clade: 'amphibian', types: ['Grass'], tier: 'common', bst: 430,
     stats: { hp: 0.19, atk: 0.13, def: 0.16, spa: 0.2, spd: 0.19, spe: 0.13 },
     recipe: { body: 'body.biped', head: 'head.bulb', eyes: 'eye.round', mouth: 'mouth.smile', crown: 'crown.sprout', legs: 'legs.stub', arms: 'arms.stub', wings: ['wings.none', 'wings.leaf'], tail: 'tails.leaf', back: 'back.none', pattern: 'pat.spots' },
     palette: { c1: [110, 45, 48], c2: [95, 55, 66], c3: [98, 55, 40], eye: [22, 60, 30] }, vary: { h: 12, s: 8, l: 6 },
@@ -1110,7 +1112,7 @@ const SPECIES = [
     desc: 'The sprout on its head leans toward sunlight. It naps in flowerbeds and wakes covered in pollen.',
   },
   {
-    id: 'voltmite', name: 'Voltmite', nameParts: ['Volt', 'mite'], types: ['Electric'], tier: 'common', bst: 400,
+    id: 'voltmite', name: 'Voltmite', nameParts: ['Volt', 'mite'], clade: 'mammal', types: ['Electric'], tier: 'common', bst: 400,
     stats: { hp: 0.13, atk: 0.16, def: 0.12, spa: 0.21, spd: 0.14, spe: 0.24 },
     recipe: { body: 'body.round', head: 'head.none', eyes: 'eye.big', mouth: 'mouth.grin', crown: 'crown.bolts', legs: 'legs.stub', arms: 'arms.stub', wings: 'wings.none', tail: 'tails.whip', back: ['back.none', 'back.bolts'], pattern: 'pat.stripes' },
     palette: { c1: [50, 95, 58], c2: [222, 15, 22], c3: [30, 95, 55], eye: [222, 40, 22] }, vary: { h: 6, s: 5, l: 6 },
@@ -1120,7 +1122,7 @@ const SPECIES = [
     desc: 'Static crackles in its fur. It clings to power lines and hums along with them.',
   },
   {
-    id: 'glacub', name: 'Glacub', nameParts: ['Gla', 'cub'], types: ['Ice'], tier: 'uncommon', bst: 440,
+    id: 'glacub', name: 'Glacub', nameParts: ['Gla', 'cub'], clade: 'mammal', types: ['Ice'], tier: 'uncommon', bst: 440,
     stats: { hp: 0.22, atk: 0.19, def: 0.17, spa: 0.12, spd: 0.17, spe: 0.13 },
     recipe: { body: 'body.biped', head: 'head.round', eyes: 'eye.sleepy', mouth: 'mouth.flat', crown: 'crown.catears', legs: 'legs.chunky', arms: 'arms.paw', wings: 'wings.none', tail: 'tails.stubby', back: ['back.none', 'back.crystal'], pattern: 'pat.belly' },
     palette: { c1: [196, 55, 80], c2: [200, 30, 95], c3: [210, 60, 62], eye: [222, 50, 35] }, vary: { h: 8, s: 8, l: 5 },
@@ -1130,7 +1132,7 @@ const SPECIES = [
     desc: 'Sleeps through blizzards. Its breath leaves frost on anything it sniffs.',
   },
   {
-    id: 'bruxor', name: 'Bruxor', nameParts: ['Brux', 'or'], types: ['Fighting'], tier: 'uncommon', bst: 420,
+    id: 'bruxor', name: 'Bruxor', nameParts: ['Brux', 'or'], clade: 'mammal', types: ['Fighting'], tier: 'uncommon', bst: 420,
     stats: { hp: 0.17, atk: 0.25, def: 0.18, spa: 0.08, spd: 0.14, spe: 0.18 },
     recipe: { body: 'body.biped', head: 'head.block', eyes: 'eye.angry', mouth: 'mouth.frown', crown: ['crown.horns', 'crown.mohawk'], legs: 'legs.chunky', arms: 'arms.claw', wings: 'wings.none', tail: 'tail.none', back: 'back.none', pattern: 'pat.chest' },
     palette: { c1: [15, 55, 46], c2: [30, 45, 70], c3: [40, 30, 88], eye: [10, 80, 40] }, vary: { h: 8, s: 8, l: 6 },
@@ -1140,7 +1142,7 @@ const SPECIES = [
     desc: 'Headbutts boulders to keep its horns sharp. Loyal to whoever beats it fairly.',
   },
   {
-    id: 'slugmire', name: 'Slugmire', nameParts: ['Slug', 'mire'], types: ['Poison'], tier: 'common', bst: 405,
+    id: 'slugmire', name: 'Slugmire', nameParts: ['Slug', 'mire'], clade: 'invertebrate', types: ['Poison'], tier: 'common', bst: 405,
     stats: { hp: 0.19, atk: 0.14, def: 0.15, spa: 0.18, spd: 0.2, spe: 0.14 },
     recipe: { body: 'body.serpent', head: 'head.bulb', eyes: 'eye.slit', mouth: 'mouth.tongue', crown: 'crown.antennae', legs: 'legs.none', arms: 'arms.none', wings: 'wings.none', tail: 'tails.whip', back: ['back.none', 'back.spikes'], pattern: 'pat.spots' },
     palette: { c1: [280, 50, 46], c2: [95, 60, 52], c3: [305, 70, 66], eye: [95, 90, 55] }, vary: { h: 12, s: 8, l: 6 },
@@ -1150,7 +1152,7 @@ const SPECIES = [
     desc: 'Leaves a faintly glowing trail. Gardeners both dread and admire it.',
   },
   {
-    id: 'dustoat', name: 'Dustoat', nameParts: ['Dust', 'oat'], types: ['Ground'], tier: 'common', bst: 400,
+    id: 'dustoat', name: 'Dustoat', nameParts: ['Dust', 'oat'], clade: 'mammal', types: ['Ground'], tier: 'common', bst: 400,
     stats: { hp: 0.18, atk: 0.2, def: 0.2, spa: 0.1, spd: 0.16, spe: 0.16 },
     recipe: { body: 'body.quad', head: 'head.snout', eyes: 'eye.dot', mouth: 'mouth.flat', crown: ['crown.none', 'crown.horns'], legs: 'legs.hoof', arms: 'arms.none', wings: 'wings.none', tail: 'tails.whip', back: 'back.none', pattern: 'pat.saddle' },
     palette: { c1: [32, 45, 50], c2: [40, 50, 76], c3: [25, 35, 30], eye: [30, 60, 25] }, vary: { h: 8, s: 8, l: 6 },
@@ -1160,7 +1162,7 @@ const SPECIES = [
     desc: 'Digs shallow burrows and forgets where they are. Its hooves never seem to get dirty.',
   },
   {
-    id: 'zephyrn', name: 'Zephyrn', nameParts: ['Zeph', 'yrn'], types: ['Flying'], tier: 'common', bst: 395,
+    id: 'zephyrn', name: 'Zephyrn', nameParts: ['Zeph', 'yrn'], clade: 'bird', types: ['Flying'], tier: 'common', bst: 395,
     stats: { hp: 0.14, atk: 0.17, def: 0.12, spa: 0.16, spd: 0.13, spe: 0.28 },
     recipe: { body: 'body.bird', head: 'head.beak', eyes: 'eye.round', mouth: 'mouth.none', crown: 'crown.crest', legs: 'legs.bird', arms: 'arms.none', wings: 'wings.feather', tail: 'tails.feathers', back: 'back.none', pattern: 'pat.belly' },
     palette: { c1: [210, 70, 72], c2: [200, 20, 96], c3: [40, 90, 58], eye: [222, 60, 25] }, vary: { h: 12, s: 8, l: 6 },
@@ -1170,7 +1172,7 @@ const SPECIES = [
     desc: 'Rides thermals for hours without a single flap. Whistles at travellers to show them the way.',
   },
   {
-    id: 'mystril', name: 'Mystril', nameParts: ['Mys', 'tril'], types: ['Psychic'], tier: 'uncommon', bst: 430,
+    id: 'mystril', name: 'Mystril', nameParts: ['Mys', 'tril'], clade: 'invertebrate', types: ['Psychic'], tier: 'uncommon', bst: 430,
     stats: { hp: 0.14, atk: 0.08, def: 0.13, spa: 0.26, spd: 0.21, spe: 0.18 },
     recipe: { body: 'body.float', head: 'head.none', eyes: 'eye.big', mouth: 'mouth.smile', crown: ['crown.antennae', 'crown.halo'], legs: 'legs.none', arms: 'arms.none', wings: 'wings.none', tail: 'tails.curl', back: 'back.wisps', pattern: 'pat.spots' },
     palette: { c1: [320, 60, 68], c2: [270, 50, 62], c3: [48, 90, 62], eye: [200, 70, 50] }, vary: { h: 14, s: 8, l: 6 },
@@ -1180,7 +1182,7 @@ const SPECIES = [
     desc: 'Hovers a hand-width above the ground and always seems to be listening to something far away.',
   },
   {
-    id: 'chitterbug', name: 'Chitterbug', nameParts: ['Chitter', 'bug'], types: ['Bug'], tier: 'common', bst: 410,
+    id: 'chitterbug', name: 'Chitterbug', nameParts: ['Chitter', 'bug'], clade: 'insect', types: ['Bug'], tier: 'common', bst: 410,
     stats: { hp: 0.16, atk: 0.18, def: 0.17, spa: 0.12, spd: 0.15, spe: 0.22 },
     recipe: { body: 'body.round', head: 'head.round', eyes: 'eye.bug', mouth: 'mouth.fangs', crown: 'crown.antennae', legs: 'legs.insect', arms: 'arms.none', wings: 'wings.bug', tail: 'tail.none', back: 'back.plates', pattern: 'pat.stripes' },
     palette: { c1: [95, 50, 42], c2: [222, 10, 18], c3: [50, 90, 55], eye: [0, 0, 12] }, vary: { h: 14, s: 8, l: 6 },
@@ -1190,7 +1192,7 @@ const SPECIES = [
     desc: 'Chatters constantly by rubbing its plates together. Swarms are loud enough to hear from the next valley.',
   },
   {
-    id: 'craggon', name: 'Craggon', nameParts: ['Crag', 'gon'], types: ['Rock'], tier: 'uncommon', bst: 445,
+    id: 'craggon', name: 'Craggon', nameParts: ['Crag', 'gon'], clade: 'reptile', types: ['Rock'], tier: 'uncommon', bst: 445,
     stats: { hp: 0.17, atk: 0.21, def: 0.27, spa: 0.08, spd: 0.15, spe: 0.12 },
     recipe: { body: 'body.biped', head: 'head.block', eyes: 'eye.dot', mouth: 'mouth.flat', crown: 'crown.spikes', legs: 'legs.chunky', arms: 'arms.claw', wings: 'wings.none', tail: 'tails.club', back: ['back.plates', 'back.crystal'], pattern: 'pat.scales' },
     palette: { c1: [30, 15, 50], c2: [30, 12, 36], c3: [32, 22, 68], eye: [45, 80, 50] }, vary: { h: 10, s: 6, l: 6 },
@@ -1200,7 +1202,7 @@ const SPECIES = [
     desc: 'Mistaken for a boulder until it yawns. Lichen grows on the ones that sit still longest.',
   },
   {
-    id: 'phantoom', name: 'Phantoom', nameParts: ['Phan', 'toom'], types: ['Ghost'], tier: 'uncommon', bst: 425,
+    id: 'phantoom', name: 'Phantoom', nameParts: ['Phan', 'toom'], clade: 'invertebrate', types: ['Ghost'], tier: 'uncommon', bst: 425,
     stats: { hp: 0.13, atk: 0.1, def: 0.14, spa: 0.24, spd: 0.2, spe: 0.19 },
     recipe: { body: 'body.float', head: 'head.none', eyes: 'eye.sleepy', mouth: 'mouth.grin', crown: ['crown.none', 'crown.halo'], legs: 'legs.none', arms: 'arms.stub', wings: 'wings.none', tail: 'tail.none', back: 'back.wisps', pattern: 'pattern.none' },
     palette: { c1: [255, 40, 42], c2: [250, 30, 72], c3: [180, 60, 70], eye: [180, 80, 60] }, vary: { h: 12, s: 8, l: 6 },
@@ -1210,7 +1212,7 @@ const SPECIES = [
     desc: 'Drifts through walls when it forgets they are there. Giggles in empty rooms.',
   },
   {
-    id: 'drakelet', name: 'Drakelet', nameParts: ['Drake', 'let'], types: ['Dragon'], tier: 'rare', bst: 465,
+    id: 'drakelet', name: 'Drakelet', nameParts: ['Drake', 'let'], clade: 'reptile', types: ['Dragon'], tier: 'rare', bst: 465,
     stats: { hp: 0.17, atk: 0.21, def: 0.16, spa: 0.18, spd: 0.14, spe: 0.14 },
     recipe: { body: 'body.quad', head: 'head.long', eyes: 'eye.slit', mouth: 'mouth.fangs', crown: 'crown.horns', legs: 'legs.chunky', arms: 'arms.none', wings: 'wings.bat', tail: ['tails.whip', 'tails.club'], back: 'back.spikes', pattern: 'pat.gradient' },
     palette: { c1: [175, 55, 40], c2: [25, 80, 58], c3: [45, 70, 76], eye: [40, 90, 50] }, vary: { h: 12, s: 8, l: 6 },
@@ -1220,7 +1222,7 @@ const SPECIES = [
     desc: 'A young dragon that hoards pebbles and sleeps on them. Its wings are still too small to carry it far.',
   },
   {
-    id: 'nyxcat', name: 'Nyxcat', nameParts: ['Nyx', 'cat'], types: ['Dark'], tier: 'uncommon', bst: 425,
+    id: 'nyxcat', name: 'Nyxcat', nameParts: ['Nyx', 'cat'], clade: 'mammal', types: ['Dark'], tier: 'uncommon', bst: 425,
     stats: { hp: 0.14, atk: 0.21, def: 0.13, spa: 0.15, spd: 0.13, spe: 0.24 },
     recipe: { body: 'body.quad', head: 'head.cat', eyes: 'eye.slit', mouth: 'mouth.smirk', crown: 'crown.catears', legs: 'legs.canine', arms: 'arms.none', wings: 'wings.none', tail: ['tails.curl', 'tails.spade'], back: 'back.none', pattern: 'pattern.none' },
     palette: { c1: [262, 22, 22], c2: [270, 30, 45], c3: [45, 90, 60], eye: [50, 95, 55] }, vary: { h: 12, s: 8, l: 5 },
@@ -1230,7 +1232,7 @@ const SPECIES = [
     desc: 'Only ever seen out of the corner of the eye. Steals one sock, never the pair.',
   },
   {
-    id: 'boltmaw', name: 'Boltmaw', nameParts: ['Bolt', 'maw'], types: ['Steel'], tier: 'rare', bst: 470,
+    id: 'boltmaw', name: 'Boltmaw', nameParts: ['Bolt', 'maw'], clade: 'reptile', types: ['Steel'], tier: 'rare', bst: 470,
     stats: { hp: 0.17, atk: 0.22, def: 0.24, spa: 0.1, spd: 0.15, spe: 0.12 },
     recipe: { body: 'body.biped', head: 'head.skull', eyes: 'eye.dot', mouth: 'mouth.teeth', crown: 'crown.spikes', legs: 'legs.peg', arms: ['arms.claw', 'arms.blade'], wings: 'wings.none', tail: 'tails.club', back: 'back.plates', pattern: 'pat.bands' },
     palette: { c1: [220, 12, 62], c2: [220, 15, 40], c3: [200, 60, 55], eye: [0, 90, 52] }, vary: { h: 8, s: 5, l: 6 },
@@ -1240,7 +1242,7 @@ const SPECIES = [
     desc: 'Nobody knows whether it was built or born. It sharpens its teeth on rusty nails.',
   },
   {
-    id: 'twinklet', name: 'Twinklet', nameParts: ['Twink', 'let'], types: ['Fairy'], tier: 'common', bst: 400,
+    id: 'twinklet', name: 'Twinklet', nameParts: ['Twink', 'let'], clade: 'mammal', types: ['Fairy'], tier: 'common', bst: 400,
     stats: { hp: 0.17, atk: 0.1, def: 0.15, spa: 0.22, spd: 0.21, spe: 0.15 },
     recipe: { body: 'body.round', head: 'head.bulb', eyes: 'eye.big', mouth: 'mouth.smile', crown: 'crown.bunny', legs: 'legs.stub', arms: 'arms.stub', wings: 'wings.bug', tail: 'tails.fluffy', back: 'back.none', pattern: 'pat.speckle' },
     palette: { c1: [335, 75, 78], c2: [330, 30, 97], c3: [48, 90, 66], eye: [200, 70, 55] }, vary: { h: 12, s: 8, l: 5 },
@@ -1251,7 +1253,7 @@ const SPECIES = [
   },
   // Dual-typed species
   {
-    id: 'moltrix', name: 'Moltrix', nameParts: ['Mol', 'trix'], types: ['Fire', 'Flying'], tier: 'uncommon', bst: 435,
+    id: 'moltrix', name: 'Moltrix', nameParts: ['Mol', 'trix'], clade: 'bird', types: ['Fire', 'Flying'], tier: 'uncommon', bst: 435,
     stats: { hp: 0.14, atk: 0.18, def: 0.12, spa: 0.22, spd: 0.12, spe: 0.22 },
     recipe: { body: 'body.bird', head: 'head.beak', eyes: 'eye.angry', mouth: 'mouth.none', crown: 'crown.crest', legs: 'legs.bird', arms: 'arms.none', wings: 'wings.fire', tail: 'tails.feathers', back: 'back.none', pattern: 'pat.gradient' },
     palette: { c1: [18, 85, 50], c2: [40, 95, 60], c3: [48, 95, 58], eye: [48, 95, 55] }, vary: { h: 8, s: 6, l: 6 },
@@ -1261,7 +1263,7 @@ const SPECIES = [
     desc: 'Its wingbeats leave trails of embers. Nests on chimney tops in winter.',
   },
   {
-    id: 'tidalisk', name: 'Tidalisk', nameParts: ['Tida', 'lisk'], types: ['Water', 'Dragon'], tier: 'rare', bst: 475,
+    id: 'tidalisk', name: 'Tidalisk', nameParts: ['Tida', 'lisk'], clade: 'reptile', types: ['Water', 'Dragon'], tier: 'rare', bst: 475,
     stats: { hp: 0.18, atk: 0.17, def: 0.17, spa: 0.2, spd: 0.15, spe: 0.13 },
     recipe: { body: 'body.serpent', head: 'head.long', eyes: 'eye.slit', mouth: 'mouth.fangs', crown: 'crown.fin', legs: 'legs.none', arms: 'arms.none', wings: 'wings.fin', tail: 'tails.fish', back: 'back.fin', pattern: 'pat.scales' },
     palette: { c1: [200, 65, 42], c2: [185, 60, 68], c3: [165, 70, 60], eye: [45, 90, 55] }, vary: { h: 10, s: 6, l: 6 },
@@ -1271,7 +1273,7 @@ const SPECIES = [
     desc: 'Coils around harbour posts during storms. Sailors leave it fish and it leaves them alone.',
   },
   {
-    id: 'mossbrute', name: 'Mossbrute', nameParts: ['Moss', 'brute'], types: ['Grass', 'Fighting'], tier: 'uncommon', bst: 455,
+    id: 'mossbrute', name: 'Mossbrute', nameParts: ['Moss', 'brute'], clade: 'amphibian', types: ['Grass', 'Fighting'], tier: 'uncommon', bst: 455,
     stats: { hp: 0.19, atk: 0.23, def: 0.2, spa: 0.1, spd: 0.16, spe: 0.12 },
     recipe: { body: 'body.biped', head: 'head.block', eyes: 'eye.angry', mouth: 'mouth.frown', crown: 'crown.sprout', legs: 'legs.chunky', arms: 'arms.claw', wings: 'wings.none', tail: 'tails.stubby', back: 'back.leaf', pattern: 'pat.spots' },
     palette: { c1: [100, 35, 40], c2: [80, 45, 55], c3: [95, 55, 62], eye: [40, 80, 50] }, vary: { h: 10, s: 8, l: 6 },
@@ -1281,7 +1283,7 @@ const SPECIES = [
     desc: 'Moss grows thick on its shoulders. It uproots trees to practise its throws, then replants them.',
   },
   {
-    id: 'gloamoth', name: 'Gloamoth', nameParts: ['Gloa', 'moth'], types: ['Bug', 'Ghost'], tier: 'uncommon', bst: 415,
+    id: 'gloamoth', name: 'Gloamoth', nameParts: ['Gloa', 'moth'], clade: 'insect', types: ['Bug', 'Ghost'], tier: 'uncommon', bst: 415,
     stats: { hp: 0.15, atk: 0.12, def: 0.13, spa: 0.21, spd: 0.19, spe: 0.2 },
     recipe: { body: 'body.float', head: 'head.none', eyes: 'eye.bug', mouth: 'mouth.flat', crown: 'crown.antennae', legs: 'legs.none', arms: 'arms.none', wings: 'wings.bug', tail: 'tail.none', back: 'back.wisps', pattern: 'pat.speckle' },
     palette: { c1: [250, 30, 38], c2: [260, 25, 60], c3: [170, 60, 68], eye: [170, 80, 65] }, vary: { h: 12, s: 8, l: 6 },
@@ -1292,7 +1294,7 @@ const SPECIES = [
   },
   // Batch two
   {
-    id: 'bramblit', name: 'Bramblit', nameParts: ['Bram', 'blit'], types: ['Grass', 'Bug'], tier: 'common', bst: 425,
+    id: 'bramblit', name: 'Bramblit', nameParts: ['Bram', 'blit'], clade: 'mammal', types: ['Grass', 'Bug'], tier: 'common', bst: 425,
     stats: { hp: 0.16, atk: 0.21, def: 0.15, spa: 0.12, spd: 0.16, spe: 0.2 },
     recipe: { body: 'body.round', head: 'head.rodent', eyes: 'eye.round', mouth: 'mouth.smile', crown: 'crown.leafhat', legs: 'legs.insect', arms: 'arms.none', wings: ['wings.leaf', 'wings.bug'], tail: 'tail.none', back: 'back.leaf', pattern: 'pat.spots' },
     palette: { c1: [85, 45, 42], c2: [40, 50, 62], c3: [110, 55, 55], eye: [30, 60, 25] }, vary: { h: 10, s: 8, l: 6 },
@@ -1302,7 +1304,7 @@ const SPECIES = [
     desc: 'Wears a leaf as a hat and takes it very seriously. Chews through fences to reach berry bushes.',
   },
   {
-    id: 'cinderhoof', name: 'Cinderhoof', nameParts: ['Cinder', 'hoof'], types: ['Fire', 'Ground'], tier: 'uncommon', bst: 435,
+    id: 'cinderhoof', name: 'Cinderhoof', nameParts: ['Cinder', 'hoof'], clade: 'mammal', types: ['Fire', 'Ground'], tier: 'uncommon', bst: 435,
     stats: { hp: 0.17, atk: 0.22, def: 0.15, spa: 0.14, spd: 0.13, spe: 0.19 },
     recipe: { body: 'body.tall', head: 'head.long', eyes: 'eye.angry', mouth: 'mouth.flat', crown: 'crown.flame', legs: 'legs.hoof', arms: 'arms.none', wings: 'wings.none', tail: 'tails.flame', back: 'back.mane', pattern: 'pat.gradient' },
     palette: { c1: [18, 60, 40], c2: [35, 70, 50], c3: [8, 90, 55], eye: [45, 90, 55] }, vary: { h: 8, s: 6, l: 6 },
@@ -1312,7 +1314,7 @@ const SPECIES = [
     desc: 'Its hooves glow after a long run. Herds of them leave scorched trails across the plains.',
   },
   {
-    id: 'glimmerfin', name: 'Glimmerfin', nameParts: ['Glimmer', 'fin'], types: ['Water', 'Fairy'], tier: 'uncommon', bst: 415,
+    id: 'glimmerfin', name: 'Glimmerfin', nameParts: ['Glimmer', 'fin'], clade: 'fish', types: ['Water', 'Fairy'], tier: 'uncommon', bst: 415,
     stats: { hp: 0.16, atk: 0.1, def: 0.16, spa: 0.22, spd: 0.21, spe: 0.15 },
     recipe: { body: 'body.fish', head: 'head.none', eyes: 'eye.big', mouth: 'mouth.smile', crown: 'crown.gem', legs: 'legs.none', arms: 'arms.fin', wings: 'wings.none', tail: 'tails.fish', back: 'back.sail', pattern: 'pat.speckle' },
     palette: { c1: [190, 60, 70], c2: [320, 60, 86], c3: [50, 80, 75], eye: [320, 70, 55] }, vary: { h: 10, s: 8, l: 5 },
@@ -1322,7 +1324,7 @@ const SPECIES = [
     desc: 'The gem on its brow stores moonlight. Fishers who see one are said to have a lucky season.',
   },
   {
-    id: 'voltcrab', name: 'Voltcrab', nameParts: ['Volt', 'crab'], types: ['Electric', 'Steel'], tier: 'uncommon', bst: 440,
+    id: 'voltcrab', name: 'Voltcrab', nameParts: ['Volt', 'crab'], clade: 'invertebrate', types: ['Electric', 'Steel'], tier: 'uncommon', bst: 440,
     stats: { hp: 0.16, atk: 0.2, def: 0.24, spa: 0.14, spd: 0.15, spe: 0.11 },
     recipe: { body: 'body.bulk', head: 'head.helm', eyes: 'eye.dot', mouth: 'mouth.teeth', crown: 'crown.bolts', legs: 'legs.insect', arms: 'arms.pincer', wings: 'wings.none', tail: 'tails.bolt', back: 'back.plates', pattern: 'pat.hex' },
     palette: { c1: [210, 15, 55], c2: [50, 95, 55], c3: [200, 60, 60], eye: [50, 95, 60] }, vary: { h: 8, s: 6, l: 6 },
@@ -1332,7 +1334,7 @@ const SPECIES = [
     desc: 'Clamps onto power lines to charge overnight. Its pincers weld shut anything they grab.',
   },
   {
-    id: 'nightstalk', name: 'Nightstalk', nameParts: ['Night', 'stalk'], types: ['Poison', 'Dark'], tier: 'uncommon', bst: 415,
+    id: 'nightstalk', name: 'Nightstalk', nameParts: ['Night', 'stalk'], clade: 'invertebrate', types: ['Poison', 'Dark'], tier: 'uncommon', bst: 415,
     stats: { hp: 0.15, atk: 0.22, def: 0.15, spa: 0.12, spd: 0.14, spe: 0.22 },
     recipe: { body: 'body.quad', head: 'head.skull', eyes: 'eye.slit', mouth: 'mouth.fangs', crown: 'crown.spikes', legs: 'legs.chunky', arms: 'arms.none', wings: 'wings.none', tail: 'tails.scorpion', back: 'back.spikes', pattern: 'pat.tiger' },
     palette: { c1: [265, 20, 20], c2: [290, 50, 45], c3: [120, 70, 55], eye: [120, 90, 60] }, vary: { h: 10, s: 8, l: 5 },
@@ -1342,7 +1344,7 @@ const SPECIES = [
     desc: 'Hunts by moonless nights. The glow of its stinger is the last thing many beetles see.',
   },
   {
-    id: 'halowl', name: 'Halowl', nameParts: ['Hal', 'owl'], types: ['Psychic', 'Flying'], tier: 'rare', bst: 470,
+    id: 'halowl', name: 'Halowl', nameParts: ['Hal', 'owl'], clade: 'bird', types: ['Psychic', 'Flying'], tier: 'rare', bst: 470,
     stats: { hp: 0.15, atk: 0.1, def: 0.14, spa: 0.24, spd: 0.17, spe: 0.2 },
     recipe: { body: 'body.bird', head: 'head.owl', eyes: 'eye.void', mouth: 'mouth.none', crown: 'crown.halo', legs: 'legs.bird', arms: 'arms.none', wings: 'wings.feather', tail: 'tails.feathers', back: 'back.wisps', pattern: 'pat.chest' },
     palette: { c1: [45, 30, 86], c2: [260, 40, 62], c3: [48, 90, 60], eye: [48, 100, 65] }, vary: { h: 10, s: 6, l: 5 },
@@ -1630,6 +1632,37 @@ const ABILITY_IDS = Object.keys(ABILITIES);
 function getAbility(id) { return ABILITIES[id] || null; }
 function abilityName(id) { const a = ABILITIES[id]; return a ? a.name : 'None'; }
 
+// ---- src/data/clades.js ----
+// Classes (clades): the anatomical families creatures belong to. Fusion is only
+// possible inside a class, and each class links some slots so a child keeps a
+// coherent silhouette (a bird's wings and tail come from the same parent, etc.).
+// Types (Fire, Water...) are elemental and independent of class.
+
+const CLADES = {
+  mammal: { name: 'Mammal', plural: 'Mammals', linked: [['legs', 'arms']], desc: 'Fur, ears and tails. Quadrupeds and bipeds.' },
+  reptile: { name: 'Reptile', plural: 'Reptiles', linked: [['back', 'tail']], desc: 'Scales, spines and long tails. Lizards, serpents and dragons.' },
+  fish: { name: 'Fish', plural: 'Fish', linked: [['body', 'tail']], desc: 'Fins and tails. The face sits on the body.' },
+  bird: { name: 'Bird', plural: 'Birds', linked: [['wings', 'tail']], desc: 'Beaks, feathers and wings.' },
+  insect: { name: 'Insect', plural: 'Insects', linked: [['wings', 'back']], desc: 'Segmented bodies, antennae and thin legs.' },
+  invertebrate: { name: 'Invertebrate', plural: 'Invertebrates', linked: [['arms', 'legs']], desc: 'Soft bodies, shells and tentacles. Slugs, crabs, jellies and spirits.' },
+  amphibian: { name: 'Amphibian', plural: 'Amphibians', linked: [['legs', 'arms']], desc: 'Wide heads and springy legs. Frogs, newts and swamp things.' },
+};
+
+const CLADE_IDS = Object.keys(CLADES);
+
+function cladeName(id) { return CLADES[id] ? CLADES[id].name : 'Unknown'; }
+
+/** Arena biomes: each Warden stretch of five floors favours a few classes, so parties can find fusion partners. */
+const BIOMES = [
+  { id: 'meadow', name: 'Meadow', clades: ['mammal', 'bird', 'insect'] },
+  { id: 'marsh', name: 'Marsh', clades: ['amphibian', 'fish', 'invertebrate'] },
+  { id: 'cavern', name: 'Cavern', clades: ['reptile', 'invertebrate', 'mammal'] },
+  { id: 'reef', name: 'Reef', clades: ['fish', 'invertebrate', 'amphibian'] },
+  { id: 'canopy', name: 'Canopy', clades: ['bird', 'insect', 'mammal'] },
+  { id: 'dunes', name: 'Dunes', clades: ['reptile', 'insect', 'mammal'] },
+  { id: 'peaks', name: 'Peaks', clades: ['bird', 'reptile', 'amphibian'] },
+];
+
 // ---- src/creature/genome.js ----
 // The genome is the single source of truth for a creature. It is a plain JSON
 // object with a fixed shape, so fusing two genomes always yields another valid
@@ -1637,6 +1670,7 @@ function abilityName(id) { const a = ABILITIES[id]; return a ? a.name : 'None'; 
 //
 // Diploid part genes: every slot holds [expressed, carried]. Only the expressed
 // allele is drawn; the carried one can resurface in offspring.
+
 
 
 
@@ -1728,6 +1762,7 @@ function speciesGenome(species, rng) {
     v: GENOME_VERSION,
     seed: rng.seed,
     species: species.id,
+    clade: species.clade,
     name: species.name,
     nameParts: species.nameParts ? species.nameParts.slice() : splitName(species.name),
     gen: 0,
@@ -1753,10 +1788,18 @@ function learnsetOf(g) {
   return sp && sp.learnset ? sp.learnset : UNIVERSAL_LEARNSET;
 }
 
-/** A random wild creature: species weighted by rarity tier, then rolled. */
-function randomGenome(rng) {
-  const species = rng.fork('species').weighted(SPECIES, (s) => TIER_WEIGHT[s.tier] || 1);
+/** A random wild creature: species weighted by rarity tier, then rolled. opts.clade restricts the class. */
+function randomGenome(rng, opts = {}) {
+  const pool = opts.clade ? SPECIES.filter((s) => s.clade === opts.clade) : SPECIES;
+  const species = rng.fork('species').weighted(pool.length ? pool : SPECIES, (s) => TIER_WEIGHT[s.tier] || 1);
   return speciesGenome(species, rng);
+}
+
+/** The class a genome belongs to, inferred from its species or lineage for older genomes. */
+function cladeOf(g) {
+  if (g.clade && CLADES[g.clade]) return g.clade;
+  const sp = (g.species && SPECIES_BY_ID[g.species]) || (g.lineage && SPECIES_BY_ID[g.lineage[0]]);
+  return sp ? sp.clade : 'mammal';
 }
 
 function speciesOf(g) { return SPECIES_BY_ID[g.species] || null; }
@@ -1832,6 +1875,7 @@ function validateGenome(g) {
     g.nameParts = sp && sp.nameParts ? sp.nameParts.slice() : splitName(g.name);
   }
   g.species = typeof g.species === 'string' && SPECIES_BY_ID[g.species] ? g.species : null;
+  g.clade = cladeOf(g);
   g.parents = Array.isArray(g.parents) ? g.parents.filter((x) => typeof x === 'string').slice(0, 2) : undefined;
   if (g.parents === undefined) delete g.parents;
   g.lineage = Array.isArray(g.lineage) ? g.lineage.filter((x) => typeof x === 'string').slice(0, 16) : [];
@@ -2414,6 +2458,8 @@ function removeFromPool(g) {
 
 
 
+
+
 const labState = { seed: null, species: 'random', count: 12 };
 
 function seedFromUrl() {
@@ -2535,7 +2581,7 @@ function openSheet(g) {
       h('h2', {}, g.name, g.shiny ? ' ✦' : ''),
       typeChips(g.types),
       h('button', { class: 'btn close', onclick: close, 'aria-label': 'Close' }, '✕')),
-    h('p', { class: 'meta' }, sp ? `${sp.name} · ${sp.tier}` : 'Fusion', ` · gen ${g.gen} · seed ${g.seed}`),
+    h('p', { class: 'meta' }, sp ? `${sp.name} · ${sp.tier}` : 'Fusion', ` · ${cladeName(cladeOf(g))} · gen ${g.gen} · seed ${g.seed}`),
     hero,
     h('div', { class: 'row' },
       h('button', { class: 'btn', onclick: () => { facing = facing === 'right' ? 'left' : 'right'; clear(hero).append(creatureEl(g, { size: 260, facing, fit: true })); } }, 'Flip'),
@@ -2599,6 +2645,7 @@ function renderPartsScreen(root) {
 
 
 
+
 const FUSE = {
   dominanceNoise: 0.15,   // +/- added to each allele's dominance before comparing
   expressedMutation: 0.03,
@@ -2628,12 +2675,24 @@ function namePartsOf(g) {
   return Array.isArray(g.nameParts) && g.nameParts.length === 2 ? g.nameParts : splitName(g.name);
 }
 
+/** Can these two fuse? Only creatures of the same class can. Returns { ok, reason }. */
+function canFuse(a, b) {
+  if (!a || !b) return { ok: false, reason: 'Pick two creatures.' };
+  if (a === b) return { ok: false, reason: 'Pick two different creatures.' };
+  const ca = cladeOf(a), cb = cladeOf(b);
+  if (ca !== cb) return { ok: false, reason: `${cladeName(ca)}s only fuse with ${cladeName(ca)}s.` };
+  return { ok: true, reason: '' };
+}
+
 /**
- * Fuse a and b. Deterministic for a given rng seed.
+ * Fuse a and b. Deterministic for a given rng seed. Throws if the classes differ.
  * Returns { child, report } where report = { from: {slot: 0|1}, mutated: {slot: true},
  *   identity: 0|1, palette: {c1|c2|c3|eye: 0|1|'blend'}, types: {primary: 0|1, secondary: 0|1|null} }.
  */
 function fuse(a, b, rng) {
+  const compat = canFuse(a, b);
+  if (!compat.ok) throw new Error(compat.reason);
+  const clade = cladeOf(a);
   const rParts = rng.fork('parts');
   const rMut = rng.fork('mutation');
   const rPaint = rng.fork('paint');
@@ -2668,6 +2727,20 @@ function fuse(a, b, rng) {
     else if (rMut.chance(FUSE.carriedMutation)) c = randomPartId(slot, bodyKind, rMut);
     parts[slot] = [e, c];
     from[slot] = f;
+  }
+
+  // Linked slots inherit together so the class silhouette stays coherent.
+  for (const group of (CLADES[clade] && CLADES[clade].linked) || []) {
+    const lead = group[0];
+    if (from[lead] == null) continue;
+    for (const slot of group.slice(1)) {
+      if (from[slot] === from[lead] || mutated[slot]) continue;
+      const src = parents[from[lead]], other = parents[1 - from[lead]];
+      const want = src.parts[slot][0];
+      if (!fitsBody(want, bodyKind) && !getPart(want)?.none) continue;
+      parts[slot] = [want, other.parts[slot][0]];
+      from[slot] = from[lead];
+    }
   }
 
   const headPart = getPart(parts.head[0]);
@@ -2731,6 +2804,7 @@ function fuse(a, b, rng) {
     v: GENOME_VERSION,
     seed: rng.seed,
     species: null,
+    clade,
     name: joinNameParts(nameParts[0], nameParts[1]),
     nameParts,
     gen,
@@ -2770,6 +2844,7 @@ function fuseChain(first, partners, rng) {
   const out = [first];
   let cur = first;
   partners.forEach((p, i) => {
+    if (!canFuse(cur, p).ok) return;
     cur = fuse(cur, p, rng.fork(`gen${i}`)).child;
     out.push(cur);
   });
@@ -2779,6 +2854,8 @@ function fuseChain(first, partners, rng) {
 // ---- src/ui/fusion.js ----
 // Fusion Lab: pick two creatures from a pool, fuse them, read the inheritance
 // report, feed children back into the pool, and stress-test five generations.
+
+
 
 
 
@@ -2816,6 +2893,8 @@ function renderFusionScreen(root) {
   window.addEventListener('pool-changed', poolListener);
 
   const pick = (g) => {
+    const other = fs.a && fs.a !== g ? fs.a : fs.b && fs.b !== g ? fs.b : null;
+    if (other && g !== fs.a && g !== fs.b && !canFuse(other, g).ok) { toast(canFuse(other, g).reason); return; }
     if (fs.a === g) { fs.a = null; fs.next = 'a'; }
     else if (fs.b === g) { fs.b = null; fs.next = 'b'; }
     else if (!fs.a) { fs.a = g; fs.next = fs.b ? 'a' : 'b'; }
@@ -2827,7 +2906,7 @@ function renderFusionScreen(root) {
 
   const slot = (who, g) => h('button', { class: `pslot${g ? ' filled' : ''}`, type: 'button', onclick: () => { if (g) pick(g); } },
     h('span', { class: 'tag' }, `PARENT ${who}`),
-    g ? [creatureEl(g, { size: 150, animate: false }), h('b', {}, g.name), typeChips(g.types)] : h('span', { class: 'hint' }, 'Tap a creature in the pool'));
+    g ? [creatureEl(g, { size: 150, animate: false }), h('b', {}, g.name), typeChips(g.types), h('span', { class: 'clade' }, cladeName(cladeOf(g)))] : h('span', { class: 'hint' }, 'Tap a creature in the pool'));
 
   const doFuse = () => {
     const rng = makeRng(`${fs.a.seed}|${fs.a.name}+${fs.b.seed}|${fs.b.name}#${fs.rerolls}`);
@@ -2847,7 +2926,8 @@ function renderFusionScreen(root) {
     breed: () => {
       const rng = makeRng(`${fs.child.seed}:chain`);
       const partners = [];
-      for (let i = 0; i < 5; i++) partners.push(rng.pick(fusionPool.genomes));
+      const kin = fusionPool.genomes.filter((g) => canFuse(fs.child, g).ok);
+      for (let i = 0; i < 5; i++) partners.push(kin.length ? rng.pick(kin) : randomGenome(rng.fork(`kin${i}`), { clade: cladeOf(fs.child) }));
       fs.chain = fuseChain(fs.child, partners, rng);
       rerender();
       setTimeout(() => { const c = root.querySelector('.chain'); if (c) c.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); }, 0);
@@ -2858,11 +2938,13 @@ function renderFusionScreen(root) {
   // pool
   const codeInput = h('input', { class: 'seed code-in', type: 'text', placeholder: 'Paste a creature code to add it', 'aria-label': 'Creature code', autocapitalize: 'off', autocomplete: 'off', spellcheck: 'false' });
   const poolGrid = h('div', { class: 'pool' });
+  const anchor = fs.a || fs.b;
   for (const g of fusionPool.genomes) {
-    const cls = g === fs.a ? ' is-a' : g === fs.b ? ' is-b' : '';
-    poolGrid.append(h('button', { class: `pcard${cls}`, type: 'button', onclick: () => pick(g) },
+    const incompatible = anchor && g !== fs.a && g !== fs.b && !canFuse(anchor, g).ok;
+    const cls = g === fs.a ? ' is-a' : g === fs.b ? ' is-b' : incompatible ? ' is-off' : '';
+    poolGrid.append(h('button', { class: `pcard${cls}`, type: 'button', onclick: () => pick(g), title: incompatible ? canFuse(anchor, g).reason : '' },
       g === fs.a ? h('span', { class: 'sel badge a' }, 'A') : g === fs.b ? h('span', { class: 'sel badge b' }, 'B') : null,
-      g.gen ? h('span', { class: 'gen' }, `gen ${g.gen}`) : null,
+      h('span', { class: 'gen' }, `${g.gen ? `gen ${g.gen} · ` : ''}${cladeName(cladeOf(g))}`),
       creatureEl(g, { size: 104, animate: false }),
       h('span', {}, g.name)));
   }
@@ -2876,7 +2958,7 @@ function renderFusionScreen(root) {
         h('button', { class: 'btn', type: 'button', onclick: () => {
           try { addToPool(decodeGenome(codeInput.value)); codeInput.value = ''; rerender(); } catch (e) { toast(e.message); }
         } }, 'Add')),
-      h('p', { class: 'hint' }, 'Tap to choose parents. Tap a chosen one again to clear it. Long lists scroll.'),
+      h('p', { class: 'hint' }, 'Tap to choose parents. Only creatures of the same class can fuse: mammals with mammals, birds with birds. Tap a chosen one again to clear it.'),
       poolGrid),
   );
 }
@@ -2898,7 +2980,7 @@ function resultPanel(child, report, a, b, actions) {
 
   const panel = h('div', { class: 'result' },
     h('div', { class: 'sheet-head' }, h('h2', {}, child.name, child.shiny ? ' ✦' : ''), typeChips(child.types)),
-    h('p', { class: 'meta' }, `gen ${child.gen} · ${a.name} × ${b.name} · face from ${parents[report.identity].name}`),
+    h('p', { class: 'meta' }, `${cladeName(cladeOf(child))} · gen ${child.gen} · ${a.name} × ${b.name} · face from ${parents[report.identity].name}`),
     h('div', { class: 'hero' }, creatureEl(child, { size: 240, fit: true })),
     h('div', { class: 'row wrap' },
       h('button', { class: 'btn', type: 'button', onclick: actions.reroll }, 'Re-roll'),
@@ -3535,11 +3617,25 @@ function scoreMove(state, side, action, rng) {
       if (foe.status) s -= 25;
       else s += (f.s === 'slp' ? 50 : f.s === 'par' ? 38 : f.s === 'brn' ? (foe.stats.atk > foe.stats.spa ? 42 : 24) : f.s === 'psn' ? 30 : 30) * acc;
     } else if (f.k === 'stat' && f.who === 'self') {
-      const room = Object.entries(f.stats).reduce((a, [k, n]) => a + Math.max(0, Math.min(n, 6 - me.stages[k])), 0);
+      // Boosts are worth it early and healthy, and not past +2 in a stat we already raised.
+      const room = Object.entries(f.stats).reduce((a, [k, n]) => a + Math.max(0, Math.min(n, 2 - me.stages[k])), 0);
       s += me.hp > me.maxHp * 0.55 ? 15 * room + (state.turn < 2 ? 6 : 0) : 4 * room;
     } else if (f.k === 'stat' && f.who === 'foe') {
-      const room = Object.entries(f.stats).reduce((a, [k, n]) => a + Math.max(0, Math.min(-n, 6 + foe.stages[k])), 0);
-      s += 9 * room * acc;
+      // Lowering a stat is only worth it while the foe actually uses that stat, and it decays fast.
+      let v = 0;
+      for (const [k, n] of Object.entries(f.stats)) {
+        const already = -foe.stages[k];
+        const room = Math.max(0, Math.min(-n, 6 - already));
+        let use = 1;
+        if (k === 'spe') use = faster ? 0 : 1;
+        else if (k === 'atk') use = foe.stats.atk >= foe.stats.spa ? 1 : 0.2;
+        else if (k === 'spa') use = foe.stats.spa >= foe.stats.atk ? 1 : 0.2;
+        else if (k === 'def') use = me.stats.atk >= me.stats.spa ? 0.8 : 0.2;
+        else if (k === 'spd') use = me.stats.spa >= me.stats.atk ? 0.8 : 0.2;
+        else if (k === 'acc') use = 0.6;
+        v += 9 * room * use * (already >= 2 ? 0.3 : 1);
+      }
+      s += v * acc;
     } else if (f.k === 'heal') {
       s += me.hp < me.maxHp * 0.45 ? 55 : me.hp < me.maxHp * 0.7 ? 18 : -30;
     }
@@ -4204,6 +4300,9 @@ function endRun(save) {
 
 
 
+
+
+
 const ARENA = {
   partyMax: MAX_PARTY,
   starterLevel: 8,
@@ -4216,6 +4315,7 @@ const ARENA = {
   xpK: 7,
   wildFusionFrom: 8,
   rareFrom: 4,
+  gentleFloors: 3,
 };
 
 const TRAINER_NAMES = ['Ranger Ivy', 'Scout Bram', 'Herder Tobin', 'Keeper Sable', 'Drifter Wren', 'Tamer Oakes', 'Courier Pim', 'Warden’s Aide Lise'];
@@ -4290,17 +4390,32 @@ function chooseStarter(run, index) {
   return run;
 }
 
-function wildGenome(rng, floor) {
-  const sp = rng.weighted(SPECIES, (s) => (s.tier === 'rare' ? (floor < ARENA.rareFrom ? 0 : Math.min(0.9, 0.15 + floor * 0.02)) : s.tier === 'uncommon' ? Math.min(1, 0.5 + floor * 0.01) : 1));
+/** The biome of a floor: one per Warden stretch, cycling through the list. */
+function biomeFor(floor) { return BIOMES[Math.floor((floor - 1) / ARENA.bossEvery) % BIOMES.length]; }
+
+function tierWeight(s, floor) {
+  if (s.tier === 'rare') return floor < ARENA.rareFrom ? 0 : Math.min(0.9, 0.15 + floor * 0.02);
+  if (s.tier === 'uncommon') return floor < 3 ? 0 : Math.min(1, 0.5 + floor * 0.01);
+  return 1;
+}
+
+/** A wild creature for a floor. Biome classes are four times as common; opts.clade forces a class. */
+function wildGenome(rng, floor, opts = {}) {
+  const biome = biomeFor(floor);
+  let pool = opts.clade ? SPECIES.filter((s) => s.clade === opts.clade) : SPECIES;
+  if (!pool.length) pool = SPECIES;
+  let sp = rng.weighted(pool, (s) => tierWeight(s, floor) * (opts.clade || !biome.clades.includes(s.clade) ? 1 : 4));
+  if (!sp) sp = rng.pick(pool);
   return speciesGenome(sp, rng.fork(`w${sp.id}`));
 }
 
+/** Wild creature, or on deeper floors sometimes a wild fusion of two same-class creatures. */
 function wildOrFusion(rng, floor) {
   const fusionChance = floor >= ARENA.wildFusionFrom ? Math.min(0.35, (floor - ARENA.wildFusionFrom + 1) * 0.04) : 0;
   const a = wildGenome(rng.fork('a'), floor);
   if (!rng.chance(fusionChance)) return a;
-  const b = wildGenome(rng.fork('b'), floor);
-  return fuse(a, b, rng.fork('fuse')).child;
+  const b = wildGenome(rng.fork('b'), floor, { clade: cladeOf(a) });
+  return canFuse(a, b).ok ? fuse(a, b, rng.fork('fuse')).child : a;
 }
 
 /** The encounter waiting on a floor. Deterministic per run seed and floor. */
@@ -4310,20 +4425,29 @@ function encounterFor(run, floor) {
   const cap = (x) => Math.max(2, Math.min(ARENA.maxLevel, x));
   if (floor % ARENA.bossEvery === 0) {
     const count = Math.min(ARENA.partyMax, 1 + Math.floor(floor / ARENA.bossEvery));
-    const a = wildGenome(rng.fork('b1'), floor), b = wildGenome(rng.fork('b2'), floor), c = wildGenome(rng.fork('b3'), floor);
+    const a = wildGenome(rng.fork('b1'), floor);
+    const clade = cladeOf(a);
+    const b = wildGenome(rng.fork('b2'), floor, { clade }), c = wildGenome(rng.fork('b3'), floor, { clade });
     const leader = fuse(fuse(a, b, rng.fork('f1')).child, c, rng.fork('f2')).child;
     const foes = [{ genome: leader, level: cap(L) }];
     for (let i = 1; i < count; i++) foes.push({ genome: wildOrFusion(rng.fork(`m${i}`), floor), level: cap(L - 1) });
-    return { kind: 'boss', name: `Warden ${rng.pick(WARDEN_NAMES)}`, foes, capturable: false };
+    return { kind: 'boss', name: `Warden ${rng.pick(WARDEN_NAMES)}`, foes, capturable: false, biome: biomeFor(floor).id };
   }
   if (floor % ARENA.trainerEvery === 0) {
     const count = Math.max(1, Math.min(ARENA.partyMax, Math.floor(floor / ARENA.trainerEvery)));
     const foes = [];
     for (let i = 0; i < count; i++) foes.push({ genome: wildOrFusion(rng.fork(`t${i}`), floor), level: cap(L - 1 - rng.int(2)) });
-    return { kind: 'trainer', name: rng.pick(TRAINER_NAMES), foes, capturable: false };
+    return { kind: 'trainer', name: rng.pick(TRAINER_NAMES), foes, capturable: false, biome: biomeFor(floor).id };
   }
-  const g = wildOrFusion(rng.fork('wild'), floor);
-  return { kind: 'wild', name: `Wild ${g.name}`, foes: [{ genome: g, level: cap(L + rng.between(-1, 1)) }], capturable: true };
+  // The first floors never throw a hard counter at a lone starter: re-roll wilds whose
+  // types hit the lead super effectively until one does not (or give up after a few tries).
+  let g = wildOrFusion(rng.fork('wild'), floor);
+  if (floor <= ARENA.gentleFloors && run.party && run.party[0]) {
+    const leadTypes = run.party[0].genome.types;
+    const counters = (w) => w.types.some((t) => t && typeEffectiveness(t, leadTypes) >= 2);
+    for (let i = 0; i < 8 && counters(g); i++) g = wildOrFusion(rng.fork(`wild${i}`), floor);
+  }
+  return { kind: 'wild', name: `Wild ${g.name}`, foes: [{ genome: g, level: cap(L + rng.between(-1, 1)) }], capturable: true, biome: biomeFor(floor).id };
 }
 
 /** Build the engine state for the current floor. Rotates a fainted lead out of the first slot. */
@@ -4424,10 +4548,17 @@ function findMember(run, uid) { return [...run.party, ...run.box].find((m) => m.
 
 function altarSeed(run, uidA, uidB) { return `${run.seed}:altar:${run.floor}:${uidA}:${uidB}`; }
 
-/** Preview the altar child without changing the run. */
+/** Can two members fuse at the altar? Same class only. */
+function canFuseMembers(run, uidA, uidB) {
+  const a = findMember(run, uidA), b = findMember(run, uidB);
+  if (!a || !b) return { ok: false, reason: 'Pick two creatures.' };
+  return canFuse(a.genome, b.genome);
+}
+
+/** Preview the altar child without changing the run. Null when the pair cannot fuse. */
 function previewFusion(run, uidA, uidB) {
   const a = findMember(run, uidA), b = findMember(run, uidB);
-  if (!a || !b || a === b) return null;
+  if (!a || !b || a === b || !canFuse(a.genome, b.genome).ok) return null;
   return fuse(a.genome, b.genome, makeRng(altarSeed(run, uidA, uidB))).child;
 }
 
@@ -4435,6 +4566,8 @@ function previewFusion(run, uidA, uidB) {
 function fuseMembers(run, uidA, uidB) {
   const a = findMember(run, uidA), b = findMember(run, uidB);
   if (!a || !b || a === b) throw new Error('Pick two different creatures.');
+  const compat = canFuse(a.genome, b.genome);
+  if (!compat.ok) throw new Error(compat.reason);
   const child = previewFusion(run, uidA, uidB);
   const member = makeMember(child, Math.max(a.level, b.level), nextUid(run));
   run.party = run.party.filter((m) => m !== a && m !== b);
@@ -4472,6 +4605,8 @@ function canFight(run) { return run.party.some((m) => m.hp > 0); }
 // ---- src/ui/arena.js ----
 // Endless Arena: the game loop. Starter -> floors of wild, trainer and boss
 // encounters -> capture, level up, fuse at altars -> run ends on a wipe.
+
+
 
 
 
@@ -4620,7 +4755,7 @@ function floorView(root, run) {
     h('span', {}, `${f.genome.name} · Lv ${f.level}`))));
   appendChildren(root, [
     h('div', { class: 'floor-head' },
-      h('div', {}, h('h2', { class: 'screen-title' }, `Floor ${run.floor}`), h('span', { class: 'hint' }, `wild level ${L} · ${run.stats.captures} caught · ${run.stats.fusions} fused`)),
+      h('div', {}, h('h2', { class: 'screen-title' }, `Floor ${run.floor} · ${biomeFor(run.floor).name}`), h('span', { class: 'hint' }, `wild level ${L} · ${run.stats.captures} caught · ${run.stats.fusions} fused`)),
       h('button', { class: 'btn small', type: 'button', onclick: () => { if (confirm('Abandon this run? Your party retires to the collection.')) { run.phase = 'gameover'; endRun(ar.save); save(); rerender(); } } }, 'Abandon')),
     ar.showReport ? reportCard(run.lastReport) : null,
     learnCard(run),
@@ -4676,17 +4811,20 @@ function altarView(root, run) {
   const pick = ar.altar;
   const all = [...run.party, ...run.box];
   const list = h('div', { class: 'pool' });
+  const anchorUid = pick.a || pick.b;
   for (const m of all) {
     const tag = pick.a === m.uid ? 'A' : pick.b === m.uid ? 'B' : null;
-    list.append(h('button', { class: `pcard${tag === 'A' ? ' is-a' : tag === 'B' ? ' is-b' : ''}`, type: 'button', onclick: () => {
+    const off = anchorUid && !tag && !canFuseMembers(run, anchorUid, m.uid).ok;
+    list.append(h('button', { class: `pcard${tag === 'A' ? ' is-a' : tag === 'B' ? ' is-b' : off ? ' is-off' : ''}`, type: 'button', onclick: () => {
+      if (off) { toast(canFuseMembers(run, anchorUid, m.uid).reason); return; }
       if (pick.a === m.uid) pick.a = null; else if (pick.b === m.uid) pick.b = null; else if (!pick.a) pick.a = m.uid; else if (!pick.b) pick.b = m.uid; else pick.b = m.uid;
       rerender();
-    } }, tag ? h('span', { class: `sel badge ${tag.toLowerCase()}` }, tag) : null, creatureEl(m.genome, { size: 104, animate: false }), h('span', {}, `${m.genome.name} · Lv ${m.level}`)));
+    } }, tag ? h('span', { class: `sel badge ${tag.toLowerCase()}` }, tag) : null, h('span', { class: 'gen' }, cladeName(cladeOf(m.genome))), creatureEl(m.genome, { size: 104, animate: false }), h('span', {}, `${m.genome.name} · Lv ${m.level}`)));
   }
   const child = pick.a && pick.b ? previewFusion(run, pick.a, pick.b) : null;
   appendChildren(root, [
     h('h2', { class: 'screen-title' }, '✦ Fusion altar'),
-    h('p', { class: 'hint' }, 'Fuse two of your creatures into one. Both are consumed; the child keeps the higher level and starts at full health. Everyone is fully healed when you leave.'),
+    h('p', { class: 'hint' }, 'Fuse two creatures of the same class into one. Both are consumed; the child keeps the higher level and starts at full health. Everyone is fully healed when you leave.'),
     ...section('Choose two', list),
     child ? h('div', { class: 'result' },
       h('div', { class: 'sheet-head' }, h('h2', {}, child.name), typeChips(child.types)),

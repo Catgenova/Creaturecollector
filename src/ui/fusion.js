@@ -4,7 +4,9 @@ import { h, clear, copyText, toast } from './dom.js';
 import { typeChips, creatureEl, section } from './common.js';
 import { makeRng, freshSeed } from '../core/rng.js';
 import { randomGenome, decodeGenome, encodeGenome, resolveParts } from '../creature/genome.js';
-import { fuse, fuseChain } from '../creature/fusion.js';
+import { fuse, fuseChain, canFuse } from '../creature/fusion.js';
+import { cladeName } from '../data/clades.js';
+import { cladeOf } from '../creature/genome.js';
 import { swatchCss } from '../creature/palette.js';
 import { fusionPool, addToPool, removeFromPool } from './state.js';
 import { openSheet } from './lab.js';
@@ -37,6 +39,8 @@ export function renderFusionScreen(root) {
   window.addEventListener('pool-changed', poolListener);
 
   const pick = (g) => {
+    const other = fs.a && fs.a !== g ? fs.a : fs.b && fs.b !== g ? fs.b : null;
+    if (other && g !== fs.a && g !== fs.b && !canFuse(other, g).ok) { toast(canFuse(other, g).reason); return; }
     if (fs.a === g) { fs.a = null; fs.next = 'a'; }
     else if (fs.b === g) { fs.b = null; fs.next = 'b'; }
     else if (!fs.a) { fs.a = g; fs.next = fs.b ? 'a' : 'b'; }
@@ -48,7 +52,7 @@ export function renderFusionScreen(root) {
 
   const slot = (who, g) => h('button', { class: `pslot${g ? ' filled' : ''}`, type: 'button', onclick: () => { if (g) pick(g); } },
     h('span', { class: 'tag' }, `PARENT ${who}`),
-    g ? [creatureEl(g, { size: 150, animate: false }), h('b', {}, g.name), typeChips(g.types)] : h('span', { class: 'hint' }, 'Tap a creature in the pool'));
+    g ? [creatureEl(g, { size: 150, animate: false }), h('b', {}, g.name), typeChips(g.types), h('span', { class: 'clade' }, cladeName(cladeOf(g)))] : h('span', { class: 'hint' }, 'Tap a creature in the pool'));
 
   const doFuse = () => {
     const rng = makeRng(`${fs.a.seed}|${fs.a.name}+${fs.b.seed}|${fs.b.name}#${fs.rerolls}`);
@@ -68,7 +72,8 @@ export function renderFusionScreen(root) {
     breed: () => {
       const rng = makeRng(`${fs.child.seed}:chain`);
       const partners = [];
-      for (let i = 0; i < 5; i++) partners.push(rng.pick(fusionPool.genomes));
+      const kin = fusionPool.genomes.filter((g) => canFuse(fs.child, g).ok);
+      for (let i = 0; i < 5; i++) partners.push(kin.length ? rng.pick(kin) : randomGenome(rng.fork(`kin${i}`), { clade: cladeOf(fs.child) }));
       fs.chain = fuseChain(fs.child, partners, rng);
       rerender();
       setTimeout(() => { const c = root.querySelector('.chain'); if (c) c.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); }, 0);
@@ -79,11 +84,13 @@ export function renderFusionScreen(root) {
   // pool
   const codeInput = h('input', { class: 'seed code-in', type: 'text', placeholder: 'Paste a creature code to add it', 'aria-label': 'Creature code', autocapitalize: 'off', autocomplete: 'off', spellcheck: 'false' });
   const poolGrid = h('div', { class: 'pool' });
+  const anchor = fs.a || fs.b;
   for (const g of fusionPool.genomes) {
-    const cls = g === fs.a ? ' is-a' : g === fs.b ? ' is-b' : '';
-    poolGrid.append(h('button', { class: `pcard${cls}`, type: 'button', onclick: () => pick(g) },
+    const incompatible = anchor && g !== fs.a && g !== fs.b && !canFuse(anchor, g).ok;
+    const cls = g === fs.a ? ' is-a' : g === fs.b ? ' is-b' : incompatible ? ' is-off' : '';
+    poolGrid.append(h('button', { class: `pcard${cls}`, type: 'button', onclick: () => pick(g), title: incompatible ? canFuse(anchor, g).reason : '' },
       g === fs.a ? h('span', { class: 'sel badge a' }, 'A') : g === fs.b ? h('span', { class: 'sel badge b' }, 'B') : null,
-      g.gen ? h('span', { class: 'gen' }, `gen ${g.gen}`) : null,
+      h('span', { class: 'gen' }, `${g.gen ? `gen ${g.gen} · ` : ''}${cladeName(cladeOf(g))}`),
       creatureEl(g, { size: 104, animate: false }),
       h('span', {}, g.name)));
   }
@@ -97,7 +104,7 @@ export function renderFusionScreen(root) {
         h('button', { class: 'btn', type: 'button', onclick: () => {
           try { addToPool(decodeGenome(codeInput.value)); codeInput.value = ''; rerender(); } catch (e) { toast(e.message); }
         } }, 'Add')),
-      h('p', { class: 'hint' }, 'Tap to choose parents. Tap a chosen one again to clear it. Long lists scroll.'),
+      h('p', { class: 'hint' }, 'Tap to choose parents. Only creatures of the same class can fuse: mammals with mammals, birds with birds. Tap a chosen one again to clear it.'),
       poolGrid),
   );
 }
@@ -119,7 +126,7 @@ function resultPanel(child, report, a, b, actions) {
 
   const panel = h('div', { class: 'result' },
     h('div', { class: 'sheet-head' }, h('h2', {}, child.name, child.shiny ? ' ✦' : ''), typeChips(child.types)),
-    h('p', { class: 'meta' }, `gen ${child.gen} · ${a.name} × ${b.name} · face from ${parents[report.identity].name}`),
+    h('p', { class: 'meta' }, `${cladeName(cladeOf(child))} · gen ${child.gen} · ${a.name} × ${b.name} · face from ${parents[report.identity].name}`),
     h('div', { class: 'hero' }, creatureEl(child, { size: 240, fit: true })),
     h('div', { class: 'row wrap' },
       h('button', { class: 'btn', type: 'button', onclick: actions.reroll }, 'Re-roll'),
