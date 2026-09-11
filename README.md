@@ -46,9 +46,17 @@ cube, whirl, amoeba; 84 parts, fourteen species), fungi (button, parasol, cone,
 morel, puffball, bell, funnel caps; 84 parts, fourteen species), wyrms (serpent,
 rearing, arch, coil, knot, cloud rider, lindworm coils; 84 parts, fourteen
 species) and draconic (drake, brute, wyvern, longback, pudgy, armoured,
-serpentine; 84 parts, fourteen species): 181 species in all, every class
-covering fourteen or more of the eighteen types. Classes lock fusion to the
-same anatomy. All twelve classes are on rigs and the old shared skeleton is gone. A fantasy pass then
+serpentine; 84 parts, fourteen species), skeletals (ribcage, barrel, coil,
+keel, fishbone, wrapped, giant; 84 parts, fourteen species), nightwings (round,
+slim, fluffy, long, pear, tiny, broad bat bodies; 84 parts, fourteen species),
+crystallines (boulder, shard, geode, cluster, slab, prism, pebble; 84 parts,
+fourteen species), myriapods (segmented, armoured, flat, bulbous, long, spiky,
+coiled trunks; 84 parts, fourteen species), fiends (imp, brute, lanky, stout,
+armoured, hunched, regal torsos on the first upright rig; 84 parts, fourteen
+species) and spirits (wisp, sheet, orb, shade, flame, wraith, blob shrouds on a
+headless hovering rig; 84 parts, fourteen species): 265 species in all, every
+class covering fourteen or more of the eighteen types. Classes lock fusion to
+the same anatomy. All eighteen classes are on rigs and the old shared skeleton is gone. A fantasy pass then
 pushed every slot away from field-guide realism: forehead sigils, tufted and
 leaf ears, orb and flame tails, glowing tips and bold markings. See `DESIGN.md`.
 
@@ -68,7 +76,7 @@ level decides, and the creature sheet previews any creature at any stage. Every 
 of every class has hand-drawn stage 2 and stage 3 art, with a procedural growth
 pass as the fallback for anything new.
 
-Overworld: the main mode is now a large seeded map with seven biomes around
+Overworld: the main mode is now a large seeded map with eighteen biomes around
 a hub town, one per class in rising difficulty. Habitat patches spawn the
 class's species by element type, with stronger and rarer creatures turning up
 less often; trainers on the roads fight when asked; each biome's Warden holds

@@ -13,7 +13,7 @@ fusion as the core progression system. Zero dependencies. Ships as one `index.ht
 | View | Side view, facing right. The enemy is mirrored. One part set serves both sides of a battle. |
 | Types | The classic 18-type chart. |
 | Battles | Turn-based, parties of up to 5, switching allowed. |
-| Game frame | The overworld: a seeded map with twelve class biomes, trainers, Wardens and the Council. It started as an endless arena, which was removed once the overworld shipped; the capture, XP, party and collection systems carried over. |
+| Game frame | The overworld: a seeded map with eighteen class biomes, trainers, Wardens and the Council. It started as an endless arena, which was removed once the overworld shipped; the capture, XP, party and collection systems carried over. |
 | Platform | Mobile-first portrait layout, touch targets ≥ 44px, works on desktop too. |
 
 ## Repository layout
@@ -26,7 +26,7 @@ src/styles.css        all styles
 src/core/             rng, util — no game knowledge
 src/data/types.js     type list, chart, colours
 src/data/rigs.js      class skeletons: slot lists, draw trees, sockets each part must expose
-src/data/parts/       the part library: one folder per class (mammal/, reptile/, fish/, bird/, insect/, invertebrate/, amphibian/),
+src/data/parts/       the part library: one folder per class (eighteen, mammal/ through spirit/),
                       shared builders (_builders.js), drawing DSL (_dsl.js), registry (index.js)
 src/data/species.js   base species recipes
 src/data/elements.js  Elementals: the eight elements, their core abilities and one SVG filter each
@@ -340,7 +340,9 @@ The fight view is a reusable component (`ui/fight.js`) mounted by the overworld.
 ## Classes and fusion locks (implemented)
 
 Every species belongs to a **class** (`clade` in code): Mammal, Reptile, Fish,
-Bird, Insect, Invertebrate or Amphibian. Types stay elemental and independent.
+Bird, Insect, Invertebrate, Amphibian, Flora, Ooze, Fungus, Wyrm, Draconic,
+Skeletal, Nightwing, Crystalline, Myriapod, Fiend or Spirit. Types stay
+elemental and independent.
 
 - **Fusion is same-class only.** `canFuse(a, b)` is the single rule; `fuse()`
   throws otherwise. The shrine greys out incompatible partners
@@ -348,7 +350,10 @@ Bird, Insect, Invertebrate or Amphibian. Types stay elemental and independent.
 - **Linked slots** keep each class's silhouette coherent: the second slot of a
   pair inherits from whichever parent supplied the first. Mammals and
   amphibians link legs and arms, reptiles back and tail, fish body and tail,
-  birds wings and tail, insects wings and back, invertebrates arms and legs.
+  birds wings and tail, insects wings and back, invertebrates arms and legs;
+  the later classes follow the same idea (skeletals and crystallines fore and
+  hind legs, nightwings wings and thumbs, myriapods head and mandibles, fiends
+  arms and legs, spirits hood and mask).
 - **Biomes.** The overworld gives each class its own biome, so fusion partners of one class are found together (see Overworld).
 
 ## Class skeletons and the art rebuild (done)
@@ -630,7 +635,7 @@ already carries the power.
   claws, a darker ruff layered behind the mane). Stage 3 is "exaggerated":
   the feature dominates (a forked tail, the class's head signature, a sunburst mane,
   gems and glows, armour bands, a second wing membrane). Every part of
-  all twelve classes has hand-authored stages (1,010 drawn parts).
+  all eighteen classes has hand-authored stages (1,514 drawn parts).
 - **UI.** Cards and sheets show a II / III chip (`stageBadge`), sprites in the
   overworld, fights and battle setup draw at their level, level-up reports and the
   fight log announce evolutions, and the creature sheet has Stage 1 / 2 / 3
@@ -654,19 +659,29 @@ into the collection on load.
   Battle Tower and the Council Spire's door). Biome centres sit on a ring of radius 58 around
   it with lairs at 84, clockwise from the south, one per class in difficulty
   order (`BIOME_ORDER`, with `REGIONS` giving the wild level at the lair:
-  Heather Downs 5, Sodden Fen 10, Bramble Wilds 14, Hum Meadow 18, Sporewood
-  23, Windward Crags 27, Slurry Sump 32, Glass Lagoon 36, Coiling Gorge 41,
-  Murk Hollow 45, Ember Scar 50, Drakefell Peaks 55). Six trainers stand on
-  each biome's roads. Tiles take the nearest centre through jittered
-  coordinates so borders wander. Terrain is value noise per biome: water
+  Heather Downs 5, Sodden Fen 10, Bramble Wilds 14, Hum Meadow 18, Echo Chasm
+  20, Sporewood 23, Windward Crags 27, Prism Caverns 29, Slurry Sump 32, Glass
+  Lagoon 36, Rootbound Warren 38, Coiling Gorge 41, Murk Hollow 45, Barrow
+  Downs 47, Ember Scar 50, Brimstone Sinks 52, Drakefell Peaks 55, Vigil Marsh
+  58). Six trainers stand on each biome's roads. Each biome is a wedge around
+  the hub: a tile belongs to the class whose ring angle is nearest its own,
+  measured in a space where the map is square so every wedge covers an equal
+  share of the wide map, and from the unjittered ring angle so the wedges stay
+  even however many classes share the ring. The tile coordinates are jittered
+  by value noise that grows with distance from the hub, so borders wander out
+  in the wild but stay crisp near town, and the gentlest region always begins
+  straight south of the Crossroads. Terrain is value noise per biome: water
   (more in the fen and lagoon), walls drawn as that region's trees, reeds,
-  hedges, pines, palms or rocks, and habitat patches. Roads are carved in two
+  hedges, pines, palms, rocks, bones, crystals, roots, embers or gravestones,
+  and habitat patches. Roads are carved in two
   bent legs from the hub to each camp, on to each lair, and around the ring;
   a final pass carves straight roads to anything still unreachable, so every
   camp, lair door, the spire and the shrine are always walkable from the start.
 - **Habitats and spawns.** A habitat patch carries one element type, chosen
-  per 6 × 6 cell from the types of the biome's class weighted by how many of
-  its species have them. `wildSpawn` weights every wild species by affinity
+  per 6 × 6 cell from the types of the biome's class weighted by the square of
+  how many of its species have them (two per primary type, one per secondary,
+  then squared), so a class's signature elements own most of its patches and a
+  lone oddball species makes a rare pocket rather than a third of the region. `wildSpawn` weights every wild species by affinity
   (3 for the home class, 4 for the patch's type, 10 for both; strangers 0.03)
   times tier rarity (common 1, uncommon 0.45, rare 0.12), so stronger species
   are rarer; `spawnTable` then scales the visitors so the home class always
@@ -796,7 +811,7 @@ class.
 The map grew fourfold (224 × 192) and the ring took five more classes, each
 built the same way as the first seven: a rig with twelve slots, seven
 hand-drawn parts per slot with stage art, poses, a clade, fourteen species and
-a biome of its own. The roster stands at 181 species on twelve rigs.
+a biome of its own. The roster then stood at 181 species on twelve rigs.
 
 - **Flora** (`p.`, the Bramble Wilds, level 14): walking plants. A stem
   carries a bloom for a head, leaves reach out like arms and roots stand like
@@ -842,7 +857,70 @@ uncommon and rare govern only how often a species spawns and how much it is
 worth, while the total is whatever the tournament needed (Tortoak 520,
 Mantislash 362). Rerun the tuner after any change to moves, abilities, the
 type chart or the roster; the roster-expansion pass (three attacks in every
-level-50 move set) stays in place underneath it.
+level-50 move set) stays in place underneath it. The six-class expansion below
+reran it over the full roster.
+
+## Six more classes (implemented)
+
+The ring took six more classes, built the same way: a rig with twelve slots,
+seven hand-drawn parts per slot with stage art, poses, a clade, fourteen
+species and a biome slotted into the difficulty order. The roster stands at
+265 species on eighteen rigs, 1,512 drawn parts.
+
+- **Skeletals** (`k.`, the Barrow Downs, level 47): walking bone on the
+  four-legged pose core. Ribcage bodies with a heart-light socket inside the
+  ribs, skulls with dark eye sockets that the grave lights burn in, jaws, bone
+  legs, spine tails, horns, bone wings, heart lights, shrouds hanging from the
+  spine and cracks clipped to the ribcage. Ghost with thirteen partners.
+- **Nightwings** (`n.`, the Echo Chasm, level 20): bats. Every body hovers
+  above its shadow; membrane wings spread up and back behind the body with a
+  wrist thumb nested on each wing's `thumb` socket (the far wing carries a far
+  thumb), hooked legs hang under the hips, heads take ears, a crest and a
+  muzzle, a ruff sits at the neck and markings are clipped to the body. Dark
+  with thirteen partners.
+- **Crystallines** (`c.`, the Prism Caverns, level 29): living geodes on the
+  four-legged core. Every silhouette corner is sharp (`'c'` point flags),
+  torsos carry facet edges and a bright upper-left pane, heads take a crown,
+  crystal clusters stand on the spine, tails are shards, and three overlays
+  dress the stone: glowing seams and pale facets clipped to the body and an
+  aura fitted behind it (`fitBox`). Rock with thirteen partners.
+- **Myriapods** (`y.`, the Rootbound Warren, level 38): centipedes and
+  millipedes. Long trunks with humped segments and joint lines; one leg part
+  is drawn under three segments on each side (`leg1..leg3` and their far
+  copies), the head carries mandible, antenna and venom sockets, a tail end
+  trails behind, plates and bristles stand on the back, a glow is fitted
+  behind and bands are clipped to the trunk. Bug with thirteen partners.
+- **Fiends** (`e.`, the Brimstone Sinks, level 52): imps and devils on the
+  first upright rig. Torsos with neck, shoulder, hip, tail and wing sockets;
+  heads on the neck with horns; arms built as generic parts so they can carry
+  a `hand` socket at the wrist, where the near hand holds claws, a pitchfork,
+  a fireball, an orb, a chain, a dagger or a torch; standing legs; tails and
+  wings behind; marks clipped to the torso and an aura fitted behind it. The
+  pose table swings the arms about the shoulder (attack throws the near arm
+  forward 34°). Fire and Dark anchored.
+- **Spirits** (`s.`, the Vigil Marsh, level 58): ghosts and wisps on a rig
+  with no head. The face sits on a hovering shroud that carries eye, mouth,
+  hood and mask sockets (the mask is drawn under the eyes as a face plate),
+  arms of mist hang from the sides with the near hand holding a lantern,
+  candle, skull, orb, bell, scythe or key, a wisp tail trails below toward
+  the shadow (`ground` is the body and the tail), and chains, tatters, a
+  clipped veil and a fitted aura dress the shroud. Ghost with thirteen
+  partners.
+
+Two world rules changed to make room. Biomes are wedges by ring angle rather
+than a jittered Voronoi (see Overworld), because with narrow slices the old
+jitter could hand the first steps out of town to a level-50 region, and the
+wedge width comes from the unjittered angle in a square-normalised space so
+every class covers an equal share of the map. Habitat patch types are weighted
+by the square of the species count, so a class with nine Grass species and one
+Fighting species no longer paints a third of its region Fighting. Every class
+push bumped `WORLD.version` (now 9), so saved positions restart at the
+Crossroads while parties, boxes and badges carry over.
+
+Balance: the tuner ran twice over the 265 species, a coarse pass at the
+defaults and then a finer one (`node scripts/tune.mjs 6 8000 100 12000`: six
+rounds of 8,000 games with a gain of 100). The final 12,000-game verification
+read 40–60% with nothing outside the band; totals still span 360 to 520.
 
 ## Mobile view (implemented)
 
