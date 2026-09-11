@@ -163,3 +163,11 @@ POSES.nightwing = {
   attack: { body: { da: 5, dx: 6 }, head: { dx: 4, da: 4 }, muzzle: { ds: 1.15 }, wings: { da: 24, far: { da: 14 } }, legs: { da: -10, far: { da: 6 } }, ears: { da: -14 }, tail: { da: 10 } },
   hurt: { body: { da: -10, dx: -4 }, head: { da: -12 }, wings: { da: 30, far: { da: 18 } }, legs: { da: 12 }, ears: { da: -22 }, tail: { da: -8 } },
 };
+
+POSES.crystalline = mergePose(quadCore, {
+  brace: { spines: { ds: 1.04 } },
+  crouch: { aura: { ds: 0.96 } },
+  poise: { crown: { ds: 1.06 }, aura: { ds: 1.06 } },
+  attack: { mouth: { ds: 1.15 }, spines: { ds: 1.08 }, aura: { ds: 1.1 } },
+  hurt: { aura: { ds: 0.9 }, spines: { da: 6 } },
+});

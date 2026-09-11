@@ -1134,6 +1134,42 @@ RIGS.nightwing = {
   },
 };
 
+RIGS.crystalline = {
+  id: 'crystalline', name: 'Crystalline', prefix: 'c.',
+  slots: ['body', 'head', 'eyes', 'mouth', 'legsFront', 'legsBack', 'spines', 'crown', 'tail', 'seam', 'facets', 'aura'],
+  names: { body: 'Body', head: 'Head', eyes: 'Eyes', mouth: 'Mouth', legsFront: 'Forelegs', legsBack: 'Hind legs', spines: 'Spines', crown: 'Crown', tail: 'Tail', seam: 'Seam', facets: 'Facets', aura: 'Aura' },
+  paint: ['body', 'head', 'legsFront', 'legsBack', 'spines', 'crown', 'tail', 'seam', 'facets', 'aura'],
+  swappable: ['spines', 'crown', 'tail', 'seam', 'facets', 'aura'],
+  required: ['body', 'head', 'eyes', 'mouth', 'legsFront', 'legsBack', 'tail'],
+  linked: [['legsFront', 'legsBack'], ['head', 'mouth']],
+  ground: ['body', 'legsFront', 'legsBack'],
+  clipped: ['seam', 'facets'],
+  tree: {
+    slot: 'body', anim: 'body',
+    behind: [
+      { slot: 'aura', fitBox: true },
+      { slot: 'spines', socket: 'spines' },
+      { slot: 'tail', socket: 'tail', scale: 'tail', anim: 'tail' },
+      { slot: 'legsBack', socket: 'hipFar', far: true, scale: 'leg' },
+      { slot: 'legsFront', socket: 'shoulderFar', far: true, scale: 'leg' },
+    ],
+    front: [
+      { slot: 'legsBack', socket: 'hip', scale: 'leg' },
+      { slot: 'legsFront', socket: 'shoulder', scale: 'leg' },
+      {
+        slot: 'head', socket: 'head', scale: 'head', anim: 'head',
+        behind: [{ slot: 'crown', socket: 'crown' }],
+        front: [{ slot: 'eyes', socket: 'eyeFar', far: true, scale: 'eye', small: true }, { slot: 'eyes', socket: 'eye', scale: 'eye', small: true }, { slot: 'mouth', socket: 'mouth', small: true }],
+      },
+    ],
+  },
+  mannequin: {
+    parts: { body: 'c.body.boulder', head: 'c.head.wedge', eyes: 'c.eyes.gem', mouth: 'c.mouth.crack', legsFront: 'c.legsFront.block', legsBack: 'c.legsBack.block', tail: 'c.tail.shard', spines: 'c.spines.none', crown: 'c.crown.none', seam: 'c.seam.none', facets: 'c.facets.none', aura: 'c.aura.none' },
+    forSlot: {},
+    accentSlots: ['spines', 'crown', 'tail', 'seam', 'facets', 'aura'],
+  },
+};
+
 const RIG_IDS = Object.keys(RIGS);
 
 /** Rig used when a genome names none or an unknown one (old saves): the first class. */
@@ -8775,12 +8811,297 @@ const NIGHTWING_PARTS = {
   legs: NW_LEGS, tail: NW_TAILS, crest: NW_CRESTS, ruff: NW_RUFFS, thumbs: NW_THUMBS, markings: NW_MARKINGS,
 };
 
+// ---- src/data/parts/crystalline/_shared.js ----
+// Crystalline builders: the shared constructors namespaced with "c." (crystal).
+// Faceted geode torsos about 60 wide and 36 tall on four angular legs, a faceted head reaching forward, a crystal
+// tail behind, crystal clusters on the spine and a glow fitted behind the body.
+
+
+const crystallineBuilders = partBuilders('c.');
+const crBody = crystallineBuilders.body;
+const crLeg = crystallineBuilders.leg;
+const crPart = crystallineBuilders.part;
+
+// ---- src/data/parts/crystalline/bodies.js ----
+// Crystalline bodies (faceted geodes). Origin = centre. Every corner is sharp. Sockets: head (front, up), tail
+// (back), shoulder / shoulderFar and hip / hipFar on the belly line, spines (the top of the back).
+// kinds: 'crystal.boulder', 'crystal.shard', 'crystal.geode', 'crystal.cluster', 'crystal.slab', 'crystal.prism', 'crystal.pebble'.
+// Evolutions: stage 2 grows and sprouts crystal spurs from the back; stage 3 grows more, adds spurs and a core glow.
+
+
+
+
+const crBodyStages = (x2, y2, x3, y3) => ({
+  2: { grow: [1.06, 1.06], addBehind: [{ pts: evoSpike(x2, y2, -100, 12, 6, 'c'), f: 'pd' }, { pts: evoSpike(x2 - 10, y2 + 2, -115, 9, 5, 'c'), f: 'pd' }] },
+  3: { grow: [1.06, 1.07], addBehind: [{ pts: evoSpike(x3, y3, -95, 16, 7, 'c'), f: 'pd' }, { pts: evoSpike(x3 - 12, y3 + 2, -115, 12, 6, 'c'), f: 'pd' }, { pts: evoSpike(x3 + 10, y3 + 2, -80, 11, 5, 'c'), f: 'pd' }], add: [C(2, 0, 4, 'a', { ns: true, op: 0.5 })] },
+});
+const crSockets = (o) => ({ head: { x: 24, y: -12, a: -10, s: 1 }, tail: { x: -30, y: 0, a: 0, s: 1 }, shoulder: { x: 18, y: 10, a: 0 }, shoulderFar: { x: 10, y: 8, a: 0 }, hip: { x: -18, y: 10, a: 0 }, hipFar: { x: -24, y: 8, a: 0 }, spines: { x: -4, y: -16, a: 0, s: 1 }, ...o });
+/** Facet edges: thin dark lines across the stone. */
+const crFacets = (d) => L(d, 'k', 1, { op: 0.22 });
+/** A bright facet: a pale clipped triangle up on the left. */
+const crShine = (d) => HL(d, 0.22);
+
+const CR_BODIES = [
+  crBody({
+    id: 'boulder', name: 'Boulder', kind: 'crystal.boulder', tags: ['chunky'], dom: 0.5, w: 3,
+    pts: [[-28, -2, 'c'], [-20, -16, 'c'], [-2, -20, 'c'], [16, -16, 'c'], [28, -6, 'c'], [30, 6, 'c'], [20, 16, 'c'], [-4, 18, 'c'], [-22, 14, 'c'], [-32, 6, 'c']],
+    shade: torsoShade(-32, 30, -20, 18, { shadeFrac: 0.3 }),
+    extra: [crFacets('M-20,-16 L-6,-2 L16,-16 M-6,-2 L-4,18 M-6,-2 L-28,-2 M-6,-2 L28,-6'), crShine('M-20,-16 L-2,-20 L-6,-2 Z')],
+    sockets: crSockets({}), stages: crBodyStages(8, -18, -14, -16),
+  }),
+  crBody({
+    id: 'shard', name: 'Shard', kind: 'crystal.shard', tags: ['long'], dom: 0.5, w: 2,
+    pts: [[-34, 2, 'c'], [-24, -12, 'c'], [-4, -16, 'c'], [18, -14, 'c'], [34, -4, 'c'], [30, 8, 'c'], [12, 14, 'c'], [-10, 14, 'c'], [-28, 12, 'c']],
+    shade: torsoShade(-34, 34, -16, 14, { shadeFrac: 0.3 }),
+    extra: [crFacets('M-24,-12 L-8,0 L18,-14 M-8,0 L-10,14 M-8,0 L34,-4 M-8,0 L-34,2'), crShine('M-24,-12 L-4,-16 L-8,0 Z')],
+    sockets: crSockets({ head: { x: 28, y: -10, a: -12, s: 1 }, tail: { x: -34, y: 2, a: 0, s: 1 }, shoulder: { x: 20, y: 8, a: 0 }, shoulderFar: { x: 12, y: 6, a: 0 }, hip: { x: -18, y: 8, a: 0 }, hipFar: { x: -26, y: 6, a: 0 }, spines: { x: -6, y: -14, a: 0, s: 1 } }),
+    stages: crBodyStages(6, -15, -16, -13),
+  }),
+  crBody({
+    id: 'geode', name: 'Geode', kind: 'crystal.geode', tags: ['hollow'], dom: 0.5, w: 2,
+    pts: [[-26, -4, 'c'], [-18, -16, 'c'], [0, -20, 'c'], [18, -16, 'c'], [28, -4, 'c'], [26, 10, 'c'], [12, 18, 'c'], [-8, 18, 'c'], [-24, 12, 'c']],
+    shade: torsoShade(-26, 28, -20, 18, { shadeFrac: 0.3 }),
+    extra: [P('M-10,-6 L4,-10 L14,0 L8,10 L-6,10 L-14,2 Z', 'k', { ns: true, cl: true, op: 0.4 }), P('M-8,0 L-4,-8 L0,-2 Z M0,2 L6,-6 L10,2 Z M-4,8 L0,0 L4,8 Z', 'a', { ns: true, cl: true, op: 0.9 }), crFacets('M-18,-16 L-10,-6 M18,-16 L14,0 M-24,12 L-14,2'), crShine('M-18,-16 L0,-20 L-8,-8 Z')],
+    sockets: crSockets({ head: { x: 22, y: -12, a: -10, s: 1 }, tail: { x: -26, y: 2, a: 0, s: 1 }, spines: { x: -2, y: -18, a: 0, s: 1 } }),
+    stages: crBodyStages(6, -18, -12, -16),
+  }),
+  crBody({
+    id: 'cluster', name: 'Cluster', kind: 'crystal.cluster', tags: ['spiky'], dom: 0.5, w: 2,
+    pts: [[-26, 0, 'c'], [-22, -12, 'c'], [-12, -10, 'c'], [-6, -22, 'c'], [4, -14, 'c'], [14, -20, 'c'], [20, -8, 'c'], [30, -4, 'c'], [28, 8, 'c'], [16, 16, 'c'], [-4, 16, 'c'], [-20, 14, 'c'], [-30, 8, 'c']],
+    shade: torsoShade(-30, 30, -22, 16, { shadeFrac: 0.3 }),
+    extra: [crFacets('M-12,-10 L-6,0 L4,-14 M-6,0 L20,-8 M-6,0 L-4,16 M-6,0 L-26,0 M14,-20 L12,-6'), crShine('M-22,-12 L-12,-10 L-8,-2 L-20,0 Z')],
+    sockets: crSockets({ head: { x: 24, y: -10, a: -10, s: 1 }, tail: { x: -28, y: 2, a: 0, s: 1 }, spines: { x: -8, y: -16, a: 0, s: 1 } }),
+    stages: crBodyStages(6, -14, -16, -10),
+  }),
+  crBody({
+    id: 'slab', name: 'Slab', kind: 'crystal.slab', tags: ['flat'], dom: 0.5, w: 2,
+    pts: [[-34, -2, 'c'], [-30, -10, 'c'], [-8, -12, 'c'], [20, -12, 'c'], [36, -6, 'c'], [36, 6, 'c'], [24, 12, 'c'], [-10, 12, 'c'], [-34, 8, 'c']],
+    shade: torsoShade(-34, 36, -12, 12, { shadeFrac: 0.3 }),
+    extra: [crFacets('M-30,-10 L-12,0 L20,-12 M-12,0 L-10,12 M-12,0 L36,-6 M-12,0 L-34,-2'), crShine('M-30,-10 L-8,-12 L-12,0 Z')],
+    sockets: crSockets({ head: { x: 30, y: -8, a: -12, s: 1 }, tail: { x: -34, y: 2, a: 0, s: 1 }, shoulder: { x: 22, y: 8, a: 0 }, shoulderFar: { x: 14, y: 6, a: 0 }, hip: { x: -20, y: 8, a: 0 }, hipFar: { x: -28, y: 6, a: 0 }, spines: { x: -4, y: -12, a: 0, s: 1 } }),
+    stages: crBodyStages(4, -12, -14, -10),
+  }),
+  crBody({
+    id: 'prism', name: 'Prism', kind: 'crystal.prism', tags: ['tall'], dom: 0.5, w: 2,
+    pts: [[-18, -4, 'c'], [-12, -24, 'c'], [4, -28, 'c'], [18, -22, 'c'], [24, -4, 'c'], [22, 12, 'c'], [10, 20, 'c'], [-8, 20, 'c'], [-22, 12, 'c']],
+    shade: torsoShade(-22, 24, -28, 20, { shadeFrac: 0.3 }),
+    extra: [crFacets('M-12,-24 L-2,-8 L18,-22 M-2,-8 L-4,20 M-2,-8 L-18,-4 M-2,-8 L24,-4'), crShine('M-12,-24 L4,-28 L-2,-8 Z')],
+    sockets: crSockets({ head: { x: 20, y: -18, a: -8, s: 1 }, tail: { x: -20, y: 6, a: 0, s: 1 }, shoulder: { x: 14, y: 14, a: 0 }, shoulderFar: { x: 6, y: 12, a: 0 }, hip: { x: -12, y: 14, a: 0 }, hipFar: { x: -18, y: 12, a: 0 }, spines: { x: 0, y: -26, a: 0, s: 1 } }),
+    stages: crBodyStages(6, -26, -10, -24),
+  }),
+  crBody({
+    id: 'pebble', name: 'Pebble', kind: 'crystal.pebble', tags: ['small', 'round'], dom: 0.45, w: 2,
+    pts: [[-18, -2, 0.6], [-12, -12, 0.6], [0, -15, 0.6], [12, -12, 0.6], [19, -3, 0.6], [16, 8, 0.6], [6, 13, 0.6], [-8, 13, 0.6], [-18, 8, 0.6]],
+    shade: torsoShade(-18, 19, -15, 13, { shadeFrac: 0.3 }),
+    extra: [crFacets('M-12,-12 L-4,-2 L12,-12 M-4,-2 L-6,13 M-4,-2 L19,-3'), crShine('M-12,-12 L0,-15 L-4,-2 Z')],
+    sockets: crSockets({ head: { x: 16, y: -8, a: -12, s: 1 }, tail: { x: -18, y: 2, a: 0, s: 1 }, shoulder: { x: 12, y: 8, a: 0 }, shoulderFar: { x: 6, y: 6, a: 0 }, hip: { x: -10, y: 8, a: 0 }, hipFar: { x: -16, y: 6, a: 0 }, spines: { x: -2, y: -14, a: 0, s: 0.9 } }),
+    stages: crBodyStages(4, -13, -8, -11),
+  }),
+];
+
+// ---- src/data/parts/crystalline/heads.js ----
+// Crystalline heads (faceted). Origin = the neck point at the back; the face reaches right. Sockets: eye / eyeFar,
+// mouth (the front), crown (the brow).
+// Evolutions: stage 2 lights a brow facet; stage 3 grows a brow crystal and streaks the cheek.
+
+
+
+
+const crHeadStages = {
+  2: { grow: [1.05, 1.05], add: [PATCH('M2,-14 L10,-16 L8,-9 Z', 'a')] },
+  3: { grow: [1.05, 1.06], addShapes: [{ pts: evoSpike(6, -14, -95, 10, 5, 'c'), f: 'pd' }], add: [PATCH('M2,-14 L10,-16 L8,-9 Z', 'a'), L('M14,-8 L20,-12 M16,-4 L23,-7', 'a', 1.4, { ns: true })] },
+};
+const crHeadSockets = (o = {}) => ({ eye: { x: 9, y: -6, s: 1 }, eyeFar: { x: 1, y: -7, s: 0.9 }, mouth: { x: 18, y: 2, a: 0, s: 1 }, crown: { x: 4, y: -15, a: 0, s: 1 }, ...o });
+const crEdges = (d) => L(d, 'k', 1, { op: 0.22 });
+
+const CR_HEADS = [
+  crPart({ id: 'wedge', slot: 'head', name: 'Wedge', tags: ['sharp'], dom: 0.5, w: 3, shapes: [[[-4, -12, 'c'], [8, -16, 'c'], [22, -10, 'c'], [30, 0, 'c'], [20, 6, 'c'], [6, 8, 'c'], [-4, 6, 'c']]], extra: [crEdges('M8,-16 L10,-4 L30,0 M10,-4 L6,8 M10,-4 L-4,-12'), HL('M-4,-12 L8,-16 L10,-4 Z', 0.22)], sockets: crHeadSockets({ mouth: { x: 24, y: 2, a: 0, s: 1 } }), stages: crHeadStages }),
+  crPart({ id: 'cube', slot: 'head', name: 'Block', tags: ['blocky'], dom: 0.55, w: 2, shapes: [[[-4, -14, 'c'], [18, -16, 'c'], [22, 4, 'c'], [18, 8, 'c'], [-4, 8, 'c']]], extra: [crEdges('M-4,-14 L4,-8 L18,-16 M4,-8 L4,8 M4,-8 L22,4'), HL('M-4,-14 L18,-16 L4,-8 Z', 0.2)], sockets: crHeadSockets({ eye: { x: 10, y: -6, s: 1 }, mouth: { x: 18, y: 3, a: 0, s: 1 }, crown: { x: 6, y: -16, a: 0, s: 1 } }), stages: crHeadStages }),
+  crPart({ id: 'gem', slot: 'head', name: 'Gem', tags: ['faceted'], dom: 0.5, w: 2, shapes: [[[-4, -10, 'c'], [4, -16, 'c'], [14, -16, 'c'], [24, -8, 'c'], [22, 4, 'c'], [12, 10, 'c'], [2, 10, 'c'], [-4, 4, 'c']]], extra: [crEdges('M4,-16 L8,-4 L14,-16 M8,-4 L24,-8 M8,-4 L2,10 M8,-4 L-4,-10'), HL('M-4,-10 L4,-16 L8,-4 Z', 0.22)], sockets: crHeadSockets({ mouth: { x: 18, y: 4, a: 0, s: 1 } }), stages: crHeadStages }),
+  crPart({ id: 'spike', slot: 'head', name: 'Spike', tags: ['long'], dom: 0.5, w: 2, shapes: [[[-4, -12, 'c'], [6, -16, 'c'], [16, -12, 'c'], [34, -4, 'c'], [18, 4, 'c'], [8, 8, 'c'], [-4, 6, 'c']]], extra: [crEdges('M6,-16 L8,-4 L16,-12 M8,-4 L34,-4 M8,-4 L8,8 M8,-4 L-4,-12'), HL('M-4,-12 L6,-16 L8,-4 Z', 0.22)], sockets: crHeadSockets({ eye: { x: 8, y: -7, s: 1 }, mouth: { x: 26, y: -1, a: 0, s: 1 } }), stages: crHeadStages }),
+  crPart({ id: 'dome', slot: 'head', name: 'Dome', tags: ['round'], dom: 0.5, w: 2, shapes: [[[-4, -12, 0.8], [6, -17, 0.8], [16, -15, 0.8], [23, -6, 0.8], [22, 4, 0.8], [14, 9, 0.8], [2, 9, 0.8], [-4, 5, 0.8]]], extra: [crEdges('M6,-17 L8,-5 L16,-15 M8,-5 L22,4 M8,-5 L2,9'), HL('M-4,-12 L6,-17 L8,-5 Z', 0.22)], sockets: crHeadSockets({ mouth: { x: 18, y: 4, a: 0, s: 1 } }), stages: crHeadStages }),
+  crPart({ id: 'prism', slot: 'head', name: 'Prism', tags: ['tall'], dom: 0.5, w: 2, shapes: [[[-4, -16, 'c'], [8, -20, 'c'], [18, -14, 'c'], [22, 0, 'c'], [16, 8, 'c'], [4, 10, 'c'], [-4, 6, 'c']]], extra: [crEdges('M8,-20 L8,-6 L18,-14 M8,-6 L22,0 M8,-6 L4,10 M8,-6 L-4,-16'), HL('M-4,-16 L8,-20 L8,-6 Z', 0.22)], sockets: crHeadSockets({ eye: { x: 10, y: -8, s: 1 }, eyeFar: { x: 2, y: -9, s: 0.9 }, mouth: { x: 18, y: 3, a: 0, s: 1 }, crown: { x: 4, y: -19, a: 0, s: 1 } }), stages: crHeadStages }),
+  crPart({ id: 'cluster', slot: 'head', name: 'Cluster', tags: ['spiky'], dom: 0.5, w: 2, shapes: [[[-4, -10, 'c'], [2, -18, 'c'], [8, -12, 'c'], [14, -20, 'c'], [20, -10, 'c'], [26, -2, 'c'], [18, 6, 'c'], [6, 9, 'c'], [-4, 6, 'c']]], extra: [crEdges('M2,-18 L6,-4 L14,-20 M6,-4 L26,-2 M6,-4 L6,9 M6,-4 L-4,-10'), HL('M-4,-10 L2,-18 L6,-4 Z', 0.22)], sockets: crHeadSockets({ eye: { x: 10, y: -5, s: 1 }, eyeFar: { x: 2, y: -6, s: 0.9 }, mouth: { x: 20, y: 3, a: 0, s: 1 }, crown: { x: 8, y: -16, a: 0, s: 1 } }), stages: crHeadStages }),
+];
+
+// ---- src/data/parts/crystalline/face.js ----
+// Crystalline eyes (origin = the eye centre; set gems, lights and sockets) and mouths (origin = the front of the
+// face on the head's mouth socket).
+// Evolutions: eyes ring then glow; mouths grow.
+
+
+
+
+
+const crEyeStages = (r) => ({ 2: { grow: [1.06, 1.06], add: [evoRing(0, 0, r * 1.3, 'a', 1, { op: 0.6 })] }, 3: { grow: [1.08, 1.08], add: [C(0, 0, r * 2, 'a', { ns: true, op: 0.16 })] } });
+
+const CR_EYES = [
+  crPart({ id: 'gem', slot: 'eyes', name: 'Set gem', tags: ['gem'], dom: 0.55, w: 3, extra: [P(diamondPath(0, 0, 5, 6.4), 'e', { sw: 1.2 }), P('M-1.6,-2 L0.2,-3.2 L0,-0.4 Z', 'w', { ns: true, op: 0.85 }), L('M-2.5,0 L2.5,0', 'k', 0.8, { op: 0.3 })], stages: crEyeStages(3) }),
+  crPart({ id: 'glow', slot: 'eyes', name: 'Glow', tags: ['light'], dom: 0.5, w: 3, extra: [C(0, 0, 5, 'a', { ns: true, op: 0.22 }), C(0, 0, 3, 'a', { ns: true }), C(-0.8, -0.8, 1, 'w', { ns: true, op: 0.85 })], stages: crEyeStages(3) }),
+  crPart({ id: 'slit', slot: 'eyes', name: 'Slit', tags: ['sharp'], dom: 0.5, w: 2, extra: [P('M-4,-1 L0,-4 L4,-1 L0,4 Z', 'e', { sw: 1.2 }), P('M0,-3 L0.8,0 L0,3 L-0.8,0 Z', 'k', { ns: true }), C(-1.4, -1.6, 0.7, 'w', { ns: true, op: 0.85 })], stages: crEyeStages(3) }),
+  crPart({ id: 'dot', slot: 'eyes', name: 'Dot', tags: ['small'], dom: 0.5, w: 2, extra: [C(0, 0, 2.6, 'k'), C(-0.7, -0.8, 0.9, 'w', { ns: true, op: 0.9 })], stages: crEyeStages(2.4) }),
+  crPart({ id: 'twin', slot: 'eyes', name: 'Twin lights', tags: ['two'], dom: 0.5, w: 2, extra: [C(-1.6, 0.6, 2.4, 'a', { ns: true, op: 0.3 }), C(-1.6, 0.6, 1.6, 'a', { ns: true }), C(1.8, -0.8, 1.2, 'a', { ns: true }), C(-2, 0.2, 0.5, 'w', { ns: true, op: 0.85 })], stages: crEyeStages(2.4) }),
+  crPart({ id: 'hollow', slot: 'eyes', name: 'Hollow', tags: ['dark'], dom: 0.45, w: 2, extra: [P('M-4,-3 L0,-4 L4,-2 L3,3 L-3,3 Z', 'k', { ns: true, op: 0.9 }), C(0.6, 0.2, 0.9, 'a', { ns: true })], stages: crEyeStages(3) }),
+  crPart({ id: 'star', slot: 'eyes', name: 'Star', tags: ['star'], dom: 0.5, w: 2, extra: [C(0, 0, 4.4, 'a', { ns: true, op: 0.2 }), P(starPath(0, 0, 4, 1.8, 4), 'a', { ns: true }), C(0, 0, 1.2, 'w', { ns: true, op: 0.9 })], stages: crEyeStages(3) }),
+];
+
+const crMouthStages = { 2: { grow: [1.06, 1.06] }, 3: { grow: [1.08, 1.08], add: [C(-2, 1, 0.8, 'a', { ns: true, op: 0.8 })] } };
+
+const CR_MOUTHS = [
+  crPart({ id: 'crack', slot: 'mouth', name: 'Crack', tags: ['line'], dom: 0.5, w: 3, extra: [L('M3,0 L-2,2 L-6,1 L-11,3', 'k', 1.6), L('M-2,2 L-3,4', 'k', 1, { op: 0.6 })], stages: crMouthStages }),
+  crPart({ id: 'grin', slot: 'mouth', name: 'Jagged grin', tags: ['teeth'], dom: 0.5, w: 3, extra: [P('M4,-1 L-12,1 L-10,5 L4,4 Z', 'k', { ns: true, op: 0.85 }), P('M2,0 L1,3 L-1,0 L-3,3.4 L-5,0.4 L-7,3.6 L-9,0.8 L-10,3 L-11,1 Z', 'w', { ns: true, op: 0.9 })], stages: crMouthStages }),
+  crPart({ id: 'flat', slot: 'mouth', name: 'Flat', tags: ['plain'], dom: 0.5, w: 2, extra: [L('M3,1 L-10,1', 'k', 1.8), L('M-2,1 L-2,3 M-7,1 L-7,3', 'k', 1, { op: 0.5 })], stages: crMouthStages }),
+  crPart({ id: 'point', slot: 'mouth', name: 'Point', tags: ['beak'], dom: 0.5, w: 2, extra: [P('M-6,-3 L6,0 L-6,3 Z', 'pd', { sw: 1.2 }), L('M-5,0 L4,0', 'k', 1, { op: 0.5 })], stages: crMouthStages }),
+  crPart({ id: 'wide', slot: 'mouth', name: 'Wide', tags: ['open'], dom: 0.5, w: 2, extra: [P('M4,-2 L-14,0 L-12,6 L2,5 Z', 'k', { ns: true, op: 0.85 }), P('M-12,1 L2,0 L2,2 L-12,3 Z', 'a', { ns: true, op: 0.5 })], stages: crMouthStages }),
+  crPart({ id: 'small', slot: 'mouth', name: 'Small', tags: ['tiny'], dom: 0.5, w: 2, extra: [P('M-2,-1 L2,-1 L1,2 L-1,2 Z', 'k', { ns: true, op: 0.85 })], stages: crMouthStages }),
+  crPart({ id: 'fanged', slot: 'mouth', name: 'Fanged', tags: ['fierce'], dom: 0.5, w: 2, extra: [L('M3,0 L-11,2', 'k', 1.6), P('M1,0 L0,5 L-1.5,0.4 Z M-6,1 L-6.8,6 L-8,1.4 Z', 'w', { sw: 1 })], stages: crMouthStages }),
+];
+
+// ---- src/data/parts/crystalline/limbs.js ----
+// Crystalline forelegs (origin = the shoulder), hind legs (origin = the hip) and tails (origin = the tail socket,
+// trailing behind): angular stone limbs and crystal tails.
+// Evolutions: legs grow and gain an accent band; tails grow and spike.
+
+
+
+
+const crLegStages = { 2: { grow: [1.06, 1.08] }, 3: { grow: [1.1, 1.14], add: [L('M-4,8 L4,8', 'a', 1.6, { ns: true, op: 0.7 })] } };
+const crTailStages = (x, y) => ({ 2: { grow: [1.1, 1.06] }, 3: { grow: [1.15, 1.1], addShapes: [{ pts: evoSpike(x, y, -100, 8, 4, 'c'), f: 'a' }] } });
+/** An angular leg segment from (x0,y0) to (x1,y1), w wide at the top and w1 at the foot. */
+const crSeg = (x0, y0, x1, y1, w, w1 = w) => ({ pts: [[x0 - w / 2, y0, 'c'], [x0 + w / 2, y0, 'c'], [x1 + w1 / 2, y1, 'c'], [x1 - w1 / 2, y1, 'c']], f: 'p' });
+const crEdge = (d) => L(d, 'k', 1, { op: 0.25 });
+const crFoot = (x, y, w) => P(`M${x - w / 2},${y - 1} L${x + w / 2},${y - 1} L${x + w / 2 + 1},${y + 3} L${x - w / 2 - 1},${y + 3} Z`, 'pd', { sw: 1.2 });
+
+const CR_LEGS_FRONT = [
+  crLeg({ id: 'block', slot: 'legsFront', name: 'Block', tags: ['square'], dom: 0.5, w: 3, shapes: [crSeg(0, 0, 0, 14, 8, 7)], extra: [crEdge('M-2,0 L-2,14'), crFoot(0, 14, 8)], stages: crLegStages }),
+  crLeg({ id: 'column', slot: 'legsFront', name: 'Column', tags: ['tall'], dom: 0.5, w: 2, shapes: [crSeg(0, 0, 0, 18, 6, 5)], extra: [crEdge('M-1,0 L-1,18 M-3,9 L3,9'), crFoot(0, 18, 6)], stages: crLegStages }),
+  crLeg({ id: 'shard', slot: 'legsFront', name: 'Shard', tags: ['sharp'], dom: 0.5, w: 2, shapes: [{ pts: [[-4, 0, 'c'], [4, 0, 'c'], [1, 16, 'c']], f: 'p' }], extra: [crEdge('M0,0 L1,14')], stages: crLegStages }),
+  crLeg({ id: 'stubby', slot: 'legsFront', name: 'Stubby', tags: ['short'], dom: 0.5, w: 2, shapes: [crSeg(0, 0, 0, 9, 8, 8)], extra: [crEdge('M-2,0 L-2,9'), crFoot(0, 9, 8)], stages: crLegStages }),
+  crLeg({ id: 'split', slot: 'legsFront', name: 'Split', tags: ['fork'], dom: 0.5, w: 2, shapes: [crSeg(0, 0, 0, 7, 8, 8), { pts: [[-4, 6, 'c'], [-1, 6, 'c'], [-3, 15, 'c']], f: 'p' }, { pts: [[1, 6, 'c'], [4, 6, 'c'], [4, 15, 'c']], f: 'p' }], extra: [crEdge('M-2,0 L-2,7')], stages: crLegStages }),
+  crLeg({ id: 'tall', slot: 'legsFront', name: 'Tall', tags: ['thin'], dom: 0.5, w: 2, shapes: [crSeg(0, 0, 1, 22, 5, 4)], extra: [crEdge('M-1,0 L0,22 M-2,11 L3,11'), crFoot(1, 22, 5)], stages: crLegStages }),
+  crLeg({ id: 'crystal', slot: 'legsFront', name: 'Crystal', tags: ['faceted'], dom: 0.5, w: 2, shapes: [{ pts: [[-4, 0, 'c'], [4, 0, 'c'], [5, 10, 'c'], [2, 16, 'c'], [-2, 16, 'c'], [-5, 10, 'c']], f: 'p' }], extra: [crEdge('M-1,0 L-1,16 M-5,10 L-1,8 L5,10'), C(0, 5, 1.2, 'a', { ns: true, op: 0.8 })], stages: crLegStages }),
+];
+
+const CR_LEGS_BACK = [
+  crLeg({ id: 'block', slot: 'legsBack', name: 'Block', tags: ['square'], dom: 0.5, w: 3, shapes: [crSeg(0, 0, -2, 14, 9, 7)], extra: [crEdge('M-3,0 L-4,14'), crFoot(-2, 14, 8)], stages: crLegStages }),
+  crLeg({ id: 'column', slot: 'legsBack', name: 'Column', tags: ['tall'], dom: 0.5, w: 2, shapes: [crSeg(0, 0, -1, 18, 7, 5)], extra: [crEdge('M-2,0 L-2,18 M-4,9 L2,9'), crFoot(-1, 18, 6)], stages: crLegStages }),
+  crLeg({ id: 'shard', slot: 'legsBack', name: 'Shard', tags: ['sharp'], dom: 0.5, w: 2, shapes: [{ pts: [[-5, 0, 'c'], [4, 0, 'c'], [-2, 16, 'c']], f: 'p' }], extra: [crEdge('M-1,0 L-2,14')], stages: crLegStages }),
+  crLeg({ id: 'stubby', slot: 'legsBack', name: 'Stubby', tags: ['short'], dom: 0.5, w: 2, shapes: [crSeg(0, 0, -1, 9, 9, 8)], extra: [crEdge('M-3,0 L-3,9'), crFoot(-1, 9, 8)], stages: crLegStages }),
+  crLeg({ id: 'split', slot: 'legsBack', name: 'Split', tags: ['fork'], dom: 0.5, w: 2, shapes: [crSeg(0, 0, -1, 7, 9, 8), { pts: [[-5, 6, 'c'], [-2, 6, 'c'], [-5, 15, 'c']], f: 'p' }, { pts: [[0, 6, 'c'], [3, 6, 'c'], [2, 15, 'c']], f: 'p' }], extra: [crEdge('M-3,0 L-3,7')], stages: crLegStages }),
+  crLeg({ id: 'tall', slot: 'legsBack', name: 'Tall', tags: ['thin'], dom: 0.5, w: 2, shapes: [crSeg(0, 0, -3, 22, 6, 4)], extra: [crEdge('M-2,0 L-4,22 M-4,11 L1,11'), crFoot(-3, 22, 5)], stages: crLegStages }),
+  crLeg({ id: 'crystal', slot: 'legsBack', name: 'Crystal', tags: ['faceted'], dom: 0.5, w: 2, shapes: [{ pts: [[-5, 0, 'c'], [4, 0, 'c'], [4, 10, 'c'], [1, 16, 'c'], [-3, 16, 'c'], [-6, 10, 'c']], f: 'p' }], extra: [crEdge('M-2,0 L-2,16 M-6,10 L-2,8 L4,10'), C(-1, 5, 1.2, 'a', { ns: true, op: 0.8 })], stages: crLegStages }),
+];
+
+const CR_TAILS = [
+  crPart({ id: 'shard', slot: 'tail', name: 'Shard', tags: ['spike'], dom: 0.5, w: 3, shapes: [{ pts: [[0, -4, 'c'], [-22, -2, 'c'], [-30, 0, 'c'], [-22, 3, 'c'], [0, 4, 'c']], f: 'a' }], extra: [L('M-2,0 L-26,0', 'k', 0.9, { op: 0.25 })], stages: crTailStages(-22, -2) }),
+  crPart({ id: 'cluster', slot: 'tail', name: 'Cluster', tags: ['spiky'], dom: 0.5, w: 2, shapes: [{ pts: [[0, -3, 'c'], [-20, -6, 'c'], [-12, -1, 'c'], [-26, 2, 'c'], [-14, 4, 'c'], [-20, 10, 'c'], [-6, 5, 'c'], [0, 4, 'c']], f: 'a' }], extra: [L('M-2,0 L-14,0', 'k', 0.9, { op: 0.25 })], stages: crTailStages(-18, -4) }),
+  crPart({ id: 'club', slot: 'tail', name: 'Geode club', tags: ['heavy'], dom: 0.5, w: 2, shapes: [{ pts: [[0, -3, 'c'], [-10, -3, 'c'], [-14, -9, 'c'], [-24, -8, 'c'], [-28, 0, 'c'], [-24, 8, 'c'], [-14, 9, 'c'], [-10, 3, 'c'], [0, 3, 'c']], f: 'p' }], extra: [P('M-16,-4 L-22,-3 L-24,2 L-18,4 L-14,0 Z', 'k', { ns: true, cl: true, op: 0.4 }), P('M-20,-2 L-18,-5 L-16,-1 Z M-22,2 L-19,-1 L-17,3 Z', 'a', { ns: true, cl: true })], stages: crTailStages(-20, -8) }),
+  crPart({ id: 'beads', slot: 'tail', name: 'Beads', tags: ['chain'], dom: 0.5, w: 2, shapes: [{ pts: [[0, -3, 'c'], [-8, -3, 'c'], [-8, 3, 'c'], [0, 3, 'c']], f: 'p' }, { pts: [[-9, -3, 'c'], [-13, -6, 'c'], [-17, -3, 'c'], [-13, 0, 'c']], f: 'a' }, { pts: [[-18, -1, 'c'], [-22, -4, 'c'], [-26, -1, 'c'], [-22, 2, 'c']], f: 'a' }, { pts: [[-26, 2, 'c'], [-29, -1, 'c'], [-32, 2, 'c'], [-29, 5, 'c']], f: 'a' }], stages: crTailStages(-28, 0) }),
+  crPart({ id: 'stub', slot: 'tail', name: 'Stub', tags: ['short'], dom: 0.5, w: 2, shapes: [{ pts: [[0, -4, 'c'], [-8, -3, 'c'], [-11, 0, 'c'], [-8, 4, 'c'], [0, 4, 'c']], f: 'p' }], extra: [C(-6, 0, 1.2, 'a', { ns: true, op: 0.8 })], stages: crTailStages(-9, -2) }),
+  crPart({ id: 'fan', slot: 'tail', name: 'Fan', tags: ['fan'], dom: 0.5, w: 2, shapes: [{ pts: [[0, -3, 'c'], [-16, -14, 'c'], [-12, -4, 'c'], [-26, -2, 'c'], [-12, 2, 'c'], [-18, 12, 'c'], [-6, 4, 'c'], [0, 3, 'c']], f: 'a' }], extra: [L('M-2,0 L-14,-12 M-2,0 L-24,-2 M-2,0 L-16,10', 'k', 0.9, { op: 0.25 })], stages: crTailStages(-14, -12) }),
+  crPart({ id: 'spike', slot: 'tail', name: 'Spike', tags: ['long'], dom: 0.5, w: 2, shapes: [{ pts: [[0, -3, 'c'], [-14, -3, 'c'], [-36, -8, 'c'], [-14, 2, 'c'], [0, 3, 'c']], f: 'p' }], extra: [L('M-2,0 L-30,-5', 'k', 0.9, { op: 0.25 }), P('M-34,-8 L-24,-6 L-26,-3 Z', 'a', { ns: true, cl: true })], stages: crTailStages(-30, -6) }),
+];
+
+// ---- src/data/parts/crystalline/crest.js ----
+// Crystalline spines (crystal clusters on the back, behind the body at the spines socket) and crowns (on the
+// brow, behind the head).
+// Evolutions: both grow.
+
+
+
+const crGrowCrest = { 2: { grow: [1.1, 1.1] }, 3: { grow: [1.12, 1.15] } };
+/** A crystal spike standing on (x, y), w wide at the base and h tall, leaning by lean. */
+const crSpike = (x, y, w, h, lean = 0, f = 'a') => ({ pts: [[x - w / 2, y, 'c'], [x + lean, y - h, 'c'], [x + w / 2, y, 'c']], f });
+const crGleam = (x, y, h) => L(`M${x - 1},${y - 2} L${x - 0.5},${y - h * 0.7}`, 'w', 1, { ns: true, op: 0.5 });
+
+const CR_SPINES = [
+  NONE('spines', 0.3, 'c.'),
+  crPart({ id: 'cluster', slot: 'spines', name: 'Cluster', tags: ['spiky'], dom: 0.5, w: 3, shapes: [crSpike(-10, 2, 8, 14, -2), crSpike(0, 2, 10, 22, 1), crSpike(10, 2, 8, 12, 3)], extra: [crGleam(0, 2, 22), crGleam(-10, 2, 14)], stages: crGrowCrest }),
+  crPart({ id: 'ridge', slot: 'spines', name: 'Ridge', tags: ['row'], dom: 0.5, w: 2, shapes: [crSpike(-16, 2, 8, 8), crSpike(-8, 2, 8, 12), crSpike(0, 2, 8, 14), crSpike(8, 2, 8, 12), crSpike(16, 2, 8, 8)], extra: [crGleam(0, 2, 14)], stages: crGrowCrest }),
+  crPart({ id: 'single', slot: 'spines', name: 'Single spire', tags: ['tall'], dom: 0.5, w: 2, shapes: [crSpike(0, 2, 10, 28, -3)], extra: [crGleam(-1, 2, 28), L('M-4,-4 L3,-6', 'k', 0.9, { op: 0.3 })], stages: crGrowCrest }),
+  crPart({ id: 'twin', slot: 'spines', name: 'Twin', tags: ['two'], dom: 0.5, w: 2, shapes: [crSpike(-7, 2, 9, 20, -4), crSpike(7, 2, 9, 18, 4)], extra: [crGleam(-7, 2, 20), crGleam(7, 2, 18)], stages: crGrowCrest }),
+  crPart({ id: 'fan', slot: 'spines', name: 'Fan', tags: ['fan'], dom: 0.5, w: 2, shapes: [crSpike(-12, 2, 7, 14, -8), crSpike(-5, 2, 7, 18, -3), crSpike(3, 2, 7, 18, 3), crSpike(11, 2, 7, 14, 8)], extra: [crGleam(-5, 2, 18)], stages: crGrowCrest }),
+  crPart({ id: 'tall', slot: 'spines', name: 'Tall', tags: ['big'], dom: 0.55, w: 2, shapes: [crSpike(-6, 2, 10, 24, -6), crSpike(4, 2, 12, 34, 2)], extra: [crGleam(4, 2, 34), crGleam(-6, 2, 24)], stages: crGrowCrest }),
+  crPart({ id: 'low', slot: 'spines', name: 'Low', tags: ['small'], dom: 0.5, w: 2, shapes: [crSpike(-8, 2, 8, 7, -1), crSpike(1, 2, 8, 9, 1), crSpike(9, 2, 7, 6, 2)], extra: [crGleam(1, 2, 9)], stages: crGrowCrest }),
+];
+
+const CR_CROWNS = [
+  NONE('crown', 0.3, 'c.'),
+  crPart({ id: 'points', slot: 'crown', name: 'Points', tags: ['three'], dom: 0.5, w: 3, shapes: [crSpike(-7, 2, 6, 10, -2), crSpike(0, 2, 7, 14), crSpike(7, 2, 6, 10, 2)], extra: [crGleam(0, 2, 14)], stages: crGrowCrest }),
+  crPart({ id: 'spire', slot: 'crown', name: 'Spire', tags: ['tall'], dom: 0.5, w: 2, shapes: [crSpike(0, 2, 8, 22, -2)], extra: [crGleam(0, 2, 22), L('M-3,-4 L2,-6', 'k', 0.9, { op: 0.3 })], stages: crGrowCrest }),
+  crPart({ id: 'halo', slot: 'crown', name: 'Halo', tags: ['ring'], dom: 0.5, w: 2, shapes: [crSpike(-12, -2, 4, 6, -3), crSpike(-6, -6, 4, 7, -1), crSpike(0, -8, 4, 8), crSpike(6, -6, 4, 7, 1), crSpike(12, -2, 4, 6, 3)], extra: [L('M-12,-2 C-8,-8 8,-8 12,-2', 'a', 1.2, { op: 0.6 })], stages: crGrowCrest }),
+  crPart({ id: 'tiara', slot: 'crown', name: 'Tiara', tags: ['royal'], dom: 0.5, w: 2, shapes: [{ pts: [[-10, 2, 'c'], [-8, -3, 'c'], [-4, -1, 'c'], [0, -8, 'c'], [4, -1, 'c'], [8, -3, 'c'], [10, 2, 'c']], f: 'a' }], extra: [C(0, -2, 1.2, 'w', { ns: true, op: 0.8 }), C(-6, 0, 0.8, 'w', { ns: true, op: 0.7 }), C(6, 0, 0.8, 'w', { ns: true, op: 0.7 })], stages: crGrowCrest }),
+  crPart({ id: 'twin', slot: 'crown', name: 'Twin horns', tags: ['horn'], dom: 0.5, w: 2, shapes: [crSpike(-7, 2, 7, 16, -6), crSpike(7, 2, 7, 16, 6)], extra: [crGleam(-7, 2, 16), crGleam(7, 2, 16)], stages: crGrowCrest }),
+  crPart({ id: 'cluster', slot: 'crown', name: 'Cluster', tags: ['spiky'], dom: 0.5, w: 2, shapes: [crSpike(-8, 2, 6, 8, -3), crSpike(-3, 2, 6, 14, -1), crSpike(3, 2, 6, 11, 2), crSpike(8, 2, 5, 7, 3)], extra: [crGleam(-3, 2, 14)], stages: crGrowCrest }),
+  crPart({ id: 'antler', slot: 'crown', name: 'Crystal antlers', tags: ['branch'], dom: 0.5, w: 2, shapes: [{ pts: [[-4, 2, 'c'], [-8, -8, 'c'], [-14, -12, 'c'], [-9, -10, 'c'], [-10, -20, 'c'], [-6, -9, 'c'], [-1, 1, 'c']], f: 'a' }, { pts: [[1, 1, 'c'], [6, -9, 'c'], [10, -20, 'c'], [9, -10, 'c'], [14, -12, 'c'], [8, -8, 'c'], [4, 2, 'c']], f: 'a' }], extra: [L('M-6,-4 L-9,-14 M6,-4 L9,-14', 'w', 0.9, { ns: true, op: 0.4 })], stages: crGrowCrest }),
+];
+
+// ---- src/data/parts/crystalline/fx.js ----
+// Crystalline seams (glowing lines clipped to the body, 100 x 60 frame), facets (pale panes clipped to the body,
+// same frame) and auras (a light fitted behind the body, same frame).
+// Evolutions: seams and facets are flat; auras spread.
+
+
+
+
+const crAuraStages = { 2: { grow: [1.08, 1.08] }, 3: { grow: [1.06, 1.06], add: [E(0, 0, 74, 48, 'a', { ns: true, op: 0.1 })] } };
+const crSeam = (d, w = 1.8) => L(d, 'a', w, { ns: true, cl: true, op: 0.9 });
+const crPane = (d, op = 0.22) => PATCH(d, 'pl', { op: 0.35 + op });
+
+const CR_SEAMS = [
+  NONE('seam', 0.3, 'c.'),
+  crPart({ id: 'cracks', slot: 'seam', name: 'Cracks', tags: ['crack'], dom: 0.5, w: 3, extra: [crSeam('M-34,-12 L-24,-2 L-28,12 M-8,-24 L-2,-8 L-10,6 L-4,20 M18,-20 L14,-4 L26,8')] }),
+  crPart({ id: 'veins', slot: 'seam', name: 'Veins', tags: ['vein'], dom: 0.5, w: 2, extra: [crSeam('M-44,6 C-30,-6 -16,10 0,-2 C14,-12 28,8 44,-4', 1.6), crSeam('M-24,-18 C-16,-10 -8,-16 0,-8 M10,16 C18,8 26,18 34,10', 1.2)] }),
+  crPart({ id: 'rings', slot: 'seam', name: 'Rings', tags: ['ring'], dom: 0.5, w: 2, extra: [crSeam('M-30,-6 L-24,-14 L-16,-8 L-22,0 Z M4,2 L12,-8 L22,-2 L14,8 Z M-6,14 L0,8 L6,14 L0,20 Z', 1.4)] }),
+  crPart({ id: 'bands', slot: 'seam', name: 'Bands', tags: ['band'], dom: 0.5, w: 2, extra: [crSeam('M-50,-10 L50,-14 M-50,4 L50,0 M-50,18 L50,14', 2)] }),
+  crPart({ id: 'zigzag', slot: 'seam', name: 'Zigzag', tags: ['bolt'], dom: 0.5, w: 2, extra: [crSeam('M-46,-4 L-34,-14 L-24,2 L-12,-12 L-2,4 L10,-10 L20,6 L32,-8 L44,4', 1.8)] }),
+  crPart({ id: 'dots', slot: 'seam', name: 'Dots', tags: ['dot'], dom: 0.5, w: 2, extra: [...[[-30, -6], [-16, 8], [-2, -10], [12, 6], [26, -8], [36, 8], [-38, 12], [6, 18]].map(([x, y], i) => C(x, y, i % 2 ? 2 : 2.8, 'a', { ns: true, cl: true, op: 0.9 }))] }),
+  crPart({ id: 'lattice', slot: 'seam', name: 'Lattice', tags: ['grid'], dom: 0.5, w: 2, extra: [crSeam('M-50,-20 L50,20 M-50,0 L50,40 M-50,-40 L50,0 M50,-20 L-50,20 M50,-40 L-50,0 M50,0 L-50,40', 1.1)] }),
+];
+
+const CR_FACETS = [
+  NONE('facets', 0.3, 'c.'),
+  crPart({ id: 'triangles', slot: 'facets', name: 'Triangles', tags: ['tri'], dom: 0.5, w: 3, extra: [crPane('M-40,-10 L-20,-26 L-12,-4 Z'), crPane('M-4,-28 L18,-22 L2,-6 Z', 0.16), crPane('M24,-10 L44,-16 L38,6 Z', 0.18)] }),
+  crPart({ id: 'diamonds', slot: 'facets', name: 'Diamonds', tags: ['gem'], dom: 0.5, w: 2, extra: [crPane('M-28,-20 L-18,-8 L-28,4 L-38,-8 Z'), crPane('M2,-24 L12,-12 L2,0 L-8,-12 Z', 0.18), crPane('M30,-16 L40,-4 L30,8 L20,-4 Z', 0.16)] }),
+  crPart({ id: 'hexes', slot: 'facets', name: 'Hexes', tags: ['hex'], dom: 0.5, w: 2, extra: [crPane('M-30,-18 L-20,-18 L-15,-9 L-20,0 L-30,0 L-35,-9 Z'), crPane('M-2,-22 L8,-22 L13,-13 L8,-4 L-2,-4 L-7,-13 Z', 0.16), crPane('M26,-14 L36,-14 L41,-5 L36,4 L26,4 L21,-5 Z', 0.18), L('M-15,-9 L-7,-13 M13,-13 L21,-5', 'k', 1, { ns: true, cl: true, op: 0.25 })] }),
+  crPart({ id: 'stripes', slot: 'facets', name: 'Stripes', tags: ['stripe'], dom: 0.5, w: 2, extra: [crPane('M-40,-30 L-30,-30 L-10,30 L-20,30 Z', 0.16), crPane('M-10,-30 L0,-30 L20,30 L10,30 Z', 0.2), crPane('M20,-30 L30,-30 L50,30 L40,30 Z', 0.14)] }),
+  crPart({ id: 'shards', slot: 'facets', name: 'Shards', tags: ['sharp'], dom: 0.5, w: 2, extra: [crPane('M-44,4 L-30,-24 L-22,-6 L-34,10 Z'), crPane('M-8,-30 L4,-20 L-2,6 L-12,-4 Z', 0.16), crPane('M22,-26 L40,-18 L34,4 L18,-8 Z', 0.18), L('M-30,-24 L-34,10 M4,-20 L-12,-4', 'k', 1, { ns: true, cl: true, op: 0.22 })] }),
+  crPart({ id: 'panes', slot: 'facets', name: 'Panes', tags: ['pane'], dom: 0.5, w: 2, extra: [crPane('M-50,-30 L-10,-30 L-20,-6 L-50,-2 Z', 0.16), crPane('M-4,-30 L30,-30 L36,-10 L-8,-4 Z', 0.12), L('M-20,-6 L-8,-4 M-10,-30 L-4,-30', 'k', 1, { ns: true, cl: true, op: 0.22 })] }),
+  crPart({ id: 'mosaic', slot: 'facets', name: 'Mosaic', tags: ['tile'], dom: 0.5, w: 2, extra: [crPane('M-38,-20 L-26,-24 L-22,-12 L-34,-8 Z', 0.2), crPane('M-20,-26 L-6,-28 L-4,-14 L-18,-12 Z', 0.14), crPane('M-32,-6 L-20,-10 L-16,4 L-28,8 Z', 0.16), crPane('M0,-24 L14,-24 L16,-10 L2,-8 Z', 0.18), crPane('M18,-16 L32,-20 L36,-6 L22,-2 Z', 0.14), crPane('M-12,-8 L2,-6 L0,8 L-14,6 Z', 0.12)] }),
+];
+
+const CR_AURAS = [
+  NONE('aura', 0.3, 'c.'),
+  crPart({ id: 'glow', slot: 'aura', name: 'Glow', tags: ['light'], dom: 0.5, w: 3, extra: [E(0, 0, 62, 40, 'a', { ns: true, op: 0.14 }), E(0, 0, 52, 32, 'a', { ns: true, op: 0.14 })], stages: crAuraStages }),
+  crPart({ id: 'sparkles', slot: 'aura', name: 'Sparkles', tags: ['fairy'], dom: 0.45, w: 2, extra: [E(0, 0, 50, 32, 'a', { ns: true, op: 0.1 }), ...[[-58, -22], [-50, 14], [56, -18], [58, 16], [-10, -42], [22, -40], [-30, 40], [30, 38]].flatMap(([x, y]) => [P(sparklePath(x, y, 5), 'a', { ns: true, op: 0.85 }), C(x, y, 1.6, 'w', { ns: true, op: 0.6 })])], stages: crAuraStages }),
+  crPart({ id: 'motes', slot: 'aura', name: 'Motes', tags: ['dots'], dom: 0.5, w: 2, extra: [E(0, 0, 52, 34, 'a', { ns: true, op: 0.1 }), ...[[-58, -20], [-50, 16], [56, -18], [58, 16], [-10, -42], [22, -40], [-30, 40], [30, 38], [0, -50]].map(([x, y], i) => C(x, y, i % 2 ? 2 : 2.8, 'a', { ns: true, op: 0.7 }))], stages: crAuraStages }),
+  crPart({ id: 'ring', slot: 'aura', name: 'Ring', tags: ['ring'], dom: 0.5, w: 2, extra: [E(0, 0, 48, 30, 'a', { ns: true, op: 0.12 }), E(0, 0, 58, 37, 'a', { ns: true, op: 0.12 }), E(0, 0, 66, 42, 'a', { ns: true, op: 0.1 })], stages: crAuraStages }),
+  crPart({ id: 'shards', slot: 'aura', name: 'Floating shards', tags: ['shard'], dom: 0.5, w: 2, extra: [E(0, 0, 50, 32, 'a', { ns: true, op: 0.1 }), P('M-60,-12 L-54,-26 L-48,-12 Z M50,-24 L58,-34 L62,-20 Z M-48,26 L-40,16 L-36,30 Z M44,22 L54,14 L56,28 Z M-6,-46 L0,-58 L6,-46 Z', 'a', { ns: true, op: 0.85 }), P('M-57,-14 L-54,-22 L-52,-14 Z M53,-24 L58,-30 L59,-22 Z', 'w', { ns: true, op: 0.5 })], stages: crAuraStages }),
+  crPart({ id: 'halo', slot: 'aura', name: 'Halo', tags: ['crown'], dom: 0.5, w: 2, extra: [P('M-56,-6 C-40,-48 40,-48 56,-6 C40,-34 -40,-34 -56,-6 Z', 'a', { ns: true, op: 0.3 }), E(0, -6, 50, 30, 'a', { ns: true, op: 0.1 })], stages: crAuraStages }),
+  crPart({ id: 'haze', slot: 'aura', name: 'Haze', tags: ['soft'], dom: 0.5, w: 2, extra: [E(0, 4, 70, 44, 'a', { ns: true, op: 0.1 }), E(-10, 0, 40, 30, 'a', { ns: true, op: 0.1 }), E(14, 2, 40, 28, 'a', { ns: true, op: 0.1 })], stages: crAuraStages }),
+];
+
+// ---- src/data/parts/crystalline/index.js ----
+// The crystalline library, one list per rig slot.
+
+
+
+
+
+
+
+const CRYSTALLINE_PARTS = {
+  body: CR_BODIES, head: CR_HEADS, eyes: CR_EYES, mouth: CR_MOUTHS, legsFront: CR_LEGS_FRONT, legsBack: CR_LEGS_BACK,
+  spines: CR_SPINES, crown: CR_CROWNS, tail: CR_TAILS, seam: CR_SEAMS, facets: CR_FACETS, aura: CR_AURAS,
+};
+
 // ---- src/data/parts/index.js ----
 // Part registry. Part ids are stable forever: a saved creature must decode the
 // same way after the library grows, so never rename or reuse an id.
 //
 // Parts are grouped by rig, then slot. A part fits any body of its own rig
 // unless it lists the body kinds it accepts in `fit`.
+
 
 
 
@@ -8812,6 +9133,7 @@ const RIG_PARTS = {
   draconic: DRACONIC_PARTS,
   skeletal: SKELETAL_PARTS,
   nightwing: NIGHTWING_PARTS,
+  crystalline: CRYSTALLINE_PARTS,
 };
 
 const PARTS = new Map();
@@ -11236,6 +11558,147 @@ const SPECIES = [
     abilities: ['menace','swagger'],
     desc: 'The thing the other bats fly away from. Its wings blot out the chasm mouth and its grin has too many rows.',
   },
+  // ---- Roster expansion: crystallines ----
+  {
+    id: 'pebblet', name: 'Pebblet', nameParts: ['Pebb', 'let'], clade: 'crystalline', rig: 'crystalline', types: ['Rock'], tier: 'common', bst: 395,
+    stats: { hp: 0.15, melee: 0.2, ranged: 0.07, magic: 0.07, meleeDef: 0.16, rangedDef: 0.13, magicDef: 0.1, spe: 0.12 },
+    recipe: { body: 'c.body.pebble', head: 'c.head.dome', eyes: 'c.eyes.dot', mouth: 'c.mouth.small', legsFront: 'c.legsFront.stubby', legsBack: 'c.legsBack.stubby', tail: 'c.tail.stub', spines: ['c.spines.low', 'c.spines.none'], crown: 'c.crown.none', seam: ['c.seam.cracks', 'c.seam.none'], facets: ['c.facets.panes', 'c.facets.none'], aura: 'c.aura.none' },
+    palette: { c1: [30, 15, 58], c2: [35, 12, 42], c3: [190, 70, 65], eye: [190, 80, 60] }, vary: { h: 8, s: 6, l: 5 },
+    traits: T([0.2, 0.45], [0.5, 0.75], [0.25, 0.45], [0.2, 0.4], MID, [0.5, 0.8]),
+    learnset: [[1,'bump'],[1,'brace'],[6,'swipe'],[11,'rock_smash'],[16,'smooth_stone'],[22,'headbonk'],[28,'stone_toss'],[34,'rake'],[40,'whetting'],[46,'boulder_bash'],[52,'ram']],
+    abilities: ['stone_heart','grit'],
+    desc: 'A pebble that got up and walked. Collects smaller pebbles and will not say what for.',
+  },
+  {
+    id: 'prismkit', name: 'Prismkit', nameParts: ['Prism', 'kit'], clade: 'crystalline', rig: 'crystalline', types: ['Rock', 'Fairy'], tier: 'uncommon', bst: 430,
+    stats: { hp: 0.13, melee: 0.06, ranged: 0.08, magic: 0.22, meleeDef: 0.12, rangedDef: 0.11, magicDef: 0.15, spe: 0.13 },
+    recipe: { body: 'c.body.prism', head: 'c.head.gem', eyes: 'c.eyes.gem', mouth: 'c.mouth.small', legsFront: 'c.legsFront.column', legsBack: 'c.legsBack.column', tail: 'c.tail.beads', spines: ['c.spines.twin', 'c.spines.none'], crown: ['c.crown.tiara', 'c.crown.none'], seam: ['c.seam.veins', 'c.seam.none'], facets: ['c.facets.diamonds', 'c.facets.none'], aura: ['c.aura.sparkles', 'c.aura.none'] },
+    palette: { c1: [300, 30, 78], c2: [280, 40, 62], c3: [50, 90, 72], eye: [300, 70, 55] }, vary: { h: 10, s: 6, l: 4 },
+    traits: T([0.3, 0.55], [0.5, 0.75], [0.4, 0.6], [0.4, 0.6], MID, [0.55, 0.85]),
+    learnset: [[1,'glitter_gust'],[1,'glare'],[6,'primal_surge'],[11,'doe_eyes'],[16,'sweet_sip'],[22,'smooth_stone'],[28,'gem_gleam'],[34,'moonbathe'],[40,'dazzle'],[46,'lunar_burst'],[52,'star_shower']],
+    abilities: ['radiant_core','mirror_scale'],
+    desc: 'Splits every lamp beam into a rainbow and takes the credit. Grows a new facet each time it is complimented.',
+  },
+  {
+    id: 'voltgeode', name: 'Voltgeode', nameParts: ['Volt', 'geode'], clade: 'crystalline', rig: 'crystalline', types: ['Rock', 'Electric'], tier: 'uncommon', bst: 435,
+    stats: { hp: 0.13, melee: 0.07, ranged: 0.22, magic: 0.09, meleeDef: 0.12, rangedDef: 0.12, magicDef: 0.1, spe: 0.15 },
+    recipe: { body: 'c.body.geode', head: 'c.head.wedge', eyes: 'c.eyes.twin', mouth: 'c.mouth.crack', legsFront: 'c.legsFront.block', legsBack: 'c.legsBack.block', tail: 'c.tail.spike', spines: ['c.spines.ridge', 'c.spines.none'], crown: ['c.crown.points', 'c.crown.none'], seam: ['c.seam.zigzag', 'c.seam.none'], facets: ['c.facets.shards', 'c.facets.none'], aura: ['c.aura.motes', 'c.aura.none'] },
+    palette: { c1: [220, 15, 45], c2: [225, 15, 32], c3: [55, 100, 60], eye: [55, 100, 60] }, vary: { h: 6, s: 5, l: 5 },
+    traits: T([0.35, 0.6], MID, [0.3, 0.5], [0.45, 0.7], MID, [0.45, 0.7]),
+    learnset: [[1,'pebble_barrage'],[1,'glare'],[6,'zap'],[11,'stone_toss'],[16,'static_net'],[22,'smooth_stone'],[28,'boulder_fall'],[34,'numb_pulse'],[40,'brace'],[46,'shard_spire'],[52,'skyfall_bolt']],
+    abilities: ['capacitor','stonewall'],
+    desc: 'Crack it open and it is all lightning inside. It throws pebbles that arrive with a spark.',
+  },
+  {
+    id: 'mindshard', name: 'Mindshard', nameParts: ['Mind', 'shard'], clade: 'crystalline', rig: 'crystalline', types: ['Rock', 'Psychic'], tier: 'rare', bst: 465,
+    stats: { hp: 0.13, melee: 0.06, ranged: 0.08, magic: 0.24, meleeDef: 0.12, rangedDef: 0.11, magicDef: 0.14, spe: 0.12 },
+    recipe: { body: 'c.body.shard', head: 'c.head.spike', eyes: 'c.eyes.glow', mouth: 'c.mouth.flat', legsFront: 'c.legsFront.tall', legsBack: 'c.legsBack.tall', tail: 'c.tail.shard', spines: ['c.spines.single', 'c.spines.none'], crown: ['c.crown.spire', 'c.crown.none'], seam: ['c.seam.rings', 'c.seam.none'], facets: ['c.facets.triangles', 'c.facets.none'], aura: ['c.aura.halo', 'c.aura.none'] },
+    palette: { c1: [265, 35, 60], c2: [270, 40, 42], c3: [285, 80, 72], eye: [285, 90, 70] }, vary: { h: 8, s: 6, l: 5 },
+    traits: T([0.4, 0.65], MID, [0.5, 0.75], [0.5, 0.75], MID, [0.5, 0.8]),
+    learnset: [[1,'mind_jolt'],[1,'glare'],[6,'primal_surge'],[11,'meditate'],[16,'thought_beam'],[22,'smooth_stone'],[28,'gem_gleam'],[34,'psi_shock'],[40,'lull'],[46,'mind_crush'],[52,'psystorm']],
+    abilities: ['steady','finesse'],
+    desc: 'An amethyst that thinks. Hum near it and it hums back the thing you were about to say.',
+  },
+  {
+    id: 'frostgem', name: 'Frostgem', nameParts: ['Frost', 'gem'], clade: 'crystalline', rig: 'crystalline', types: ['Rock', 'Ice'], tier: 'uncommon', bst: 430,
+    stats: { hp: 0.15, melee: 0.06, ranged: 0.08, magic: 0.22, meleeDef: 0.13, rangedDef: 0.12, magicDef: 0.14, spe: 0.1 },
+    recipe: { body: 'c.body.cluster', head: 'c.head.gem', eyes: 'c.eyes.gem', mouth: 'c.mouth.point', legsFront: 'c.legsFront.shard', legsBack: 'c.legsBack.shard', tail: 'c.tail.fan', spines: ['c.spines.fan', 'c.spines.none'], crown: ['c.crown.halo', 'c.crown.none'], seam: ['c.seam.lattice', 'c.seam.none'], facets: ['c.facets.hexes', 'c.facets.none'], aura: ['c.aura.haze', 'c.aura.none'] },
+    palette: { c1: [200, 35, 80], c2: [205, 40, 60], c3: [190, 90, 72], eye: [205, 90, 50] }, vary: { h: 6, s: 6, l: 4 },
+    traits: T([0.4, 0.65], MID, [0.35, 0.55], [0.4, 0.6], MID, [0.45, 0.7]),
+    learnset: [[1,'chill_gust'],[1,'glare'],[6,'primal_surge'],[11,'sleet'],[16,'smooth_stone'],[22,'brace'],[28,'gem_gleam'],[34,'glacier_ray'],[40,'mend'],[46,'whiteout'],[52,'glacier_toss']],
+    abilities: ['frost_heart','mirror_scale'],
+    desc: 'Grows where the cavern drips freeze. Every facet is a snowflake that decided to stay.',
+  },
+  {
+    id: 'magmarite', name: 'Magmarite', nameParts: ['Magma', 'rite'], clade: 'crystalline', rig: 'crystalline', types: ['Rock', 'Fire'], tier: 'uncommon', bst: 440,
+    stats: { hp: 0.15, melee: 0.22, ranged: 0.07, magic: 0.08, meleeDef: 0.15, rangedDef: 0.12, magicDef: 0.1, spe: 0.11 },
+    recipe: { body: 'c.body.boulder', head: 'c.head.cube', eyes: 'c.eyes.glow', mouth: 'c.mouth.grin', legsFront: 'c.legsFront.block', legsBack: 'c.legsBack.block', tail: 'c.tail.club', spines: ['c.spines.cluster', 'c.spines.none'], crown: ['c.crown.twin', 'c.crown.none'], seam: ['c.seam.cracks', 'c.seam.none'], facets: ['c.facets.stripes', 'c.facets.none'], aura: ['c.aura.glow', 'c.aura.none'] },
+    palette: { c1: [15, 25, 36], c2: [10, 35, 30], c3: [25, 100, 58], eye: [30, 100, 60] }, vary: { h: 6, s: 5, l: 5 },
+    traits: T([0.45, 0.75], [0.5, 0.75], [0.35, 0.55], [0.35, 0.55], MID, [0.4, 0.65]),
+    learnset: [[1,'bump'],[1,'glare'],[6,'kindle_rush'],[11,'rock_smash'],[16,'ember_bite'],[22,'smooth_stone'],[28,'scorch_fist'],[34,'headbonk'],[40,'whetting'],[46,'boulder_bash'],[52,'blaze_tackle']],
+    abilities: ['ember_heart','heavy_hands'],
+    desc: 'Cooled on the outside, not on the inside. The cracks glow brighter the angrier it gets.',
+  },
+  {
+    id: 'tidestone', name: 'Tidestone', nameParts: ['Tide', 'stone'], clade: 'crystalline', rig: 'crystalline', types: ['Rock', 'Water'], tier: 'common', bst: 405,
+    stats: { hp: 0.15, melee: 0.07, ranged: 0.21, magic: 0.08, meleeDef: 0.13, rangedDef: 0.13, magicDef: 0.11, spe: 0.12 },
+    recipe: { body: 'c.body.slab', head: 'c.head.dome', eyes: 'c.eyes.dot', mouth: 'c.mouth.wide', legsFront: 'c.legsFront.stubby', legsBack: 'c.legsBack.stubby', tail: 'c.tail.fan', spines: ['c.spines.low', 'c.spines.none'], crown: 'c.crown.none', seam: ['c.seam.bands', 'c.seam.none'], facets: ['c.facets.panes', 'c.facets.none'], aura: ['c.aura.ring', 'c.aura.none'] },
+    palette: { c1: [195, 30, 55], c2: [200, 35, 40], c3: [175, 80, 65], eye: [175, 85, 60] }, vary: { h: 8, s: 6, l: 5 },
+    traits: T([0.35, 0.6], MID, [0.25, 0.45], [0.4, 0.6], MID, [0.45, 0.7]),
+    learnset: [[1,'squirt'],[1,'glare'],[6,'pebble_barrage'],[11,'stone_toss'],[16,'water_jet'],[22,'smooth_stone'],[28,'boulder_fall'],[34,'boiling_jet'],[40,'brace'],[46,'shard_spire'],[52,'geyser']],
+    abilities: ['tide_heart','stonewall'],
+    desc: 'Worn smooth by an underground river and still soaking. Spits the river back at you in pieces.',
+  },
+  {
+    id: 'ferrocrys', name: 'Ferrocrys', nameParts: ['Ferro', 'crys'], clade: 'crystalline', rig: 'crystalline', types: ['Rock', 'Steel'], tier: 'uncommon', bst: 450,
+    stats: { hp: 0.15, melee: 0.2, ranged: 0.06, magic: 0.06, meleeDef: 0.2, rangedDef: 0.15, magicDef: 0.1, spe: 0.08 },
+    recipe: { body: 'c.body.boulder', head: 'c.head.cube', eyes: 'c.eyes.slit', mouth: 'c.mouth.flat', legsFront: 'c.legsFront.column', legsBack: 'c.legsBack.column', tail: 'c.tail.club', spines: ['c.spines.ridge', 'c.spines.none'], crown: ['c.crown.points', 'c.crown.none'], seam: ['c.seam.dots', 'c.seam.none'], facets: ['c.facets.mosaic', 'c.facets.none'], aura: 'c.aura.none' },
+    palette: { c1: [210, 10, 60], c2: [215, 12, 42], c3: [45, 80, 62], eye: [45, 85, 60] }, vary: { h: 5, s: 5, l: 5 },
+    traits: T([0.5, 0.8], [0.5, 0.75], [0.35, 0.55], [0.3, 0.5], MID, [0.3, 0.5]),
+    learnset: [[1,'bolt_jab'],[1,'plate_up'],[6,'bump'],[11,'iron_claw'],[16,'rock_smash'],[22,'brace'],[28,'steel_fin'],[34,'steel_ram'],[40,'smooth_stone'],[46,'boulder_bash'],[52,'comet_fist']],
+    abilities: ['iron_hide','bulwark'],
+    desc: 'Iron ore that woke up. Magnets stick to it and so, eventually, does everything else in the cavern.',
+  },
+  {
+    id: 'gravequartz', name: 'Gravequartz', nameParts: ['Grave', 'quartz'], clade: 'crystalline', rig: 'crystalline', types: ['Rock', 'Ghost'], tier: 'uncommon', bst: 435,
+    stats: { hp: 0.14, melee: 0.06, ranged: 0.08, magic: 0.22, meleeDef: 0.12, rangedDef: 0.12, magicDef: 0.14, spe: 0.12 },
+    recipe: { body: 'c.body.prism', head: 'c.head.spike', eyes: 'c.eyes.hollow', mouth: 'c.mouth.crack', legsFront: 'c.legsFront.shard', legsBack: 'c.legsBack.shard', tail: 'c.tail.shard', spines: ['c.spines.single', 'c.spines.none'], crown: ['c.crown.spire', 'c.crown.none'], seam: ['c.seam.veins', 'c.seam.none'], facets: ['c.facets.triangles', 'c.facets.none'], aura: ['c.aura.haze', 'c.aura.none'] },
+    palette: { c1: [230, 10, 66], c2: [235, 15, 48], c3: [140, 70, 62], eye: [140, 80, 62] }, vary: { h: 8, s: 6, l: 5 },
+    traits: T([0.35, 0.6], MID, [0.4, 0.6], [0.45, 0.7], MID, [0.45, 0.7]),
+    learnset: [[1,'primal_surge'],[1,'glare'],[6,'cold_lick'],[11,'haunt'],[16,'curse_bolt'],[22,'smooth_stone'],[28,'gem_gleam'],[34,'umbral_orb'],[40,'brace'],[46,'grave_volley'],[52,'dread_pulse']],
+    abilities: ['umbral_core','stone_heart'],
+    desc: 'A headstone that got bored of standing still. Something still lives in it and it is not sure who.',
+  },
+  {
+    id: 'onyxhound', name: 'Onyxhound', nameParts: ['Onyx', 'hound'], clade: 'crystalline', rig: 'crystalline', types: ['Rock', 'Dark'], tier: 'uncommon', bst: 440,
+    stats: { hp: 0.13, melee: 0.22, ranged: 0.08, magic: 0.07, meleeDef: 0.13, rangedDef: 0.11, magicDef: 0.09, spe: 0.17 },
+    recipe: { body: 'c.body.shard', head: 'c.head.wedge', eyes: 'c.eyes.slit', mouth: 'c.mouth.fanged', legsFront: 'c.legsFront.tall', legsBack: 'c.legsBack.tall', tail: 'c.tail.spike', spines: ['c.spines.twin', 'c.spines.none'], crown: ['c.crown.twin', 'c.crown.none'], seam: ['c.seam.zigzag', 'c.seam.none'], facets: ['c.facets.shards', 'c.facets.none'], aura: 'c.aura.none' },
+    palette: { c1: [260, 10, 38], c2: [265, 15, 30], c3: [345, 85, 60], eye: [345, 90, 60] }, vary: { h: 6, s: 5, l: 5 },
+    traits: T([0.4, 0.65], [0.45, 0.65], [0.55, 0.8], [0.55, 0.85], MID, [0.35, 0.6]),
+    learnset: [[1,'swipe'],[1,'glare'],[6,'cheap_shot'],[11,'rock_smash'],[16,'chomp'],[22,'scheme'],[28,'dusk_slash'],[34,'headbonk'],[40,'smooth_stone'],[46,'crush_bite'],[52,'boulder_bash']],
+    abilities: ['menace','keen_edge'],
+    desc: 'Black glass on four legs. You see your own face in its flank right before it bites.',
+  },
+  {
+    id: 'mossgeode', name: 'Mossgeode', nameParts: ['Moss', 'geode'], clade: 'crystalline', rig: 'crystalline', types: ['Rock', 'Grass'], tier: 'common', bst: 405,
+    stats: { hp: 0.16, melee: 0.07, ranged: 0.2, magic: 0.08, meleeDef: 0.14, rangedDef: 0.13, magicDef: 0.12, spe: 0.1 },
+    recipe: { body: 'c.body.geode', head: 'c.head.dome', eyes: 'c.eyes.dot', mouth: 'c.mouth.small', legsFront: 'c.legsFront.block', legsBack: 'c.legsBack.block', tail: 'c.tail.stub', spines: ['c.spines.cluster', 'c.spines.none'], crown: ['c.crown.antler', 'c.crown.none'], seam: ['c.seam.cracks', 'c.seam.none'], facets: ['c.facets.mosaic', 'c.facets.none'], aura: ['c.aura.motes', 'c.aura.none'] },
+    palette: { c1: [40, 20, 55], c2: [95, 35, 40], c3: [130, 70, 55], eye: [130, 80, 58] }, vary: { h: 8, s: 6, l: 5 },
+    traits: T([0.4, 0.65], [0.5, 0.75], [0.3, 0.5], [0.2, 0.4], MID, [0.45, 0.7]),
+    learnset: [[1,'seed_volley'],[1,'glare'],[6,'pebble_barrage'],[11,'stone_toss'],[16,'leaf_razor'],[22,'drowse_dust'],[28,'boulder_fall'],[34,'spore_burst'],[40,'photosynth'],[46,'shard_spire'],[52,'leaf_tempest']],
+    abilities: ['regrowth','thorn_hide'],
+    desc: 'A geode that a forest moved into. The crystals inside are green now and nobody asked them.',
+  },
+  {
+    id: 'toxicite', name: 'Toxicite', nameParts: ['Toxic', 'ite'], clade: 'crystalline', rig: 'crystalline', types: ['Rock', 'Poison'], tier: 'common', bst: 405,
+    stats: { hp: 0.14, melee: 0.07, ranged: 0.21, magic: 0.09, meleeDef: 0.13, rangedDef: 0.13, magicDef: 0.11, spe: 0.12 },
+    recipe: { body: 'c.body.cluster', head: 'c.head.cluster', eyes: 'c.eyes.twin', mouth: 'c.mouth.grin', legsFront: 'c.legsFront.split', legsBack: 'c.legsBack.split', tail: 'c.tail.beads', spines: ['c.spines.tall', 'c.spines.none'], crown: ['c.crown.cluster', 'c.crown.none'], seam: ['c.seam.dots', 'c.seam.none'], facets: ['c.facets.hexes', 'c.facets.none'], aura: ['c.aura.glow', 'c.aura.none'] },
+    palette: { c1: [80, 20, 50], c2: [85, 30, 36], c3: [90, 95, 55], eye: [90, 100, 60] }, vary: { h: 8, s: 6, l: 5 },
+    traits: T([0.35, 0.6], [0.5, 0.75], [0.35, 0.55], [0.45, 0.7], MID, [0.45, 0.7]),
+    learnset: [[1,'acid_spit'],[1,'glare'],[6,'pebble_barrage'],[11,'stone_toss'],[16,'blight'],[22,'smooth_stone'],[28,'boulder_fall'],[34,'sludge_blast'],[40,'slime_coat'],[46,'shard_spire'],[52,'sludge_hurl']],
+    abilities: ['venom_heart','thick_skull'],
+    desc: 'Pretty from a distance. Up close the crystals sweat and the miners keep a wide berth.',
+  },
+  {
+    id: 'terrashard', name: 'Terrashard', nameParts: ['Terra', 'shard'], clade: 'crystalline', rig: 'crystalline', types: ['Rock', 'Ground'], tier: 'common', bst: 410,
+    stats: { hp: 0.16, melee: 0.21, ranged: 0.07, magic: 0.06, meleeDef: 0.16, rangedDef: 0.13, magicDef: 0.1, spe: 0.11 },
+    recipe: { body: 'c.body.slab', head: 'c.head.prism', eyes: 'c.eyes.hollow', mouth: 'c.mouth.wide', legsFront: 'c.legsFront.crystal', legsBack: 'c.legsBack.crystal', tail: 'c.tail.cluster', spines: ['c.spines.fan', 'c.spines.none'], crown: ['c.crown.points', 'c.crown.none'], seam: ['c.seam.bands', 'c.seam.none'], facets: ['c.facets.stripes', 'c.facets.none'], aura: 'c.aura.none' },
+    palette: { c1: [28, 30, 52], c2: [25, 35, 38], c3: [35, 85, 62], eye: [35, 90, 60] }, vary: { h: 6, s: 6, l: 5 },
+    traits: T([0.45, 0.75], [0.5, 0.75], [0.35, 0.55], [0.4, 0.6], MID, [0.35, 0.6]),
+    learnset: [[1,'bump'],[1,'brace'],[6,'stampede'],[11,'rock_smash'],[16,'dust_kick'],[22,'headbonk'],[28,'bull_rush'],[34,'smooth_stone'],[40,'rake'],[46,'boulder_bash'],[52,'quake_stomp']],
+    abilities: ['quake_core','thick_skull'],
+    desc: 'Sandstone layered like a cake and about as patient. It shoulders through cave walls rather than go round.',
+  },
+  {
+    id: 'drakonyx', name: 'Drakonyx', nameParts: ['Drak', 'onyx'], clade: 'crystalline', rig: 'crystalline', types: ['Rock', 'Dragon'], tier: 'rare', bst: 470,
+    stats: { hp: 0.15, melee: 0.22, ranged: 0.08, magic: 0.08, meleeDef: 0.14, rangedDef: 0.12, magicDef: 0.1, spe: 0.11 },
+    recipe: { body: 'c.body.cluster', head: 'c.head.spike', eyes: 'c.eyes.star', mouth: 'c.mouth.fanged', legsFront: 'c.legsFront.crystal', legsBack: 'c.legsBack.crystal', tail: 'c.tail.cluster', spines: ['c.spines.tall', 'c.spines.none'], crown: ['c.crown.antler', 'c.crown.none'], seam: ['c.seam.lattice', 'c.seam.none'], facets: ['c.facets.diamonds', 'c.facets.none'], aura: ['c.aura.shards', 'c.aura.none'] },
+    palette: { c1: [345, 20, 42], c2: [350, 30, 30], c3: [350, 90, 62], eye: [350, 95, 65] }, vary: { h: 6, s: 6, l: 5 },
+    traits: T([0.55, 0.85], [0.5, 0.75], [0.4, 0.6], [0.55, 0.85], MID, [0.45, 0.7]),
+    learnset: [[1,'swipe'],[1,'glare'],[6,'rock_smash'],[11,'wyrm_breath'],[16,'headbonk'],[22,'smooth_stone'],[28,'wyrm_claw'],[34,'whetting'],[40,'wyrm_dance'],[46,'boulder_bash'],[52,'rampage']],
+    abilities: ['purebred','stonewall'],
+    desc: 'The garnet at the heart of the caverns grew teeth. Miners who find it come back rich or not at all.',
+  },
 ];
 
 const SPECIES_BY_ID = Object.fromEntries(SPECIES.map((s) => [s.id, s]));
@@ -11906,6 +12369,7 @@ const CLADES = {
   draconic: { name: 'Draconic', plural: 'Draconic', linked: [['legsFront', 'legsBack']], desc: 'True dragons. Four legs, two wings, horns and a breath.' },
   skeletal: { name: 'Skeletal', plural: 'Skeletals', linked: [['legsFront', 'legsBack']], desc: 'Walking bone. Skulls, ribcages and a light where the heart was.' },
   nightwing: { name: 'Nightwing', plural: 'Nightwings', linked: [['wings', 'thumbs']], desc: 'Bats of every size. Leathern wings, big ears and a taste for dusk.' },
+  crystalline: { name: 'Crystalline', plural: 'Crystallines', linked: [['legsFront', 'legsBack']], desc: 'Living geodes. Faceted bodies, crystal crowns and a glow along every seam.' },
 };
 
 const CLADE_IDS = Object.keys(CLADES);
@@ -12411,6 +12875,8 @@ const SLOT_FAMILY = {
   light: 'face', shroud: 'fur', cracks: 'flat',
   // nightwing
   ruff: 'fur', thumbs: 'face',
+  // crystalline
+  seam: 'flat', facets: 'flat', aura: 'flat',
 };
 function growthFor(slot) { return SLOT_GROWTH[SLOT_FAMILY[slot] || 'face']; }
 
@@ -12778,6 +13244,14 @@ POSES.nightwing = {
   attack: { body: { da: 5, dx: 6 }, head: { dx: 4, da: 4 }, muzzle: { ds: 1.15 }, wings: { da: 24, far: { da: 14 } }, legs: { da: -10, far: { da: 6 } }, ears: { da: -14 }, tail: { da: 10 } },
   hurt: { body: { da: -10, dx: -4 }, head: { da: -12 }, wings: { da: 30, far: { da: 18 } }, legs: { da: 12 }, ears: { da: -22 }, tail: { da: -8 } },
 };
+
+POSES.crystalline = mergePose(quadCore, {
+  brace: { spines: { ds: 1.04 } },
+  crouch: { aura: { ds: 0.96 } },
+  poise: { crown: { ds: 1.06 }, aura: { ds: 1.06 } },
+  attack: { mouth: { ds: 1.15 }, spines: { ds: 1.08 }, aura: { ds: 1.1 } },
+  hurt: { aura: { ds: 0.9 }, spines: { da: 6 } },
+});
 
 // ---- src/creature/render.js ----
 // Genome -> SVG string. Pure: no DOM access, so it runs in Node for tests.
@@ -15567,14 +16041,14 @@ function challengeTower(j, k, level) {
 
 
 /** Map size and ring geometry. `version` bumps whenever the layout changes, so saved positions from an older map reset to the Crossroads. */
-const WORLD = { version: 5, w: 224, h: 192, hubR: 6, ringR: 58, lairR: 84, trainersPerBiome: 6, encounterChance: 0.12, encounterCooldown: 4, homeSpawnShare: 0.72 };
+const WORLD = { version: 6, w: 224, h: 192, hubR: 6, ringR: 58, lairR: 84, trainersPerBiome: 6, encounterChance: 0.12, encounterCooldown: 4, homeSpawnShare: 0.72 };
 
 /** Tile kinds. */
 const TILE = { grass: 0, habitat: 1, path: 2, wall: 3, water: 4, hub: 5, lair: 6, door: 7, camp: 8, spire: 9, spireDoor: 10, shrine: 11, market: 12, marketDoor: 13, storage: 14, storageDoor: 15, tower: 16, towerDoor: 17 };
 const WALKABLE_TILES = new Set([TILE.grass, TILE.habitat, TILE.path, TILE.hub, TILE.door, TILE.camp, TILE.spireDoor, TILE.shrine, TILE.marketDoor, TILE.storageDoor, TILE.towerDoor]);
 
 /** Biomes in difficulty order, clockwise from the south of the hub. Levels climb 5 to the fifties; the gaps in the ladder are for classes still to come. */
-const BIOME_ORDER = ['mammal', 'amphibian', 'flora', 'insect', 'nightwing', 'fungus', 'bird', 'ooze', 'fish', 'wyrm', 'invertebrate', 'skeletal', 'reptile', 'draconic'];
+const BIOME_ORDER = ['mammal', 'amphibian', 'flora', 'insect', 'nightwing', 'fungus', 'bird', 'crystalline', 'ooze', 'fish', 'wyrm', 'invertebrate', 'skeletal', 'reptile', 'draconic'];
 
 /** Per-class region: name, wild level, palette and the look of its walls. */
 const REGIONS = {
@@ -15588,6 +16062,7 @@ const REGIONS = {
   fungus:       { name: 'Sporewood',      level: 23, ground: '#7a7f5c', ground2: '#70754f', habitat: '#5b5f47', path: '#c7b48a', water: '#4e7aa0', wall: 'tree',     wallColor: '#5a4a6a', accent: '#d9a3ff', waterT: 0.6,  warden: 'Warden Morel',  badge: 'Spore Badge' },
   wyrm:         { name: 'Coiling Gorge',  level: 41, ground: '#8a8570', ground2: '#807b66', habitat: '#6b6a52', path: '#d2c39a', water: '#4f8fb8', wall: 'rock',     wallColor: '#5c5548', accent: '#8fd3ff', waterT: 0.62, warden: 'Warden Tempest', badge: 'Gorge Badge' },
   ooze:         { name: 'Slurry Sump',    level: 32, ground: '#7a8a4c', ground2: '#707f45', habitat: '#55703a', path: '#c0b27e', water: '#7fb84f', wall: 'rock',     wallColor: '#4c4a3e', accent: '#b6f06a', waterT: 0.6,  warden: 'Warden Dreg',   badge: 'Sump Badge' },
+  crystalline:  { name: 'Prism Caverns',  level: 29, ground: '#5b5470', ground2: '#534c68', habitat: '#6a4f8a', path: '#a99cc4', water: '#4a6fb8', wall: 'crystal',  wallColor: '#b9a4ff', accent: '#ffd36a', waterT: 0.62, warden: 'Warden Facet',  badge: 'Prism Badge' },
   nightwing:    { name: 'Echo Chasm',     level: 20, ground: '#4c5566', ground2: '#454e5e', habitat: '#38404f', path: '#98a0ad', water: '#3a6f8a', wall: 'rock',     wallColor: '#5c667a', accent: '#9fd8ff', waterT: 0.62, warden: 'Warden Vesper', badge: 'Echo Badge' },
   skeletal:     { name: 'Barrow Downs',   level: 47, ground: '#6f7466', ground2: '#666b5e', habitat: '#535a4c', path: '#bfb59a', water: '#4a6f88', wall: 'bone',     wallColor: '#e6dfc8', accent: '#9fe8b0', waterT: 0.6,  warden: 'Warden Ossa',   badge: 'Marrow Badge' },
   reptile:      { name: 'Ember Scar',     level: 50, ground: '#9c6b4a', ground2: '#906244', habitat: '#7a4d38', path: '#d0a878', water: '#e0562a', wall: 'rock',     wallColor: '#5a3a2c', accent: '#ff9a4a', waterT: 0.7,  warden: 'Warden Cinder', badge: 'Scar Badge' },
@@ -15744,6 +16219,7 @@ const TRAINER_TITLES = {
   draconic: ['Dragon Tamer', 'Egg Warmer', 'Sky Knight'],
   skeletal: ['Gravedigger', 'Bone Setter', 'Mourner'],
   nightwing: ['Cave Guide', 'Night Watch', 'Guano Sweeper'],
+  crystalline: ['Gem Cutter', 'Lamp Bearer', 'Prospector'],
 };
 const TRAINER_LINES = {
   mammal: ['My team was raised on these downs. Care for a bout?', 'Fur and fang against whatever you have. Fight?'],
@@ -15760,6 +16236,7 @@ const TRAINER_LINES = {
   draconic: ['My team was hatched on this mountain. Yours was not. Fight?', 'Every dragon here answers to me. Let us see if yours answers to you.'],
   skeletal: ['Nothing down here stays buried for long. Fight?', 'My team has been dead for years and still beats most of the living.'],
   nightwing: ['Mind your head in here. My team hangs from the ceiling. Fight?', 'They only come out at dusk, and so do I. Care for a bout?'],
+  crystalline: ['Every stone in here is worth something. Prove your team is too?', 'Careful with the walls, they sing. Care for a bout?'],
 };
 const TRAINER_AFTER = ['Good match. Come back stronger.', 'Well fought. The Warden is another matter.', 'You earned that one.', 'My team will remember you.'];
 

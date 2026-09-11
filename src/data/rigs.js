@@ -677,6 +677,42 @@ RIGS.nightwing = {
   },
 };
 
+RIGS.crystalline = {
+  id: 'crystalline', name: 'Crystalline', prefix: 'c.',
+  slots: ['body', 'head', 'eyes', 'mouth', 'legsFront', 'legsBack', 'spines', 'crown', 'tail', 'seam', 'facets', 'aura'],
+  names: { body: 'Body', head: 'Head', eyes: 'Eyes', mouth: 'Mouth', legsFront: 'Forelegs', legsBack: 'Hind legs', spines: 'Spines', crown: 'Crown', tail: 'Tail', seam: 'Seam', facets: 'Facets', aura: 'Aura' },
+  paint: ['body', 'head', 'legsFront', 'legsBack', 'spines', 'crown', 'tail', 'seam', 'facets', 'aura'],
+  swappable: ['spines', 'crown', 'tail', 'seam', 'facets', 'aura'],
+  required: ['body', 'head', 'eyes', 'mouth', 'legsFront', 'legsBack', 'tail'],
+  linked: [['legsFront', 'legsBack'], ['head', 'mouth']],
+  ground: ['body', 'legsFront', 'legsBack'],
+  clipped: ['seam', 'facets'],
+  tree: {
+    slot: 'body', anim: 'body',
+    behind: [
+      { slot: 'aura', fitBox: true },
+      { slot: 'spines', socket: 'spines' },
+      { slot: 'tail', socket: 'tail', scale: 'tail', anim: 'tail' },
+      { slot: 'legsBack', socket: 'hipFar', far: true, scale: 'leg' },
+      { slot: 'legsFront', socket: 'shoulderFar', far: true, scale: 'leg' },
+    ],
+    front: [
+      { slot: 'legsBack', socket: 'hip', scale: 'leg' },
+      { slot: 'legsFront', socket: 'shoulder', scale: 'leg' },
+      {
+        slot: 'head', socket: 'head', scale: 'head', anim: 'head',
+        behind: [{ slot: 'crown', socket: 'crown' }],
+        front: [{ slot: 'eyes', socket: 'eyeFar', far: true, scale: 'eye', small: true }, { slot: 'eyes', socket: 'eye', scale: 'eye', small: true }, { slot: 'mouth', socket: 'mouth', small: true }],
+      },
+    ],
+  },
+  mannequin: {
+    parts: { body: 'c.body.boulder', head: 'c.head.wedge', eyes: 'c.eyes.gem', mouth: 'c.mouth.crack', legsFront: 'c.legsFront.block', legsBack: 'c.legsBack.block', tail: 'c.tail.shard', spines: 'c.spines.none', crown: 'c.crown.none', seam: 'c.seam.none', facets: 'c.facets.none', aura: 'c.aura.none' },
+    forSlot: {},
+    accentSlots: ['spines', 'crown', 'tail', 'seam', 'facets', 'aura'],
+  },
+};
+
 export const RIG_IDS = Object.keys(RIGS);
 
 /** Rig used when a genome names none or an unknown one (old saves): the first class. */
