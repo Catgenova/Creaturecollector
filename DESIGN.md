@@ -632,6 +632,71 @@ already carries the power.
   <rig>` renders every species of a class at all three stages;
   `scripts/hero.mjs fox+stage=3` previews one.
 
+## Overworld (implemented)
+
+The main mode. `src/game/world.js` generates one large map from a seed and
+`src/game/journey.js` holds the player's state and rules; `src/ui/world.js`
+draws it on a canvas and hands fights to the shared fight view. The endless
+Arena stays in its own tab on the same save.
+
+- **Map.** 112 × 96 tiles: grass, habitat, path, wall, water, hub, lair, door,
+  camp, spire, spire door, shrine (`TILE`). The Crossroads hub sits in the
+  middle (a disc of paving with a camp, the fusion shrine and the Council
+  Spire's door). Seven biome centres sit on a ring around it, clockwise from
+  the south, one per class in difficulty order (`BIOME_ORDER`: mammal 6,
+  amphibian 15, insect 24, bird 33, fish 42, invertebrate 51, reptile 60 =
+  wild level, `REGIONS`). Tiles take the nearest centre through jittered
+  coordinates so borders wander. Terrain is value noise per biome: water
+  (more in the fen and lagoon), walls drawn as that region's trees, reeds,
+  hedges, pines, palms or rocks, and habitat patches. Roads are carved in two
+  bent legs from the hub to each camp, on to each lair, and around the ring;
+  a final pass carves straight roads to anything still unreachable, so every
+  camp, lair door, the spire and the shrine are always walkable from the start.
+- **Habitats and spawns.** A habitat patch carries one element type, chosen
+  per 6 × 6 cell from the types of the biome's class weighted by how many of
+  its species have them. `wildSpawn` weights every wild species by affinity
+  (3 for the home class, +2 for the patch's type; strangers 0.03) times tier
+  rarity (common 1, uncommon 0.45, rare 0.12), so stronger species are rarer.
+  Level: the local level ±2, where `levelAt` deepens each biome from a
+  quarter of its level at the hub's edge (never below 4) to the full level at
+  its lair, so the hard side of the ring is survivable near town; 14% three to
+  six higher; 4% an **alpha** eight to twelve higher (worth Warden XP). The 1/1000 Elemental roll applies. Each
+  habitat step has a 12% encounter chance, with a four-step cooldown after a
+  fight; rolls are seeded by the step count so a replayed save spawns the same.
+- **Trainers.** Four per biome, standing on the road (three on the way in,
+  one before the lair). Talking to one shows their line and a Fight / Not now
+  choice; a beaten trainer only chats. Teams of 2–4 led by the home class
+  (others 75% home), at the local level where they stand. Trainers block their tile; roads are
+  two wide.
+- **Wardens.** One lair per biome. The Warden's team is five of the class:
+  a gen-2 fusion leader at area level +6 and four more at +3/+4. Winning earns
+  the region's badge (once); rematches are free. Camps (the biome centre and
+  the hub) heal fully and set the respawn point.
+- **Council.** The spire opens with seven badges: four fights back to back
+  (`COUNCIL_LEVELS` 66, 70, 74, 80): Marshal Kord (melee species), Ranger
+  Selene (ranged), Oracle Vesh (magic) and Champion Aurel (two gen-2 fusions
+  and three rares). Only a 35% heal between fights; a loss ends the run and
+  the wipe rule applies. Beating all four sets `champion`; rematches allowed.
+- **Wipe.** When nobody can fight after a loss the party returns to the last
+  camp at full health (`respawnJourney`). No other penalty.
+- **Journey state.** `{ seed, phase: starter|roam|champion, party, box,
+  player {x,y,dir}, badges, beaten, camps, lastCamp, cooldown, gauntlet,
+  encounter, stats }`. Members, XP, level-ups, move learning and healing reuse
+  the arena's helpers, so creatures behave identically in both modes. Saved as
+  `save.journey` and normalised on load like the run.
+- **UI.** Canvas map with a camera on the player (28 px tiles on phones, 36
+  wider), drawn every frame: biome grounds, typed tufts on habitat, animated
+  water, region walls, roads, camps with fires, lairs with roofs in the
+  region's accent (gold door once its badge is held), the glowing spire and
+  the shrine. Trainers are little figures in their lead's type colour with a
+  "!" when adjacent; the player walks with a bob. Controls: arrows/WASD, an
+  on-screen pad (hold to keep walking), tap the ground to path there (BFS,
+  stops on any event) and A / Space to talk. HUD shows the place, its wild
+  level, seven badge dots and Party / Map / Menu sheets (party and box
+  management with the learn-move prompt, a minimap with camps, lairs, trainers
+  and the spire, fast battles, return to camp, export/import, abandon). An
+  encounter shows a card with the foes and Fight / Run before the fight view.
+
 ## Polish and balance (Phase 5 — implemented)
 
 Balance was done with the two simulators, not by feel:

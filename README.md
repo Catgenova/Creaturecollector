@@ -59,6 +59,15 @@ level decides, and the Lab sheet previews any creature at any stage. Every part
 of every class has hand-drawn stage 2 and stage 3 art, with a procedural growth
 pass as the fallback for anything new.
 
+Overworld: the main mode is now a large seeded map with seven biomes around
+a hub town, one per class in rising difficulty. Habitat patches spawn the
+class's species by element type, with stronger and rarer creatures turning up
+less often; trainers on the roads fight when asked; each biome's Warden holds
+a badge; camps heal and set the respawn point; a shrine fuses; and with seven
+badges the Council Spire opens to four fights back to back. Walk with the
+keyboard, the on-screen pad or a tap on the ground. The endless Arena stays in
+its own tab.
+
 Creature polish: accents are kept a clear perceptual step away from the base
 colours on every roll, fusion and load; a fusion's coat follows the parent that
 supplied most of its parts while the accent and eyes travel with the face; and

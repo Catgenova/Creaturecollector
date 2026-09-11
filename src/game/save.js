@@ -3,6 +3,7 @@ import { b64uEncode, b64uDecode } from '../core/util.js';
 import { validateGenome, learnsetOf } from '../creature/genome.js';
 import { getMove } from '../data/moves.js';
 import { movesAtLevel } from '../battle/stats.js';
+import { WORLD, BIOME_ORDER } from './world.js';
 
 export const SAVE_KEY = 'creaturecollector.save';
 export const SAVE_VERSION = 1;
@@ -16,6 +17,7 @@ export function emptySave() {
     totals: { battles: 0, captures: 0, fusions: 0 },
     collection: [],
     run: null,
+    journey: null,
     settings: { fast: false },
   };
 }
@@ -59,7 +61,45 @@ export function normalizeSave(raw) {
     const usable = run.phase === 'starter' ? run.starters && run.starters.length === 3 : run.party.length > 0;
     if (usable) s.run = run;
   }
+  s.journey = normalizeJourney(raw.journey);
   return s;
+}
+
+const validGenome = (g) => { try { validateGenome(g); return true; } catch { return false; } };
+const cleanFoes = (list) => (Array.isArray(list) ? list.filter((f) => f && validGenome(f.genome) && Number.isFinite(f.level)).map((f) => ({ genome: f.genome, level: Math.max(1, Math.min(100, Math.round(f.level))) })) : []);
+const cleanPoint = (p, fallback) => (p && Number.isFinite(p.x) && Number.isFinite(p.y) ? { x: Math.max(0, Math.min(WORLD.w - 1, Math.round(p.x))), y: Math.max(0, Math.min(WORLD.h - 1, Math.round(p.y))) } : { ...fallback });
+
+/** Coerce a parsed journey into a valid one, or null when it cannot be trusted. */
+export function normalizeJourney(r) {
+  if (!r || typeof r !== 'object' || !['starter', 'roam', 'champion'].includes(r.phase)) return null;
+  const hub = { x: Math.floor(WORLD.w / 2), y: Math.floor(WORLD.h / 2) };
+  const j = {
+    seed: String(r.seed || 'journey'), phase: r.phase, starters: null,
+    party: (Array.isArray(r.party) ? r.party : []).map(cleanMember).filter(Boolean),
+    box: (Array.isArray(r.box) ? r.box : []).map(cleanMember).filter(Boolean),
+    nextId: Number(r.nextId) || 1,
+    pendingLearns: (Array.isArray(r.pendingLearns) ? r.pendingLearns : []).filter((q) => q && typeof q.uid === 'string' && getMove(q.moveId)),
+    stats: { steps: 0, battles: 0, captures: 0, fusions: 0, trainers: 0, bosses: 0, wipes: 0 },
+    player: { ...cleanPoint(r.player, { x: hub.x, y: hub.y + 1 }), dir: ['up', 'down', 'left', 'right'].includes(r.player && r.player.dir) ? r.player.dir : 'down' },
+    badges: Array.isArray(r.badges) ? r.badges.filter((b, i, arr) => BIOME_ORDER.includes(b) && arr.indexOf(b) === i) : [],
+    beaten: {}, camps: Array.isArray(r.camps) ? r.camps.filter((b) => BIOME_ORDER.includes(b)) : [],
+    lastCamp: cleanPoint(r.lastCamp, { x: hub.x - 3, y: hub.y }), cooldown: Math.max(0, Number(r.cooldown) || 0),
+    gauntlet: r.gauntlet && Number.isFinite(r.gauntlet.stage) && r.gauntlet.stage >= 0 && r.gauntlet.stage < 4 ? { stage: Math.round(r.gauntlet.stage) } : null,
+    champion: Boolean(r.champion), encounter: null, lastReport: r.lastReport || null,
+  };
+  if (r.stats && typeof r.stats === 'object') for (const k of Object.keys(j.stats)) j.stats[k] = Math.max(0, Number(r.stats[k]) || 0);
+  if (r.beaten && typeof r.beaten === 'object') for (const [k, v] of Object.entries(r.beaten)) if (v) j.beaten[k] = true;
+  if (r.encounter && typeof r.encounter === 'object' && ['wild', 'trainer', 'boss', 'council'].includes(r.encounter.kind)) {
+    const foes = cleanFoes(r.encounter.foes);
+    if (foes.length) j.encounter = { ...r.encounter, foes, capturable: r.encounter.kind === 'wild' };
+  }
+  if (j.gauntlet && (!j.encounter || j.encounter.kind !== 'council')) j.gauntlet = null;
+  if (j.phase === 'starter') {
+    j.starters = Array.isArray(r.starters) ? r.starters.filter(validGenome) : [];
+    return j.starters.length === 3 ? j : null;
+  }
+  if (!j.party.length) { if (!j.box.length) return null; j.party.push(j.box.shift()); }
+  return j;
 }
 
 function storageOf(storage) {
