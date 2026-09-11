@@ -848,7 +848,9 @@ every phone in either orientation and made it installable.
 
 - **Fit.** The fight arena is capped by the viewport height (stage height and
   creature size in `dvh`), the log shrinks, and on screens under 720px tall
-  the panels lose their passive line and tighten their chips. The move buttons
+  the panels tighten their chips and clamp the passive line to two lines;
+  tapping either panel opens that creature's sheet with the full passive, so
+  the foe's skill is always readable. The move buttons
   and the Party / Info / Items and Fast / Auto rows sit in a sticky block pinned
   to the bottom of the screen, so a fight never needs a scroll to act. Short
   landscape screens (a phone on its side, under 520px tall) lay the arena beside

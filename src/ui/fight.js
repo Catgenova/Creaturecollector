@@ -62,9 +62,15 @@ function renderPanel(f, i) {
   const st = f.state, side = st.sides[i], b = activeOf(st, i);
   const el = i === 0 ? f.els.mePanel : f.els.foePanel;
   const frac = b.hp / b.maxHp;
+  // tapping a panel opens the creature's sheet, so the full passive text is always a tap away on a small screen
+  el.setAttribute('role', 'button'); el.setAttribute('tabindex', '0'); el.setAttribute('aria-label', `${b.name}: details`);
+  const open = () => openSheet(b.genome, i === 0 ? { level: b.level, moves: b.moves.map((x) => x.id) } : { level: b.level });
+  el.onclick = open;
+  el.onkeydown = (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); open(); } };
   appendChildren(clear(el), [
     h('div', { class: 'panel-head' }, h('b', {}, b.name), h('span', { class: 'lvl' }, `Lv ${b.level}`), stageBadge(b.level), styleChip(null, b.style),
-      b.status ? h('span', { class: `status st-${b.status}` }, STATUS_INFO[b.status].short) : null),
+      b.status ? h('span', { class: `status st-${b.status}` }, STATUS_INFO[b.status].short) : null,
+      h('span', { class: 'panel-info', 'aria-hidden': 'true' }, 'i')),
     typeChips(b.types),
     h('div', { class: 'passive' }, h('b', {}, abilityName(b.ability)), h('span', {}, ` ${(getAbility(b.ability) || { desc: 'No passive skill.' }).desc}`)),
     h('div', { class: 'hpbar' }, h('i', { class: hpClass(frac), style: { width: `${Math.max(0, frac * 100)}%` } })),

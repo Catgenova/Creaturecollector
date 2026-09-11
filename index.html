@@ -206,6 +206,8 @@ h3.sec { font-size: 12px; text-transform: uppercase; letter-spacing: .1em; color
 .panel .passive { font-size: 11px; line-height: 1.3; color: var(--fg2); margin: 3px 0 5px; }
 .panel .passive::before { content: '✦ '; color: var(--acc); }
 .panel .passive b { color: var(--fg); }
+.panel[role=button] { cursor: pointer; }
+.panel-head .panel-info { margin-left: auto; width: 20px; height: 20px; border-radius: 50%; border: 1px solid var(--line); color: var(--fg2); font-size: 11px; font-weight: 700; display: inline-grid; place-items: center; flex: 0 0 auto; }
 .shop-who { font-size: 11px; color: var(--fg2); margin-top: 2px; }
 .shop-who.none { color: #ff9b7a; }
 .teach-row .learns { font-size: 11px; }
@@ -352,7 +354,7 @@ button, .btn { touch-action: manipulation; }
 @media (max-height: 720px) {
   .panel { font-size: 12px; padding: 6px 8px; }
   .panel-head b { font-size: 14px; }
-  .panel .passive { display: none; }
+  .panel .passive { font-size: 10.5px; line-height: 1.25; margin: 2px 0 4px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
   .panel-head { gap: 4px; }
   .panel .chip { font-size: 10px; padding: 1px 6px; }
   .floor-head.compact { margin-bottom: 4px; font-size: 13px; }
@@ -13650,9 +13652,15 @@ function renderPanel(f, i) {
   const st = f.state, side = st.sides[i], b = activeOf(st, i);
   const el = i === 0 ? f.els.mePanel : f.els.foePanel;
   const frac = b.hp / b.maxHp;
+  // tapping a panel opens the creature's sheet, so the full passive text is always a tap away on a small screen
+  el.setAttribute('role', 'button'); el.setAttribute('tabindex', '0'); el.setAttribute('aria-label', `${b.name}: details`);
+  const open = () => openSheet(b.genome, i === 0 ? { level: b.level, moves: b.moves.map((x) => x.id) } : { level: b.level });
+  el.onclick = open;
+  el.onkeydown = (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); open(); } };
   appendChildren(clear(el), [
     h('div', { class: 'panel-head' }, h('b', {}, b.name), h('span', { class: 'lvl' }, `Lv ${b.level}`), stageBadge(b.level), styleChip(null, b.style),
-      b.status ? h('span', { class: `status st-${b.status}` }, STATUS_INFO[b.status].short) : null),
+      b.status ? h('span', { class: `status st-${b.status}` }, STATUS_INFO[b.status].short) : null,
+      h('span', { class: 'panel-info', 'aria-hidden': 'true' }, 'i')),
     typeChips(b.types),
     h('div', { class: 'passive' }, h('b', {}, abilityName(b.ability)), h('span', {}, ` ${(getAbility(b.ability) || { desc: 'No passive skill.' }).desc}`)),
     h('div', { class: 'hpbar' }, h('i', { class: hpClass(frac), style: { width: `${Math.max(0, frac * 100)}%` } })),

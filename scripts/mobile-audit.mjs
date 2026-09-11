@@ -18,7 +18,7 @@ const failures = [];
 const measure = (page) => page.evaluate(() => {
   const de = document.documentElement;
   const box = (sel) => { const el = document.querySelector(sel); if (!el) return null; const r = el.getBoundingClientRect(); return { top: Math.round(r.top), bottom: Math.round(r.bottom), inView: r.top >= -1 && r.bottom <= window.innerHeight + 1 }; };
-  return { overflowX: de.scrollWidth > window.innerWidth + 1, scrollH: de.scrollHeight, innerH: window.innerHeight, map: box('canvas.ow-map'), ctl: box('.ow-ctl'), moves: box('.moves'), arena: box('.arena') };
+  return { overflowX: de.scrollWidth > window.innerWidth + 1, scrollH: de.scrollHeight, innerH: window.innerHeight, map: box('canvas.ow-map'), ctl: box('.ow-ctl'), moves: box('.moves'), arena: box('.arena'), foePassive: box('.panel-foe .passive') };
 });
 for (const [w, h] of sizes) {
   const tag = `${w}x${h}`;
@@ -57,7 +57,7 @@ for (const [w, h] of sizes) {
   await page.click('.encounter .btn.primary');
   await page.waitForSelector('.move-btn', { timeout: 20000 });
   await page.waitForTimeout(300);
-  await check('fight', { inView: ['moves'] });
+  await check('fight', { inView: ['moves', 'foePassive'] });
   await page.click('text=Info');
   await page.waitForSelector('.sheet .shop-row', { timeout: 5000 });
   await check('fight-info');
