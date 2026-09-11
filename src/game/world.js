@@ -136,9 +136,10 @@ export function habitatTypesFor(clade) {
   return [...w.entries()].sort((a, b) => b[1] - a[1] || (a[0] < b[0] ? -1 : 1));
 }
 
-/** Weight of a species in a habitat: its class at home, its type in its element, rare visitors otherwise; scaled by tier rarity. */
+/** Weight of a species in a habitat: its class at home (3), its type in its element (4), both together (10), rare visitors otherwise; scaled by tier rarity. */
 export function spawnWeight(species, clade, type) {
-  const affinity = (species.clade === clade ? 3 : 0) + (type && species.types.includes(type) ? 2 : 0);
+  const home = species.clade === clade, typed = Boolean(type && species.types.includes(type));
+  const affinity = home && typed ? 10 : home ? 3 : typed ? 4 : 0;
   return (WILD_RARITY[species.tier] || 1) * (affinity || 0.03);
 }
 
