@@ -296,6 +296,49 @@ export const RIGS = {
       accentSlots: ['antennae', 'wings', 'tail', 'shell', 'pattern'],
     },
   },
+
+  invertebrate: {
+    id: 'invertebrate', name: 'Invertebrate', prefix: 'v.',
+    slots: ['body', 'eyes', 'mouth', 'arms', 'legs', 'shell', 'tail', 'crown', 'feelers', 'pattern', 'glow', 'skirt'],
+    names: {
+      body: 'Body', eyes: 'Eyes', mouth: 'Mouth', arms: 'Arms', legs: 'Legs', shell: 'Shell', tail: 'Tail', crown: 'Crown',
+      feelers: 'Feelers', pattern: 'Pattern', glow: 'Glow', skirt: 'Skirt',
+    },
+    paint: ['body', 'arms', 'legs', 'shell', 'tail', 'crown', 'feelers', 'pattern', 'glow', 'skirt'],
+    swappable: ['shell', 'tail', 'crown', 'feelers', 'pattern', 'glow', 'skirt'],
+    required: ['body', 'eyes'],
+    linked: [['arms', 'legs'], ['skirt', 'tail']],
+    ground: ['body', 'legs'],
+    clipped: ['pattern'],
+    tree: {
+      slot: 'body', anim: 'body',
+      behind: [
+        { slot: 'glow', fitBox: true },
+        { slot: 'skirt', socket: 'skirt', anim: 'sway' },
+        { slot: 'tail', socket: 'tail', scale: 'tail', anim: 'tail' },
+        { slot: 'crown', socket: 'crown' },
+        { slot: 'legs', socket: 'legsFar', far: true, scale: 'leg' },
+        { slot: 'arms', socket: 'armFar', far: true },
+      ],
+      front: [
+        { slot: 'shell', socket: 'shell' },
+        { slot: 'legs', socket: 'legs', scale: 'leg' },
+        { slot: 'arms', socket: 'arm' },
+        { slot: 'feelers', socket: 'feelers', small: true },
+        { slot: 'eyes', socket: 'eyeFar', far: true, scale: 'eye', small: true },
+        { slot: 'eyes', socket: 'eye', scale: 'eye', small: true },
+        { slot: 'mouth', socket: 'mouth', small: true },
+      ],
+    },
+    mannequin: {
+      parts: {
+        body: 'v.body.slug', eyes: 'v.eyes.stalks', mouth: 'v.mouth.smile', arms: 'v.arms.none', legs: 'v.legs.none', shell: 'v.shell.none',
+        tail: 'v.tail.none', crown: 'v.crown.none', feelers: 'v.feelers.none', pattern: 'v.pattern.none', glow: 'v.glow.none', skirt: 'v.skirt.none',
+      },
+      forSlot: { arms: { body: 'v.body.crab' }, legs: { body: 'v.body.crab' }, skirt: { body: 'v.body.jelly' }, glow: { body: 'v.body.wisp' } },
+      accentSlots: ['arms', 'legs', 'shell', 'tail', 'crown', 'feelers', 'pattern', 'glow', 'skirt'],
+    },
+  },
 };
 
 export const RIG_IDS = Object.keys(RIGS);

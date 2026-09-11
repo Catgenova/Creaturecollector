@@ -26,7 +26,7 @@ src/styles.css        all styles
 src/core/             rng, util — no game knowledge
 src/data/types.js     type list, chart, colours
 src/data/rigs.js      class skeletons: slot lists, draw trees, sockets each part must expose
-src/data/parts/       the part library: legacy slot files, one folder per rebuilt class (mammal/, reptile/, fish/, bird/, insect/),
+src/data/parts/       the part library: legacy slot files, one folder per rebuilt class (mammal/, reptile/, fish/, bird/, insect/, invertebrate/),
                       shared builders (_builders.js), drawing DSL (_dsl.js), registry (index.js)
 src/data/species.js   base species recipes
 src/creature/         genome (schema, rolls, codes), palette, render (SVG)
@@ -385,10 +385,22 @@ Gloamoth rebuilt, plus Scarabolt (Bug/Steel), Stingbuzz (Bug/Poison),
 Mantislash (Bug/Fighting), Skimmerfly (Bug/Flying), Antlas (Bug/Ground),
 Glimbug (Bug/Electric) and Dottalie (Bug/Fairy).
 
-**Next classes**, one per step, each with its own slot list and seven parts per
-slot: invertebrate (shells, tentacles, spirits), amphibian (wide heads, webbed
-feet). Each needs species added to reach seven. When all seven classes are on
-rigs the legacy skeleton and its parts go away.
+**Invertebrate rig** (done). Slots: body, eyes, mouth, arms, legs, shell,
+tail, crown, feelers, pattern, glow, skirt. Only body and eyes are required:
+everything else may be "none", which is how a wisp has no legs and a slug no
+arms. Linked: arms with legs, skirt with tail. The face sits on the body;
+eyes may be eyestalks rising from it. Legs are one part per side (a crab's
+four, a spider's four); glows are drawn behind the body and stretched onto
+its box (aura, sparkles, mist, embers, bubbles, motes, static); skirts hang
+from the underside behind the body (frills, tentacles, a ghost hem, a slug's
+foot fringe). Archetypes: slug, crab, bell (jelly), mantle (octopus), wisp,
+scorpion, spider; a snail is a slug with a spiral shell. Eight species:
+Slugmire, Mystril, Phantoom, Voltcrab and Nightstalk rebuilt, plus Inkurl
+(Water), Silkspin (Dark) and Shellwick (Rock/Water).
+
+**Next class**: amphibian (wide heads, webbed feet), with species added to
+reach seven. When all seven classes are on rigs the legacy skeleton and its
+parts go away.
 
 ## Polish and balance (Phase 5 — implemented)
 

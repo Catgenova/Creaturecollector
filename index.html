@@ -846,6 +846,49 @@ const RIGS = {
       accentSlots: ['antennae', 'wings', 'tail', 'shell', 'pattern'],
     },
   },
+
+  invertebrate: {
+    id: 'invertebrate', name: 'Invertebrate', prefix: 'v.',
+    slots: ['body', 'eyes', 'mouth', 'arms', 'legs', 'shell', 'tail', 'crown', 'feelers', 'pattern', 'glow', 'skirt'],
+    names: {
+      body: 'Body', eyes: 'Eyes', mouth: 'Mouth', arms: 'Arms', legs: 'Legs', shell: 'Shell', tail: 'Tail', crown: 'Crown',
+      feelers: 'Feelers', pattern: 'Pattern', glow: 'Glow', skirt: 'Skirt',
+    },
+    paint: ['body', 'arms', 'legs', 'shell', 'tail', 'crown', 'feelers', 'pattern', 'glow', 'skirt'],
+    swappable: ['shell', 'tail', 'crown', 'feelers', 'pattern', 'glow', 'skirt'],
+    required: ['body', 'eyes'],
+    linked: [['arms', 'legs'], ['skirt', 'tail']],
+    ground: ['body', 'legs'],
+    clipped: ['pattern'],
+    tree: {
+      slot: 'body', anim: 'body',
+      behind: [
+        { slot: 'glow', fitBox: true },
+        { slot: 'skirt', socket: 'skirt', anim: 'sway' },
+        { slot: 'tail', socket: 'tail', scale: 'tail', anim: 'tail' },
+        { slot: 'crown', socket: 'crown' },
+        { slot: 'legs', socket: 'legsFar', far: true, scale: 'leg' },
+        { slot: 'arms', socket: 'armFar', far: true },
+      ],
+      front: [
+        { slot: 'shell', socket: 'shell' },
+        { slot: 'legs', socket: 'legs', scale: 'leg' },
+        { slot: 'arms', socket: 'arm' },
+        { slot: 'feelers', socket: 'feelers', small: true },
+        { slot: 'eyes', socket: 'eyeFar', far: true, scale: 'eye', small: true },
+        { slot: 'eyes', socket: 'eye', scale: 'eye', small: true },
+        { slot: 'mouth', socket: 'mouth', small: true },
+      ],
+    },
+    mannequin: {
+      parts: {
+        body: 'v.body.slug', eyes: 'v.eyes.stalks', mouth: 'v.mouth.smile', arms: 'v.arms.none', legs: 'v.legs.none', shell: 'v.shell.none',
+        tail: 'v.tail.none', crown: 'v.crown.none', feelers: 'v.feelers.none', pattern: 'v.pattern.none', glow: 'v.glow.none', skirt: 'v.skirt.none',
+      },
+      forSlot: { arms: { body: 'v.body.crab' }, legs: { body: 'v.body.crab' }, skirt: { body: 'v.body.jelly' }, glow: { body: 'v.body.wisp' } },
+      accentSlots: ['arms', 'legs', 'shell', 'tail', 'crown', 'feelers', 'pattern', 'glow', 'skirt'],
+    },
+  },
 };
 
 const RIG_IDS = Object.keys(RIGS);
@@ -3930,12 +3973,303 @@ const INSECT_PARTS = {
   legsFront: I_LEGS_FRONT, legsMid: I_LEGS_MID, legsBack: I_LEGS_BACK, tail: I_TAILS, shell: I_SHELLS, pattern: I_PATTERNS,
 };
 
+// ---- src/data/parts/invertebrate/_shared.js ----
+// Invertebrate builders: the shared constructors namespaced with "v.".
+// Soft bodies about 70 wide and 40 tall, drawn low or floating; the face sits on the body.
+
+
+
+const invBuilders = partBuilders('v.');
+const vBody = invBuilders.body;
+const vPart = invBuilders.part;
+
+
+/** An outlined tendril: a dark wide stroke under a coloured narrower one. */
+function tendril(d, w = 4, role = 'p') {
+  return [L(d, 'k', w + 3), L(d, role, w)];
+}
+
+// ---- src/data/parts/invertebrate/bodies.js ----
+// Invertebrate bodies. Origin = centre. The face sits on the body (eye / eyeFar, mouth).
+// Sockets: arm / armFar, legs / legsFar (one part draws a whole side), shell (top), tail (rear),
+// crown (top), feelers (front), skirt (underside). Floaters hover. kinds: 'inv.crawler', 'inv.floater'.
+
+
+
+const V_BODIES = [
+  vBody({
+    id: 'slug', name: 'Slug', kind: 'inv.crawler', tags: ['slug', 'soft'], dom: 0.5, w: 3,
+    pts: [[30, -16], [36, -8], [34, 4], [26, 10], [8, 12], [-14, 12], [-34, 10], [-48, 4, 'c'], [-36, 0], [-20, -4], [0, -8], [16, -14]],
+    shade: torsoShade(-48, 36, -16, 12, { shadeFrac: 0.35 }),
+    extra: [L('M-44,6 C-20,8 8,9 30,6', 'k', 1.4, { op: 0.3 }), L('M-10,-3 C-6,2 0,2 4,-4', 'k', 1.1, { op: 0.2 })],
+    sockets: {
+      eye: { x: 26, y: -14, s: 1 }, eyeFar: { x: 16, y: -16, s: 0.85 }, mouth: { x: 35, y: -3, a: 0, s: 1 },
+      arm: { x: 22, y: 4, a: 0, s: 1 }, armFar: { x: 12, y: 0, a: 0, s: 0.9 }, legs: { x: 8, y: 12, a: 0, s: 1 }, legsFar: { x: 0, y: 8, a: 0, s: 0.9 },
+      shell: { x: -14, y: -6, a: 0, s: 1 }, tail: { x: -40, y: 4, a: 0 }, crown: { x: 28, y: -16, a: 0, s: 1 }, feelers: { x: 34, y: -10, a: 0, s: 1 }, skirt: { x: -4, y: 12, a: 0, s: 1 },
+    },
+  }),
+  vBody({
+    id: 'crab', name: 'Crab', kind: 'inv.crawler', tags: ['crab', 'hard'], dom: 0.55, w: 2,
+    pts: [[34, -12], [44, 0], [36, 12], [14, 18], [-14, 18], [-36, 12], [-44, 0], [-34, -12], [-12, -18], [12, -18]],
+    shade: torsoShade(-44, 44, -18, 18, { shadeFrac: 0.35 }),
+    extra: [L('M-30,-8 C-14,-14 14,-14 30,-8', 'k', 1.4, { op: 0.3 }), L('M-24,-2 C-8,2 8,2 24,-2', 'k', 1.1, { op: 0.2 })],
+    sockets: {
+      eye: { x: 22, y: -14, s: 1 }, eyeFar: { x: 6, y: -16, s: 0.85 }, mouth: { x: 36, y: 6, a: 0, s: 1 },
+      arm: { x: 30, y: 8, a: 0, s: 1 }, armFar: { x: 18, y: 4, a: 0, s: 0.9 }, legs: { x: -6, y: 10, a: 0, s: 1 }, legsFar: { x: -14, y: 6, a: 0, s: 0.9 },
+      shell: { x: -6, y: -8, a: 0, s: 1 }, tail: { x: -44, y: 2, a: 0 }, crown: { x: 6, y: -18, a: 0, s: 1 }, feelers: { x: 40, y: -4, a: 0, s: 1 }, skirt: { x: -4, y: 18, a: 0, s: 1 },
+    },
+  }),
+  vBody({
+    id: 'jelly', name: 'Bell', kind: 'inv.floater', tags: ['jelly', 'floating'], dom: 0.5, w: 2, hover: 26, bottom: 12,
+    pts: [[0, -30], [22, -22], [32, -4], [26, 8], [0, 12], [-26, 8], [-32, -4], [-22, -22]],
+    shade: [SH('M-34,-2 C-20,10 20,10 34,-2 L34,20 L-34,20 Z', 0.12), HL('M-14,-26 C-6,-32 8,-32 16,-26 C8,-28 -4,-28 -12,-24 Z', 0.22)],
+    extra: [L('M-26,4 C-14,10 14,10 26,4', 'k', 1.2, { op: 0.25 }), L('M-8,-20 C-6,-8 -6,0 -4,6 M8,-20 C6,-8 6,0 4,6', 'k', 1, { op: 0.15 })],
+    sockets: {
+      eye: { x: 12, y: -6, s: 1 }, eyeFar: { x: -8, y: -8, s: 0.9 }, mouth: { x: 4, y: 6, a: 0, s: 1 },
+      arm: { x: 24, y: 6, a: 0, s: 0.9 }, armFar: { x: -20, y: 4, a: 0, s: 0.85 }, legs: { x: 0, y: 10, a: 0, s: 0.8 }, legsFar: { x: -8, y: 8, a: 0, s: 0.75 },
+      shell: { x: 0, y: -30, a: 0, s: 0.8 }, tail: { x: -30, y: 2, a: -20 }, crown: { x: 2, y: -30, a: 0, s: 1 }, feelers: { x: 30, y: -2, a: 0, s: 1 }, skirt: { x: 0, y: 10, a: 0, s: 1 },
+    },
+  }),
+  vBody({
+    id: 'octopus', name: 'Mantle', kind: 'inv.floater', tags: ['octopus', 'soft'], dom: 0.5, w: 2, hover: 14, bottom: 16,
+    pts: [[6, -34], [24, -26], [30, -8], [26, 8], [12, 16], [-10, 16], [-26, 8], [-30, -8], [-24, -26], [-8, -34]],
+    shade: torsoShade(-30, 30, -34, 16, { shadeFrac: 0.3 }),
+    sockets: {
+      eye: { x: 14, y: -8, s: 1.1 }, eyeFar: { x: -10, y: -10, s: 0.95 }, mouth: { x: 6, y: 8, a: 0, s: 1 },
+      arm: { x: 24, y: 10, a: 0, s: 1 }, armFar: { x: -22, y: 8, a: 0, s: 0.9 }, legs: { x: 0, y: 14, a: 0, s: 0.9 }, legsFar: { x: -8, y: 12, a: 0, s: 0.8 },
+      shell: { x: 0, y: -34, a: 0, s: 0.9 }, tail: { x: -30, y: 0, a: -20 }, crown: { x: 0, y: -34, a: 0, s: 1 }, feelers: { x: 28, y: -2, a: 0, s: 1 }, skirt: { x: 0, y: 14, a: 0, s: 1 },
+    },
+  }),
+  vBody({
+    id: 'wisp', name: 'Wisp', kind: 'inv.floater', tags: ['spirit', 'ghost'], dom: 0.5, w: 2, hover: 22, bottom: 14,
+    pts: [[0, -30], [20, -22], [26, -4], [20, 10], [10, 6], [0, 14], [-10, 6], [-20, 12], [-26, -4], [-20, -22]],
+    shade: [SH('M-28,-2 C-14,8 14,8 28,-2 L28,20 L-28,20 Z', 0.1), HL('M-12,-26 C-4,-32 8,-32 14,-26 C6,-28 -2,-28 -10,-24 Z', 0.22)],
+    sockets: {
+      eye: { x: 10, y: -8, s: 1 }, eyeFar: { x: -10, y: -10, s: 0.9 }, mouth: { x: 2, y: 4, a: 0, s: 1 },
+      arm: { x: 22, y: 0, a: 0, s: 0.9 }, armFar: { x: -20, y: -2, a: 0, s: 0.85 }, legs: null, legsFar: null,
+      shell: { x: 0, y: -30, a: 0, s: 0.8 }, tail: { x: -24, y: 6, a: -30 }, crown: { x: 0, y: -30, a: 0, s: 1 }, feelers: { x: 24, y: -8, a: 0, s: 1 }, skirt: { x: 0, y: 12, a: 0, s: 1 },
+    },
+  }),
+  vBody({
+    id: 'scorpion', name: 'Scorpion', kind: 'inv.crawler', tags: ['scorpion', 'armoured'], dom: 0.55, w: 2,
+    pts: [[30, -14], [40, -6], [38, 6], [26, 12], [6, 14], [-16, 14], [-36, 10], [-46, 2], [-40, -6], [-24, -10], [-6, -12], [14, -14]],
+    shade: torsoShade(-46, 40, -14, 14, { shadeFrac: 0.35 }),
+    extra: [L('M-34,-4 L-34,10 M-22,-8 L-22,12 M-10,-10 L-10,13 M4,-12 L4,13', 'k', 1.2, { op: 0.3 })],
+    sockets: {
+      eye: { x: 24, y: -10, s: 0.85 }, eyeFar: { x: 12, y: -12, s: 0.75 }, mouth: { x: 36, y: 2, a: 0, s: 1 },
+      arm: { x: 32, y: 4, a: 0, s: 1 }, armFar: { x: 22, y: 0, a: 0, s: 0.9 }, legs: { x: 0, y: 12, a: 0, s: 1 }, legsFar: { x: -8, y: 8, a: 0, s: 0.9 },
+      shell: { x: -10, y: -6, a: 0, s: 1 }, tail: { x: -44, y: -4, a: 0 }, crown: { x: 14, y: -14, a: 0, s: 1 }, feelers: { x: 40, y: -4, a: 0, s: 1 }, skirt: { x: -6, y: 14, a: 0, s: 1 },
+    },
+  }),
+  vBody({
+    id: 'spider', name: 'Spider', kind: 'inv.crawler', tags: ['spider'], dom: 0.5, w: 2,
+    pts: [[16, -12], [26, -6], [24, 6], [14, 10], [6, 4], [-4, 0], [-14, 4], [-34, 10], [-46, 0], [-40, -14], [-24, -20], [-10, -12], [2, -10], [10, -14]],
+    shade: [SH('M-46,2 C-34,12 -14,12 -4,4 C4,8 14,10 26,4 L26,16 L-46,16 Z', 0.12), HL('M-34,-14 C-26,-20 -14,-18 -10,-12 L-14,-10 C-18,-14 -26,-14 -32,-10 Z', 0.18)],
+    sockets: {
+      eye: { x: 14, y: -4, s: 1 }, eyeFar: { x: 4, y: -6, s: 0.85 }, mouth: { x: 22, y: 4, a: 0, s: 1 },
+      arm: { x: 18, y: 4, a: 0, s: 0.9 }, armFar: { x: 10, y: 0, a: 0, s: 0.8 }, legs: { x: 2, y: 6, a: 0, s: 1 }, legsFar: { x: -6, y: 2, a: 0, s: 0.9 },
+      shell: { x: -24, y: -10, a: 0, s: 1 }, tail: { x: -46, y: 0, a: 0 }, crown: { x: 8, y: -14, a: 0, s: 1 }, feelers: { x: 24, y: -2, a: 0, s: 1 }, skirt: { x: -12, y: 12, a: 0, s: 1 },
+    },
+  }),
+];
+
+// ---- src/data/parts/invertebrate/face.js ----
+// Invertebrate eyes (on the body, or on stalks rising from it), mouths and feelers.
+
+
+
+function vEye({ id, name, shape, sclera = 'w', iris = [0.8, 0.2, 3.8], irisRole = 'e', pupil = [1.2, 0.5, 2], glint = [2.2, -1.8, 1.3], glint2 = [-1, 1.8, 0.7], lid, before = [], after = [], dom = 0.5, w = 2, tags = [] }) {
+  const prims = [...before];
+  if (shape) prims.push(P(shape, sclera, { sw: 2 }));
+  if (iris) { prims.push(C(iris[0], iris[1], iris[2], irisRole, { ns: true, cl: Boolean(shape) })); prims.push(C(iris[0] + 0.5, iris[1] + 1, iris[2] * 0.72, 'ed', { ns: true, cl: Boolean(shape), op: 0.5 })); }
+  if (pupil) prims.push(C(pupil[0], pupil[1], pupil[2], 'k', { ns: true, cl: Boolean(shape) }));
+  if (glint) prims.push(C(glint[0], glint[1], glint[2], 'w', { ns: true }));
+  if (glint2) prims.push(C(glint2[0], glint2[1], glint2[2], 'w', { ns: true, op: 0.7 }));
+  if (lid) prims.push(L(lid, 'k', 1.8));
+  prims.push(...after);
+  return vPart({ id, slot: 'eyes', name, tags, dom, w, extra: prims });
+}
+const V_OVAL = spline([[0, -6.5], [6, -2], [5.4, 5], [0, 6.8], [-5.4, 5], [-6, -2]]);
+const V_BIG = spline([[0, -8], [7.4, -2.6], [6.8, 6], [0, 8.4], [-6.8, 6], [-7.4, -2.6]]);
+// stalk eyes: the eyeball sits at the tip of a stalk rising from the socket
+const stalkUp = (h) => [...tendril(`M0,4 C0,${-h * 0.4} 2,${-h * 0.8} 4,${-h}`, 4.5), ...[]];
+
+const V_EYES = [
+  vEye({ id: 'stalks', name: 'Eyestalks', tags: ['slug'], w: 3, shape: null, before: stalkUp(18), iris: null, pupil: null, glint: null, glint2: null, after: [C(4, -20, 5, 'w', { sw: 2 }), C(4.8, -19.6, 3, 'e', { ns: true }), C(5.4, -19.4, 1.6, 'k', { ns: true }), C(6.4, -21.4, 1, 'w', { ns: true })] }),
+  vEye({ id: 'bead', name: 'Bead', tags: ['small'], w: 3, shape: spline([[0, -5.2], [5, -1.5], [4.4, 3.8], [0, 5.4], [-4.4, 3.8], [-5, -1.5]]), iris: [0.4, 0, 4.6], irisRole: 'k', pupil: null, glint: [1.9, -1.9, 1.4], glint2: [-1, 1.6, 0.6], lid: null }),
+  vEye({ id: 'big', name: 'Big', tags: ['cute'], w: 3, shape: V_BIG, iris: [0.8, 0.4, 5], pupil: [1.4, 0.8, 2.8], glint: [2.8, -2.4, 1.7], glint2: [-1.4, 2.4, 0.9], lid: 'M-6,-6.5 Q0,-10 6,-6.5' }),
+  vEye({ id: 'glow', name: 'Glowing', tags: ['light'], w: 2, shape: V_OVAL, sclera: 'e', iris: [0.4, 0, 4.4], irisRole: 'el', pupil: [0.8, 0.2, 2], glint: [2.4, -2.4, 1.3], before: [C(0, 0, 9, 'e', { ns: true, op: 0.3 })] }),
+  vEye({ id: 'hollow', name: 'Hollow', tags: ['ghost'], w: 2, shape: spline([[0, -7], [6, -3], [5, 5], [0, 7.5], [-5, 5], [-6, -3]]), sclera: 'k', iris: null, pupil: null, glint: [1.5, -1, 1.5], glint2: null, after: [C(1, 1, 2.2, 'e', { ns: true, op: 0.8 })] }),
+  vEye({ id: 'cluster', name: 'Cluster', tags: ['spider'], w: 2, shape: spline([[0, -5.5], [5.4, -1.8], [4.8, 4.2], [0, 5.8], [-4.8, 4.2], [-5.4, -1.8]]), iris: [0.4, 0, 4.8], irisRole: 'k', pupil: null, glint: [1.9, -2, 1.4], glint2: null, lid: null, after: [C(-7, -6, 2.4, 'k', { sw: 1.2 }), C(-2, -9, 2, 'k', { sw: 1.2 }), C(5, -8, 2.2, 'k', { sw: 1.2 }), C(-6.4, -6.8, 0.7, 'w', { ns: true }), C(-1.4, -9.8, 0.6, 'w', { ns: true }), C(5.6, -8.8, 0.7, 'w', { ns: true })] }),
+  vEye({ id: 'stalked', name: 'Stalked', tags: ['crab'], w: 2, shape: null, before: [...tendril('M0,4 L1,-8', 4)], iris: null, pupil: null, glint: null, glint2: null, after: [C(1, -12, 5, 'w', { sw: 2 }), C(1.8, -11.6, 3, 'k', { ns: true }), C(3, -13.2, 1.1, 'w', { ns: true })] }),
+];
+
+const V_MOUTHS = [
+  NONE('mouth', 0.25, 'v.'),
+  vPart({ id: 'smile', slot: 'mouth', name: 'Smile', tags: ['happy'], dom: 0.5, w: 3, extra: [L('M-7,-1 Q0,5 7,-2', 'k', 2.2)] }),
+  vPart({ id: 'frown', slot: 'mouth', name: 'Frown', tags: ['grumpy'], dom: 0.45, w: 2, extra: [L('M-7,2 Q0,-4 7,2', 'k', 2.2)] }),
+  vPart({ id: 'o', slot: 'mouth', name: 'Gasp', tags: ['surprised'], dom: 0.45, w: 2, extra: [E(0, 1, 4, 5, 'k', { ns: true }), E(0, 2.5, 2.2, 2, 'a', { ns: true })] }),
+  vPart({ id: 'fangs', slot: 'mouth', name: 'Chelicerae', tags: ['spider'], dom: 0.55, w: 2, extra: [P('M-6,-4 C-4,2 -2,6 -1,10 C-4,6 -8,2 -9,-3 Z', 'pd', { sw: 1.4 }), P('M6,-4 C4,2 2,6 1,10 C4,6 8,2 9,-3 Z', 'pd', { sw: 1.4 }), P('M-1,8 L0,13 L1,8 Z', 'w', { sw: 1 })] }),
+  vPart({ id: 'beak', slot: 'mouth', name: 'Beak', tags: ['octopus'], dom: 0.5, w: 2, extra: [P('M-5,-3 C-2,-6 2,-6 5,-3 L0,5 Z', 'k', { ns: true }), P('M-3,-2 C-1,-4 1,-4 3,-2 L0,1 Z', 'a', { ns: true, op: 0.6 })] }),
+  vPart({ id: 'grin', slot: 'mouth', name: 'Grin', tags: ['teeth'], dom: 0.5, w: 2, extra: [P('M-9,-2 Q0,9 9,-2 Z', 'k', { ns: true }), P('M-6,-1 L6,-1 L5,2 L-5,2 Z', 'w', { ns: true }), L('M-2,-1 L-2,2 M2,-1 L2,2', 'k', 0.8, { op: 0.5 })] }),
+  vPart({ id: 'wavy', slot: 'mouth', name: 'Wavy', tags: ['ghost'], dom: 0.45, w: 2, extra: [L('M-8,0 Q-4,-4 0,0 T8,0', 'k', 2.2)] }),
+];
+
+const V_FEELERS = [
+  NONE('feelers', 0.3, 'v.'),
+  vPart({ id: 'slug', slot: 'feelers', name: 'Lower tentacles', tags: ['slug'], dom: 0.5, w: 3, extra: [...tendril('M0,2 C4,2 8,4 10,8', 3.4), ...tendril('M-2,4 C0,6 2,9 2,12', 3)] }),
+  vPart({ id: 'antennae', slot: 'feelers', name: 'Antennae', tags: ['thin'], dom: 0.5, w: 2, extra: [...tendril('M-2,-2 C4,-12 10,-18 20,-22', 2.2), ...tendril('M-4,0 C0,-12 4,-20 10,-28', 2)] }),
+  vPart({ id: 'whiskers', slot: 'feelers', name: 'Whiskers', tags: ['sensory'], dom: 0.45, w: 2, extra: [L('M0,-2 C6,-4 12,-4 18,-6 M0,0 C6,0 12,1 18,3 M0,2 C4,6 8,9 12,13', 'k', 1.2, { op: 0.5 })] }),
+  vPart({ id: 'hairs', slot: 'feelers', name: 'Sensory hairs', tags: ['fuzzy'], dom: 0.45, w: 2, extra: [L('M-2,-6 L2,-12 M2,-5 L7,-10 M5,-2 L11,-5 M6,2 L12,2 M5,6 L10,10 M2,8 L4,14', 'k', 1.4, { op: 0.5 })] }),
+  vPart({ id: 'frills', slot: 'feelers', name: 'Frills', tags: ['gills'], dom: 0.45, w: 2, extra: [S([[-2, -8], [6, -12], [12, -8, 0.3], [6, -4], [10, 0, 0.3], [4, 2], [8, 8, 0.3], [2, 8], [-2, 4]], 'a')] }),
+  vPart({ id: 'flaps', slot: 'feelers', name: 'Ear flaps', tags: ['fins'], dom: 0.45, w: 2, extra: [S([[-2, -10], [8, -16], [16, -10], [12, -2], [4, 0]], 'p', { sw: 2 }), S([[0, -8], [6, -12], [12, -9], [10, -4], [4, -3]], 's', { ns: true, cl: true, op: 0.5 })] }),
+  vPart({ id: 'threads', slot: 'feelers', name: 'Threads', tags: ['thin'], dom: 0.4, w: 2, extra: [L('M0,-2 C10,-6 16,-2 26,-8 M0,0 C10,2 18,-2 28,2 M0,2 C8,8 16,6 24,12', 'pd', 1.6)] }),
+];
+
+// ---- src/data/parts/invertebrate/limbs.js ----
+// Invertebrate arms (paired: arm / armFar), legs (one part draws a whole side, placed at legs / legsFar)
+// and tails (from the rear socket).
+
+
+
+const V_ARMS = [
+  NONE('arms', 0.3, 'v.'),
+  vPart({ id: 'claws', slot: 'arms', name: 'Pincers', tags: ['crab'], dom: 0.6, w: 3, extra: [...tendril('M0,0 L8,-6 L16,-2', 5), S([[14, -8], [24, -14], [34, -10, 0.3], [30, -2], [22, 2], [14, 2]], 'p'), S([[26, -4], [34, -8], [36, -2, 0.3], [28, 4], [22, 4]], 'p'), L('M22,-2 L30,-4', 'k', 1.6), HL('M18,-10 C22,-12 28,-12 30,-8 L26,-6 C22,-8 20,-8 18,-6 Z', 0.2)] }),
+  vPart({ id: 'tentacles', slot: 'arms', name: 'Tentacles', tags: ['octopus'], dom: 0.55, w: 3, extra: [...tendril('M0,0 C8,4 14,10 12,18 C10,24 4,22 6,18', 5.5), L('M4,6 L6,8 M8,10 L10,12 M10,15 L12,16', 'w', 1.3, { op: 0.6 }), ...tendril('M-2,2 C4,8 4,16 -2,22 C-6,26 -10,22 -8,18', 4.5), L('M0,8 L2,10 M-1,14 L1,16', 'w', 1.2, { op: 0.6 })] }),
+  vPart({ id: 'stubs', slot: 'arms', name: 'Stubs', tags: ['small'], dom: 0.4, w: 2, extra: [S([[-3, -4], [6, -5], [10, 0], [8, 6], [0, 6], [-4, 2]], 'p'), HL('M-1,-3 C3,-4 7,-3 8,-1 L4,0 C2,-1 0,-1 -1,0 Z', 0.2)] }),
+  vPart({ id: 'pedipalps', slot: 'arms', name: 'Pedipalps', tags: ['scorpion'], dom: 0.55, w: 2, extra: [...tendril('M0,0 L10,-4 L18,2', 4), S([[16, -3], [22, -8], [28, -5, 0.3], [26, 0], [20, 2]], 'p'), S([[20, 1], [26, 3], [28, 0], [24, -1]], 'p'), L('M20,0 L25,-1', 'k', 1.4)] }),
+  vPart({ id: 'wisps', slot: 'arms', name: 'Wisp hands', tags: ['ghost'], dom: 0.45, w: 2, extra: [S([[4, -6], [12, -10], [18, -6], [16, 2], [10, 4], [4, 2]], 'p', { op: 0.85 }), C(0, -2, 3, 'p', { ns: true, op: 0.6 }), C(-5, 0, 2, 'p', { ns: true, op: 0.4 })] }),
+  vPart({ id: 'feelers', slot: 'arms', name: 'Long feelers', tags: ['thin'], dom: 0.45, w: 2, extra: [...tendril('M0,0 C10,-6 18,-4 28,-10', 2.6), ...tendril('M-2,2 C8,4 16,10 24,8', 2.4)] }),
+  vPart({ id: 'paddles', slot: 'arms', name: 'Paddles', tags: ['swimmer'], dom: 0.45, w: 2, extra: [S([[0, -4], [8, -6], [16, 0], [14, 10], [6, 12], [0, 6]], 'p'), L('M4,-2 L10,6 M2,2 L8,8', 'k', 1, { op: 0.3 })] }),
+];
+
+/** Several jointed legs on one side, from x offsets. Each leg: hip at (x,0), knee, foot. */
+function legSet(id, name, legs, w, tags, extra = []) {
+  const prims = [];
+  for (const [x, kx, ky, fx, fy] of legs) prims.push(...tendril(`M${x},0 L${x + kx},${ky} L${x + fx},${fy}`, w));
+  return vPart({ id, slot: 'legs', name, tags, dom: 0.5, w: 2, extra: [...prims, ...extra] });
+}
+
+const V_LEGS = [
+  NONE('legs', 0.3, 'v.'),
+  legSet('crab', 'Crab legs', [[8, 4, -8, 10, 12], [-2, 0, -9, 2, 13], [-12, -4, -8, -8, 12], [-22, -8, -6, -18, 10]], 3.4, ['crab']),
+  legSet('spider', 'Spider legs', [[6, 12, -14, 22, 10], [0, 4, -18, 8, 12], [-6, -8, -18, -12, 12], [-12, -20, -14, -32, 10]], 2.6, ['spider'], [L('M14,-10 L16,-8 M4,-14 L6,-12 M-10,-14 L-8,-12 M-24,-10 L-22,-8', 'k', 1, { op: 0.4 })]),
+  legSet('scorpion', 'Scorpion legs', [[8, 6, -8, 12, 10], [0, 2, -10, 4, 12], [-8, -4, -10, -6, 12], [-16, -10, -8, -16, 10]], 3, ['scorpion']),
+  vPart({ id: 'stubby', slot: 'legs', name: 'Stubby legs', tags: ['small'], dom: 0.45, w: 2, extra: [...[6, -4, -14].flatMap((x) => [S([[x - 4, -2], [x + 4, -2], [x + 5, 8], [x + 2, 11], [x - 3, 11], [x - 5, 8]], 'p')])] }),
+  vPart({ id: 'tubefeet', slot: 'legs', name: 'Tube feet', tags: ['starfish'], dom: 0.4, w: 2, extra: [...[10, 4, -2, -8, -14, -20].flatMap((x) => [...tendril(`M${x},0 L${x - 1},8`, 2.6), C(x - 1, 9, 2, 'a', { sw: 1 })])] }),
+  legSet('spindly', 'Spindly legs', [[6, 8, -18, 10, 14], [-4, 0, -20, -2, 14], [-14, -8, -18, -14, 14]], 2, ['thin']),
+  legSet('jointed', 'Jointed legs', [[8, 6, -10, 10, 14], [-2, 0, -12, 0, 14], [-12, -6, -10, -10, 14]], 2.6, ['insect']),
+];
+
+const V_TAILS = [
+  NONE('tail', 0.3, 'v.'),
+  vPart({ id: 'slugtip', slot: 'tail', name: 'Tail tip', tags: ['slug'], dom: 0.45, w: 3, shapes: [[[2, -6], [-8, -8], [-20, -4], [-30, 2, 'c'], [-20, 6], [-8, 8], [2, 6]]], extra: [SH('M-30,2 C-20,8 -8,10 2,8 L2,14 L-30,14 Z', 0.12)] }),
+  vPart({ id: 'stinger', slot: 'tail', name: 'Stinger tail', tags: ['scorpion'], dom: 0.6, w: 2, shapes: [tube([[0, 0], [-10, -6], [-16, -18], [-12, -32], [0, -40], [10, -38]], 12, 6)], extra: [L('M-8,-8 L-4,-4 M-14,-16 L-10,-14 M-14,-26 L-10,-26 M-6,-36 L-4,-32', 'k', 1.2, { op: 0.3 }), C(12, -38, 5, 'p', { sw: 2 }), P('M15,-36 L24,-30 L14,-33 Z', 'k', { sw: 1 }), C(12, -38, 8, 'a', { ns: true, op: 0.25 })] }),
+  vPart({ id: 'wisp', slot: 'tail', name: 'Ghost trail', tags: ['ghost'], dom: 0.5, w: 2, shapes: [[[2, -8], [-10, -10], [-22, -4], [-34, 4], [-46, 2, 0.2], [-36, 10], [-24, 14, 0.2], [-14, 10], [-4, 12]]], extra: [SH('M-46,4 C-30,12 -14,14 2,10 L2,20 L-46,20 Z', 0.1)] }),
+  vPart({ id: 'tentacle', slot: 'tail', name: 'Trailing tentacle', tags: ['octopus'], dom: 0.5, w: 2, extra: [...tendril('M0,0 C-12,2 -22,10 -30,20 C-36,28 -34,36 -26,34', 5), L('M-16,8 L-14,10 M-24,16 L-22,18 M-30,26 L-28,28', 'w', 1.2, { op: 0.6 })] }),
+  vPart({ id: 'sting', slot: 'tail', name: 'Sting', tags: ['small'], dom: 0.45, w: 2, extra: [P('M2,-4 L-14,-1 L2,4 Z', 'k', { sw: 1.6 }), HL('M0,-2 L-8,-1 L0,1 Z', 0.3)] }),
+  vPart({ id: 'streamer', slot: 'tail', name: 'Streamers', tags: ['ribbons'], dom: 0.45, w: 2, extra: [L('M0,-4 C-10,-8 -20,-4 -30,-10 C-36,-14 -40,-10 -46,-14', 'pd', 3), L('M0,2 C-10,2 -18,8 -28,6 C-34,5 -38,10 -44,8', 'p', 3), L('M0,6 C-8,12 -16,10 -24,16', 'pl', 2.4)] }),
+  vPart({ id: 'coil', slot: 'tail', name: 'Coil', tags: ['snail'], dom: 0.45, w: 2, shapes: [tube([[0, 0], [-12, 2], [-22, -4], [-22, -14], [-14, -18], [-8, -12], [-12, -8]], 10, 3)], extra: [SH('M-26,-6 C-22,2 -12,6 2,6 L2,12 L-26,12 Z', 0.12)] }),
+];
+
+// ---- src/data/parts/invertebrate/shells.js ----
+// Invertebrate shells (worn on the back, drawn in front of the body from the shell socket) and crowns
+// (spirit flames, horns and growths on top, drawn behind the body).
+
+
+
+const V_SHELLS = [
+  NONE('shell', 0.3, 'v.'),
+  vPart({ id: 'spiral', slot: 'shell', name: 'Spiral shell', tags: ['snail'], dom: 0.6, w: 3, shapes: [[[16, 2], [12, -14], [0, -26], [-16, -26], [-28, -14], [-28, 2], [-18, 12], [-2, 14]]], extra: [L('M14,-4 C6,-20 -14,-24 -22,-10 C-26,0 -18,8 -8,6 C0,4 2,-4 -4,-8 C-8,-10 -12,-6 -10,-2', 'k', 2, { op: 0.45 }), HL('M2,-22 C-8,-24 -18,-18 -20,-8 L-14,-6 C-12,-14 -4,-18 4,-18 Z', 0.22), SH('M-30,4 C-18,14 0,16 16,6 L16,20 L-30,20 Z', 0.14)] }),
+  vPart({ id: 'cone', slot: 'shell', name: 'Cone shell', tags: ['limpet'], dom: 0.5, w: 2, shapes: [[[18, 6], [8, -8], [-4, -24, 'c'], [-16, -8], [-26, 6]]], extra: [L('M-4,-22 L-2,4 M-4,-22 L-12,4 M-4,-22 L8,4', 'k', 1.2, { op: 0.3 }), HL('M-6,-20 L-2,-6 L-8,-2 L-12,-6 Z', 0.22)] }),
+  vPart({ id: 'spiky', slot: 'shell', name: 'Urchin spines', tags: ['spiky'], dom: 0.5, w: 2, extra: [P('M-24,4 L-30,-14 L-18,-2 Z M-12,-4 L-14,-24 L-4,-6 Z M2,-6 L6,-26 L10,-6 Z M14,-2 L24,-18 L20,0 Z M-4,-2 L-2,-16 L4,-4 Z', 'pd', { sw: 1.4 }), S([[-26, 6], [-14, -6], [4, -8], [20, 2], [16, 10], [-14, 12]], 'p'), HL('M-14,-4 C-6,-8 6,-8 14,-2 L10,2 C4,-2 -4,-2 -10,2 Z', 0.2)] }),
+  vPart({ id: 'hermit', slot: 'shell', name: 'Hermit shell', tags: ['borrowed'], dom: 0.55, w: 2, shapes: [[[20, 6], [22, -8], [12, -22], [-8, -26], [-24, -16], [-26, 0], [-14, 12]]], extra: [L('M18,-6 C10,-18 -8,-20 -18,-10 C-22,-4 -16,4 -6,2 C2,0 2,-8 -4,-10', 'k', 1.8, { op: 0.4 }), L('M-8,-24 L-6,-30 M2,-24 L6,-30 M10,-18 L16,-22', 'k', 1.2, { op: 0.3 }), HL('M8,-20 C0,-24 -12,-20 -18,-12 L-12,-8 C-8,-14 0,-16 8,-16 Z', 0.2)] }),
+  vPart({ id: 'plates', slot: 'shell', name: 'Armour plates', tags: ['hard'], dom: 0.5, w: 2, shapes: [[[22, 6], [16, -8], [0, -14], [-16, -12], [-26, -2], [-24, 8]]], extra: [L('M10,-10 C8,-2 8,2 12,6 M-4,-13 C-6,-4 -6,2 -2,6 M-18,-10 C-20,-2 -20,4 -16,8', 'k', 1.4, { op: 0.4 }), HL('M8,-10 C0,-12 -10,-10 -16,-6 L-14,-2 C-8,-6 0,-8 8,-6 Z', 0.2)] }),
+  vPart({ id: 'barnacles', slot: 'shell', name: 'Barnacles', tags: ['crusty'], dom: 0.45, w: 2, extra: [...[[-14, -2, 6], [0, -8, 7], [12, -2, 5], [-4, 4, 4]].flatMap(([x, y, r]) => [P(`M${x - r},${y + r * 0.6} L${x - r * 0.5},${y - r} L${x + r * 0.5},${y - r} L${x + r},${y + r * 0.6} Z`, 'p', { sw: 1.6 }), E(x, y - r, r * 0.5, r * 0.25, 'k', { ns: true, op: 0.5 })])] }),
+  vPart({ id: 'geode', slot: 'shell', name: 'Geode', tags: ['crystal'], dom: 0.45, w: 1, extra: [P('M-22,6 L-26,-8 L-16,-20 L-8,-6 L-10,6 Z', 'pd'), P('M-4,6 L-10,-10 L2,-30 L14,-12 L10,6 Z', 'p'), P('M14,6 L12,-4 L22,-16 L30,-4 L26,6 Z', 'pl'), HL('M-6,-8 L2,-24 L4,-22 L-2,-6 Z M14,-6 L22,-14 L24,-12 L18,-4 Z', 0.35)] }),
+];
+
+const V_CROWNS = [
+  NONE('crown', 0.3, 'v.'),
+  vPart({ id: 'flame', slot: 'crown', name: 'Spirit flame', tags: ['ghost', 'fire'], dom: 0.55, w: 3, shapes: [[[-8, 4], [-10, -8], [-4, -20, 0.2], [0, -8], [4, -30, 0.2], [6, -12], [12, -22, 0.2], [10, -4], [10, 4]]], extra: [S([[-4, 2], [-4, -8], [0, -16, 0.2], [2, -6], [6, -12, 0.2], [6, 2]], 's', { ns: true, cl: true }), HL('M0,-4 C0,-10 2,-14 4,-20 L6,-20 C4,-14 4,-10 4,-4 Z', 0.3)] }),
+  vPart({ id: 'horns', slot: 'crown', name: 'Horns', tags: ['devil'], dom: 0.5, w: 2, extra: [S([[-14, 4], [-16, -6], [-12, -18, 'c'], [-6, -8], [-4, 4]], 'pd'), S([[4, 4], [6, -8], [12, -18, 'c'], [16, -6], [14, 4]], 'p'), HL('M8,-6 L12,-14 L12,-8 L10,-2 Z', 0.25)] }),
+  vPart({ id: 'spikes', slot: 'crown', name: 'Spikes', tags: ['spiky'], dom: 0.5, w: 2, shapes: [[[-16, 4], [-16, -4], [-11, -14, 'c'], [-6, -4], [-1, -18, 'c'], [4, -4], [9, -14, 'c'], [12, -4], [14, 4]]], extra: [HL('M-3,-14 L-1,-6 L1,-14 Z', 0.25)] }),
+  vPart({ id: 'tuft', slot: 'crown', name: 'Tentacle tuft', tags: ['octopus'], dom: 0.45, w: 2, extra: [L('M-6,2 C-10,-6 -12,-12 -8,-18 M0,2 C0,-8 -2,-14 2,-20 M6,2 C10,-6 12,-12 8,-18', 'k', 5), L('M-6,2 C-10,-6 -12,-12 -8,-18 M0,2 C0,-8 -2,-14 2,-20 M6,2 C10,-6 12,-12 8,-18', 'p', 2.4)] }),
+  vPart({ id: 'crystal', slot: 'crown', name: 'Crystal', tags: ['gem'], dom: 0.45, w: 1, extra: [P('M-6,4 L-8,-10 L0,-26 L8,-10 L6,4 Z', 'pl'), P('M-14,4 L-16,-4 L-10,-14 L-4,-6 L-6,4 Z', 'p'), HL('M-4,-8 L0,-22 L2,-20 L-1,-8 Z', 0.4)] }),
+  vPart({ id: 'bubble', slot: 'crown', name: 'Bubble', tags: ['water'], dom: 0.4, w: 2, extra: [C(0, -10, 12, 'w', { ns: true, op: 0.35 }), C(0, -10, 12, 'none', { sw: 2 }), C(-4, -14, 3, 'w', { ns: true, op: 0.8 })] }),
+  vPart({ id: 'coral', slot: 'crown', name: 'Coral', tags: ['reef'], dom: 0.45, w: 1, extra: [L('M0,4 L0,-8 M0,-8 L-8,-18 M0,-8 L8,-16 M-8,-18 L-14,-24 M-8,-18 L-6,-28 M8,-16 L14,-22 M8,-16 L10,-26', 'k', 6), L('M0,4 L0,-8 M0,-8 L-8,-18 M0,-8 L8,-16 M-8,-18 L-14,-24 M-8,-18 L-6,-28 M8,-16 L14,-22 M8,-16 L10,-26', 'p', 3.2)] }),
+];
+
+// ---- src/data/parts/invertebrate/fx.js ----
+// Invertebrate patterns (clipped to the body, 100 x 60 frame), glows (drawn behind the body and
+// stretched onto its box) and skirts (hanging from the underside, drawn behind the body).
+
+
+
+const V_PATTERNS = [
+  NONE('pattern', 0.3, 'v.'),
+  vPart({ id: 'spots', slot: 'pattern', name: 'Spots', tags: ['spotted'], dom: 0.5, w: 3, extra: [...[[-30, -12, 5], [-10, -22, 4], [10, -14, 5.5], [30, -20, 4], [-20, 6, 4], [4, 4, 3.5], [24, 4, 4.5], [-38, 8, 3]].map(([x, y, r]) => ({ t: 'ellipse', cx: x, cy: y, rx: r * 1.1, ry: r * 0.9, f: 'a', ns: true }))] }),
+  vPart({ id: 'stripes', slot: 'pattern', name: 'Stripes', tags: ['striped'], dom: 0.5, w: 2, extra: [S([[-32, -40], [-20, -40], [-22, 40], [-34, 40]], 'a', { ns: true }), S([[-6, -40], [6, -40], [4, 40], [-8, 40]], 'a', { ns: true }), S([[20, -40], [32, -40], [30, 40], [18, 40]], 'a', { ns: true })] }),
+  vPart({ id: 'mottled', slot: 'pattern', name: 'Mottled', tags: ['texture'], dom: 0.45, w: 2, extra: [S([[-40, -20], [-24, -28], [-14, -14], [-26, -4], [-44, -8]], 'a', { ns: true, op: 0.6 }), S([[-6, -26], [14, -30], [24, -16], [10, -6], [-8, -12]], 'a', { ns: true, op: 0.6 }), S([[-18, 4], [0, 0], [8, 14], [-6, 22], [-22, 14]], 'a', { ns: true, op: 0.6 }), S([[16, 2], [34, -4], [44, 10], [30, 20], [16, 14]], 'a', { ns: true, op: 0.6 })] }),
+  vPart({ id: 'swirl', slot: 'pattern', name: 'Swirl', tags: ['spiral'], dom: 0.45, w: 2, extra: [L('M-10,0 C-10,-14 6,-18 14,-8 C20,0 12,12 2,10 C-6,8 -6,-2 0,-4 C4,-6 8,-2 6,2', 'a', 4), L('M-36,-8 C-30,-18 -18,-16 -18,-8 C-18,-2 -26,0 -28,-4', 'a', 3), L('M24,10 C28,2 38,4 38,10 C38,14 32,16 30,12', 'a', 3)] }),
+  vPart({ id: 'dots', slot: 'pattern', name: 'Light dots', tags: ['light'], dom: 0.45, w: 2, extra: [...[[-32, -8], [-16, -18], [0, -10], [16, -18], [30, -8], [-24, 8], [-6, 12], [10, 8], [26, 12]].flatMap(([x, y]) => [{ t: 'circle', cx: x, cy: y, r: 4.5, f: 'a', ns: true, op: 0.35 }, { t: 'circle', cx: x, cy: y, r: 2, f: 'w', ns: true }])] }),
+  vPart({ id: 'rings', slot: 'pattern', name: 'Rings', tags: ['ringed'], dom: 0.45, w: 2, extra: [...[[-26, -10, 8], [2, -16, 9], [28, -6, 7], [-10, 10, 7], [18, 12, 6]].flatMap(([x, y, r]) => [{ t: 'circle', cx: x, cy: y, r, f: 'a', ns: true }, { t: 'circle', cx: x, cy: y, r: r * 0.55, f: 'p', ns: true }])] }),
+  vPart({ id: 'gradient', slot: 'pattern', name: 'Dark back', tags: ['gradient'], dom: 0.5, w: 2, extra: [S([[-54, -40], [54, -40], [54, -12], [26, 0], [-8, 2], [-36, -2], [-56, -12]], 'a', { ns: true }), S([[-46, -40], [46, -40], [46, -26], [22, -16], [-6, -14], [-30, -18], [-48, -26]], 'k', { ns: true, op: 0.12 })] }),
+];
+
+const V_GLOWS = [
+  NONE('glow', 0.3, 'v.'),
+  vPart({ id: 'aura', slot: 'glow', name: 'Aura', tags: ['light'], dom: 0.5, w: 3, extra: [E(0, 0, 60, 38, 'a', { ns: true, op: 0.18 }), E(0, 0, 54, 33, 'a', { ns: true, op: 0.18 })] }),
+  vPart({ id: 'sparkles', slot: 'glow', name: 'Sparkles', tags: ['fairy'], dom: 0.45, w: 2, extra: [...[[-58, -22], [-50, 14], [56, -18], [58, 16], [-10, -42], [22, -40], [-30, 40], [30, 38]].flatMap(([x, y]) => [P(`M${x},${y - 5} L${x + 1.5},${y - 1.5} L${x + 5},${y} L${x + 1.5},${y + 1.5} L${x},${y + 5} L${x - 1.5},${y + 1.5} L${x - 5},${y} L${x - 1.5},${y - 1.5} Z`, 'w', { ns: true, op: 0.9 }), C(x, y, 2, 'a', { ns: true, op: 0.6 })])] }),
+  vPart({ id: 'mist', slot: 'glow', name: 'Mist', tags: ['ghost'], dom: 0.45, w: 2, extra: [E(-20, 30, 22, 9, 'a', { ns: true, op: 0.3 }), E(14, 34, 26, 10, 'a', { ns: true, op: 0.25 }), E(-42, 18, 14, 7, 'a', { ns: true, op: 0.22 }), E(46, 22, 14, 7, 'a', { ns: true, op: 0.22 })] }),
+  vPart({ id: 'embers', slot: 'glow', name: 'Embers', tags: ['fire'], dom: 0.45, w: 2, extra: [...[[-56, -10], [-48, -30], [-20, -44], [8, -46], [36, -40], [56, -16], [50, 12], [-54, 12]].flatMap(([x, y], i) => [C(x, y, 3 + (i % 3), 'a', { ns: true, op: 0.8 }), C(x, y, 1.4, 'w', { ns: true, op: 0.8 })])] }),
+  vPart({ id: 'bubbles', slot: 'glow', name: 'Bubbles', tags: ['water'], dom: 0.45, w: 2, extra: [...[[-56, -20, 5], [-50, -38, 3], [50, -30, 6], [58, -8, 3.5], [-6, -46, 4], [30, -46, 3], [-58, 10, 4]].flatMap(([x, y, r]) => [C(x, y, r, 'w', { ns: true, op: 0.3 }), C(x, y, r, 'none', { sw: 1.6 }), C(x - r * 0.35, y - r * 0.35, r * 0.3, 'w', { ns: true, op: 0.9 })])] }),
+  vPart({ id: 'motes', slot: 'glow', name: 'Motes', tags: ['psychic'], dom: 0.45, w: 2, extra: [...[[-60, -4], [-46, -34], [-12, -48], [26, -46], [54, -26], [60, 8], [-38, 34], [36, 36]].flatMap(([x, y]) => [C(x, y, 6, 'a', { ns: true, op: 0.25 }), C(x, y, 2.6, 'a', { ns: true, op: 0.9 })])] }),
+  vPart({ id: 'static', slot: 'glow', name: 'Static', tags: ['electric'], dom: 0.45, w: 1, extra: [L('M-58,-20 L-50,-14 L-56,-6 L-46,0 M52,-24 L46,-16 L54,-10 L46,-2 M-16,-48 L-10,-42 L-18,-38 L-10,-32 M24,-46 L30,-40 L22,-36 L30,-30', 'a', 2.6), L('M-58,-20 L-50,-14 L-56,-6 L-46,0 M52,-24 L46,-16 L54,-10 L46,-2 M-16,-48 L-10,-42 L-18,-38 L-10,-32 M24,-46 L30,-40 L22,-36 L30,-30', 'w', 1, { op: 0.8 })] }),
+];
+
+/** Hanging strokes under the body: n tendrils across the width with a wave. */
+function hang(n, len, spread, w, wave = 6) {
+  let d = '';
+  for (let i = 0; i < n; i++) {
+    const x = -spread / 2 + (spread * i) / Math.max(1, n - 1);
+    const s = i % 2 ? 1 : -1;
+    d += `M${x},0 C${x + wave * s},${len * 0.35} ${x - wave * s},${len * 0.7} ${x + wave * s * 0.5},${len} `;
+  }
+  return [L(d.trim(), 'k', w + 2.6), L(d.trim(), 'p', w)];
+}
+
+const V_SKIRTS = [
+  NONE('skirt', 0.3, 'v.'),
+  vPart({ id: 'frills', slot: 'skirt', name: 'Frills', tags: ['jelly'], dom: 0.5, w: 3, shapes: [[[-30, -4], [30, -4], [30, 4], [24, 12, 0.4], [18, 4], [12, 12, 0.4], [6, 4], [0, 12, 0.4], [-6, 4], [-12, 12, 0.4], [-18, 4], [-24, 12, 0.4], [-30, 4]]], extra: [S([[-26, -2], [26, -2], [26, 2], [-26, 2]], 's', { ns: true, cl: true, op: 0.4 })] }),
+  vPart({ id: 'tentacles', slot: 'skirt', name: 'Tentacles', tags: ['jelly', 'long'], dom: 0.55, w: 2, extra: hang(6, 44, 44, 2.6) }),
+  vPart({ id: 'hem', slot: 'skirt', name: 'Ghost hem', tags: ['ghost'], dom: 0.5, w: 2, shapes: [[[-28, -6], [28, -6], [28, 2], [20, 14, 0.3], [12, 4], [4, 16, 0.3], [-4, 4], [-12, 16, 0.3], [-20, 4], [-28, 2]]], extra: [SH('M-30,-2 L30,-2 L30,6 L-30,6 Z', 0.1)] }),
+  vPart({ id: 'fringe', slot: 'skirt', name: 'Foot fringe', tags: ['slug'], dom: 0.45, w: 3, shapes: [[[-30, -4], [30, -4], [30, 1], [24, 4], [16, 1.5], [8, 4], [0, 1.5], [-8, 4], [-16, 1.5], [-24, 4], [-30, 1]]], extra: [] }),
+  vPart({ id: 'tassels', slot: 'skirt', name: 'Tassels', tags: ['decor'], dom: 0.45, w: 2, extra: [...hang(5, 26, 40, 3.2, 3), ...[[-20, 27], [-10, 27], [0, 27], [10, 27], [20, 27]].map(([x, y]) => C(x, y, 3.2, 'a', { sw: 1.4 }))] }),
+  vPart({ id: 'roots', slot: 'skirt', name: 'Roots', tags: ['grass'], dom: 0.45, w: 2, extra: [...hang(4, 30, 36, 2.2, 8), L('M-12,16 L-18,22 M6,14 L12,20 M-2,22 L2,28', 'k', 4.6), L('M-12,16 L-18,22 M6,14 L12,20 M-2,22 L2,28', 'pd', 2)] }),
+  vPart({ id: 'ribbons', slot: 'skirt', name: 'Ribbons', tags: ['fancy'], dom: 0.45, w: 1, extra: [...[[-18, 1], [0, -1], [18, 1]].flatMap(([x, s]) => [S([[x - 4, 0], [x + 4, 0], [x + 6 * s, 14], [x - 2 * s, 28], [x + 3 * s, 40, 0.3], [x - 5 * s, 30], [x - 8 * s, 14]], 'p'), S([[x - 2, 2], [x + 2, 2], [x + 3 * s, 14], [x - 1 * s, 26], [x - 4 * s, 14]], 's', { ns: true, cl: true, op: 0.5 })])] }),
+];
+
+// ---- src/data/parts/invertebrate/index.js ----
+// The invertebrate library, one list per rig slot.
+
+
+
+
+
+
+const INVERTEBRATE_PARTS = {
+  body: V_BODIES, eyes: V_EYES, mouth: V_MOUTHS, arms: V_ARMS, legs: V_LEGS, shell: V_SHELLS, tail: V_TAILS,
+  crown: V_CROWNS, feelers: V_FEELERS, pattern: V_PATTERNS, glow: V_GLOWS, skirt: V_SKIRTS,
+};
+
 // ---- src/data/parts/index.js ----
 // Part registry. Part ids are stable forever: a saved creature must decode the
 // same way after the library grows, so never rename or reuse an id.
 //
 // Parts are grouped by rig, then slot. A part fits any body of its own rig
 // unless it lists the body kinds it accepts in `fit`.
+
 
 
 
@@ -3961,6 +4295,7 @@ const RIG_PARTS = {
   fish: FISH_PARTS,
   bird: BIRD_PARTS,
   insect: INSECT_PARTS,
+  invertebrate: INVERTEBRATE_PARTS,
 };
 
 const PARTS = new Map();
@@ -4085,9 +4420,9 @@ const SPECIES = [
     desc: 'Headbutts boulders to keep its horns sharp. Loyal to whoever beats it fairly.',
   },
   {
-    id: 'slugmire', name: 'Slugmire', nameParts: ['Slug', 'mire'], clade: 'invertebrate', types: ['Poison'], tier: 'common', bst: 405,
+    id: 'slugmire', name: 'Slugmire', nameParts: ['Slug', 'mire'], clade: 'invertebrate', rig: 'invertebrate', types: ['Poison'], tier: 'common', bst: 405,
     stats: { hp: 0.19, atk: 0.14, def: 0.15, spa: 0.18, spd: 0.2, spe: 0.14 },
-    recipe: { body: 'body.serpent', head: 'head.bulb', eyes: 'eye.slit', mouth: 'mouth.tongue', crown: 'crown.antennae', legs: 'legs.none', arms: 'arms.none', wings: 'wings.none', tail: 'tails.whip', back: ['back.none', 'back.spikes'], pattern: 'pat.spots' },
+    recipe: { body: 'v.body.slug', eyes: 'v.eyes.stalks', mouth: 'v.mouth.smile', arms: 'v.arms.none', legs: 'v.legs.none', shell: ['v.shell.none', 'v.shell.spiral'], tail: 'v.tail.slugtip', crown: 'v.crown.none', feelers: 'v.feelers.slug', pattern: 'v.pattern.spots', glow: ['v.glow.none', 'v.glow.mist'], skirt: 'v.skirt.fringe' },
     palette: { c1: [280, 50, 46], c2: [95, 60, 52], c3: [305, 70, 66], eye: [95, 90, 55] }, vary: { h: 12, s: 8, l: 6 },
     traits: T([0.35, 0.65], [0.4, 0.6], MID, [0.5, 0.8], MID, [0.5, 0.75]),
     learnset: [[1,'venom_prick'],[1,'yowl'],[6,'acid_spit'],[11,'venom_slash'],[16,'slime_coat'],[22,'venom_stab'],[28,'blight'],[34,'sludge_blast'],[40,'sap_drain'],[46,'fissure_burst'],[52,'sludge_hurl']],
@@ -4117,9 +4452,9 @@ const SPECIES = [
     desc: 'Rides thermals for hours without a single flap. Whistles at travellers to show them the way.',
   },
   {
-    id: 'mystril', name: 'Mystril', nameParts: ['Mys', 'tril'], clade: 'invertebrate', types: ['Psychic'], tier: 'uncommon', bst: 430,
+    id: 'mystril', name: 'Mystril', nameParts: ['Mys', 'tril'], clade: 'invertebrate', rig: 'invertebrate', types: ['Psychic'], tier: 'uncommon', bst: 430,
     stats: { hp: 0.14, atk: 0.08, def: 0.13, spa: 0.26, spd: 0.21, spe: 0.18 },
-    recipe: { body: 'body.float', head: 'head.none', eyes: 'eye.big', mouth: 'mouth.smile', crown: ['crown.antennae', 'crown.halo'], legs: 'legs.none', arms: 'arms.none', wings: 'wings.none', tail: 'tails.curl', back: 'back.wisps', pattern: 'pat.spots' },
+    recipe: { body: 'v.body.jelly', eyes: 'v.eyes.big', mouth: 'v.mouth.smile', arms: ['v.arms.none', 'v.arms.wisps'], legs: 'v.legs.none', shell: 'v.shell.none', tail: 'v.tail.none', crown: ['v.crown.bubble', 'v.crown.none'], feelers: 'v.feelers.none', pattern: 'v.pattern.dots', glow: 'v.glow.motes', skirt: 'v.skirt.tentacles' },
     palette: { c1: [320, 60, 68], c2: [270, 50, 62], c3: [48, 90, 62], eye: [200, 70, 50] }, vary: { h: 14, s: 8, l: 6 },
     traits: T([0.35, 0.6], MID, MID, [0.5, 0.8], MID, [0.6, 0.9]),
     learnset: [[1,'mind_jolt'],[1,'lull'],[6,'thought_beam'],[11,'glitter_gust'],[16,'meditate'],[22,'psi_shock'],[28,'quicken'],[34,'mind_crush'],[40,'dazzle'],[46,'blank_mind'],[52,'aura_cannon']],
@@ -4149,10 +4484,11 @@ const SPECIES = [
     desc: 'Mistaken for a boulder until it yawns. Lichen grows on the ones that sit still longest.',
   },
   {
-    id: 'phantoom', name: 'Phantoom', nameParts: ['Phan', 'toom'], clade: 'invertebrate', types: ['Ghost'], tier: 'uncommon', bst: 425,
+    id: 'phantoom', name: 'Phantoom', nameParts: ['Phan', 'toom'], clade: 'invertebrate', rig: 'invertebrate', types: ['Ghost'], tier: 'uncommon', bst: 425,
     stats: { hp: 0.13, atk: 0.1, def: 0.14, spa: 0.24, spd: 0.2, spe: 0.19 },
-    recipe: { body: 'body.float', head: 'head.none', eyes: 'eye.sleepy', mouth: 'mouth.grin', crown: ['crown.none', 'crown.halo'], legs: 'legs.none', arms: 'arms.stub', wings: 'wings.none', tail: 'tail.none', back: 'back.wisps', pattern: 'pattern.none' },
+    recipe: { body: 'v.body.wisp', eyes: 'v.eyes.hollow', mouth: 'v.mouth.wavy', arms: 'v.arms.wisps', legs: 'v.legs.none', shell: 'v.shell.none', tail: 'v.tail.wisp', crown: 'v.crown.flame', feelers: 'v.feelers.none', pattern: 'v.pattern.none', glow: 'v.glow.mist', skirt: 'v.skirt.hem' },
     palette: { c1: [255, 40, 42], c2: [250, 30, 72], c3: [180, 60, 70], eye: [180, 80, 60] }, vary: { h: 12, s: 8, l: 6 },
+    paint: { crown: 4 },
     traits: T([0.35, 0.65], MID, MID, MID, MID, [0.5, 0.8]),
     learnset: [[1,'cold_lick'],[1,'wraith_touch'],[6,'shade_step'],[11,'curse_bolt'],[16,'haunt'],[22,'sneer'],[28,'umbral_orb'],[34,'scheme'],[40,'dread_pulse'],[46,'mind_crush'],[52,'lunar_burst']],
     abilities: ['hover','restless'],
@@ -4280,20 +4616,21 @@ const SPECIES = [
     desc: 'The gem on its brow stores moonlight. Fishers who see one are said to have a lucky season.',
   },
   {
-    id: 'voltcrab', name: 'Voltcrab', nameParts: ['Volt', 'crab'], clade: 'invertebrate', types: ['Electric', 'Steel'], tier: 'uncommon', bst: 440,
+    id: 'voltcrab', name: 'Voltcrab', nameParts: ['Volt', 'crab'], clade: 'invertebrate', rig: 'invertebrate', types: ['Electric', 'Steel'], tier: 'uncommon', bst: 440,
     stats: { hp: 0.16, atk: 0.2, def: 0.24, spa: 0.14, spd: 0.15, spe: 0.11 },
-    recipe: { body: 'body.bulk', head: 'head.helm', eyes: 'eye.dot', mouth: 'mouth.teeth', crown: 'crown.bolts', legs: 'legs.insect', arms: 'arms.pincer', wings: 'wings.none', tail: 'tails.bolt', back: 'back.plates', pattern: 'pat.hex' },
+    recipe: { body: 'v.body.crab', eyes: 'v.eyes.stalked', mouth: 'v.mouth.grin', arms: 'v.arms.claws', legs: 'v.legs.crab', shell: 'v.shell.plates', tail: 'v.tail.none', crown: ['v.crown.spikes', 'v.crown.none'], feelers: ['v.feelers.antennae', 'v.feelers.none'], pattern: 'v.pattern.gradient', glow: ['v.glow.static', 'v.glow.none'], skirt: 'v.skirt.none' },
     palette: { c1: [210, 15, 55], c2: [50, 95, 55], c3: [200, 60, 60], eye: [50, 95, 60] }, vary: { h: 8, s: 6, l: 6 },
+    paint: { glow: 1, crown: 2 },
     traits: T([0.45, 0.75], [0.4, 0.6], [0.4, 0.6], [0.4, 0.7], MID, [0.3, 0.5]),
     learnset: [[1,'iron_claw'],[1,'zap'],[6,'static_net'],[11,'bolt_jab'],[16,'plate_up'],[22,'shock_fist'],[28,'steel_ram'],[34,'voltage'],[40,'chrome_beam'],[46,'live_wire'],[52,'comet_fist']],
     abilities: ['capacitor', 'stonewall'],
     desc: 'Clamps onto power lines to charge overnight. Its pincers weld shut anything they grab.',
   },
   {
-    id: 'nightstalk', name: 'Nightstalk', nameParts: ['Night', 'stalk'], clade: 'invertebrate', types: ['Poison', 'Dark'], tier: 'uncommon', bst: 415,
+    id: 'nightstalk', name: 'Nightstalk', nameParts: ['Night', 'stalk'], clade: 'invertebrate', rig: 'invertebrate', types: ['Poison', 'Dark'], tier: 'uncommon', bst: 415,
     stats: { hp: 0.15, atk: 0.22, def: 0.15, spa: 0.12, spd: 0.14, spe: 0.22 },
-    recipe: { body: 'body.quad', head: 'head.skull', eyes: 'eye.slit', mouth: 'mouth.fangs', crown: 'crown.spikes', legs: 'legs.chunky', arms: 'arms.none', wings: 'wings.none', tail: 'tails.scorpion', back: 'back.spikes', pattern: 'pat.tiger' },
-    palette: { c1: [265, 20, 20], c2: [290, 50, 45], c3: [120, 70, 55], eye: [120, 90, 60] }, vary: { h: 10, s: 8, l: 5 },
+    recipe: { body: 'v.body.scorpion', eyes: 'v.eyes.bead', mouth: 'v.mouth.fangs', arms: 'v.arms.pedipalps', legs: 'v.legs.scorpion', shell: ['v.shell.plates', 'v.shell.none'], tail: 'v.tail.stinger', crown: 'v.crown.none', feelers: 'v.feelers.none', pattern: ['v.pattern.none', 'v.pattern.stripes'], glow: ['v.glow.none', 'v.glow.embers'], skirt: 'v.skirt.none' },
+    palette: { c1: [265, 20, 22], c2: [290, 50, 45], c3: [120, 70, 55], eye: [120, 90, 60] }, vary: { h: 10, s: 8, l: 5 },
     traits: T([0.4, 0.7], MID, [0.5, 0.75], [0.6, 0.9], MID, [0.4, 0.6]),
     learnset: [[1,'venom_prick'],[1,'swipe'],[6,'chomp'],[11,'venom_slash'],[16,'blindside'],[22,'venom_stab'],[28,'dusk_slash'],[34,'crush_bite'],[40,'blight'],[46,'sludge_hurl'],[52,'dread_pulse']],
     abilities: ['venom_barbs', 'swagger'],
@@ -4573,6 +4910,37 @@ const SPECIES = [
     learnset: [[1,'nibble'],[1,'glitter_gust'],[6,'sweet_sip'],[11,'brace'],[16,'swarm_buzz'],[22,'dazzle'],[28,'mend'],[34,'drone'],[40,'doe_eyes'],[46,'lunar_burst'],[52,'roughhouse']],
     abilities: ['lucky_streak','second_wind'],
     desc: 'Counting its spots is said to bring luck. It will not hold still long enough to check.',
+  },
+  {
+    id: 'inkurl', name: 'Inkurl', nameParts: ['Ink', 'url'], clade: 'invertebrate', rig: 'invertebrate', types: ['Water'], tier: 'common', bst: 415,
+    stats: { hp: 0.17, atk: 0.1, def: 0.15, spa: 0.25, spd: 0.17, spe: 0.16 },
+    recipe: { body: 'v.body.octopus', eyes: 'v.eyes.big', mouth: 'v.mouth.beak', arms: 'v.arms.tentacles', legs: 'v.legs.none', shell: 'v.shell.none', tail: ['v.tail.none', 'v.tail.tentacle'], crown: ['v.crown.none', 'v.crown.tuft'], feelers: 'v.feelers.none', pattern: 'v.pattern.rings', glow: ['v.glow.none', 'v.glow.bubbles'], skirt: 'v.skirt.tentacles' },
+    palette: { c1: [345, 55, 52], c2: [20, 60, 82], c3: [345, 40, 30], eye: [50, 90, 55] }, vary: { h: 14, s: 8, l: 6 },
+    traits: T([0.35, 0.65], MID, MID, [0.5, 0.8], MID, [0.6, 0.9]),
+    learnset: [[1,'squirt'],[1,'bump'],[6,'ripple'],[11,'sneer'],[16,'cascade'],[22,'scheme'],[28,'boiling_jet'],[34,'dread_pulse'],[40,'tidal_wave'],[46,'blur'],[52,'geyser']],
+    abilities: ['sponge','loose_joints'],
+    desc: 'Squeezes through any gap wider than its beak. Squirts ink first and asks questions never.',
+  },
+  {
+    id: 'silkspin', name: 'Silkspin', nameParts: ['Silk', 'spin'], clade: 'invertebrate', rig: 'invertebrate', types: ['Dark'], tier: 'common', bst: 400,
+    stats: { hp: 0.14, atk: 0.22, def: 0.14, spa: 0.12, spd: 0.14, spe: 0.24 },
+    recipe: { body: 'v.body.spider', eyes: 'v.eyes.cluster', mouth: 'v.mouth.fangs', arms: 'v.arms.feelers', legs: 'v.legs.spider', shell: 'v.shell.none', tail: ['v.tail.sting', 'v.tail.none'], crown: 'v.crown.none', feelers: ['v.feelers.hairs', 'v.feelers.none'], pattern: ['v.pattern.swirl', 'v.pattern.none'], glow: 'v.glow.none', skirt: 'v.skirt.none' },
+    palette: { c1: [230, 20, 28], c2: [230, 15, 46], c3: [0, 80, 50], eye: [0, 80, 50] }, vary: { h: 10, s: 8, l: 5 },
+    traits: T([0.3, 0.6], MID, [0.5, 0.8], MID, MID, [0.5, 0.8]),
+    learnset: [[1,'swipe'],[1,'web_shot'],[6,'venom_prick'],[11,'cheap_shot'],[16,'blindside'],[22,'needle_volley'],[28,'scheme'],[34,'dusk_slash'],[40,'blood_sip'],[46,'crush_bite'],[52,'sludge_hurl']],
+    abilities: ['menace','venom_barbs'],
+    desc: 'Spins a new web every dusk and signs it. Nobody has worked out the signature.',
+  },
+  {
+    id: 'shellwick', name: 'Shellwick', nameParts: ['Shell', 'wick'], clade: 'invertebrate', rig: 'invertebrate', types: ['Rock', 'Water'], tier: 'common', bst: 425,
+    stats: { hp: 0.18, atk: 0.1, def: 0.26, spa: 0.2, spd: 0.18, spe: 0.08 },
+    recipe: { body: 'v.body.slug', eyes: 'v.eyes.stalks', mouth: 'v.mouth.smile', arms: 'v.arms.none', legs: 'v.legs.none', shell: 'v.shell.spiral', tail: 'v.tail.slugtip', crown: ['v.crown.none', 'v.crown.coral'], feelers: 'v.feelers.slug', pattern: ['v.pattern.none', 'v.pattern.stripes'], glow: 'v.glow.none', skirt: 'v.skirt.fringe' },
+    palette: { c1: [30, 45, 62], c2: [40, 40, 82], c3: [22, 55, 40], eye: [30, 50, 25] }, vary: { h: 10, s: 8, l: 6 },
+    paint: { shell: 4 },
+    traits: T([0.3, 0.6], MID, MID, MID, MID, [0.5, 0.8]),
+    learnset: [[1,'squirt'],[1,'bump'],[6,'stone_toss'],[11,'ripple'],[16,'brace'],[22,'gem_gleam'],[28,'cascade'],[34,'smooth_stone'],[40,'primal_surge'],[46,'tidal_wave'],[52,'shard_spire']],
+    abilities: ['stonewall','damp_coat'],
+    desc: 'Carries its house and never complains about the rent. Seals the door with slime when it rains.',
   },
 ];
 

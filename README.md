@@ -34,10 +34,10 @@ Done so far: mammals (fox, cat, bear, rabbit, deer, wolf, mouse; 85 parts,
 twelve species), reptiles (lizard, croc, turtle, dragon, serpent, chameleon,
 raptor; 85 parts, nine species), fish (round, betta, shark, angler, puffer,
 seahorse, eel; 84 parts, eight species), birds (songbird, owl, hawk, penguin,
-duck, parrot, peacock; 84 parts, eight species) and insects (beetle, bee,
-mantis, dragonfly, ladybug, ant, moth; 84 parts, nine species). Classes lock
-fusion to the same anatomy. Invertebrates and amphibians are next. See
-`DESIGN.md`.
+duck, parrot, peacock; 84 parts, eight species), insects (beetle, bee, mantis,
+dragonfly, ladybug, ant, moth; 84 parts, nine species) and invertebrates
+(slug, crab, jelly, octopus, wisp, scorpion, spider; 84 parts, eight species).
+Classes lock fusion to the same anatomy. Amphibians are next. See `DESIGN.md`.
 
 ## Develop
 
