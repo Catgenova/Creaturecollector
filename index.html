@@ -807,6 +807,48 @@ RIGS.flora = {
   },
 };
 
+RIGS.ooze = {
+  id: 'ooze', name: 'Ooze', prefix: 'o.',
+  slots: ['body', 'core', 'eyes', 'mouth', 'pseudopods', 'drips', 'crown', 'tendrils', 'base', 'inclusions', 'sheen', 'bumps'],
+  names: {
+    body: 'Blob', core: 'Core', eyes: 'Eyes', mouth: 'Mouth', pseudopods: 'Pseudopods', drips: 'Drips',
+    crown: 'Crown', tendrils: 'Tendrils', base: 'Puddle', inclusions: 'Inclusions', sheen: 'Sheen', bumps: 'Bumps',
+  },
+  paint: ['body', 'core', 'pseudopods', 'drips', 'crown', 'tendrils', 'base', 'inclusions', 'sheen', 'bumps'],
+  swappable: ['drips', 'crown', 'tendrils', 'inclusions', 'sheen', 'bumps'],
+  required: ['body', 'core', 'eyes', 'mouth', 'pseudopods', 'base'],
+  linked: [['pseudopods', 'base'], ['core', 'eyes']],
+  ground: ['body', 'base'],
+  clipped: ['inclusions', 'sheen'],
+  tree: {
+    slot: 'body', anim: 'body',
+    behind: [
+      { slot: 'crown', socket: 'crown', anim: 'sway' },
+      { slot: 'tendrils', socket: 'tendrilFar', far: true, scale: 'tail', anim: 'tail' },
+      { slot: 'pseudopods', socket: 'podFar', far: true, scale: 'leg' },
+      { slot: 'base', socket: 'base', scale: 'leg' },
+    ],
+    front: [
+      { slot: 'tendrils', socket: 'tendril', scale: 'tail', anim: 'tail' },
+      { slot: 'pseudopods', socket: 'pod', scale: 'leg' },
+      { slot: 'bumps', socket: 'bumps', small: true },
+      { slot: 'drips', socket: 'drips', small: true },
+      { slot: 'core', socket: 'core', scale: 'head', anim: 'head' },
+      { slot: 'eyes', socket: 'eyeFar', far: true, scale: 'eye', small: true },
+      { slot: 'eyes', socket: 'eye', scale: 'eye', small: true },
+      { slot: 'mouth', socket: 'mouth', small: true },
+    ],
+  },
+  mannequin: {
+    parts: {
+      body: 'o.body.blob', core: 'o.core.nucleus', eyes: 'o.eyes.round', mouth: 'o.mouth.smile', pseudopods: 'o.pseudopods.stubs', base: 'o.base.puddle',
+      drips: 'o.drips.none', crown: 'o.crown.none', tendrils: 'o.tendrils.none', inclusions: 'o.inclusions.none', sheen: 'o.sheen.none', bumps: 'o.bumps.none',
+    },
+    forSlot: { tendrils: { body: 'o.body.tall' } },
+    accentSlots: ['core', 'pseudopods', 'drips', 'crown', 'tendrils', 'base', 'inclusions', 'sheen', 'bumps'],
+  },
+};
+
 const RIG_IDS = Object.keys(RIGS);
 
 /** Rig used when a genome names none or an unknown one (old saves): the first class. */
@@ -6679,12 +6721,302 @@ const FLORA_PARTS = {
   vines: FL_VINES, pods: FL_PODS, thorns: FL_THORNS, canopy: FL_CANOPY, bark: FL_BARK, fruit: FL_FRUIT,
 };
 
+// ---- src/data/parts/ooze/_shared.js ----
+// Ooze builders: the shared constructors namespaced with "o." (oozes).
+// Blobs about 50 wide and 50 tall with the face and the core set straight into the body; pseudopods
+// reach out from the sides, a puddle spreads under the bottom edge.
+
+
+const oozeBuilders = partBuilders('o.');
+const ozBody = oozeBuilders.body;
+const ozLeg = oozeBuilders.leg;
+const ozPart = oozeBuilders.part;
+
+// ---- src/data/parts/ooze/bodies.js ----
+// Ooze bodies (blobs). Origin = centre. Sockets: core (low and back, inside the jelly), eye / eyeFar and mouth
+// (set straight into the front), pod / podFar (sides, for pseudopods), base (bottom centre, for the puddle),
+// crown (top), tendril / tendrilFar (rear), drips (lower front edge), bumps (upper back).
+// kinds: 'ooze.blob' (domes), 'ooze.tall' (columns), 'ooze.wide' (slabs), 'ooze.drop' (teardrops),
+// 'ooze.cube' (gelatin cubes), 'ooze.whirl' (twisted), 'ooze.split' (lumpy amoebas).
+// Evolutions: stage 2 swells and buds a lobe; stage 3 buds another and glows from the core outward.
+
+
+
+
+const ozBodyStages = (x2, y2, x3, y3, r = 10) => ({
+  2: { grow: [1.06, 1.06], addBehind: [{ pts: puff(x2, y2, r, 7, 2), f: 'p' }] },
+  3: { grow: [1.06, 1.07], addBehind: [{ pts: puff(x3, y3, r + 2, 8, 2.5), f: 'p' }], add: [E(0, 4, r * 1.6, r * 1.2, 'a', { ns: true, cl: true, op: 0.16 })] },
+});
+/** The glassy inner body every ooze shares: a lighter jelly heart and a gloss on the lit shoulder. */
+const ozJelly = (cx, cy, rx, ry, gloss) => [E(cx, cy, rx, ry, 'pl', { ns: true, cl: true, op: 0.4 }), HL(gloss, 0.28)];
+const ozSockets = (o) => ({ core: { x: -6, y: 8, a: 0, s: 1 }, eye: { x: 8, y: -8, s: 1 }, eyeFar: { x: -5, y: -9, s: 0.9 }, mouth: { x: 7, y: 1, a: 0, s: 1 }, pod: { x: 22, y: 6, a: 0 }, podFar: { x: -20, y: 6, a: 0 }, base: { x: 0, y: 24, a: 0 }, crown: { x: 0, y: -26, a: 0 }, tendril: { x: -22, y: 0, a: 0 }, tendrilFar: { x: -20, y: -4, a: 0 }, drips: { x: 14, y: 18, a: 0 }, bumps: { x: -6, y: -18, a: 0 }, ...o });
+
+const OZ_BODIES = [
+  ozBody({
+    id: 'blob', name: 'Blob', kind: 'ooze.blob', tags: ['blob', 'round'], dom: 0.5, w: 3,
+    pts: [[-24, -4], [-16, -20], [0, -26], [16, -20], [24, -4], [26, 12], [18, 22], [0, 25], [-18, 22], [-26, 12]],
+    shade: torsoShade(-26, 26, -26, 25, { shadeFrac: 0.35 }),
+    extra: ozJelly(2, 4, 17, 13, 'M-16,-14 C-12,-20 -4,-23 3,-21 C-4,-18 -10,-14 -14,-7 Z'),
+    sockets: ozSockets({}),
+    stages: ozBodyStages(22, 6, -24, 4, 10),
+  }),
+  ozBody({
+    id: 'tall', name: 'Column', kind: 'ooze.tall', tags: ['tall', 'wisp'], dom: 0.5, w: 2,
+    pts: [[-14, -34], [-4, -40], [8, -38], [16, -28], [18, -10], [20, 10], [16, 22], [0, 26], [-16, 22], [-20, 8], [-18, -12]],
+    shade: torsoShade(-20, 20, -40, 26, { shadeFrac: 0.35 }),
+    extra: ozJelly(0, 2, 12, 20, 'M-12,-30 C-9,-36 -2,-38 4,-35 C-2,-32 -7,-27 -10,-20 Z'),
+    sockets: ozSockets({ core: { x: -4, y: 4, a: 0, s: 1 }, eye: { x: 6, y: -22, s: 1 }, eyeFar: { x: -6, y: -23, s: 0.9 }, mouth: { x: 5, y: -12, a: 0, s: 1 }, pod: { x: 17, y: 0, a: 0 }, podFar: { x: -17, y: -2, a: 0 }, base: { x: 0, y: 25, a: 0 }, crown: { x: 2, y: -40, a: 0 }, tendril: { x: -18, y: -4, a: 0 }, tendrilFar: { x: -16, y: -8, a: 0 }, drips: { x: 14, y: 16, a: 0 }, bumps: { x: -8, y: -30, a: 0 } }),
+    stages: ozBodyStages(16, -14, -18, -6, 8),
+  }),
+  ozBody({
+    id: 'wide', name: 'Slab', kind: 'ooze.wide', tags: ['wide', 'flat'], dom: 0.5, w: 2,
+    pts: [[-34, 0], [-26, -14], [-8, -18], [10, -18], [28, -12], [36, 0], [34, 12], [20, 18], [0, 20], [-20, 18], [-34, 12]],
+    shade: torsoShade(-34, 36, -18, 20, { shadeFrac: 0.35 }),
+    extra: ozJelly(2, 2, 26, 10, 'M-26,-8 C-20,-14 -8,-16 2,-15 C-8,-12 -16,-10 -22,-2 Z'),
+    sockets: ozSockets({ core: { x: -10, y: 4, a: 0, s: 1 }, eye: { x: 12, y: -6, s: 1 }, eyeFar: { x: -1, y: -7, s: 0.9 }, mouth: { x: 12, y: 4, a: 0, s: 1 }, pod: { x: 32, y: 4, a: 0 }, podFar: { x: -30, y: 4, a: 0 }, base: { x: 0, y: 19, a: 0 }, crown: { x: 0, y: -18, a: 0 }, tendril: { x: -32, y: -2, a: 0 }, tendrilFar: { x: -28, y: -6, a: 0 }, drips: { x: 24, y: 14, a: 0 }, bumps: { x: -16, y: -14, a: 0 } }),
+    stages: ozBodyStages(32, 2, -34, 0, 9),
+  }),
+  ozBody({
+    id: 'drop', name: 'Droplet', kind: 'ooze.drop', tags: ['drop', 'point'], dom: 0.5, w: 2,
+    pts: [[0, -36], [8, -22], [20, -8], [24, 8], [18, 22], [0, 26], [-18, 22], [-24, 8], [-20, -8], [-8, -22]],
+    shade: torsoShade(-24, 24, -36, 26, { shadeFrac: 0.35 }),
+    extra: ozJelly(0, 6, 15, 13, 'M-14,-8 C-11,-16 -6,-22 -1,-26 C-3,-20 -6,-13 -10,-4 Z'),
+    sockets: ozSockets({ core: { x: -6, y: 8, a: 0, s: 1 }, eye: { x: 8, y: -6, s: 1 }, eyeFar: { x: -5, y: -7, s: 0.9 }, mouth: { x: 6, y: 4, a: 0, s: 1 }, pod: { x: 22, y: 8, a: 0 }, podFar: { x: -20, y: 8, a: 0 }, base: { x: 0, y: 25, a: 0 }, crown: { x: 0, y: -34, a: 0 }, tendril: { x: -20, y: 0, a: 0 }, tendrilFar: { x: -18, y: -4, a: 0 }, drips: { x: 14, y: 18, a: 0 }, bumps: { x: -8, y: -16, a: 0 } }),
+    stages: ozBodyStages(20, 8, -22, 6, 9),
+  }),
+  ozBody({
+    id: 'cube', name: 'Cube', kind: 'ooze.cube', tags: ['cube', 'gelatin'], dom: 0.55, w: 2,
+    pts: [[-24, -24], [24, -24], [26, -20], [26, 20], [24, 24], [-24, 24], [-26, 20], [-26, -20]],
+    shade: torsoShade(-26, 26, -24, 24, { shadeFrac: 0.35 }),
+    extra: [...ozJelly(0, 2, 18, 16, 'M-20,-20 C-14,-22 -6,-22 2,-20 C-6,-18 -12,-16 -18,-10 Z'), L('M-17,-17 L17,-17 L17,17 M-17,-17 L-17,17', 'k', 1, { op: 0.16 })],
+    sockets: ozSockets({ core: { x: -8, y: 8, a: 0, s: 1 }, eye: { x: 8, y: -8, s: 1 }, eyeFar: { x: -6, y: -9, s: 0.9 }, mouth: { x: 8, y: 2, a: 0, s: 1 }, pod: { x: 24, y: 4, a: 0 }, podFar: { x: -22, y: 4, a: 0 }, base: { x: 0, y: 23, a: 0 }, crown: { x: 0, y: -24, a: 0 }, tendril: { x: -24, y: -2, a: 0 }, tendrilFar: { x: -22, y: -6, a: 0 }, drips: { x: 16, y: 18, a: 0 }, bumps: { x: -6, y: -22, a: 0 } }),
+    stages: ozBodyStages(24, 0, -26, -2, 9),
+  }),
+  ozBody({
+    id: 'whirl', name: 'Whirl', kind: 'ooze.whirl', tags: ['whirl', 'twist'], dom: 0.5, w: 2,
+    pts: [[-20, -6], [-10, -22], [8, -28], [22, -18], [26, -2], [22, 12], [10, 22], [-6, 25], [-20, 20], [-26, 8]],
+    shade: torsoShade(-26, 26, -28, 25, { shadeFrac: 0.35 }),
+    extra: [...ozJelly(2, 2, 16, 14, 'M-12,-14 C-8,-22 0,-26 8,-25 C0,-21 -6,-16 -10,-8 Z'), L(spiralPath(0, 0, 14, 1.5, 20), 'k', 1.4, { op: 0.2 })],
+    sockets: ozSockets({ core: { x: -4, y: 8, a: 0, s: 1 }, eye: { x: 10, y: -10, s: 1 }, eyeFar: { x: -2, y: -12, s: 0.9 }, mouth: { x: 10, y: 0, a: 0, s: 1 }, pod: { x: 22, y: 4, a: 0 }, podFar: { x: -20, y: 2, a: 0 }, base: { x: 0, y: 24, a: 0 }, crown: { x: 6, y: -28, a: 0 }, tendril: { x: -22, y: -2, a: 0 }, tendrilFar: { x: -20, y: -6, a: 0 }, drips: { x: 14, y: 18, a: 0 }, bumps: { x: -6, y: -20, a: 0 } }),
+    stages: ozBodyStages(22, 8, -24, -4, 9),
+  }),
+  ozBody({
+    id: 'split', name: 'Amoeba', kind: 'ooze.split', tags: ['lumpy', 'amoeba'], dom: 0.5, w: 2,
+    pts: [[-28, -2], [-22, -16], [-10, -20], [-2, -12, 'c'], [8, -22], [22, -18], [28, -4], [26, 12], [14, 22], [0, 24], [-14, 22], [-28, 12]],
+    shade: torsoShade(-28, 28, -22, 24, { shadeFrac: 0.35 }),
+    extra: ozJelly(0, 4, 20, 12, 'M-22,-8 C-19,-14 -14,-18 -8,-18 C-12,-14 -16,-10 -18,-2 Z'),
+    sockets: ozSockets({ core: { x: -14, y: 4, a: 0, s: 1 }, eye: { x: 12, y: -8, s: 1 }, eyeFar: { x: 1, y: -8, s: 0.9 }, mouth: { x: 12, y: 2, a: 0, s: 1 }, pod: { x: 26, y: 6, a: 0 }, podFar: { x: -24, y: 6, a: 0 }, base: { x: 0, y: 23, a: 0 }, crown: { x: -12, y: -20, a: 0 }, tendril: { x: -26, y: 0, a: 0 }, tendrilFar: { x: -22, y: -6, a: 0 }, drips: { x: 16, y: 18, a: 0 }, bumps: { x: 16, y: -18, a: 0 } }),
+    stages: ozBodyStages(26, 4, -28, 2, 9),
+  }),
+];
+
+// ---- src/data/parts/ooze/face.js ----
+// Ooze cores (the thing suspended in the jelly: a nucleus, a gem, a skull...), eyes (floating in the body)
+// and mouths (a line drawn straight into the front).
+// Evolutions: cores ring then glow; eyes ring the iris then glow; mouths grow with the face family.
+
+
+
+
+
+const ozCoreStages = (r) => ({
+  2: { grow: [1.08, 1.08], add: [evoRing(0, 0, r * 1.3, 'a', 1.2, { op: 0.6 })] },
+  3: { grow: [1.08, 1.08], add: [C(0, 0, r * 2, 'a', { ns: true, op: 0.16 }), C(-r * 0.35, -r * 0.35, r * 0.25, 'w', { ns: true, op: 0.9 })] },
+});
+
+const OZ_CORES = [
+  ozPart({ id: 'nucleus', slot: 'core', name: 'Nucleus', tags: ['orb'], dom: 0.5, w: 3, extra: [C(0, 0, 6.5, 'a', { sw: 1.4 }), C(1.5, 1.5, 2.6, 'ad', { ns: true, op: 0.6 }), C(-2.2, -2.2, 1.6, 'w', { ns: true, op: 0.85 })], stages: ozCoreStages(6.5) }),
+  ozPart({ id: 'gem', slot: 'core', name: 'Gem', tags: ['crystal'], dom: 0.5, w: 2, extra: [P(diamondPath(0, 0, 10, 14), 'a', { sw: 1.4 }), L('M-5,0 L5,0 M0,-7 L0,7', 'w', 0.9, { op: 0.4 }), P('M-3,-4 L0,-6.5 L-0.5,-1.5 Z', 'w', { ns: true, op: 0.7 })], stages: ozCoreStages(7) }),
+  ozPart({ id: 'skull', slot: 'core', name: 'Skull', tags: ['bone'], dom: 0.5, w: 2, extra: [C(0, -1.5, 6, 'w', { sw: 1.3 }), P('M-4,3 L4,3 L3,7 L-3,7 Z', 'w', { sw: 1.2 }), C(-2.3, -2, 1.7, 'k', { ns: true }), C(2.3, -2, 1.7, 'k', { ns: true }), P('M0,0.4 L-1.1,2.4 L1.1,2.4 Z', 'k', { ns: true, op: 0.8 }), L('M-1.5,4 L-1.5,6.5 M1.5,4 L1.5,6.5', 'k', 0.8, { op: 0.6 })], stages: ozCoreStages(6) }),
+  ozPart({ id: 'ember', slot: 'core', name: 'Ember', tags: ['fire'], dom: 0.5, w: 2, extra: [P(flamePath(0, 0, 9), 'a', { sw: 1.3 }), P(flamePath(0, 2, 5), 'w', { ns: true, op: 0.6 }), C(0, 3, 1.2, 'w', { ns: true, op: 0.9 })], stages: ozCoreStages(7) }),
+  ozPart({ id: 'bubble', slot: 'core', name: 'Bubble', tags: ['ring'], dom: 0.5, w: 2, extra: [evoRing(0, 0, 7, 'a', 1.8), C(0, 0, 7, 'a', { ns: true, op: 0.16 }), C(-2.6, -2.6, 1.5, 'w', { ns: true, op: 0.85 }), C(2.2, 2.4, 0.9, 'w', { ns: true, op: 0.6 })], stages: ozCoreStages(7) }),
+  ozPart({ id: 'star', slot: 'core', name: 'Star', tags: ['star'], dom: 0.5, w: 2, extra: [P(starPath(0, 0, 8.5, 5, 0.48), 'a', { sw: 1.3 }), C(0, 0, 1.8, 'w', { ns: true, op: 0.85 })], stages: ozCoreStages(7) }),
+  ozPart({ id: 'cluster', slot: 'core', name: 'Cluster', tags: ['orbs'], dom: 0.5, w: 2, extra: [C(-4, -3, 3.4, 'a', { sw: 1.2 }), C(4.2, -2, 3, 'a', { sw: 1.2 }), C(0, 4.2, 3.6, 'a', { sw: 1.2 }), C(-5.2, -4.2, 1, 'w', { ns: true, op: 0.85 }), C(3.2, -3, 0.9, 'w', { ns: true, op: 0.85 }), C(-1.2, 3, 1, 'w', { ns: true, op: 0.85 })], stages: ozCoreStages(7) }),
+];
+
+const ozEyeStages = (r) => ({
+  2: { grow: [1.05, 1.05], add: [evoRing(0.6, 0.2, r * 0.95, 'a', 1.2, { cl: true, op: 0.8 })] },
+  3: { grow: [1.05, 1.05], add: [evoGlow(0.6, 0.2, r * 1.5, 0.2), C(-1.2, -1.6, r * 0.3, 'w', { ns: true, op: 0.9 })] },
+});
+function ozEye({ id, name, shape, sclera = 'w', iris = [0.6, 0.2, 3.4], irisRole = 'e', pupil = [1, 0.5, 1.8], glint = [1.9, -1.6, 1.2], lid, tags = [], w = 2 }) {
+  const prims = [P(shape, sclera, { sw: 2 })];
+  if (iris) prims.push(C(iris[0], iris[1], iris[2], irisRole, { ns: true, cl: true }));
+  if (pupil) prims.push(Array.isArray(pupil[2]) ? E(pupil[0], pupil[1], pupil[2][0], pupil[2][1], 'k', { ns: true, cl: true }) : C(pupil[0], pupil[1], pupil[2], 'k', { ns: true, cl: true }));
+  if (glint) prims.push(C(glint[0], glint[1], glint[2], 'w', { ns: true }));
+  if (lid) prims.push(L(lid, 'k', 1.6));
+  return ozPart({ id, slot: 'eyes', name, tags, dom: 0.5, w, extra: prims, stages: ozEyeStages(iris ? iris[2] : 3) });
+}
+const OZ_OVAL = spline([[0, -5.5], [5, -1.5], [4.6, 4], [0, 5.8], [-4.6, 4], [-5, -1.5]]);
+const OZ_ROUND = spline([[0, -6], [5.6, -2.2], [5.6, 2.8], [0, 6.2], [-5.6, 2.8], [-5.6, -2.2]]);
+
+const OZ_EYES = [
+  ozEye({ id: 'round', name: 'Round', tags: ['round'], w: 3, shape: OZ_ROUND, iris: [0.6, 0.4, 4.2], pupil: [1, 0.8, 2.2], glint: [2.2, -2, 1.5] }),
+  ozEye({ id: 'bead', name: 'Bead', tags: ['bead'], w: 2, shape: spline([[0, -4], [3.8, -1.2], [3.6, 2.8], [0, 4.4], [-3.6, 2.8], [-3.8, -1.2]]), iris: [0.3, 0.2, 3], irisRole: 'k', pupil: null, glint: [1.2, -1.2, 1.1] }),
+  ozEye({ id: 'wide', name: 'Wide', tags: ['cute'], shape: spline([[0, -7], [6.4, -2.4], [6, 5], [0, 7.4], [-6, 5], [-6.4, -2.4]]), iris: [0.6, 0.4, 4.8], pupil: [1, 0.8, 2.8], glint: [2.6, -2.4, 1.7] }),
+  ozEye({ id: 'sleepy', name: 'Drowsy', tags: ['sleepy'], shape: OZ_OVAL, iris: [0.6, 1, 3.4], pupil: [1, 1.2, 1.8], glint: [1.8, -0.4, 1], lid: 'M-5,-2 Q0,-3.5 5,-2' }),
+  ozPart({ id: 'cross', slot: 'eyes', name: 'Cross', tags: ['dazed'], dom: 0.45, w: 2, extra: [L('M-3.6,-3.6 L3.6,3.6 M3.6,-3.6 L-3.6,3.6', 'k', 2.2), C(0, 0, 4.6, 'w', { ns: true, op: 0.16 })], stages: { 2: { grow: [1.05, 1.05] }, 3: { grow: [1.08, 1.08], add: [C(0, 0, 5.4, 'a', { ns: true, op: 0.3 })] } } }),
+  ozPart({ id: 'void', slot: 'eyes', name: 'Void', tags: ['dark'], dom: 0.5, w: 2, extra: [P(OZ_OVAL, 'k', { sw: 1.6 }), C(1.2, 0.2, 1.5, 'w', { ns: true }), C(-1.4, 2, 0.6, 'w', { ns: true, op: 0.5 })], stages: { 2: { grow: [1.05, 1.05], add: [evoRing(0, 0, 4.6, 'a', 1, { op: 0.7 })] }, 3: { grow: [1.08, 1.08], add: [C(0, 0, 6.5, 'a', { ns: true, op: 0.22 })] } } }),
+  ozEye({ id: 'ring', name: 'Ring', tags: ['ring'], shape: OZ_ROUND, iris: [0.6, 0.2, 3.6], pupil: [0.6, 0.2, 1.7], glint: [2, -1.8, 1.1] }),
+];
+
+const OZ_MOUTHS = [
+  ozPart({ id: 'smile', slot: 'mouth', name: 'Smile', tags: ['happy'], dom: 0.5, w: 3, extra: [L('M4,-1 C0,3 -6,4 -12,1', 'k', 2)] }),
+  ozPart({ id: 'grin', slot: 'mouth', name: 'Grin', tags: ['happy'], dom: 0.5, w: 2, extra: [P('M4,-1 C0,4 -6,5 -12,1 C-6,2 0,1 4,-1 Z', 'k', { ns: true }), P('M1,0 C-2,2 -6,2.6 -10,1 C-6,1.6 -2,1 1,0 Z', 'w', { ns: true })] }),
+  ozPart({ id: 'gape', slot: 'mouth', name: 'Gape', tags: ['open'], dom: 0.5, w: 2, extra: [E(-3, 1, 4.2, 3.4, 'k', { ns: true }), E(-3, 2.4, 2.4, 1.4, 'a', { ns: true, op: 0.85 }), C(-4.6, -0.6, 0.8, 'w', { ns: true, op: 0.6 })] }),
+  ozPart({ id: 'frown', slot: 'mouth', name: 'Frown', tags: ['grumpy'], dom: 0.45, w: 2, extra: [L('M4,2 C0,-2 -6,-3 -12,0', 'k', 2)] }),
+  ozPart({ id: 'wavy', slot: 'mouth', name: 'Wavy', tags: ['queasy'], dom: 0.45, w: 2, extra: [L('M5,0 C3,-2.5 1,2.5 -1,0 C-3,-2.5 -5,2.5 -7,0 C-9,-2.5 -11,1.5 -13,0', 'k', 1.8)] }),
+  ozPart({ id: 'fangs', slot: 'mouth', name: 'Fangs', tags: ['fierce'], dom: 0.5, w: 2, extra: [L('M5,-1 C1,3 -6,4 -13,1', 'k', 2), P('M1,1 L0,5.5 L-2,1.4 Z', 'w', { ns: true }), P('M-7,2.6 L-8.6,6.4 L-10,2 Z', 'w', { ns: true })] }),
+  ozPart({ id: 'tongue', slot: 'mouth', name: 'Tongue', tags: ['tongue'], dom: 0.5, w: 2, extra: [L('M4,-1 C0,3 -6,4 -12,1', 'k', 2), P('M-2,1 C2,5 8,6 12,3 C13,1 11,0 9,0 C5,1 1,0 -2,-1 Z', 'a', { sw: 1.2 }), C(10, 2, 0.9, 'w', { ns: true, op: 0.8 })] }),
+];
+
+// ---- src/data/parts/ooze/limbs.js ----
+// Ooze pseudopods (origin = the pod socket on the body's side, reaching forward and out like arms) and
+// bases (origin = the bottom centre; the puddle the blob sits in, whose lowest point is the ground).
+// Evolutions: pseudopods swell and ring; puddles spread and bubble.
+
+
+
+
+
+const ozPodStages = (x, y) => ({
+  2: { grow: [1.08, 1.08] },
+  3: { grow: [1.1, 1.1], add: [evoRing(x, y, 3.2, 'a', 1, { op: 0.55 }), C(x + 6, y - 1, 1.4, 'a', { ns: true, op: 0.8 })] },
+});
+const ozBaseStages = {
+  2: { grow: [1.1, 1.05] },
+  3: { grow: [1.14, 1.08], add: [C(-10, -1, 1.7, 'a', { ns: true, op: 0.8 }), C(14, -2, 1.3, 'a', { ns: true, op: 0.8 }), C(4, -3, 1, 'a', { ns: true, op: 0.7 })] },
+};
+const ozOval = (cx, cy, rx, ry, f = 'pd') => ({ pts: arcPts(cx, cy, rx, ry, 0, 337.5, 16), f });
+
+const OZ_PSEUDOPODS = [
+  ozLeg({ id: 'stubs', slot: 'pseudopods', name: 'Stub arm', tags: ['stub'], dom: 0.5, w: 3, shapes: [tube([[0, 0], [10, 2], [16, 6]], 10, 6, { tipK: 1 })], extra: [C(13, 5, 1.2, 'w', { ns: true, op: 0.6 })], stages: ozPodStages(8, 1) }),
+  ozLeg({ id: 'reach', slot: 'pseudopods', name: 'Long reach', tags: ['long'], dom: 0.5, w: 2, shapes: [tube([[0, 0], [12, -2], [24, -6], [32, -4]], 8, 4, { tipK: 1 })], extra: [L('M4,-2 C12,-4 20,-7 28,-6', 'k', 1, { op: 0.25 })], stages: ozPodStages(10, -2) }),
+  ozLeg({ id: 'club', slot: 'pseudopods', name: 'Club', tags: ['heavy'], dom: 0.5, w: 2, shapes: [tube([[0, 0], [10, 2], [18, 4]], 8, 5, { tipK: 1 }), { pts: arcPts(23, 5, 7, 6.5, 0, 337.5, 16), f: 'p' }], extra: [C(20, 2, 1.4, 'w', { ns: true, op: 0.6 })], stages: ozPodStages(8, 1) }),
+  ozLeg({ id: 'fork', slot: 'pseudopods', name: 'Forked', tags: ['fork'], dom: 0.5, w: 2, shapes: [tube([[0, 0], [10, 0], [18, -6]], 7, 3, { tipK: 1 }), tube([[6, 1], [14, 5], [22, 8]], 6, 3, { tipK: 1 })], stages: ozPodStages(6, 0) }),
+  ozLeg({ id: 'fist', slot: 'pseudopods', name: 'Fist', tags: ['fist'], dom: 0.5, w: 2, shapes: [tube([[0, 0], [8, 2], [14, 4]], 8, 6, { tipK: 1 }), { pts: puff(19, 5, 6.5, 6, 1.2), f: 'p' }], extra: [L('M16,3 L22,2 M16,6 L23,6', 'k', 1, { op: 0.3 })], stages: ozPodStages(7, 1) }),
+  ozLeg({ id: 'curl', slot: 'pseudopods', name: 'Curl', tags: ['spiral'], dom: 0.5, w: 2, shapes: [tube([[0, 0], [10, -2], [18, -8], [20, -16]], 7, 3, { tipK: 1 })], extra: [L(spiralPath(20, -21, 4.5, 1.5), 'p', 2.6)], stages: ozPodStages(8, -2) }),
+  ozLeg({ id: 'paddle', slot: 'pseudopods', name: 'Paddle', tags: ['flat'], dom: 0.5, w: 2, shapes: [tube([[0, 0], [10, 2]], 8, 7, { tipK: 1 }), { d: leaf([8, 2], [28, 8], 7), f: 'p' }], extra: [L('M10,3 L24,7', 'k', 1, { op: 0.3 })], stages: ozPodStages(6, 1) }),
+];
+
+const OZ_BASES = [
+  ozLeg({ id: 'puddle', slot: 'base', name: 'Puddle', tags: ['puddle'], dom: 0.5, w: 3, shapes: [ozOval(0, 2, 30, 6)], extra: [HL('M-22,0 C-16,-3 -8,-4 0,-3 C-8,-1 -16,0 -22,2 Z', 0.2)], stages: ozBaseStages }),
+  ozLeg({ id: 'splat', slot: 'base', name: 'Splat', tags: ['splash'], dom: 0.5, w: 2, shapes: [{ pts: xfPts(puff(0, 0, 26, 9, 4), { y: 2, sx: 1, sy: 0.28 }), f: 'pd' }], extra: [C(-34, 0, 2.4, 'pd', { sw: 1 }), C(34, -1, 2, 'pd', { sw: 1 }), C(30, 6, 1.5, 'pd', { sw: 1 })], stages: ozBaseStages }),
+  ozLeg({ id: 'ring', slot: 'base', name: 'Slime ring', tags: ['ring'], dom: 0.5, w: 2, shapes: [ozOval(0, 2, 30, 7), ozOval(0, 2, 19, 3.6, 's')], stages: ozBaseStages }),
+  ozLeg({ id: 'trail', slot: 'base', name: 'Trail', tags: ['trail'], dom: 0.5, w: 2, shapes: [ozOval(0, 2, 24, 6), { pts: tube([[-20, 2], [-34, 0], [-46, 3]], 6, 2, { tipK: 1 }), f: 'pd' }], extra: [C(-50, 5, 1.6, 'pd', { sw: 1 }), C(-40, 7, 1.2, 'pd', { sw: 1 })], stages: ozBaseStages }),
+  ozLeg({ id: 'feet', slot: 'base', name: 'Blob feet', tags: ['feet'], dom: 0.5, w: 2, shapes: [ozOval(-12, 3, 10, 5, 'p'), ozOval(12, 3, 10, 5, 'p')], extra: [L('M-16,7 L-17,9 M-12,7 L-12,9 M-8,7 L-7,9 M8,7 L7,9 M12,7 L12,9 M16,7 L17,9', 'k', 1.2, { op: 0.4 })], stages: ozBaseStages }),
+  ozLeg({ id: 'bubbles', slot: 'base', name: 'Bubbling puddle', tags: ['bubble'], dom: 0.5, w: 2, shapes: [ozOval(0, 2, 28, 6)], extra: [C(-16, -2, 2.4, 'pl', { ns: true, op: 0.85 }), C(12, -3, 1.8, 'pl', { ns: true, op: 0.85 }), C(22, 0, 1.4, 'pl', { ns: true, op: 0.85 }), C(-6, -1, 1.2, 'pl', { ns: true, op: 0.85 })], stages: ozBaseStages }),
+  ozLeg({ id: 'drops', slot: 'base', name: 'Scattered drops', tags: ['drops'], dom: 0.5, w: 2, shapes: [ozOval(0, 2, 16, 4)], extra: [C(-26, 3, 3, 'pd', { sw: 1 }), C(26, 2, 3.4, 'pd', { sw: 1 }), C(-34, 1, 1.8, 'pd', { sw: 1 }), C(36, 4, 1.6, 'pd', { sw: 1 })], stages: ozBaseStages }),
+];
+
+// ---- src/data/parts/ooze/growth.js ----
+// Ooze drips (origin = the lower front edge, hanging), crowns (origin = the top, drawn behind) and tendrils
+// (origin = the rear socket, trailing behind like a tail).
+// Evolutions: drips grow with the face family; crowns and tendrils grow.
+
+
+
+
+
+const ozGrowStages = { 2: { grow: [1.1, 1.1] }, 3: { grow: [1.12, 1.12] } };
+const ozDrip = (x, len, w = 4) => tube([[x, 0], [x + 1, len * 0.5], [x, len]], w, w * 0.45, { tipK: 'c' });
+
+const OZ_DRIPS = [
+  NONE('drips', 0.3, 'o.'),
+  ozPart({ id: 'drip', slot: 'drips', name: 'Drip', tags: ['drip'], dom: 0.5, w: 3, shapes: [ozDrip(0, 6)], extra: [C(0.5, 8, 2.6, 'p', { sw: 1.2 }), C(-0.3, 7.2, 0.8, 'w', { ns: true, op: 0.7 })] }),
+  ozPart({ id: 'trio', slot: 'drips', name: 'Three drips', tags: ['drip'], dom: 0.5, w: 2, shapes: [ozDrip(-6, 4, 3.4), ozDrip(0, 7, 4), ozDrip(6, 3, 3)], extra: [C(0.5, 9, 2.2, 'p', { sw: 1.1 }), C(-5.6, 5.6, 1.6, 'p', { sw: 1 }), C(6.4, 4.6, 1.4, 'p', { sw: 1 })] }),
+  ozPart({ id: 'string', slot: 'drips', name: 'String', tags: ['thin'], dom: 0.45, w: 2, extra: [L('M0,0 C1,3 -1,6 0,9', 'p', 2.4), C(0, 10.5, 2, 'p', { sw: 1.1 }), C(-0.5, 9.8, 0.6, 'w', { ns: true, op: 0.7 })] }),
+  ozPart({ id: 'goop', slot: 'drips', name: 'Goop', tags: ['thick'], dom: 0.5, w: 2, shapes: [[[-8, 0], [8, 0], [9, 4], [6, 8, 'c'], [2, 6], [0, 10, 'c'], [-3, 6], [-7, 7, 'c'], [-9, 3]]], extra: [HL('M-7,1 C-5,-1 -1,-1 1,0 C-1,2 -4,3 -6,4 Z', 0.22)] }),
+  ozPart({ id: 'spray', slot: 'drips', name: 'Spray', tags: ['flying'], dom: 0.45, w: 2, extra: [C(5, -2, 1.8, 'p', { sw: 1 }), C(11, 2, 1.4, 'p', { sw: 1 }), C(15, -4, 1.1, 'p', { sw: 1 }), C(19, 3, 1.3, 'p', { sw: 1 }), C(9, 7, 1, 'p', { sw: 1 }), L('M1,0 L4,-1', 'k', 1, { op: 0.3 })] }),
+  ozPart({ id: 'beads', slot: 'drips', name: 'Beads', tags: ['dots'], dom: 0.45, w: 2, extra: [C(0, 2, 1.7, 'p', { sw: 1 }), C(0.5, 5.6, 1.5, 'p', { sw: 1 }), C(0, 8.8, 1.3, 'p', { sw: 1 }), C(0.4, 11.4, 1, 'p', { sw: 1 })] }),
+  ozPart({ id: 'curtain', slot: 'drips', name: 'Curtain', tags: ['many'], dom: 0.5, w: 2, shapes: [ozDrip(-10, 3, 3.2), ozDrip(-4, 6, 3.4), ozDrip(2, 4, 3.2), ozDrip(8, 7, 3.4)], extra: [C(-3.6, 7.6, 1.5, 'p', { sw: 1 }), C(8.4, 8.6, 1.5, 'p', { sw: 1 })] }),
+];
+
+const OZ_CROWNS = [
+  NONE('crown', 0.3, 'o.'),
+  ozPart({ id: 'spikes', slot: 'crown', name: 'Jelly spikes', tags: ['spiky'], dom: 0.5, w: 3, shapes: [{ pts: [[-14, 0], ...fur([-14, 0], [14, 0], 5, 12, { tip: 'c' }), [14, 4], [-14, 4]], f: 'pl' }], extra: [C(-8, -4, 0.9, 'w', { ns: true, op: 0.6 }), C(2, -6, 0.9, 'w', { ns: true, op: 0.6 })], stages: ozGrowStages }),
+  ozPart({ id: 'bubbles', slot: 'crown', name: 'Bubble cluster', tags: ['bubble'], dom: 0.5, w: 2, extra: [C(-6, -6, 4, 'pl', { sw: 1.2 }), C(4, -10, 5, 'pl', { sw: 1.2 }), C(10, -2, 3, 'pl', { sw: 1.2 }), C(-2, -16, 2.4, 'pl', { sw: 1.1 }), C(-7.4, -7.4, 1, 'w', { ns: true, op: 0.8 }), C(2.4, -11.8, 1.3, 'w', { ns: true, op: 0.8 })], stages: ozGrowStages }),
+  ozPart({ id: 'horns', slot: 'crown', name: 'Jelly horns', tags: ['horn'], dom: 0.5, w: 2, shapes: [tube([[-8, 0], [-12, -8], [-10, -18]], 6, 2, { tipK: 'c' }), tube([[8, 0], [12, -8], [10, -18]], 6, 2, { tipK: 'c' })], extra: [C(-10.6, -6, 0.9, 'w', { ns: true, op: 0.6 }), C(10, -6, 0.9, 'w', { ns: true, op: 0.6 })], stages: ozGrowStages }),
+  ozPart({ id: 'wisp', slot: 'crown', name: 'Wisp', tags: ['flame'], dom: 0.5, w: 2, extra: [P(flamePath(0, -10, 12), 'a', { sw: 1.3 }), P(flamePath(0, -7, 6), 'w', { ns: true, op: 0.5 })], stages: ozGrowStages }),
+  ozPart({ id: 'stalk', slot: 'crown', name: 'Stalk', tags: ['antenna'], dom: 0.5, w: 2, extra: [L('M0,0 C2,-8 -2,-14 0,-20', 'p', 3), C(0, -23, 4, 'a', { sw: 1.3 }), C(-1.2, -24.2, 1.1, 'w', { ns: true, op: 0.8 })], stages: ozGrowStages }),
+  ozPart({ id: 'fin', slot: 'crown', name: 'Jelly fin', tags: ['fin'], dom: 0.5, w: 2, shapes: [{ pts: [[-10, 0], [-4, -14], [4, -20, 'c'], [8, -10], [10, 0]], f: 'pl' }], extra: [L('M-4,-1 L-1,-13 M3,-1 L4,-14', 'k', 1, { op: 0.25 })], stages: ozGrowStages }),
+  ozPart({ id: 'halo', slot: 'crown', name: 'Halo', tags: ['ring', 'light'], dom: 0.45, w: 2, extra: [evoRing(0, -8, 10, 'a', 2.2), evoRing(0, -8, 10, 'w', 0.8, { op: 0.5 }), C(0, -8, 10, 'a', { ns: true, op: 0.12 })], stages: ozGrowStages }),
+];
+
+const OZ_TENDRILS = [
+  NONE('tendrils', 0.3, 'o.'),
+  ozPart({ id: 'tendril', slot: 'tendrils', name: 'Tendril', tags: ['curl'], dom: 0.5, w: 3, shapes: [tube([[0, 0], [-12, 2], [-24, -4], [-32, 4]], 6, 2.5, { tipK: 1 })], extra: [L(spiralPath(-36, 3, 4, 1.5), 'p', 2)], stages: ozGrowStages }),
+  ozPart({ id: 'pair', slot: 'tendrils', name: 'Pair', tags: ['two'], dom: 0.5, w: 2, shapes: [tube([[0, 0], [-14, -6], [-28, -10]], 5, 2, { tipK: 1 }), tube([[0, 0], [-14, 6], [-28, 12]], 5, 2, { tipK: 1 })], stages: ozGrowStages }),
+  ozPart({ id: 'whip', slot: 'tendrils', name: 'Whip', tags: ['long'], dom: 0.5, w: 2, shapes: [tube([[0, 0], [-16, -4], [-32, -14], [-44, -26]], 5, 1.5, { tipK: 'c' })], extra: [L('M-4,-1 C-14,-4 -26,-12 -40,-24', 'k', 1, { op: 0.25 })], stages: ozGrowStages }),
+  ozPart({ id: 'tail', slot: 'tendrils', name: 'Slime tail', tags: ['tail'], dom: 0.5, w: 2, shapes: [tube([[0, 0], [-14, 4], [-26, 2]], 12, 4, { tipK: 'c' })], extra: [HL('M-4,-4 C-8,-5 -14,-4 -18,-2 C-14,-2 -8,-2 -4,-1 Z', 0.2)], stages: ozGrowStages }),
+  ozPart({ id: 'streamers', slot: 'tendrils', name: 'Streamers', tags: ['thin'], dom: 0.45, w: 2, extra: [L('M0,0 C-10,-2 -20,-8 -30,-6 M0,0 C-12,2 -22,2 -32,6 M0,0 C-8,6 -18,12 -26,16', 'p', 2.4), C(-31, -6, 1.4, 'p', { sw: 1 }), C(-33, 6, 1.4, 'p', { sw: 1 }), C(-27, 16, 1.4, 'p', { sw: 1 })], stages: ozGrowStages }),
+  ozPart({ id: 'fronds', slot: 'tendrils', name: 'Fronds', tags: ['three'], dom: 0.5, w: 2, shapes: [tube([[0, 0], [-12, -10], [-22, -16]], 5, 2, { tipK: 'c' }), tube([[0, 0], [-14, 0], [-26, 0]], 5, 2, { tipK: 'c' }), tube([[0, 0], [-12, 10], [-22, 16]], 5, 2, { tipK: 'c' })], stages: ozGrowStages }),
+  ozPart({ id: 'loop', slot: 'tendrils', name: 'Loop', tags: ['ring'], dom: 0.5, w: 2, shapes: [tube([[0, 0], [-8, -2]], 6, 4, { tipK: 1 })], extra: [evoRing(-18, -2, 8, 'p', 4), evoRing(-18, -2, 8, 'k', 1, { op: 0.25 }), C(-26, 5, 2.5, 'p', { sw: 1.1 })], stages: ozGrowStages }),
+];
+
+// ---- src/data/parts/ooze/surface.js ----
+// Ooze inclusions (things swallowed and suspended in the jelly, clipped to the body, 100 x 60 frame),
+// sheen (surface light, clipped to the body) and bumps (nodules that break the outline at the upper back).
+// Evolutions: inclusions and sheen are flat; bumps grow.
+
+
+
+
+const ozBumpStages = { 2: { grow: [1.08, 1.08] }, 3: { grow: [1.1, 1.1], add: [C(-12, 2, 2.2, 'pd', { sw: 1 }), C(16, 1, 1.8, 'pd', { sw: 1 })] } };
+const ozRing = (rx, ry) => L(spline(arcPts(0, 0, rx, ry, 0, 330, 11)), 'w', 1.4, { ns: true, op: 0.3 });
+
+const OZ_INCLUSIONS = [
+  NONE('inclusions', 0.3, 'o.'),
+  ozPart({ id: 'bubbles', slot: 'inclusions', name: 'Bubbles', tags: ['bubble'], dom: 0.5, w: 3, extra: [C(-24, -8, 5, 'pl', { ns: true, op: 0.85 }), C(-10, 10, 3.5, 'pl', { ns: true, op: 0.85 }), C(12, -12, 4, 'pl', { ns: true, op: 0.85 }), C(26, 6, 6, 'pl', { ns: true, op: 0.85 }), C(4, 18, 2.5, 'pl', { ns: true, op: 0.85 }), C(-25.6, -9.6, 1.2, 'w', { ns: true, op: 0.8 }), C(10.8, -13.4, 1, 'w', { ns: true, op: 0.8 }), C(24, 4, 1.4, 'w', { ns: true, op: 0.8 })] }),
+  ozPart({ id: 'bones', slot: 'inclusions', name: 'Bones', tags: ['bone'], dom: 0.5, w: 2, extra: [L('M-30,-6 L-12,-14 M8,8 L26,2', 'w', 3.2, { ns: true, op: 0.9 }), C(-30, -6, 2.4, 'w', { ns: true, op: 0.9 }), C(-12, -14, 2.4, 'w', { ns: true, op: 0.9 }), C(8, 8, 2.2, 'w', { ns: true, op: 0.9 }), C(26, 2, 2.2, 'w', { ns: true, op: 0.9 }), C(18, -14, 1.6, 'w', { ns: true, op: 0.7 })] }),
+  ozPart({ id: 'coins', slot: 'inclusions', name: 'Coins', tags: ['gold'], dom: 0.5, w: 2, extra: [...[[-22, 4], [-6, -10], [10, 12], [24, -4]].flatMap(([x, y]) => [C(x, y, 4, 'a', { ns: true }), C(x, y, 2.4, 'ad', { ns: true, op: 0.5 }), C(x - 1.4, y - 1.4, 0.8, 'w', { ns: true, op: 0.8 })])] }),
+  ozPart({ id: 'skull', slot: 'inclusions', name: 'Skull', tags: ['bone'], dom: 0.5, w: 2, extra: [C(0, -4, 9, 'w', { ns: true }), P('M-6,2 L6,2 L4,8 L-4,8 Z', 'w', { ns: true }), C(-3.4, -4.5, 2.6, 'k', { ns: true, op: 0.85 }), C(3.4, -4.5, 2.6, 'k', { ns: true, op: 0.85 }), P('M0,-1 L-1.4,1.6 L1.4,1.6 Z', 'k', { ns: true, op: 0.7 }), L('M-2,4 L-2,7 M0,4 L0,7 M2,4 L2,7', 'k', 1, { op: 0.6 })] }),
+  ozPart({ id: 'shards', slot: 'inclusions', name: 'Shards', tags: ['crystal'], dom: 0.5, w: 2, extra: [P(diamondPath(-20, -4, 6, 14), 'al', { ns: true, op: 0.9 }), P(diamondPath(-4, 10, 5, 12), 'al', { ns: true, op: 0.9 }), P(diamondPath(14, -10, 6, 16), 'al', { ns: true, op: 0.9 }), P(diamondPath(26, 8, 4, 10), 'al', { ns: true, op: 0.9 }), L('M-20,-10 L-20,2 M14,-16 L14,-4', 'w', 0.9, { op: 0.5 })] }),
+  ozPart({ id: 'leaves', slot: 'inclusions', name: 'Leaves', tags: ['leaf'], dom: 0.5, w: 2, extra: [P(leaf([-28, 6], [-12, -6], 4), 'a', { ns: true }), P(leaf([6, 14], [22, 4], 4), 'a', { ns: true }), P(leaf([10, -14], [26, -8], 3.5), 'a', { ns: true }), L('M-26,5 L-14,-5 M8,13 L20,5 M12,-13 L24,-9', 'k', 0.9, { op: 0.3 })] }),
+  ozPart({ id: 'pebbles', slot: 'inclusions', name: 'Pebbles', tags: ['stone'], dom: 0.5, w: 2, extra: [E(-24, 8, 5, 3.5, 'sd', { ns: true }), E(-8, -8, 4, 3, 'sd', { ns: true }), E(10, 10, 6, 4, 'sd', { ns: true }), E(26, -4, 4, 3, 'sd', { ns: true }), E(20, 14, 3, 2, 'sd', { ns: true }), C(-25.6, 6.8, 1, 'w', { ns: true, op: 0.5 }), C(8.4, 8.6, 1.2, 'w', { ns: true, op: 0.5 })] }),
+];
+
+const OZ_SHEEN = [
+  NONE('sheen', 0.3, 'o.'),
+  ozPart({ id: 'gloss', slot: 'sheen', name: 'Gloss', tags: ['shine'], dom: 0.5, w: 3, extra: [P('M-34,-16 C-28,-26 -12,-28 -2,-22 C-12,-20 -22,-14 -30,-4 Z', 'w', { ns: true, op: 0.3 }), C(-6, -20, 3, 'w', { ns: true, op: 0.5 })] }),
+  ozPart({ id: 'bands', slot: 'sheen', name: 'Light bands', tags: ['stripe'], dom: 0.5, w: 2, extra: [P('M-40,10 L-10,-30 L0,-30 L-30,10 Z', 'w', { ns: true, op: 0.2 }), P('M-16,20 L20,-28 L28,-28 L-8,20 Z', 'w', { ns: true, op: 0.14 })] }),
+  ozPart({ id: 'rings', slot: 'sheen', name: 'Rings', tags: ['ring'], dom: 0.5, w: 2, extra: [ozRing(14, 9), ozRing(26, 16), ozRing(38, 23)] }),
+  ozPart({ id: 'sparkle', slot: 'sheen', name: 'Sparkle', tags: ['glitter'], dom: 0.5, w: 2, extra: [P(sparklePath(-20, -10, 4), 'w', { ns: true, op: 0.9 }), P(sparklePath(10, -16, 3), 'w', { ns: true, op: 0.9 }), P(sparklePath(24, 4, 3.5), 'w', { ns: true, op: 0.9 }), P(sparklePath(-6, 12, 2.5), 'w', { ns: true, op: 0.9 }), C(-30, 8, 1, 'w', { ns: true, op: 0.7 }), C(30, -12, 1, 'w', { ns: true, op: 0.7 })] }),
+  ozPart({ id: 'wave', slot: 'sheen', name: 'Wave', tags: ['band'], dom: 0.5, w: 2, extra: [P('M-44,-4 C-30,-14 -16,6 0,-4 C16,-14 30,6 44,-4 L44,2 C30,12 16,-8 0,2 C-16,12 -30,-8 -44,2 Z', 'w', { ns: true, op: 0.22 })] }),
+  ozPart({ id: 'dapple', slot: 'sheen', name: 'Dapple', tags: ['spots'], dom: 0.5, w: 2, extra: [C(-22, -8, 7, 'w', { ns: true, op: 0.22 }), C(0, -14, 5, 'w', { ns: true, op: 0.22 }), C(18, -2, 8, 'w', { ns: true, op: 0.2 }), C(-6, 10, 4, 'w', { ns: true, op: 0.22 }), C(26, 14, 5, 'w', { ns: true, op: 0.2 })] }),
+  ozPart({ id: 'crackle', slot: 'sheen', name: 'Crackle', tags: ['crack'], dom: 0.5, w: 2, extra: [L('M-30,-14 L-18,-4 L-22,10 M-4,-24 L2,-8 L-6,6 L0,20 M20,-18 L14,-4 L26,8', 'w', 1.2, { ns: true, op: 0.5 })] }),
+];
+
+const OZ_BUMPS = [
+  NONE('bumps', 0.3, 'o.'),
+  ozPart({ id: 'warts', slot: 'bumps', name: 'Warts', tags: ['wart'], dom: 0.5, w: 3, extra: [C(-6, -2, 3.2, 'pd', { sw: 1.1 }), C(3, -6, 2.6, 'pd', { sw: 1.1 }), C(9, 1, 2.2, 'pd', { sw: 1.1 }), C(-1, 4, 2, 'pd', { sw: 1.1 })], stages: ozBumpStages }),
+  ozPart({ id: 'blisters', slot: 'bumps', name: 'Blisters', tags: ['bubble'], dom: 0.5, w: 2, extra: [C(-6, -3, 4, 'pl', { sw: 1.1 }), C(4, -6, 3, 'pl', { sw: 1.1 }), C(10, 1, 3.5, 'pl', { sw: 1.1 }), C(-7.4, -4.4, 1.1, 'w', { ns: true, op: 0.8 }), C(3, -7, 0.9, 'w', { ns: true, op: 0.8 }), C(8.8, -0.2, 1, 'w', { ns: true, op: 0.8 })], stages: ozBumpStages }),
+  ozPart({ id: 'crystals', slot: 'bumps', name: 'Crystals', tags: ['crystal'], dom: 0.5, w: 2, extra: [P(diamondPath(-6, -4, 6, 14), 'a', { sw: 1.2 }), P(diamondPath(4, -8, 5, 16), 'a', { sw: 1.2 }), P(diamondPath(12, -2, 4, 10), 'a', { sw: 1.2 }), L('M-6,-10 L-6,2 M4,-15 L4,-1', 'w', 0.9, { op: 0.45 })], stages: ozBumpStages }),
+  ozPart({ id: 'nubs', slot: 'bumps', name: 'Nubs', tags: ['spiky'], dom: 0.5, w: 2, extra: [P('M-10,2 L-6,-10 L-2,2 Z', 'p', { sw: 1.2 }), P('M0,0 L5,-12 L10,0 Z', 'p', { sw: 1.2 }), P('M12,3 L15,-6 L18,3 Z', 'p', { sw: 1.2 }), C(-6.6, -5, 0.8, 'w', { ns: true, op: 0.6 }), C(4.4, -7, 0.8, 'w', { ns: true, op: 0.6 })], stages: ozBumpStages }),
+  ozPart({ id: 'eyespots', slot: 'bumps', name: 'Eyespots', tags: ['spots'], dom: 0.5, w: 2, extra: [C(-6, -2, 3.6, 'a', { sw: 1.1 }), C(-6, -2, 1.6, 'k', { ns: true }), C(6, -4, 3, 'a', { sw: 1.1 }), C(6, -4, 1.3, 'k', { ns: true }), C(-6.8, -2.8, 0.6, 'w', { ns: true, op: 0.8 }), C(5.4, -4.6, 0.5, 'w', { ns: true, op: 0.8 })], stages: ozBumpStages }),
+  ozPart({ id: 'lobes', slot: 'bumps', name: 'Lobes', tags: ['lump'], dom: 0.5, w: 2, shapes: [{ pts: puff(-6, -4, 7, 7, 1.2), f: 'p' }, { pts: puff(8, -2, 5.5, 6, 1), f: 'p' }], extra: [C(-8, -6, 1.2, 'w', { ns: true, op: 0.5 }), C(6.6, -3.6, 1, 'w', { ns: true, op: 0.5 })], stages: ozBumpStages }),
+  ozPart({ id: 'barnacles', slot: 'bumps', name: 'Barnacles', tags: ['shell'], dom: 0.5, w: 2, extra: [P('M-10,2 L-5,-8 L0,2 Z', 'sd', { sw: 1.1 }), C(-5, -2, 1.4, 'k', { ns: true, op: 0.6 }), P('M2,3 L7,-9 L12,3 Z', 'sd', { sw: 1.1 }), C(7, -3, 1.4, 'k', { ns: true, op: 0.6 }), P('M13,1 L16,-5 L19,1 Z', 'sd', { sw: 1 }), C(16, -1.6, 1, 'k', { ns: true, op: 0.6 })], stages: ozBumpStages }),
+];
+
+// ---- src/data/parts/ooze/index.js ----
+// The ooze library, one list per rig slot.
+
+
+
+
+
+
+const OOZE_PARTS = {
+  body: OZ_BODIES, core: OZ_CORES, eyes: OZ_EYES, mouth: OZ_MOUTHS, pseudopods: OZ_PSEUDOPODS, drips: OZ_DRIPS,
+  crown: OZ_CROWNS, tendrils: OZ_TENDRILS, base: OZ_BASES, inclusions: OZ_INCLUSIONS, sheen: OZ_SHEEN, bumps: OZ_BUMPS,
+};
+
 // ---- src/data/parts/index.js ----
 // Part registry. Part ids are stable forever: a saved creature must decode the
 // same way after the library grows, so never rename or reuse an id.
 //
 // Parts are grouped by rig, then slot. A part fits any body of its own rig
 // unless it lists the body kinds it accepts in `fit`.
+
 
 
 
@@ -6704,6 +7036,7 @@ const RIG_PARTS = {
   invertebrate: INVERTEBRATE_PARTS,
   amphibian: AMPHIBIAN_PARTS,
   flora: FLORA_PARTS,
+  ooze: OOZE_PARTS,
 };
 
 const PARTS = new Map();
@@ -8235,6 +8568,156 @@ const SPECIES = [
     abilities: ['purebred','regrowth'],
     desc: 'The oldest trees remember when dragons slept beneath them. This one grew around a sleeping wyrm and woke with its temper.',
   },
+  // ---- Roster expansion: oozes ----
+  {
+    id: 'gloopling', name: 'Gloopling', nameParts: ['Gloop', 'ling'], clade: 'ooze', rig: 'ooze', types: ['Poison'], tier: 'common', bst: 395,
+    stats: { hp: 0.17, melee: 0.07, ranged: 0.08, magic: 0.19, meleeDef: 0.11, rangedDef: 0.12, magicDef: 0.12, spe: 0.14 },
+    recipe: { body: 'o.body.blob', core: 'o.core.nucleus', eyes: 'o.eyes.round', mouth: 'o.mouth.smile', pseudopods: 'o.pseudopods.stubs', drips: ['o.drips.drip', 'o.drips.none'], crown: 'o.crown.none', tendrils: 'o.tendrils.none', base: 'o.base.puddle', inclusions: ['o.inclusions.none', 'o.inclusions.bubbles'], sheen: 'o.sheen.gloss', bumps: 'o.bumps.none' },
+    palette: { c1: [120, 60, 50], c2: [110, 50, 70], c3: [60, 90, 60], eye: [0, 0, 15] }, vary: { h: 12, s: 8, l: 6 },
+    traits: T([0.3, 0.55], MID, [0.3, 0.5], MID, MID, [0.55, 0.85]),
+    learnset: [[1,'venom_haze'],[1,'acid_spit'],[6,'bump'],[11,'slime_coat'],[16,'blight'],[22,'sludge_blast'],[28,'mend'],[34,'toxic_wave'],[40,'brace'],[46,'echo_burst'],[52,'sludge_hurl']],
+    abilities: ['antitoxin','regrowth'],
+    desc: 'The first thing to crawl out of the sump. It eats whatever it rolls over and is sorry about none of it.',
+  },
+  {
+    id: 'brackooze', name: 'Brackooze', nameParts: ['Brack', 'ooze'], clade: 'ooze', rig: 'ooze', types: ['Poison', 'Water'], tier: 'common', bst: 405,
+    stats: { hp: 0.16, melee: 0.06, ranged: 0.09, magic: 0.19, meleeDef: 0.11, rangedDef: 0.12, magicDef: 0.13, spe: 0.14 },
+    recipe: { body: 'o.body.drop', core: 'o.core.bubble', eyes: 'o.eyes.wide', mouth: 'o.mouth.gape', pseudopods: 'o.pseudopods.paddle', drips: ['o.drips.trio', 'o.drips.none'], crown: 'o.crown.none', tendrils: 'o.tendrils.none', base: 'o.base.bubbles', inclusions: ['o.inclusions.bubbles', 'o.inclusions.none'], sheen: ['o.sheen.wave', 'o.sheen.none'], bumps: 'o.bumps.none' },
+    palette: { c1: [195, 55, 48], c2: [200, 45, 70], c3: [150, 70, 65], eye: [210, 60, 30] }, vary: { h: 10, s: 6, l: 6 },
+    paint: { core: 4 },
+    traits: T([0.3, 0.55], MID, [0.35, 0.55], MID, MID, [0.55, 0.85]),
+    learnset: [[1,'squirt'],[1,'venom_haze'],[6,'ripple'],[11,'acid_spit'],[16,'slime_coat'],[22,'water_jet'],[28,'tidal_wave'],[34,'toxic_wave'],[40,'mend'],[46,'maelstrom'],[52,'sludge_hurl']],
+    abilities: ['sponge','antitoxin'],
+    desc: 'Brackish water that decided to keep going after the tide went out. Leaves a wet ring on everything.',
+  },
+  {
+    id: 'emberjelly', name: 'Emberjelly', nameParts: ['Ember', 'jelly'], clade: 'ooze', rig: 'ooze', types: ['Poison', 'Fire'], tier: 'uncommon', bst: 435,
+    stats: { hp: 0.14, melee: 0.08, ranged: 0.2, magic: 0.1, meleeDef: 0.1, rangedDef: 0.11, magicDef: 0.11, spe: 0.16 },
+    recipe: { body: 'o.body.whirl', core: 'o.core.ember', eyes: 'o.eyes.ring', mouth: 'o.mouth.fangs', pseudopods: 'o.pseudopods.reach', drips: ['o.drips.spray', 'o.drips.none'], crown: ['o.crown.wisp', 'o.crown.none'], tendrils: 'o.tendrils.none', base: 'o.base.drops', inclusions: 'o.inclusions.none', sheen: ['o.sheen.crackle', 'o.sheen.none'], bumps: ['o.bumps.nubs', 'o.bumps.none'] },
+    palette: { c1: [18, 85, 50], c2: [30, 90, 65], c3: [50, 100, 60], eye: [45, 100, 60] }, vary: { h: 8, s: 5, l: 5 },
+    paint: { crown: 4, core: 4 },
+    traits: T([0.35, 0.6], MID, [0.35, 0.55], MID, MID, [0.45, 0.7]),
+    learnset: [[1,'cinder'],[1,'acid_spit'],[6,'flare'],[11,'venom_prick'],[16,'blight'],[22,'sludge_blast'],[28,'fire_stream'],[34,'whetting'],[40,'heat_wave'],[46,'sludge_hurl'],[52,'meltdown']],
+    abilities: ['ember_heart','damp_coat'],
+    desc: 'A slick of burning pitch that never quite goes out. Spits sparks and smells of tar and regret.',
+  },
+  {
+    id: 'voltgel', name: 'Voltgel', nameParts: ['Volt', 'gel'], clade: 'ooze', rig: 'ooze', types: ['Poison', 'Electric'], tier: 'uncommon', bst: 430,
+    stats: { hp: 0.13, melee: 0.07, ranged: 0.09, magic: 0.2, meleeDef: 0.1, rangedDef: 0.11, magicDef: 0.11, spe: 0.19 },
+    recipe: { body: 'o.body.tall', core: 'o.core.star', eyes: 'o.eyes.bead', mouth: 'o.mouth.grin', pseudopods: 'o.pseudopods.fork', drips: ['o.drips.beads', 'o.drips.none'], crown: ['o.crown.stalk', 'o.crown.none'], tendrils: ['o.tendrils.streamers', 'o.tendrils.none'], base: 'o.base.ring', inclusions: 'o.inclusions.none', sheen: ['o.sheen.sparkle', 'o.sheen.none'], bumps: 'o.bumps.none' },
+    palette: { c1: [55, 90, 58], c2: [50, 80, 78], c3: [210, 90, 60], eye: [220, 80, 50] }, vary: { h: 6, s: 5, l: 6 },
+    paint: { crown: 4, tendrils: 4 },
+    traits: T([0.3, 0.55], MID, [0.3, 0.5], [0.5, 0.8], MID, [0.5, 0.8]),
+    learnset: [[1,'zap'],[1,'venom_haze'],[6,'arc_beam'],[11,'numb_pulse'],[16,'slime_coat'],[22,'static_net'],[28,'voltage'],[34,'toxic_wave'],[40,'quicken'],[46,'plasma_burst'],[52,'skyfall_bolt']],
+    abilities: ['capacitor','loose_joints'],
+    desc: 'A jelly that swallowed a lightning strike and kept the charge. Stand on a rubber mat before you pet it.',
+  },
+  {
+    id: 'frostblob', name: 'Frostblob', nameParts: ['Frost', 'blob'], clade: 'ooze', rig: 'ooze', types: ['Poison', 'Ice'], tier: 'common', bst: 410,
+    stats: { hp: 0.18, melee: 0.07, ranged: 0.07, magic: 0.17, meleeDef: 0.14, rangedDef: 0.13, magicDef: 0.14, spe: 0.1 },
+    recipe: { body: 'o.body.cube', core: 'o.core.gem', eyes: 'o.eyes.sleepy', mouth: 'o.mouth.wavy', pseudopods: 'o.pseudopods.stubs', drips: 'o.drips.none', crown: 'o.crown.none', tendrils: 'o.tendrils.none', base: 'o.base.feet', inclusions: ['o.inclusions.shards', 'o.inclusions.none'], sheen: ['o.sheen.rings', 'o.sheen.none'], bumps: ['o.bumps.crystals', 'o.bumps.none'] },
+    palette: { c1: [195, 45, 72], c2: [205, 40, 88], c3: [280, 55, 70], eye: [215, 70, 45] }, vary: { h: 8, s: 6, l: 5 },
+    paint: { bumps: 4 },
+    traits: T([0.4, 0.65], MID, [0.3, 0.5], MID, MID, [0.45, 0.7]),
+    learnset: [[1,'sleet'],[1,'venom_haze'],[6,'chill_gust'],[11,'acid_spit'],[16,'brace'],[22,'slime_coat'],[28,'glacier_ray'],[34,'toxic_wave'],[40,'mend'],[46,'whiteout'],[52,'sludge_hurl']],
+    abilities: ['frost_heart','blubber'],
+    desc: 'A block of gelatin left out in the cold. It is very slow and does not care who knows it.',
+  },
+  {
+    id: 'ectoplop', name: 'Ectoplop', nameParts: ['Ecto', 'plop'], clade: 'ooze', rig: 'ooze', types: ['Poison', 'Ghost'], tier: 'uncommon', bst: 435,
+    stats: { hp: 0.15, melee: 0.06, ranged: 0.08, magic: 0.21, meleeDef: 0.1, rangedDef: 0.11, magicDef: 0.15, spe: 0.14 },
+    recipe: { body: 'o.body.drop', core: 'o.core.skull', eyes: 'o.eyes.void', mouth: 'o.mouth.wavy', pseudopods: 'o.pseudopods.curl', drips: ['o.drips.string', 'o.drips.none'], crown: ['o.crown.wisp', 'o.crown.none'], tendrils: ['o.tendrils.streamers', 'o.tendrils.none'], base: 'o.base.trail', inclusions: ['o.inclusions.bones', 'o.inclusions.none'], sheen: ['o.sheen.dapple', 'o.sheen.none'], bumps: 'o.bumps.none' },
+    palette: { c1: [160, 35, 58], c2: [170, 30, 80], c3: [280, 40, 60], eye: [100, 90, 60] }, vary: { h: 10, s: 6, l: 5 },
+    paint: { crown: 4 },
+    traits: T([0.3, 0.55], MID, [0.3, 0.55], [0.5, 0.8], MID, [0.5, 0.75]),
+    learnset: [[1,'cold_lick'],[1,'venom_haze'],[6,'wraith_touch'],[11,'acid_spit'],[16,'curse_bolt'],[22,'blight'],[28,'umbral_orb'],[34,'toxic_wave'],[40,'haunt'],[46,'dread_pulse'],[52,'sludge_hurl']],
+    abilities: ['restless','second_wind'],
+    desc: 'What is left of a ghost after it gives up haunting and settles for seeping. Cold to the touch and clingy.',
+  },
+  {
+    id: 'mindmuck', name: 'Mindmuck', nameParts: ['Mind', 'muck'], clade: 'ooze', rig: 'ooze', types: ['Poison', 'Psychic'], tier: 'rare', bst: 460,
+    stats: { hp: 0.15, melee: 0.05, ranged: 0.08, magic: 0.22, meleeDef: 0.1, rangedDef: 0.11, magicDef: 0.15, spe: 0.14 },
+    recipe: { body: 'o.body.whirl', core: 'o.core.cluster', eyes: 'o.eyes.ring', mouth: 'o.mouth.smile', pseudopods: 'o.pseudopods.curl', drips: 'o.drips.none', crown: ['o.crown.halo', 'o.crown.none'], tendrils: ['o.tendrils.loop', 'o.tendrils.none'], base: 'o.base.ring', inclusions: ['o.inclusions.shards', 'o.inclusions.none'], sheen: ['o.sheen.sparkle', 'o.sheen.none'], bumps: 'o.bumps.none' },
+    palette: { c1: [285, 50, 55], c2: [300, 45, 75], c3: [50, 90, 70], eye: [320, 80, 60] }, vary: { h: 8, s: 6, l: 5 },
+    paint: { crown: 4, core: 4 },
+    traits: T([0.35, 0.6], [0.5, 0.75], [0.3, 0.5], MID, MID, [0.5, 0.75]),
+    learnset: [[1,'mind_jolt'],[1,'venom_haze'],[6,'acid_spit'],[11,'meditate'],[16,'thought_beam'],[22,'lull'],[28,'psi_shock'],[34,'toxic_wave'],[40,'blank_mind'],[46,'mind_crush'],[52,'psystorm']],
+    abilities: ['steady','mirror_scale'],
+    desc: 'It thinks in ripples. Stare into it long enough and it starts thinking your thoughts back at you, slowly.',
+  },
+  {
+    id: 'quickslick', name: 'Quickslick', nameParts: ['Quick', 'slick'], clade: 'ooze', rig: 'ooze', types: ['Poison', 'Steel'], tier: 'uncommon', bst: 440,
+    stats: { hp: 0.13, melee: 0.21, ranged: 0.07, magic: 0.06, meleeDef: 0.13, rangedDef: 0.12, magicDef: 0.1, spe: 0.18 },
+    recipe: { body: 'o.body.split', core: 'o.core.bubble', eyes: 'o.eyes.bead', mouth: 'o.mouth.grin', pseudopods: 'o.pseudopods.fist', drips: ['o.drips.beads', 'o.drips.none'], crown: 'o.crown.none', tendrils: ['o.tendrils.whip', 'o.tendrils.none'], base: 'o.base.drops', inclusions: 'o.inclusions.none', sheen: 'o.sheen.gloss', bumps: 'o.bumps.none' },
+    palette: { c1: [210, 10, 70], c2: [200, 8, 85], c3: [0, 0, 25], eye: [0, 0, 10] }, vary: { h: 10, s: 4, l: 6 },
+    traits: T([0.3, 0.55], MID, [0.4, 0.65], [0.35, 0.6], MID, [0.4, 0.6]),
+    learnset: [[1,'bolt_jab'],[1,'venom_prick'],[6,'swipe'],[11,'iron_claw'],[16,'venom_slash'],[22,'plate_up'],[28,'steel_ram'],[34,'venom_stab'],[40,'whetting'],[46,'comet_fist'],[52,'chrome_slam']],
+    abilities: ['keen_edge','quick_start'],
+    desc: 'Liquid metal with a grudge. It flows between the cracks in a guard and comes out the other side as a fist.',
+  },
+  {
+    id: 'tarrow', name: 'Tarrow', nameParts: ['Tar', 'row'], clade: 'ooze', rig: 'ooze', types: ['Poison', 'Dark'], tier: 'uncommon', bst: 430,
+    stats: { hp: 0.18, melee: 0.18, ranged: 0.06, magic: 0.06, meleeDef: 0.16, rangedDef: 0.13, magicDef: 0.12, spe: 0.11 },
+    recipe: { body: 'o.body.wide', core: 'o.core.skull', eyes: 'o.eyes.void', mouth: 'o.mouth.fangs', pseudopods: 'o.pseudopods.club', drips: ['o.drips.goop', 'o.drips.none'], crown: 'o.crown.none', tendrils: ['o.tendrils.tail', 'o.tendrils.none'], base: 'o.base.splat', inclusions: ['o.inclusions.bones', 'o.inclusions.none'], sheen: 'o.sheen.none', bumps: ['o.bumps.lobes', 'o.bumps.none'] },
+    palette: { c1: [270, 18, 28], c2: [280, 16, 44], c3: [40, 80, 55], eye: [40, 95, 60] }, vary: { h: 10, s: 4, l: 5 },
+    traits: T([0.45, 0.7], MID, [0.4, 0.6], [0.4, 0.65], MID, [0.4, 0.6]),
+    learnset: [[1,'bump'],[1,'venom_prick'],[6,'chomp'],[11,'blight'],[16,'venom_slash'],[22,'mug'],[28,'crush_bite'],[34,'venom_stab'],[40,'scheme'],[46,'venom_gore'],[52,'sludge_hurl']],
+    abilities: ['vice_jaw','venom_barbs'],
+    desc: 'A tar pit that got up and followed the last thing it swallowed. There are still bones in it. Not all of them are old.',
+  },
+  {
+    id: 'sugarslime', name: 'Sugarslime', nameParts: ['Sugar', 'slime'], clade: 'ooze', rig: 'ooze', types: ['Poison', 'Fairy'], tier: 'common', bst: 400,
+    stats: { hp: 0.16, melee: 0.05, ranged: 0.08, magic: 0.19, meleeDef: 0.11, rangedDef: 0.12, magicDef: 0.15, spe: 0.14 },
+    recipe: { body: 'o.body.blob', core: 'o.core.star', eyes: 'o.eyes.wide', mouth: 'o.mouth.smile', pseudopods: 'o.pseudopods.stubs', drips: ['o.drips.trio', 'o.drips.none'], crown: ['o.crown.bubbles', 'o.crown.none'], tendrils: 'o.tendrils.none', base: 'o.base.puddle', inclusions: 'o.inclusions.none', sheen: ['o.sheen.sparkle', 'o.sheen.none'], bumps: ['o.bumps.blisters', 'o.bumps.none'] },
+    palette: { c1: [330, 70, 72], c2: [340, 60, 88], c3: [180, 60, 70], eye: [330, 60, 40] }, vary: { h: 10, s: 6, l: 5 },
+    paint: { core: 4, crown: 3 },
+    traits: T([0.25, 0.5], MID, [0.3, 0.5], MID, MID, [0.6, 0.9]),
+    learnset: [[1,'glitter_gust'],[1,'venom_haze'],[6,'sweet_sip'],[11,'doe_eyes'],[16,'acid_spit'],[22,'moonbathe'],[28,'dazzle'],[34,'toxic_wave'],[40,'mend'],[46,'lunar_burst'],[52,'star_shower']],
+    abilities: ['lucky_streak','regrowth'],
+    desc: 'Sweet, sticky and technically poisonous. Children keep trying to lick it and it keeps letting them.',
+  },
+  {
+    id: 'mudglob', name: 'Mudglob', nameParts: ['Mud', 'glob'], clade: 'ooze', rig: 'ooze', types: ['Poison', 'Ground'], tier: 'common', bst: 415,
+    stats: { hp: 0.19, melee: 0.17, ranged: 0.07, magic: 0.05, meleeDef: 0.16, rangedDef: 0.14, magicDef: 0.11, spe: 0.11 },
+    recipe: { body: 'o.body.wide', core: 'o.core.nucleus', eyes: 'o.eyes.sleepy', mouth: 'o.mouth.frown', pseudopods: 'o.pseudopods.club', drips: ['o.drips.goop', 'o.drips.none'], crown: 'o.crown.none', tendrils: 'o.tendrils.none', base: 'o.base.splat', inclusions: ['o.inclusions.pebbles', 'o.inclusions.none'], sheen: 'o.sheen.none', bumps: ['o.bumps.warts', 'o.bumps.none'] },
+    palette: { c1: [30, 35, 35], c2: [35, 30, 50], c3: [90, 40, 45], eye: [45, 60, 60] }, vary: { h: 8, s: 5, l: 6 },
+    traits: T([0.4, 0.7], MID, [0.4, 0.6], MID, MID, [0.4, 0.6]),
+    learnset: [[1,'bump'],[1,'mud_fling'],[6,'venom_prick'],[11,'stampede'],[16,'brace'],[22,'venom_slash'],[28,'bull_rush'],[34,'venom_stab'],[40,'dust_kick'],[46,'quake_stomp'],[52,'venom_gore']],
+    abilities: ['stonewall','antitoxin'],
+    desc: 'A wallow that learned to wallow toward things. Warm in summer and a hazard in every season.',
+  },
+  {
+    id: 'algaeble', name: 'Algaeble', nameParts: ['Algae', 'ble'], clade: 'ooze', rig: 'ooze', types: ['Poison', 'Grass'], tier: 'common', bst: 405,
+    stats: { hp: 0.15, melee: 0.07, ranged: 0.2, magic: 0.09, meleeDef: 0.1, rangedDef: 0.12, magicDef: 0.12, spe: 0.15 },
+    recipe: { body: 'o.body.tall', core: 'o.core.cluster', eyes: 'o.eyes.round', mouth: 'o.mouth.smile', pseudopods: 'o.pseudopods.paddle', drips: ['o.drips.string', 'o.drips.none'], crown: ['o.crown.fin', 'o.crown.none'], tendrils: ['o.tendrils.fronds', 'o.tendrils.none'], base: 'o.base.bubbles', inclusions: ['o.inclusions.leaves', 'o.inclusions.none'], sheen: ['o.sheen.wave', 'o.sheen.none'], bumps: 'o.bumps.none' },
+    palette: { c1: [95, 50, 42], c2: [80, 45, 60], c3: [160, 60, 55], eye: [0, 0, 15] }, vary: { h: 10, s: 6, l: 6 },
+    paint: { inclusions: 4 },
+    traits: T([0.3, 0.55], MID, [0.35, 0.55], [0.5, 0.75], MID, [0.5, 0.8]),
+    learnset: [[1,'seed_volley'],[1,'acid_spit'],[6,'leaf_razor'],[11,'toxin_dust'],[16,'photosynth'],[22,'sludge_blast'],[28,'spore_burst'],[34,'slime_coat'],[40,'sap_drain'],[46,'sludge_hurl'],[52,'leaf_tempest']],
+    abilities: ['bloom_heart','sponge'],
+    desc: 'A pond bloom that pooled itself into a shape and wandered off. Fish still try to live in it.',
+  },
+  {
+    id: 'gelacube', name: 'Gelacube', nameParts: ['Gela', 'cube'], clade: 'ooze', rig: 'ooze', types: ['Normal', 'Poison'], tier: 'uncommon', bst: 445,
+    stats: { hp: 0.2, melee: 0.17, ranged: 0.06, magic: 0.05, meleeDef: 0.16, rangedDef: 0.14, magicDef: 0.13, spe: 0.09 },
+    recipe: { body: 'o.body.cube', core: 'o.core.skull', eyes: 'o.eyes.sleepy', mouth: 'o.mouth.gape', pseudopods: 'o.pseudopods.fist', drips: ['o.drips.curtain', 'o.drips.none'], crown: 'o.crown.none', tendrils: 'o.tendrils.none', base: 'o.base.ring', inclusions: ['o.inclusions.bones', 'o.inclusions.coins'], sheen: ['o.sheen.bands', 'o.sheen.none'], bumps: 'o.bumps.none' },
+    palette: { c1: [150, 20, 68], c2: [150, 15, 85], c3: [55, 70, 70], eye: [0, 0, 12] }, vary: { h: 10, s: 5, l: 5 },
+    traits: T([0.45, 0.7], MID, [0.35, 0.55], MID, MID, [0.35, 0.55]),
+    learnset: [[1,'bump'],[1,'venom_prick'],[6,'swipe'],[11,'brace'],[16,'belly_flop'],[22,'venom_slash'],[28,'ram'],[34,'venom_stab'],[40,'mend'],[46,'venom_gore'],[52,'reckless_charge']],
+    abilities: ['iron_hide','antitoxin'],
+    desc: 'Exactly ten feet on a side, give or take. It fills corridors slowly and digests whatever forgot to leave.',
+  },
+  {
+    id: 'dragoop', name: 'Dragoop', nameParts: ['Dra', 'goop'], clade: 'ooze', rig: 'ooze', types: ['Poison', 'Dragon'], tier: 'rare', bst: 465,
+    stats: { hp: 0.16, melee: 0.09, ranged: 0.07, magic: 0.21, meleeDef: 0.12, rangedDef: 0.11, magicDef: 0.13, spe: 0.11 },
+    recipe: { body: 'o.body.whirl', core: 'o.core.gem', eyes: 'o.eyes.ring', mouth: 'o.mouth.fangs', pseudopods: 'o.pseudopods.curl', drips: ['o.drips.spray', 'o.drips.none'], crown: ['o.crown.horns', 'o.crown.none'], tendrils: ['o.tendrils.whip', 'o.tendrils.none'], base: 'o.base.trail', inclusions: ['o.inclusions.shards', 'o.inclusions.none'], sheen: ['o.sheen.crackle', 'o.sheen.none'], bumps: ['o.bumps.crystals', 'o.bumps.none'] },
+    palette: { c1: [265, 55, 45], c2: [275, 45, 62], c3: [140, 80, 55], eye: [140, 95, 60] }, vary: { h: 8, s: 6, l: 5 },
+    paint: { crown: 4, bumps: 4, core: 4 },
+    traits: T([0.4, 0.65], [0.5, 0.75], [0.35, 0.55], [0.6, 0.9], MID, [0.45, 0.7]),
+    learnset: [[1,'wyrm_breath'],[1,'venom_haze'],[6,'acid_spit'],[11,'blight'],[16,'slime_coat'],[22,'sludge_blast'],[28,'wyrm_pulse'],[34,'toxic_wave'],[40,'wyrm_dance'],[46,'comet_roar'],[52,'sludge_hurl']],
+    abilities: ['purebred','venom_heart'],
+    desc: 'Dragon blood spilled in the sump and the sump drank it. Now it breathes fire like one, badly.',
+  },
 ];
 
 const SPECIES_BY_ID = Object.fromEntries(SPECIES.map((s) => [s.id, s]));
@@ -8899,6 +9382,7 @@ const CLADES = {
   invertebrate: { name: 'Invertebrate', plural: 'Invertebrates', linked: [['arms', 'legs']], desc: 'Soft bodies, shells and tentacles. Slugs, crabs, jellies and spirits.' },
   amphibian: { name: 'Amphibian', plural: 'Amphibians', linked: [['legs', 'arms']], desc: 'Wide heads and springy legs. Frogs, newts and swamp things.' },
   flora: { name: 'Flora', plural: 'Flora', linked: [['leaves', 'roots']], desc: 'Walking plants. Stems, blooms, leaves and roots.' },
+  ooze: { name: 'Ooze', plural: 'Oozes', linked: [['pseudopods', 'base']], desc: 'Living slime. A core, a puddle and whatever it swallowed.' },
 };
 
 const CLADE_IDS = Object.keys(CLADES);
@@ -9392,6 +9876,8 @@ const SLOT_FAMILY = {
   markings: 'flat', pattern: 'flat', scales: 'flat', glow: 'flat',
   // flora
   leaves: 'fin', roots: 'limb', vines: 'tail', pods: 'fur', thorns: 'crown', canopy: 'fur', bark: 'flat', fruit: 'face',
+  // ooze
+  core: 'face', pseudopods: 'limb', drips: 'face', tendrils: 'tail', base: 'fur', inclusions: 'flat', sheen: 'flat', bumps: 'fur',
 };
 function growthFor(slot) { return SLOT_GROWTH[SLOT_FAMILY[slot] || 'face']; }
 
@@ -9693,6 +10179,15 @@ POSES.flora = {
   poise: { body: { da: -4, dy: -1 }, head: { da: -6, dy: -2 }, leaves: { da: -10 }, canopy: { ds: 1.05 }, thorns: { ds: 1.05 } },
   attack: { body: { da: 5, dx: 6 }, head: { da: -4, dx: 5 }, leaves: { da: -26, far: { da: -12 } }, vines: { da: 18 }, mouth: { ds: 1.15 }, roots: { da: -6 } },
   hurt: { body: { da: -8, dx: -4 }, head: { da: -14, dx: -3 }, leaves: { da: 20, far: { da: 10 } }, vines: { da: -8 }, roots: { da: 8 } },
+};
+
+POSES.ooze = {
+  stand: {},
+  brace: { body: { da: 3, dx: 2 }, core: { dx: 1, dy: 1 }, pseudopods: { da: -10, far: { da: -4 } }, tendrils: { da: 8 }, crown: { da: 4 } },
+  crouch: { body: { dy: 5, ds: 0.96 }, core: { dy: 2, ds: 0.95 }, pseudopods: { ds: 0.88, da: 6 }, base: { ds: 1.1 }, tendrils: { da: 12 } },
+  poise: { body: { da: -3, dy: -2 }, core: { dy: -2, ds: 1.06 }, pseudopods: { da: 8, dy: -2 }, crown: { ds: 1.06 }, tendrils: { da: -6 } },
+  attack: { body: { da: 4, dx: 6 }, core: { dx: 3, ds: 1.1 }, pseudopods: { da: -28, far: { da: -12 } }, tendrils: { da: 16 }, mouth: { ds: 1.15 }, drips: { dy: 2 } },
+  hurt: { body: { da: -8, dx: -4, ds: 0.96 }, core: { dx: -2, dy: 1 }, pseudopods: { da: 18, far: { da: 10 } }, tendrils: { da: -10 }, crown: { da: -12 }, base: { ds: 1.08 } },
 };
 
 /** The slot deltas of a pose on a rig ({} for an unknown pose or 'stand'). */
@@ -12209,7 +12704,7 @@ const TILE = { grass: 0, habitat: 1, path: 2, wall: 3, water: 4, hub: 5, lair: 6
 const WALKABLE_TILES = new Set([TILE.grass, TILE.habitat, TILE.path, TILE.hub, TILE.door, TILE.camp, TILE.spireDoor, TILE.shrine, TILE.marketDoor, TILE.storageDoor]);
 
 /** Biomes in difficulty order, clockwise from the south of the hub. Levels climb 5 to the fifties; the gaps in the ladder are for classes still to come. */
-const BIOME_ORDER = ['mammal', 'amphibian', 'flora', 'insect', 'bird', 'fish', 'invertebrate', 'reptile'];
+const BIOME_ORDER = ['mammal', 'amphibian', 'flora', 'insect', 'bird', 'ooze', 'fish', 'invertebrate', 'reptile'];
 
 /** Per-class region: name, wild level, palette and the look of its walls. */
 const REGIONS = {
@@ -12220,6 +12715,7 @@ const REGIONS = {
   fish:         { name: 'Glass Lagoon',   level: 36, ground: '#d8c68e', ground2: '#cebb84', habitat: '#8fc7d3', path: '#e6d9a8', water: '#3aa7d8', wall: 'palm',     wallColor: '#4f8f5f', accent: '#7fe0ea', waterT: 0.5,  warden: 'Warden Brine',  badge: 'Lagoon Badge' },
   invertebrate: { name: 'Murk Hollow',    level: 45, ground: '#5a5470', ground2: '#524c68', habitat: '#443f5c', path: '#8c8494', water: '#3b3f6e', wall: 'rock',     wallColor: '#3a3448', accent: '#b98cff', waterT: 0.62, warden: 'Warden Gloam',  badge: 'Hollow Badge' },
   flora:        { name: 'Bramble Wilds',  level: 14, ground: '#5f9a3d', ground2: '#578f3a', habitat: '#3f7d31', path: '#c4ad76', water: '#3f86b8', wall: 'hedge',    wallColor: '#3b6b2a', accent: '#f2a5c8', waterT: 0.66, warden: 'Warden Bryony', badge: 'Bramble Badge' },
+  ooze:         { name: 'Slurry Sump',    level: 32, ground: '#7a8a4c', ground2: '#707f45', habitat: '#55703a', path: '#c0b27e', water: '#7fb84f', wall: 'rock',     wallColor: '#4c4a3e', accent: '#b6f06a', waterT: 0.6,  warden: 'Warden Dreg',   badge: 'Sump Badge' },
   reptile:      { name: 'Ember Scar',     level: 50, ground: '#9c6b4a', ground2: '#906244', habitat: '#7a4d38', path: '#d0a878', water: '#e0562a', wall: 'rock',     wallColor: '#5a3a2c', accent: '#ff9a4a', waterT: 0.7,  warden: 'Warden Cinder', badge: 'Scar Badge' },
 };
 
@@ -12366,6 +12862,7 @@ const TRAINER_TITLES = {
   mammal: ['Herder', 'Shepherd', 'Drover'], amphibian: ['Bog Walker', 'Fen Keeper', 'Reed Cutter'], insect: ['Beekeeper', 'Gardener', 'Lantern Girl'],
   bird: ['Falconer', 'Cliff Runner', 'Skywatch'], fish: ['Angler', 'Tide Watcher', 'Pearl Diver'], invertebrate: ['Cave Diver', 'Lamplighter', 'Shell Seller'], reptile: ['Ash Ranger', 'Scale Tamer', 'Kiln Hand'],
   flora: ['Gardener', 'Hedge Witch', 'Orchard Keeper'],
+  ooze: ['Sump Dredger', 'Slime Wrangler', 'Vat Keeper'],
 };
 const TRAINER_LINES = {
   mammal: ['My team was raised on these downs. Care for a bout?', 'Fur and fang against whatever you have. Fight?'],
@@ -12376,6 +12873,7 @@ const TRAINER_LINES = {
   invertebrate: ['Not everything in the dark is slow. Shall we?', 'You look lost. A fight will warm you up.'],
   reptile: ['Ash in the air and fire in my team. Fight?', 'The Scar breaks the unready. Prove me wrong.'],
   flora: ['Everything in the Wilds grows back. Your pride might not. Fight?', 'My team put down roots here. Try pulling them up.'],
+  ooze: ['Mind the puddles. Some of them mind you back. Fight?', 'My team has no bones to break. How about yours?'],
 };
 const TRAINER_AFTER = ['Good match. Come back stronger.', 'Well fought. The Warden is another matter.', 'You earned that one.', 'My team will remember you.'];
 

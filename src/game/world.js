@@ -25,7 +25,7 @@ export const TILE = { grass: 0, habitat: 1, path: 2, wall: 3, water: 4, hub: 5, 
 export const WALKABLE_TILES = new Set([TILE.grass, TILE.habitat, TILE.path, TILE.hub, TILE.door, TILE.camp, TILE.spireDoor, TILE.shrine, TILE.marketDoor, TILE.storageDoor]);
 
 /** Biomes in difficulty order, clockwise from the south of the hub. Levels climb 5 to the fifties; the gaps in the ladder are for classes still to come. */
-export const BIOME_ORDER = ['mammal', 'amphibian', 'flora', 'insect', 'bird', 'fish', 'invertebrate', 'reptile'];
+export const BIOME_ORDER = ['mammal', 'amphibian', 'flora', 'insect', 'bird', 'ooze', 'fish', 'invertebrate', 'reptile'];
 
 /** Per-class region: name, wild level, palette and the look of its walls. */
 export const REGIONS = {
@@ -36,6 +36,7 @@ export const REGIONS = {
   fish:         { name: 'Glass Lagoon',   level: 36, ground: '#d8c68e', ground2: '#cebb84', habitat: '#8fc7d3', path: '#e6d9a8', water: '#3aa7d8', wall: 'palm',     wallColor: '#4f8f5f', accent: '#7fe0ea', waterT: 0.5,  warden: 'Warden Brine',  badge: 'Lagoon Badge' },
   invertebrate: { name: 'Murk Hollow',    level: 45, ground: '#5a5470', ground2: '#524c68', habitat: '#443f5c', path: '#8c8494', water: '#3b3f6e', wall: 'rock',     wallColor: '#3a3448', accent: '#b98cff', waterT: 0.62, warden: 'Warden Gloam',  badge: 'Hollow Badge' },
   flora:        { name: 'Bramble Wilds',  level: 14, ground: '#5f9a3d', ground2: '#578f3a', habitat: '#3f7d31', path: '#c4ad76', water: '#3f86b8', wall: 'hedge',    wallColor: '#3b6b2a', accent: '#f2a5c8', waterT: 0.66, warden: 'Warden Bryony', badge: 'Bramble Badge' },
+  ooze:         { name: 'Slurry Sump',    level: 32, ground: '#7a8a4c', ground2: '#707f45', habitat: '#55703a', path: '#c0b27e', water: '#7fb84f', wall: 'rock',     wallColor: '#4c4a3e', accent: '#b6f06a', waterT: 0.6,  warden: 'Warden Dreg',   badge: 'Sump Badge' },
   reptile:      { name: 'Ember Scar',     level: 50, ground: '#9c6b4a', ground2: '#906244', habitat: '#7a4d38', path: '#d0a878', water: '#e0562a', wall: 'rock',     wallColor: '#5a3a2c', accent: '#ff9a4a', waterT: 0.7,  warden: 'Warden Cinder', badge: 'Scar Badge' },
 };
 
@@ -182,6 +183,7 @@ const TRAINER_TITLES = {
   mammal: ['Herder', 'Shepherd', 'Drover'], amphibian: ['Bog Walker', 'Fen Keeper', 'Reed Cutter'], insect: ['Beekeeper', 'Gardener', 'Lantern Girl'],
   bird: ['Falconer', 'Cliff Runner', 'Skywatch'], fish: ['Angler', 'Tide Watcher', 'Pearl Diver'], invertebrate: ['Cave Diver', 'Lamplighter', 'Shell Seller'], reptile: ['Ash Ranger', 'Scale Tamer', 'Kiln Hand'],
   flora: ['Gardener', 'Hedge Witch', 'Orchard Keeper'],
+  ooze: ['Sump Dredger', 'Slime Wrangler', 'Vat Keeper'],
 };
 const TRAINER_LINES = {
   mammal: ['My team was raised on these downs. Care for a bout?', 'Fur and fang against whatever you have. Fight?'],
@@ -192,6 +194,7 @@ const TRAINER_LINES = {
   invertebrate: ['Not everything in the dark is slow. Shall we?', 'You look lost. A fight will warm you up.'],
   reptile: ['Ash in the air and fire in my team. Fight?', 'The Scar breaks the unready. Prove me wrong.'],
   flora: ['Everything in the Wilds grows back. Your pride might not. Fight?', 'My team put down roots here. Try pulling them up.'],
+  ooze: ['Mind the puddles. Some of them mind you back. Fight?', 'My team has no bones to break. How about yours?'],
 };
 const TRAINER_AFTER = ['Good match. Come back stronger.', 'Well fought. The Warden is another matter.', 'You earned that one.', 'My team will remember you.'];
 

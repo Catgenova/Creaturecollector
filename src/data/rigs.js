@@ -407,6 +407,48 @@ RIGS.flora = {
   },
 };
 
+RIGS.ooze = {
+  id: 'ooze', name: 'Ooze', prefix: 'o.',
+  slots: ['body', 'core', 'eyes', 'mouth', 'pseudopods', 'drips', 'crown', 'tendrils', 'base', 'inclusions', 'sheen', 'bumps'],
+  names: {
+    body: 'Blob', core: 'Core', eyes: 'Eyes', mouth: 'Mouth', pseudopods: 'Pseudopods', drips: 'Drips',
+    crown: 'Crown', tendrils: 'Tendrils', base: 'Puddle', inclusions: 'Inclusions', sheen: 'Sheen', bumps: 'Bumps',
+  },
+  paint: ['body', 'core', 'pseudopods', 'drips', 'crown', 'tendrils', 'base', 'inclusions', 'sheen', 'bumps'],
+  swappable: ['drips', 'crown', 'tendrils', 'inclusions', 'sheen', 'bumps'],
+  required: ['body', 'core', 'eyes', 'mouth', 'pseudopods', 'base'],
+  linked: [['pseudopods', 'base'], ['core', 'eyes']],
+  ground: ['body', 'base'],
+  clipped: ['inclusions', 'sheen'],
+  tree: {
+    slot: 'body', anim: 'body',
+    behind: [
+      { slot: 'crown', socket: 'crown', anim: 'sway' },
+      { slot: 'tendrils', socket: 'tendrilFar', far: true, scale: 'tail', anim: 'tail' },
+      { slot: 'pseudopods', socket: 'podFar', far: true, scale: 'leg' },
+      { slot: 'base', socket: 'base', scale: 'leg' },
+    ],
+    front: [
+      { slot: 'tendrils', socket: 'tendril', scale: 'tail', anim: 'tail' },
+      { slot: 'pseudopods', socket: 'pod', scale: 'leg' },
+      { slot: 'bumps', socket: 'bumps', small: true },
+      { slot: 'drips', socket: 'drips', small: true },
+      { slot: 'core', socket: 'core', scale: 'head', anim: 'head' },
+      { slot: 'eyes', socket: 'eyeFar', far: true, scale: 'eye', small: true },
+      { slot: 'eyes', socket: 'eye', scale: 'eye', small: true },
+      { slot: 'mouth', socket: 'mouth', small: true },
+    ],
+  },
+  mannequin: {
+    parts: {
+      body: 'o.body.blob', core: 'o.core.nucleus', eyes: 'o.eyes.round', mouth: 'o.mouth.smile', pseudopods: 'o.pseudopods.stubs', base: 'o.base.puddle',
+      drips: 'o.drips.none', crown: 'o.crown.none', tendrils: 'o.tendrils.none', inclusions: 'o.inclusions.none', sheen: 'o.sheen.none', bumps: 'o.bumps.none',
+    },
+    forSlot: { tendrils: { body: 'o.body.tall' } },
+    accentSlots: ['core', 'pseudopods', 'drips', 'crown', 'tendrils', 'base', 'inclusions', 'sheen', 'bumps'],
+  },
+};
+
 export const RIG_IDS = Object.keys(RIGS);
 
 /** Rig used when a genome names none or an unknown one (old saves): the first class. */

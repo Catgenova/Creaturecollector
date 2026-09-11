@@ -99,6 +99,15 @@ POSES.flora = {
   hurt: { body: { da: -8, dx: -4 }, head: { da: -14, dx: -3 }, leaves: { da: 20, far: { da: 10 } }, vines: { da: -8 }, roots: { da: 8 } },
 };
 
+POSES.ooze = {
+  stand: {},
+  brace: { body: { da: 3, dx: 2 }, core: { dx: 1, dy: 1 }, pseudopods: { da: -10, far: { da: -4 } }, tendrils: { da: 8 }, crown: { da: 4 } },
+  crouch: { body: { dy: 5, ds: 0.96 }, core: { dy: 2, ds: 0.95 }, pseudopods: { ds: 0.88, da: 6 }, base: { ds: 1.1 }, tendrils: { da: 12 } },
+  poise: { body: { da: -3, dy: -2 }, core: { dy: -2, ds: 1.06 }, pseudopods: { da: 8, dy: -2 }, crown: { ds: 1.06 }, tendrils: { da: -6 } },
+  attack: { body: { da: 4, dx: 6 }, core: { dx: 3, ds: 1.1 }, pseudopods: { da: -28, far: { da: -12 } }, tendrils: { da: 16 }, mouth: { ds: 1.15 }, drips: { dy: 2 } },
+  hurt: { body: { da: -8, dx: -4, ds: 0.96 }, core: { dx: -2, dy: 1 }, pseudopods: { da: 18, far: { da: 10 } }, tendrils: { da: -10 }, crown: { da: -12 }, base: { ds: 1.08 } },
+};
+
 /** The slot deltas of a pose on a rig ({} for an unknown pose or 'stand'). */
 export function poseTable(rig, pose) { return (POSES[rig] && POSES[rig][pose]) || {}; }
 

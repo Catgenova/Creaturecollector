@@ -12,6 +12,7 @@ import { INSECT_PARTS } from './insect/index.js';
 import { INVERTEBRATE_PARTS } from './invertebrate/index.js';
 import { AMPHIBIAN_PARTS } from './amphibian/index.js';
 import { FLORA_PARTS } from './flora/index.js';
+import { OOZE_PARTS } from './ooze/index.js';
 
 export const RIG_PARTS = {
   mammal: MAMMAL_PARTS,
@@ -22,6 +23,7 @@ export const RIG_PARTS = {
   invertebrate: INVERTEBRATE_PARTS,
   amphibian: AMPHIBIAN_PARTS,
   flora: FLORA_PARTS,
+  ooze: OOZE_PARTS,
 };
 
 export const PARTS = new Map();
