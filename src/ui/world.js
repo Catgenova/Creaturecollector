@@ -15,7 +15,8 @@ import { JOURNEY, newJourney, chooseJourneyStarter, tryMove, facing, talkTo, acc
 import { WORLD, TILE, REGIONS, HUB, worldFor, tileAt, biomeAt, habitatTypeAt, trainerAt, findPath, isHubTile } from '../game/world.js';
 import { TYPE_INFO, TYPE_LIST } from '../data/types.js';
 import { DAMAGE_TYPES } from '../data/damage.js';
-import { marketCatalogue, buyMove, bagList, bagCount, canTeach, teachMove, itemCatalogue, itemList, buyItem, useItem, scrollTypes, scrollLearners } from '../game/market.js';
+import { marketCatalogue, buyMove, bagList, bagCount, canTeach, teachMove, itemCatalogue, itemList, buyItem, useItem, scrollTypes, scrollLearners, listWords } from '../game/market.js';
+import { abilityName } from '../data/abilities.js';
 import { getMove } from '../data/moves.js';
 import { getItem } from '../data/items.js';
 import { cladeName } from '../data/clades.js';
@@ -419,7 +420,7 @@ function owMemberRow(j, m, actions) {
       h('div', { class: 'hpbar' }, h('i', { class: frac > 0.5 ? 'ok' : frac > 0.2 ? 'warn' : 'low', style: { width: `${Math.max(0, frac * 100)}%` } })),
       h('div', { class: 'xpline' }, xpRow(xp), h('span', { class: 'xpnum' }, xp.next > xp.prev ? `${xp.cur - xp.prev} / ${xp.next - xp.prev}` : 'MAX')),
       h('div', { class: 'move-chips' }, (m.moves || []).map((id) => { const mv = getMove(id); return mv ? h('span', { class: 'chip', style: { '--chip': TYPE_INFO[mv.type].color } }, mv.name) : null; })),
-      h('div', { class: 'row-actions' }, h('span', { class: 'hint', style: { margin: 0 } }, `${m.hp} / ${max}`), ...actions)));
+      h('div', { class: 'row-actions' }, h('span', { class: 'hint', style: { margin: 0 } }, `${m.hp} / ${max} · ${abilityName(m.genome.ability)}`), ...actions)));
 }
 
 /** Release: tap once to arm, again within a few seconds to let the creature go. The party keeps at least one. */
@@ -569,7 +570,7 @@ function owTeachPanel(j, teaching, back) {
   const panel = h('div');
   const render = () => {
     clear(panel);
-    panel.append(h('div', { class: 'row', style: { justifyContent: 'flex-start' } }, h('button', { class: 'btn small', type: 'button', style: { whiteSpace: 'nowrap' }, onclick: back }, '‹ Bag'), h('span', { class: 'hint', style: { margin: 0 } }, `Teach ${move.name} (${move.type}) to… Only a ${move.type} creature, or an Elemental of that element, can learn it. Party only; withdraw stored creatures first.`)));
+    panel.append(h('div', { class: 'row', style: { justifyContent: 'flex-start' } }, h('button', { class: 'btn small', type: 'button', style: { whiteSpace: 'nowrap' }, onclick: back }, '‹ Bag'), h('span', { class: 'hint', style: { margin: 0 } }, `Teach ${move.name} (${move.type}) to… ${move.type === 'Normal' ? 'Any creature can learn a Normal scroll.' : `Only a ${move.type} creature, or an Elemental of that element, can learn it.`} Party only; withdraw stored creatures first.`)));
     const done = (uid, index) => {
       const m = [...j.party, ...j.box].find((x) => x.uid === uid);
       const r = teachMove(j, uid, move.id, index);
@@ -584,7 +585,7 @@ function owTeachPanel(j, teaching, back) {
       panel.append(h('div', { class: 'teach-row' }, creatureEl(m.genome, { size: 44, animate: false, level: m.level }),
         h('div', {}, h('b', {}, m.genome.name), ' ', h('span', { class: 'lvl' }, `Lv ${m.level}`),
           h('div', { class: 'move-chips' }, m.moves.map((id) => { const mv = getMove(id); return mv ? h('span', { class: 'chip', style: { '--chip': TYPE_INFO[mv.type].color } }, mv.name) : null; })),
-          h('div', { class: `hint learns${c.code === 'type' ? ' no' : ''}`, style: { margin: '2px 0 0' } }, `Learns ${scrollTypes(m.genome).join(' and ')} scrolls`)),
+          h('div', { class: `hint learns${c.code === 'type' ? ' no' : ''}`, style: { margin: '2px 0 0' } }, `Learns ${listWords(scrollTypes(m.genome))} scrolls`)),
         h('button', { class: 'btn small', type: 'button', disabled: !c.ok, title: c.ok ? '' : c.reason, onclick: () => { if (!c.needsReplace) done(m.uid, null); else { teaching.uid = picked ? null : m.uid; render(); } } }, c.ok ? (c.needsReplace ? (picked ? 'Cancel' : 'Replace…') : 'Teach') : c.code === 'type' ? 'Can’t learn' : 'Knows it')));
       if (picked && c.ok && c.needsReplace) {
         panel.append(h('div', { class: 'moves' }, m.moves.map((id, i) => { const mv = getMove(id); return h('button', { class: 'move-btn', type: 'button', style: { '--chip': TYPE_INFO[mv.type].color }, onclick: () => done(m.uid, i) }, h('span', { class: 'mv-name' }, `Forget ${mv.name}`), h('span', { class: 'mv-meta' }, `${mv.type}${mv.power ? ` · ${mv.power}` : ''}`)); })));
@@ -636,7 +637,7 @@ function owMarketSheet(j) {
     appendChildren(body, [
       h('p', { class: 'hint' }, `◆ ${(j.gold || 0).toLocaleString()} gold. Everything goes to your Bag. Trainers pay gold when beaten.`),
       ...section('Potions', potionList),
-      ...section('Move scrolls', h('p', { class: 'hint' }, 'Every move is sold as a single-use scroll; prices rise with power in steps of 1000. A creature learns only scrolls of its own types, or of its Elemental element; "My team" hides the rest.'), chips, shown ? list : h('p', { class: 'hint' }, 'No scroll here suits your team.')),
+      ...section('Move scrolls', h('p', { class: 'hint' }, 'Every move is sold as a single-use scroll; prices rise with power in steps of 1000. A creature learns scrolls of its own types, of its Elemental element, and any Normal scroll; "My team" hides the rest.'), chips, shown ? list : h('p', { class: 'hint' }, 'No scroll here suits your team.')),
     ]);
   };
   render();

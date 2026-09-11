@@ -194,6 +194,8 @@ h3.sec { font-size: 12px; text-transform: uppercase; letter-spacing: .1em; color
 .mv-fx .st { color: #c9b8ff; }
 .shop-fx { display: flex; flex-wrap: wrap; gap: 2px 8px; font-size: 11px; color: #c9b8ff; margin-top: 2px; }
 .shop-fx em { font-style: normal; }
+.panel .passive { font-size: 11px; color: var(--fg2); margin: 2px 0 4px; }
+.panel .passive::before { content: '✦ '; color: var(--acc); }
 .shop-who { font-size: 11px; color: var(--fg2); margin-top: 2px; }
 .shop-who.none { color: #ff9b7a; }
 .teach-row .learns { font-size: 11px; }
@@ -10357,6 +10359,7 @@ function renderPanel(f, i) {
     h('div', { class: 'panel-head' }, h('b', {}, b.name), h('span', { class: 'lvl' }, `Lv ${b.level}`), stageBadge(b.level), styleChip(null, b.style),
       b.status ? h('span', { class: `status st-${b.status}` }, STATUS_INFO[b.status].short) : null),
     typeChips(b.types),
+    h('div', { class: 'passive', title: 'Passive skill' }, abilityName(b.ability)),
     h('div', { class: 'hpbar' }, h('i', { class: hpClass(frac), style: { width: `${Math.max(0, frac * 100)}%` } })),
     h('div', { class: 'panel-foot' },
       h('span', { class: 'hpnum' }, i === 0 ? `${b.hp} / ${b.maxHp}` : `${Math.ceil(frac * 100)}%`),
@@ -11768,21 +11771,25 @@ function buyMove(j, moveId) {
 
 function bagMember(j, uid) { return [...j.party, ...j.box].find((m) => m.uid === uid) || null; }
 
-/** The move types a creature can learn from scrolls: its own types, plus its Elemental aura's element when it has one. */
+/** "Ice, Water and Normal" */
+function listWords(items) { return items.length > 1 ? `${items.slice(0, -1).join(', ')} and ${items[items.length - 1]}` : items[0] || ''; }
+
+/** The move types a creature can learn from scrolls: its own types, its Elemental aura's element when it has one, and Normal, which everyone learns. */
 function scrollTypes(g) {
   const out = [...(g && g.types ? g.types : [])];
   const elem = elementalOf(g);
   if (elem) for (const t of ELEMENTS[elem.id].types) if (!out.includes(t)) out.push(t);
+  if (!out.includes('Normal')) out.push('Normal');
   return out;
 }
 
-/** Could this creature ever learn this scroll? Only moves of its own types, or of its Elemental element. { ok, reason? } */
+/** Could this creature ever learn this scroll? Moves of its own types, of its Elemental element, or Normal. { ok, reason? } */
 function canLearnScroll(g, moveId) {
   const mv = getMove(moveId);
   if (!mv) return { ok: false, reason: 'No such move.' };
   const types = scrollTypes(g);
   if (types.includes(mv.type)) return { ok: true };
-  return { ok: false, reason: `${g.name} cannot learn ${mv.type} moves from a scroll; it learns ${types.join(' and ')}.` };
+  return { ok: false, reason: `${g.name} cannot learn ${mv.type} moves from a scroll; it learns ${listWords(types)}.` };
 }
 
 /** Names of the party and box members who can learn this scroll's type. */
@@ -12142,6 +12149,7 @@ function partyHealth(j) {
 // tap on the ground; wild encounters on habitat tiles, trainers who fight when asked,
 // Wardens in their lairs, the Council Spire, camps that heal and a shrine that fuses.
 // Fights hand off to the shared fight view and come back to the same spot.
+
 
 
 
@@ -12559,7 +12567,7 @@ function owMemberRow(j, m, actions) {
       h('div', { class: 'hpbar' }, h('i', { class: frac > 0.5 ? 'ok' : frac > 0.2 ? 'warn' : 'low', style: { width: `${Math.max(0, frac * 100)}%` } })),
       h('div', { class: 'xpline' }, xpRow(xp), h('span', { class: 'xpnum' }, xp.next > xp.prev ? `${xp.cur - xp.prev} / ${xp.next - xp.prev}` : 'MAX')),
       h('div', { class: 'move-chips' }, (m.moves || []).map((id) => { const mv = getMove(id); return mv ? h('span', { class: 'chip', style: { '--chip': TYPE_INFO[mv.type].color } }, mv.name) : null; })),
-      h('div', { class: 'row-actions' }, h('span', { class: 'hint', style: { margin: 0 } }, `${m.hp} / ${max}`), ...actions)));
+      h('div', { class: 'row-actions' }, h('span', { class: 'hint', style: { margin: 0 } }, `${m.hp} / ${max} · ${abilityName(m.genome.ability)}`), ...actions)));
 }
 
 /** Release: tap once to arm, again within a few seconds to let the creature go. The party keeps at least one. */
@@ -12709,7 +12717,7 @@ function owTeachPanel(j, teaching, back) {
   const panel = h('div');
   const render = () => {
     clear(panel);
-    panel.append(h('div', { class: 'row', style: { justifyContent: 'flex-start' } }, h('button', { class: 'btn small', type: 'button', style: { whiteSpace: 'nowrap' }, onclick: back }, '‹ Bag'), h('span', { class: 'hint', style: { margin: 0 } }, `Teach ${move.name} (${move.type}) to… Only a ${move.type} creature, or an Elemental of that element, can learn it. Party only; withdraw stored creatures first.`)));
+    panel.append(h('div', { class: 'row', style: { justifyContent: 'flex-start' } }, h('button', { class: 'btn small', type: 'button', style: { whiteSpace: 'nowrap' }, onclick: back }, '‹ Bag'), h('span', { class: 'hint', style: { margin: 0 } }, `Teach ${move.name} (${move.type}) to… ${move.type === 'Normal' ? 'Any creature can learn a Normal scroll.' : `Only a ${move.type} creature, or an Elemental of that element, can learn it.`} Party only; withdraw stored creatures first.`)));
     const done = (uid, index) => {
       const m = [...j.party, ...j.box].find((x) => x.uid === uid);
       const r = teachMove(j, uid, move.id, index);
@@ -12724,7 +12732,7 @@ function owTeachPanel(j, teaching, back) {
       panel.append(h('div', { class: 'teach-row' }, creatureEl(m.genome, { size: 44, animate: false, level: m.level }),
         h('div', {}, h('b', {}, m.genome.name), ' ', h('span', { class: 'lvl' }, `Lv ${m.level}`),
           h('div', { class: 'move-chips' }, m.moves.map((id) => { const mv = getMove(id); return mv ? h('span', { class: 'chip', style: { '--chip': TYPE_INFO[mv.type].color } }, mv.name) : null; })),
-          h('div', { class: `hint learns${c.code === 'type' ? ' no' : ''}`, style: { margin: '2px 0 0' } }, `Learns ${scrollTypes(m.genome).join(' and ')} scrolls`)),
+          h('div', { class: `hint learns${c.code === 'type' ? ' no' : ''}`, style: { margin: '2px 0 0' } }, `Learns ${listWords(scrollTypes(m.genome))} scrolls`)),
         h('button', { class: 'btn small', type: 'button', disabled: !c.ok, title: c.ok ? '' : c.reason, onclick: () => { if (!c.needsReplace) done(m.uid, null); else { teaching.uid = picked ? null : m.uid; render(); } } }, c.ok ? (c.needsReplace ? (picked ? 'Cancel' : 'Replace…') : 'Teach') : c.code === 'type' ? 'Can’t learn' : 'Knows it')));
       if (picked && c.ok && c.needsReplace) {
         panel.append(h('div', { class: 'moves' }, m.moves.map((id, i) => { const mv = getMove(id); return h('button', { class: 'move-btn', type: 'button', style: { '--chip': TYPE_INFO[mv.type].color }, onclick: () => done(m.uid, i) }, h('span', { class: 'mv-name' }, `Forget ${mv.name}`), h('span', { class: 'mv-meta' }, `${mv.type}${mv.power ? ` · ${mv.power}` : ''}`)); })));
@@ -12776,7 +12784,7 @@ function owMarketSheet(j) {
     appendChildren(body, [
       h('p', { class: 'hint' }, `◆ ${(j.gold || 0).toLocaleString()} gold. Everything goes to your Bag. Trainers pay gold when beaten.`),
       ...section('Potions', potionList),
-      ...section('Move scrolls', h('p', { class: 'hint' }, 'Every move is sold as a single-use scroll; prices rise with power in steps of 1000. A creature learns only scrolls of its own types, or of its Elemental element; "My team" hides the rest.'), chips, shown ? list : h('p', { class: 'hint' }, 'No scroll here suits your team.')),
+      ...section('Move scrolls', h('p', { class: 'hint' }, 'Every move is sold as a single-use scroll; prices rise with power in steps of 1000. A creature learns scrolls of its own types, of its Elemental element, and any Normal scroll; "My team" hides the rest.'), chips, shown ? list : h('p', { class: 'hint' }, 'No scroll here suits your team.')),
     ]);
   };
   render();

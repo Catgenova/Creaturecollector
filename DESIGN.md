@@ -694,7 +694,11 @@ into the collection on load.
   knows four, and uses the scroll up. A creature learns only scrolls of its
   own types, plus its Elemental element's types when it is one (a Water
   creature born a Fire Elemental learns Water and Fire; `scrollTypes`,
-  `canLearnScroll`); the Market says who on the team can learn each scroll. The Market also sells potions
+  `canLearnScroll`), and any Normal scroll; the Market says who on the team
+  can learn each scroll and can hide the rest. Every creature carries one
+  passive skill (`genome.ability`, rolled from its species' pair at birth;
+  Elementals take their element's core), shown on the battle panel, in party
+  rows and on the sheet. The Market also sells potions
   (`src/data/items.js`): Potion 20 HP for 300, Super Potion 60 for 700, Hyper
   Potion 150 for 1,500, Max Potion full for 2,500, Full Restore full plus any
   status cured for 3,000. A potion works on a standing party member from the

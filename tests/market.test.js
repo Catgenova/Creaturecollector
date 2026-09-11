@@ -7,7 +7,7 @@ import { speciesGenome, makeElemental } from '../src/creature/genome.js';
 import { makeMember } from '../src/game/party.js';
 import { TILE, tileAt, worldFor, isWalkable, findPath, isHubTile } from '../src/game/world.js';
 import { newJourney, chooseJourneyStarter, tryMove, acceptChallenge, challengeWarden, buildJourneyBattle, applyJourneyBattle, fleeEncounter } from '../src/game/journey.js';
-import { MARKET, GOLD, moveCost, marketCatalogue, goldReward, buyMove, bagList, bagCount, canTeach, teachMove, itemCatalogue, itemList, buyItem, useItem, scrollTypes, canLearnScroll, scrollLearners } from '../src/game/market.js';
+import { MARKET, GOLD, moveCost, marketCatalogue, goldReward, buyMove, bagList, bagCount, canTeach, teachMove, itemCatalogue, itemList, buyItem, useItem, scrollTypes, canLearnScroll, scrollLearners, listWords } from '../src/game/market.js';
 import { normalizeJourney } from '../src/game/save.js';
 import { ITEMS, ITEM_IDS, getItem, potionHeal, potionUseful } from '../src/data/items.js';
 import { memberMaxHp } from '../src/game/party.js';
@@ -101,6 +101,7 @@ test('buying stacks scrolls in the bag and teaching uses them up', () => {
   const own = MOVES.find((x) => x.type === m.genome.types[0] && x.id !== 'squirt');
   m.moves = ['squirt'];
   j.bag[own.id] = 2;
+  assert.deepEqual(canTeach(j, m.uid, 'headbonk'), { ok: true, needsReplace: false }, 'a Normal scroll suits anyone');
   assert.deepEqual(canTeach(j, m.uid, own.id), { ok: true, needsReplace: false });
   assert.deepEqual(teachMove(j, m.uid, own.id), { ok: true, replaced: null, needsReplace: false });
   assert.deepEqual(m.moves, ['squirt', own.id]);
@@ -131,12 +132,13 @@ test('scrolls teach only a creature\'s own types, or its Elemental element on to
   const g = speciesGenome(SPECIES_BY_ID.emberox, makeRng('t1'));
   const fireling = makeMember(g, 12, 'f1');
   j.box.push(fireling);
-  assert.deepEqual(scrollTypes(g), g.types);
-  assert.ok(g.types.includes('Fire'));
+  assert.deepEqual(scrollTypes(g), [...g.types, 'Normal']);
+  assert.ok(g.types.includes('Fire') && !g.types.includes('Normal'));
   assert.equal(canLearnScroll(g, 'scorch_fist').ok, true);
   assert.equal(canLearnScroll(g, 'squirt').ok, false);
-  assert.match(canLearnScroll(g, 'squirt').reason, /cannot learn Water moves/);
-  assert.equal(canLearnScroll(g, 'headbonk').ok, g.types.includes('Normal'), 'Normal scrolls need the Normal type like any other');
+  assert.match(canLearnScroll(g, 'squirt').reason, /cannot learn Water moves.*learns Fire.* and Normal/);
+  assert.equal(canLearnScroll(g, 'headbonk').ok, true, 'Normal scrolls suit every creature');
+  assert.equal(canLearnScroll(g, 'yowl').ok, true);
   assert.equal(canLearnScroll(g, 'nope').ok, false);
   j.bag = { squirt: 1, scorch_fist: 1 };
   const refused = canTeach(j, 'f1', 'squirt');
@@ -146,7 +148,8 @@ test('scrolls teach only a creature\'s own types, or its Elemental element on to
   assert.equal(canTeach(j, 'f1', 'scorch_fist').ok, fireling.moves.includes('scorch_fist') ? false : true);
   // a Water Elemental of that same species learns Water on top of its own types
   const elem = makeElemental(JSON.parse(JSON.stringify(g)), 'water');
-  assert.deepEqual(scrollTypes(elem), [...g.types, 'Water'].filter((t, i, a) => a.indexOf(t) === i));
+  assert.deepEqual(scrollTypes(elem), [...g.types, 'Water', 'Normal'].filter((t, i, a) => a.indexOf(t) === i));
+  assert.equal(scrollTypes(elem).filter((t) => t === 'Normal').length, 1, 'Normal listed once');
   assert.equal(canLearnScroll(elem, 'squirt').ok, true);
   assert.equal(canLearnScroll(elem, 'scorch_fist').ok, true);
   const shadow = makeElemental(JSON.parse(JSON.stringify(g)), 'shadow');
@@ -305,4 +308,11 @@ test('potions spent in a fight leave the bag whether you win or flee', () => {
   const back = normalizeJourney(JSON.parse(JSON.stringify(k)));
   assert.deepEqual(back.bag, { super_potion: 2 }, 'item ids survive the save');
   assert.deepEqual(normalizeJourney({ ...JSON.parse(JSON.stringify(k)), bag: { max_potion: 500, potion: 0, nope: 1 } }).bag, { max_potion: 99 });
+});
+
+test('listWords joins like a sentence', () => {
+  assert.equal(listWords([]), '');
+  assert.equal(listWords(['Fire']), 'Fire');
+  assert.equal(listWords(['Fire', 'Normal']), 'Fire and Normal');
+  assert.equal(listWords(['Ice', 'Water', 'Normal']), 'Ice, Water and Normal');
 });

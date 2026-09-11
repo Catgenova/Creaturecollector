@@ -112,21 +112,25 @@ export function buyMove(j, moveId) {
 
 function bagMember(j, uid) { return [...j.party, ...j.box].find((m) => m.uid === uid) || null; }
 
-/** The move types a creature can learn from scrolls: its own types, plus its Elemental aura's element when it has one. */
+/** "Ice, Water and Normal" */
+export function listWords(items) { return items.length > 1 ? `${items.slice(0, -1).join(', ')} and ${items[items.length - 1]}` : items[0] || ''; }
+
+/** The move types a creature can learn from scrolls: its own types, its Elemental aura's element when it has one, and Normal, which everyone learns. */
 export function scrollTypes(g) {
   const out = [...(g && g.types ? g.types : [])];
   const elem = elementalOf(g);
   if (elem) for (const t of ELEMENTS[elem.id].types) if (!out.includes(t)) out.push(t);
+  if (!out.includes('Normal')) out.push('Normal');
   return out;
 }
 
-/** Could this creature ever learn this scroll? Only moves of its own types, or of its Elemental element. { ok, reason? } */
+/** Could this creature ever learn this scroll? Moves of its own types, of its Elemental element, or Normal. { ok, reason? } */
 export function canLearnScroll(g, moveId) {
   const mv = getMove(moveId);
   if (!mv) return { ok: false, reason: 'No such move.' };
   const types = scrollTypes(g);
   if (types.includes(mv.type)) return { ok: true };
-  return { ok: false, reason: `${g.name} cannot learn ${mv.type} moves from a scroll; it learns ${types.join(' and ')}.` };
+  return { ok: false, reason: `${g.name} cannot learn ${mv.type} moves from a scroll; it learns ${listWords(types)}.` };
 }
 
 /** Names of the party and box members who can learn this scroll's type. */

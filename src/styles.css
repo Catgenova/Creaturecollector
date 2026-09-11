@@ -183,6 +183,8 @@ h3.sec { font-size: 12px; text-transform: uppercase; letter-spacing: .1em; color
 .mv-fx .st { color: #c9b8ff; }
 .shop-fx { display: flex; flex-wrap: wrap; gap: 2px 8px; font-size: 11px; color: #c9b8ff; margin-top: 2px; }
 .shop-fx em { font-style: normal; }
+.panel .passive { font-size: 11px; color: var(--fg2); margin: 2px 0 4px; }
+.panel .passive::before { content: '✦ '; color: var(--acc); }
 .shop-who { font-size: 11px; color: var(--fg2); margin-top: 2px; }
 .shop-who.none { color: #ff9b7a; }
 .teach-row .learns { font-size: 11px; }
