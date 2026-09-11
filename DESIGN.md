@@ -26,7 +26,7 @@ src/styles.css        all styles
 src/core/             rng, util — no game knowledge
 src/data/types.js     type list, chart, colours
 src/data/rigs.js      class skeletons: slot lists, draw trees, sockets each part must expose
-src/data/parts/       the part library: legacy slot files, one folder per rebuilt class (mammal/, reptile/),
+src/data/parts/       the part library: legacy slot files, one folder per rebuilt class (mammal/, reptile/, fish/),
                       shared builders (_builders.js), drawing DSL (_dsl.js), registry (index.js)
 src/data/species.js   base species recipes
 src/creature/         genome (schema, rolls, codes), palette, render (SVG)
@@ -336,12 +336,29 @@ Wild rolls and fusions only permute paint on a rig's `swappable` slots
 (accessories: crests, tails, manes, wings...), never on legs or heads, so a
 random colour swap reads as a marking rather than a mistake.
 
+**Fish rig** (done). Slots: body, eyes, mouth, dorsal, pectoral, tail, belly,
+gills, crest, barbels, spines, pattern. No head slot: the face sits on the
+body (eye, optional far eye, mouth at the front tip). Linked: dorsal with
+tail, pectoral with belly. Bodies declare `hover` and float above their
+shadow. The pectoral pair is drawn far-behind / near-in-front; the spines
+slot is drawn behind the body and, like patterns, is authored in the 100 × 60
+frame and stretched onto the body's box (`fitBox` on the rig node), so a ring
+of spikes pokes out evenly around any body. Archetypes: round, slender
+(betta), torpedo (shark), big-headed (angler), ball (puffer), upright
+(seahorse), ribbon (eel); eyes: round, wide, fierce, sleepy, bead, deep-sea,
+glowing; mouths: pout, smile, grin, frown, sucker, gape, needle teeth; fins
+in fan / pointed / flowing / paddle / spiky / tiny / wing families plus shark,
+ribbon, curl and lyre shapes; gills, crests (lure, fin crown, horn...),
+barbels, spines and patterns each have seven. Eight species: Finnip and
+Glimmerfin rebuilt, plus Sharkid (Water/Dark), Lurelight (Water/Ghost),
+Puffugu (Water/Poison), Hippodrake (Water/Dragon), Zapeel (Electric/Water)
+and Koiwish (Water/Psychic).
+
 **Next classes**, one per step, each with its own slot list and seven parts per
-slot: fish (fins, gills, face on the body), bird (beaks, wings, tail fans),
-insect (segments, antennae, six legs, wing pairs), invertebrate (shells,
-tentacles, spirits), amphibian (wide heads, webbed feet). Each needs species
-added to reach seven. When all seven classes are on rigs the legacy skeleton
-and its parts go away.
+slot: bird (beaks, wings, tail fans), insect (segments, antennae, six legs,
+wing pairs), invertebrate (shells, tentacles, spirits), amphibian (wide heads,
+webbed feet). Each needs species added to reach seven. When all seven classes
+are on rigs the legacy skeleton and its parts go away.
 
 ## Polish and balance (Phase 5 — implemented)
 

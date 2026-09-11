@@ -156,6 +156,49 @@ export const RIGS = {
       accentSlots: ['crest', 'tail', 'back', 'wings', 'throat', 'scales'],
     },
   },
+
+  fish: {
+    id: 'fish', name: 'Fish', prefix: 'f.',
+    slots: ['body', 'eyes', 'mouth', 'dorsal', 'pectoral', 'tail', 'belly', 'gills', 'crest', 'barbels', 'spines', 'pattern'],
+    names: {
+      body: 'Body', eyes: 'Eyes', mouth: 'Mouth', dorsal: 'Dorsal fin', pectoral: 'Side fins', tail: 'Tail fin', belly: 'Belly fins',
+      gills: 'Gills', crest: 'Crest', barbels: 'Barbels', spines: 'Spines', pattern: 'Pattern',
+    },
+    paint: ['body', 'dorsal', 'pectoral', 'tail', 'belly', 'gills', 'crest', 'barbels', 'spines', 'pattern'],
+    swappable: ['dorsal', 'tail', 'belly', 'crest', 'spines', 'pattern'],
+    required: ['body', 'eyes', 'mouth', 'dorsal', 'pectoral', 'tail'],
+    linked: [['dorsal', 'tail'], ['pectoral', 'belly']],
+    ground: ['body'],
+    clipped: ['pattern'],
+    tree: {
+      slot: 'body', anim: 'body',
+      behind: [
+        { slot: 'spines', fitBox: true },
+        { slot: 'pectoral', socket: 'pectoralFar', far: true, anim: 'flap' },
+        { slot: 'tail', socket: 'tail', scale: 'tail', anim: 'tail' },
+        { slot: 'dorsal', socket: 'dorsal' },
+        { slot: 'belly', socket: 'belly' },
+        { slot: 'crest', socket: 'crest' },
+      ],
+      front: [
+        { slot: 'gills', socket: 'gills', small: true },
+        { slot: 'barbels', socket: 'barbels', small: true },
+        { slot: 'eyes', socket: 'eyeFar', far: true, scale: 'eye', small: true },
+        { slot: 'eyes', socket: 'eye', scale: 'eye', small: true },
+        { slot: 'mouth', socket: 'mouth', small: true },
+        { slot: 'pectoral', socket: 'pectoral', anim: 'flap' },
+      ],
+    },
+    mannequin: {
+      parts: {
+        body: 'f.body.round', eyes: 'f.eyes.round', mouth: 'f.mouth.pout', dorsal: 'f.dorsal.fan', pectoral: 'f.pectoral.fan',
+        tail: 'f.tail.forked', belly: 'f.belly.none', gills: 'f.gills.none', crest: 'f.crest.none', barbels: 'f.barbels.none',
+        spines: 'f.spines.none', pattern: 'f.pattern.none',
+      },
+      forSlot: {},
+      accentSlots: ['dorsal', 'pectoral', 'tail', 'belly', 'gills', 'crest', 'barbels', 'spines', 'pattern'],
+    },
+  },
 };
 
 export const RIG_IDS = Object.keys(RIGS);

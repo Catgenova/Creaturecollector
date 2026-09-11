@@ -14,6 +14,7 @@ import { BACKS } from './backs.js';
 import { PATTERNS } from './patterns.js';
 import { MAMMAL_PARTS } from './mammal/index.js';
 import { REPTILE_PARTS } from './reptile/index.js';
+import { FISH_PARTS } from './fish/index.js';
 
 export const RIG_PARTS = {
   legacy: {
@@ -22,6 +23,7 @@ export const RIG_PARTS = {
   },
   mammal: MAMMAL_PARTS,
   reptile: REPTILE_PARTS,
+  fish: FISH_PARTS,
 };
 
 export const PARTS = new Map();

@@ -461,7 +461,10 @@ function buildRigged(g, id, styleName, rig) {
       const part = P[node.slot];
       if (!part) return '';
       let t;
-      if (node.socket) {
+      if (node.fitBox && parentPart) {
+        const bb = parentPart.box || partBounds(parentPart);
+        t = { x: (bb[0] + bb[2]) / 2, y: (bb[1] + bb[3]) / 2, a: 0, sx: (bb[2] - bb[0]) / FIT_FRAME.w, sy: (bb[3] - bb[1]) / FIT_FRAME.h };
+      } else if (node.socket) {
         const sk = parentPart && parentPart.sockets ? parentPart.sockets[node.socket] : null;
         if (!sk) return '';
         const s = (sk.s == null ? 1 : sk.s) * (node.scale ? K[node.scale] : 1);

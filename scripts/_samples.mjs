@@ -1,6 +1,7 @@
 // Sample creatures for art review, built straight from part ids (no species needed).
 import { validateGenome } from '../src/creature/genome.js';
 import { getRig } from '../src/data/rigs.js';
+import { getPart } from '../src/data/parts/index.js';
 
 const GREY = { c1: [222, 10, 64], c2: [222, 12, 46], c3: [28, 80, 58], eye: [200, 55, 45] };
 
@@ -8,8 +9,11 @@ const GREY = { c1: [222, 10, 64], c2: [222, 12, 46], c3: [28, 80, 58], eye: [200
 export function sampleGenome(name, rig, archetype, palette = GREY, over = {}, traits = {}) {
   const r = getRig(rig);
   const parts = {};
-  for (const slot of r.slots) parts[slot] = r.required.includes(slot) ? `${r.prefix}${slot}.${archetype}` : `${r.prefix}${slot}.none`;
-  Object.assign(parts, r.mannequin.parts && {}, over);
+  for (const slot of r.slots) {
+    const want = `${r.prefix}${slot}.${archetype}`;
+    parts[slot] = r.required.includes(slot) ? (getPart(want) ? want : r.mannequin.parts[slot]) : `${r.prefix}${slot}.none`;
+  }
+  Object.assign(parts, over);
   const g = {
     v: 1, seed: `sample-${name}`, species: null, clade: rig, rig, name, nameParts: [name.slice(0, 3), name.slice(3)], gen: 0, shiny: false,
     types: ['Normal', null], parts: Object.fromEntries(Object.entries(parts).map(([k, v]) => [k, [v, v]])), paint: {}, palette,
@@ -34,6 +38,13 @@ export const PRESETS = {
   dragon: ['reptile', 'dragon', { c1: [0, 65, 45], c2: [40, 80, 70], c3: [20, 20, 20], eye: [50, 90, 55] }, { eyes: 'r.eyes.slit', jaw: 'r.jaw.fangs', crest: 'r.crest.horns', back: 'r.back.spines', wings: 'r.wings.dragon', scales: 'r.scales.belly' }],
   serpent: ['reptile', 'serpent', { c1: [275, 40, 40], c2: [50, 80, 70], c3: [280, 30, 15], eye: [0, 80, 50] }, { head: 'r.head.cobra', jaw: 'r.jaw.tongue', eyes: 'r.eyes.slit', tail: 'r.tail.rattle', scales: 'r.scales.diamonds' }],
   chameleon: ['reptile', 'chameleon', { c1: [150, 45, 42], c2: [80, 55, 68], c3: [190, 50, 50], eye: [40, 90, 55] }, { eyes: 'r.eyes.turret', jaw: 'r.jaw.smirk', tail: 'r.tail.curl', throat: 'r.throat.pouch', scales: 'r.scales.spots' }],
+  fishround: ['fish', 'round', { c1: [205, 80, 54], c2: [190, 70, 78], c3: [28, 90, 62], eye: [42, 90, 50] }, { belly: 'f.belly.pelvic', gills: 'f.gills.plate', pattern: 'f.pattern.stripes' }],
+  betta: ['fish', 'betta', { c1: [330, 60, 60], c2: [200, 60, 80], c3: [50, 80, 70], eye: [200, 70, 45] }, { eyes: 'f.eyes.wide', mouth: 'f.mouth.smile', dorsal: 'f.dorsal.flowing', pectoral: 'f.pectoral.flowing', tail: 'f.tail.flowing', belly: 'f.belly.flowing', gills: 'f.gills.plate', pattern: 'f.pattern.gradient' }],
+  shark: ['fish', 'shark', { c1: [210, 25, 50], c2: [210, 20, 88], c3: [210, 30, 28], eye: [50, 90, 55] }, { eyes: 'f.eyes.fierce', mouth: 'f.mouth.grin', dorsal: 'f.dorsal.shark', pectoral: 'f.pectoral.pointed', tail: 'f.tail.shark', belly: 'f.belly.pelvic', gills: 'f.gills.slits', pattern: 'f.pattern.belly' }],
+  angler: ['fish', 'angler', { c1: [265, 35, 30], c2: [190, 70, 60], c3: [170, 90, 62], eye: [180, 90, 70] }, { eyes: 'f.eyes.deadeye', mouth: 'f.mouth.fangs', dorsal: 'f.dorsal.spiky', pectoral: 'f.pectoral.tiny', tail: 'f.tail.fan', belly: 'f.belly.tiny', crest: 'f.crest.lure', pattern: 'f.pattern.glow' }],
+  puffer: ['fish', 'puffer', { c1: [50, 60, 60], c2: [48, 50, 88], c3: [30, 40, 30], eye: [200, 60, 40] }, { eyes: 'f.eyes.wide', dorsal: 'f.dorsal.crest', pectoral: 'f.pectoral.tiny', tail: 'f.tail.fan', belly: 'f.belly.tiny', spines: 'f.spines.puffer', pattern: 'f.pattern.spots' }],
+  seahorse: ['fish', 'seahorse', { c1: [30, 85, 58], c2: [45, 80, 82], c3: [15, 70, 40], eye: [200, 60, 40] }, { dorsal: 'f.dorsal.crest', pectoral: 'f.pectoral.tiny', tail: 'f.tail.curl', crest: 'f.crest.coronet', gills: 'f.gills.plate', spines: 'f.spines.armour', pattern: 'f.pattern.scales' }],
+  eel: ['fish', 'eel', { c1: [55, 85, 55], c2: [50, 70, 85], c3: [230, 40, 25], eye: [220, 30, 15] }, { eyes: 'f.eyes.bead', mouth: 'f.mouth.grin', dorsal: 'f.dorsal.ribbon', pectoral: 'f.pectoral.tiny', tail: 'f.tail.eel', belly: 'f.belly.ribbon', gills: 'f.gills.slits', pattern: 'f.pattern.stripes' }],
   raptor: ['reptile', 'raptor', { c1: [190, 30, 35], c2: [40, 60, 72], c3: [20, 80, 55], eye: [50, 90, 55] }, { eyes: 'r.eyes.fierce', crest: 'r.crest.plume', back: 'r.back.feathers', scales: 'r.scales.saddle' }],
 };
 

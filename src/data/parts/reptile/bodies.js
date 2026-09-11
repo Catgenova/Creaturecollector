@@ -6,7 +6,7 @@
 import { rBody, torsoShade } from './_shared.js';
 import { L, SH, HL, PATCH, tube, arcPts } from '../_dsl.js';
 
-const ring = (cx, cy, rx, ry, n = 12) => arcPts(cx, cy, rx, ry, 0, 360, n).slice(0, n);
+const rRing = (cx, cy, rx, ry, n = 12) => arcPts(cx, cy, rx, ry, 0, 360, n).slice(0, n);
 
 export const R_BODIES = [
   rBody({
@@ -59,7 +59,7 @@ export const R_BODIES = [
   }),
   rBody({
     id: 'serpent', name: 'Coiled', kind: 'reptile.serpent', tags: ['snake', 'legless'], dom: 0.55, w: 2,
-    shapes: [ring(-12, -6, 34, 12), ring(-2, 10, 48, 16), tube([[12, 4], [26, -10], [34, -26], [36, -42]], 22, 17)],
+    shapes: [rRing(-12, -6, 34, 12), rRing(-2, 10, 48, 16), tube([[12, 4], [26, -10], [34, -26], [36, -42]], 22, 17)],
     shade: [SH('M-48,-6 C-30,4 10,4 24,-6 L24,6 L-48,6 Z', 0.12), SH('M-52,12 C-30,22 30,22 50,10 L50,30 L-52,30 Z', 0.14), HL('M-40,-14 C-24,-18 -2,-18 12,-14 L10,-10 C-2,-13 -24,-13 -38,-10 Z', 0.16), HL('M22,-14 C26,-22 30,-30 32,-38 L36,-38 C34,-30 30,-22 28,-12 Z', 0.16)],
     extra: [L('M-44,8 C-20,4 20,4 44,8', 'k', 1.2, { op: 0.2 })],
     bottom: 26,
