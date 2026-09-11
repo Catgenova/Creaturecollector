@@ -12,7 +12,7 @@ import { stageOf, stageName } from '../data/evolution.js';
 import { loadSave, persistSave, exportSave, importSave, recordCollection, retireJourney } from '../game/save.js';
 import { memberMaxHp, xpProgress, learnMove, moveMember, setLead, canFight, releaseMember, renameMember, setLocked } from '../game/party.js';
 import { JOURNEY, newJourney, chooseJourneyStarter, tryMove, facing, talkTo, acceptChallenge, challengeWarden, enterSpire, fleeEncounter, buildJourneyBattle, applyJourneyBattle, journeyPlace, badgeList, canFuseJourney, previewShrineFusion, shrineFuse, respawnJourney } from '../game/journey.js';
-import { WORLD, TILE, REGIONS, HUB, worldFor, tileAt, biomeAt, habitatTypeAt, trainerAt, findPath, isHubTile } from '../game/world.js';
+import { WORLD, TILE, REGIONS, HUB, BIOME_ORDER, worldFor, tileAt, biomeAt, habitatTypeAt, trainerAt, findPath, isHubTile } from '../game/world.js';
 import { TYPE_INFO, TYPE_LIST } from '../data/types.js';
 import { DAMAGE_TYPES } from '../data/damage.js';
 import { marketCatalogue, buyMove, bagList, bagCount, canTeach, teachMove, itemCatalogue, itemList, buyItem, useItem, scrollTypes, scrollLearners, listWords } from '../game/market.js';
@@ -65,8 +65,8 @@ function owIntroView(root) {
   root.append(
     h('div', { class: 'hero-card' },
       h('h2', {}, 'The Overworld'),
-      h('p', { class: 'hint' }, 'Seven biomes ring the Crossroads, one for each class of creature, each harder than the last. Walk the downs, the fen, the meadow, the crags, the lagoon, the hollow and the scar. Catch what lives there, ask trainers for a fight, take a badge from every Warden, and when you hold all seven the Council Spire opens: four fights, back to back.'),
-      h('div', { class: 'tiles' }, owTile('biomes', 7), owTile('wardens', 7), owTile('journeys', ow.save.totals.journeys), owTile('collection', ow.save.collection.length)),
+      h('p', { class: 'hint' }, `${BIOME_ORDER.length} biomes ring the Crossroads, one for each class of creature, each harder than the last: ${listWords(BIOME_ORDER.map((c) => REGIONS[c].name.toLowerCase()))}. Catch what lives there, ask trainers for a fight, take a badge from every Warden, and when you hold them all the Council Spire opens: four fights, back to back.`),
+      h('div', { class: 'tiles' }, owTile('biomes', BIOME_ORDER.length), owTile('wardens', BIOME_ORDER.length), owTile('journeys', ow.save.totals.journeys), owTile('collection', ow.save.collection.length)),
       h('button', { class: 'btn primary fuse-btn', type: 'button', onclick: () => {
         let seed = null;
         try { seed = new URLSearchParams(location.search).get('seed'); } catch { /* ignore */ }
@@ -139,9 +139,9 @@ function owLearnCard(j) {
 
 function owHud(j) {
   const place = journeyPlace(j);
-  const badges = h('div', { class: 'ow-badges', title: `${j.badges.length} of 7 badges` }, badgeList(j).map((b) => h('i', { class: b.held ? 'held' : '', style: { '--b': REGIONS[b.id].accent }, title: `${b.name}${b.held ? ' ✓' : ''}` })));
+  const badges = h('div', { class: 'ow-badges', title: `${j.badges.length} of ${BIOME_ORDER.length} badges` }, badgeList(j).map((b) => h('i', { class: b.held ? 'held' : '', style: { '--b': REGIONS[b.id].accent }, title: `${b.name}${b.held ? ' ✓' : ''}` })));
   return h('div', { class: 'ow-hud' },
-    h('div', { class: 'ow-place' }, h('b', {}, place.name), h('span', {}, place.level ? `wild Lv ${place.level}` : j.champion ? 'Champion' : `${j.badges.length}/7 badges`)),
+    h('div', { class: 'ow-place' }, h('b', {}, place.name), h('span', {}, place.level ? `wild Lv ${place.level}` : j.champion ? 'Champion' : `${j.badges.length}/${BIOME_ORDER.length} badges`)),
     badges,
     h('span', { class: 'ow-gold', title: 'Gold' }, `◆ ${(j.gold || 0).toLocaleString()}`),
     h('div', { class: 'ow-tools' },
@@ -524,7 +524,7 @@ function owPartySheet(j) {
 }
 
 function owMapSheet(j) {
-  const world = ow.world, S = 3;
+  const world = ow.world, S = 2;
   const c = h('canvas', { class: 'ow-minimap', width: world.w * S, height: world.h * S, 'aria-label': 'World map' });
   const ctx = c.getContext('2d');
   for (let y = 0; y < world.h; y++) for (let x = 0; x < world.w; x++) {

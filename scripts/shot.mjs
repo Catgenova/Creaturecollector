@@ -4,6 +4,7 @@ import { createRequire } from 'node:module';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { worldFor, findPath } from '../src/game/world.js';
 const require = createRequire(import.meta.url);
 let chromium;
 try { ({ chromium } = require('playwright')); } catch { ({ chromium } = require('/opt/node22/lib/node_modules/playwright')); }
@@ -32,18 +33,31 @@ await page.evaluate(() => { const s = JSON.parse(localStorage.getItem('creaturec
 await page.reload();
 await page.waitForSelector('canvas.ow-map');
 await page.waitForTimeout(300);
-// walk south with the keyboard until something happens or 40 steps pass
-for (let i = 0; i < 40; i++) {
-  await page.keyboard.press('ArrowDown');
-  await page.waitForTimeout(180);
+// follow the road toward the first biome's camp with the keyboard until something happens or 140 steps pass
+const world = worldFor(seed);
+const route = findPath(world, world.start, world.biomes[0].camp, 600) || [];
+let at = { ...world.start };
+for (let i = 0; i < Math.min(140, route.length); i++) {
+  const nx = route[i];
+  const key = nx.x > at.x ? 'ArrowRight' : nx.x < at.x ? 'ArrowLeft' : nx.y > at.y ? 'ArrowDown' : 'ArrowUp';
+  await page.keyboard.press(key);
+  await page.waitForTimeout(150);
+  at = nx;
   if (await page.locator('.encounter').count()) break;
   if (await page.locator('.ow-dialog').count()) break;
 }
 const state = await page.evaluate(() => ({ encounter: document.querySelector('.encounter') ? document.querySelector('.enc-head').textContent : null, dialog: document.querySelector('.ow-dialog') ? document.querySelector('.ow-dialog .txt').textContent : null, place: document.querySelector('.ow-place') ? document.querySelector('.ow-place').textContent : null }));
 console.log('after walk:', JSON.stringify(state));
 await page.screenshot({ path: path.join(out, 'world-walk.png'), fullPage: true });
-if (state.encounter) {
+let fighting = false;
+if (state.encounter) { await page.click('.encounter .btn.primary'); fighting = true; }
+else if (state.dialog && await page.locator('.ow-dialog .btn.primary', { hasText: 'Fight' }).count()) {
+  await page.click('.ow-dialog .btn.primary');
+  await page.waitForSelector('.encounter .btn.primary', { timeout: 5000 });
   await page.click('.encounter .btn.primary');
+  fighting = true;
+}
+if (fighting) {
   await page.waitForSelector('.move-btn', { timeout: 20000 });
   await page.screenshot({ path: path.join(out, 'world-fight.png'), fullPage: true });
   await page.click('text=Items');
@@ -82,8 +96,8 @@ await page.waitForSelector('.teach-row', { timeout: 5000 });
 await page.screenshot({ path: path.join(out, 'world-bag-teach.png'), fullPage: true });
 console.log('teach rows:', JSON.stringify(await page.evaluate(() => [...document.querySelectorAll('.teach-row')].map((r) => ({ learns: r.querySelector('.learns') && r.querySelector('.learns').textContent, btn: r.querySelector('.btn').textContent, off: r.querySelector('.btn').disabled })))));
 await page.click('.sheet .close');
-// stand just south of the Market door (the fight left us out on the downs), reload, step onto it
-await page.evaluate(() => { const s = JSON.parse(localStorage.getItem('creaturecollector.save')); s.journey.player = { x: 60, y: 47, dir: 'up' }; localStorage.setItem('creaturecollector.save', JSON.stringify(s)); });
+// stand just south of the Market door (hub is at 112,96 on the 224 by 192 map), reload, step onto it
+await page.evaluate(() => { const s = JSON.parse(localStorage.getItem('creaturecollector.save')); s.journey.player = { x: 116, y: 95, dir: 'up' }; localStorage.setItem('creaturecollector.save', JSON.stringify(s)); });
 await page.reload();
 await page.waitForSelector('canvas.ow-map');
 await page.waitForTimeout(300);
@@ -109,7 +123,7 @@ await page.click('.sheet .party-row .btn.primary');
 await page.waitForTimeout(200);
 console.log('use toast:', JSON.stringify(await page.evaluate(() => { const t = document.querySelector('.toast'); return t ? t.textContent : null; })));
 await page.click('.sheet .close');
-await page.evaluate(() => { const s = JSON.parse(localStorage.getItem('creaturecollector.save')); s.journey.player = { x: 52, y: 47, dir: 'up' }; localStorage.setItem('creaturecollector.save', JSON.stringify(s)); });
+await page.evaluate(() => { const s = JSON.parse(localStorage.getItem('creaturecollector.save')); s.journey.player = { x: 108, y: 95, dir: 'up' }; localStorage.setItem('creaturecollector.save', JSON.stringify(s)); });
 await page.reload();
 await page.waitForSelector('canvas.ow-map');
 await page.waitForTimeout(300);

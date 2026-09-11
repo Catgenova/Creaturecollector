@@ -28,7 +28,7 @@ export function newJourney(seed) {
   }
   const world = worldFor(seed);
   return {
-    seed: String(seed), phase: 'starter', starters, party: [], box: [], nextId: 1, pendingLearns: [],
+    seed: String(seed), world: WORLD.version, phase: 'starter', starters, party: [], box: [], nextId: 1, pendingLearns: [],
     stats: { steps: 0, battles: 0, captures: 0, fusions: 0, trainers: 0, bosses: 0, wipes: 0 },
     player: { x: world.start.x, y: world.start.y, dir: 'down' },
     badges: [], beaten: {}, camps: [], lastCamp: { x: world.hubCamp.x, y: world.hubCamp.y }, cooldown: 0,
@@ -141,7 +141,7 @@ function councilEncounter(j, stage) {
   return { kind: 'council', stage, name: c.name, foes: c.team.map((m) => ({ genome: m.genome, level: m.level })), capturable: false, biome: 'hub', line: c.line };
 }
 
-/** Enter the Council Spire: seven badges open four fights in a row. */
+/** Enter the Council Spire: every badge opens four fights in a row. */
 export function enterSpire(j) {
   if (j.badges.length < JOURNEY.badgesForSpire) return { ok: false, reason: `The doors need ${JOURNEY.badgesForSpire} badges. You hold ${j.badges.length}.` };
   if (j.encounter) return { ok: false, reason: 'Finish the fight in front of you first.' };

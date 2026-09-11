@@ -62,17 +62,19 @@ const cleanPoint = (p, fallback) => (p && Number.isFinite(p.x) && Number.isFinit
 export function normalizeJourney(r) {
   if (!r || typeof r !== 'object' || !['starter', 'roam', 'champion'].includes(r.phase)) return null;
   const hub = { x: Math.floor(WORLD.w / 2), y: Math.floor(WORLD.h / 2) };
+  // a journey saved on an older map keeps its creatures, badges and bag but starts again from the Crossroads
+  const sameWorld = Number(r.world) === WORLD.version;
   const j = {
-    seed: String(r.seed || 'journey'), phase: r.phase, starters: null,
+    seed: String(r.seed || 'journey'), world: WORLD.version, phase: r.phase, starters: null,
     party: (Array.isArray(r.party) ? r.party : []).map(cleanMember).filter(Boolean),
     box: (Array.isArray(r.box) ? r.box : []).map(cleanMember).filter(Boolean),
     nextId: Number(r.nextId) || 1,
     pendingLearns: (Array.isArray(r.pendingLearns) ? r.pendingLearns : []).filter((q) => q && typeof q.uid === 'string' && getMove(q.moveId)),
     stats: { steps: 0, battles: 0, captures: 0, fusions: 0, trainers: 0, bosses: 0, wipes: 0 },
-    player: { ...cleanPoint(r.player, { x: hub.x, y: hub.y + 1 }), dir: ['up', 'down', 'left', 'right'].includes(r.player && r.player.dir) ? r.player.dir : 'down' },
+    player: { ...cleanPoint(sameWorld ? r.player : null, { x: hub.x, y: hub.y + 1 }), dir: ['up', 'down', 'left', 'right'].includes(r.player && r.player.dir) ? r.player.dir : 'down' },
     badges: Array.isArray(r.badges) ? r.badges.filter((b, i, arr) => BIOME_ORDER.includes(b) && arr.indexOf(b) === i) : [],
-    beaten: {}, camps: Array.isArray(r.camps) ? r.camps.filter((b) => BIOME_ORDER.includes(b)) : [],
-    lastCamp: cleanPoint(r.lastCamp, { x: hub.x - 3, y: hub.y }), cooldown: Math.max(0, Number(r.cooldown) || 0),
+    beaten: {}, camps: sameWorld && Array.isArray(r.camps) ? r.camps.filter((b) => BIOME_ORDER.includes(b)) : [],
+    lastCamp: cleanPoint(sameWorld ? r.lastCamp : null, { x: hub.x - 3, y: hub.y }), cooldown: Math.max(0, Number(r.cooldown) || 0),
     gauntlet: r.gauntlet && Number.isFinite(r.gauntlet.stage) && r.gauntlet.stage >= 0 && r.gauntlet.stage < 4 ? { stage: Math.round(r.gauntlet.stage) } : null,
     champion: Boolean(r.champion), encounter: null, lastReport: r.lastReport || null,
     gold: Math.max(0, Math.floor(Number(r.gold) || 0)), bag: {},

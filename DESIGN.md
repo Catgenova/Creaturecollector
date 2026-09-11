@@ -646,13 +646,16 @@ draws it on a canvas and hands fights to the shared fight view. It replaced
 the endless arena; a save that still holds an arena run folds its creatures
 into the collection on load.
 
-- **Map.** 112 × 96 tiles: grass, habitat, path, wall, water, hub, lair, door,
-  camp, spire, spire door, shrine (`TILE`). The Crossroads hub sits in the
-  middle (a disc of paving with a camp, the fusion shrine and the Council
-  Spire's door). Seven biome centres sit on a ring around it, clockwise from
-  the south, one per class in difficulty order (`BIOME_ORDER`: mammal 5,
-  amphibian 12, insect 20, bird 28, fish 36, invertebrate 44, reptile 52 =
-  the wild level at the lair, `REGIONS`). Tiles take the nearest centre through jittered
+- **Map.** 224 × 192 tiles (four times the original 112 × 96; `WORLD`, whose
+  `version` resets saved positions to the Crossroads when the layout changes):
+  grass, habitat, path, wall, water, hub, lair, door, camp, spire, spire door,
+  shrine, market, storage (`TILE`). The Crossroads hub sits in the middle (a
+  disc of paving with a camp, the fusion shrine, the Market, the Storage and
+  the Council Spire's door). Biome centres sit on a ring of radius 58 around
+  it with lairs at 84, clockwise from the south, one per class in difficulty
+  order (`BIOME_ORDER`, with `REGIONS` giving the wild level at the lair: the
+  ladder runs 5 to the mid-fifties with rungs left for classes to come). Six
+  trainers stand on each biome's roads. Tiles take the nearest centre through jittered
   coordinates so borders wander. Terrain is value noise per biome: water
   (more in the fen and lagoon), walls drawn as that region's trees, reeds,
   hedges, pines, palms or rocks, and habitat patches. Roads are carved in two

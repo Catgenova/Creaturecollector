@@ -8,18 +8,19 @@ import { WORLD, TILE, WALKABLE_TILES, BIOME_ORDER, REGIONS, COUNCIL_LEVELS, gene
 
 const world = worldFor('test-world');
 
-test('the world is deterministic, sized and split into seven biomes around a hub', () => {
+test('the world is deterministic, sized and split into one biome per class around a hub', () => {
   const again = generateWorld('test-world');
   assert.equal(Buffer.from(world.tiles).equals(Buffer.from(again.tiles)), true);
   assert.equal(Buffer.from(world.hab).equals(Buffer.from(again.hab)), true);
   assert.deepEqual(world.trainers.map((t) => [t.id, t.x, t.y]), again.trainers.map((t) => [t.id, t.x, t.y]));
   assert.equal(world.w, WORLD.w); assert.equal(world.h, WORLD.h);
-  assert.equal(world.biomes.length, 7);
+  assert.equal(world.biomes.length, BIOME_ORDER.length);
   assert.deepEqual(world.biomes.map((b) => b.clade), BIOME_ORDER);
   const { kinds, perBiome } = worldStats(world);
-  for (const b of BIOME_ORDER) assert.ok(perBiome[b] > world.w * world.h * 0.06, `${b} covers enough ground (${perBiome[b]})`);
-  assert.ok(kinds[TILE.habitat] > 1500 && kinds[TILE.wall] > 1000 && kinds[TILE.water] > 500 && kinds[TILE.path] > 400, JSON.stringify(kinds));
-  assert.equal(kinds[TILE.door], 7); assert.equal(kinds[TILE.spireDoor], 1); assert.equal(kinds[TILE.shrine], 1); assert.equal(kinds[TILE.camp], 8);
+  for (const b of BIOME_ORDER) assert.ok(perBiome[b] > (world.w * world.h * 0.6) / BIOME_ORDER.length, `${b} covers enough ground (${perBiome[b]})`);
+  const area = world.w * world.h;
+  assert.ok(kinds[TILE.habitat] > area * 0.14 && kinds[TILE.wall] > area * 0.09 && kinds[TILE.water] > area * 0.045 && kinds[TILE.path] > area * 0.03, JSON.stringify(kinds));
+  assert.equal(kinds[TILE.door], BIOME_ORDER.length); assert.equal(kinds[TILE.spireDoor], 1); assert.equal(kinds[TILE.shrine], 1); assert.equal(kinds[TILE.camp], BIOME_ORDER.length + 1);
   assert.equal(tileAt(world, world.hub.x, world.hub.y), TILE.hub);
   for (let x = 0; x < world.w; x++) { assert.equal(tileAt(world, x, 0), TILE.wall); assert.equal(tileAt(world, x, world.h - 1), TILE.wall); }
   assert.equal(tileAt(world, -1, 5), TILE.wall, 'outside is wall');
@@ -38,7 +39,9 @@ test('the world is deterministic, sized and split into seven biomes around a hub
   assert.ok(edgeMax <= 5, `level 1 to 5 at the town's edge (max ${edgeMax})`);
   assert.ok(nearMax <= 9, `gentle around the crossroads (max ${nearMax})`);
   assert.equal(levelAt(world, world.hub.x, world.hub.y + WORLD.hubR + 1), 1, 'the first steps south are level 1');
-  assert.ok(world.biomes[6].level >= 50 && world.biomes[6].level < 60, 'the deepest lair sits in the fifties');
+  const deepest = world.biomes[world.biomes.length - 1];
+  assert.ok(deepest.level >= 50 && deepest.level < 60, 'the deepest lair sits in the fifties');
+  assert.equal(WORLD.w * WORLD.h, 224 * 192, 'the map is four times the original 112 by 96');
 });
 
 test('every camp, lair, the spire and the shrine can be walked to from the start', () => {
@@ -63,7 +66,7 @@ test('every camp, lair, the spire and the shrine can be walked to from the start
 });
 
 test('trainers stand on walkable tiles with valid teams of their biome; wardens and the council are strong', () => {
-  assert.equal(world.trainers.length, 7 * WORLD.trainersPerBiome);
+  assert.equal(world.trainers.length, BIOME_ORDER.length * WORLD.trainersPerBiome);
   const seen = new Set();
   for (const t of world.trainers) {
     assert.ok(!seen.has(`${t.x},${t.y}`), 'one trainer per tile'); seen.add(`${t.x},${t.y}`);

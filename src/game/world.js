@@ -1,11 +1,11 @@
 // The overworld: one large tile map, generated from a seed, with a hub town in the
-// middle and seven biomes around it, one per class. Each biome is home to its class:
+// middle and a ring of biomes around it, one per class. Each biome is home to its class:
 // its habitat patches carry the element types found in that class, so a Fire mammal
 // turns up on scorched downs and a Water fish in the lagoon shallows. Difficulty rises
 // around the ring, so the recommended order is a lap. Every biome has a camp that heals,
 // a lair where its Warden waits with a badge, and a few trainers on the paths who fight
 // when asked. The hub also has a fusion
-// shrine, a Market selling moves for the gold trainers pay, and a Creature Storage holding the box. The Council Spire in the hub opens with seven badges: four fights in a row.
+// shrine, a Market selling moves for the gold trainers pay, and a Creature Storage holding the box. The Council Spire in the hub opens with every badge: four fights in a row.
 //
 // Everything here is pure data derived from the seed. The map is three Uint8Arrays
 // (tile kind, biome index, habitat type) plus placed content.
@@ -17,24 +17,25 @@ import { ELEMENTAL_CHANCE } from '../data/elements.js';
 import { speciesGenome, rollElemental } from '../creature/genome.js';
 import { fuse, canFuse } from '../creature/fusion.js';
 
-export const WORLD = { w: 112, h: 96, hubR: 6, ringR: 30, lairR: 43, trainersPerBiome: 4, encounterChance: 0.12, encounterCooldown: 4 };
+/** Map size and ring geometry. `version` bumps whenever the layout changes, so saved positions from an older map reset to the Crossroads. */
+export const WORLD = { version: 2, w: 224, h: 192, hubR: 6, ringR: 58, lairR: 84, trainersPerBiome: 6, encounterChance: 0.12, encounterCooldown: 4 };
 
 /** Tile kinds. */
 export const TILE = { grass: 0, habitat: 1, path: 2, wall: 3, water: 4, hub: 5, lair: 6, door: 7, camp: 8, spire: 9, spireDoor: 10, shrine: 11, market: 12, marketDoor: 13, storage: 14, storageDoor: 15 };
 export const WALKABLE_TILES = new Set([TILE.grass, TILE.habitat, TILE.path, TILE.hub, TILE.door, TILE.camp, TILE.spireDoor, TILE.shrine, TILE.marketDoor, TILE.storageDoor]);
 
-/** Biomes in difficulty order, clockwise from the south of the hub. */
+/** Biomes in difficulty order, clockwise from the south of the hub. Levels climb 5 to the fifties; the gaps in the ladder are for classes still to come. */
 export const BIOME_ORDER = ['mammal', 'amphibian', 'insect', 'bird', 'fish', 'invertebrate', 'reptile'];
 
 /** Per-class region: name, wild level, palette and the look of its walls. */
 export const REGIONS = {
   mammal:       { name: 'Heather Downs',  level: 5,  ground: '#6d9c4e', ground2: '#63914a', habitat: '#4f8a3e', path: '#c9b27b', water: '#3f7fc4', wall: 'tree',     wallColor: '#3f7332', accent: '#e0c86f', waterT: 0.68, warden: 'Warden Marrow', badge: 'Downs Badge' },
-  amphibian:    { name: 'Sodden Fen',     level: 12, ground: '#5f8c5a', ground2: '#56825a', habitat: '#456f4a', path: '#b3a26f', water: '#3b6f8a', wall: 'reed',     wallColor: '#6a8a3a', accent: '#a7d36a', waterT: 0.56, warden: 'Warden Sedge',  badge: 'Fen Badge' },
-  insect:       { name: 'Hum Meadow',     level: 20, ground: '#8fb050', ground2: '#84a84a', habitat: '#6f9a3c', path: '#d3bd82', water: '#4a94c8', wall: 'hedge',    wallColor: '#4c7d2e', accent: '#f0d25a', waterT: 0.7,  warden: 'Warden Thrum',  badge: 'Meadow Badge' },
-  bird:         { name: 'Windward Crags', level: 28, ground: '#7c8f78', ground2: '#72866f', habitat: '#617a5c', path: '#b9b39a', water: '#4d8fc4', wall: 'pine',     wallColor: '#2f5a44', accent: '#cfe3f0', waterT: 0.68, warden: 'Warden Gale',   badge: 'Crag Badge' },
+  amphibian:    { name: 'Sodden Fen',     level: 10, ground: '#5f8c5a', ground2: '#56825a', habitat: '#456f4a', path: '#b3a26f', water: '#3b6f8a', wall: 'reed',     wallColor: '#6a8a3a', accent: '#a7d36a', waterT: 0.56, warden: 'Warden Sedge',  badge: 'Fen Badge' },
+  insect:       { name: 'Hum Meadow',     level: 18, ground: '#8fb050', ground2: '#84a84a', habitat: '#6f9a3c', path: '#d3bd82', water: '#4a94c8', wall: 'hedge',    wallColor: '#4c7d2e', accent: '#f0d25a', waterT: 0.7,  warden: 'Warden Thrum',  badge: 'Meadow Badge' },
+  bird:         { name: 'Windward Crags', level: 27, ground: '#7c8f78', ground2: '#72866f', habitat: '#617a5c', path: '#b9b39a', water: '#4d8fc4', wall: 'pine',     wallColor: '#2f5a44', accent: '#cfe3f0', waterT: 0.68, warden: 'Warden Gale',   badge: 'Crag Badge' },
   fish:         { name: 'Glass Lagoon',   level: 36, ground: '#d8c68e', ground2: '#cebb84', habitat: '#8fc7d3', path: '#e6d9a8', water: '#3aa7d8', wall: 'palm',     wallColor: '#4f8f5f', accent: '#7fe0ea', waterT: 0.5,  warden: 'Warden Brine',  badge: 'Lagoon Badge' },
-  invertebrate: { name: 'Murk Hollow',    level: 44, ground: '#5a5470', ground2: '#524c68', habitat: '#443f5c', path: '#8c8494', water: '#3b3f6e', wall: 'rock',     wallColor: '#3a3448', accent: '#b98cff', waterT: 0.62, warden: 'Warden Gloam',  badge: 'Hollow Badge' },
-  reptile:      { name: 'Ember Scar',     level: 52, ground: '#9c6b4a', ground2: '#906244', habitat: '#7a4d38', path: '#d0a878', water: '#e0562a', wall: 'rock',     wallColor: '#5a3a2c', accent: '#ff9a4a', waterT: 0.7,  warden: 'Warden Cinder', badge: 'Scar Badge' },
+  invertebrate: { name: 'Murk Hollow',    level: 45, ground: '#5a5470', ground2: '#524c68', habitat: '#443f5c', path: '#8c8494', water: '#3b3f6e', wall: 'rock',     wallColor: '#3a3448', accent: '#b98cff', waterT: 0.62, warden: 'Warden Gloam',  badge: 'Hollow Badge' },
+  reptile:      { name: 'Ember Scar',     level: 50, ground: '#9c6b4a', ground2: '#906244', habitat: '#7a4d38', path: '#d0a878', water: '#e0562a', wall: 'rock',     wallColor: '#5a3a2c', accent: '#ff9a4a', waterT: 0.7,  warden: 'Warden Cinder', badge: 'Scar Badge' },
 };
 
 export const HUB = { name: 'Crossroads', ground: '#b8ad8e', paving: '#a89c7e' };
@@ -182,7 +183,7 @@ const COUNCIL = [
   { name: 'Marshal Kord', style: 'melee', line: 'Strength first. Show me yours.' },
   { name: 'Ranger Selene', style: 'ranged', line: 'Distance is a weapon. Close it if you can.' },
   { name: 'Oracle Vesh', style: 'magic', line: 'Every battle is already decided. Let us see how.' },
-  { name: 'Champion Aurel', style: null, line: 'Seven badges brought you here. Only one thing remains.' },
+  { name: 'Champion Aurel', style: null, line: 'Every badge brought you here. Only one thing remains.' },
 ];
 
 function tierPref(s) { return s.tier === 'rare' ? 3 : s.tier === 'uncommon' ? 2 : 1; }
@@ -199,17 +200,18 @@ function trainersFor(rng, world, biome, spots) {
   const out = [];
   const clade = biome.clade;
   const home = WILD_SPECIES.filter((s) => s.clade === clade);
-  const sizes = [2, 2, 3, 4];
+  const sizes = [2, 2, 3, 3, 4, 4];
   const names = rng.shuffle(WORLD_TRAINER_NAMES);
   spots.forEach((spot, i) => {
     const r = rng.fork(`t${i}`);
     const used = new Set();
     const team = [];
+    const last = i === spots.length - 1; // the trainer before the lair runs a little hot
     for (let k = 0; k < sizes[i % sizes.length]; k++) {
       const pool = k === 0 || r.chance(0.75) ? home : WILD_SPECIES; // the lead is always from the home class
       const sp = pickSpecies(r.fork(`s${k}`), pool, false, used);
       const L = levelAt(world, spot.x, spot.y);
-      team.push({ genome: speciesGenome(sp, r.fork(`g${k}`)), level: Math.max(1, Math.min(100, L + (i === 3 ? 1 + r.int(2) : r.between(-1, 1)))) });
+      team.push({ genome: speciesGenome(sp, r.fork(`g${k}`)), level: Math.max(1, Math.min(100, L + (last ? 1 + r.int(2) : r.between(-1, 1)))) });
     }
     out.push({
       id: `${clade}-${i}`, biome: clade, name: `${r.pick(TRAINER_TITLES[clade])} ${names[i % names.length]}`, x: spot.x, y: spot.y, dir: spot.dir || 'down',
@@ -363,14 +365,14 @@ export function generateWorld(seed) {
     const legB = road(b.centre, front, rng.range(-4, 4));
     tiles[idx(b.camp.x, b.camp.y)] = TILE.camp;
     tiles[idx(front.x, front.y)] = TILE.path;
-    // trainers stand on the road: three on the way in, one before the lair
+    // trainers stand on the road: four on the way in, two between the camp and the lair
     const spots = [];
     const pathTileNear = (p) => {
       for (let r = 0; r <= 3; r++) for (let dy = -r; dy <= r; dy++) for (let dx = -r; dx <= r; dx++) { const x = p.x + dx, y = p.y + dy; if (tileAt(world, x, y) === TILE.path && !world.trainerAt.has(`${x},${y}`) && !isHubTile(world, x, y)) return { x, y }; }
       return null;
     };
-    for (const f of [0.4, 0.62, 0.84]) { const s = pathTileNear(legA[Math.floor((legA.length - 1) * f)]); if (s) spots.push(s); }
-    { const s = pathTileNear(legB[Math.floor((legB.length - 1) * 0.5)]); if (s) spots.push(s); }
+    for (const f of [0.3, 0.5, 0.68, 0.86]) { const s = pathTileNear(legA[Math.floor((legA.length - 1) * f)]); if (s) spots.push(s); }
+    for (const f of [0.35, 0.7]) { const s = pathTileNear(legB[Math.floor((legB.length - 1) * f)]); if (s) spots.push(s); }
     const ts = trainersFor(rng.fork(`trainers:${b.clade}`), world, b, spots.slice(0, WORLD.trainersPerBiome));
     for (const t of ts) { world.trainers.push(t); world.trainerAt.set(`${t.x},${t.y}`, t); }
     world.wardens[b.clade] = wardenFor(rng.fork(`warden:${b.clade}`), b);

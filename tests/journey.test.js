@@ -4,7 +4,7 @@ import { makeRng } from '../src/core/rng.js';
 import { step } from '../src/battle/engine.js';
 import { chooseAction } from '../src/battle/ai.js';
 import { cladeOf } from '../src/creature/genome.js';
-import { BIOME_ORDER, TILE, tileAt, worldFor, trainerAt } from '../src/game/world.js';
+import { WORLD, BIOME_ORDER, TILE, tileAt, worldFor, trainerAt } from '../src/game/world.js';
 import { JOURNEY, DIRS, newJourney, chooseJourneyStarter, tryMove, facing, talkTo, acceptChallenge, challengeWarden, enterSpire, fleeEncounter, buildJourneyBattle, applyJourneyBattle, journeyPlace, badgeList, canFuseJourney, previewShrineFusion, shrineFuse, respawnJourney, partyHealth  } from '../src/game/journey.js';
 import { memberMaxHp, XP, setLocked } from '../src/game/party.js';
 import { emptySave, normalizeSave, exportSave, importSave, normalizeJourney } from '../src/game/save.js';
@@ -59,7 +59,8 @@ test('a journey starts at the crossroads with three starters and a chosen compan
   assert.equal(j.party.length, 1);
   assert.equal(j.party[0].level, JOURNEY.starterLevel);
   assert.equal(journeyPlace(j).id, 'hub');
-  assert.equal(badgeList(j).length, 7);
+  assert.equal(badgeList(j).length, BIOME_ORDER.length);
+  assert.equal(j.world, WORLD.version);
   assert.ok(badgeList(j).every((b) => !b.held));
   assert.deepEqual(newJourney('start').starters.map((g) => g.species), j.starters === null ? newJourney('start').starters.map((g) => g.species) : j.starters.map((g) => g.species));
 });
@@ -136,7 +137,7 @@ test('a wild fight pays xp, can capture, and a wipe sends the party back to the 
   assert.doesNotThrow(() => applyJourneyBattle(j, played));
 });
 
-test('trainers fight when asked and remember it; wardens give badges; the spire needs all seven', () => {
+test('trainers fight when asked and remember it; wardens give badges; the spire needs every badge', () => {
   const j = fresh('trainers');
   const world = worldFor(j.seed);
   const t = world.trainers[0];
@@ -159,7 +160,7 @@ test('trainers fight when asked and remember it; wardens give badges; the spire 
     assert.equal(rep.badge, world.wardens[b].badge);
     assert.ok(j.badges.includes(b));
   }
-  assert.equal(j.badges.length, 7);
+  assert.equal(j.badges.length, BIOME_ORDER.length);
   assert.equal(applyJourneyBattle(Object.assign(j, { encounter: challengeWarden(j, 'mammal') }), decided(j, 0)).report.badge, null, 'a rematch gives no second badge');
   // the council: four fights back to back, a short rest between, champion at the end
   const opened = enterSpire(j);
@@ -227,8 +228,17 @@ test('journeys survive the save round trip and broken ones are dropped', () => {
   assert.equal(normalizeJourney({ phase: 'roam', party: [] }), null, 'no creatures, no journey');
   const broken = JSON.parse(JSON.stringify(j)); broken.player = { x: -50, y: 9999 }; broken.badges = ['mammal', 'nope', 'mammal']; broken.gauntlet = { stage: 9 };
   const n = normalizeJourney(broken);
-  assert.ok(n.player.x >= 0 && n.player.y < 96); assert.deepEqual(n.badges, ['mammal']); assert.equal(n.gauntlet, null);
+  assert.ok(n.player.x >= 0 && n.player.y < WORLD.h); assert.deepEqual(n.badges, ['mammal']); assert.equal(n.gauntlet, null);
   assert.equal(normalizeSave({ v: 1, journey: j }).journey.seed, j.seed);
+  // a journey from an older map layout keeps its team and badges but restarts at the Crossroads
+  const old = JSON.parse(JSON.stringify(j)); old.world = 1; old.player = { x: 20, y: 20, dir: 'left' }; old.camps = ['mammal']; old.lastCamp = { x: 20, y: 20 }; old.badges = ['mammal'];
+  const moved = normalizeJourney(old);
+  const world = worldFor(j.seed);
+  assert.deepEqual(moved.player, { x: world.start.x, y: world.start.y, dir: 'left' });
+  assert.deepEqual(moved.lastCamp, world.hubCamp); assert.deepEqual(moved.camps, []); assert.deepEqual(moved.badges, ['mammal']);
+  assert.equal(moved.world, WORLD.version);
+  const kept = normalizeJourney(JSON.parse(JSON.stringify(j)));
+  assert.deepEqual(kept.player, j.player, 'the current layout keeps its position');
 });
 
 test('the save survives garbage, retires journeys and folds old arena runs into the collection', async () => {
