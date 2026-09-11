@@ -760,6 +760,53 @@ const RIGS = {
   },
 };
 
+RIGS.flora = {
+  id: 'flora', name: 'Flora', prefix: 'p.',
+  slots: ['body', 'head', 'eyes', 'mouth', 'leaves', 'roots', 'vines', 'pods', 'thorns', 'canopy', 'bark', 'fruit'],
+  names: {
+    body: 'Stem', head: 'Bloom', eyes: 'Eyes', mouth: 'Mouth', leaves: 'Leaves', roots: 'Roots',
+    vines: 'Vines', pods: 'Pods', thorns: 'Thorns', canopy: 'Canopy', bark: 'Bark', fruit: 'Fruit',
+  },
+  paint: ['body', 'head', 'leaves', 'roots', 'vines', 'pods', 'thorns', 'canopy', 'bark', 'fruit'],
+  swappable: ['vines', 'pods', 'thorns', 'canopy', 'bark', 'fruit'],
+  required: ['body', 'head', 'eyes', 'mouth', 'leaves', 'roots'],
+  linked: [['leaves', 'roots'], ['head', 'mouth']],
+  ground: ['body', 'roots'],
+  clipped: ['bark'],
+  tree: {
+    slot: 'body', anim: 'body',
+    behind: [
+      { slot: 'canopy', socket: 'back', anim: 'sway' },
+      { slot: 'vines', socket: 'vines', scale: 'tail', anim: 'tail' },
+      { slot: 'leaves', socket: 'leafFar', far: true, scale: 'wing' },
+      { slot: 'roots', socket: 'rootFar', far: true, scale: 'leg' },
+    ],
+    front: [
+      { slot: 'roots', socket: 'root', scale: 'leg' },
+      { slot: 'leaves', socket: 'leaf', scale: 'wing', anim: 'sway' },
+      { slot: 'pods', socket: 'pods' },
+      {
+        slot: 'head', socket: 'head', scale: 'head', anim: 'head',
+        behind: [{ slot: 'thorns', socket: 'thorns' }],
+        front: [
+          { slot: 'eyes', socket: 'eyeFar', far: true, scale: 'eye', small: true },
+          { slot: 'eyes', socket: 'eye', scale: 'eye', small: true },
+          { slot: 'mouth', socket: 'mouth', small: true },
+          { slot: 'fruit', socket: 'fruit', small: true },
+        ],
+      },
+    ],
+  },
+  mannequin: {
+    parts: {
+      body: 'p.body.sprout', head: 'p.head.daisy', eyes: 'p.eyes.dew', mouth: 'p.mouth.smile', leaves: 'p.leaves.broad', roots: 'p.roots.taproot',
+      vines: 'p.vines.none', pods: 'p.pods.none', thorns: 'p.thorns.none', canopy: 'p.canopy.none', bark: 'p.bark.none', fruit: 'p.fruit.none',
+    },
+    forSlot: { vines: { body: 'p.body.vine' }, canopy: { body: 'p.body.treant' } },
+    accentSlots: ['leaves', 'vines', 'pods', 'thorns', 'canopy', 'bark', 'fruit'],
+  },
+};
+
 const RIG_IDS = Object.keys(RIGS);
 
 /** Rig used when a genome names none or an unknown one (old saves): the first class. */
@@ -6295,12 +6342,350 @@ const AMPHIBIAN_PARTS = {
   tail: A_TAILS, throat: A_THROATS, crest: A_CRESTS, back: A_BACKS, pattern: A_PATTERNS,
 };
 
+// ---- src/data/parts/flora/_shared.js ----
+// Flora builders: the shared constructors namespaced with "p." (plants).
+// Stems about 30 wide and 55 tall, blooms about 40 across sitting on top, leaves reaching out like arms
+// and roots reaching down like legs.
+
+
+const floraBuilders = partBuilders('p.');
+const flBody = floraBuilders.body;
+const flLeg = floraBuilders.leg;
+const flPart = floraBuilders.part;
+
+// ---- src/data/parts/flora/bodies.js ----
+// Flora bodies (stems). Origin = centre. Sockets: head (top, where the bloom sits), leaf / leafFar (sides),
+// root / rootFar (bottom), vines (rear), pods (front), back (spine, for the canopy behind).
+// kinds: 'flora.sprout' (upright stems), 'flora.bulb' (round), 'flora.vine' (low and creeping),
+// 'flora.treant' (thick trunks), 'flora.pad' (flat floaters).
+// Evolutions: stage 2 thickens the stem and puts out side lobes; stage 3 adds more lobes and rings.
+
+
+
+
+const flBodyStages = (x2, y2, x3, y3, r = 8) => ({
+  2: { grow: [1.06, 1.06], addBehind: [evoFan(x2, y2, -60, 60, 3, r, r + 12, { tip: 0.5 })] },
+  3: { grow: [1.06, 1.07], addBehind: [evoFan(x3, y3, 150, 250, 3, r, r + 14, { tip: 0.5 })], add: [evoRing(0, 4, 5, 'a', 1.2, { op: 0.45 })] },
+});
+const flRibs = (xs, y0, y1) => L(xs.map((x) => `M${x},${y0} L${x},${y1}`).join(' '), 'k', 1.2, { op: 0.22 });
+// A rearing creeper: the stem lies on the ground at the back, then rises in an S to hold the bloom up front.
+const flVineCentre = [[-26, 18], [-12, 14], [2, 4], [2, -8], [10, -20], [22, -28]];
+
+const FL_BODIES = [
+  flBody({
+    id: 'sprout', name: 'Stem', kind: 'flora.sprout', tags: ['sprout'], dom: 0.5, w: 3,
+    pts: [[-8, -28], [8, -28], [14, -14], [14, 6], [10, 20], [0, 24], [-10, 20], [-14, 6], [-14, -14]],
+    shade: torsoShade(-14, 14, -28, 24, { shadeFrac: 0.35 }),
+    sockets: { head: { x: 0, y: -28, a: 0, s: 1 }, leaf: { x: 10, y: -6 }, leafFar: { x: -10, y: -8 }, root: { x: 6, y: 20 }, rootFar: { x: -6, y: 18 }, vines: { x: -12, y: 6, a: 0 }, pods: { x: 8, y: 8 }, back: { x: 0, y: -10, a: 0 } },
+    stages: flBodyStages(12, -4, -12, 4, 6),
+  }),
+  flBody({
+    id: 'bulb', name: 'Bulb', kind: 'flora.bulb', tags: ['bulb', 'round'], dom: 0.5, w: 2,
+    pts: [[0, -26], [14, -20], [24, -6], [24, 10], [16, 22], [0, 26], [-16, 22], [-24, 10], [-24, -6], [-14, -20]],
+    shade: torsoShade(-24, 24, -26, 26, { shadeFrac: 0.35 }),
+    extra: [L('M-6,-22 C-8,-6 -8,10 -4,22 M6,-22 C8,-6 8,10 4,22', 'k', 1.1, { op: 0.18 })],
+    sockets: { head: { x: 0, y: -26, a: 0, s: 1 }, leaf: { x: 18, y: -4 }, leafFar: { x: -18, y: -6 }, root: { x: 8, y: 24 }, rootFar: { x: -8, y: 22 }, vines: { x: -22, y: 6, a: 0 }, pods: { x: 12, y: 10 }, back: { x: 0, y: -6, a: 0 } },
+    stages: flBodyStages(22, 0, -22, 2, 8),
+  }),
+  flBody({
+    id: 'vine', name: 'Creeper', kind: 'flora.vine', tags: ['vine', 'long'], dom: 0.5, w: 2,
+    pts: tube(flVineCentre, 16, 11, { tipK: 1 }),
+    shade: torsoShade(-32, 30, -30, 24, { shadeFrac: 0.4 }),
+    extra: [L('M-18,14 C-10,12 -2,8 2,0 M1,-6 C4,-14 9,-20 18,-26', 'k', 1.1, { op: 0.2 })],
+    sockets: { head: { x: 22, y: -29, a: -10, s: 1 }, leaf: { x: 9, y: -2 }, leafFar: { x: -5, y: 0 }, root: { x: -4, y: 18 }, rootFar: { x: -18, y: 20 }, vines: { x: -28, y: 14, a: 0 }, pods: { x: 8, y: 8 }, back: { x: -2, y: -6, a: 0 } },
+    stages: flBodyStages(12, -10, -26, 6, 6),
+  }),
+  flBody({
+    id: 'treant', name: 'Trunk', kind: 'flora.treant', tags: ['treant', 'tree'], dom: 0.55, w: 2,
+    pts: [[-14, -30], [14, -30], [20, -16], [20, 10], [16, 24], [0, 28], [-16, 24], [-20, 10], [-20, -16]],
+    shade: torsoShade(-20, 20, -30, 28, { shadeFrac: 0.35 }),
+    extra: [flRibs([-10, -2, 8], -24, 20)],
+    sockets: { head: { x: 0, y: -30, a: 0, s: 1 }, leaf: { x: 18, y: -14 }, leafFar: { x: -18, y: -16 }, root: { x: 10, y: 26 }, rootFar: { x: -10, y: 24 }, vines: { x: -18, y: 4, a: 0 }, pods: { x: 12, y: 6 }, back: { x: 0, y: -16, a: 0 } },
+    stages: flBodyStages(18, -6, -18, 0, 8),
+  }),
+  flBody({
+    id: 'pad', name: 'Lilypad', kind: 'flora.pad', tags: ['pad', 'float'], dom: 0.45, w: 2, hover: 6,
+    pts: [[30, 0], [22, 8], [0, 12], [-20, 9], [-30, 0], [-20, -8], [-6, -11, 'c'], [-2, -4, 'c'], [4, -11, 'c'], [20, -8]],
+    shade: torsoShade(-30, 30, -12, 12, { shadeFrac: 0.45 }),
+    extra: [L('M-2,-4 C-10,0 -18,2 -26,0 M-2,-4 C4,2 12,4 24,2 M-2,-4 C-4,4 -6,8 -10,10', 'k', 1.1, { op: 0.22 })],
+    sockets: { head: { x: 4, y: -9, a: 0, s: 1 }, leaf: { x: 18, y: -4 }, leafFar: { x: -14, y: -6 }, root: { x: 6, y: 10 }, rootFar: { x: -8, y: 10 }, vines: { x: -28, y: 2, a: 0 }, pods: { x: 12, y: 3 }, back: { x: -6, y: -10, a: 0 } },
+    stages: flBodyStages(26, 2, -26, 2, 6),
+  }),
+  flBody({
+    id: 'cactus', name: 'Barrel', kind: 'flora.sprout', tags: ['cactus', 'spiky'], dom: 0.5, w: 2,
+    pts: [[-12, -30], [12, -30], [18, -18], [20, 4], [16, 20], [0, 26], [-16, 20], [-20, 4], [-18, -18]],
+    shade: torsoShade(-20, 20, -30, 26, { shadeFrac: 0.35 }),
+    extra: [flRibs([-12, -4, 4, 12], -24, 20), L('M-8,-18 L-11,-21 M0,-12 L-2,-16 M8,-16 L11,-19 M-6,0 L-9,-3 M6,4 L9,1 M-10,12 L-13,9 M4,14 L6,10', 'w', 1.2, { op: 0.8 })],
+    sockets: { head: { x: 0, y: -30, a: 0, s: 1 }, leaf: { x: 16, y: -8 }, leafFar: { x: -16, y: -10 }, root: { x: 8, y: 22 }, rootFar: { x: -8, y: 20 }, vines: { x: -18, y: 6, a: 0 }, pods: { x: 12, y: 6 }, back: { x: 0, y: -14, a: 0 } },
+    stages: flBodyStages(18, -6, -18, 2, 8),
+  }),
+  flBody({
+    id: 'gourd', name: 'Gourd', kind: 'flora.bulb', tags: ['gourd', 'pumpkin'], dom: 0.55, w: 2,
+    pts: [[0, -18], [16, -16], [28, -6], [30, 8], [22, 20], [0, 24], [-22, 20], [-30, 8], [-28, -6], [-16, -16]],
+    shade: torsoShade(-30, 30, -18, 24, { shadeFrac: 0.35 }),
+    extra: [L('M-12,-14 C-16,0 -16,10 -12,20 M0,-18 C-2,0 -2,10 0,24 M12,-14 C16,0 16,10 12,20', 'k', 1.2, { op: 0.2 })],
+    sockets: { head: { x: 0, y: -18, a: 0, s: 1 }, leaf: { x: 22, y: -4 }, leafFar: { x: -22, y: -6 }, root: { x: 10, y: 22 }, rootFar: { x: -10, y: 20 }, vines: { x: -28, y: 4, a: 0 }, pods: { x: 14, y: 8 }, back: { x: 0, y: -8, a: 0 } },
+    stages: flBodyStages(28, 0, -28, 2, 8),
+  }),
+];
+
+// ---- src/data/parts/flora/heads.js ----
+// Flora blooms: the flower that carries the face. Origin = the neck point at the bottom centre.
+// Sockets: eye / eyeFar on the disc, mouth low on the disc, thorns behind at the crown, fruit low in front.
+// Evolutions: stage 2 puts a second ring of petals behind; stage 3 a third, brighter ring with a glow and ring.
+
+
+
+
+
+const flBloomSockets = (o = {}) => ({ eye: { x: 6, y: -14, s: 1 }, eyeFar: { x: -5, y: -15, s: 0.9 }, mouth: { x: 2, y: -7, a: 0, s: 1 }, thorns: { x: 0, y: -14, a: 0, s: 1 }, fruit: { x: 9, y: -5, a: 0, s: 1 }, ...o });
+const flBloomStages = (cx, cy, r) => ({
+  2: { grow: [1.06, 1.06], addBehind: [{ pts: puff(cx, cy, r * 1.15, 9, r * 0.35, { rot: 18 }), f: 'pd' }] },
+  3: { grow: [1.06, 1.06], addBehind: [{ pts: puff(cx, cy, r * 1.35, 11, r * 0.4, { rot: 8 }), f: 'a' }], add: [evoGlow(cx, cy, r * 0.7, 0.22), evoRing(cx, cy, r * 0.55, 'a', 1.2, { op: 0.5 })] },
+});
+
+const FL_HEADS = [
+  flPart({
+    id: 'daisy', slot: 'head', name: 'Daisy', tags: ['daisy'], dom: 0.5, w: 3,
+    shapes: [puff(0, -14, 13, 10, 6)],
+    extra: [C(0, -14, 8.5, 's', { sw: 1.6 }), HL('M-9,-22 C-5,-26 2,-25 5,-22 C1,-23 -4,-22 -8,-19 Z', 0.2), C(-3, -17, 1, 'w', { ns: true, op: 0.7 })],
+    sockets: flBloomSockets(), stages: flBloomStages(0, -14, 13),
+  }),
+  flPart({
+    id: 'tulip', slot: 'head', name: 'Tulip', tags: ['tulip', 'cup'], dom: 0.5, w: 2,
+    shapes: [[[-13, -4], [-15, -22], [-7, -16, 'c'], [0, -27, 'c'], [7, -16, 'c'], [15, -22], [13, -4], [0, 1]]],
+    extra: [PATCH('M-7,-6 L7,-6 L5,-15 L-5,-15 Z', 's'), HL('M-12,-20 C-10,-24 -8,-22 -7,-18 C-9,-16 -11,-15 -12,-12 Z', 0.22), L('M-7,-16 L-6,-6 M7,-16 L6,-6', 'k', 1, { op: 0.25 })],
+    sockets: flBloomSockets({ eye: { x: 5, y: -12, s: 0.95 }, eyeFar: { x: -5, y: -13, s: 0.85 }, mouth: { x: 1, y: -6, a: 0, s: 0.9 }, thorns: { x: 0, y: -18, a: 0, s: 1 }, fruit: { x: 8, y: -4, a: 0, s: 0.9 } }),
+    stages: flBloomStages(0, -13, 12),
+  }),
+  flPart({
+    id: 'rose', slot: 'head', name: 'Rose', tags: ['rose'], dom: 0.5, w: 2,
+    shapes: [puff(0, -15, 12, 7, 3, { tip: 0.9 })],
+    extra: [L(spiralPath(0, -15, 10, 2, 40), 'k', 1.3, { op: 0.45 }), HL('M-9,-22 C-6,-26 -1,-26 2,-24 C-2,-23 -6,-22 -8,-19 Z', 0.2)],
+    sockets: flBloomSockets({ eye: { x: 5, y: -13, s: 0.9 }, eyeFar: { x: -5, y: -14, s: 0.8 }, mouth: { x: 1, y: -7, a: 0, s: 0.9 } }),
+    stages: flBloomStages(0, -15, 12),
+  }),
+  flPart({
+    id: 'sunflower', slot: 'head', name: 'Sunflower', tags: ['sunflower', 'big'], dom: 0.55, w: 2,
+    shapes: [{ pts: puff(0, -16, 15, 16, 7, { tip: 'c' }), f: 's' }],
+    extra: [C(0, -16, 9.5, 'pd', { sw: 1.6 }), C(-3, -19, 1, 'k', { ns: true, op: 0.5 }), C(2, -13, 1, 'k', { ns: true, op: 0.5 }), C(-4, -13, 0.9, 'k', { ns: true, op: 0.5 }), C(3, -20, 0.9, 'k', { ns: true, op: 0.5 }), HL('M-13,-26 C-9,-30 -3,-30 0,-28 C-4,-27 -8,-26 -11,-22 Z', 0.2)],
+    sockets: flBloomSockets({ eye: { x: 6, y: -16, s: 1.05 }, eyeFar: { x: -5, y: -17, s: 0.95 }, mouth: { x: 2, y: -9, a: 0, s: 1 }, thorns: { x: 0, y: -16, a: 0, s: 1.1 }, fruit: { x: 10, y: -6, a: 0, s: 1 } }),
+    stages: flBloomStages(0, -16, 15),
+  }),
+  flPart({
+    id: 'bell', slot: 'head', name: 'Bell', tags: ['bell', 'hanging'], dom: 0.5, w: 2,
+    shapes: [[[-12, -27], [12, -27], [15, -8], [9, -1, 'c'], [3, -4], [0, 0, 'c'], [-3, -4], [-9, -1, 'c'], [-15, -8]]],
+    extra: [C(0, -4, 2.6, 'a', { sw: 1.2 }), HL('M-10,-24 C-8,-27 -4,-27 -2,-25 C-5,-24 -8,-22 -10,-18 Z', 0.22), L('M-6,-24 L-8,-8 M6,-24 L8,-8', 'k', 1, { op: 0.22 })],
+    sockets: flBloomSockets({ eye: { x: 5, y: -16, s: 0.95 }, eyeFar: { x: -5, y: -17, s: 0.85 }, mouth: { x: 1, y: -9, a: 0, s: 0.9 }, thorns: { x: 0, y: -26, a: 0, s: 1 }, fruit: { x: 9, y: -6, a: 0, s: 0.9 } }),
+    stages: flBloomStages(0, -14, 12),
+  }),
+  flPart({
+    id: 'orchid', slot: 'head', name: 'Orchid', tags: ['orchid'], dom: 0.5, w: 2,
+    shapes: [{ d: leaf([0, -12], [-17, -29], 6), f: 'p' }, { d: leaf([0, -12], [17, -29], 6), f: 'p' }, { d: leaf([0, -12], [0, -33], 5), f: 'p' }, { pts: [[-9, -10], [9, -10], [6, -1], [0, 2], [-6, -1]], f: 'a' }],
+    extra: [C(0, -12, 4, 's', { sw: 1.4 }), HL('M-14,-25 C-11,-28 -8,-27 -6,-24 C-9,-23 -12,-22 -14,-20 Z', 0.2)],
+    sockets: flBloomSockets({ eye: { x: 5, y: -14, s: 0.9 }, eyeFar: { x: -5, y: -15, s: 0.8 }, mouth: { x: 1, y: -6, a: 0, s: 0.9 }, thorns: { x: 0, y: -14, a: 0, s: 1 }, fruit: { x: 7, y: -3, a: 0, s: 0.9 } }),
+    stages: flBloomStages(0, -16, 12),
+  }),
+  flPart({
+    id: 'thistle', slot: 'head', name: 'Thistle', tags: ['thistle', 'spiky'], dom: 0.5, w: 2,
+    shapes: [{ pts: puff(0, -19, 10, 14, 8, { tip: 'c' }), f: 'a' }, { pts: [[-10, -9], [10, -9], [8, 2], [0, 4], [-8, 2]], f: 'p' }],
+    extra: [L('M-6,-8 L-4,1 M0,-8 L0,2 M6,-8 L4,1', 'k', 1, { op: 0.3 }), HL('M-8,-24 C-5,-28 0,-28 2,-26 C-1,-25 -5,-24 -7,-21 Z', 0.2)],
+    sockets: flBloomSockets({ eye: { x: 5, y: -4, s: 0.85 }, eyeFar: { x: -5, y: -5, s: 0.75 }, mouth: { x: 1, y: 1, a: 0, s: 0.8 }, thorns: { x: 0, y: -19, a: 0, s: 1 }, fruit: { x: 8, y: 1, a: 0, s: 0.8 } }),
+    stages: flBloomStages(0, -19, 10),
+  }),
+];
+
+// ---- src/data/parts/flora/face.js ----
+// Flora eyes (seeds, dewdrops, gems set in the bloom) and mouths (small, low on the disc).
+// Evolutions: eyes ring the iris then glow; mouths grow with the face family.
+
+
+
+
+const flEyeStages = (r) => ({
+  2: { grow: [1.05, 1.05], add: [evoRing(0.6, 0.2, r * 0.95, 'a', 1.2, { cl: true, op: 0.8 })] },
+  3: { grow: [1.05, 1.05], add: [evoGlow(0.6, 0.2, r * 1.5, 0.2), C(-1.2, -1.6, r * 0.3, 'w', { ns: true, op: 0.9 })] },
+});
+function flEye({ id, name, shape, sclera = 'w', iris = [0.6, 0.2, 3.4], irisRole = 'e', pupil = [1, 0.5, 1.8], glint = [1.9, -1.6, 1.2], lid, tags = [], w = 2 }) {
+  const prims = [P(shape, sclera, { sw: 2 })];
+  if (iris) prims.push(C(iris[0], iris[1], iris[2], irisRole, { ns: true, cl: true }));
+  if (pupil) prims.push(Array.isArray(pupil[2]) ? E(pupil[0], pupil[1], pupil[2][0], pupil[2][1], 'k', { ns: true, cl: true }) : C(pupil[0], pupil[1], pupil[2], 'k', { ns: true, cl: true }));
+  if (glint) prims.push(C(glint[0], glint[1], glint[2], 'w', { ns: true }));
+  if (lid) prims.push(L(lid, 'k', 1.6));
+  return flPart({ id, slot: 'eyes', name, tags, dom: 0.5, w, extra: prims, stages: flEyeStages(iris ? iris[2] : 3) });
+}
+const FL_OVAL = spline([[0, -5.5], [5, -1.5], [4.6, 4], [0, 5.8], [-4.6, 4], [-5, -1.5]]);
+const FL_ROUND = spline([[0, -6], [5.6, -2.2], [5.6, 2.8], [0, 6.2], [-5.6, 2.8], [-5.6, -2.2]]);
+
+const FL_EYES = [
+  flEye({ id: 'seed', name: 'Seed', tags: ['bead'], w: 3, shape: FL_OVAL, iris: [0.4, 0.2, 4], irisRole: 'k', pupil: null, glint: [1.6, -1.6, 1.3] }),
+  flEye({ id: 'dew', name: 'Dewdrop', tags: ['round'], w: 3, shape: FL_ROUND, iris: [0.6, 0.4, 4.2], pupil: [1, 0.8, 2.2], glint: [2.2, -2, 1.5] }),
+  flEye({ id: 'sleepy', name: 'Drowsy', tags: ['sleepy'], shape: FL_OVAL, iris: [0.6, 1, 3.4], pupil: [1, 1.2, 1.8], glint: [1.8, -0.4, 1], lid: 'M-5,-2 Q0,-3.5 5,-2' }),
+  flEye({ id: 'sharp', name: 'Leaf-slit', tags: ['fierce'], shape: spline([[-6, 0, 'c'], [-1, -4], [6, 0, 'c'], [-1, 4]]), iris: [0.4, 0, 3], pupil: [0.8, 0, [1, 2.6]], glint: [1.6, -1.4, 1] }),
+  flEye({ id: 'gem', name: 'Gem', tags: ['gem'], shape: FL_ROUND, sclera: 'e', iris: [0.4, 0.2, 4], irisRole: 'el', pupil: [0.8, 0.4, 1.6], glint: [2, -2, 1.4] }),
+  flEye({ id: 'glow', name: 'Glowing', tags: ['light'], w: 1, shape: FL_OVAL, sclera: 'e', iris: [0.4, 0, 3.6], irisRole: 'el', pupil: null, glint: [1.6, -1.6, 1.2] }),
+  flEye({ id: 'wide', name: 'Wide', tags: ['cute'], shape: spline([[0, -7], [6.4, -2.4], [6, 5], [0, 7.4], [-6, 5], [-6.4, -2.4]]), iris: [0.6, 0.4, 4.8], pupil: [1, 0.8, 2.8], glint: [2.6, -2.4, 1.7] }),
+];
+
+const FL_MOUTHS = [
+  flPart({ id: 'smile', slot: 'mouth', name: 'Smile', tags: ['happy'], dom: 0.5, w: 3, extra: [L('M4,-1 C0,3 -6,4 -12,1', 'k', 2)] }),
+  flPart({ id: 'grin', slot: 'mouth', name: 'Grin', tags: ['happy'], dom: 0.5, w: 2, extra: [P('M4,-1 C0,4 -6,5 -12,1 C-6,2 0,1 4,-1 Z', 'k', { ns: true }), P('M1,0 C-2,2 -6,2.6 -10,1 C-6,1.6 -2,1 1,0 Z', 'w', { ns: true })] }),
+  flPart({ id: 'pout', slot: 'mouth', name: 'Pout', tags: ['small'], dom: 0.4, w: 2, extra: [E(-3, 0, 2.8, 2, 'k', { ns: true }), C(-3.8, -0.6, 0.8, 'w', { ns: true, op: 0.7 })] }),
+  flPart({ id: 'frown', slot: 'mouth', name: 'Frown', tags: ['grumpy'], dom: 0.45, w: 2, extra: [L('M4,2 C0,-2 -6,-3 -12,0', 'k', 2)] }),
+  flPart({ id: 'nectar', slot: 'mouth', name: 'Nectar tongue', tags: ['tongue'], dom: 0.5, w: 2, extra: [L('M4,-1 C0,3 -6,4 -12,1', 'k', 2), P('M-2,1 C2,5 8,6 12,3 C13,1 11,0 9,0 C5,1 1,0 -2,-1 Z', 'a', { sw: 1.2 }), C(10, 2, 0.9, 'w', { ns: true, op: 0.8 })] }),
+  flPart({ id: 'maw', slot: 'mouth', name: 'Flytrap maw', tags: ['fierce'], dom: 0.5, w: 2, extra: [P('M5,-2 C2,4 -6,6 -14,2 C-8,0 -2,-1 5,-2 Z', 'k', { ns: true }), P('M3,-1.5 L1,1.5 L-1,-1 L-3,2 L-5,-0.5 L-7,2.4 L-9,0 L-11,1.8 L-11,0.6 C-6,-0.6 -2,-1.4 3,-1.5 Z', 'w', { ns: true })] }),
+  flPart({ id: 'whistle', slot: 'mouth', name: 'Whistle', tags: ['round'], dom: 0.45, w: 2, extra: [C(-3, 0, 2.6, 'k', { ns: true }), C(-3, 0, 1.2, 'pd', { ns: true }), L('M1,-2 L3,-3 M1,2 L3,3', 'k', 1, { op: 0.5 })] }),
+];
+
+// ---- src/data/parts/flora/limbs.js ----
+// Flora leaves (origin = the leaf socket on the stem, reaching out and up like arms) and roots
+// (origin = the root socket under the stem, reaching down like legs; their lowest point stands on the ground).
+// Evolutions: leaves grow and put a second, darker leaf behind; roots grow and band.
+
+
+
+
+const flLeafStages = (a, b, bulge) => ({
+  2: { grow: [1.1, 1.1] },
+  3: { grow: [1.1, 1.1], addBehind: [{ d: leaf(a, b, bulge), f: 'pd' }] },
+});
+const flRootStages = (bandY) => ({
+  2: { grow: [1.06, 1.08] },
+  3: { reset: true, grow: [1.12, 1.16], add: [...evoBands(bandY, 2, 2.2, 5), evoRing(0, bandY - 4, 5, 'a', 1, { op: 0.5 })] },
+});
+const flVein = (d) => L(d, 'k', 1.2, { op: 0.35 });
+const flFernPts = [[0, 0], ...fur([0, 0], [28, -12], 7, 5, { tip: 0.3, lean: 0.3 }).slice(0, -1), [28, -12, 'c'], ...fur([28, -12], [0, 0], 7, 5, { tip: 0.3, lean: 0.3 }).slice(0, -1)];
+
+const FL_LEAVES = [
+  flPart({ id: 'broad', slot: 'leaves', name: 'Broad leaf', tags: ['leaf'], dom: 0.5, w: 3, shapes: [leaf([0, 0], [26, -14], 8)], extra: [flVein('M2,-1 L22,-12'), HL('M4,-6 C10,-11 16,-13 20,-13 C15,-10 9,-7 5,-4 Z', 0.18)], stages: flLeafStages([2, 2], [30, -10], 9) }),
+  flPart({ id: 'fern', slot: 'leaves', name: 'Fern', tags: ['fern'], dom: 0.5, w: 2, shapes: [flFernPts], extra: [flVein('M1,0 L26,-11')], stages: flLeafStages([2, 3], [32, -8], 7) }),
+  flPart({ id: 'needle', slot: 'leaves', name: 'Needles', tags: ['pine'], dom: 0.45, w: 2, shapes: [tube([[0, 0], [14, -10], [26, -16]], 4, 2, { tipK: 'c' }), tube([[0, 0], [18, -4], [30, -6]], 4, 2, { tipK: 'c' }), tube([[0, 0], [14, 2], [26, 4]], 4, 2, { tipK: 'c' })], stages: flLeafStages([2, 1], [32, -2], 5) }),
+  flPart({ id: 'frond', slot: 'leaves', name: 'Frond', tags: ['palm'], dom: 0.5, w: 2, shapes: [[[0, 0], [10, -8], [22, -14], [34, -16, 'c'], [30, -10, 'c'], [24, -6], [16, -2], [8, 2]]], extra: [flVein('M2,0 C12,-6 22,-10 32,-15'), L('M10,-6 L12,-2 M18,-10 L20,-6 M26,-13 L28,-9', 'k', 1, { op: 0.3 })], stages: flLeafStages([2, 2], [38, -12], 6) }),
+  flPart({ id: 'maple', slot: 'leaves', name: 'Maple', tags: ['maple'], dom: 0.5, w: 2, shapes: [[[0, 0], [8, -6], [8, -14, 'c'], [14, -8], [22, -12, 'c'], [18, -4], [26, -2, 'c'], [18, 2], [20, 8, 'c'], [10, 4], [4, 8, 'c'], [2, 4]]], extra: [flVein('M2,0 L20,-4 M4,-2 L8,-12 M6,2 L18,6')], stages: flLeafStages([2, 2], [30, -4], 10) }),
+  flPart({ id: 'blade', slot: 'leaves', name: 'Grass blade', tags: ['grass'], dom: 0.45, w: 2, shapes: [tube([[0, 0], [6, -10], [10, -22], [12, -34]], 6, 2, { tipK: 'c' })], extra: [flVein('M1,-1 C5,-10 8,-20 11,-32')], stages: flLeafStages([1, 1], [16, -36], 4) }),
+  flPart({ id: 'succulent', slot: 'leaves', name: 'Succulent', tags: ['fat'], dom: 0.5, w: 2, shapes: [leaf([0, 0], [20, -10], 10, 1)], extra: [HL('M3,-5 C7,-10 12,-12 16,-11 C12,-9 8,-6 5,-3 Z', 0.2), SH('M8,3 C12,4 16,2 19,-2 C17,2 13,5 9,5 Z', 0.14)], stages: flLeafStages([2, 2], [24, -6], 11) }),
+];
+
+const FL_ROOTS = [
+  flLeg({ id: 'taproot', slot: 'roots', name: 'Taproot', tags: ['root'], dom: 0.5, w: 3, shapes: [tube([[0, 0], [2, 7], [0, 15]], 9, 3, { tipK: 'c' })], extra: [L('M-3,6 L-8,10 M3,8 L7,12', 'k', 1.4, { op: 0.5 })], stages: flRootStages(6) }),
+  flLeg({ id: 'tangle', slot: 'roots', name: 'Tangle', tags: ['root'], dom: 0.5, w: 2, shapes: [tube([[0, 0], [-6, 7], [-9, 14]], 5, 2, { tipK: 'c' }), tube([[0, 0], [1, 8], [0, 16]], 5, 2, { tipK: 'c' }), tube([[0, 0], [7, 6], [10, 13]], 5, 2, { tipK: 'c' })], stages: flRootStages(6) }),
+  flLeg({ id: 'stump', slot: 'roots', name: 'Stump foot', tags: ['treant'], dom: 0.55, w: 2, shapes: [[[-8, 0], [8, 0], [10, 10], [7, 15], [-7, 15], [-10, 10]]], extra: [L('M-4,15 L-4,11 M2,15 L2,11', 'k', 1.4, { op: 0.4 }), HL('M-8,0 L-3,0 L-4,12 L-8,10 Z', 0.13)], stages: flRootStages(7) }),
+  flLeg({ id: 'hairy', slot: 'roots', name: 'Root hairs', tags: ['bulb'], dom: 0.45, w: 2, shapes: [tube([[0, 0], [0, 10]], 10, 6, { tipK: 1 })], extra: [L('M-4,10 L-6,15 M-1,11 L-1,16 M2,11 L4,16 M-3,4 L-8,6 M3,5 L8,7', 'k', 1.2, { op: 0.5 })], stages: flRootStages(5) }),
+  flLeg({ id: 'stilts', slot: 'roots', name: 'Stilt roots', tags: ['tall'], dom: 0.45, w: 2, shapes: [tube([[0, 0], [1, 10], [0, 20]], 4, 3, { tipK: 1 }), [[-6, 18], [8, 18], [8, 22], [-6, 22]]], stages: flRootStages(8) }),
+  flLeg({ id: 'knot', slot: 'roots', name: 'Knotted root', tags: ['gnarled'], dom: 0.5, w: 2, shapes: [tube([[0, 0], [-3, 5], [2, 10], [-1, 15]], 8, 4, { tipK: 'c' })], extra: [C(-2, 4, 2, 'pd', { sw: 1.2 }), C(2, 9, 1.8, 'pd', { sw: 1.2 })], stages: flRootStages(6) }),
+  flLeg({ id: 'threads', slot: 'roots', name: 'Threads', tags: ['float'], dom: 0.35, w: 2, shapes: [tube([[0, 0], [1, 7]], 3, 1.5, { tipK: 1 }), tube([[-4, 0], [-6, 8]], 3, 1.5, { tipK: 1 }), tube([[4, 0], [6, 7]], 3, 1.5, { tipK: 1 })], stages: flRootStages(3) }),
+];
+
+// ---- src/data/parts/flora/growth.js ----
+// Flora vines (origin = the rear socket, trailing behind like a tail), pods (hanging from the front of the
+// stem) and thorns (a crown drawn behind the bloom).
+// Evolutions: the tail and crown families grow and spike; pods add more of themselves.
+
+
+
+
+
+const flThornTri = (x, y, a) => { const r = (a * Math.PI) / 180; const dx = Math.cos(r), dy = Math.sin(r); return P(`M${x - dy * 2},${y + dx * 2} L${x + dx * 6},${y + dy * 6} L${x + dy * 2},${y - dx * 2} Z`, 'a', { sw: 1.1 }); };
+const flPodStages = (more) => ({ 2: { grow: [1.08, 1.1], add: more }, 3: { grow: [1.06, 1.08], add: [evoRing(0, 6, 4, 'a', 1, { op: 0.5 })] } });
+
+const FL_VINES = [
+  NONE('vines', 0.3, 'p.'),
+  flPart({ id: 'tendril', slot: 'vines', name: 'Tendril', tags: ['curl'], dom: 0.5, w: 3, shapes: [tube([[0, 0], [-12, 3], [-22, -4], [-30, 4]], 6, 2.5, { tipK: 1 })], extra: [L(spiralPath(-34, 3, 4, 1.5), 'p', 2)] }),
+  flPart({ id: 'creeper', slot: 'vines', name: 'Creeper', tags: ['long'], dom: 0.5, w: 2, shapes: [tube([[0, 0], [-14, 6], [-30, 8], [-46, 10]], 6, 2, { tipK: 'c' })], extra: [P(leaf([-18, 6], [-24, -2], 3), 'p', { sw: 1.2 }), P(leaf([-34, 8], [-40, 0], 3), 'p', { sw: 1.2 })] }),
+  flPart({ id: 'thorny', slot: 'vines', name: 'Thorny vine', tags: ['thorn'], dom: 0.5, w: 2, shapes: [tube([[0, 0], [-14, 2], [-28, -2], [-40, 2]], 6, 3, { tipK: 'c' })], extra: [flThornTri(-8, -2, -110), flThornTri(-18, 4, 80), flThornTri(-28, -4, -100), flThornTri(-36, 4, 70)] }),
+  flPart({ id: 'flowering', slot: 'vines', name: 'Flowering vine', tags: ['bloom'], dom: 0.5, w: 2, shapes: [tube([[0, 0], [-12, 4], [-24, 0], [-36, 4]], 6, 2.5, { tipK: 1 })], extra: [C(-12, -2, 3.2, 'a', { sw: 1.2 }), C(-12, -2, 1.1, 'w', { ns: true }), C(-26, 6, 3.4, 'a', { sw: 1.2 }), C(-26, 6, 1.1, 'w', { ns: true }), C(-38, 0, 2.8, 'a', { sw: 1.2 }), C(-38, 0, 1, 'w', { ns: true })] }),
+  flPart({ id: 'hanging', slot: 'vines', name: 'Hanging vine', tags: ['down'], dom: 0.5, w: 2, shapes: [tube([[0, 0], [-6, 10], [-8, 22]], 5, 2, { tipK: 'c' })], extra: [P(leaf([-6, 10], [-12, 14], 2.5), 'p', { sw: 1.1 }), P(leaf([-8, 20], [-14, 22], 2.5), 'p', { sw: 1.1 })] }),
+  flPart({ id: 'coil', slot: 'vines', name: 'Coil', tags: ['spiral'], dom: 0.5, w: 2, shapes: [tube([[0, 0], [-8, 2]], 6, 4, { tipK: 1 })], extra: [L(spiralPath(-18, 0, 10, 2.2), 'p', 4), L(spiralPath(-18, 0, 10, 2.2), 'k', 1, { op: 0.3 })] }),
+  flPart({ id: 'whip', slot: 'vines', name: 'Whip vine', tags: ['long'], dom: 0.5, w: 2, shapes: [tube([[0, 0], [-18, -4], [-34, -14], [-46, -26]], 5, 1.5, { tipK: 'c' })], extra: [L('M-4,-1 C-16,-4 -28,-12 -42,-24', 'k', 1, { op: 0.25 })] }),
+];
+
+const FL_PODS = [
+  NONE('pods', 0.3, 'p.'),
+  flPart({ id: 'seedpods', slot: 'pods', name: 'Seed pods', tags: ['pod'], dom: 0.5, w: 3, extra: [L('M0,0 L-3,6 M0,0 L5,7', 'k', 1.4), E(-4, 10, 3.2, 5, 'a', { sw: 1.3 }), E(6, 11, 3.2, 5, 'a', { sw: 1.3 }), C(-5, 8, 0.9, 'w', { ns: true, op: 0.7 }), C(5, 9, 0.9, 'w', { ns: true, op: 0.7 })], stages: flPodStages([E(1, 16, 3, 4.6, 'a', { sw: 1.3 })]) }),
+  flPart({ id: 'buds', slot: 'pods', name: 'Buds', tags: ['bud'], dom: 0.5, w: 2, extra: [L('M0,0 L-6,4 M0,0 L2,7 M0,0 L8,3', 'k', 1.3), C(-7, 5, 2.8, 's', { sw: 1.2 }), C(2, 9, 3, 's', { sw: 1.2 }), C(9, 4, 2.6, 's', { sw: 1.2 }), C(2, 9, 1.2, 'a', { ns: true })], stages: flPodStages([C(-3, 12, 3, 'a', { sw: 1.2 }), C(8, 11, 2.6, 'a', { sw: 1.2 })]) }),
+  flPart({ id: 'berries', slot: 'pods', name: 'Berries', tags: ['berry'], dom: 0.5, w: 2, extra: [C(-4, 4, 2.8, 'a', { sw: 1.2 }), C(2, 2, 2.8, 'a', { sw: 1.2 }), C(6, 7, 2.8, 'a', { sw: 1.2 }), C(-1, 9, 2.8, 'a', { sw: 1.2 }), C(-5, 3, 0.8, 'w', { ns: true, op: 0.8 }), C(1, 1, 0.8, 'w', { ns: true, op: 0.8 }), C(5, 6, 0.8, 'w', { ns: true, op: 0.8 })], stages: flPodStages([C(8, 1, 2.6, 'a', { sw: 1.2 }), C(4, 13, 2.6, 'a', { sw: 1.2 })]) }),
+  flPart({ id: 'pinecone', slot: 'pods', name: 'Pinecone', tags: ['cone'], dom: 0.5, w: 2, shapes: [[[0, 0], [5, 3], [7, 9], [4, 16], [0, 18], [-4, 16], [-7, 9], [-5, 3]]], extra: [L('M-5,5 L5,5 M-6,9 L6,9 M-5,13 L5,13 M0,2 L0,17 M-3,3 L-3,15 M3,3 L3,15', 'k', 1, { op: 0.35 })], stages: flPodStages([...evoGem(0, 10, 2.4)]) }),
+  flPart({ id: 'acorn', slot: 'pods', name: 'Acorn', tags: ['nut'], dom: 0.5, w: 2, extra: [E(2, 10, 4.5, 5.5, 's', { sw: 1.3 }), P('M-3.5,7 C-2,3 6,3 7.5,7 Z', 'pd', { sw: 1.3 }), L('M2,3 L2,0', 'k', 1.6), C(0, 8, 0.9, 'w', { ns: true, op: 0.7 })], stages: flPodStages([E(-6, 12, 3.6, 4.4, 's', { sw: 1.2 }), P('M-10,9.6 C-9,6.5 -3,6.5 -2,9.6 Z', 'pd', { sw: 1.2 })]) }),
+  flPart({ id: 'lantern', slot: 'pods', name: 'Lantern', tags: ['physalis'], dom: 0.5, w: 2, extra: [L('M0,0 L1,4', 'k', 1.4), P(diamondPath(1, 12, 10, 16), 'a', { sw: 1.3 }), C(1, 13, 2.6, 'pd', { ns: true, op: 0.6 }), L('M1,4 L1,20 M-3,8 L-2,17 M5,8 L4,17', 'k', 0.9, { op: 0.3 })], stages: flPodStages([C(1, 13, 1.2, 'w', { ns: true, op: 0.8 })]) }),
+  flPart({ id: 'bulbs', slot: 'pods', name: 'Bulblets', tags: ['bulb'], dom: 0.5, w: 2, extra: [P('M-6,4 C-6,0 -2,-1 -1,3 C0,7 -2,11 -4,11 C-7,11 -8,7 -6,4 Z', 's', { sw: 1.2 }), P('M4,6 C4,2 8,1 9,5 C10,9 8,13 6,13 C3,13 2,9 4,6 Z', 's', { sw: 1.2 }), L('M-3,0 L-2,-3 M7,2 L8,-1', 'k', 1.2)], stages: flPodStages([P('M-1,12 C-1,8 3,7 4,11 C5,15 3,19 1,19 C-2,19 -3,15 -1,12 Z', 's', { sw: 1.2 })]) }),
+];
+
+const FL_THORNS = [
+  NONE('thorns', 0.3, 'p.'),
+  flPart({ id: 'crown', slot: 'thorns', name: 'Thorn crown', tags: ['spiky'], dom: 0.5, w: 3, shapes: [[[-14, 0], ...fur([-14, 0], [14, 0], 5, 10, { tip: 'c' }), [14, 4], [-14, 4]]] }),
+  flPart({ id: 'sepals', slot: 'thorns', name: 'Sepals', tags: ['leaf'], dom: 0.5, w: 2, shapes: [leaf([0, 0], [-13, -14], 4), leaf([0, 0], [0, -17], 4), leaf([0, 0], [13, -14], 4)], extra: [L('M0,0 L-10,-11 M0,0 L0,-14 M0,0 L10,-11', 'k', 1, { op: 0.3 })] }),
+  flPart({ id: 'collar', slot: 'thorns', name: 'Collar', tags: ['ruff'], dom: 0.5, w: 2, shapes: [{ pts: puff(0, -2, 13, 10, 4), f: 's' }] }),
+  flPart({ id: 'halo', slot: 'thorns', name: 'Pollen halo', tags: ['light'], dom: 0.45, w: 2, extra: [evoRing(0, -4, 13, 'a', 1.4, { op: 0.7 }), ...[0, 45, 90, 135, 180, 225, 270, 315].map((a) => C(Math.cos((a * Math.PI) / 180) * 13, -4 + Math.sin((a * Math.PI) / 180) * 13, 1.8, 'a', { ns: true }))] }),
+  flPart({ id: 'antlers', slot: 'thorns', name: 'Twig antlers', tags: ['branch'], dom: 0.5, w: 2, extra: [L('M-4,0 L-10,-14 M-10,-14 L-16,-18 M-10,-14 L-8,-22 M4,0 L10,-14 M10,-14 L16,-18 M10,-14 L8,-22', 'pd', 3.2), L('M-4,0 L-10,-14 M-10,-14 L-16,-18 M-10,-14 L-8,-22 M4,0 L10,-14 M10,-14 L16,-18 M10,-14 L8,-22', 'k', 1, { op: 0.25 })] }),
+  flPart({ id: 'spikes', slot: 'thorns', name: 'Thorn pair', tags: ['spiky'], dom: 0.5, w: 2, shapes: [[[-12, 2], [-16, -14, 'c'], [-6, 0]], [[12, 2], [16, -14, 'c'], [6, 0]]], extra: [HL('M-14,-4 L-15,-11 L-13,-6 Z', 0.25)] }),
+  flPart({ id: 'tuft', slot: 'thorns', name: 'Pollen tuft', tags: ['fluff'], dom: 0.45, w: 2, shapes: [{ pts: puff(0, -6, 8, 8, 3), f: 'a' }], extra: [C(-3, -9, 1, 'w', { ns: true, op: 0.7 }), C(2, -4, 0.8, 'w', { ns: true, op: 0.6 })] }),
+];
+
+// ---- src/data/parts/flora/back.js ----
+// Flora canopy (foliage drawn behind the stem at its back socket), bark (a pattern clipped to the stem,
+// 100 x 60 frame) and fruit (a small accent hanging low on the bloom).
+// Evolutions: canopy grows with the fur family; bark is flat; fruit grows with the face family.
+
+
+
+
+const flStrand = (x0, y0, x1, y1) => `M${x0},${y0} C${x0},${(y0 + y1) / 2} ${x1},${(y0 + y1) / 2} ${x1},${y1} `;
+const flRingD = (rx, ry) => spline(arcPts(0, 0, rx, ry, 0, 330, 11));
+
+const FL_CANOPY = [
+  NONE('canopy', 0.3, 'p.'),
+  flPart({ id: 'bush', slot: 'canopy', name: 'Bush', tags: ['round'], dom: 0.5, w: 3, shapes: [{ pts: puff(0, -8, 22, 12, 6), f: 's' }], extra: [C(-10, -18, 1.4, 'w', { ns: true, op: 0.5 }), C(6, -22, 1.2, 'w', { ns: true, op: 0.5 })] }),
+  flPart({ id: 'fronds', slot: 'canopy', name: 'Fronds', tags: ['palm'], dom: 0.5, w: 2, shapes: [{ d: leaf([0, -4], [-30, -20], 6), f: 'pd' }, { d: leaf([0, -4], [-14, -32], 5), f: 'pd' }, { d: leaf([0, -4], [12, -34], 5), f: 'pd' }, { d: leaf([0, -4], [30, -22], 6), f: 'pd' }] }),
+  flPart({ id: 'willow', slot: 'canopy', name: 'Willow', tags: ['hanging'], dom: 0.5, w: 2, shapes: [{ pts: puff(0, -14, 18, 10, 4), f: 's' }], extra: [L(flStrand(-22, -8, -26, 18) + flStrand(-12, -2, -16, 24) + flStrand(14, -2, 18, 24) + flStrand(24, -8, 28, 18), 'sd', 1.6)] }),
+  flPart({ id: 'branches', slot: 'canopy', name: 'Bare branches', tags: ['twig'], dom: 0.5, w: 2, extra: [L('M0,0 L-12,-18 M-12,-18 L-22,-22 M-12,-18 L-14,-30 M0,0 L10,-20 M10,-20 L20,-24 M10,-20 L8,-32 M0,0 L0,-26', 'pd', 3.4), L('M0,0 L-12,-18 M0,0 L10,-20 M0,0 L0,-26', 'k', 1, { op: 0.25 })] }),
+  flPart({ id: 'flowerbed', slot: 'canopy', name: 'Flowerbed', tags: ['bloom'], dom: 0.5, w: 2, shapes: [{ pts: puff(0, -6, 18, 10, 4), f: 'pd' }], extra: [...[[-12, -14], [4, -20], [16, -8], [-4, -4]].flatMap(([x, y]) => [P(spline(puff(x, y, 3.2, 6, 1.6)), 'a', { sw: 1.1 }), C(x, y, 1.2, 'w', { ns: true })])] }),
+  flPart({ id: 'pollen', slot: 'canopy', name: 'Pollen cloud', tags: ['light'], dom: 0.4, w: 1, extra: [evoGlow(0, -12, 20, 0.14, 'a', { cl: false }), ...[[-16, -6], [-8, -20], [4, -26], [16, -16], [22, -2], [-2, -10], [10, -6]].map(([x, y], i) => C(x, y, i % 2 ? 1.2 : 1.7, 'a', { ns: true, op: 0.85 }))] }),
+  flPart({ id: 'brambles', slot: 'canopy', name: 'Brambles', tags: ['thorn'], dom: 0.5, w: 2, extra: [L('M-4,0 C-20,-10 -26,-22 -14,-30 C-4,-36 6,-28 2,-18 M4,0 C18,-8 28,-18 20,-28 C14,-34 4,-30 6,-20', 'pd', 3), ...[[-20, -14], [-12, -30], [24, -16], [14, -30], [6, -20]].map(([x, y]) => P(`M${x},${y} L${x + 3},${y - 5} L${x + 5},${y} Z`, 'a', { sw: 1 }))] }),
+];
+
+const FL_BARK = [
+  NONE('bark', 0.3, 'p.'),
+  flPart({ id: 'rings', slot: 'bark', name: 'Growth rings', tags: ['ring'], dom: 0.5, w: 2, extra: [L(flRingD(12, 9), 'k', 1.2, { op: 0.25 }), L(flRingD(22, 15), 'k', 1.2, { op: 0.22 }), L(flRingD(32, 21), 'k', 1.2, { op: 0.2 })] }),
+  flPart({ id: 'grain', slot: 'bark', name: 'Grain', tags: ['stripe'], dom: 0.5, w: 2, extra: [L('M-30,-26 C-34,-8 -34,8 -30,26 M-14,-28 C-18,-8 -18,8 -14,28 M4,-28 C0,-8 0,8 4,28 M20,-26 C16,-8 16,8 20,26 M34,-22 C30,-6 30,6 34,22', 'k', 1.2, { op: 0.28 })] }),
+  flPart({ id: 'knots', slot: 'bark', name: 'Knots', tags: ['knot'], dom: 0.5, w: 2, extra: [E(-18, -8, 6, 4.5, 'pd', { ns: true }), E(-18, -8, 2.6, 1.8, 'k', { ns: true, op: 0.5 }), E(14, 6, 7, 5, 'pd', { ns: true }), E(14, 6, 3, 2, 'k', { ns: true, op: 0.5 }), E(26, -14, 4, 3, 'pd', { ns: true })] }),
+  flPart({ id: 'moss', slot: 'bark', name: 'Moss patches', tags: ['moss'], dom: 0.5, w: 2, extra: [PATCH(spline(puff(-20, 6, 9, 7, 3)), 'a'), PATCH(spline(puff(16, -10, 8, 7, 3)), 'a'), PATCH(spline(puff(28, 12, 6, 6, 2)), 'a')] }),
+  flPart({ id: 'speckles', slot: 'bark', name: 'Speckles', tags: ['dots'], dom: 0.5, w: 2, extra: [...[[-30, -12], [-22, 10], [-10, -22], [-4, 4], [8, -12], [12, 16], [24, -4], [30, 12], [-16, 20], [20, 22]].map(([x, y], i) => C(x, y, i % 3 ? 1.4 : 2.2, 'a', { ns: true, op: 0.85 }))] }),
+  flPart({ id: 'veins', slot: 'bark', name: 'Veins', tags: ['vein'], dom: 0.5, w: 2, extra: [L('M0,28 L0,-28 M0,10 L-18,-6 M0,10 L16,-8 M0,-8 L-14,-22 M0,-8 L12,-24 M-18,-6 L-30,-10 M16,-8 L28,-14', 'k', 1.3, { op: 0.3 })] }),
+  flPart({ id: 'cracks', slot: 'bark', name: 'Cracks', tags: ['crack'], dom: 0.5, w: 2, extra: [L('M-26,-24 L-20,-10 L-26,4 L-18,18 M6,-26 L2,-12 L10,-2 L4,14 L10,26 M28,-18 L22,-6 L30,8', 'k', 1.6, { op: 0.45 })] }),
+];
+
+const FL_FRUIT = [
+  NONE('fruit', 0.3, 'p.'),
+  flPart({ id: 'berry', slot: 'fruit', name: 'Berry', tags: ['berry'], dom: 0.5, w: 3, extra: [L('M0,0 L1,3', 'k', 1.3), C(1, 6, 3.6, 'a', { sw: 1.3 }), C(-0.3, 4.6, 1, 'w', { ns: true, op: 0.85 })] }),
+  flPart({ id: 'apple', slot: 'fruit', name: 'Apple', tags: ['apple'], dom: 0.5, w: 2, extra: [L('M0,0 L1,3', 'k', 1.3), P('M-4,6 C-4,2 6,2 6,6 C6,10 3,12 1,12 C-1,12 -4,10 -4,6 Z', 'a', { sw: 1.3 }), P(leaf([1, 3], [5, 0], 1.6), 'p', { sw: 1 }), C(-1.5, 5, 1, 'w', { ns: true, op: 0.8 })] }),
+  flPart({ id: 'cherries', slot: 'fruit', name: 'Cherries', tags: ['cherry'], dom: 0.5, w: 2, extra: [L('M0,0 L-4,6 M0,0 L5,7', 'k', 1.3), C(-4.5, 8.5, 3, 'a', { sw: 1.3 }), C(5.5, 9.5, 3, 'a', { sw: 1.3 }), C(-5.6, 7.4, 0.9, 'w', { ns: true, op: 0.8 }), C(4.4, 8.4, 0.9, 'w', { ns: true, op: 0.8 })] }),
+  flPart({ id: 'nut', slot: 'fruit', name: 'Nut', tags: ['nut'], dom: 0.5, w: 2, extra: [E(1, 6, 3.8, 4.6, 's', { sw: 1.3 }), P('M-3,4 C-2,1 4,1 5,4 Z', 'pd', { sw: 1.2 }), C(-0.4, 5.4, 0.9, 'w', { ns: true, op: 0.7 })] }),
+  flPart({ id: 'grapes', slot: 'fruit', name: 'Grapes', tags: ['grape'], dom: 0.5, w: 2, extra: [L('M0,0 L1,3', 'k', 1.3), ...[[-3, 5], [3, 5], [0, 8], [-2, 11], [2, 11], [0, 14]].map(([x, y]) => C(x, y, 2.2, 'a', { sw: 1.1 })), C(-3.6, 4.4, 0.7, 'w', { ns: true, op: 0.8 })] }),
+  flPart({ id: 'pepper', slot: 'fruit', name: 'Pepper', tags: ['hot'], dom: 0.5, w: 2, extra: [L('M0,0 L0,3', 'k', 1.3), P('M-2,3 C-4,7 -3,12 2,15 C4,11 3,6 1,3 Z', 'a', { sw: 1.3 }), C(-1.4, 5, 0.8, 'w', { ns: true, op: 0.8 })] }),
+  flPart({ id: 'seed', slot: 'fruit', name: 'Seed', tags: ['seed'], dom: 0.5, w: 2, extra: [E(1, 6, 3, 4.4, 's', { sw: 1.3 }), L('M1,2.6 L1,9.6', 'k', 1, { op: 0.4 }), C(-0.2, 4.4, 0.8, 'w', { ns: true, op: 0.7 })] }),
+];
+
+// ---- src/data/parts/flora/index.js ----
+// The flora library, one list per rig slot.
+
+
+
+
+
+
+
+const FLORA_PARTS = {
+  body: FL_BODIES, head: FL_HEADS, eyes: FL_EYES, mouth: FL_MOUTHS, leaves: FL_LEAVES, roots: FL_ROOTS,
+  vines: FL_VINES, pods: FL_PODS, thorns: FL_THORNS, canopy: FL_CANOPY, bark: FL_BARK, fruit: FL_FRUIT,
+};
+
 // ---- src/data/parts/index.js ----
 // Part registry. Part ids are stable forever: a saved creature must decode the
 // same way after the library grows, so never rename or reuse an id.
 //
 // Parts are grouped by rig, then slot. A part fits any body of its own rig
 // unless it lists the body kinds it accepts in `fit`.
+
 
 
 
@@ -6318,6 +6703,7 @@ const RIG_PARTS = {
   insect: INSECT_PARTS,
   invertebrate: INVERTEBRATE_PARTS,
   amphibian: AMPHIBIAN_PARTS,
+  flora: FLORA_PARTS,
 };
 
 const PARTS = new Map();
@@ -7694,6 +8080,161 @@ const SPECIES = [
     abilities: ['purebred','regrowth'],
     desc: 'Regrows anything it loses, up to and including its dignity. Smiles through everything.',
   },
+  // ---- Roster expansion: flora ----
+  {
+    id: 'budlet', name: 'Budlet', nameParts: ['Bud', 'let'], clade: 'flora', rig: 'flora', types: ['Grass'], tier: 'common', bst: 400,
+    stats: { hp: 0.16, melee: 0.07, ranged: 0.19, magic: 0.09, meleeDef: 0.11, rangedDef: 0.12, magicDef: 0.11, spe: 0.15 },
+    recipe: { body: 'p.body.sprout', head: 'p.head.daisy', eyes: 'p.eyes.dew', mouth: 'p.mouth.smile', leaves: 'p.leaves.broad', roots: 'p.roots.taproot', vines: 'p.vines.none', pods: ['p.pods.buds', 'p.pods.none'], thorns: 'p.thorns.none', canopy: 'p.canopy.none', bark: 'p.bark.none', fruit: ['p.fruit.none', 'p.fruit.berry'] },
+    palette: { c1: [105, 50, 48], c2: [52, 55, 90], c3: [46, 92, 60], eye: [28, 55, 25] }, vary: { h: 10, s: 8, l: 6 },
+    paint: { head: 3, pods: 3 },
+    traits: T([0.3, 0.55], [0.5, 0.75], [0.3, 0.5], MID, [0.5, 0.75], [0.55, 0.85]),
+    learnset: [[1,'seed_volley'],[1,'drowse_dust'],[6,'leaf_razor'],[11,'bump'],[16,'photosynth'],[22,'sap_drain'],[28,'spore_burst'],[34,'sparkle_shot'],[40,'brace'],[46,'leaf_tempest'],[52,'sunlance']],
+    abilities: ['bloom_heart','regrowth'],
+    desc: 'A seedling that pulled its roots up to follow the sun. Its daisy nods when it agrees with you.',
+  },
+  {
+    id: 'thornwick', name: 'Thornwick', nameParts: ['Thorn', 'wick'], clade: 'flora', rig: 'flora', types: ['Grass', 'Poison'], tier: 'uncommon', bst: 435,
+    stats: { hp: 0.14, melee: 0.2, ranged: 0.08, magic: 0.07, meleeDef: 0.12, rangedDef: 0.11, magicDef: 0.1, spe: 0.18 },
+    recipe: { body: 'p.body.vine', head: 'p.head.rose', eyes: 'p.eyes.sharp', mouth: 'p.mouth.grin', leaves: 'p.leaves.blade', roots: 'p.roots.tangle', vines: 'p.vines.thorny', pods: 'p.pods.none', thorns: ['p.thorns.crown', 'p.thorns.none'], canopy: 'p.canopy.none', bark: 'p.bark.none', fruit: 'p.fruit.none' },
+    palette: { c1: [132, 40, 32], c2: [112, 35, 55], c3: [350, 75, 50], eye: [55, 90, 60] }, vary: { h: 8, s: 6, l: 5 },
+    paint: { head: 4, thorns: 4 },
+    traits: T([0.35, 0.6], MID, [0.3, 0.5], [0.6, 0.9], [0.4, 0.65], [0.4, 0.6]),
+    learnset: [[1,'vine_lash'],[1,'venom_prick'],[6,'toxin_dust'],[11,'swipe'],[16,'venom_slash'],[22,'whetting'],[28,'blade_leaf'],[34,'venom_stab'],[40,'blight'],[46,'venom_gore'],[52,'leaf_tempest']],
+    abilities: ['thorn_hide','venom_barbs'],
+    desc: 'A briar that learned to walk and never forgave the gardener. Every thorn on it drips.',
+  },
+  {
+    id: 'pixiebloom', name: 'Pixiebloom', nameParts: ['Pixie', 'bloom'], clade: 'flora', rig: 'flora', types: ['Grass', 'Fairy'], tier: 'common', bst: 405,
+    stats: { hp: 0.14, melee: 0.06, ranged: 0.09, magic: 0.21, meleeDef: 0.1, rangedDef: 0.11, magicDef: 0.14, spe: 0.15 },
+    recipe: { body: 'p.body.sprout', head: 'p.head.orchid', eyes: 'p.eyes.gem', mouth: 'p.mouth.smile', leaves: 'p.leaves.frond', roots: 'p.roots.threads', vines: ['p.vines.none', 'p.vines.flowering'], pods: ['p.pods.buds', 'p.pods.none'], thorns: ['p.thorns.halo', 'p.thorns.none'], canopy: 'p.canopy.none', bark: 'p.bark.none', fruit: 'p.fruit.none' },
+    palette: { c1: [140, 40, 55], c2: [315, 55, 78], c3: [45, 85, 70], eye: [280, 60, 45] }, vary: { h: 10, s: 6, l: 5 },
+    paint: { head: 3, thorns: 4, vines: 3 },
+    traits: T([0.25, 0.5], [0.55, 0.8], [0.3, 0.5], MID, [0.4, 0.65], [0.6, 0.9]),
+    learnset: [[1,'seed_volley'],[1,'doe_eyes'],[6,'glitter_gust'],[11,'drowse_dust'],[16,'sap_drain'],[22,'moonbathe'],[28,'dazzle'],[34,'photosynth'],[40,'lunar_burst'],[46,'sunlance'],[52,'star_shower']],
+    abilities: ['lucky_streak','regrowth'],
+    desc: 'An orchid that hums to itself in the dark. Moths gather round it and forget where they were going.',
+  },
+  {
+    id: 'rootgnarl', name: 'Rootgnarl', nameParts: ['Root', 'gnarl'], clade: 'flora', rig: 'flora', types: ['Grass', 'Ground'], tier: 'uncommon', bst: 450,
+    stats: { hp: 0.19, melee: 0.17, ranged: 0.06, magic: 0.06, meleeDef: 0.17, rangedDef: 0.14, magicDef: 0.12, spe: 0.09 },
+    recipe: { body: 'p.body.treant', head: 'p.head.bell', eyes: 'p.eyes.sleepy', mouth: 'p.mouth.frown', leaves: 'p.leaves.broad', roots: 'p.roots.stump', vines: 'p.vines.none', pods: ['p.pods.acorn', 'p.pods.none'], thorns: 'p.thorns.none', canopy: ['p.canopy.branches', 'p.canopy.none'], bark: 'p.bark.knots', fruit: 'p.fruit.none' },
+    palette: { c1: [28, 40, 35], c2: [95, 40, 45], c3: [40, 55, 65], eye: [45, 80, 55] }, vary: { h: 8, s: 5, l: 6 },
+    paint: { leaves: 2, canopy: 2, head: 2 },
+    traits: T([0.45, 0.7], [0.4, 0.6], [0.4, 0.6], MID, [0.4, 0.6], [0.35, 0.55]),
+    learnset: [[1,'bump'],[1,'mud_fling'],[6,'vine_lash'],[11,'stampede'],[16,'brace'],[22,'photosynth'],[28,'blade_leaf'],[34,'bull_rush'],[40,'dust_kick'],[46,'quake_stomp'],[52,'sunlance']],
+    abilities: ['stonewall','iron_hide'],
+    desc: 'A stump that got up one spring and kept going. Moves an inch a day unless something needs flattening.',
+  },
+  {
+    id: 'emberpetal', name: 'Emberpetal', nameParts: ['Ember', 'petal'], clade: 'flora', rig: 'flora', types: ['Grass', 'Fire'], tier: 'uncommon', bst: 430,
+    stats: { hp: 0.14, melee: 0.08, ranged: 0.2, magic: 0.1, meleeDef: 0.1, rangedDef: 0.11, magicDef: 0.11, spe: 0.16 },
+    recipe: { body: 'p.body.bulb', head: 'p.head.sunflower', eyes: 'p.eyes.glow', mouth: 'p.mouth.pout', leaves: 'p.leaves.maple', roots: 'p.roots.hairy', vines: 'p.vines.none', pods: ['p.pods.lantern', 'p.pods.none'], thorns: ['p.thorns.sepals', 'p.thorns.none'], canopy: 'p.canopy.none', bark: 'p.bark.none', fruit: ['p.fruit.pepper', 'p.fruit.none'] },
+    palette: { c1: [95, 45, 40], c2: [20, 85, 60], c3: [45, 95, 58], eye: [15, 95, 55] }, vary: { h: 8, s: 6, l: 5 },
+    paint: { head: 4, pods: 4, fruit: 3 },
+    traits: T([0.35, 0.6], [0.55, 0.8], [0.3, 0.5], MID, [0.5, 0.75], [0.45, 0.7]),
+    learnset: [[1,'cinder'],[1,'seed_volley'],[6,'leaf_razor'],[11,'flare'],[16,'photosynth'],[22,'kindle_rush'],[28,'spore_burst'],[34,'fire_stream'],[40,'whetting'],[46,'leaf_tempest'],[52,'inferno_charge']],
+    abilities: ['ember_heart','damp_coat'],
+    desc: 'A sunflower that faces the sun so hard it caught. Its petals smoulder and its seeds pop like sparks.',
+  },
+  {
+    id: 'lilypaddle', name: 'Lilypaddle', nameParts: ['Lily', 'paddle'], clade: 'flora', rig: 'flora', types: ['Grass', 'Water'], tier: 'common', bst: 410,
+    stats: { hp: 0.16, melee: 0.06, ranged: 0.08, magic: 0.19, meleeDef: 0.11, rangedDef: 0.12, magicDef: 0.14, spe: 0.14 },
+    recipe: { body: 'p.body.pad', head: 'p.head.bell', eyes: 'p.eyes.wide', mouth: 'p.mouth.smile', leaves: 'p.leaves.succulent', roots: 'p.roots.threads', vines: ['p.vines.hanging', 'p.vines.none'], pods: ['p.pods.buds', 'p.pods.none'], thorns: 'p.thorns.none', canopy: 'p.canopy.none', bark: 'p.bark.none', fruit: 'p.fruit.none' },
+    palette: { c1: [150, 45, 42], c2: [330, 60, 82], c3: [195, 60, 60], eye: [200, 70, 40] }, vary: { h: 10, s: 6, l: 6 },
+    paint: { head: 3, pods: 3 },
+    traits: T([0.35, 0.6], [0.5, 0.75], [0.3, 0.5], [0.5, 0.75], [0.45, 0.7], [0.55, 0.85]),
+    learnset: [[1,'squirt'],[1,'drowse_dust'],[6,'ripple'],[11,'seed_volley'],[16,'sap_drain'],[22,'photosynth'],[28,'tidal_wave'],[34,'spore_burst'],[40,'mend'],[46,'sunlance'],[52,'maelstrom']],
+    abilities: ['sponge','regrowth'],
+    desc: 'Drifts across ponds on its own pad and paddles with its leaves. Frogs ride it and it does not mind.',
+  },
+  {
+    id: 'aphidleaf', name: 'Aphidleaf', nameParts: ['Aphid', 'leaf'], clade: 'flora', rig: 'flora', types: ['Grass', 'Bug'], tier: 'common', bst: 400,
+    stats: { hp: 0.13, melee: 0.08, ranged: 0.2, magic: 0.08, meleeDef: 0.1, rangedDef: 0.11, magicDef: 0.1, spe: 0.2 },
+    recipe: { body: 'p.body.bulb', head: 'p.head.thistle', eyes: 'p.eyes.seed', mouth: 'p.mouth.whistle', leaves: 'p.leaves.needle', roots: 'p.roots.hairy', vines: ['p.vines.tendril', 'p.vines.none'], pods: ['p.pods.seedpods', 'p.pods.none'], thorns: ['p.thorns.tuft', 'p.thorns.none'], canopy: 'p.canopy.none', bark: 'p.bark.none', fruit: 'p.fruit.none' },
+    palette: { c1: [80, 55, 50], c2: [280, 45, 65], c3: [60, 70, 75], eye: [0, 0, 15] }, vary: { h: 10, s: 6, l: 6 },
+    paint: { head: 3, thorns: 3 },
+    traits: T([0.25, 0.5], [0.45, 0.7], [0.3, 0.5], [0.5, 0.75], [0.5, 0.75], [0.5, 0.8]),
+    learnset: [[1,'needle_volley'],[1,'seed_volley'],[6,'leaf_razor'],[11,'swarm_buzz'],[16,'web_shot'],[22,'dash'],[28,'spore_burst'],[34,'drone'],[40,'quicken'],[46,'leaf_tempest'],[52,'great_horn']],
+    abilities: ['finesse','quick_start'],
+    desc: 'Half thistle, half the insects that lived on it. Whistles through its mouth when it is nervous.',
+  },
+  {
+    id: 'nightshade', name: 'Nightshade', nameParts: ['Night', 'shade'], clade: 'flora', rig: 'flora', types: ['Grass', 'Dark'], tier: 'uncommon', bst: 425,
+    stats: { hp: 0.14, melee: 0.08, ranged: 0.07, magic: 0.21, meleeDef: 0.1, rangedDef: 0.11, magicDef: 0.13, spe: 0.16 },
+    recipe: { body: 'p.body.vine', head: 'p.head.tulip', eyes: 'p.eyes.glow', mouth: 'p.mouth.frown', leaves: 'p.leaves.blade', roots: 'p.roots.tangle', vines: ['p.vines.creeper', 'p.vines.none'], pods: ['p.pods.berries', 'p.pods.none'], thorns: ['p.thorns.sepals', 'p.thorns.none'], canopy: 'p.canopy.none', bark: 'p.bark.none', fruit: 'p.fruit.none' },
+    palette: { c1: [150, 28, 26], c2: [265, 30, 38], c3: [285, 60, 55], eye: [55, 95, 60] }, vary: { h: 8, s: 5, l: 5 },
+    paint: { head: 4, pods: 4 },
+    traits: T([0.35, 0.6], MID, [0.3, 0.5], [0.6, 0.9], [0.4, 0.65], [0.5, 0.75]),
+    learnset: [[1,'hex_glare'],[1,'toxin_dust'],[6,'seed_volley'],[11,'sneer'],[16,'sap_drain'],[22,'scheme'],[28,'dread_pulse'],[34,'spore_burst'],[40,'drowse_dust'],[46,'sunlance'],[52,'night_volley']],
+    abilities: ['menace','restless'],
+    desc: 'Blooms only after dark and closes if anyone says its name. The berries are not for eating.',
+  },
+  {
+    id: 'dreamlotus', name: 'Dreamlotus', nameParts: ['Dream', 'lotus'], clade: 'flora', rig: 'flora', types: ['Grass', 'Psychic'], tier: 'rare', bst: 460,
+    stats: { hp: 0.15, melee: 0.05, ranged: 0.08, magic: 0.22, meleeDef: 0.1, rangedDef: 0.11, magicDef: 0.15, spe: 0.14 },
+    recipe: { body: 'p.body.pad', head: 'p.head.orchid', eyes: 'p.eyes.sleepy', mouth: 'p.mouth.smile', leaves: 'p.leaves.broad', roots: 'p.roots.threads', vines: 'p.vines.none', pods: ['p.pods.lantern', 'p.pods.none'], thorns: ['p.thorns.halo', 'p.thorns.none'], canopy: ['p.canopy.flowerbed', 'p.canopy.none'], bark: 'p.bark.none', fruit: 'p.fruit.none' },
+    palette: { c1: [165, 40, 45], c2: [330, 55, 80], c3: [50, 80, 80], eye: [290, 70, 55] }, vary: { h: 8, s: 6, l: 5 },
+    paint: { head: 3, canopy: 3, thorns: 4, pods: 4 },
+    traits: T([0.35, 0.6], [0.55, 0.8], [0.3, 0.5], MID, [0.45, 0.7], [0.5, 0.75]),
+    learnset: [[1,'mind_jolt'],[1,'drowse_dust'],[6,'seed_volley'],[11,'meditate'],[16,'thought_beam'],[22,'sap_drain'],[28,'psi_shock'],[34,'photosynth'],[40,'mind_crush'],[46,'sunlance'],[52,'psystorm']],
+    abilities: ['steady','mirror_scale'],
+    desc: 'Floats with its eyes half shut, dreaming for the whole pond. Sleep near one and you will dream its dreams.',
+  },
+  {
+    id: 'frostfern', name: 'Frostfern', nameParts: ['Frost', 'fern'], clade: 'flora', rig: 'flora', types: ['Grass', 'Ice'], tier: 'uncommon', bst: 430,
+    stats: { hp: 0.15, melee: 0.07, ranged: 0.2, magic: 0.09, meleeDef: 0.1, rangedDef: 0.12, magicDef: 0.12, spe: 0.15 },
+    recipe: { body: 'p.body.sprout', head: 'p.head.daisy', eyes: 'p.eyes.dew', mouth: 'p.mouth.pout', leaves: 'p.leaves.fern', roots: 'p.roots.knot', vines: 'p.vines.none', pods: ['p.pods.pinecone', 'p.pods.none'], thorns: 'p.thorns.none', canopy: ['p.canopy.fronds', 'p.canopy.none'], bark: ['p.bark.rings', 'p.bark.none'], fruit: 'p.fruit.none' },
+    palette: { c1: [175, 35, 60], c2: [200, 30, 92], c3: [210, 60, 70], eye: [210, 70, 40] }, vary: { h: 8, s: 6, l: 5 },
+    paint: { head: 3, canopy: 4 },
+    traits: T([0.3, 0.55], [0.45, 0.7], [0.3, 0.5], MID, [0.55, 0.8], [0.5, 0.8]),
+    learnset: [[1,'icicle_dart'],[1,'seed_volley'],[6,'sleet'],[11,'leaf_razor'],[16,'hail_volley'],[22,'photosynth'],[28,'spore_burst'],[34,'glacier_toss'],[40,'brace'],[46,'leaf_tempest'],[52,'whiteout']],
+    abilities: ['frost_heart','warm_core'],
+    desc: 'Grows under the snow and comes up through it. Its fronds are rimed with frost that never melts.',
+  },
+  {
+    id: 'cragcactus', name: 'Cragcactus', nameParts: ['Crag', 'cactus'], clade: 'flora', rig: 'flora', types: ['Grass', 'Rock'], tier: 'common', bst: 415,
+    stats: { hp: 0.17, melee: 0.18, ranged: 0.07, magic: 0.05, meleeDef: 0.16, rangedDef: 0.14, magicDef: 0.11, spe: 0.12 },
+    recipe: { body: 'p.body.cactus', head: 'p.head.daisy', eyes: 'p.eyes.sleepy', mouth: 'p.mouth.pout', leaves: 'p.leaves.succulent', roots: 'p.roots.stump', vines: 'p.vines.none', pods: 'p.pods.none', thorns: ['p.thorns.spikes', 'p.thorns.none'], canopy: 'p.canopy.none', bark: ['p.bark.speckles', 'p.bark.none'], fruit: ['p.fruit.none', 'p.fruit.pepper'] },
+    palette: { c1: [120, 35, 40], c2: [335, 70, 72], c3: [40, 30, 70], eye: [0, 0, 18] }, vary: { h: 8, s: 5, l: 6 },
+    paint: { head: 3, thorns: 4 },
+    traits: T([0.4, 0.65], [0.4, 0.6], [0.35, 0.55], MID, [0.4, 0.6], [0.4, 0.6]),
+    learnset: [[1,'bump'],[1,'pebble_barrage'],[6,'vine_lash'],[11,'rock_smash'],[16,'brace'],[22,'stone_toss'],[28,'blade_leaf'],[34,'smooth_stone'],[40,'photosynth'],[46,'boulder_bash'],[52,'leaf_tempest']],
+    abilities: ['thorn_hide','stone_heart'],
+    desc: 'Grew in a crack in the rock and took some of the rock with it. Flowers once a year, briefly.',
+  },
+  {
+    id: 'oakfist', name: 'Oakfist', nameParts: ['Oak', 'fist'], clade: 'flora', rig: 'flora', types: ['Grass', 'Fighting'], tier: 'uncommon', bst: 445,
+    stats: { hp: 0.16, melee: 0.21, ranged: 0.07, magic: 0.05, meleeDef: 0.14, rangedDef: 0.12, magicDef: 0.1, spe: 0.15 },
+    recipe: { body: 'p.body.treant', head: 'p.head.bell', eyes: 'p.eyes.sharp', mouth: 'p.mouth.grin', leaves: 'p.leaves.maple', roots: 'p.roots.knot', vines: ['p.vines.coil', 'p.vines.none'], pods: 'p.pods.none', thorns: 'p.thorns.none', canopy: ['p.canopy.bush', 'p.canopy.none'], bark: 'p.bark.grain', fruit: ['p.fruit.nut', 'p.fruit.none'] },
+    palette: { c1: [30, 45, 38], c2: [100, 50, 42], c3: [40, 70, 60], eye: [45, 80, 50] }, vary: { h: 8, s: 6, l: 6 },
+    paint: { head: 2, leaves: 2, canopy: 2 },
+    traits: T([0.4, 0.65], [0.4, 0.6], [0.45, 0.7], [0.6, 0.9], [0.5, 0.75], [0.4, 0.6]),
+    learnset: [[1,'chop'],[1,'vine_lash'],[6,'blitz_punch'],[11,'leg_sweep'],[16,'muscle_up'],[22,'slab_break'],[28,'blade_leaf'],[34,'siphon_fist'],[40,'photosynth'],[46,'overpower'],[52,'leaf_tempest']],
+    abilities: ['heavy_hands','grit'],
+    desc: 'An oak sapling with something to prove. Punches with knotted branches and grows a ring per bout.',
+  },
+  {
+    id: 'dandewisp', name: 'Dandewisp', nameParts: ['Dande', 'wisp'], clade: 'flora', rig: 'flora', types: ['Grass', 'Flying'], tier: 'common', bst: 395,
+    stats: { hp: 0.13, melee: 0.06, ranged: 0.2, magic: 0.09, meleeDef: 0.09, rangedDef: 0.11, magicDef: 0.1, spe: 0.22 },
+    recipe: { body: 'p.body.bulb', head: 'p.head.thistle', eyes: 'p.eyes.wide', mouth: 'p.mouth.smile', leaves: 'p.leaves.frond', roots: 'p.roots.threads', vines: 'p.vines.none', pods: ['p.pods.seedpods', 'p.pods.none'], thorns: ['p.thorns.tuft', 'p.thorns.none'], canopy: ['p.canopy.pollen', 'p.canopy.none'], bark: 'p.bark.none', fruit: ['p.fruit.none', 'p.fruit.seed'] },
+    palette: { c1: [95, 45, 55], c2: [55, 30, 94], c3: [50, 90, 65], eye: [200, 40, 30] }, vary: { h: 8, s: 6, l: 5 },
+    paint: { head: 3, thorns: 3, canopy: 3 },
+    traits: T([0.25, 0.5], [0.55, 0.8], [0.3, 0.5], MID, [0.55, 0.8], [0.6, 0.9]),
+    learnset: [[1,'gale'],[1,'seed_volley'],[6,'leaf_razor'],[11,'slipstream'],[16,'preen'],[22,'wind_cutter'],[28,'spore_burst'],[34,'quicken'],[40,'photosynth'],[46,'tempest_shot'],[52,'leaf_tempest']],
+    abilities: ['hover','gale_heart'],
+    desc: 'Lighter than the wind that carries it. Make a wish and it scatters; it comes back as several.',
+  },
+  {
+    id: 'wyrmwood', name: 'Wyrmwood', nameParts: ['Wyrm', 'wood'], clade: 'flora', rig: 'flora', types: ['Grass', 'Dragon'], tier: 'rare', bst: 465,
+    stats: { hp: 0.16, melee: 0.09, ranged: 0.07, magic: 0.21, meleeDef: 0.12, rangedDef: 0.11, magicDef: 0.13, spe: 0.11 },
+    recipe: { body: 'p.body.treant', head: 'p.head.tulip', eyes: 'p.eyes.gem', mouth: 'p.mouth.maw', leaves: 'p.leaves.blade', roots: 'p.roots.knot', vines: ['p.vines.whip', 'p.vines.none'], pods: 'p.pods.none', thorns: ['p.thorns.antlers', 'p.thorns.none'], canopy: ['p.canopy.brambles', 'p.canopy.branches'], bark: 'p.bark.veins', fruit: 'p.fruit.none' },
+    palette: { c1: [28, 35, 30], c2: [140, 45, 40], c3: [0, 70, 55], eye: [50, 95, 60] }, vary: { h: 8, s: 6, l: 5 },
+    paint: { head: 4, thorns: 4, leaves: 2, canopy: 2 },
+    traits: T([0.4, 0.65], [0.45, 0.7], [0.4, 0.6], [0.6, 0.9], [0.5, 0.75], [0.45, 0.7]),
+    learnset: [[1,'wyrm_breath'],[1,'vine_lash'],[6,'seed_volley'],[11,'drowse_dust'],[16,'sap_drain'],[22,'photosynth'],[28,'wyrm_pulse'],[34,'brace'],[40,'wyrm_dance'],[46,'sunlance'],[52,'comet_roar']],
+    abilities: ['purebred','regrowth'],
+    desc: 'The oldest trees remember when dragons slept beneath them. This one grew around a sleeping wyrm and woke with its temper.',
+  },
 ];
 
 const SPECIES_BY_ID = Object.fromEntries(SPECIES.map((s) => [s.id, s]));
@@ -8357,6 +8898,7 @@ const CLADES = {
   insect: { name: 'Insect', plural: 'Insects', linked: [['wings', 'back']], desc: 'Segmented bodies, antennae and thin legs.' },
   invertebrate: { name: 'Invertebrate', plural: 'Invertebrates', linked: [['arms', 'legs']], desc: 'Soft bodies, shells and tentacles. Slugs, crabs, jellies and spirits.' },
   amphibian: { name: 'Amphibian', plural: 'Amphibians', linked: [['legs', 'arms']], desc: 'Wide heads and springy legs. Frogs, newts and swamp things.' },
+  flora: { name: 'Flora', plural: 'Flora', linked: [['leaves', 'roots']], desc: 'Walking plants. Stems, blooms, leaves and roots.' },
 };
 
 const CLADE_IDS = Object.keys(CLADES);
@@ -8848,6 +9390,8 @@ const SLOT_FAMILY = {
   dorsal: 'fin', pectoral: 'fin', belly: 'fin', spines: 'fin',
   mane: 'fur', chest: 'fur', back: 'fur', shell: 'fur', skirt: 'fur',
   markings: 'flat', pattern: 'flat', scales: 'flat', glow: 'flat',
+  // flora
+  leaves: 'fin', roots: 'limb', vines: 'tail', pods: 'fur', thorns: 'crown', canopy: 'fur', bark: 'flat', fruit: 'face',
 };
 function growthFor(slot) { return SLOT_GROWTH[SLOT_FAMILY[slot] || 'face']; }
 
@@ -9140,6 +9684,15 @@ const POSES = {
     attack: { body: { da: 3, dx: 6 }, arms: { da: -28, far: { da: -14 } }, legs: { da: -6 }, feelers: { da: 12 }, tail: { da: 14 }, mouth: { ds: 1.15 } },
     hurt: { body: { da: -8, dx: -4 }, arms: { da: 20 }, legs: { da: 8 }, feelers: { da: -18 }, skirt: { da: 6 }, tail: { da: -10 } },
   },
+};
+
+POSES.flora = {
+  stand: {},
+  brace: { body: { da: 3, dx: 2 }, head: { da: 5, dx: 2, dy: 1 }, leaves: { da: -8 }, vines: { da: 10 }, roots: { da: -3 } },
+  crouch: { body: { dy: 4, da: 2 }, head: { dy: 2, da: 3 }, leaves: { ds: 0.9, da: 8 }, roots: { ds: 0.9 }, canopy: { ds: 0.96 } },
+  poise: { body: { da: -4, dy: -1 }, head: { da: -6, dy: -2 }, leaves: { da: -10 }, canopy: { ds: 1.05 }, thorns: { ds: 1.05 } },
+  attack: { body: { da: 5, dx: 6 }, head: { da: -4, dx: 5 }, leaves: { da: -26, far: { da: -12 } }, vines: { da: 18 }, mouth: { ds: 1.15 }, roots: { da: -6 } },
+  hurt: { body: { da: -8, dx: -4 }, head: { da: -14, dx: -3 }, leaves: { da: 20, far: { da: 10 } }, vines: { da: -8 }, roots: { da: 8 } },
 };
 
 /** The slot deltas of a pose on a rig ({} for an unknown pose or 'stand'). */
@@ -11410,6 +11963,13 @@ function nudgeColor(c, rng) {
   return [c[0] + rng.gauss() * 3, clamp01((c[1] + rng.gauss() * 2) / 100) * 100, clamp01((c[2] + rng.gauss() * 2) / 100) * 100].map(round3);
 }
 
+/** Keep a nudged base colour on the dominant parent's side of the lightness midpoint, so "from the dominant parent" stays true when the parents are close. */
+function leanLight(c, d, o) {
+  const mid = (d[2] + o[2]) / 2;
+  const lo = Math.min(d[2], mid), hi = Math.max(d[2], mid);
+  return [c[0], c[1], round3(Math.min(hi, Math.max(lo, c[2])))];
+}
+
 function namePartsOf(g) {
   return Array.isArray(g.nameParts) && g.nameParts.length === 2 ? g.nameParts : splitName(g.name);
 }
@@ -11519,8 +12079,10 @@ function fuse(a, b, rng) {
   for (const k of ['c1', 'c2']) {
     const [lo, hi] = FUSE.paletteBlend[k];
     const t = rPal.range(lo, hi);
-    palette[k] = nudgeColor(blendColor(D.palette[k], O.palette[k], t), rPal);
-    palFrom[k] = t > FUSE.paletteBlendVisible ? 'blend' : dominant;
+    const blend = t > FUSE.paletteBlendVisible;
+    const c = nudgeColor(blendColor(D.palette[k], O.palette[k], t), rPal);
+    palette[k] = blend ? c : leanLight(c, D.palette[k], O.palette[k]);
+    palFrom[k] = blend ? 'blend' : dominant;
   }
   palette.c3 = nudgeColor(P1.palette.c3, rPal); palFrom.c3 = identity;
   palette.eye = P1.palette.eye.slice(); palFrom.eye = identity;
@@ -11640,14 +12202,14 @@ function fuseChain(first, partners, rng) {
 
 
 /** Map size and ring geometry. `version` bumps whenever the layout changes, so saved positions from an older map reset to the Crossroads. */
-const WORLD = { version: 2, w: 224, h: 192, hubR: 6, ringR: 58, lairR: 84, trainersPerBiome: 6, encounterChance: 0.12, encounterCooldown: 4 };
+const WORLD = { version: 2, w: 224, h: 192, hubR: 6, ringR: 58, lairR: 84, trainersPerBiome: 6, encounterChance: 0.12, encounterCooldown: 4, homeSpawnShare: 0.72 };
 
 /** Tile kinds. */
 const TILE = { grass: 0, habitat: 1, path: 2, wall: 3, water: 4, hub: 5, lair: 6, door: 7, camp: 8, spire: 9, spireDoor: 10, shrine: 11, market: 12, marketDoor: 13, storage: 14, storageDoor: 15 };
 const WALKABLE_TILES = new Set([TILE.grass, TILE.habitat, TILE.path, TILE.hub, TILE.door, TILE.camp, TILE.spireDoor, TILE.shrine, TILE.marketDoor, TILE.storageDoor]);
 
 /** Biomes in difficulty order, clockwise from the south of the hub. Levels climb 5 to the fifties; the gaps in the ladder are for classes still to come. */
-const BIOME_ORDER = ['mammal', 'amphibian', 'insect', 'bird', 'fish', 'invertebrate', 'reptile'];
+const BIOME_ORDER = ['mammal', 'amphibian', 'flora', 'insect', 'bird', 'fish', 'invertebrate', 'reptile'];
 
 /** Per-class region: name, wild level, palette and the look of its walls. */
 const REGIONS = {
@@ -11657,6 +12219,7 @@ const REGIONS = {
   bird:         { name: 'Windward Crags', level: 27, ground: '#7c8f78', ground2: '#72866f', habitat: '#617a5c', path: '#b9b39a', water: '#4d8fc4', wall: 'pine',     wallColor: '#2f5a44', accent: '#cfe3f0', waterT: 0.68, warden: 'Warden Gale',   badge: 'Crag Badge' },
   fish:         { name: 'Glass Lagoon',   level: 36, ground: '#d8c68e', ground2: '#cebb84', habitat: '#8fc7d3', path: '#e6d9a8', water: '#3aa7d8', wall: 'palm',     wallColor: '#4f8f5f', accent: '#7fe0ea', waterT: 0.5,  warden: 'Warden Brine',  badge: 'Lagoon Badge' },
   invertebrate: { name: 'Murk Hollow',    level: 45, ground: '#5a5470', ground2: '#524c68', habitat: '#443f5c', path: '#8c8494', water: '#3b3f6e', wall: 'rock',     wallColor: '#3a3448', accent: '#b98cff', waterT: 0.62, warden: 'Warden Gloam',  badge: 'Hollow Badge' },
+  flora:        { name: 'Bramble Wilds',  level: 14, ground: '#5f9a3d', ground2: '#578f3a', habitat: '#3f7d31', path: '#c4ad76', water: '#3f86b8', wall: 'hedge',    wallColor: '#3b6b2a', accent: '#f2a5c8', waterT: 0.66, warden: 'Warden Bryony', badge: 'Bramble Badge' },
   reptile:      { name: 'Ember Scar',     level: 50, ground: '#9c6b4a', ground2: '#906244', habitat: '#7a4d38', path: '#d0a878', water: '#e0562a', wall: 'rock',     wallColor: '#5a3a2c', accent: '#ff9a4a', waterT: 0.7,  warden: 'Warden Cinder', badge: 'Scar Badge' },
 };
 
@@ -11766,11 +12329,24 @@ function spawnWeight(species, clade, type) {
   return (WILD_RARITY[species.tier] || 1) * (affinity || 0.03);
 }
 
+/**
+ * The spawn table for a habitat: every wild species with its weight, the home class holding a fixed share of the
+ * total (WORLD.homeSpawnShare) however many visitors of the patch's element the wider roster offers.
+ */
+function spawnTable(clade, type) {
+  const raw = WILD_SPECIES.map((s) => spawnWeight(s, clade, type));
+  let home = 0, away = 0;
+  WILD_SPECIES.forEach((s, i) => { if (s.clade === clade) home += raw[i]; else away += raw[i]; });
+  const share = WORLD.homeSpawnShare;
+  const scale = home > 0 && away > 0 ? (home * (1 - share) / share) / away : 1;
+  return WILD_SPECIES.map((s, i) => [s, s.clade === clade ? raw[i] : raw[i] * scale]);
+}
+
 /** Roll the wild creature for a habitat tile: species by class and element, level by the area with rarer stronger rolls, and the 1/1000 Elemental. */
 function wildSpawn(world, x, y, rng) {
   const biome = biomeAt(world, x, y);
   const type = habitatTypeAt(world, x, y);
-  const sp = rng.weighted(WILD_SPECIES, (s) => spawnWeight(s, biome.clade, type));
+  const sp = rng.weighted(spawnTable(biome.clade, type), ([, w]) => w)[0];
   const genome = speciesGenome(sp, rng.fork(`g:${sp.id}`));
   const L = levelAt(world, x, y);
   const r = rng.next();
@@ -11789,6 +12365,7 @@ const WORLD_TRAINER_NAMES = ['Ivy', 'Bram', 'Tobin', 'Sable', 'Wren', 'Oakes', '
 const TRAINER_TITLES = {
   mammal: ['Herder', 'Shepherd', 'Drover'], amphibian: ['Bog Walker', 'Fen Keeper', 'Reed Cutter'], insect: ['Beekeeper', 'Gardener', 'Lantern Girl'],
   bird: ['Falconer', 'Cliff Runner', 'Skywatch'], fish: ['Angler', 'Tide Watcher', 'Pearl Diver'], invertebrate: ['Cave Diver', 'Lamplighter', 'Shell Seller'], reptile: ['Ash Ranger', 'Scale Tamer', 'Kiln Hand'],
+  flora: ['Gardener', 'Hedge Witch', 'Orchard Keeper'],
 };
 const TRAINER_LINES = {
   mammal: ['My team was raised on these downs. Care for a bout?', 'Fur and fang against whatever you have. Fight?'],
@@ -11798,6 +12375,7 @@ const TRAINER_LINES = {
   fish: ['The tide is in and so am I. Battle?', 'Land legs and a fish team. Try me.'],
   invertebrate: ['Not everything in the dark is slow. Shall we?', 'You look lost. A fight will warm you up.'],
   reptile: ['Ash in the air and fire in my team. Fight?', 'The Scar breaks the unready. Prove me wrong.'],
+  flora: ['Everything in the Wilds grows back. Your pride might not. Fight?', 'My team put down roots here. Try pulling them up.'],
 };
 const TRAINER_AFTER = ['Good match. Come back stronger.', 'Well fought. The Warden is another matter.', 'You earned that one.', 'My team will remember you.'];
 

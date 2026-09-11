@@ -42,5 +42,7 @@ export const SLOT_FAMILY = {
   dorsal: 'fin', pectoral: 'fin', belly: 'fin', spines: 'fin',
   mane: 'fur', chest: 'fur', back: 'fur', shell: 'fur', skirt: 'fur',
   markings: 'flat', pattern: 'flat', scales: 'flat', glow: 'flat',
+  // flora
+  leaves: 'fin', roots: 'limb', vines: 'tail', pods: 'fur', thorns: 'crown', canopy: 'fur', bark: 'flat', fruit: 'face',
 };
 export function growthFor(slot) { return SLOT_GROWTH[SLOT_FAMILY[slot] || 'face']; }

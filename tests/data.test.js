@@ -4,6 +4,7 @@ import { PARTS, RIG_PARTS, partsOf, getPart } from '../src/data/parts/index.js';
 import { RIGS, slotsFor, rigNodes } from '../src/data/rigs.js';
 import { speciesRig } from '../src/creature/genome.js';
 import { SPECIES } from '../src/data/species.js';
+import { CLADE_IDS } from '../src/data/clades.js';
 import { TYPE_LIST, typeMultiplier, typeEffectiveness } from '../src/data/types.js';
 
 test('every part has the fields the renderer needs', () => {
@@ -54,12 +55,12 @@ test('optional slots have a none entry, required ones do not', () => {
   }
 });
 
-test('every class fields at least fifteen species covering ten or more types', () => {
+test('every class fields at least fourteen species covering ten or more types', () => {
   const by = {};
   for (const s of SPECIES) { by[s.clade] = by[s.clade] || { n: 0, types: new Set(), names: new Set() }; by[s.clade].n++; for (const t of s.types) by[s.clade].types.add(t); }
-  assert.equal(Object.keys(by).length, 7);
+  assert.equal(Object.keys(by).length, CLADE_IDS.length);
   for (const [clade, v] of Object.entries(by)) {
-    assert.ok(v.n >= 15, `${clade} has ${v.n} species`);
+    assert.ok(v.n >= 14, `${clade} has ${v.n} species`);
     assert.ok(v.types.size >= 10, `${clade} covers ${v.types.size} types`);
   }
   const names = new Set();

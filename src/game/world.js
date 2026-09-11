@@ -18,14 +18,14 @@ import { speciesGenome, rollElemental } from '../creature/genome.js';
 import { fuse, canFuse } from '../creature/fusion.js';
 
 /** Map size and ring geometry. `version` bumps whenever the layout changes, so saved positions from an older map reset to the Crossroads. */
-export const WORLD = { version: 2, w: 224, h: 192, hubR: 6, ringR: 58, lairR: 84, trainersPerBiome: 6, encounterChance: 0.12, encounterCooldown: 4 };
+export const WORLD = { version: 2, w: 224, h: 192, hubR: 6, ringR: 58, lairR: 84, trainersPerBiome: 6, encounterChance: 0.12, encounterCooldown: 4, homeSpawnShare: 0.72 };
 
 /** Tile kinds. */
 export const TILE = { grass: 0, habitat: 1, path: 2, wall: 3, water: 4, hub: 5, lair: 6, door: 7, camp: 8, spire: 9, spireDoor: 10, shrine: 11, market: 12, marketDoor: 13, storage: 14, storageDoor: 15 };
 export const WALKABLE_TILES = new Set([TILE.grass, TILE.habitat, TILE.path, TILE.hub, TILE.door, TILE.camp, TILE.spireDoor, TILE.shrine, TILE.marketDoor, TILE.storageDoor]);
 
 /** Biomes in difficulty order, clockwise from the south of the hub. Levels climb 5 to the fifties; the gaps in the ladder are for classes still to come. */
-export const BIOME_ORDER = ['mammal', 'amphibian', 'insect', 'bird', 'fish', 'invertebrate', 'reptile'];
+export const BIOME_ORDER = ['mammal', 'amphibian', 'flora', 'insect', 'bird', 'fish', 'invertebrate', 'reptile'];
 
 /** Per-class region: name, wild level, palette and the look of its walls. */
 export const REGIONS = {
@@ -35,6 +35,7 @@ export const REGIONS = {
   bird:         { name: 'Windward Crags', level: 27, ground: '#7c8f78', ground2: '#72866f', habitat: '#617a5c', path: '#b9b39a', water: '#4d8fc4', wall: 'pine',     wallColor: '#2f5a44', accent: '#cfe3f0', waterT: 0.68, warden: 'Warden Gale',   badge: 'Crag Badge' },
   fish:         { name: 'Glass Lagoon',   level: 36, ground: '#d8c68e', ground2: '#cebb84', habitat: '#8fc7d3', path: '#e6d9a8', water: '#3aa7d8', wall: 'palm',     wallColor: '#4f8f5f', accent: '#7fe0ea', waterT: 0.5,  warden: 'Warden Brine',  badge: 'Lagoon Badge' },
   invertebrate: { name: 'Murk Hollow',    level: 45, ground: '#5a5470', ground2: '#524c68', habitat: '#443f5c', path: '#8c8494', water: '#3b3f6e', wall: 'rock',     wallColor: '#3a3448', accent: '#b98cff', waterT: 0.62, warden: 'Warden Gloam',  badge: 'Hollow Badge' },
+  flora:        { name: 'Bramble Wilds',  level: 14, ground: '#5f9a3d', ground2: '#578f3a', habitat: '#3f7d31', path: '#c4ad76', water: '#3f86b8', wall: 'hedge',    wallColor: '#3b6b2a', accent: '#f2a5c8', waterT: 0.66, warden: 'Warden Bryony', badge: 'Bramble Badge' },
   reptile:      { name: 'Ember Scar',     level: 50, ground: '#9c6b4a', ground2: '#906244', habitat: '#7a4d38', path: '#d0a878', water: '#e0562a', wall: 'rock',     wallColor: '#5a3a2c', accent: '#ff9a4a', waterT: 0.7,  warden: 'Warden Cinder', badge: 'Scar Badge' },
 };
 
@@ -144,11 +145,24 @@ export function spawnWeight(species, clade, type) {
   return (WILD_RARITY[species.tier] || 1) * (affinity || 0.03);
 }
 
+/**
+ * The spawn table for a habitat: every wild species with its weight, the home class holding a fixed share of the
+ * total (WORLD.homeSpawnShare) however many visitors of the patch's element the wider roster offers.
+ */
+export function spawnTable(clade, type) {
+  const raw = WILD_SPECIES.map((s) => spawnWeight(s, clade, type));
+  let home = 0, away = 0;
+  WILD_SPECIES.forEach((s, i) => { if (s.clade === clade) home += raw[i]; else away += raw[i]; });
+  const share = WORLD.homeSpawnShare;
+  const scale = home > 0 && away > 0 ? (home * (1 - share) / share) / away : 1;
+  return WILD_SPECIES.map((s, i) => [s, s.clade === clade ? raw[i] : raw[i] * scale]);
+}
+
 /** Roll the wild creature for a habitat tile: species by class and element, level by the area with rarer stronger rolls, and the 1/1000 Elemental. */
 export function wildSpawn(world, x, y, rng) {
   const biome = biomeAt(world, x, y);
   const type = habitatTypeAt(world, x, y);
-  const sp = rng.weighted(WILD_SPECIES, (s) => spawnWeight(s, biome.clade, type));
+  const sp = rng.weighted(spawnTable(biome.clade, type), ([, w]) => w)[0];
   const genome = speciesGenome(sp, rng.fork(`g:${sp.id}`));
   const L = levelAt(world, x, y);
   const r = rng.next();
@@ -167,6 +181,7 @@ const WORLD_TRAINER_NAMES = ['Ivy', 'Bram', 'Tobin', 'Sable', 'Wren', 'Oakes', '
 const TRAINER_TITLES = {
   mammal: ['Herder', 'Shepherd', 'Drover'], amphibian: ['Bog Walker', 'Fen Keeper', 'Reed Cutter'], insect: ['Beekeeper', 'Gardener', 'Lantern Girl'],
   bird: ['Falconer', 'Cliff Runner', 'Skywatch'], fish: ['Angler', 'Tide Watcher', 'Pearl Diver'], invertebrate: ['Cave Diver', 'Lamplighter', 'Shell Seller'], reptile: ['Ash Ranger', 'Scale Tamer', 'Kiln Hand'],
+  flora: ['Gardener', 'Hedge Witch', 'Orchard Keeper'],
 };
 const TRAINER_LINES = {
   mammal: ['My team was raised on these downs. Care for a bout?', 'Fur and fang against whatever you have. Fight?'],
@@ -176,6 +191,7 @@ const TRAINER_LINES = {
   fish: ['The tide is in and so am I. Battle?', 'Land legs and a fish team. Try me.'],
   invertebrate: ['Not everything in the dark is slow. Shall we?', 'You look lost. A fight will warm you up.'],
   reptile: ['Ash in the air and fire in my team. Fight?', 'The Scar breaks the unready. Prove me wrong.'],
+  flora: ['Everything in the Wilds grows back. Your pride might not. Fight?', 'My team put down roots here. Try pulling them up.'],
 };
 const TRAINER_AFTER = ['Good match. Come back stronger.', 'Well fought. The Warden is another matter.', 'You earned that one.', 'My team will remember you.'];
 

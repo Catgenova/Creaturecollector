@@ -11,6 +11,7 @@ export const CLADES = {
   insect: { name: 'Insect', plural: 'Insects', linked: [['wings', 'back']], desc: 'Segmented bodies, antennae and thin legs.' },
   invertebrate: { name: 'Invertebrate', plural: 'Invertebrates', linked: [['arms', 'legs']], desc: 'Soft bodies, shells and tentacles. Slugs, crabs, jellies and spirits.' },
   amphibian: { name: 'Amphibian', plural: 'Amphibians', linked: [['legs', 'arms']], desc: 'Wide heads and springy legs. Frogs, newts and swamp things.' },
+  flora: { name: 'Flora', plural: 'Flora', linked: [['leaves', 'roots']], desc: 'Walking plants. Stems, blooms, leaves and roots.' },
 };
 
 export const CLADE_IDS = Object.keys(CLADES);

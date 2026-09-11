@@ -360,6 +360,53 @@ export const RIGS = {
   },
 };
 
+RIGS.flora = {
+  id: 'flora', name: 'Flora', prefix: 'p.',
+  slots: ['body', 'head', 'eyes', 'mouth', 'leaves', 'roots', 'vines', 'pods', 'thorns', 'canopy', 'bark', 'fruit'],
+  names: {
+    body: 'Stem', head: 'Bloom', eyes: 'Eyes', mouth: 'Mouth', leaves: 'Leaves', roots: 'Roots',
+    vines: 'Vines', pods: 'Pods', thorns: 'Thorns', canopy: 'Canopy', bark: 'Bark', fruit: 'Fruit',
+  },
+  paint: ['body', 'head', 'leaves', 'roots', 'vines', 'pods', 'thorns', 'canopy', 'bark', 'fruit'],
+  swappable: ['vines', 'pods', 'thorns', 'canopy', 'bark', 'fruit'],
+  required: ['body', 'head', 'eyes', 'mouth', 'leaves', 'roots'],
+  linked: [['leaves', 'roots'], ['head', 'mouth']],
+  ground: ['body', 'roots'],
+  clipped: ['bark'],
+  tree: {
+    slot: 'body', anim: 'body',
+    behind: [
+      { slot: 'canopy', socket: 'back', anim: 'sway' },
+      { slot: 'vines', socket: 'vines', scale: 'tail', anim: 'tail' },
+      { slot: 'leaves', socket: 'leafFar', far: true, scale: 'wing' },
+      { slot: 'roots', socket: 'rootFar', far: true, scale: 'leg' },
+    ],
+    front: [
+      { slot: 'roots', socket: 'root', scale: 'leg' },
+      { slot: 'leaves', socket: 'leaf', scale: 'wing', anim: 'sway' },
+      { slot: 'pods', socket: 'pods' },
+      {
+        slot: 'head', socket: 'head', scale: 'head', anim: 'head',
+        behind: [{ slot: 'thorns', socket: 'thorns' }],
+        front: [
+          { slot: 'eyes', socket: 'eyeFar', far: true, scale: 'eye', small: true },
+          { slot: 'eyes', socket: 'eye', scale: 'eye', small: true },
+          { slot: 'mouth', socket: 'mouth', small: true },
+          { slot: 'fruit', socket: 'fruit', small: true },
+        ],
+      },
+    ],
+  },
+  mannequin: {
+    parts: {
+      body: 'p.body.sprout', head: 'p.head.daisy', eyes: 'p.eyes.dew', mouth: 'p.mouth.smile', leaves: 'p.leaves.broad', roots: 'p.roots.taproot',
+      vines: 'p.vines.none', pods: 'p.pods.none', thorns: 'p.thorns.none', canopy: 'p.canopy.none', bark: 'p.bark.none', fruit: 'p.fruit.none',
+    },
+    forSlot: { vines: { body: 'p.body.vine' }, canopy: { body: 'p.body.treant' } },
+    accentSlots: ['leaves', 'vines', 'pods', 'thorns', 'canopy', 'bark', 'fruit'],
+  },
+};
+
 export const RIG_IDS = Object.keys(RIGS);
 
 /** Rig used when a genome names none or an unknown one (old saves): the first class. */

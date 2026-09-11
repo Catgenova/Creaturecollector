@@ -50,6 +50,13 @@ function nudgeColor(c, rng) {
   return [c[0] + rng.gauss() * 3, clamp01((c[1] + rng.gauss() * 2) / 100) * 100, clamp01((c[2] + rng.gauss() * 2) / 100) * 100].map(round3);
 }
 
+/** Keep a nudged base colour on the dominant parent's side of the lightness midpoint, so "from the dominant parent" stays true when the parents are close. */
+function leanLight(c, d, o) {
+  const mid = (d[2] + o[2]) / 2;
+  const lo = Math.min(d[2], mid), hi = Math.max(d[2], mid);
+  return [c[0], c[1], round3(Math.min(hi, Math.max(lo, c[2])))];
+}
+
 function namePartsOf(g) {
   return Array.isArray(g.nameParts) && g.nameParts.length === 2 ? g.nameParts : splitName(g.name);
 }
@@ -159,8 +166,10 @@ export function fuse(a, b, rng) {
   for (const k of ['c1', 'c2']) {
     const [lo, hi] = FUSE.paletteBlend[k];
     const t = rPal.range(lo, hi);
-    palette[k] = nudgeColor(blendColor(D.palette[k], O.palette[k], t), rPal);
-    palFrom[k] = t > FUSE.paletteBlendVisible ? 'blend' : dominant;
+    const blend = t > FUSE.paletteBlendVisible;
+    const c = nudgeColor(blendColor(D.palette[k], O.palette[k], t), rPal);
+    palette[k] = blend ? c : leanLight(c, D.palette[k], O.palette[k]);
+    palFrom[k] = blend ? 'blend' : dominant;
   }
   palette.c3 = nudgeColor(P1.palette.c3, rPal); palFrom.c3 = identity;
   palette.eye = P1.palette.eye.slice(); palFrom.eye = identity;

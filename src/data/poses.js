@@ -90,6 +90,15 @@ export const POSES = {
   },
 };
 
+POSES.flora = {
+  stand: {},
+  brace: { body: { da: 3, dx: 2 }, head: { da: 5, dx: 2, dy: 1 }, leaves: { da: -8 }, vines: { da: 10 }, roots: { da: -3 } },
+  crouch: { body: { dy: 4, da: 2 }, head: { dy: 2, da: 3 }, leaves: { ds: 0.9, da: 8 }, roots: { ds: 0.9 }, canopy: { ds: 0.96 } },
+  poise: { body: { da: -4, dy: -1 }, head: { da: -6, dy: -2 }, leaves: { da: -10 }, canopy: { ds: 1.05 }, thorns: { ds: 1.05 } },
+  attack: { body: { da: 5, dx: 6 }, head: { da: -4, dx: 5 }, leaves: { da: -26, far: { da: -12 } }, vines: { da: 18 }, mouth: { ds: 1.15 }, roots: { da: -6 } },
+  hurt: { body: { da: -8, dx: -4 }, head: { da: -14, dx: -3 }, leaves: { da: 20, far: { da: 10 } }, vines: { da: -8 }, roots: { da: 8 } },
+};
+
 /** The slot deltas of a pose on a rig ({} for an unknown pose or 'stand'). */
 export function poseTable(rig, pose) { return (POSES[rig] && POSES[rig][pose]) || {}; }
 
