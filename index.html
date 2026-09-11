@@ -64,6 +64,9 @@ button, input, select, textarea { font: inherit; }
 .kind-badge.elemental { background: var(--elem); color: #14151c; }
 .elem-hint { color: var(--elem); }
 .elem-preview { max-width: 100%; }
+.stage-badge { display: inline-block; margin-left: 5px; padding: 0 6px; border-radius: 6px; font-size: 10px; font-weight: 800; letter-spacing: .06em; color: #14151c; background: var(--acc); vertical-align: middle; }
+.stage-badge.stage-3 { background: #ffd166; box-shadow: 0 0 10px -2px #ffd166; }
+.stage-row { justify-content: center; margin: 6px 0 2px; }
 .chips { display: flex; gap: 4px; flex-wrap: wrap; justify-content: center; }
 .chip { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 999px; color: #111; background: var(--chip, #999); }
 .chip b { font-size: 10px; opacity: .7; }
@@ -923,9 +926,51 @@ function puff(cx, cy, r, n, amp, o = {}) {
 const shapeToPath = (s) => (typeof s === 'string' ? s : Array.isArray(s) ? spline(s) : s.d || spline(s.pts));
 const shapeRole = (s) => (s && !Array.isArray(s) && typeof s === 'object' && s.f) || 'p';
 
+/**
+ * Compile a spec's `stages: { 2: over, 3: over }` into hand-authored stage art on the part.
+ * Each override is applied on top of the spec (stage 3 on top of stage 2's result unless it
+ * says `reset: true`) and may replace any spec key (`shapes`, `extra`, `sockets`, `bottom`,
+ * `hover`...) or use the deltas:
+ *   addShapes  extra silhouette shapes drawn on top of (and clipping with) the originals
+ *   addBehind  extra silhouette shapes drawn behind the originals
+ *   add        extra detail prims appended to `extra`
+ *   grow       [sx, sy] applied to the compiled art about the origin (compounds across stages)
+ *   spikes     also run the procedural tip-spike pass on the result
+ */
+function withStages(make, spec, part) {
+  if (!spec.stages) return part;
+  part.stages = {};
+  const base = () => ({ ...spec, stages: undefined });
+  let cur = base(), grow = null, spikes = false;
+  for (const stage of [2, 3]) {
+    const over = spec.stages[stage];
+    if (!over) continue;
+    const { add, addShapes, addBehind, grow: g, spikes: sp, reset, ...rest } = over;
+    if (reset) { cur = base(); grow = null; spikes = false; }
+    const next = { ...cur, ...rest };
+    if (addShapes || addBehind) {
+      const shapes = next.shapes || (next.pts ? [next.pts] : []);
+      next.shapes = [...(addBehind || []), ...shapes, ...(addShapes || [])];
+      delete next.pts;
+    }
+    if (add) next.extra = [...(next.extra || []), ...add];
+    cur = next;
+    if (g) grow = grow ? [grow[0] * g[0], grow[1] * g[1]] : [g[0], g[1]];
+    if (sp) spikes = true;
+    const v = make(cur);
+    const out = { prims: v.prims, clip: v.clip, sockets: v.sockets };
+    if (v.bottom != null) out.bottom = v.bottom;
+    if (v.hover != null) out.hover = v.hover;
+    if (grow) out.grow = grow;
+    if (spikes) out.spikes = true;
+    part.stages[stage] = out;
+  }
+  return part;
+}
+
 function partBuilders(prefix) {
   /** A torso: silhouette shapes (point lists, paths or {pts|d, f}), clip and box derived, shading layered on. */
-  const body = ({ id, name, kind, pts, shapes, sockets, dom = 0.5, w = 2, tags = [], shade = [], extra = [], hover, bottom }) => {
+  const makeBody = ({ id, name, kind, pts, shapes, sockets, dom = 0.5, w = 2, tags = [], shade = [], extra = [], hover, bottom }) => {
     const list = shapes || [pts];
     const clip = list.map(shapeToPath);
     const prims = [...list.map((s, i) => P(clip[i], shapeRole(s))), ...shade, ...extra];
@@ -934,17 +979,19 @@ function partBuilders(prefix) {
     if (bottom != null) part.bottom = bottom;
     return part;
   };
+  const body = (spec) => withStages(makeBody, spec, makeBody(spec));
 
   /** A leg: clip = union of its shapes so socks and shading stay inside the silhouette. */
-  const leg = ({ id, slot, name, shapes, extra = [], dom = 0.5, w = 2, tags = [], fit }) => {
+  const makeLeg = ({ id, slot, name, shapes, extra = [], dom = 0.5, w = 2, tags = [], fit }) => {
     const clip = shapes.map(shapeToPath);
     const part = { id: `${prefix}${slot}.${id}`, slot, name, tags, dom, w, clip, prims: [...shapes.map((s, i) => P(clip[i], shapeRole(s))), ...extra] };
     if (fit) part.fit = fit;
     return part;
   };
+  const leg = (spec) => withStages(makeLeg, spec, makeLeg(spec));
 
   /** Generic part: silhouette shapes first (they form the clip), then details. */
-  const part = ({ id, slot, name, shapes = [], extra = [], dom = 0.5, w = 2, tags = [], sockets, fit, fitBox, hover }) => {
+  const makePart = ({ id, slot, name, shapes = [], extra = [], dom = 0.5, w = 2, tags = [], sockets, fit, fitBox, hover }) => {
     const clip = shapes.map(shapeToPath);
     const out = { id: `${prefix}${slot}.${id}`, slot, name, tags, dom, w, prims: [...shapes.map((s, i) => P(clip[i], shapeRole(s))), ...extra] };
     if (clip.length) out.clip = clip;
@@ -954,6 +1001,7 @@ function partBuilders(prefix) {
     if (hover) out.hover = hover;
     return out;
   };
+  const part = (spec) => withStages(makePart, spec, makePart(spec));
 
   return { body, leg, part };
 }
@@ -1000,98 +1048,6 @@ const mammalBuilders = partBuilders('m.');
 const mBody = (o) => mammalBuilders.body({ kind: 'mammal.quad', ...o });
 const mLeg = mammalBuilders.leg;
 const mPart = mammalBuilders.part;
-
-// ---- src/data/parts/mammal/bodies.js ----
-// Mammal torsos. Origin = centre of the torso. Sockets (body coordinates):
-//   head        neck point the head's origin sits on
-//   shoulder / shoulderFar   foreleg joints (near, far)
-//   hip / hipFar             hind leg joints
-//   tail {x,y,a}  mane {x,y,a,s}  back {x,y,a}  horns are on the head
-// kind: 'mammal.quad' (four on the floor) or 'mammal.biped' (upright, forelegs hang as arms)
-
-
-
-const M_BODIES = [
-  mBody({
-    id: 'fox', name: 'Lean', tags: ['fox', 'lean'], dom: 0.5, w: 3,
-    pts: [[28, -28], [12, -30], [-12, -27], [-34, -22], [-46, -8], [-44, 10], [-32, 22], [-8, 25], [16, 22], [32, 14], [42, 0], [42, -14], [36, -25]],
-    shade: torsoShade(-46, 42, -28, 25),
-    sockets: {
-      head: { x: 30, y: -22, a: 0, s: 1 },
-      shoulder: { x: 26, y: 8 }, shoulderFar: { x: 14, y: 4 },
-      hip: { x: -28, y: 6 }, hipFar: { x: -38, y: 2 },
-      tail: { x: -44, y: -6, a: 0 }, mane: { x: 34, y: -16, a: 0, s: 1 }, back: { x: -8, y: -28, a: 0 },
-    },
-  }),
-
-  mBody({
-    id: 'cat', name: 'Sleek', tags: ['cat', 'sleek'], dom: 0.5, w: 3,
-    pts: [[26, -28], [8, -31], [-14, -28], [-34, -20], [-42, -4], [-38, 12], [-26, 20], [-4, 23], [18, 20], [32, 12], [40, -2], [40, -16], [34, -25]],
-    shade: torsoShade(-42, 40, -30, 23),
-    sockets: {
-      head: { x: 28, y: -22, a: 0, s: 1 },
-      shoulder: { x: 24, y: 8 }, shoulderFar: { x: 12, y: 4 },
-      hip: { x: -26, y: 6 }, hipFar: { x: -36, y: 2 },
-      tail: { x: -40, y: -4, a: 0 }, mane: { x: 32, y: -16, a: 0, s: 1 }, back: { x: -8, y: -29, a: 0 },
-    },
-  }),
-  mBody({
-    id: 'bear', name: 'Stocky', kind: 'mammal.biped', tags: ['bear', 'upright'], dom: 0.55, w: 2,
-    pts: [[0, -42], [18, -38], [30, -22], [34, 0], [32, 20], [20, 32], [0, 35], [-20, 32], [-32, 20], [-34, 0], [-30, -22], [-18, -38]],
-    shade: torsoShade(-34, 34, -42, 35, { shadeFrac: 0.3 }),
-    sockets: {
-      head: { x: 2, y: -36, a: 0, s: 1 },
-      shoulder: { x: 14, y: -14 }, shoulderFar: { x: -6, y: -18 },
-      hip: { x: 8, y: 18 }, hipFar: { x: -14, y: 14 },
-      tail: { x: -30, y: 14, a: 25 }, mane: { x: 10, y: -30, a: 0, s: 1 }, back: { x: -20, y: -34, a: -15 },
-    },
-  }),
-  mBody({
-    id: 'rabbit', name: 'Crouched', tags: ['rabbit', 'compact'], dom: 0.5, w: 2,
-    pts: [[22, -24], [4, -28], [-14, -30], [-32, -24], [-42, -6], [-38, 12], [-24, 22], [0, 24], [20, 20], [32, 10], [36, -4], [32, -16]],
-    shade: torsoShade(-42, 36, -30, 24),
-    sockets: {
-      head: { x: 24, y: -18, a: 0, s: 1 },
-      shoulder: { x: 18, y: 8 }, shoulderFar: { x: 8, y: 4 },
-      hip: { x: -24, y: 4 }, hipFar: { x: -34, y: 0 },
-      tail: { x: -38, y: -10, a: -20 }, mane: { x: 26, y: -12, a: 0, s: 1 }, back: { x: -14, y: -30, a: 0 },
-    },
-  }),
-
-  mBody({
-    id: 'deer', name: 'Long-necked', tags: ['deer', 'tall'], dom: 0.5, w: 2,
-    pts: [[22, -24], [32, -46], [44, -62], [54, -58], [50, -40], [44, -22], [40, -8], [34, 8], [18, 18], [-6, 20], [-26, 18], [-38, 8], [-42, -8], [-34, -20], [-12, -26], [8, -27]],
-    shade: torsoShade(-42, 40, -27, 20),
-    sockets: {
-      head: { x: 47, y: -56, a: -8, s: 0.95 },
-      shoulder: { x: 22, y: 4 }, shoulderFar: { x: 10, y: 0 },
-      hip: { x: -24, y: 2 }, hipFar: { x: -34, y: -2 },
-      tail: { x: -40, y: -12, a: -30 }, mane: { x: 40, y: -42, a: -10, s: 0.9 }, back: { x: -6, y: -27, a: 0 },
-    },
-  }),
-  mBody({
-    id: 'wolf', name: 'Rugged', tags: ['wolf', 'muscular'], dom: 0.55, w: 2,
-    pts: [[30, -32], [10, -34], [-14, -30], [-36, -22], [-48, -6], [-44, 12], [-32, 20], [-10, 20], [14, 22], [34, 16], [46, 4], [46, -12], [40, -26]],
-    shade: torsoShade(-48, 46, -34, 22),
-    sockets: {
-      head: { x: 32, y: -26, a: 0, s: 1 },
-      shoulder: { x: 28, y: 8 }, shoulderFar: { x: 16, y: 4 },
-      hip: { x: -30, y: 6 }, hipFar: { x: -40, y: 2 },
-      tail: { x: -46, y: -8, a: 0 }, mane: { x: 36, y: -20, a: 0, s: 1 }, back: { x: -8, y: -32, a: 0 },
-    },
-  }),
-  mBody({
-    id: 'mouse', name: 'Round', kind: 'mammal.biped', tags: ['mouse', 'small', 'upright'], dom: 0.45, w: 3,
-    pts: [[0, -30], [16, -26], [26, -8], [26, 10], [18, 24], [0, 28], [-18, 24], [-26, 10], [-26, -8], [-16, -26]],
-    shade: torsoShade(-26, 26, -30, 28, { shadeFrac: 0.3 }),
-    sockets: {
-      head: { x: 2, y: -24, a: 0, s: 1 },
-      shoulder: { x: 12, y: -6 }, shoulderFar: { x: -6, y: -10 },
-      hip: { x: 6, y: 16 }, hipFar: { x: -12, y: 12 },
-      tail: { x: -24, y: 14, a: 30 }, mane: { x: 8, y: -18, a: 0, s: 0.8 }, back: { x: -14, y: -26, a: -15 },
-    },
-  }),
-];
 
 // ---- src/data/parts/_sigils.js ----
 // Fantasy motifs shared by every class library: forehead sigils, sparkles, swirls and
@@ -1179,11 +1135,228 @@ function ringPath(cx, cy, r, ri) {
   return spline(outer) + spline(inner);
 }
 
+// ---- src/data/parts/_evo.js ----
+// Shared helpers for hand-authored evolution art: the stage 2 and 3 variants of parts.
+// Everything here returns point lists or prims in a part's own frame, so it composes with
+// the DSL and the builders' `stages` deltas (addShapes / addBehind / add / grow).
+
+
+
+
+const evoRad = (a) => (a * Math.PI) / 180;
+
+/**
+ * A fan of n spikes around (cx, cy) spanning angles a0..a1 (degrees, SVG orientation:
+ * 0 = right, 90 = down), rising from radius rIn to rOut. Closed through the centre so it
+ * can sit behind a shape and poke out from under its outline. Options: profile 'mid'
+ * (middle spikes longest, default), 'flat', 'end' (last spike longest) or 'start';
+ * tip / valley roundness (default 'c' / 0.6); wobble (alternating length variation).
+ */
+function evoFan(cx, cy, a0, a1, n, rIn, rOut, o = {}) {
+  const tip = o.tip == null ? 'c' : o.tip, valley = o.valley == null ? 0.6 : o.valley, wobble = o.wobble || 0;
+  const profile = o.profile || 'mid';
+  const step = (a1 - a0) / n;
+  const at = (a, r, k) => { const p = [cx + Math.cos(evoRad(a)) * r, cy + Math.sin(evoRad(a)) * r]; if (k != null) p.push(k); return p; };
+  const pts = [at(a0, rIn, valley)];
+  for (let i = 0; i < n; i++) {
+    const u = n > 1 ? i / (n - 1) : 0.5;
+    let f = 1;
+    if (profile === 'mid') f = 1 - 0.45 * Math.abs(2 * u - 1);
+    else if (profile === 'end') f = 0.55 + 0.45 * u;
+    else if (profile === 'start') f = 1 - 0.45 * u;
+    f *= 1 + wobble * (i % 2 ? 0.5 : -0.5);
+    pts.push(at(a0 + step * (i + 0.5), rIn + (rOut - rIn) * f, tip));
+    pts.push(at(a0 + step * (i + 1), rIn, valley));
+  }
+  pts.push([cx, cy, 'c']);
+  return pts;
+}
+
+/** A single spike from base (x, y), w wide, pointing along angle a (degrees) for len. */
+function evoSpike(x, y, a, len, w, tipK = 'c') {
+  const dx = Math.cos(evoRad(a)), dy = Math.sin(evoRad(a));
+  const nx = (-dy * w) / 2, ny = (dx * w) / 2;
+  return [[x + nx, y + ny, 0.3], [x + dx * len, y + dy * len, tipK], [x - nx, y - ny, 0.3]];
+}
+
+/** Ring outline as a stroke-only closed spline (no arc commands, so it scales cleanly). */
+function evoRing(cx, cy, r, f = 'a', w = 1.6, o = {}) {
+  return L(spline(arcPts(cx, cy, r, r, 0, 330, 11)), f, w, { ns: true, ...o });
+}
+
+/** A faceted gem: accent diamond about 2r tall with a highlight facet. */
+function evoGem(cx, cy, r, f = 'a') {
+  return [
+    P(diamondPath(cx, cy, r * 1.4, r * 2), f, { sw: 1.4 }),
+    P(`M${cx - r * 0.45},${cy - r * 0.2} L${cx},${cy - r * 0.75} L${cx + r * 0.05},${cy - r * 0.25} Z`, 'w', { ns: true, op: 0.6 }),
+  ];
+}
+
+/** Soft glow disc behind a sigil or gem; clipped to the part unless o.cl is false. */
+function evoGlow(cx, cy, r, op = 0.28, f = 'a', o = {}) { return C(cx, cy, r, f, { ns: true, cl: true, op, ...o }); }
+
+/** Armour bands across a limb, clipped to it: n bands h tall from y, spaced by gap. */
+function evoBands(y, n = 2, h = 3, gap = 8, f = 'a', x0 = -40, x1 = 40) {
+  const out = [];
+  for (let i = 0; i < n; i++) { const yy = y + i * gap; out.push(PATCH(`M${x0},${yy} L${x1},${yy} L${x1},${yy + h} L${x0},${yy + h} Z`, f)); }
+  return out;
+}
+
+/**
+ * Standard limb evolution. foot = [x0, x1, y] is the claw row along the sole; ankleY is where
+ * the stage-3 armour bands start. Stage 2 grows the limb and adds claws, stage 3 grows it again,
+ * lengthens the claws and adds the bands. o.hoof = [x, y] (back of the fetlock) swaps the claws
+ * for a hoof band and fetlock tufts. o.claws sets the claw count; o.grow2 / o.grow3 the factors.
+ */
+function evoLegStages(foot, ankleY, o = {}) {
+  const [x0, x1, y] = foot;
+  const n = o.claws == null ? 3 : o.claws;
+  const g2 = o.grow2 || [1.06, 1.08], g3 = o.grow3 || [1.06, 1.08];
+  if (o.hoof) {
+    const [hx, hy] = o.hoof;
+    return {
+      2: { grow: g2, addBehind: [evoFan(hx, hy, 120, 200, 2, 4, 14)], add: [PATCH(`M-30,${y - 9} L30,${y - 9} L30,${y - 6} L-30,${y - 6} Z`, 'a')] },
+      3: { grow: g3, addBehind: [evoFan(hx, hy - 6, 110, 210, 3, 4, 18)], add: evoBands(ankleY, 2, 2.6, 6) },
+    };
+  }
+  return {
+    2: { grow: g2, add: claws(x0, x1, y, n, 4.5, 'w') },
+    3: { reset: true, grow: [g2[0] * g3[0], g2[1] * g3[1]], add: [...evoBands(ankleY, 2, 2.6, 6), ...claws(x0 - 1.5, x1 + 1.5, y, n + 1, 6, 'w')] },
+  };
+}
+
+// ---- src/data/parts/mammal/bodies.js ----
+// Mammal torsos. Origin = centre of the torso. Sockets (body coordinates):
+//   head        neck point the head's origin sits on
+//   shoulder / shoulderFar   foreleg joints (near, far)
+//   hip / hipFar             hind leg joints
+//   tail {x,y,a}  mane {x,y,a,s}  back {x,y,a}  horns are on the head
+// kind: 'mammal.quad' (four on the floor) or 'mammal.biped' (upright, forelegs hang as arms)
+// Evolutions: stage 2 broadens the torso and fans chest tufts out of the front (a shaggy hem on
+// the upright kinds); stage 3 adds rump tufts (a fuller hem) so the silhouette reads heavier.
+
+
+
+
+const M_BODIES = [
+  mBody({
+    id: 'fox', name: 'Lean', tags: ['fox', 'lean'], dom: 0.5, w: 3,
+    pts: [[28, -28], [12, -30], [-12, -27], [-34, -22], [-46, -8], [-44, 10], [-32, 22], [-8, 25], [16, 22], [32, 14], [42, 0], [42, -14], [36, -25]],
+    shade: torsoShade(-46, 42, -28, 25),
+    sockets: {
+      head: { x: 30, y: -22, a: 0, s: 1 },
+      shoulder: { x: 26, y: 8 }, shoulderFar: { x: 14, y: 4 },
+      hip: { x: -28, y: 6 }, hipFar: { x: -38, y: 2 },
+      tail: { x: -44, y: -6, a: 0 }, mane: { x: 34, y: -16, a: 0, s: 1 }, back: { x: -8, y: -28, a: 0 },
+    },
+    stages: {
+      2: { grow: [1.06, 1.06], addBehind: [evoFan(34, -6, -50, 50, 3, 8, 24)] },
+      3: { grow: [1.06, 1.07], addBehind: [evoFan(-34, -14, 170, 260, 3, 8, 26)] },
+    },
+  }),
+
+  mBody({
+    id: 'cat', name: 'Sleek', tags: ['cat', 'sleek'], dom: 0.5, w: 3,
+    pts: [[26, -28], [8, -31], [-14, -28], [-34, -20], [-42, -4], [-38, 12], [-26, 20], [-4, 23], [18, 20], [32, 12], [40, -2], [40, -16], [34, -25]],
+    shade: torsoShade(-42, 40, -30, 23),
+    sockets: {
+      head: { x: 28, y: -22, a: 0, s: 1 },
+      shoulder: { x: 24, y: 8 }, shoulderFar: { x: 12, y: 4 },
+      hip: { x: -26, y: 6 }, hipFar: { x: -36, y: 2 },
+      tail: { x: -40, y: -4, a: 0 }, mane: { x: 32, y: -16, a: 0, s: 1 }, back: { x: -8, y: -29, a: 0 },
+    },
+    stages: {
+      2: { grow: [1.06, 1.06], addBehind: [evoFan(32, -6, -50, 50, 3, 8, 22)] },
+      3: { grow: [1.06, 1.07], addBehind: [evoFan(-30, -12, 170, 260, 3, 8, 24)] },
+    },
+  }),
+  mBody({
+    id: 'bear', name: 'Stocky', kind: 'mammal.biped', tags: ['bear', 'upright'], dom: 0.55, w: 2,
+    pts: [[0, -42], [18, -38], [30, -22], [34, 0], [32, 20], [20, 32], [0, 35], [-20, 32], [-32, 20], [-34, 0], [-30, -22], [-18, -38]],
+    shade: torsoShade(-34, 34, -42, 35, { shadeFrac: 0.3 }),
+    sockets: {
+      head: { x: 2, y: -36, a: 0, s: 1 },
+      shoulder: { x: 14, y: -14 }, shoulderFar: { x: -6, y: -18 },
+      hip: { x: 8, y: 18 }, hipFar: { x: -14, y: 14 },
+      tail: { x: -30, y: 14, a: 25 }, mane: { x: 10, y: -30, a: 0, s: 1 }, back: { x: -20, y: -34, a: -15 },
+    },
+    stages: {
+      2: { grow: [1.06, 1.06], addBehind: [evoFan(0, 26, 30, 150, 4, 8, 22, { tip: 0.3 })] },
+      3: { grow: [1.06, 1.07], addBehind: [evoFan(0, 26, 20, 160, 6, 10, 28, { tip: 0.3 })] },
+    },
+  }),
+  mBody({
+    id: 'rabbit', name: 'Crouched', tags: ['rabbit', 'compact'], dom: 0.5, w: 2,
+    pts: [[22, -24], [4, -28], [-14, -30], [-32, -24], [-42, -6], [-38, 12], [-24, 22], [0, 24], [20, 20], [32, 10], [36, -4], [32, -16]],
+    shade: torsoShade(-42, 36, -30, 24),
+    sockets: {
+      head: { x: 24, y: -18, a: 0, s: 1 },
+      shoulder: { x: 18, y: 8 }, shoulderFar: { x: 8, y: 4 },
+      hip: { x: -24, y: 4 }, hipFar: { x: -34, y: 0 },
+      tail: { x: -38, y: -10, a: -20 }, mane: { x: 26, y: -12, a: 0, s: 1 },
+      back: { x: -14, y: -30, a: 0 },
+    },
+    stages: {
+      2: { grow: [1.06, 1.06], addBehind: [evoFan(28, -6, -50, 50, 3, 8, 20, { tip: 0.4 })] },
+      3: { grow: [1.06, 1.07], addBehind: [evoFan(-30, -14, 170, 260, 3, 8, 22, { tip: 0.4 })] },
+    },
+  }),
+
+  mBody({
+    id: 'deer', name: 'Long-necked', tags: ['deer', 'tall'], dom: 0.5, w: 2,
+    pts: [[22, -24], [32, -46], [44, -62], [54, -58], [50, -40], [44, -22], [40, -8], [34, 8], [18, 18], [-6, 20], [-26, 18], [-38, 8], [-42, -8], [-34, -20], [-12, -26], [8, -27]],
+    shade: torsoShade(-42, 40, -27, 20),
+    sockets: {
+      head: { x: 47, y: -56, a: -8, s: 0.95 },
+      shoulder: { x: 22, y: 4 }, shoulderFar: { x: 10, y: 0 },
+      hip: { x: -24, y: 2 }, hipFar: { x: -34, y: -2 },
+      tail: { x: -40, y: -12, a: -30 }, mane: { x: 40, y: -42, a: -10, s: 0.9 }, back: { x: -6, y: -27, a: 0 },
+    },
+    stages: {
+      2: { grow: [1.06, 1.06], addBehind: [evoFan(34, -6, -60, 40, 3, 8, 22)] },
+      3: { grow: [1.06, 1.07], addBehind: [evoFan(-32, -12, 170, 260, 3, 8, 24)] },
+    },
+  }),
+  mBody({
+    id: 'wolf', name: 'Rugged', tags: ['wolf', 'muscular'], dom: 0.55, w: 2,
+    pts: [[30, -32], [10, -34], [-14, -30], [-36, -22], [-48, -6], [-44, 12], [-32, 20], [-10, 20], [14, 22], [34, 16], [46, 4], [46, -12], [40, -26]],
+    shade: torsoShade(-48, 46, -34, 22),
+    sockets: {
+      head: { x: 32, y: -26, a: 0, s: 1 },
+      shoulder: { x: 28, y: 8 }, shoulderFar: { x: 16, y: 4 },
+      hip: { x: -30, y: 6 }, hipFar: { x: -40, y: 2 },
+      tail: { x: -46, y: -8, a: 0 }, mane: { x: 36, y: -20, a: 0, s: 1 }, back: { x: -8, y: -32, a: 0 },
+    },
+    stages: {
+      2: { grow: [1.06, 1.06], addBehind: [evoFan(38, -6, -50, 50, 4, 8, 26)] },
+      3: { grow: [1.06, 1.07], addBehind: [evoFan(-38, -14, 170, 260, 4, 8, 28)] },
+    },
+  }),
+  mBody({
+    id: 'mouse', name: 'Round', kind: 'mammal.biped', tags: ['mouse', 'small', 'upright'], dom: 0.45, w: 3,
+    pts: [[0, -30], [16, -26], [26, -8], [26, 10], [18, 24], [0, 28], [-18, 24], [-26, 10], [-26, -8], [-16, -26]],
+    shade: torsoShade(-26, 26, -30, 28, { shadeFrac: 0.3 }),
+    sockets: {
+      head: { x: 2, y: -24, a: 0, s: 1 },
+      shoulder: { x: 12, y: -6 }, shoulderFar: { x: -6, y: -10 },
+      hip: { x: 6, y: 16 }, hipFar: { x: -12, y: 12 },
+      tail: { x: -24, y: 14, a: 30 }, mane: { x: 8, y: -18, a: 0, s: 0.8 }, back: { x: -14, y: -26, a: -15 },
+    },
+    stages: {
+      2: { grow: [1.06, 1.06], addBehind: [evoFan(0, 20, 30, 150, 3, 6, 16, { tip: 0.4 })] },
+      3: { grow: [1.06, 1.07], addBehind: [evoFan(0, 20, 20, 160, 5, 8, 22, { tip: 0.4 })] },
+    },
+  }),
+];
+
 // ---- src/data/parts/mammal/heads.js ----
 // Mammal heads. Origin = neck point (where the head sits on the body's head socket).
 // Heads are drawn in three-quarter view: a big cranium, both eyes visible (the far one smaller),
 // a short muzzle projecting to the right with the nose at its tip.
 // Sockets: ear / earFar {x,y,a,s}, eye / eyeFar {x,y,s}, muzzle {x,y,a,s} at the nose tip, horns {x,y,a,s} on the crown.
+// Evolutions: stage 2 grows the skull, fans cheek tufts out behind the jaw and enlarges the
+// brow sigil; stage 3 adds a crown of tufts, a glow behind the sigil and accent brow streaks.
+
 
 
 
@@ -1208,6 +1381,10 @@ const M_HEADS = [
       eye: { x: 18, y: -27, s: 1 }, eyeFar: { x: 1, y: -29, s: 0.8 },
       muzzle: { x: 38, y: -16, a: 0, s: 1 }, horns: { x: 8, y: -45, a: 0, s: 1 },
     },
+    stages: {
+      2: { grow: [1.05, 1.06], addBehind: [evoFan(-14, -10, 130, 230, 3, 8, 26)], add: [PATCH(flamePath(9, -36, 8.5), 'a')] },
+      3: { grow: [1.05, 1.06], addBehind: [evoFan(6, -40, 200, 340, 4, 6, 24)], add: [evoGlow(9, -36, 12, 0.25), L('M-6,-33 L-11,-39 M20,-34 L25,-40', 'a', 2.2, { ns: true })] },
+    },
   }),
 
   mPart({
@@ -1224,6 +1401,10 @@ const M_HEADS = [
       eye: { x: 15, y: -26, s: 1 }, eyeFar: { x: -4, y: -27, s: 0.85 },
       muzzle: { x: 26, y: -16, a: 0, s: 1 }, horns: { x: 6, y: -45, a: 0, s: 1 },
     },
+    stages: {
+      2: { grow: [1.05, 1.06], addBehind: [evoFan(-16, -8, 130, 230, 3, 8, 24)], add: [PATCH(crescentPath(6, -36, 6.5, -60), 'a')] },
+      3: { grow: [1.05, 1.06], addBehind: [evoFan(4, -40, 200, 340, 3, 6, 22)], add: [evoGlow(6, -36, 11, 0.25), L('M-8,-32 L-13,-38 M18,-33 L23,-39', 'a', 2.2, { ns: true })] },
+    },
   }),
   mPart({
     id: 'bear', slot: 'head', name: 'Ursine', tags: ['bear'], dom: 0.55, w: 2,
@@ -1238,6 +1419,10 @@ const M_HEADS = [
       ear: { x: 17, y: -40, a: 12, s: 1 }, earFar: { x: -7, y: -41, a: -12, s: 0.95 },
       eye: { x: 12, y: -26, s: 0.95 }, eyeFar: { x: -6, y: -27, s: 0.82 },
       muzzle: { x: 31, y: -12, a: 0, s: 1 }, horns: { x: 4, y: -44, a: 0, s: 1 },
+    },
+    stages: {
+      2: { grow: [1.05, 1.06], addBehind: [evoFan(-18, -12, 140, 230, 3, 8, 24, { tip: 0.3 })], add: [PATCH(diamondPath(5, -35, 9, 13), 'a')] },
+      3: { grow: [1.05, 1.06], addBehind: [evoFan(2, -44, 210, 330, 3, 6, 22, { tip: 0.3 })], add: [evoGlow(5, -35, 12, 0.25), L('M-8,-30 L-13,-36 M16,-31 L21,-37', 'a', 2.2, { ns: true })] },
     },
   }),
   mPart({
@@ -1254,6 +1439,10 @@ const M_HEADS = [
       ear: { x: 14, y: -40, a: 6, s: 1 }, earFar: { x: -4, y: -42, a: -8, s: 0.95 },
       eye: { x: 13, y: -25, s: 1 }, eyeFar: { x: -5, y: -26, s: 0.85 },
       muzzle: { x: 29, y: -14, a: 0, s: 1 }, horns: { x: 4, y: -44, a: 0, s: 1 },
+    },
+    stages: {
+      2: { grow: [1.05, 1.06], addBehind: [evoFan(-18, -12, 140, 230, 2, 8, 22, { tip: 0.4 })], add: [PATCH(starPath(5, -35, 6.5, 5, 0.5), 'a')] },
+      3: { grow: [1.05, 1.06], addBehind: [evoFan(4, -40, 220, 320, 3, 6, 20, { tip: 0.4 })], add: [evoGlow(5, -35, 11, 0.25), L('M-6,-31 L-11,-37 M16,-31 L21,-37', 'a', 2.2, { ns: true })] },
     },
   }),
 
@@ -1272,6 +1461,10 @@ const M_HEADS = [
       eye: { x: 14, y: -24, s: 1 }, eyeFar: { x: -4, y: -26, s: 0.85 },
       muzzle: { x: 36, y: -8, a: 0, s: 1 }, horns: { x: 6, y: -42, a: 0, s: 1 },
     },
+    stages: {
+      2: { grow: [1.05, 1.06], addBehind: [evoFan(-14, -10, 140, 230, 3, 8, 24)], add: [PATCH(sparklePath(6, -33, 8), 'a')] },
+      3: { grow: [1.05, 1.06], addBehind: [evoFan(4, -38, 210, 330, 3, 6, 20)], add: [evoGlow(6, -33, 11, 0.25), L('M-4,-30 L-9,-36 M16,-30 L21,-36', 'a', 2.2, { ns: true })] },
+    },
   }),
   mPart({
     id: 'wolf', slot: 'head', name: 'Lupine', tags: ['wolf'], dom: 0.55, w: 2,
@@ -1289,6 +1482,10 @@ const M_HEADS = [
       eye: { x: 16, y: -29, s: 1 }, eyeFar: { x: -2, y: -31, s: 0.8 },
       muzzle: { x: 45, y: -12, a: 0, s: 1 }, horns: { x: 6, y: -46, a: 0, s: 1 },
     },
+    stages: {
+      2: { grow: [1.05, 1.06], addBehind: [evoFan(-16, -10, 130, 230, 4, 8, 28)], add: [PATCH(boltPath(8, -37, 7, 8), 'a')] },
+      3: { grow: [1.05, 1.06], addBehind: [evoFan(4, -42, 200, 340, 4, 6, 24)], add: [evoGlow(8, -37, 12, 0.25), L('M-6,-34 L-11,-40 M20,-35 L25,-41', 'a', 2.2, { ns: true })] },
+    },
   }),
   mPart({
     id: 'mouse', slot: 'head', name: 'Murine', tags: ['mouse'], dom: 0.45, w: 3,
@@ -1304,6 +1501,10 @@ const M_HEADS = [
       eye: { x: 14, y: -24, s: 1 }, eyeFar: { x: -4, y: -26, s: 0.85 },
       muzzle: { x: 34, y: -15, a: 0, s: 1 }, horns: { x: 4, y: -42, a: 0, s: 1 },
     },
+    stages: {
+      2: { grow: [1.05, 1.06], addBehind: [evoFan(-18, -12, 140, 230, 2, 8, 20, { tip: 0.5 })], add: [C(23, -11, 6, 'a', { ns: true, cl: true, op: 0.8 }), C(-13, -13, 4.6, 'a', { ns: true, cl: true, op: 0.6 })] },
+      3: { grow: [1.05, 1.06], addBehind: [evoFan(2, -38, 220, 320, 3, 6, 18, { tip: 0.5 })], add: [PATCH(sparklePath(4, -33, 6), 'a'), L('M-6,-30 L-11,-36 M14,-30 L19,-36', 'a', 2.2, { ns: true })] },
+    },
   }),
 ];
 
@@ -1311,6 +1512,9 @@ const M_HEADS = [
 // Mammal ears. Origin = base of the ear (hidden inside the skull); the ear points up (-y).
 // Fantasy cues: tufted or curled tips in the accent colour, ring and swirl inner markings,
 // a real leaf for the forest kinds.
+// Evolutions: stage 2 lengthens the ear and adds an accent tip or a second lobe; stage 3
+// fans extra tufts out of the sides and sets a gem or a second tip.
+
 
 
 
@@ -1324,6 +1528,10 @@ const M_EARS = [
       PATCH('M-14,-20 L0,-52 L14,-20 Z', 'a'),
       SH('M-12,-4 L12,-4 L12,8 L-12,8 Z', 0.18),
     ],
+    stages: {
+      2: { grow: [1.08, 1.15], addShapes: [{ pts: [[-4, -40], [1, -62, 'c'], [6, -40]], f: 'a' }] },
+      3: { grow: [1.08, 1.1], addBehind: [evoFan(0, -30, 190, 260, 2, 8, 26), evoFan(0, -30, 280, 350, 2, 8, 24)] },
+    },
   }),
 
   mPart({
@@ -1334,6 +1542,10 @@ const M_EARS = [
       PATCH('M-10,-16 L6,-34 L10,-14 Z', 'a'),
       SH('M-12,-4 L12,-4 L12,8 L-12,8 Z', 0.18),
     ],
+    stages: {
+      2: { grow: [1.1, 1.15], addShapes: [{ pts: [[0, -24], [8, -46, 'c'], [9, -24]], f: 'a' }] },
+      3: { grow: [1.08, 1.1], addBehind: [evoFan(0, -16, 180, 250, 2, 8, 22)], addShapes: [{ pts: [[-4, -20], [-9, -38, 'c'], [1, -22]], f: 'a' }] },
+    },
   }),
   mPart({
     id: 'bear', slot: 'ears', name: 'Ringed', tags: ['bear', 'round'], dom: 0.5, w: 3,
@@ -1343,6 +1555,10 @@ const M_EARS = [
       C(0, -7, 2.6, 'a', { ns: true }),
       SH('M-12,-4 L12,-4 L12,8 L-12,8 Z', 0.18),
     ],
+    stages: {
+      2: { grow: [1.15, 1.15], add: [evoRing(0, -7, 5.5, 'a', 1.4, { op: 0.9 })] },
+      3: { grow: [1.12, 1.12], addBehind: [evoFan(0, -8, 200, 340, 3, 8, 22)], add: [...evoGem(0, -7, 3.2)] },
+    },
   }),
   mPart({
     id: 'rabbit', slot: 'ears', name: 'Ribbon', tags: ['rabbit', 'long'], dom: 0.55, w: 3,
@@ -1352,6 +1568,10 @@ const M_EARS = [
       PATCH('M-6,-40 L4,-58 L18,-42 L8,-30 Z', 'a'),
       SH('M-12,-4 L12,-4 L12,8 L-12,8 Z', 0.18),
     ],
+    stages: {
+      2: { grow: [1.05, 1.12], addBehind: [[[8, -46], [20, -62], [32, -58, 'c'], [26, -46], [12, -40]]] },
+      3: { grow: [1.05, 1.1], addBehind: [[[2, -48], [-8, -68], [-2, -78, 'c'], [6, -62], [8, -50]]], add: [S([[10, -48], [20, -60], [28, -58], [18, -46]], 'a', { ns: true, cl: true, op: 0.8 })] },
+    },
   }),
 
   mPart({
@@ -1363,6 +1583,10 @@ const M_EARS = [
       L('M0,-9 L-6,-13 M0,-9 L6,-13 M0,-16 L-5,-20 M0,-16 L5,-20 M0,-22 L-3,-25 M0,-22 L3,-25', 'k', 1, { op: 0.35 }),
       SH('M-14,-4 L14,-4 L14,8 L-14,8 Z', 0.18),
     ],
+    stages: {
+      2: { grow: [1.1, 1.12], addBehind: [[[-8, -10], [-20, -14], [-32, -22, 'c'], [-18, -20], [-8, -16]], [[8, -10], [20, -14], [32, -22, 'c'], [18, -20], [8, -16]]] },
+      3: { grow: [1.08, 1.1], addBehind: [[[-2, -26], [-5, -40], [0, -52, 'c'], [5, -40], [2, -26]]], add: [C(-3, -4, 2.2, 'a', { ns: true }), C(2, -6, 2, 'a', { ns: true }), C(-1, -1, 1.8, 'a', { ns: true })] },
+    },
   }),
   mPart({
     id: 'wolf', slot: 'ears', name: 'Shaggy', tags: ['wolf'], dom: 0.55, w: 2,
@@ -1372,6 +1596,10 @@ const M_EARS = [
       PATCH('M-10,-18 L2,-38 L10,-16 Z', 'a'),
       SH('M-14,-4 L14,-4 L14,8 L-14,8 Z', 0.18),
     ],
+    stages: {
+      2: { grow: [1.08, 1.15], addBehind: [evoFan(-4, -12, 170, 250, 3, 8, 26, { profile: 'end' })] },
+      3: { grow: [1.08, 1.1], addShapes: [{ pts: [[-2, -26], [3, -48, 'c'], [7, -26]], f: 'a' }], addBehind: [evoFan(4, -10, 290, 350, 2, 8, 20)] },
+    },
   }),
   mPart({
     id: 'mouse', slot: 'ears', name: 'Swirl dish', tags: ['mouse', 'round'], dom: 0.5, w: 3,
@@ -1382,17 +1610,33 @@ const M_EARS = [
       HL('M-8,-18 C-4,-22 4,-22 8,-18 L6,-15 C2,-18 -2,-18 -6,-15 Z', 0.2),
       SH('M-16,-4 L16,-4 L16,8 L-16,8 Z', 0.18),
     ],
+    stages: {
+      2: { grow: [1.15, 1.15], add: [evoRing(0, -10, 12, 'a', 1.6, { op: 0.7, cl: true })] },
+      3: { grow: [1.1, 1.1], addBehind: [evoFan(0, -10, 190, 350, 5, 10, 24, { tip: 0.6 })], add: [...evoGem(0, -10, 2.8)] },
+    },
   }),
 ];
 
 // ---- src/data/parts/mammal/eyes.js ----
 // Mammal eyes. Origin = eye centre, near-eye size; the far eye is a scaled copy.
 // Sclera first (it is the clip for the iris and pupil), then iris, pupil, highlights, lid.
+// Evolutions: stage 2 rings the iris in the accent colour; stage 3 adds an inner glow, a
+// second glint and a lash flick, and the eye grows a touch each time.
 
 
+
+
+/** The shared evolution of an eye: an accent iris ring, then glow, glint and lash. */
+function mEyeStages(iris, lash) {
+  const [ix, iy, r] = iris;
+  return {
+    2: { grow: [1.05, 1.05], add: [evoRing(ix, iy, r * 0.95, 'a', 1.3, { cl: true, op: 0.85 })] },
+    3: { grow: [1.05, 1.05], add: [evoGlow(ix, iy, r * 1.5, 0.2), C(ix - r * 0.45, iy - r * 0.5, r * 0.28, 'w', { ns: true, op: 0.9 }), L(lash, 'k', 1.5)] },
+  };
+}
 
 /** Eye builder: shape = sclera path, iris/pupil positions and sizes, lid = upper lid line path or null. */
-function eye({ id, name, shape, iris = [0.8, 0.2, 3.8], pupil = [1.2, 0.5, 2], glint = [2.2, -1.8, 1.3], glint2 = [-1, 1.8, 0.7], lid, lidFill, lash, dom = 0.5, w = 2, tags = [] }) {
+function eye({ id, name, shape, iris = [0.8, 0.2, 3.8], pupil = [1.2, 0.5, 2], glint = [2.2, -1.8, 1.3], glint2 = [-1, 1.8, 0.7], lid, lidFill, lash, evoLash = 'M5,-6 L8.5,-9.5', dom = 0.5, w = 2, tags = [] }) {
   const prims = [P(shape, 'w', { sw: 2 })];
   prims.push(C(iris[0], iris[1], iris[2], 'e', { ns: true, cl: true }));
   prims.push(C(iris[0] + 0.5, iris[1] + 1, iris[2] * 0.72, 'ed', { ns: true, cl: true, op: 0.55 }));
@@ -1402,25 +1646,27 @@ function eye({ id, name, shape, iris = [0.8, 0.2, 3.8], pupil = [1.2, 0.5, 2], g
   if (lidFill) prims.push(P(lidFill, 'p', { ns: true, cl: true }));
   if (lid) prims.push(L(lid, 'k', 1.8));
   if (lash) prims.push(L(lash, 'k', 1.5));
-  return mPart({ id, slot: 'eyes', name, tags, dom, w, extra: prims });
+  return mPart({ id, slot: 'eyes', name, tags, dom, w, extra: prims, stages: mEyeStages(iris, evoLash) });
 }
 
 const M_EYES = [
   eye({ id: 'round', name: 'Round', tags: ['cute'], w: 3, shape: spline([[0, -6.5], [6, -2], [5.4, 5], [0, 6.8], [-5.4, 5], [-6, -2]]), lid: 'M-5,-5 Q0,-8.4 5,-5' }),
-  eye({ id: 'almond', name: 'Almond', tags: ['fox', 'sly'], w: 3, shape: spline([[-6.5, -3], [0, -6.5], [6.5, -4.5], [7, 0.5], [3, 4.5], [-3, 4.5], [-7, 1]]), iris: [1, 0, 3.6], pupil: [1.4, 0.3, [1.5, 3]], lid: 'M-6,-4.5 Q0,-8.5 6.5,-6' }),
+  eye({ id: 'almond', name: 'Almond', tags: ['fox', 'sly'], w: 3, shape: spline([[-6.5, -3], [0, -6.5], [6.5, -4.5], [7, 0.5], [3, 4.5], [-3, 4.5], [-7, 1]]), iris: [1, 0, 3.6], pupil: [1.4, 0.3, [1.5, 3]], lid: 'M-6,-4.5 Q0,-8.5 6.5,-6', evoLash: 'M6.5,-6 L10,-9' }),
 
   eye({ id: 'slit', name: 'Slit', tags: ['cat'], w: 3, shape: spline([[0, -6.5], [6.2, -2], [5.6, 4.6], [0, 6.6], [-5.6, 4.6], [-6.2, -2]]), iris: [0.6, 0, 5], pupil: [0.8, 0.2, [1.4, 4.6]], glint: [2.6, -2.2, 1.3], lid: 'M-5,-5.2 Q0,-8.6 5.2,-5.2' }),
-  eye({ id: 'bead', name: 'Bead', tags: ['small'], w: 3, shape: spline([[0, -5.2], [5, -1.5], [4.4, 3.8], [0, 5.4], [-4.4, 3.8], [-5, -1.5]]), iris: [0.4, 0, 4.6], pupil: [0.6, 0.2, 3.4], glint: [1.9, -1.9, 1.3], glint2: [-1, 1.6, 0.6], lid: null }),
-  eye({ id: 'doe', name: 'Doe', tags: ['deer', 'rabbit'], w: 3, shape: spline([[-1, -7], [6, -3], [6.4, 4], [1, 7.4], [-5, 5], [-7, -1]]), iris: [0.8, 0.4, 4.4], pupil: [1.2, 0.8, 2.6], glint: [2.6, -1.6, 1.5], lid: 'M-6,-4 Q0,-9 6.4,-5', lash: 'M6,-5.6 L8.6,-8 M4,-7 L5.6,-9.6' }),
+  eye({ id: 'bead', name: 'Bead', tags: ['small'], w: 3, shape: spline([[0, -5.2], [5, -1.5], [4.4, 3.8], [0, 5.4], [-4.4, 3.8], [-5, -1.5]]), iris: [0.4, 0, 4.6], pupil: [0.6, 0.2, 3.4], glint: [1.9, -1.9, 1.3], glint2: [-1, 1.6, 0.6], lid: null, evoLash: 'M4,-5 L7,-8' }),
+  eye({ id: 'doe', name: 'Doe', tags: ['deer', 'rabbit'], w: 3, shape: spline([[-1, -7], [6, -3], [6.4, 4], [1, 7.4], [-5, 5], [-7, -1]]), iris: [0.8, 0.4, 4.4], pupil: [1.2, 0.8, 2.6], glint: [2.6, -1.6, 1.5], lid: 'M-6,-4 Q0,-9 6.4,-5', lash: 'M6,-5.6 L8.6,-8 M4,-7 L5.6,-9.6', evoLash: 'M1.5,-8 L2.4,-11.2' }),
 
-  eye({ id: 'sleepy', name: 'Sleepy', tags: ['calm'], w: 2, shape: spline([[0, -6.5], [6, -2], [5.4, 5], [0, 6.8], [-5.4, 5], [-6, -2]]), iris: [0.8, 1, 3.8], pupil: [1.2, 1.3, 2], glint: [2.2, -0.6, 1.2], glint2: null, lidFill: 'M-9,-10 L9,-10 L9,-1.5 L-9,-1.5 Z', lid: 'M-6,-1.5 L6,-1.5' }),
-  eye({ id: 'fierce', name: 'Fierce', tags: ['angry'], w: 2, shape: spline([[-6.5, -4], [0, -5.5], [6.5, -2], [6.5, 3], [2, 5.5], [-4, 5], [-7, 1]]), iris: [1, 0.6, 3.6], pupil: [1.4, 0.9, 1.9], glint: [2.4, -1, 1.1], lidFill: 'M-9,-10 L9,-10 L9,-1.5 L-9,-5.8 Z', lid: 'M-7,-5.5 L6.5,-1.5' }),
+  eye({ id: 'sleepy', name: 'Sleepy', tags: ['calm'], w: 2, shape: spline([[0, -6.5], [6, -2], [5.4, 5], [0, 6.8], [-5.4, 5], [-6, -2]]), iris: [0.8, 1, 3.8], pupil: [1.2, 1.3, 2], glint: [2.2, -0.6, 1.2], glint2: null, lidFill: 'M-9,-10 L9,-10 L9,-1.5 L-9,-1.5 Z', lid: 'M-6,-1.5 L6,-1.5', evoLash: 'M6,-2 L9.5,-4' }),
+  eye({ id: 'fierce', name: 'Fierce', tags: ['angry'], w: 2, shape: spline([[-6.5, -4], [0, -5.5], [6.5, -2], [6.5, 3], [2, 5.5], [-4, 5], [-7, 1]]), iris: [1, 0.6, 3.6], pupil: [1.4, 0.9, 1.9], glint: [2.4, -1, 1.1], lidFill: 'M-9,-10 L9,-10 L9,-1.5 L-9,-5.8 Z', lid: 'M-7,-5.5 L6.5,-1.5', evoLash: 'M6.5,-2.5 L10,-4.5' }),
 ];
 
 // ---- src/data/parts/mammal/muzzles.js ----
 // Mammal muzzles: nose, mouth and whisker marks. Origin = nose tip on the head's muzzle socket.
 // Noses are accent-coloured shapes (triangle, heart, button) rather than plain black where the
 // kind allows it; the heavier kinds carry tusks or twin fangs.
+// Evolutions: stage 2 grows the nose, lengthens whiskers and bares a fang or a bigger tusk;
+// stage 3 tips the whiskers with accent beads and doubles the fangs.
 
 
 
@@ -1434,6 +1680,10 @@ const M_MUZZLES = [
       L('M-3,3 C-4,7 -8,9 -13,6', 'k', 1.9),
       L('M-9,-3 L-15,-4 M-10,0 L-16,1', 'k', 1.1, { op: 0.4 }),
     ],
+    stages: {
+      2: { grow: [1.12, 1.12], add: [L('M-9,-6 L-17,-9 M-10,3 L-17,6', 'k', 1.1, { op: 0.4 }), P('M-6,4.6 L-4.6,9.6 L-3,4.4 Z', 'w', { sw: 1.1 })] },
+      3: { reset: true, grow: [1.23, 1.23], add: [L('M-9,-6 L-17,-9 M-10,3 L-17,6', 'k', 1.1, { op: 0.4 }), P('M-6.4,4.6 L-4.4,11 L-2.6,4.4 Z', 'w', { sw: 1.1 }), P('M-11,5.4 L-9.6,10.4 L-8.2,5.2 Z', 'w', { sw: 1.1 }), C(-17.4, -9.2, 1, 'a', { ns: true }), C(-16.4, 1.2, 1, 'a', { ns: true }), C(-17.4, 6.2, 1, 'a', { ns: true })] },
+    },
   }),
 
   mPart({
@@ -1444,6 +1694,10 @@ const M_MUZZLES = [
       L('M-8,-1 L-18,-4 M-8,2 L-18,3', 'k', 1, { op: 0.35 }),
       C(-9, 0, 0.9, 'k', { ns: true, op: 0.45 }), C(-11, 3, 0.9, 'k', { ns: true, op: 0.45 }), C(-12, -3, 0.9, 'k', { ns: true, op: 0.45 }),
     ],
+    stages: {
+      2: { grow: [1.1, 1.1], add: [L('M-8,-4 L-19,-8 M-8,5 L-18,8', 'k', 1, { op: 0.35 }), P('M-4.4,5 L-3.2,9.4 L-1.8,5 Z', 'w', { sw: 1 }), P('M1.8,5 L3.2,9.4 L4.4,5 Z', 'w', { sw: 1 })] },
+      3: { reset: true, grow: [1.21, 1.21], add: [L('M-8,-4 L-19,-8 M-8,5 L-18,8', 'k', 1, { op: 0.35 }), P('M-4.6,5 L-3.2,10.6 L-1.6,5 Z', 'w', { sw: 1 }), P('M1.6,5 L3.2,10.6 L4.6,5 Z', 'w', { sw: 1 }), C(-19.4, -8.2, 1, 'a', { ns: true }), C(-18.6, 3.2, 1, 'a', { ns: true }), C(-18.4, 8.2, 1, 'a', { ns: true }), P(heartPath(0, -0.6, 4.4), 'a', { sw: 1.5 })] },
+    },
   }),
   mPart({
     id: 'bear', slot: 'muzzle', name: 'Tusked', tags: ['bear', 'boar'], dom: 0.55, w: 2,
@@ -1454,6 +1708,10 @@ const M_MUZZLES = [
       P('M-10.4,9 L-8.4,3.2 L-6.4,8.6 Z', 'w', { sw: 1.2 }),
       P('M-5,9.6 L-3.8,5.8 L-2.4,9.4 Z', 'w', { sw: 1.1 }),
     ],
+    stages: {
+      2: { grow: [1.12, 1.12], add: [P('M-13.4,10.4 L-10.4,2.2 L-7.4,10 Z', 'w', { sw: 1.3 }), P('M-6,11 L-4,5 L-2,10.8 Z', 'w', { sw: 1.2 })] },
+      3: { reset: true, grow: [1.23, 1.23], add: [P('M-16,11.6 L-12.4,1 L-8.6,11 Z', 'w', { sw: 1.4 }), P('M-7,12.4 L-4.2,4.2 L-1.4,12 Z', 'w', { sw: 1.3 }), L('M-13,6 L-11,7 M-5,8 L-3.5,9', 'a', 1.4, { ns: true, op: 0.7 })] },
+    },
   }),
   mPart({
     id: 'rabbit', slot: 'muzzle', name: 'Twitchy', tags: ['rabbit'], dom: 0.5, w: 2,
@@ -1463,6 +1721,10 @@ const M_MUZZLES = [
       P('M-3.2,6 L3.2,6 L3,11 L-3,11 Z', 'w', { sw: 1.3 }), L('M0,6.5 L0,10.5', 'k', 1),
       L('M-8,0 L-17,-3 M-8,3 L-17,4', 'k', 1, { op: 0.35 }),
     ],
+    stages: {
+      2: { grow: [1.1, 1.1], add: [L('M-8,-3 L-19,-7 M-8,6 L-18,8', 'k', 1, { op: 0.35 }), P('M-3.6,6 L3.6,6 L3.4,12.6 L-3.4,12.6 Z', 'w', { sw: 1.3 }), L('M0,6.5 L0,12', 'k', 1)] },
+      3: { grow: [1.1, 1.1], add: [C(-19.4, -7.2, 1, 'a', { ns: true }), C(-17.6, 0.5, 1, 'a', { ns: true }), C(-18.4, 8.2, 1, 'a', { ns: true }), P(heartPath(0, -0.8, 3.8), 'a', { sw: 1.4 })] },
+    },
   }),
 
   mPart({
@@ -1473,6 +1735,10 @@ const M_MUZZLES = [
       L('M-2,3 C-3,6 -6,7 -9,5.5', 'k', 1.7),
       C(-12, 1, 1, 'a', { ns: true, op: 0.7 }), C(-15, 4.5, 0.8, 'a', { ns: true, op: 0.6 }),
     ],
+    stages: {
+      2: { grow: [1.1, 1.1], add: [C(-13, -3, 1.2, 'a', { ns: true, op: 0.75 }), C(-17, 8, 0.9, 'a', { ns: true, op: 0.6 }), C(-9, -6, 0.8, 'a', { ns: true, op: 0.6 })] },
+      3: { grow: [1.1, 1.1], add: [L('M-6,-4 L-14,-8 M-7,5 L-14,8', 'a', 1.2, { ns: true, op: 0.6 }), E(0, -1, 4.8, 3.6, 'k', { ns: true }), C(-1.9, -2.3, 1.3, 'w', { ns: true, op: 0.8 })] },
+    },
   }),
   mPart({
     id: 'wolf', slot: 'muzzle', name: 'Fanged', tags: ['wolf'], dom: 0.55, w: 2,
@@ -1483,6 +1749,10 @@ const M_MUZZLES = [
       P('M-9,7.4 L-7,13 L-4.6,7.2 Z', 'w', { sw: 1.2 }),
       P('M-15,6.8 L-13.6,11.2 L-12,6.6 Z', 'w', { sw: 1.1 }),
     ],
+    stages: {
+      2: { grow: [1.12, 1.12], add: [P('M-10,7.6 L-7.4,15.4 L-4.6,7.4 Z', 'w', { sw: 1.3 }), P('M-16,7 L-14,13 L-12,6.8 Z', 'w', { sw: 1.2 })] },
+      3: { reset: true, grow: [1.23, 1.23], add: [L('M-3,3 C-6,10 -12,12.5 -19,9', 'k', 2.1), P('M-11,7.8 L-7.6,18 L-4,7.6 Z', 'w', { sw: 1.4 }), P('M-17.4,7.6 L-14.6,15 L-11.8,7.2 Z', 'w', { sw: 1.3 })] },
+    },
   }),
   mPart({
     id: 'mouse', slot: 'muzzle', name: 'Whiskered', tags: ['mouse'], dom: 0.45, w: 3,
@@ -1493,6 +1763,10 @@ const M_MUZZLES = [
       L('M-6,-2 L-20,-6 M-6,0 L-20,0 M-6,2 L-19,5', 'k', 1, { op: 0.4 }),
       C(-20.5, -6.2, 1.1, 'a', { ns: true }), C(-20.5, 0, 1.1, 'a', { ns: true }), C(-19.5, 5.2, 1.1, 'a', { ns: true }),
     ],
+    stages: {
+      2: { grow: [1.1, 1.1], add: [L('M-6,-3.5 L-22,-10 M-6,3.5 L-21,9', 'k', 1, { op: 0.4 }), C(-22.5, -10.4, 1.2, 'a', { ns: true }), C(-21.5, 9.4, 1.2, 'a', { ns: true })] },
+      3: { grow: [1.1, 1.1], add: [C(0, 0, 3.8, 'a', { sw: 1.6 }), C(-1.2, -1.2, 1.1, 'w', { ns: true, op: 0.8 }), P('M-3,5.2 L3,5.2 L2.6,9.6 L-2.6,9.6 Z', 'w', { sw: 1.2 }), L('M0,5.6 L0,9.2', 'k', 1)] },
+    },
   }),
 ];
 
@@ -1500,6 +1774,9 @@ const M_MUZZLES = [
 // Mammal legs. Origin = the joint on the body (shoulder or hip). Legs hang down (+y).
 // One silhouette per leg. The near hind leg carries a full haunch that overlaps the torso;
 // the far copy hides behind it. On upright bodies the forelegs hang as arms.
+// Evolutions (evoLegStages): stage 2 grows the limb and bares claws (hoofed kinds get a hoof
+// band and fetlock tufts); stage 3 grows it again, lengthens the claws and adds armour bands.
+
 
 
 
@@ -1511,37 +1788,44 @@ const M_LEGS_FRONT = [
     id: 'fox', slot: 'legsFront', name: 'Slim', tags: ['fox'], dom: 0.5, w: 3,
     shapes: [[[-9, -8], [2, -12], [10, -6], [9, 8], [8, 26], [13, 33], [15, 39, 0.3], [9, 43], [-5, 42], [-8, 36], [-8, 26], [-9, 8]]],
     extra: [sock(22, 'a'), shadeBack, lightFront, toes(-2, 12, 42, 2, 3)],
+    stages: evoLegStages([-2, 12, 42], 30),
   }),
   mLeg({
     id: 'cat', slot: 'legsFront', name: 'Dainty', tags: ['cat'], dom: 0.5, w: 3,
     shapes: [[[-8, -8], [3, -11], [9, -5], [8, 10], [7, 28], [10, 34], [12, 39, 0.3], [6, 42], [-6, 41], [-8, 35], [-8, 26], [-9, 10]]],
     extra: [sock(32, 's'), shadeBack, lightFront, toes(-2, 10, 41, 2, 3)],
+    stages: evoLegStages([-2, 10, 41], 30),
   }),
   mLeg({
     id: 'bear', slot: 'legsFront', name: 'Thick', tags: ['bear'], dom: 0.55, w: 2,
     shapes: [[[-11, -8], [2, -12], [12, -6], [12, 10], [12, 28], [16, 34], [17, 40, 0.3], [9, 44], [-8, 43], [-12, 36], [-12, 26], [-12, 10]]],
     extra: [shadeBack, SH('M-14,34 L20,34 L20,48 L-14,48 Z', 0.1), HL('M2,-6 L7,-6 L7,22 L3,22 Z', 0.14), toes(-6, 14, 43, 3, 4)],
+    stages: evoLegStages([-6, 14, 43], 30, { claws: 4 }),
   }),
   mLeg({
     id: 'rabbit', slot: 'legsFront', name: 'Short', tags: ['rabbit'], dom: 0.45, w: 2,
     shapes: [[[-7, -6], [2, -9], [8, -4], [7, 8], [6, 20], [10, 26], [12, 31, 0.3], [6, 34], [-5, 33], [-7, 28], [-7, 20], [-8, 8]]],
     extra: [shadeBack, HL('M2,-4 L5,-4 L5,16 L3,16 Z', 0.16), toes(-2, 10, 33, 2, 2.5)],
+    stages: evoLegStages([-2, 10, 33], 22),
   }),
 
   mLeg({
     id: 'deer', slot: 'legsFront', name: 'Slender', tags: ['deer', 'hoofed'], dom: 0.5, w: 2,
     shapes: [[[-7, -8], [3, -11], [8, -5], [7, 10], [6, 30], [7, 40], [9, 46, 'c'], [8, 50], [-4, 50], [-6, 46], [-5, 40], [-6, 26], [-7, 10]]],
     extra: [sock(43, 'a', -30, 30, 1.5), L('M1,45 L1,50', 'k', 1.2, { op: 0.5 }), SH('M-10,-14 L-2,-14 L-1,54 L-10,54 Z', 0.12), HL('M2,-4 L5,-4 L5,22 L3,22 Z', 0.16)],
+    stages: evoLegStages([0, 0, 50], 36, { hoof: [-4, 44] }),
   }),
   mLeg({
     id: 'wolf', slot: 'legsFront', name: 'Sturdy', tags: ['wolf'], dom: 0.55, w: 2,
     shapes: [[[-10, -8], [2, -12], [11, -6], [10, 8], [9, 26], [14, 33], [16, 39, 0.3], [10, 44], [-6, 43], [-10, 36], [-9, 26], [-10, 8]]],
     extra: [shadeBack, SH('M-12,34 L20,34 L20,48 L-12,48 Z', 0.1), lightFront, toes(-4, 14, 43, 3, 3.5)],
+    stages: evoLegStages([-4, 14, 43], 30, { claws: 4 }),
   }),
   mLeg({
     id: 'mouse', slot: 'legsFront', name: 'Tiny', tags: ['mouse'], dom: 0.4, w: 3,
     shapes: [[[-6, -6], [2, -8], [7, -3], [6, 8], [5, 18], [9, 22], [10, 26, 0.3], [5, 29], [-4, 28], [-6, 24], [-6, 16], [-7, 8]]],
     extra: [sock(20, 'a', -30, 30, 2), SH('M-9,-10 L-2,-10 L-1,32 L-9,32 Z', 0.12), HL('M2,-3 L4.5,-3 L4.5,12 L2.5,12 Z', 0.16), toes(-2, 8, 28, 2, 2.2)],
+    stages: evoLegStages([-2, 8, 28], 18, { claws: 2 }),
   }),
 ];
 
@@ -1556,6 +1840,7 @@ const M_LEGS_BACK = [
       HL('M-8,-12 C0,-16 8,-12 10,-6 C4,-8 -4,-8 -10,-4 Z', 0.16),
       toes(-4, 10, 43, 2, 3),
     ],
+    stages: evoLegStages([-4, 10, 43], 30),
   }),
   mLeg({
     id: 'cat', slot: 'legsBack', name: 'Supple', tags: ['cat'], dom: 0.5, w: 3,
@@ -1567,6 +1852,7 @@ const M_LEGS_BACK = [
       HL('M-8,-12 C0,-16 8,-12 10,-6 C4,-8 -4,-8 -10,-4 Z', 0.16),
       toes(-4, 8, 43, 2, 3),
     ],
+    stages: evoLegStages([-4, 8, 43], 30),
   }),
   mLeg({
     id: 'bear', slot: 'legsBack', name: 'Stout', tags: ['bear'], dom: 0.55, w: 2,
@@ -1577,6 +1863,7 @@ const M_LEGS_BACK = [
       HL('M-8,-14 C0,-18 10,-14 12,-8 C6,-10 -4,-10 -10,-6 Z', 0.14),
       toes(-6, 14, 45, 3, 4),
     ],
+    stages: evoLegStages([-6, 14, 45], 32, { claws: 4 }),
   }),
   mLeg({
     id: 'rabbit', slot: 'legsBack', name: 'Haunch', tags: ['rabbit'], dom: 0.55, w: 2,
@@ -1587,6 +1874,7 @@ const M_LEGS_BACK = [
       HL('M-10,-14 C0,-18 10,-14 12,-8 C6,-10 -4,-10 -10,-6 Z', 0.14),
       toes(2, 22, 41, 3, 3),
     ],
+    stages: evoLegStages([2, 22, 41], 28, { claws: 4 }),
   }),
 
   mLeg({
@@ -1598,6 +1886,7 @@ const M_LEGS_BACK = [
       SH('M-22,6 C-10,18 4,20 18,10 L22,22 L-22,22 Z', 0.12), SH('M-10,28 L12,28 L12,56 L-10,56 Z', 0.1),
       HL('M-8,-12 C0,-16 8,-12 10,-6 C4,-8 -4,-8 -10,-4 Z', 0.16),
     ],
+    stages: evoLegStages([0, 0, 52], 38, { hoof: [-4, 46] }),
   }),
   mLeg({
     id: 'wolf', slot: 'legsBack', name: 'Powerful', tags: ['wolf'], dom: 0.55, w: 2,
@@ -1608,6 +1897,7 @@ const M_LEGS_BACK = [
       HL('M-8,-14 C0,-18 10,-14 12,-8 C6,-10 -4,-10 -10,-6 Z', 0.14),
       toes(-6, 14, 44, 3, 3.5),
     ],
+    stages: evoLegStages([-6, 14, 44], 30, { claws: 4 }),
   }),
   mLeg({
     id: 'mouse', slot: 'legsBack', name: 'Nimble', tags: ['mouse'], dom: 0.4, w: 3,
@@ -1619,6 +1909,7 @@ const M_LEGS_BACK = [
       HL('M-6,-10 C0,-12 6,-10 8,-5 C3,-7 -3,-7 -7,-3 Z', 0.16),
       toes(-2, 10, 32, 2, 2.2),
     ],
+    stages: evoLegStages([-2, 10, 32], 20, { claws: 2 }),
   }),
 ];
 
@@ -1626,6 +1917,9 @@ const M_LEGS_BACK = [
 // Mammal tails. Origin = tail root on the body's rear. Tails sweep left (-x) and up or down.
 // Every tail ends in something a real animal's would not: a flame-cut brush, a curled tuft,
 // a leaf, a floating sparkle, a banner stripe or an orb.
+// Evolutions: stage 2 adds a second element (an extra flame lick, rings, sparkles, leaflets);
+// stage 3 forks or doubles the tail and crowns it with accent light.
+
 
 
 
@@ -1639,6 +1933,14 @@ const M_TAILS = [
       SH('M-80,4 C-46,16 -22,20 6,12 L6,32 L-80,32 Z', 0.13),
       HL('M-52,-28 C-38,-30 -22,-24 -6,-14 L-8,-8 C-22,-16 -38,-22 -52,-20 Z', 0.16),
     ],
+    stages: {
+      2: { grow: [1.1, 1.08], addBehind: [evoFan(-56, -26, 200, 300, 3, 10, 36)], add: [S([[-70, -38], [-62, -52], [-54, -40], [-58, -30]], 'a', { ns: true, op: 0.85 })] },
+      3: {
+        grow: [1.1, 1.1],
+        addBehind: [[[0, 8], [-18, 18], [-40, 30], [-58, 44], [-76, 54, 'c'], [-64, 38], [-74, 30, 'c'], [-56, 26], [-38, 18], [-16, 8]]],
+        add: [S([[-74, 52], [-64, 40], [-58, 30], [-52, 40]], 's', { ns: true, cl: true }), P(sparklePath(-84, -36, 4.5), 'a', { ns: true })],
+      },
+    },
   }),
 
   mPart({
@@ -1652,11 +1954,19 @@ const M_TAILS = [
       SH('M-50,0 C-30,10 -10,12 6,8 L6,20 L-50,20 Z', 0.13),
       HL('M-42,-26 C-40,-36 -36,-42 -30,-46 L-26,-42 C-32,-38 -36,-30 -38,-24 Z', 0.16),
     ],
+    stages: {
+      2: { grow: [1.08, 1.1], add: [L('M-40,-14 L-30,-10 M-43,-26 L-34,-24 M-32,6 L-30,-2', 'a', 2.6, { ns: true, cl: true, op: 0.9 })] },
+      3: { grow: [1.08, 1.08], addShapes: [[[-12, -54], [-4, -72, 0.3], [4, -58, 'c'], [-2, -48], [-10, -46]]], add: [S([[-8, -60], [-4, -66], [-2, -56], [-6, -52]], 'a', { ns: true, cl: true, op: 0.9 })] },
+    },
   }),
   mPart({
     id: 'bear', slot: 'tail', name: 'Pom', tags: ['bear', 'short'], dom: 0.4, w: 2,
     shapes: [puff(-8, -2, 9, 7, 3, { rot: 15 })],
     extra: [C(-8, -2, 4.5, 's', { ns: true, cl: true }), SH('M-20,2 L4,2 L4,14 L-20,14 Z', 0.14), HL('M-13,-10 C-9,-13 -4,-12 -2,-9 L-4,-6 C-7,-8 -10,-8 -12,-6 Z', 0.16)],
+    stages: {
+      2: { grow: [1.25, 1.25], add: [P(starPath(-8, -2, 4.5, 5, 0.5), 'a', { ns: true })] },
+      3: { grow: [1.15, 1.15], addBehind: [puff(-18, -10, 7, 7, 2.5, { rot: 40 })], add: [C(-18, -10, 3, 's', { ns: true, cl: true }), P(starPath(-18, -10, 2.6, 5, 0.5), 'a', { ns: true, op: 0.9 })] },
+    },
   }),
   mPart({
     id: 'rabbit', slot: 'tail', name: 'Cloud puff', tags: ['rabbit', 'short'], dom: 0.45, w: 2,
@@ -1666,6 +1976,10 @@ const M_TAILS = [
       SH('M-24,-2 L4,-2 L4,12 L-24,12 Z', 0.14), HL('M-16,-15 C-12,-18 -6,-17 -4,-14 L-6,-11 C-9,-13 -13,-13 -15,-11 Z', 0.18),
       P(sparklePath(-24, -20, 4.5), 'a', { ns: true }), P(sparklePath(-4, -22, 2.6, 20), 'a', { ns: true, op: 0.8 }),
     ],
+    stages: {
+      2: { grow: [1.15, 1.15], add: [P(sparklePath(-30, -8, 3.4, 10), 'a', { ns: true, op: 0.9 }), P(sparklePath(-14, -26, 2.4, 30), 'a', { ns: true, op: 0.8 })] },
+      3: { grow: [1.12, 1.12], addBehind: [puff(-24, -16, 9, 7, 3, { rot: 25 })], add: [S(puff(-24, -16, 4.5, 7, 1.5, { rot: 45 }), 's', { ns: true, cl: true, op: 0.6 }), P(sparklePath(-38, -26, 4, 15), 'a', { ns: true })] },
+    },
   }),
 
   mPart({
@@ -1676,6 +1990,10 @@ const M_TAILS = [
       L('M0,0 C-10,-6 -22,-10 -34,-13', 'k', 1.3, { op: 0.4 }),
       L('M-10,-4 L-14,-13 M-18,-7 L-22,-17 M-10,-4 L-8,4 M-18,-7 L-18,3', 'k', 1, { op: 0.3 }),
     ],
+    stages: {
+      2: { grow: [1.15, 1.15], addBehind: [[[-6, 2], [-16, 10], [-30, 16, 'c'], [-22, 4], [-12, -2]], [[-10, -10], [-22, -24], [-36, -30, 'c'], [-26, -16], [-16, -8]]] },
+      3: { grow: [1.12, 1.12], addBehind: [[[-16, -6], [-34, -4], [-50, 0, 'c'], [-34, -10], [-20, -12]]], add: [C(-14, -12, 2.6, 'a', { ns: true }), C(-19, -8, 2.2, 'a', { ns: true }), C(-13, -6, 2, 'a', { ns: true })] },
+    },
   }),
   mPart({
     id: 'wolf', slot: 'tail', name: 'Banner', tags: ['wolf', 'bushy'], dom: 0.55, w: 2,
@@ -1686,6 +2004,14 @@ const M_TAILS = [
       SH('M-60,26 C-42,32 -26,26 -14,14 L-2,14 L-2,62 L-60,62 Z', 0.12),
       HL('M-24,0 C-16,-4 -8,-6 0,-6 L0,-1 C-8,-1 -16,2 -22,6 Z', 0.16),
     ],
+    stages: {
+      2: { grow: [1.12, 1.1], addBehind: [[[-30, 12], [-46, 22], [-64, 30, 'c'], [-60, 40], [-72, 50, 'c'], [-54, 46], [-40, 30], [-28, 20]]] },
+      3: {
+        grow: [1.1, 1.1],
+        addBehind: [[[-10, 6], [-28, 30], [-40, 52], [-48, 72, 'c'], [-36, 62], [-32, 74, 'c'], [-26, 52], [-18, 30], [-6, 12]]],
+        add: [S([[-8, 4], [-22, 12], [-36, 26], [-40, 20], [-28, 8], [-12, 0]], 'a', { ns: true, cl: true, op: 0.85 }), P(sparklePath(-70, 52, 4), 'a', { ns: true })],
+      },
+    },
   }),
   mPart({
     id: 'mouse', slot: 'tail', name: 'Orb cord', tags: ['mouse', 'long'], dom: 0.45, w: 3,
@@ -1694,64 +2020,101 @@ const M_TAILS = [
       C(-24, 55, 5, 'a', { sw: 2.2 }), C(-25.6, 53.4, 1.4, 'w', { ns: true, op: 0.85 }),
       SH('M-36,30 C-30,42 -20,50 -6,52 L-6,60 L-36,60 Z', 0.14),
     ],
+    stages: {
+      2: { grow: [1.1, 1.1], add: [evoRing(-24, 55, 8.5, 'a', 1.4, { op: 0.8 })] },
+      3: {
+        grow: [1.1, 1.1], addShapes: [tube([[-24, 40], [-34, 36], [-42, 30]], 5, 2.5)],
+        add: [C(-44, 28, 3.6, 'a', { sw: 2 }), C(-45.2, 26.8, 1, 'w', { ns: true, op: 0.85 }), C(-24, 55, 6.2, 'a', { sw: 2.2 }), C(-26, 53, 1.8, 'w', { ns: true, op: 0.85 })],
+      },
+    },
   }),
 ];
 
 // ---- src/data/parts/mammal/manes.js ----
 // Mammal manes and ruffs: neck and chest fur worn in front of the torso, behind the head.
 // Origin = the body's mane socket at the base of the neck.
+// Evolutions: stage 2 grows the ruff and layers a darker, larger copy of its own outline behind
+// it; stage 3 layers a third, larger copy again and sets a gem at the throat, so every ruff
+// becomes a banded, two-tone mane (the lion's a full sunburst).
 
 
+
+
+/** The shared mane evolution: layered copies of the ruff outline `pts` behind it, then a throat gem. */
+const maneStages = (pts, gem, k2 = 1.22, k3 = 1.48) => ({
+  2: { grow: [1.08, 1.1], addBehind: [{ pts: xfPts(pts, { sx: k2, sy: k2 }), f: 'pd' }] },
+  3: { grow: [1.08, 1.08], addBehind: [xfPts(pts, { sx: k3, sy: k3 })], add: [...evoGem(gem[0], gem[1], gem[2] || 3.2)] },
+});
+
+const foxRuff = [[-26, -10], [-6, -14], [4, -10], ...fur([6, -4], [-2, 22], 3, 5, { lean: 0.4 }), [-12, 28], [-24, 22], [-30, 6]];
+const catBib = [[-20, -8], [-4, -12], [4, -6], ...fur([4, 0], [-4, 16], 2, 4, { lean: 0.3 }), [-14, 20], [-24, 12], [-26, 0]];
+const bearShag = [[-24, -10], [-6, -16], [10, -12], [16, -2], ...fur([14, 4], [-6, 22], 3, 5, { lean: 0.35 }), [-20, 20], [-30, 8]];
+const rabbitDewlap = [[-20, -6], [-6, -8], [4, -2], [6, 8], [0, 16], [-12, 16], [-22, 8]];
+const deerBell = [[-10, -14], [6, -16], [12, -4], ...fur([10, 4], [4, 26], 3, 4, { lean: 0.35 }), [-4, 30], [-14, 18], [-16, 2]];
+const wolfCollar = [[-26, -14], [-6, -20], [8, -16], [14, -6], ...fur([14, 0], [4, 26], 4, 6, { lean: 0.35 }), [-8, 32], [-24, 26], [-32, 10]];
+const lionMane = [[-34, -30], [-10, -42], [14, -40], [28, -26], ...fur([30, -12], [22, 30], 5, 8, { lean: 0.3 }), ...fur([16, 36], [-24, 38], 4, 7, { lean: 0.2 }), ...fur([-32, 30], [-42, -6], 4, 7, { lean: 0.2 })];
+const mouseTuft = [[-12, -6], [0, -9], [6, -2], ...fur([6, 2], [0, 12], 2, 3, { lean: 0.3 }), [-6, 14], [-12, 8], [-14, 0]];
 
 const M_MANES = [
   NONE('mane', 0.3, 'm.'),
   mPart({
     id: 'fox', slot: 'mane', name: 'Chest ruff', tags: ['fox'], dom: 0.5, w: 3,
-    shapes: [[[-26, -10], [-6, -14], [4, -10], ...fur([6, -4], [-2, 22], 3, 5, { lean: 0.4 }), [-12, 28], [-24, 22], [-30, 6]]],
+    shapes: [foxRuff],
     extra: [SH('M-34,12 C-22,22 -8,24 4,16 L6,34 L-34,34 Z', 0.12)],
+    stages: maneStages(foxRuff, [-10, 8]),
   }),
 
   mPart({
     id: 'cat', slot: 'mane', name: 'Bib', tags: ['cat'], dom: 0.45, w: 2,
-    shapes: [[[-20, -8], [-4, -12], [4, -6], ...fur([4, 0], [-4, 16], 2, 4, { lean: 0.3 }), [-14, 20], [-24, 12], [-26, 0]]],
+    shapes: [catBib],
     extra: [SH('M-30,8 C-20,18 -8,20 2,12 L4,28 L-30,28 Z', 0.12)],
+    stages: maneStages(catBib, [-8, 4, 2.8]),
   }),
   mPart({
     id: 'bear', slot: 'mane', name: 'Shag', tags: ['bear'], dom: 0.45, w: 2,
-    shapes: [[[-24, -10], [-6, -16], [10, -12], [16, -2], ...fur([14, 4], [-6, 22], 3, 5, { lean: 0.35 }), [-20, 20], [-30, 8]]],
+    shapes: [bearShag],
     extra: [SH('M-34,8 C-20,20 -4,22 10,12 L12,30 L-34,30 Z', 0.12), HL('M-20,-12 C-10,-18 2,-18 10,-12 L6,-8 C0,-12 -10,-12 -18,-8 Z', 0.14)],
+    stages: maneStages(bearShag, [-6, 6]),
   }),
   mPart({
     id: 'rabbit', slot: 'mane', name: 'Dewlap', tags: ['rabbit'], dom: 0.4, w: 2,
-    shapes: [[[-20, -6], [-6, -8], [4, -2], [6, 8], [0, 16], [-12, 16], [-22, 8]]],
+    shapes: [rabbitDewlap],
     extra: [SH('M-26,6 C-16,16 -4,18 6,10 L8,22 L-26,22 Z', 0.12)],
+    stages: maneStages(rabbitDewlap, [-8, 5, 2.8], 1.25, 1.55),
   }),
 
   mPart({
     id: 'deer', slot: 'mane', name: 'Bell', tags: ['deer'], dom: 0.4, w: 2,
-    shapes: [[[-10, -14], [6, -16], [12, -4], ...fur([10, 4], [4, 26], 3, 4, { lean: 0.35 }), [-4, 30], [-14, 18], [-16, 2]]],
+    shapes: [deerBell],
     extra: [SH('M-20,10 C-10,20 2,22 10,14 L12,32 L-20,32 Z', 0.12)],
+    stages: maneStages(deerBell, [-2, 10, 2.8]),
   }),
   mPart({
     id: 'wolf', slot: 'mane', name: 'Collar', tags: ['wolf'], dom: 0.5, w: 2,
-    shapes: [[[-26, -14], [-6, -20], [8, -16], [14, -6], ...fur([14, 0], [4, 26], 4, 6, { lean: 0.35 }), [-8, 32], [-24, 26], [-32, 10]]],
+    shapes: [wolfCollar],
     extra: [SH('M-36,12 C-22,24 -6,26 10,16 L12,34 L-36,34 Z', 0.12), HL('M-22,-16 C-10,-22 2,-22 10,-16 L6,-12 C0,-16 -10,-16 -20,-12 Z', 0.14)],
+    stages: maneStages(wolfCollar, [-8, 8]),
   }),
   mPart({
     id: 'lion', slot: 'mane', name: 'Lion mane', tags: ['lion', 'big'], dom: 0.6, w: 1,
-    shapes: [[[-34, -30], [-10, -42], [14, -40], [28, -26], ...fur([30, -12], [22, 30], 5, 8, { lean: 0.3 }), ...fur([16, 36], [-24, 38], 4, 7, { lean: 0.2 }), ...fur([-32, 30], [-42, -6], 4, 7, { lean: 0.2 })]],
+    shapes: [lionMane],
     extra: [SH('M-46,10 C-24,30 4,32 28,16 L30,44 L-46,44 Z', 0.12), HL('M-30,-30 C-12,-42 10,-42 24,-30 L18,-24 C6,-32 -12,-32 -26,-24 Z', 0.14)],
+    stages: maneStages(lionMane, [-6, 30, 3.6], 1.18, 1.38),
   }),
   mPart({
     id: 'mouse', slot: 'mane', name: 'Tuft', tags: ['mouse'], dom: 0.35, w: 2,
-    shapes: [[[-12, -6], [0, -9], [6, -2], ...fur([6, 2], [0, 12], 2, 3, { lean: 0.3 }), [-6, 14], [-12, 8], [-14, 0]]],
+    shapes: [mouseTuft],
     extra: [SH('M-16,6 C-8,14 0,14 6,8 L8,18 L-16,18 Z', 0.12)],
+    stages: maneStages(mouseTuft, [-4, 4, 2], 1.25, 1.55),
   }),
 ];
 
 // ---- src/data/parts/mammal/horns.js ----
 // Mammal horns and antlers. Origin = crown of the skull; horns grow up (-y).
 // Drawn in the slot's primary role, so a species' paint gene picks the horn colour.
+// Evolutions: stage 2 grows the horns and adds tines, ridges or brighter tips; stage 3 adds a
+// second pair, a further curl or a crown of tines, with gems and glow at the points.
+
 
 
 
@@ -1772,6 +2135,16 @@ const M_HORNS = [
       C(-10, -37, 2.4, 'a', { sw: 1.4 }), C(-20, -29, 2, 'a', { sw: 1.4 }), C(-1, -33, 1.8, 'a', { sw: 1.4 }),
       C(9, -39, 2.8, 'a', { sw: 1.6 }), C(24, -29, 2.4, 'a', { sw: 1.6 }), C(18, -35, 2.2, 'a', { sw: 1.6 }),
     ],
+    stages: {
+      2: { grow: [1.1, 1.12], add: [beam([[11, -6], [18, -8], [23, -14]], 4, 2, 'p'), beam([[-7, -6], [-14, -9], [-18, -14]], 3.6, 2, 'pd'), C(23, -15, 2.2, 'a', { sw: 1.5 }), C(-18, -15, 1.9, 'a', { sw: 1.4 })] },
+      3: {
+        grow: [1.1, 1.12],
+        add: [
+          beam([[12, -30], [16, -42], [14, -50]], 3.6, 2, 'p'), beam([[9, -38], [4, -46]], 3.4, 1.8, 'p'), beam([[-10, -30], [-14, -42]], 3, 1.8, 'pd'),
+          C(14, -51, 2.6, 'a', { sw: 1.6 }), C(4, -47, 2.2, 'a', { sw: 1.5 }), C(-14, -43, 2, 'a', { sw: 1.4 }), C(9, -40, 7, 'a', { ns: true, op: 0.22 }),
+        ],
+      },
+    },
   }),
   mPart({
     id: 'ram', slot: 'horns', name: 'Ram', tags: ['sheep', 'curled'], dom: 0.55, w: 2,
@@ -1780,6 +2153,10 @@ const M_HORNS = [
       beam([[10, 0], [14, -10], [10, -20], [0, -20], [-4, -12], [0, -6]], 11, 4, 'p'),
       L('M12,-8 C10,-14 6,-18 0,-17', 'k', 1.2, { op: 0.3 }), L('M13,-4 C13,-11 9,-17 3,-19', 'k', 1.2, { op: 0.2 }),
     ],
+    stages: {
+      2: { grow: [1.12, 1.12], add: [L('M11,-2 C11,-8 8,-14 3,-17 M-6,-2 C-8,-7 -12,-11 -17,-12', 'k', 1.1, { op: 0.25 }), S(tube([[-3, -8], [0, -6]], 5, 3.4), 'a', { ns: true }), S(tube([[-20, -2], [-18, 2]], 4, 2.8), 'a', { ns: true })] },
+      3: { grow: [1.1, 1.1], add: [beam([[0, -6], [6, -2], [8, 4], [4, 8]], 5, 3, 'p'), beam([[-18, 2], [-20, 6], [-16, 10]], 4, 2.4, 'pd'), ...evoGem(4, -13, 3)] },
+    },
   }),
   mPart({
     id: 'goat', slot: 'horns', name: 'Goat', tags: ['goat', 'swept'], dom: 0.5, w: 2,
@@ -1789,6 +2166,10 @@ const M_HORNS = [
       L('M6,-6 L2,-6 M5,-12 L1,-11 M2,-17 L-2,-15', 'k', 1.2, { op: 0.3 }),
       S(tube([[-18, -24], [-24, -28]], 3.2, 1.2), 'a', { ns: true }), S(tube([[-4, -28], [-10, -32]], 3.6, 1.2), 'a', { ns: true }),
     ],
+    stages: {
+      2: { grow: [1.1, 1.18], add: [L('M-6,-8 L-10,-7 M-9,-14 L-13,-12 M-14,-20 L-18,-18', 'k', 1.1, { op: 0.25 }), L('M7,-2 L3,-2', 'k', 1.2, { op: 0.3 })] },
+      3: { grow: [1.08, 1.1], add: [beam([[2, 2], [-1, -8], [-6, -16]], 4, 1.6, 'p'), S(tube([[-4, -30], [-12, -36]], 4, 1.2), 'a', { ns: true }), S(tube([[-18, -26], [-26, -31]], 3.6, 1.2), 'a', { ns: true }), C(-11, -34, 2.2, 'a', { ns: true, op: 0.5 })] },
+    },
   }),
   mPart({
     id: 'bull', slot: 'horns', name: 'Bull', tags: ['bull', 'wide'], dom: 0.6, w: 2,
@@ -1798,6 +2179,10 @@ const M_HORNS = [
       HL('M10,0 L14,-2 L24,-10 L20,-8 Z', 0.2),
       S(tube([[-25, -16], [-26, -22]], 4.2, 2), 'a', { ns: true }), S(tube([[29, -18], [30, -24]], 4.6, 2), 'a', { ns: true }),
     ],
+    stages: {
+      2: { grow: [1.15, 1.1], add: [S(tube([[28, -14], [30, -24]], 5, 2), 'a', { ns: true }), S(tube([[-24, -12], [-26, -22]], 4.6, 2), 'a', { ns: true }), L('M12,-1 L13,-5 M18,-3 L19,-7', 'k', 1.1, { op: 0.25 })] },
+      3: { grow: [1.1, 1.1], add: [beam([[6, 4], [14, 6], [22, 2], [26, -6]], 6, 2, 'p'), beam([[-4, 4], [-12, 6], [-20, 2], [-24, -6]], 5.4, 2, 'pd'), ...evoGem(30, -27, 2.6), ...evoGem(-26, -25, 2.2)] },
+    },
   }),
   mPart({
     id: 'unicorn', slot: 'horns', name: 'Spiral', tags: ['unicorn', 'single'], dom: 0.5, w: 1,
@@ -1807,6 +2192,10 @@ const M_HORNS = [
       HL('M4,-2 L7,-2 L9,-30 L7,-30 Z', 0.22),
       P(sparklePath(11, -45, 5), 'a', { ns: true }),
     ],
+    stages: {
+      2: { grow: [1.05, 1.18], add: [L('M7,-36 L11,-38', 'a', 2.2, { ns: true, cl: true, op: 0.85 }), P(sparklePath(11, -45, 7), 'a', { ns: true })] },
+      3: { grow: [1.05, 1.1], add: [evoRing(10, -42, 9, 'a', 1.8, { op: 0.8 }), P(sparklePath(-2, -40, 3.6, 20), 'a', { ns: true, op: 0.85 }), P(sparklePath(20, -34, 3, 40), 'a', { ns: true, op: 0.8 })] },
+    },
   }),
   mPart({
     id: 'nubs', slot: 'horns', name: 'Gem nubs', tags: ['small', 'crystal'], dom: 0.4, w: 2,
@@ -1816,6 +2205,17 @@ const M_HORNS = [
       HL('M8,-4 L11,-12 L13,-10 L10,-3 Z', 0.4), HL('M-8,-3 L-5,-10 L-4,-8 L-6,-2 Z', 0.35),
       L('M11,-15 L11,-2 M-5,-13 L-5,-2', 'k', 1, { op: 0.25 }),
     ],
+    stages: {
+      2: { grow: [1.15, 1.2], add: [P('M-1,2 L-2,-3 L3,-9 L8,-3 L7,2 Z', 'pl'), P('M0,-1 L3,-7 L4,-5 L2,0 Z', 'w', { ns: true, op: 0.35 })] },
+      3: {
+        grow: [1.1, 1.1],
+        add: [
+          C(11, -9, 4.5, 'a', { ns: true, op: 0.2 }), C(-5, -8, 3.8, 'a', { ns: true, op: 0.18 }),
+          P('M7,2 L5,-9 L11,-21 L18,-9 L16,2 Z', 'p'), P('M8,-6 L11,-17 L13,-14 L10,-4 Z', 'w', { ns: true, op: 0.4 }),
+          P('M-9,2 L-11,-8 L-5,-18 L1,-8 L-1,2 Z', 'pd'), P('M-8,-4 L-5,-14 L-4,-11 L-6,-3 Z', 'w', { ns: true, op: 0.35 }),
+        ],
+      },
+    },
   }),
   mPart({
     id: 'crest', slot: 'horns', name: 'Crest', tags: ['fur', 'plume'], dom: 0.45, w: 2,
@@ -1823,12 +2223,18 @@ const M_HORNS = [
       S([[-14, 4], [-10, -8], [-4, -20, 0.2], [0, -8], [6, -24, 0.2], [10, -8], [18, -16, 0.2], [18, -2], [20, 6]], 'p'),
       HL('M-4,-16 L0,-6 L4,-20 L8,-8 Z', 0.2),
     ],
+    stages: {
+      2: { grow: [1.1, 1.22], add: [P('M-6,-14 L-4,-24 L-1,-14 Z', 'a', { ns: true, op: 0.85 }), P('M4,-16 L6,-28 L9,-16 Z', 'a', { ns: true, op: 0.85 }), P('M15,-10 L18,-20 L20,-10 Z', 'a', { ns: true, op: 0.85 })] },
+      3: { grow: [1.08, 1.12], addBehind: [{ pts: [[-18, 6], [-16, -10], [-10, -28, 0.2], [-4, -12], [2, -36, 0.2], [8, -14], [14, -32, 0.2], [18, -12], [26, -22, 0.2], [24, 6]], f: 'pd' }] },
+    },
   }),
 ];
 
 // ---- src/data/parts/mammal/backs.js ----
 // Mammal back features: wings, ridges and fur along the spine. Origin = the body's back socket,
 // on the spine; features grow up (-y) and sweep back (-x). Drawn behind the torso.
+// Evolutions: stage 2 grows the feature and adds tips, claws or an extra crystal; stage 3
+// layers a bigger silhouette behind it (a second wing membrane, a taller ridge, an outer flame).
 
 
 
@@ -1842,6 +2248,14 @@ const M_BACKS = [
       SH('M-60,-14 C-40,-6 -20,0 4,4 L4,12 L-60,12 Z', 0.16),
       S([[-4, -22], [-22, -36], [-40, -38], [-36, -30], [-20, -26], [-8, -16]], 's', { ns: true, cl: true, op: 0.7 }),
     ],
+    stages: {
+      2: { grow: [1.15, 1.15], addShapes: [{ pts: [[-8, -24], [-14, -42, 'c'], [-4, -30]], f: 'a' }], add: [P('M-8,-10 C-22,-6 -34,-2 -46,2', 'none', { sw: 1.6 })] },
+      3: {
+        grow: [1.15, 1.15],
+        addBehind: [{ pts: [[2, 0], [-10, -30], [-36, -54], [-74, -52, 0.3], [-60, -34], [-78, -22, 0.3], [-58, -12], [-68, 4, 0.3], [-42, 6], [-14, 10]], f: 'pd' }],
+        add: [P('M-58,-42 L-64,-54 L-54,-46 Z', 'a', { sw: 1.2 }), P('M-60,-18 L-70,-24 L-60,-27 Z', 'a', { sw: 1.2 })],
+      },
+    },
   }),
   mPart({
     id: 'wings', slot: 'back', name: 'Feathered', tags: ['bird', 'wings'], dom: 0.55, w: 1,
@@ -1851,21 +2265,41 @@ const M_BACKS = [
       S([[-2, -22], [-20, -34], [-44, -36], [-40, -28], [-20, -26], [-6, -14]], 's', { ns: true, cl: true, op: 0.6 }),
       SH('M-62,-8 C-40,-2 -20,2 4,4 L4,12 L-62,12 Z', 0.14),
     ],
+    stages: {
+      2: { grow: [1.12, 1.12], addShapes: [[[-46, -38], [-64, -46], [-74, -38, 0.3], [-58, -32]], [[-52, -22], [-70, -24], [-74, -14, 0.3], [-56, -12]]] },
+      3: {
+        grow: [1.12, 1.12],
+        addBehind: [{ pts: [[2, -4], [-8, -28], [-30, -46], [-60, -50], [-82, -38, 0.3], [-60, -30], [-80, -18, 0.3], [-54, -14], [-66, 0, 0.3], [-36, 2], [-12, 6]], f: 'pd' }],
+        add: [L('M-20,-30 C-40,-34 -56,-36 -72,-36 M-18,-20 C-38,-20 -54,-20 -68,-20', 'a', 1.6, { ns: true, op: 0.6 })],
+      },
+    },
   }),
   mPart({
     id: 'ridge', slot: 'back', name: 'Ridge fur', tags: ['fur'], dom: 0.45, w: 2,
     shapes: [[[26, 6], ...fur([26, 6], [-30, 6], 5, -10, { lean: 0.4 }), [-34, 10], [26, 10]]],
     extra: [SH('M-36,4 L28,4 L28,14 L-36,14 Z', 0.14)],
+    stages: {
+      2: { grow: [1.05, 1.35], add: [L('M8,-4 L10,-12 M-6,-4 L-4,-12 M20,-4 L22,-10', 'a', 2, { ns: true, op: 0.8 })] },
+      3: { grow: [1.05, 1.25], addBehind: [{ pts: [[30, 8], ...fur([30, 8], [-34, 8], 6, -18, { lean: 0.4, tip: 'c' }), [-38, 12], [30, 12]], f: 'pd' }] },
+    },
   }),
   mPart({
     id: 'quills', slot: 'back', name: 'Quills', tags: ['spiky'], dom: 0.5, w: 2,
     shapes: [[[28, 6], ...fur([28, 6], [-32, 6], 7, -16, { lean: 0.45, tip: 'c', wobble: 0.25 }), [-36, 10], [28, 10]]],
     extra: [S([[8, 4], [14, -6], [2, -10], [-6, 2]], 's', { ns: true, cl: true, op: 0.5 }), SH('M-38,4 L30,4 L30,14 L-38,14 Z', 0.14)],
+    stages: {
+      2: { grow: [1.05, 1.3], add: [L('M10,-8 L12,-16 M-4,-8 L-2,-16 M-18,-8 L-16,-14 M22,-6 L24,-12', 'a', 2, { ns: true, op: 0.85 })] },
+      3: { grow: [1.05, 1.25], addBehind: [{ pts: [[32, 8], ...fur([32, 8], [-36, 8], 8, -24, { lean: 0.45, tip: 'c', wobble: 0.25 }), [-40, 12], [32, 12]], f: 'pd' }], spikes: true },
+    },
   }),
   mPart({
     id: 'saddle', slot: 'back', name: 'Saddle mane', tags: ['fur', 'mane'], dom: 0.45, w: 2,
     shapes: [[[24, 6], [18, -8], [6, -16], ...fur([-2, -18], [-34, -6], 4, 8, { lean: 0.4 }), [-40, 6], [-42, 12], [24, 12]]],
     extra: [SH('M-44,4 L26,4 L26,16 L-44,16 Z', 0.14), HL('M14,-6 C6,-12 -6,-14 -16,-10 L-14,-6 C-6,-8 4,-6 12,-2 Z', 0.16)],
+    stages: {
+      2: { grow: [1.08, 1.3], add: [L('M0,-12 L2,-22 M-12,-10 L-10,-20 M-24,-4 L-22,-12', 'a', 2, { ns: true, op: 0.8 })] },
+      3: { grow: [1.05, 1.2], addBehind: [{ pts: [[26, 8], [20, -10], [8, -22], ...fur([0, -26], [-40, -8], 5, 12, { lean: 0.4 }), [-46, 8], [-48, 14], [26, 14]], f: 'pd' }] },
+    },
   }),
   mPart({
     id: 'flame', slot: 'back', name: 'Flame crest', tags: ['fire'], dom: 0.5, w: 1,
@@ -1874,6 +2308,10 @@ const M_BACKS = [
       S([[8, 4], [10, -8], [2, -18], [-4, -30, 0.2], [-8, -16], [-14, -8], [-12, 4]], 's', { ns: true, cl: true }),
       HL('M0,-4 C4,-10 6,-16 4,-22 L0,-22 C0,-16 -2,-10 -6,-4 Z', 0.3),
     ],
+    stages: {
+      2: { grow: [1.1, 1.25], add: [S([[4, 0], [6, -10], [0, -20], [-4, -30, 0.2], [-8, -16], [-10, -6], [-8, 2]], 'a', { ns: true, cl: true, op: 0.8 })] },
+      3: { grow: [1.1, 1.2], addBehind: [{ pts: [[18, 6], [22, -10], [12, -26], [20, -48, 0.2], [4, -36], [-2, -60, 0.2], [-12, -36], [-26, -48, 0.2], [-20, -22], [-36, -18, 0.2], [-20, -4], [-28, 6]], f: 'a' }] },
+    },
   }),
   mPart({
     id: 'crystals', slot: 'back', name: 'Crystals', tags: ['ice', 'rock'], dom: 0.5, w: 1,
@@ -1884,6 +2322,15 @@ const M_BACKS = [
       HL('M-6,-10 L2,-32 L4,-30 L-2,-8 Z', 0.35), HL('M14,-8 L22,-18 L24,-16 L18,-6 Z', 0.3),
       L('M-24,8 L-22,-6 M-4,8 L0,-12 M14,8 L18,-4', 'k', 1.2, { op: 0.3 }),
     ],
+    stages: {
+      2: { grow: [1.1, 1.22], add: [P('M-38,8 L-42,-4 L-34,-16 L-28,-4 L-30,8 Z', 'pd'), P('M-34,-2 L-33,-10 L-32,-9 L-33,-1 Z', 'w', { ns: true, op: 0.35 })] },
+      3: {
+        grow: [1.08, 1.12],
+        add: [
+          P('M30,8 L30,-4 L38,-16 L44,-4 L42,8 Z', 'pl'), P('M-16,8 L-22,-4 L-16,-22 L-8,-6 L-8,8 Z', 'pd'), P('M-14,-4 L-16,-16 L-14,-14 L-12,-4 Z', 'w', { ns: true, op: 0.35 }),
+        ],
+      },
+    },
   }),
 ];
 
@@ -1891,34 +2338,84 @@ const M_BACKS = [
 // Mammal coat markings, drawn on the torso and clipped to it. Authored in a 100 x 60 frame
 // centred on the origin; the renderer stretches that frame over the body's box.
 // Bold and stylised on purpose: claw stripes, ringed spots, a flame-hemmed saddle, swirls.
+// Evolutions: stage 2 adds to the pattern (an extra stripe, spots, licks or a swirl); stage 3
+// adds a second layer of detail (rings, embers, rays, dots) so the coat reads richer.
+
 
 
 
 
 const M_MARKINGS = [
   NONE('markings', 0.3, 'm.'),
-  mPart({ id: 'belly', slot: 'markings', name: 'Belly', tags: ['soft'], dom: 0.5, w: 3, extra: [S([[-54, 22], [-34, 14], [-8, 11], [18, 9], [36, 2], [50, -10], [56, -6], [56, 40], [-54, 40]], 's', { ns: true })] }),
+  mPart({
+    id: 'belly', slot: 'markings', name: 'Belly', tags: ['soft'], dom: 0.5, w: 3,
+    extra: [S([[-54, 22], [-34, 14], [-8, 11], [18, 9], [36, 2], [50, -10], [56, -6], [56, 40], [-54, 40]], 's', { ns: true })],
+    stages: {
+      2: { add: [S([[-54, 26], [-34, 18], [-8, 15], [18, 13], [36, 6], [50, -6], [56, -2], [56, 4], [50, -1], [36, 10], [18, 17], [-8, 19], [-34, 22], [-54, 30]], 'a', { ns: true, op: 0.6 })] },
+      3: { add: [L('M-40,30 L-40,40 M-20,28 L-20,40 M0,26 L0,40 M20,24 L20,40 M40,16 L40,40', 'k', 1.6, { ns: true, op: 0.22 })] },
+    },
+  }),
 
-  mPart({ id: 'saddle', slot: 'markings', name: 'Flame saddle', tags: ['dark'], dom: 0.5, w: 2, extra: [S([[-48, -40], [48, -40], [50, -14], [42, -2, 'c'], [32, -12], [24, 4, 'c'], [14, -8], [4, 6, 'c'], [-6, -8], [-16, 4, 'c'], [-26, -10], [-36, 0, 'c'], [-50, -14]], 'a', { ns: true, spline: { tension: 0.45 } })] }),
-  mPart({ id: 'stripes', slot: 'markings', name: 'Claw stripes', tags: ['tiger'], dom: 0.5, w: 2, extra: [
-    S([[-36, -40], [-18, -40], [-22, -20], [-30, -6, 'c'], [-24, 0], [-36, 12, 'c'], [-36, -4], [-40, -20]], 'a', { ns: true }),
-    S([[-10, -40], [8, -40], [4, -18], [-4, -4, 'c'], [2, 2], [-10, 14, 'c'], [-10, -2], [-14, -20]], 'a', { ns: true }),
-    S([[18, -40], [36, -40], [34, -20], [26, -8, 'c'], [32, -2], [20, 10, 'c'], [18, -4], [14, -20]], 'a', { ns: true }),
-  ] }),
-  mPart({ id: 'spots', slot: 'markings', name: 'Ringed spots', tags: ['fawn'], dom: 0.45, w: 2, extra: [
-    ...[[-30, -14, 5], [-8, -20, 5.5], [16, -22, 5], [32, -10, 4.5], [-18, 2, 4.5], [6, -2, 5], [26, 8, 4]].flatMap(([x, y, r]) => [E(x, y, r * 1.15, r * 0.9, 's', { ns: true }), C(x + 0.5, y + 0.3, r * 0.5, 'a', { ns: true, op: 0.9 })]),
-  ] }),
-  mPart({ id: 'rings', slot: 'markings', name: 'Rings', tags: ['bands'], dom: 0.5, w: 1, extra: [
-    S([[-30, -40], [-16, -40], [-14, 40], [-30, 40]], 'a', { ns: true }), S([[4, -40], [18, -40], [20, 40], [4, 40]], 'a', { ns: true }), S([[34, -40], [46, -40], [50, 40], [36, 40]], 'a', { ns: true }),
-  ] }),
-  mPart({ id: 'star', slot: 'markings', name: 'Chest star', tags: ['blaze'], dom: 0.45, w: 2, extra: [
-    S([[30, -14], [34, -4], [44, -2], [36, 5], [38, 16], [30, 10], [22, 16], [24, 5], [16, -2], [26, -4]], 's', { ns: true, spline: { tension: 0.2 } }),
-  ] }),
-  mPart({ id: 'patches', slot: 'markings', name: 'Swirls', tags: ['spiral'], dom: 0.45, w: 2, extra: [
-    L(spiralPath(-18, -10, 15, 1.7, 160), 'a', 4.2, { ns: true }),
-    L(spiralPath(22, -4, 12, 1.6, -20), 'a', 3.6, { ns: true }),
-    C(-34, 14, 3, 'a', { ns: true, op: 0.8 }), C(38, -24, 2.5, 'a', { ns: true, op: 0.8 }),
-  ] }),
+  mPart({
+    id: 'saddle', slot: 'markings', name: 'Flame saddle', tags: ['dark'], dom: 0.5, w: 2,
+    extra: [S([[-48, -40], [48, -40], [50, -14], [42, -2, 'c'], [32, -12], [24, 4, 'c'], [14, -8], [4, 6, 'c'], [-6, -8], [-16, 4, 'c'], [-26, -10], [-36, 0, 'c'], [-50, -14]], 'a', { ns: true, spline: { tension: 0.45 } })],
+    stages: {
+      2: { add: [S([[38, -6], [44, 12, 'c'], [48, -4]], 'a', { ns: true }), S([[-2, -4], [2, 16, 'c'], [8, -2]], 'a', { ns: true }), S([[-40, -6], [-38, 12, 'c'], [-32, -4]], 'a', { ns: true })] },
+      3: { add: [C(30, -20, 2.4, 'w', { ns: true, op: 0.7 }), C(-10, -24, 2, 'w', { ns: true, op: 0.6 }), C(10, -14, 1.8, 'w', { ns: true, op: 0.6 }), C(-30, -22, 2.2, 'w', { ns: true, op: 0.65 })] },
+    },
+  }),
+  mPart({
+    id: 'stripes', slot: 'markings', name: 'Claw stripes', tags: ['tiger'], dom: 0.5, w: 2,
+    extra: [
+      S([[-36, -40], [-18, -40], [-22, -20], [-30, -6, 'c'], [-24, 0], [-36, 12, 'c'], [-36, -4], [-40, -20]], 'a', { ns: true }),
+      S([[-10, -40], [8, -40], [4, -18], [-4, -4, 'c'], [2, 2], [-10, 14, 'c'], [-10, -2], [-14, -20]], 'a', { ns: true }),
+      S([[18, -40], [36, -40], [34, -20], [26, -8, 'c'], [32, -2], [20, 10, 'c'], [18, -4], [14, -20]], 'a', { ns: true }),
+    ],
+    stages: {
+      2: { add: [S([[42, -40], [54, -40], [52, -20], [46, -8, 'c'], [50, -2], [42, 8, 'c'], [40, -6], [38, -20]], 'a', { ns: true })] },
+      3: { add: [S([[-56, -40], [-46, -40], [-48, -22], [-54, -10, 'c'], [-50, -4], [-56, 4, 'c'], [-58, -8], [-60, -22]], 'a', { ns: true }), C(-22, 12, 2.5, 'a', { ns: true }), C(4, 14, 2.5, 'a', { ns: true }), C(30, 14, 2.5, 'a', { ns: true })] },
+    },
+  }),
+  mPart({
+    id: 'spots', slot: 'markings', name: 'Ringed spots', tags: ['fawn'], dom: 0.45, w: 2,
+    extra: [
+      ...[[-30, -14, 5], [-8, -20, 5.5], [16, -22, 5], [32, -10, 4.5], [-18, 2, 4.5], [6, -2, 5], [26, 8, 4]].flatMap(([x, y, r]) => [E(x, y, r * 1.15, r * 0.9, 's', { ns: true }), C(x + 0.5, y + 0.3, r * 0.5, 'a', { ns: true, op: 0.9 })]),
+    ],
+    stages: {
+      2: { add: [[-40, 8, 4], [38, -24, 4], [-4, 14, 4]].flatMap(([x, y, r]) => [E(x, y, r * 1.15, r * 0.9, 's', { ns: true }), C(x + 0.5, y + 0.3, r * 0.5, 'a', { ns: true, op: 0.9 })]) },
+      3: { add: [evoRing(-8, -20, 8.5, 's', 1.6), evoRing(16, -22, 8, 's', 1.6), evoRing(6, -2, 8, 's', 1.6)] },
+    },
+  }),
+  mPart({
+    id: 'rings', slot: 'markings', name: 'Rings', tags: ['bands'], dom: 0.5, w: 1,
+    extra: [
+      S([[-30, -40], [-16, -40], [-14, 40], [-30, 40]], 'a', { ns: true }), S([[4, -40], [18, -40], [20, 40], [4, 40]], 'a', { ns: true }), S([[34, -40], [46, -40], [50, 40], [36, 40]], 'a', { ns: true }),
+    ],
+    stages: {
+      2: { add: [S([[-8, -40], [-4, -40], [-2, 40], [-8, 40]], 'a', { ns: true, op: 0.7 }), S([[26, -40], [30, -40], [32, 40], [28, 40]], 'a', { ns: true, op: 0.7 })] },
+      3: { add: [C(-22, 0, 3, 'w', { ns: true, op: 0.6 }), C(11, 0, 3, 'w', { ns: true, op: 0.6 }), C(42, 0, 3, 'w', { ns: true, op: 0.6 })] },
+    },
+  }),
+  mPart({
+    id: 'star', slot: 'markings', name: 'Chest star', tags: ['blaze'], dom: 0.45, w: 2,
+    extra: [S([[30, -14], [34, -4], [44, -2], [36, 5], [38, 16], [30, 10], [22, 16], [24, 5], [16, -2], [26, -4]], 's', { ns: true, spline: { tension: 0.2 } })],
+    stages: {
+      2: { grow: [1.2, 1.2], add: [P(sparklePath(12, -16, 4), 's', { ns: true, op: 0.8 }), P(sparklePath(46, 14, 3.4), 's', { ns: true, op: 0.8 })] },
+      3: { add: [L('M30,-22 L30,-30 M40,-14 L46,-20 M20,-14 L14,-20 M44,4 L52,4 M16,4 L8,4', 's', 2.2, { ns: true, op: 0.7 }), P(starPath(-20, -8, 7, 5, 0.5), 's', { ns: true })] },
+    },
+  }),
+  mPart({
+    id: 'patches', slot: 'markings', name: 'Swirls', tags: ['spiral'], dom: 0.45, w: 2,
+    extra: [
+      L(spiralPath(-18, -10, 15, 1.7, 160), 'a', 4.2, { ns: true }),
+      L(spiralPath(22, -4, 12, 1.6, -20), 'a', 3.6, { ns: true }),
+      C(-34, 14, 3, 'a', { ns: true, op: 0.8 }), C(38, -24, 2.5, 'a', { ns: true, op: 0.8 }),
+    ],
+    stages: {
+      2: { add: [L(spiralPath(4, 14, 9, 1.5, 90), 'a', 3.2, { ns: true })] },
+      3: { add: [C(-40, -24, 2.4, 'a', { ns: true }), C(36, 14, 2.4, 'a', { ns: true }), C(-2, -26, 2, 'a', { ns: true, op: 0.8 }), L(spiralPath(-38, 12, 7, 1.4, 200), 'a', 2.8, { ns: true })] },
+    },
+  }),
 ];
 
 // ---- src/data/parts/mammal/index.js ----
@@ -5883,6 +6380,252 @@ function validateGenome(g) {
   return g;
 }
 
+// ---- src/data/evolution.js ----
+// Evolution. Every creature reaches its first evolution at level 33 and its final one at 66:
+// larger, with its features more pronounced, then exaggerated. The stage is a function of
+// level, so a creature grows and shrinks with nothing to store. Art comes from hand-authored
+// stage variants on a part (`part.stages[2|3]`) or, for every part without one, from the
+// procedural pass in creature/evolve.js driven by the growth table below.
+const STAGE_LEVELS = [1, 33, 66];
+const STAGE_NAMES = { 1: 'Stage 1', 2: 'Stage 2', 3: 'Stage 3' };
+const STAGE_MARK = { 1: '', 2: 'II', 3: 'III' };
+/** Whole-creature size multiplier per stage, on top of the part growth. */
+const STAGE_SIZE = { 1: 1, 2: 1.1, 3: 1.22 };
+
+function stageOf(level) {
+  const L = Number(level) || 1;
+  return L >= STAGE_LEVELS[2] ? 3 : L >= STAGE_LEVELS[1] ? 2 : 1;
+}
+function stageName(stage) { return STAGE_NAMES[stage] || STAGE_NAMES[1]; }
+
+/**
+ * Procedural growth per slot family: [sx, sy] scale about the part's attachment point for
+ * stages 2 and 3, and whether the part sprouts spikes (stage 2: same colour, stage 3: accent
+ * "energy" tips) along its far edge.
+ */
+const SLOT_GROWTH = {
+  body:  { 2: [1.06, 1.06], 3: [1.12, 1.13] },
+  head:  { 2: [1.05, 1.06], 3: [1.1, 1.12] },
+  eyes:  { 2: [1.02, 1.02], 3: [1.06, 1.06] },
+  face:  { 2: [1.05, 1.05], 3: [1.1, 1.1] },
+  limb:  { 2: [1.06, 1.08], 3: [1.12, 1.16] },
+  crown: { 2: [1.15, 1.25], 3: [1.35, 1.55], spikes: true },
+  tail:  { 2: [1.25, 1.15], 3: [1.55, 1.35], spikes: true },
+  wing:  { 2: [1.15, 1.15], 3: [1.35, 1.35], spikes: true },
+  fin:   { 2: [1.15, 1.2], 3: [1.35, 1.45], spikes: true },
+  fur:   { 2: [1.12, 1.15], 3: [1.28, 1.35], spikes: true },
+  flat:  { 2: [1, 1], 3: [1, 1] },
+};
+const SLOT_FAMILY = {
+  body: 'body', head: 'head', eyes: 'eyes',
+  muzzle: 'face', mouth: 'face', jaw: 'face', beak: 'face', mandibles: 'face', face: 'face', throat: 'face',
+  legsFront: 'limb', legsBack: 'limb', legsMid: 'limb', legs: 'limb', arms: 'limb',
+  ears: 'crown', horns: 'crown', crest: 'crown', antennae: 'crown', crown: 'crown', gills: 'crown', feelers: 'crown', barbels: 'crown',
+  tail: 'tail', wings: 'wing',
+  dorsal: 'fin', pectoral: 'fin', belly: 'fin', spines: 'fin',
+  mane: 'fur', chest: 'fur', back: 'fur', shell: 'fur', skirt: 'fur',
+  markings: 'flat', pattern: 'flat', scales: 'flat', glow: 'flat',
+};
+function growthFor(slot) { return SLOT_GROWTH[SLOT_FAMILY[slot] || 'face']; }
+
+// ---- src/creature/geom.js ----
+// Geometry helpers shared by the renderer and the evolution pass: path sampling and
+// coordinate transforms over the absolute-command paths the part DSL emits.
+
+/** Sample points along an SVG path (absolute and relative commands; curves are flattened). */
+function pathPoints(d) {
+  const pts = [];
+  const tok = d.match(/[MLHVCSQTAZmlhvcsqtaz]|-?(?:\d+\.?\d*|\.\d+)(?:e-?\d+)?/gi) || [];
+  let i = 0, cmd = 'M', cx = 0, cy = 0, sx = 0, sy = 0, pcx = 0, pcy = 0, prevCurve = '';
+  const rd = () => Number(tok[i++]);
+  const cubic = (x1, y1, x2, y2, x, y) => {
+    for (let k = 1; k <= 8; k++) {
+      const t = k / 8, u = 1 - t;
+      pts.push([u * u * u * cx + 3 * u * u * t * x1 + 3 * u * t * t * x2 + t * t * t * x, u * u * u * cy + 3 * u * u * t * y1 + 3 * u * t * t * y2 + t * t * t * y]);
+    }
+    pcx = x2; pcy = y2; cx = x; cy = y; prevCurve = 'C';
+  };
+  const quad = (x1, y1, x, y) => {
+    for (let k = 1; k <= 6; k++) {
+      const t = k / 6, u = 1 - t;
+      pts.push([u * u * cx + 2 * u * t * x1 + t * t * x, u * u * cy + 2 * u * t * y1 + t * t * y]);
+    }
+    pcx = x1; pcy = y1; cx = x; cy = y; prevCurve = 'Q';
+  };
+  while (i < tok.length) {
+    if (/[a-z]/i.test(tok[i])) cmd = tok[i++];
+    const rel = cmd === cmd.toLowerCase();
+    const ox = rel ? cx : 0, oy = rel ? cy : 0;
+    switch (cmd.toUpperCase()) {
+      case 'M': { const x = rd() + ox, y = rd() + oy; cx = sx = x; cy = sy = y; pts.push([x, y]); cmd = rel ? 'l' : 'L'; prevCurve = ''; break; }
+      case 'L': { const x = rd() + ox, y = rd() + oy; cx = x; cy = y; pts.push([x, y]); prevCurve = ''; break; }
+      case 'H': { cx = rd() + ox; pts.push([cx, cy]); prevCurve = ''; break; }
+      case 'V': { cy = rd() + oy; pts.push([cx, cy]); prevCurve = ''; break; }
+      case 'C': { const x1 = rd() + ox, y1 = rd() + oy, x2 = rd() + ox, y2 = rd() + oy, x = rd() + ox, y = rd() + oy; cubic(x1, y1, x2, y2, x, y); break; }
+      case 'S': { const x2 = rd() + ox, y2 = rd() + oy, x = rd() + ox, y = rd() + oy; const x1 = prevCurve === 'C' ? 2 * cx - pcx : cx, y1 = prevCurve === 'C' ? 2 * cy - pcy : cy; cubic(x1, y1, x2, y2, x, y); break; }
+      case 'Q': { const x1 = rd() + ox, y1 = rd() + oy, x = rd() + ox, y = rd() + oy; quad(x1, y1, x, y); break; }
+      case 'T': { const x = rd() + ox, y = rd() + oy; const x1 = prevCurve === 'Q' ? 2 * cx - pcx : cx, y1 = prevCurve === 'Q' ? 2 * cy - pcy : cy; quad(x1, y1, x, y); break; }
+      case 'A': { const rx = rd(), ry = rd(); rd(); rd(); rd(); const x = rd() + ox, y = rd() + oy; const mx = (cx + x) / 2, my = (cy + y) / 2; pts.push([mx - rx, my - ry], [mx + rx, my + ry], [x, y]); cx = x; cy = y; prevCurve = ''; break; }
+      case 'Z': { cx = sx; cy = sy; prevCurve = ''; break; }
+      default: i++;
+    }
+  }
+  return pts;
+}
+
+
+/**
+ * Map every coordinate pair of an absolute path (M, L, C, Q, S, T, Z as the DSL emits) through fn(x, y).
+ * Returns the new path string.
+ */
+function transformPathD(d, fn) {
+  const tok = d.match(/[MLCQSTZmlcqstz]|-?(?:\d+\.?\d*|\.\d+)(?:e-?\d+)?/gi) || [];
+  let out = '', pending = null;
+  const fmt = (v) => { const r = Math.round(v * 100) / 100; return (Object.is(r, -0) ? 0 : r).toString(); };
+  for (const t of tok) {
+    if (/[a-z]/i.test(t)) { out += t; pending = null; continue; }
+    if (pending == null) { pending = Number(t); continue; }
+    const [x, y] = fn(pending, Number(t));
+    out += (out.endsWith('Z') || /[A-Za-z]$/.test(out) ? '' : ' ') + `${fmt(x)},${fmt(y)}`;
+    pending = null;
+  }
+  return out;
+}
+
+// ---- src/creature/evolve.js ----
+// Evolution art. `evolvedPart(part, stage)` returns the stage-2 or stage-3 version of a part:
+// the hand-authored variant when the part has one (`part.stages`, compiled by the builders from
+// a `stages: { 2: {...}, 3: {...} }` spec), otherwise a procedural pass that grows the part about
+// its attachment point by its slot family's factors and, for protruding families, lengthens its
+// tips with spikes (same colour as the shape they extend; accent "energy" tips at stage 3).
+// Variants are cached; stage 1 returns the part itself.
+
+
+
+const cache = new Map();
+
+function evolvedPart(part, stage) {
+  if (!part || part.none || !(stage > 1)) return part;
+  const key = `${part.id}@${stage}`;
+  if (cache.has(key)) return cache.get(key);
+  const hand = part.stages && part.stages[stage];
+  const out = hand ? handStage(part, hand, stage, key) : proceduralStage(part, stage, key);
+  cache.set(key, out);
+  return out;
+}
+
+/** A hand-authored variant: its compiled art, optionally scaled (`grow`) and tipped with spikes. */
+function handStage(part, hand, stage, key) {
+  const { grow, spikes, ...over } = hand;
+  let out = { ...part, ...over, stage, boundsKey: key, box: undefined };
+  if (grow) out = scaleVariant(out, grow[0], grow[1]);
+  if (spikes) out.prims = withSpikes(out.prims, out.clip, stage);
+  return out;
+}
+
+function proceduralStage(part, stage, key) {
+  const g = growthFor(part.slot);
+  const [sx, sy] = g[stage];
+  const out = scaleVariant({ ...part, stage, boundsKey: key }, sx, sy);
+  if (g.spikes) out.prims = withSpikes(out.prims, out.clip, stage);
+  return out;
+}
+
+function scalePrim(pr, sx, sy) {
+  switch (pr.t) {
+    case 'path': case 'line': return { ...pr, d: transformPathD(pr.d, (x, y) => [x * sx, y * sy]) };
+    case 'ellipse': return { ...pr, cx: pr.cx * sx, cy: pr.cy * sy, rx: pr.rx * sx, ry: pr.ry * sy };
+    case 'circle': return { ...pr, cx: pr.cx * sx, cy: pr.cy * sy, r: pr.r * Math.sqrt(sx * sy) };
+    default: return pr;
+  }
+}
+
+/** Scale a part's art, clip, sockets, ground line and box about its origin. */
+function scaleVariant(v, sx, sy) {
+  const out = { ...v, prims: v.prims.map((pr) => scalePrim(pr, sx, sy)) };
+  if (Array.isArray(v.clip)) out.clip = v.clip.map((d) => transformPathD(d, (x, y) => [x * sx, y * sy]));
+  if (v.sockets) out.sockets = Object.fromEntries(Object.entries(v.sockets).map(([k, s]) => [k, s ? { ...s, x: s.x * sx, y: s.y * sy } : s]));
+  if (typeof v.bottom === 'number') out.bottom = v.bottom * sy;
+  out.box = v.box ? [v.box[0] * sx, v.box[1] * sy, v.box[2] * sx, v.box[3] * sy] : undefined;
+  return out;
+}
+
+/** The silhouette shapes of a part: its clip paths paired with the shape prims that formed them. */
+function silhouettes(prims, clip) {
+  if (!Array.isArray(clip) || !clip.length) return [];
+  return clip.map((d, i) => ({ pts: pathPoints(d), f: prims[i] && prims[i].t !== 'line' && prims[i].f !== 'none' ? prims[i].f : 'p' }));
+}
+
+/** Indices of the outline points that are locally farthest from (cx, cy). */
+function tipIndices(pts, cx, cy) {
+  const n = pts.length;
+  const d = pts.map(([x, y]) => Math.hypot(x - cx, y - cy));
+  const out = [];
+  for (let i = 0; i < n; i++) {
+    let isMax = true;
+    for (let k = 1; k <= 3 && isMax; k++) if (d[(i - k + n) % n] > d[i] || d[(i + k) % n] > d[i]) isMax = false;
+    if (isMax) out.push(i);
+  }
+  return out;
+}
+
+/**
+ * Spikes that lengthen a part's tips: the outline points locally farthest from their shape's
+ * centre, ranked by distance from the attachment point. Drawn *behind* the shapes with their
+ * bases sunk in, so each reads as the shape's own tip growing longer.
+ */
+function withSpikes(prims, clip, stage) {
+  const shapes = silhouettes(prims, clip);
+  if (!shapes.length) return prims;
+  const cands = [];
+  let maxD = 0;
+  for (const { pts, f } of shapes) {
+    if (pts.length < 6) continue;
+    let cx = 0, cy = 0;
+    for (const [x, y] of pts) { cx += x; cy += y; }
+    cx /= pts.length; cy /= pts.length;
+    for (const i of tipIndices(pts, cx, cy)) {
+      const [x, y] = pts[i];
+      const d = Math.hypot(x, y);
+      maxD = Math.max(maxD, d);
+      let dx = x - cx, dy = y - cy;
+      const dl = Math.hypot(dx, dy) || 1;
+      dx /= dl; dy /= dl;
+      cands.push({ x, y, d, f, dx, dy });
+    }
+  }
+  if (!(maxD > 6) || !cands.length) return prims;
+  cands.sort((a, b) => b.d - a.d);
+  const n = stage === 3 ? 5 : 3;
+  const len = Math.min(16, Math.max(5, maxD * (stage === 3 ? 0.2 : 0.12)));
+  const minSep = len * 1.4;
+  const picked = [];
+  for (const c of cands) {
+    if (c.d < maxD * 0.55) break;
+    if (picked.some((p) => Math.hypot(p.x - c.x, p.y - c.y) < minSep)) continue;
+    picked.push(c);
+    if (picked.length >= n) break;
+  }
+  const fmt = (v) => Math.round(v * 100) / 100;
+  const w = len * 0.55;
+  const spikes = [];
+  for (const c of picked) {
+    const bx = c.x - c.dx * len * 0.5, by = c.y - c.dy * len * 0.5;
+    const tx = c.x + c.dx * len, ty = c.y + c.dy * len;
+    const nx = -c.dy * w / 2, ny = c.dx * w / 2;
+    spikes.push({ t: 'path', d: `M${fmt(bx + nx)},${fmt(by + ny)} L${fmt(tx)},${fmt(ty)} L${fmt(bx - nx)},${fmt(by - ny)} Z`, f: c.f, sw: 1.6 });
+    if (stage === 3) {
+      const ax = c.x + c.dx * len * 0.3, ay = c.y + c.dy * len * 0.3, aw = w * 0.45;
+      const anx = -c.dy * aw / 2, any = c.dx * aw / 2;
+      spikes.push({ t: 'path', d: `M${fmt(ax + anx)},${fmt(ay + any)} L${fmt(tx)},${fmt(ty)} L${fmt(ax - anx)},${fmt(ay - any)} Z`, f: 'a', ns: true, op: 0.9 });
+    }
+  }
+  return [...spikes, ...prims];
+}
+
+/** For tests and tools: drop the cache. */
+function clearEvolutionCache() { cache.clear(); }
+
 // ---- src/creature/render.js ----
 // Genome -> SVG string. Pure: no DOM access, so it runs in Node for tests.
 //
@@ -5898,6 +6641,9 @@ function validateGenome(g) {
 // The others compute literal colours per slot and add volume procedurally from
 // the same part data: gradient fills, clipped shadow/highlight rims along the
 // edges, a thick silhouette pass under thin interior lines, and a gloss spot.
+
+
+
 
 
 
@@ -6031,50 +6777,10 @@ function styledColors(g, slot, far, st) {
 
 const boundsCache = new Map();
 
-/** Sample points along an SVG path (absolute and relative commands; curves are flattened). */
-function pathPoints(d) {
-  const pts = [];
-  const tok = d.match(/[MLHVCSQTAZmlhvcsqtaz]|-?(?:\d+\.?\d*|\.\d+)(?:e-?\d+)?/gi) || [];
-  let i = 0, cmd = 'M', cx = 0, cy = 0, sx = 0, sy = 0, pcx = 0, pcy = 0, prevCurve = '';
-  const rd = () => Number(tok[i++]);
-  const cubic = (x1, y1, x2, y2, x, y) => {
-    for (let k = 1; k <= 8; k++) {
-      const t = k / 8, u = 1 - t;
-      pts.push([u * u * u * cx + 3 * u * u * t * x1 + 3 * u * t * t * x2 + t * t * t * x, u * u * u * cy + 3 * u * u * t * y1 + 3 * u * t * t * y2 + t * t * t * y]);
-    }
-    pcx = x2; pcy = y2; cx = x; cy = y; prevCurve = 'C';
-  };
-  const quad = (x1, y1, x, y) => {
-    for (let k = 1; k <= 6; k++) {
-      const t = k / 6, u = 1 - t;
-      pts.push([u * u * cx + 2 * u * t * x1 + t * t * x, u * u * cy + 2 * u * t * y1 + t * t * y]);
-    }
-    pcx = x1; pcy = y1; cx = x; cy = y; prevCurve = 'Q';
-  };
-  while (i < tok.length) {
-    if (/[a-z]/i.test(tok[i])) cmd = tok[i++];
-    const rel = cmd === cmd.toLowerCase();
-    const ox = rel ? cx : 0, oy = rel ? cy : 0;
-    switch (cmd.toUpperCase()) {
-      case 'M': { const x = rd() + ox, y = rd() + oy; cx = sx = x; cy = sy = y; pts.push([x, y]); cmd = rel ? 'l' : 'L'; prevCurve = ''; break; }
-      case 'L': { const x = rd() + ox, y = rd() + oy; cx = x; cy = y; pts.push([x, y]); prevCurve = ''; break; }
-      case 'H': { cx = rd() + ox; pts.push([cx, cy]); prevCurve = ''; break; }
-      case 'V': { cy = rd() + oy; pts.push([cx, cy]); prevCurve = ''; break; }
-      case 'C': { const x1 = rd() + ox, y1 = rd() + oy, x2 = rd() + ox, y2 = rd() + oy, x = rd() + ox, y = rd() + oy; cubic(x1, y1, x2, y2, x, y); break; }
-      case 'S': { const x2 = rd() + ox, y2 = rd() + oy, x = rd() + ox, y = rd() + oy; const x1 = prevCurve === 'C' ? 2 * cx - pcx : cx, y1 = prevCurve === 'C' ? 2 * cy - pcy : cy; cubic(x1, y1, x2, y2, x, y); break; }
-      case 'Q': { const x1 = rd() + ox, y1 = rd() + oy, x = rd() + ox, y = rd() + oy; quad(x1, y1, x, y); break; }
-      case 'T': { const x = rd() + ox, y = rd() + oy; const x1 = prevCurve === 'Q' ? 2 * cx - pcx : cx, y1 = prevCurve === 'Q' ? 2 * cy - pcy : cy; quad(x1, y1, x, y); break; }
-      case 'A': { const rx = rd(), ry = rd(); rd(); rd(); rd(); const x = rd() + ox, y = rd() + oy; const mx = (cx + x) / 2, my = (cy + y) / 2; pts.push([mx - rx, my - ry], [mx + rx, my + ry], [x, y]); cx = x; cy = y; prevCurve = ''; break; }
-      case 'Z': { cx = sx; cy = sy; prevCurve = ''; break; }
-      default: i++;
-    }
-  }
-  return pts;
-}
-
 /** Bounding box [x0,y0,x1,y1] of a part in its own coordinates, with a small margin for the outline. */
 function partBounds(part) {
-  if (boundsCache.has(part.id)) return boundsCache.get(part.id);
+  const key = part.boundsKey || part.id;
+  if (boundsCache.has(key)) return boundsCache.get(key);
   let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
   const add = (x, y) => { if (x < x0) x0 = x; if (x > x1) x1 = x; if (y < y0) y0 = y; if (y > y1) y1 = y; };
   for (const pr of part.prims || []) {
@@ -6084,7 +6790,7 @@ function partBounds(part) {
     else if (pr.t === 'path' || pr.t === 'line') for (const [x, y] of pathPoints(pr.d)) add(x, y);
   }
   const box = x0 === Infinity ? [0, 0, 0, 0] : [x0 - 2, y0 - 2, x1 + 2, y1 + 2];
-  boundsCache.set(part.id, box);
+  boundsCache.set(key, box);
   return box;
 }
 
@@ -6201,13 +6907,15 @@ const FIT_FRAME = { w: 100, h: 60 };
  * Returns { layers, defs, box, feet, hover, K, body, clip } where box is the
  * creature's bounds in creature space (body centre = 0,0).
  */
-function buildRigged(g, id, styleName, rig) {
+function buildRigged(g, id, styleName, rig, stage = 1) {
   const R = renderSetup(g, id, styleName);
   const { st, styled, shared, ctxFor, wrap, farWrap, fxWrap } = R;
-  const P = resolveParts(g);
+  const P = {};
+  for (const [slot, part] of Object.entries(resolveParts(g))) P[slot] = evolvedPart(part, stage);
   const body = P.body;
   const K = traitScales(g.traits);
   K.eye *= st.eye;
+  K.size *= STAGE_SIZE[stage] || 1;
   const hover = body.hover || 0;
   const ground = new Set(rig.ground || ['body']);
   const bodyBox = body.box || partBounds(body);
@@ -6274,8 +6982,8 @@ function buildRigged(g, id, styleName, rig) {
   return { layers: [...outline, ...layers], defs: shared.defs.join(''), box: box || [-40, -40, 40, 40], feet, hover, K, body, clip: body.clip || [], elems: R.elems, wholeAura: R.wholeAura };
 }
 
-function buildCreature(g, id, styleName) {
-  return buildRigged(g, id, styleName, getRig(rigOf(g)));
+function buildCreature(g, id, styleName, stage = 1) {
+  return buildRigged(g, id, styleName, getRig(rigOf(g)), stage);
 }
 
 /** Canvas-space transform that places a built creature on the ground line. */
@@ -6289,8 +6997,8 @@ function placement(built, facing) {
 }
 
 /** Bounding box of a creature in canvas coordinates, shadow included. */
-function measureCreature(g, facing = 'right') {
-  const built = buildCreature(g, 'm', 'classic');
+function measureCreature(g, facing = 'right', stage = 1) {
+  const built = buildCreature(g, 'm', 'classic', stage);
   const chain = placement(built, facing);
   const box = boxThrough(built.box, chain);
   const sc = built.K.size;
@@ -6302,13 +7010,15 @@ function measureCreature(g, facing = 'right') {
  * Render a creature.
  * opts: size (px width), facing ('right' | 'left'), animate (bool), id (svg id prefix),
  *       label (aria), fit (crop the viewBox to the creature instead of the fixed frame),
- *       style (one of RENDER_STYLES; defaults to the global render style)
+ *       style (one of RENDER_STYLES; defaults to the global render style),
+ *       stage (1..3 evolution stage) or level (the stage is derived from it)
  */
 function renderCreatureSvg(g, opts = {}) {
   const { size = 200, facing = 'right', animate = true, fit = false } = opts;
   const styleName = RENDER_STYLES.includes(opts.style) ? opts.style : renderStyle;
   const id = opts.id || uid('cr');
-  const built = buildCreature(g, id, styleName);
+  const stage = opts.stage ? Math.max(1, Math.min(3, Math.round(opts.stage))) : stageOf(opts.level);
+  const built = buildCreature(g, id, styleName, stage);
   const chain = placement(built, facing);
   const sc = built.K.size;
   const shadowRx = 36 * sc * (built.hover ? 0.7 : 1), shadowRy = 7 * sc;
@@ -6362,6 +7072,7 @@ function mannequinGenome(part) {
 
 
 
+
 function typeChip(type) {
   const info = TYPE_INFO[type] || { color: '#999', glyph: '?' };
   return h('span', { class: 'chip', style: { '--chip': info.color } }, h('b', {}, info.glyph), type);
@@ -6384,6 +7095,12 @@ function styleChip(g, style) {
   const id = style || combatStyleOf(g);
   const dt = DAMAGE_TYPES[id];
   return h('span', { class: `chip style-chip style-${id}`, style: { '--chip': dt.color }, title: `${dt.name} style: its best attack stat is ${dt.name}. ${dt.name} beats ${DAMAGE_TYPES[dt.beats].name}.` }, h('b', {}, dt.icon), dt.name);
+}
+
+/** 'II' / 'III' chip for an evolved creature's level, or null before level 33. */
+function stageBadge(level) {
+  const st = stageOf(level);
+  return st > 1 ? h('span', { class: `stage-badge stage-${st}`, title: `${stageName(st)} evolution` }, STAGE_MARK[st]) : null;
 }
 
 function creatureEl(genome, opts) {
@@ -6525,6 +7242,7 @@ function removeFromPool(g) {
 
 
 
+
 const labState = { seed: null, species: 'random', count: 12 };
 
 function seedFromUrl() {
@@ -6631,14 +7349,16 @@ function traitRows(g) {
 let activeSheet = null;
 function closeSheet() { if (activeSheet) { activeSheet(); activeSheet = null; } }
 
-function openSheet(g) {
+function openSheet(g, sheetOpts = {}) {
   closeSheet();
   const sp = speciesOf(g);
   const code = encodeGenome(g);
   let facing = 'right';
   let shown = g; // the sheet can preview the creature as an Elemental without changing it
-  const hero = h('div', { class: 'hero' }, creatureEl(g, { size: 260, facing, fit: true }));
-  const redraw = () => clear(hero).append(creatureEl(shown, { size: 260, facing, fit: true }));
+  let stage = stageOf(sheetOpts.level); // and at any evolution stage
+  const hero = h('div', { class: 'hero' }, creatureEl(g, { size: 260, facing, fit: true, stage }));
+  const redraw = () => clear(hero).append(creatureEl(shown, { size: 260, facing, fit: true, stage }));
+  const stageRow = h('div', { class: 'chips-row stage-row' }, [1, 2, 3].map((st) => h('button', { class: `btn small stage-pick${stage === st ? ' on' : ''}`, type: 'button', title: st === 1 ? 'Below level 33' : st === 2 ? 'Level 33 and up' : 'Level 66 and up', onclick: () => { stage = st; for (const b of stageRow.children) b.classList.toggle('on', Number(b.dataset.stage) === st); redraw(); }, dataset: { stage: String(st) } }, stageName(st))));
   const close = () => { backdrop.remove(); sheet.remove(); document.removeEventListener('keydown', onKey); if (activeSheet === close) activeSheet = null; };
   activeSheet = close;
   const onKey = (e) => { if (e.key === 'Escape') close(); };
@@ -6653,6 +7373,7 @@ function openSheet(g) {
       h('button', { class: 'btn close', onclick: close, 'aria-label': 'Close' }, '✕')),
     h('p', { class: 'meta' }, sp ? `${sp.name} · ${sp.tier}` : 'Fusion', ` · ${cladeName(cladeOf(g))} · gen ${g.gen} · seed ${g.seed}`),
     hero,
+    stageRow,
     h('div', { class: 'row' },
       h('button', { class: 'btn', onclick: () => { facing = facing === 'right' ? 'left' : 'right'; redraw(); } }, 'Flip'),
       h('button', { class: 'btn', onclick: async () => toast((await copyText(code)) ? 'Code copied' : 'Copy failed, select the text below') }, 'Copy code'),
@@ -7922,6 +8643,7 @@ const sfx = {
 
 
 
+
 const wait = (ms) => new Promise((r) => setTimeout(r, ms));
 const hpClass = (frac) => (frac > 0.5 ? 'ok' : frac > 0.2 ? 'warn' : 'low');
 
@@ -7969,7 +8691,7 @@ function renderPanel(f, i) {
   const el = i === 0 ? f.els.mePanel : f.els.foePanel;
   const frac = b.hp / b.maxHp;
   appendChildren(clear(el), [
-    h('div', { class: 'panel-head' }, h('b', {}, b.name), h('span', { class: 'lvl' }, `Lv ${b.level}`), styleChip(null, b.style),
+    h('div', { class: 'panel-head' }, h('b', {}, b.name), h('span', { class: 'lvl' }, `Lv ${b.level}`), stageBadge(b.level), styleChip(null, b.style),
       b.status ? h('span', { class: `status st-${b.status}` }, STATUS_INFO[b.status].short) : null),
     typeChips(b.types),
     h('div', { class: 'hpbar' }, h('i', { class: hpClass(frac), style: { width: `${Math.max(0, frac * 100)}%` } })),
@@ -8014,6 +8736,7 @@ async function animateXp(f, gains) {
     sfx.levelUp();
     if (lvl) lvl.textContent = `Lv ${level}`;
     logLine(f, `${name} grew to Lv ${level}!`);
+    if (STAGE_LEVELS.includes(level)) logLine(f, `${name} evolved! ${stageName(stageOf(level))}: larger, with its features ${stageOf(level) === 3 ? 'exaggerated' : 'more pronounced'}.`);
     bar.style.transition = 'none';
     bar.style.width = '0%';
     await wait(90);
@@ -8026,7 +8749,7 @@ async function animateXp(f, gains) {
 function renderStage(f, i) {
   const b = activeOf(f.state, i);
   const el = i === 0 ? f.els.meStage : f.els.foeStage;
-  clear(el).append(h('div', { class: 'combatant enter' }, creatureEl(b.genome, { size: 200, facing: i === 0 ? 'right' : 'left' })));
+  clear(el).append(h('div', { class: 'combatant enter' }, creatureEl(b.genome, { size: 200, facing: i === 0 ? 'right' : 'left', level: b.level })));
   setTimeout(() => { const c = el.firstChild; if (c) c.classList.remove('enter'); }, 400);
 }
 
@@ -8219,7 +8942,7 @@ function openFightParty(f, forced) {
     const can = legal.some((a) => a.type === 'switch' && a.index === i);
     const frac = b.hp / b.maxHp;
     list.append(h('button', { class: `party-row${i === side.active ? ' active' : ''}${b.fainted ? ' fainted' : ''}`, type: 'button', disabled: !can, onclick: () => { close(); doFightStep(f, { type: 'switch', index: i }); } },
-      creatureEl(b.genome, { size: 64, animate: false }),
+      creatureEl(b.genome, { size: 64, animate: false, level: b.level }),
       h('div', { class: 'party-info' },
         h('div', {}, h('b', {}, b.name), ' ', h('span', { class: 'lvl' }, `Lv ${b.level}`), ' ', b.status ? h('span', { class: `status st-${b.status}` }, STATUS_INFO[b.status].short) : null, i === side.active ? h('span', { class: 'status' }, 'ACTIVE') : null),
         h('div', { class: 'hpbar' }, h('i', { class: hpClass(frac), style: { width: `${frac * 100}%` } })),
@@ -8293,7 +9016,7 @@ function setupView(root) {
     } },
       idx >= 0 ? h('span', { class: 'sel badge a' }, String(idx + 1)) : null,
       g.gen ? h('span', { class: 'gen' }, `gen ${g.gen}`) : null,
-      creatureEl(g, { size: 104, animate: false }),
+      creatureEl(g, { size: 104, animate: false, level: bs.level }),
       h('span', {}, g.name)));
   }
   const start = (auto) => {
@@ -8800,6 +9523,7 @@ function canFight(run) { return run.party.some((m) => m.hp > 0); }
 
 
 
+
 const ar = { save: null, root: null, fight: null, altar: null, starterPick: -1, confirmReset: false, showReport: true };
 
 function save() { if (!persistSave(ar.save)) toast('Could not save (storage blocked?)'); }
@@ -8884,9 +9608,9 @@ function memberRow(run, m, actions) {
   const frac = m.hp / max;
   const xp = xpProgress(m);
   return h('div', { class: `party-row static${m.hp <= 0 ? ' fainted' : ''}` },
-    creatureEl(m.genome, { size: 64, animate: false }),
+    creatureEl(m.genome, { size: 64, animate: false, level: m.level }),
     h('div', { class: 'party-info' },
-      h('div', {}, h('b', {}, m.genome.name), ' ', h('span', { class: 'lvl' }, `Lv ${m.level}`), ' ',
+      h('div', {}, h('b', {}, m.genome.name), ' ', h('span', { class: 'lvl' }, `Lv ${m.level}`), stageBadge(m.level), ' ',
         m.status ? h('span', { class: `status st-${m.status}` }, STATUS_INFO[m.status].short) : null,
         m.hp <= 0 ? h('span', { class: 'status' }, 'FAINTED') : null),
       h('div', { class: 'hpbar' }, h('i', { class: frac > 0.5 ? 'ok' : frac > 0.2 ? 'warn' : 'low', style: { width: `${Math.max(0, frac * 100)}%` } })),
@@ -8919,7 +9643,7 @@ function reportCard(report) {
   if (!report || !report.won) return null;
   const lines = [];
   lines.push(`Beat ${report.foe} on floor ${report.floor}. +${report.xp} XP each.`);
-  for (const l of report.levelUps) lines.push(`${l.name} grew to Lv ${l.to}!`);
+  for (const l of report.levelUps) { lines.push(`${l.name} grew to Lv ${l.to}!`); if (stageOf(l.to) > stageOf(l.from)) lines.push(`${l.name} evolved! ${stageName(stageOf(l.to))}: larger, with its features ${stageOf(l.to) === 3 ? 'exaggerated' : 'more pronounced'}.`); }
   for (const l of report.learned || []) lines.push(`${l.name} learned ${l.move}!`);
   if (report.captured) lines.push(`${report.captured.genome.name} joined ${report.toBox ? 'the box' : 'the party'}.`);
   return h('div', { class: 'result-card slim' }, lines.map((t) => h('div', {}, t)),
@@ -8933,8 +9657,8 @@ function floorView(root, run) {
   const elem = enc.foes.map((f) => elementalOf(f.genome)).find((e) => e && e.pure) || null;
   const kindLabel = elem ? `${elem.name} Elemental!` : { wild: 'Wild encounter', trainer: 'Trainer battle', boss: 'Warden' }[enc.kind];
   const foesRow = h('div', { class: 'foes' }, enc.foes.map((f) => h('div', { class: 'foe-card' },
-    creatureEl(f.genome, { size: enc.foes.length > 2 ? 78 : 120, facing: 'left', animate: enc.foes.length <= 2 }),
-    h('span', {}, `${f.genome.name} · Lv ${f.level}`))));
+    creatureEl(f.genome, { size: enc.foes.length > 2 ? 78 : 120, facing: 'left', animate: enc.foes.length <= 2, level: f.level }),
+    h('span', {}, `${f.genome.name} · Lv ${f.level}`, stageBadge(f.level)))));
   appendChildren(root, [
     h('div', { class: 'floor-head' },
       h('div', {}, h('h2', { class: 'screen-title' }, `Floor ${run.floor} · ${biomeFor(run.floor).name}`), h('span', { class: 'hint' }, `wild level ${L} · ${run.stats.captures} caught · ${run.stats.fusions} fused`)),
@@ -9002,7 +9726,7 @@ function altarView(root, run) {
       if (off) { toast(canFuseMembers(run, anchorUid, m.uid).reason); return; }
       if (pick.a === m.uid) pick.a = null; else if (pick.b === m.uid) pick.b = null; else if (!pick.a) pick.a = m.uid; else if (!pick.b) pick.b = m.uid; else pick.b = m.uid;
       rerender();
-    } }, tag ? h('span', { class: `sel badge ${tag.toLowerCase()}` }, tag) : null, h('span', { class: 'gen' }, cladeName(cladeOf(m.genome))), creatureEl(m.genome, { size: 104, animate: false }), h('span', {}, `${m.genome.name} · Lv ${m.level}`)));
+    } }, tag ? h('span', { class: `sel badge ${tag.toLowerCase()}` }, tag) : null, h('span', { class: 'gen' }, cladeName(cladeOf(m.genome))), creatureEl(m.genome, { size: 104, animate: false, level: m.level }), h('span', {}, `${m.genome.name} · Lv ${m.level}`)));
   }
   const child = pick.a && pick.b ? previewFusion(run, pick.a, pick.b) : null;
   appendChildren(root, [
@@ -9030,7 +9754,7 @@ function altarView(root, run) {
 function gameOverView(root, run) {
   const rerender = () => renderArenaScreen(root);
   const fallen = h('div', { class: 'pool' });
-  for (const m of [...run.party, ...run.box]) fallen.append(h('button', { class: 'pcard', type: 'button', onclick: () => openSheet(m.genome) }, creatureEl(m.genome, { size: 104, animate: false }), h('span', {}, `${m.genome.name} · Lv ${m.level}`)));
+  for (const m of [...run.party, ...run.box]) fallen.append(h('button', { class: 'pcard', type: 'button', onclick: () => openSheet(m.genome, { level: m.level }) }, creatureEl(m.genome, { size: 104, animate: false, level: m.level }), h('span', {}, `${m.genome.name} · Lv ${m.level}`)));
   root.append(
     h('div', { class: 'hero-card' },
       h('h2', {}, `Run over on floor ${run.floor}`),

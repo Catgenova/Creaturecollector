@@ -6,9 +6,51 @@ import { P, SH, HL, PATCH, spline } from './_dsl.js';
 const shapeToPath = (s) => (typeof s === 'string' ? s : Array.isArray(s) ? spline(s) : s.d || spline(s.pts));
 const shapeRole = (s) => (s && !Array.isArray(s) && typeof s === 'object' && s.f) || 'p';
 
+/**
+ * Compile a spec's `stages: { 2: over, 3: over }` into hand-authored stage art on the part.
+ * Each override is applied on top of the spec (stage 3 on top of stage 2's result unless it
+ * says `reset: true`) and may replace any spec key (`shapes`, `extra`, `sockets`, `bottom`,
+ * `hover`...) or use the deltas:
+ *   addShapes  extra silhouette shapes drawn on top of (and clipping with) the originals
+ *   addBehind  extra silhouette shapes drawn behind the originals
+ *   add        extra detail prims appended to `extra`
+ *   grow       [sx, sy] applied to the compiled art about the origin (compounds across stages)
+ *   spikes     also run the procedural tip-spike pass on the result
+ */
+function withStages(make, spec, part) {
+  if (!spec.stages) return part;
+  part.stages = {};
+  const base = () => ({ ...spec, stages: undefined });
+  let cur = base(), grow = null, spikes = false;
+  for (const stage of [2, 3]) {
+    const over = spec.stages[stage];
+    if (!over) continue;
+    const { add, addShapes, addBehind, grow: g, spikes: sp, reset, ...rest } = over;
+    if (reset) { cur = base(); grow = null; spikes = false; }
+    const next = { ...cur, ...rest };
+    if (addShapes || addBehind) {
+      const shapes = next.shapes || (next.pts ? [next.pts] : []);
+      next.shapes = [...(addBehind || []), ...shapes, ...(addShapes || [])];
+      delete next.pts;
+    }
+    if (add) next.extra = [...(next.extra || []), ...add];
+    cur = next;
+    if (g) grow = grow ? [grow[0] * g[0], grow[1] * g[1]] : [g[0], g[1]];
+    if (sp) spikes = true;
+    const v = make(cur);
+    const out = { prims: v.prims, clip: v.clip, sockets: v.sockets };
+    if (v.bottom != null) out.bottom = v.bottom;
+    if (v.hover != null) out.hover = v.hover;
+    if (grow) out.grow = grow;
+    if (spikes) out.spikes = true;
+    part.stages[stage] = out;
+  }
+  return part;
+}
+
 export function partBuilders(prefix) {
   /** A torso: silhouette shapes (point lists, paths or {pts|d, f}), clip and box derived, shading layered on. */
-  const body = ({ id, name, kind, pts, shapes, sockets, dom = 0.5, w = 2, tags = [], shade = [], extra = [], hover, bottom }) => {
+  const makeBody = ({ id, name, kind, pts, shapes, sockets, dom = 0.5, w = 2, tags = [], shade = [], extra = [], hover, bottom }) => {
     const list = shapes || [pts];
     const clip = list.map(shapeToPath);
     const prims = [...list.map((s, i) => P(clip[i], shapeRole(s))), ...shade, ...extra];
@@ -17,17 +59,19 @@ export function partBuilders(prefix) {
     if (bottom != null) part.bottom = bottom;
     return part;
   };
+  const body = (spec) => withStages(makeBody, spec, makeBody(spec));
 
   /** A leg: clip = union of its shapes so socks and shading stay inside the silhouette. */
-  const leg = ({ id, slot, name, shapes, extra = [], dom = 0.5, w = 2, tags = [], fit }) => {
+  const makeLeg = ({ id, slot, name, shapes, extra = [], dom = 0.5, w = 2, tags = [], fit }) => {
     const clip = shapes.map(shapeToPath);
     const part = { id: `${prefix}${slot}.${id}`, slot, name, tags, dom, w, clip, prims: [...shapes.map((s, i) => P(clip[i], shapeRole(s))), ...extra] };
     if (fit) part.fit = fit;
     return part;
   };
+  const leg = (spec) => withStages(makeLeg, spec, makeLeg(spec));
 
   /** Generic part: silhouette shapes first (they form the clip), then details. */
-  const part = ({ id, slot, name, shapes = [], extra = [], dom = 0.5, w = 2, tags = [], sockets, fit, fitBox, hover }) => {
+  const makePart = ({ id, slot, name, shapes = [], extra = [], dom = 0.5, w = 2, tags = [], sockets, fit, fitBox, hover }) => {
     const clip = shapes.map(shapeToPath);
     const out = { id: `${prefix}${slot}.${id}`, slot, name, tags, dom, w, prims: [...shapes.map((s, i) => P(clip[i], shapeRole(s))), ...extra] };
     if (clip.length) out.clip = clip;
@@ -37,6 +81,7 @@ export function partBuilders(prefix) {
     if (hover) out.hover = hover;
     return out;
   };
+  const part = (spec) => withStages(makePart, spec, makePart(spec));
 
   return { body, leg, part };
 }

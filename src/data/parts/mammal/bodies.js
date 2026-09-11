@@ -4,8 +4,11 @@
 //   hip / hipFar             hind leg joints
 //   tail {x,y,a}  mane {x,y,a,s}  back {x,y,a}  horns are on the head
 // kind: 'mammal.quad' (four on the floor) or 'mammal.biped' (upright, forelegs hang as arms)
+// Evolutions: stage 2 broadens the torso and fans chest tufts out of the front (a shaggy hem on
+// the upright kinds); stage 3 adds rump tufts (a fuller hem) so the silhouette reads heavier.
 import { mBody, torsoShade } from './_shared.js';
 import { fur } from '../_dsl.js';
+import { evoFan } from '../_evo.js';
 
 export const M_BODIES = [
   mBody({
@@ -17,6 +20,10 @@ export const M_BODIES = [
       shoulder: { x: 26, y: 8 }, shoulderFar: { x: 14, y: 4 },
       hip: { x: -28, y: 6 }, hipFar: { x: -38, y: 2 },
       tail: { x: -44, y: -6, a: 0 }, mane: { x: 34, y: -16, a: 0, s: 1 }, back: { x: -8, y: -28, a: 0 },
+    },
+    stages: {
+      2: { grow: [1.06, 1.06], addBehind: [evoFan(34, -6, -50, 50, 3, 8, 24)] },
+      3: { grow: [1.06, 1.07], addBehind: [evoFan(-34, -14, 170, 260, 3, 8, 26)] },
     },
   }),
 
@@ -30,6 +37,10 @@ export const M_BODIES = [
       hip: { x: -26, y: 6 }, hipFar: { x: -36, y: 2 },
       tail: { x: -40, y: -4, a: 0 }, mane: { x: 32, y: -16, a: 0, s: 1 }, back: { x: -8, y: -29, a: 0 },
     },
+    stages: {
+      2: { grow: [1.06, 1.06], addBehind: [evoFan(32, -6, -50, 50, 3, 8, 22)] },
+      3: { grow: [1.06, 1.07], addBehind: [evoFan(-30, -12, 170, 260, 3, 8, 24)] },
+    },
   }),
   mBody({
     id: 'bear', name: 'Stocky', kind: 'mammal.biped', tags: ['bear', 'upright'], dom: 0.55, w: 2,
@@ -41,6 +52,10 @@ export const M_BODIES = [
       hip: { x: 8, y: 18 }, hipFar: { x: -14, y: 14 },
       tail: { x: -30, y: 14, a: 25 }, mane: { x: 10, y: -30, a: 0, s: 1 }, back: { x: -20, y: -34, a: -15 },
     },
+    stages: {
+      2: { grow: [1.06, 1.06], addBehind: [evoFan(0, 26, 30, 150, 4, 8, 22, { tip: 0.3 })] },
+      3: { grow: [1.06, 1.07], addBehind: [evoFan(0, 26, 20, 160, 6, 10, 28, { tip: 0.3 })] },
+    },
   }),
   mBody({
     id: 'rabbit', name: 'Crouched', tags: ['rabbit', 'compact'], dom: 0.5, w: 2,
@@ -50,7 +65,12 @@ export const M_BODIES = [
       head: { x: 24, y: -18, a: 0, s: 1 },
       shoulder: { x: 18, y: 8 }, shoulderFar: { x: 8, y: 4 },
       hip: { x: -24, y: 4 }, hipFar: { x: -34, y: 0 },
-      tail: { x: -38, y: -10, a: -20 }, mane: { x: 26, y: -12, a: 0, s: 1 }, back: { x: -14, y: -30, a: 0 },
+      tail: { x: -38, y: -10, a: -20 }, mane: { x: 26, y: -12, a: 0, s: 1 },
+      back: { x: -14, y: -30, a: 0 },
+    },
+    stages: {
+      2: { grow: [1.06, 1.06], addBehind: [evoFan(28, -6, -50, 50, 3, 8, 20, { tip: 0.4 })] },
+      3: { grow: [1.06, 1.07], addBehind: [evoFan(-30, -14, 170, 260, 3, 8, 22, { tip: 0.4 })] },
     },
   }),
 
@@ -64,6 +84,10 @@ export const M_BODIES = [
       hip: { x: -24, y: 2 }, hipFar: { x: -34, y: -2 },
       tail: { x: -40, y: -12, a: -30 }, mane: { x: 40, y: -42, a: -10, s: 0.9 }, back: { x: -6, y: -27, a: 0 },
     },
+    stages: {
+      2: { grow: [1.06, 1.06], addBehind: [evoFan(34, -6, -60, 40, 3, 8, 22)] },
+      3: { grow: [1.06, 1.07], addBehind: [evoFan(-32, -12, 170, 260, 3, 8, 24)] },
+    },
   }),
   mBody({
     id: 'wolf', name: 'Rugged', tags: ['wolf', 'muscular'], dom: 0.55, w: 2,
@@ -75,6 +99,10 @@ export const M_BODIES = [
       hip: { x: -30, y: 6 }, hipFar: { x: -40, y: 2 },
       tail: { x: -46, y: -8, a: 0 }, mane: { x: 36, y: -20, a: 0, s: 1 }, back: { x: -8, y: -32, a: 0 },
     },
+    stages: {
+      2: { grow: [1.06, 1.06], addBehind: [evoFan(38, -6, -50, 50, 4, 8, 26)] },
+      3: { grow: [1.06, 1.07], addBehind: [evoFan(-38, -14, 170, 260, 4, 8, 28)] },
+    },
   }),
   mBody({
     id: 'mouse', name: 'Round', kind: 'mammal.biped', tags: ['mouse', 'small', 'upright'], dom: 0.45, w: 3,
@@ -85,6 +113,10 @@ export const M_BODIES = [
       shoulder: { x: 12, y: -6 }, shoulderFar: { x: -6, y: -10 },
       hip: { x: 6, y: 16 }, hipFar: { x: -12, y: 12 },
       tail: { x: -24, y: 14, a: 30 }, mane: { x: 8, y: -18, a: 0, s: 0.8 }, back: { x: -14, y: -26, a: -15 },
+    },
+    stages: {
+      2: { grow: [1.06, 1.06], addBehind: [evoFan(0, 20, 30, 150, 3, 6, 16, { tip: 0.4 })] },
+      3: { grow: [1.06, 1.07], addBehind: [evoFan(0, 20, 20, 160, 5, 8, 22, { tip: 0.4 })] },
     },
   }),
 ];

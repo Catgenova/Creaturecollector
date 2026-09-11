@@ -1,5 +1,7 @@
 // Mammal back features: wings, ridges and fur along the spine. Origin = the body's back socket,
 // on the spine; features grow up (-y) and sweep back (-x). Drawn behind the torso.
+// Evolutions: stage 2 grows the feature and adds tips, claws or an extra crystal; stage 3
+// layers a bigger silhouette behind it (a second wing membrane, a taller ridge, an outer flame).
 import { mPart } from './_shared.js';
 import { NONE, P, S, L, SH, HL, fur } from '../_dsl.js';
 
@@ -13,6 +15,14 @@ export const M_BACKS = [
       SH('M-60,-14 C-40,-6 -20,0 4,4 L4,12 L-60,12 Z', 0.16),
       S([[-4, -22], [-22, -36], [-40, -38], [-36, -30], [-20, -26], [-8, -16]], 's', { ns: true, cl: true, op: 0.7 }),
     ],
+    stages: {
+      2: { grow: [1.15, 1.15], addShapes: [{ pts: [[-8, -24], [-14, -42, 'c'], [-4, -30]], f: 'a' }], add: [P('M-8,-10 C-22,-6 -34,-2 -46,2', 'none', { sw: 1.6 })] },
+      3: {
+        grow: [1.15, 1.15],
+        addBehind: [{ pts: [[2, 0], [-10, -30], [-36, -54], [-74, -52, 0.3], [-60, -34], [-78, -22, 0.3], [-58, -12], [-68, 4, 0.3], [-42, 6], [-14, 10]], f: 'pd' }],
+        add: [P('M-58,-42 L-64,-54 L-54,-46 Z', 'a', { sw: 1.2 }), P('M-60,-18 L-70,-24 L-60,-27 Z', 'a', { sw: 1.2 })],
+      },
+    },
   }),
   mPart({
     id: 'wings', slot: 'back', name: 'Feathered', tags: ['bird', 'wings'], dom: 0.55, w: 1,
@@ -22,21 +32,41 @@ export const M_BACKS = [
       S([[-2, -22], [-20, -34], [-44, -36], [-40, -28], [-20, -26], [-6, -14]], 's', { ns: true, cl: true, op: 0.6 }),
       SH('M-62,-8 C-40,-2 -20,2 4,4 L4,12 L-62,12 Z', 0.14),
     ],
+    stages: {
+      2: { grow: [1.12, 1.12], addShapes: [[[-46, -38], [-64, -46], [-74, -38, 0.3], [-58, -32]], [[-52, -22], [-70, -24], [-74, -14, 0.3], [-56, -12]]] },
+      3: {
+        grow: [1.12, 1.12],
+        addBehind: [{ pts: [[2, -4], [-8, -28], [-30, -46], [-60, -50], [-82, -38, 0.3], [-60, -30], [-80, -18, 0.3], [-54, -14], [-66, 0, 0.3], [-36, 2], [-12, 6]], f: 'pd' }],
+        add: [L('M-20,-30 C-40,-34 -56,-36 -72,-36 M-18,-20 C-38,-20 -54,-20 -68,-20', 'a', 1.6, { ns: true, op: 0.6 })],
+      },
+    },
   }),
   mPart({
     id: 'ridge', slot: 'back', name: 'Ridge fur', tags: ['fur'], dom: 0.45, w: 2,
     shapes: [[[26, 6], ...fur([26, 6], [-30, 6], 5, -10, { lean: 0.4 }), [-34, 10], [26, 10]]],
     extra: [SH('M-36,4 L28,4 L28,14 L-36,14 Z', 0.14)],
+    stages: {
+      2: { grow: [1.05, 1.35], add: [L('M8,-4 L10,-12 M-6,-4 L-4,-12 M20,-4 L22,-10', 'a', 2, { ns: true, op: 0.8 })] },
+      3: { grow: [1.05, 1.25], addBehind: [{ pts: [[30, 8], ...fur([30, 8], [-34, 8], 6, -18, { lean: 0.4, tip: 'c' }), [-38, 12], [30, 12]], f: 'pd' }] },
+    },
   }),
   mPart({
     id: 'quills', slot: 'back', name: 'Quills', tags: ['spiky'], dom: 0.5, w: 2,
     shapes: [[[28, 6], ...fur([28, 6], [-32, 6], 7, -16, { lean: 0.45, tip: 'c', wobble: 0.25 }), [-36, 10], [28, 10]]],
     extra: [S([[8, 4], [14, -6], [2, -10], [-6, 2]], 's', { ns: true, cl: true, op: 0.5 }), SH('M-38,4 L30,4 L30,14 L-38,14 Z', 0.14)],
+    stages: {
+      2: { grow: [1.05, 1.3], add: [L('M10,-8 L12,-16 M-4,-8 L-2,-16 M-18,-8 L-16,-14 M22,-6 L24,-12', 'a', 2, { ns: true, op: 0.85 })] },
+      3: { grow: [1.05, 1.25], addBehind: [{ pts: [[32, 8], ...fur([32, 8], [-36, 8], 8, -24, { lean: 0.45, tip: 'c', wobble: 0.25 }), [-40, 12], [32, 12]], f: 'pd' }], spikes: true },
+    },
   }),
   mPart({
     id: 'saddle', slot: 'back', name: 'Saddle mane', tags: ['fur', 'mane'], dom: 0.45, w: 2,
     shapes: [[[24, 6], [18, -8], [6, -16], ...fur([-2, -18], [-34, -6], 4, 8, { lean: 0.4 }), [-40, 6], [-42, 12], [24, 12]]],
     extra: [SH('M-44,4 L26,4 L26,16 L-44,16 Z', 0.14), HL('M14,-6 C6,-12 -6,-14 -16,-10 L-14,-6 C-6,-8 4,-6 12,-2 Z', 0.16)],
+    stages: {
+      2: { grow: [1.08, 1.3], add: [L('M0,-12 L2,-22 M-12,-10 L-10,-20 M-24,-4 L-22,-12', 'a', 2, { ns: true, op: 0.8 })] },
+      3: { grow: [1.05, 1.2], addBehind: [{ pts: [[26, 8], [20, -10], [8, -22], ...fur([0, -26], [-40, -8], 5, 12, { lean: 0.4 }), [-46, 8], [-48, 14], [26, 14]], f: 'pd' }] },
+    },
   }),
   mPart({
     id: 'flame', slot: 'back', name: 'Flame crest', tags: ['fire'], dom: 0.5, w: 1,
@@ -45,6 +75,10 @@ export const M_BACKS = [
       S([[8, 4], [10, -8], [2, -18], [-4, -30, 0.2], [-8, -16], [-14, -8], [-12, 4]], 's', { ns: true, cl: true }),
       HL('M0,-4 C4,-10 6,-16 4,-22 L0,-22 C0,-16 -2,-10 -6,-4 Z', 0.3),
     ],
+    stages: {
+      2: { grow: [1.1, 1.25], add: [S([[4, 0], [6, -10], [0, -20], [-4, -30, 0.2], [-8, -16], [-10, -6], [-8, 2]], 'a', { ns: true, cl: true, op: 0.8 })] },
+      3: { grow: [1.1, 1.2], addBehind: [{ pts: [[18, 6], [22, -10], [12, -26], [20, -48, 0.2], [4, -36], [-2, -60, 0.2], [-12, -36], [-26, -48, 0.2], [-20, -22], [-36, -18, 0.2], [-20, -4], [-28, 6]], f: 'a' }] },
+    },
   }),
   mPart({
     id: 'crystals', slot: 'back', name: 'Crystals', tags: ['ice', 'rock'], dom: 0.5, w: 1,
@@ -55,5 +89,14 @@ export const M_BACKS = [
       HL('M-6,-10 L2,-32 L4,-30 L-2,-8 Z', 0.35), HL('M14,-8 L22,-18 L24,-16 L18,-6 Z', 0.3),
       L('M-24,8 L-22,-6 M-4,8 L0,-12 M14,8 L18,-4', 'k', 1.2, { op: 0.3 }),
     ],
+    stages: {
+      2: { grow: [1.1, 1.22], add: [P('M-38,8 L-42,-4 L-34,-16 L-28,-4 L-30,8 Z', 'pd'), P('M-34,-2 L-33,-10 L-32,-9 L-33,-1 Z', 'w', { ns: true, op: 0.35 })] },
+      3: {
+        grow: [1.08, 1.12],
+        add: [
+          P('M30,8 L30,-4 L38,-16 L44,-4 L42,8 Z', 'pl'), P('M-16,8 L-22,-4 L-16,-22 L-8,-6 L-8,8 Z', 'pd'), P('M-14,-4 L-16,-16 L-14,-14 L-12,-4 Z', 'w', { ns: true, op: 0.35 }),
+        ],
+      },
+    },
   }),
 ];

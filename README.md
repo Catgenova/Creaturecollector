@@ -53,6 +53,12 @@ Every part it has carries an animated element filter and it knows the element's
 core ability; parts keep their element when passed down in fusion, and the
 ability follows by chance.
 
+Evolutions: every species evolves at level 33 and again at 66, growing larger
+with its features more pronounced, then exaggerated. Nothing is stored; the
+level decides, and the Lab sheet previews any creature at any stage. Hand-drawn
+stage art lands class by class (mammals so far); every other part grows and
+sharpens procedurally in the meantime.
+
 ## Develop
 
 ```

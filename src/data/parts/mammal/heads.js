@@ -2,9 +2,12 @@
 // Heads are drawn in three-quarter view: a big cranium, both eyes visible (the far one smaller),
 // a short muzzle projecting to the right with the nose at its tip.
 // Sockets: ear / earFar {x,y,a,s}, eye / eyeFar {x,y,s}, muzzle {x,y,a,s} at the nose tip, horns {x,y,a,s} on the crown.
+// Evolutions: stage 2 grows the skull, fans cheek tufts out behind the jaw and enlarges the
+// brow sigil; stage 3 adds a crown of tufts, a glow behind the sigil and accent brow streaks.
 import { mPart } from './_shared.js';
 import { fur, PATCH, SH, HL, L, C, E } from '../_dsl.js';
 import { flamePath, crescentPath, diamondPath, starPath, sparklePath, boltPath } from '../_sigils.js';
+import { evoFan, evoGlow } from '../_evo.js';
 
 export const M_HEADS = [
   mPart({
@@ -26,6 +29,10 @@ export const M_HEADS = [
       eye: { x: 18, y: -27, s: 1 }, eyeFar: { x: 1, y: -29, s: 0.8 },
       muzzle: { x: 38, y: -16, a: 0, s: 1 }, horns: { x: 8, y: -45, a: 0, s: 1 },
     },
+    stages: {
+      2: { grow: [1.05, 1.06], addBehind: [evoFan(-14, -10, 130, 230, 3, 8, 26)], add: [PATCH(flamePath(9, -36, 8.5), 'a')] },
+      3: { grow: [1.05, 1.06], addBehind: [evoFan(6, -40, 200, 340, 4, 6, 24)], add: [evoGlow(9, -36, 12, 0.25), L('M-6,-33 L-11,-39 M20,-34 L25,-40', 'a', 2.2, { ns: true })] },
+    },
   }),
 
   mPart({
@@ -42,6 +49,10 @@ export const M_HEADS = [
       eye: { x: 15, y: -26, s: 1 }, eyeFar: { x: -4, y: -27, s: 0.85 },
       muzzle: { x: 26, y: -16, a: 0, s: 1 }, horns: { x: 6, y: -45, a: 0, s: 1 },
     },
+    stages: {
+      2: { grow: [1.05, 1.06], addBehind: [evoFan(-16, -8, 130, 230, 3, 8, 24)], add: [PATCH(crescentPath(6, -36, 6.5, -60), 'a')] },
+      3: { grow: [1.05, 1.06], addBehind: [evoFan(4, -40, 200, 340, 3, 6, 22)], add: [evoGlow(6, -36, 11, 0.25), L('M-8,-32 L-13,-38 M18,-33 L23,-39', 'a', 2.2, { ns: true })] },
+    },
   }),
   mPart({
     id: 'bear', slot: 'head', name: 'Ursine', tags: ['bear'], dom: 0.55, w: 2,
@@ -56,6 +67,10 @@ export const M_HEADS = [
       ear: { x: 17, y: -40, a: 12, s: 1 }, earFar: { x: -7, y: -41, a: -12, s: 0.95 },
       eye: { x: 12, y: -26, s: 0.95 }, eyeFar: { x: -6, y: -27, s: 0.82 },
       muzzle: { x: 31, y: -12, a: 0, s: 1 }, horns: { x: 4, y: -44, a: 0, s: 1 },
+    },
+    stages: {
+      2: { grow: [1.05, 1.06], addBehind: [evoFan(-18, -12, 140, 230, 3, 8, 24, { tip: 0.3 })], add: [PATCH(diamondPath(5, -35, 9, 13), 'a')] },
+      3: { grow: [1.05, 1.06], addBehind: [evoFan(2, -44, 210, 330, 3, 6, 22, { tip: 0.3 })], add: [evoGlow(5, -35, 12, 0.25), L('M-8,-30 L-13,-36 M16,-31 L21,-37', 'a', 2.2, { ns: true })] },
     },
   }),
   mPart({
@@ -72,6 +87,10 @@ export const M_HEADS = [
       ear: { x: 14, y: -40, a: 6, s: 1 }, earFar: { x: -4, y: -42, a: -8, s: 0.95 },
       eye: { x: 13, y: -25, s: 1 }, eyeFar: { x: -5, y: -26, s: 0.85 },
       muzzle: { x: 29, y: -14, a: 0, s: 1 }, horns: { x: 4, y: -44, a: 0, s: 1 },
+    },
+    stages: {
+      2: { grow: [1.05, 1.06], addBehind: [evoFan(-18, -12, 140, 230, 2, 8, 22, { tip: 0.4 })], add: [PATCH(starPath(5, -35, 6.5, 5, 0.5), 'a')] },
+      3: { grow: [1.05, 1.06], addBehind: [evoFan(4, -40, 220, 320, 3, 6, 20, { tip: 0.4 })], add: [evoGlow(5, -35, 11, 0.25), L('M-6,-31 L-11,-37 M16,-31 L21,-37', 'a', 2.2, { ns: true })] },
     },
   }),
 
@@ -90,6 +109,10 @@ export const M_HEADS = [
       eye: { x: 14, y: -24, s: 1 }, eyeFar: { x: -4, y: -26, s: 0.85 },
       muzzle: { x: 36, y: -8, a: 0, s: 1 }, horns: { x: 6, y: -42, a: 0, s: 1 },
     },
+    stages: {
+      2: { grow: [1.05, 1.06], addBehind: [evoFan(-14, -10, 140, 230, 3, 8, 24)], add: [PATCH(sparklePath(6, -33, 8), 'a')] },
+      3: { grow: [1.05, 1.06], addBehind: [evoFan(4, -38, 210, 330, 3, 6, 20)], add: [evoGlow(6, -33, 11, 0.25), L('M-4,-30 L-9,-36 M16,-30 L21,-36', 'a', 2.2, { ns: true })] },
+    },
   }),
   mPart({
     id: 'wolf', slot: 'head', name: 'Lupine', tags: ['wolf'], dom: 0.55, w: 2,
@@ -107,6 +130,10 @@ export const M_HEADS = [
       eye: { x: 16, y: -29, s: 1 }, eyeFar: { x: -2, y: -31, s: 0.8 },
       muzzle: { x: 45, y: -12, a: 0, s: 1 }, horns: { x: 6, y: -46, a: 0, s: 1 },
     },
+    stages: {
+      2: { grow: [1.05, 1.06], addBehind: [evoFan(-16, -10, 130, 230, 4, 8, 28)], add: [PATCH(boltPath(8, -37, 7, 8), 'a')] },
+      3: { grow: [1.05, 1.06], addBehind: [evoFan(4, -42, 200, 340, 4, 6, 24)], add: [evoGlow(8, -37, 12, 0.25), L('M-6,-34 L-11,-40 M20,-35 L25,-41', 'a', 2.2, { ns: true })] },
+    },
   }),
   mPart({
     id: 'mouse', slot: 'head', name: 'Murine', tags: ['mouse'], dom: 0.45, w: 3,
@@ -121,6 +148,10 @@ export const M_HEADS = [
       ear: { x: 16, y: -36, a: 20, s: 1 }, earFar: { x: -7, y: -38, a: -16, s: 0.95 },
       eye: { x: 14, y: -24, s: 1 }, eyeFar: { x: -4, y: -26, s: 0.85 },
       muzzle: { x: 34, y: -15, a: 0, s: 1 }, horns: { x: 4, y: -42, a: 0, s: 1 },
+    },
+    stages: {
+      2: { grow: [1.05, 1.06], addBehind: [evoFan(-18, -12, 140, 230, 2, 8, 20, { tip: 0.5 })], add: [C(23, -11, 6, 'a', { ns: true, cl: true, op: 0.8 }), C(-13, -13, 4.6, 'a', { ns: true, cl: true, op: 0.6 })] },
+      3: { grow: [1.05, 1.06], addBehind: [evoFan(2, -38, 220, 320, 3, 6, 18, { tip: 0.5 })], add: [PATCH(sparklePath(4, -33, 6), 'a'), L('M-6,-30 L-11,-36 M14,-30 L19,-36', 'a', 2.2, { ns: true })] },
     },
   }),
 ];

@@ -17,6 +17,9 @@ import { paletteVars, slotPaintVars, FAR_VARS } from './palette.js';
 import { resolveParts, PAINT_PERMS, typeLabel, rigOf } from './genome.js';
 import { getRig } from '../data/rigs.js';
 import { ELEMENTS, elementFilterSvg } from '../data/elements.js';
+import { pathPoints } from './geom.js';
+import { evolvedPart } from './evolve.js';
+import { stageOf, STAGE_SIZE } from '../data/evolution.js';
 
 export const FRAME = { w: 200, h: 230, ground: 208 };
 const FAR_DEFAULT = { dx: -6, dy: -4 };
@@ -145,50 +148,10 @@ function styledColors(g, slot, far, st) {
 
 const boundsCache = new Map();
 
-/** Sample points along an SVG path (absolute and relative commands; curves are flattened). */
-export function pathPoints(d) {
-  const pts = [];
-  const tok = d.match(/[MLHVCSQTAZmlhvcsqtaz]|-?(?:\d+\.?\d*|\.\d+)(?:e-?\d+)?/gi) || [];
-  let i = 0, cmd = 'M', cx = 0, cy = 0, sx = 0, sy = 0, pcx = 0, pcy = 0, prevCurve = '';
-  const rd = () => Number(tok[i++]);
-  const cubic = (x1, y1, x2, y2, x, y) => {
-    for (let k = 1; k <= 8; k++) {
-      const t = k / 8, u = 1 - t;
-      pts.push([u * u * u * cx + 3 * u * u * t * x1 + 3 * u * t * t * x2 + t * t * t * x, u * u * u * cy + 3 * u * u * t * y1 + 3 * u * t * t * y2 + t * t * t * y]);
-    }
-    pcx = x2; pcy = y2; cx = x; cy = y; prevCurve = 'C';
-  };
-  const quad = (x1, y1, x, y) => {
-    for (let k = 1; k <= 6; k++) {
-      const t = k / 6, u = 1 - t;
-      pts.push([u * u * cx + 2 * u * t * x1 + t * t * x, u * u * cy + 2 * u * t * y1 + t * t * y]);
-    }
-    pcx = x1; pcy = y1; cx = x; cy = y; prevCurve = 'Q';
-  };
-  while (i < tok.length) {
-    if (/[a-z]/i.test(tok[i])) cmd = tok[i++];
-    const rel = cmd === cmd.toLowerCase();
-    const ox = rel ? cx : 0, oy = rel ? cy : 0;
-    switch (cmd.toUpperCase()) {
-      case 'M': { const x = rd() + ox, y = rd() + oy; cx = sx = x; cy = sy = y; pts.push([x, y]); cmd = rel ? 'l' : 'L'; prevCurve = ''; break; }
-      case 'L': { const x = rd() + ox, y = rd() + oy; cx = x; cy = y; pts.push([x, y]); prevCurve = ''; break; }
-      case 'H': { cx = rd() + ox; pts.push([cx, cy]); prevCurve = ''; break; }
-      case 'V': { cy = rd() + oy; pts.push([cx, cy]); prevCurve = ''; break; }
-      case 'C': { const x1 = rd() + ox, y1 = rd() + oy, x2 = rd() + ox, y2 = rd() + oy, x = rd() + ox, y = rd() + oy; cubic(x1, y1, x2, y2, x, y); break; }
-      case 'S': { const x2 = rd() + ox, y2 = rd() + oy, x = rd() + ox, y = rd() + oy; const x1 = prevCurve === 'C' ? 2 * cx - pcx : cx, y1 = prevCurve === 'C' ? 2 * cy - pcy : cy; cubic(x1, y1, x2, y2, x, y); break; }
-      case 'Q': { const x1 = rd() + ox, y1 = rd() + oy, x = rd() + ox, y = rd() + oy; quad(x1, y1, x, y); break; }
-      case 'T': { const x = rd() + ox, y = rd() + oy; const x1 = prevCurve === 'Q' ? 2 * cx - pcx : cx, y1 = prevCurve === 'Q' ? 2 * cy - pcy : cy; quad(x1, y1, x, y); break; }
-      case 'A': { const rx = rd(), ry = rd(); rd(); rd(); rd(); const x = rd() + ox, y = rd() + oy; const mx = (cx + x) / 2, my = (cy + y) / 2; pts.push([mx - rx, my - ry], [mx + rx, my + ry], [x, y]); cx = x; cy = y; prevCurve = ''; break; }
-      case 'Z': { cx = sx; cy = sy; prevCurve = ''; break; }
-      default: i++;
-    }
-  }
-  return pts;
-}
-
 /** Bounding box [x0,y0,x1,y1] of a part in its own coordinates, with a small margin for the outline. */
 export function partBounds(part) {
-  if (boundsCache.has(part.id)) return boundsCache.get(part.id);
+  const key = part.boundsKey || part.id;
+  if (boundsCache.has(key)) return boundsCache.get(key);
   let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
   const add = (x, y) => { if (x < x0) x0 = x; if (x > x1) x1 = x; if (y < y0) y0 = y; if (y > y1) y1 = y; };
   for (const pr of part.prims || []) {
@@ -198,7 +161,7 @@ export function partBounds(part) {
     else if (pr.t === 'path' || pr.t === 'line') for (const [x, y] of pathPoints(pr.d)) add(x, y);
   }
   const box = x0 === Infinity ? [0, 0, 0, 0] : [x0 - 2, y0 - 2, x1 + 2, y1 + 2];
-  boundsCache.set(part.id, box);
+  boundsCache.set(key, box);
   return box;
 }
 
@@ -315,13 +278,15 @@ export const FIT_FRAME = { w: 100, h: 60 };
  * Returns { layers, defs, box, feet, hover, K, body, clip } where box is the
  * creature's bounds in creature space (body centre = 0,0).
  */
-function buildRigged(g, id, styleName, rig) {
+function buildRigged(g, id, styleName, rig, stage = 1) {
   const R = renderSetup(g, id, styleName);
   const { st, styled, shared, ctxFor, wrap, farWrap, fxWrap } = R;
-  const P = resolveParts(g);
+  const P = {};
+  for (const [slot, part] of Object.entries(resolveParts(g))) P[slot] = evolvedPart(part, stage);
   const body = P.body;
   const K = traitScales(g.traits);
   K.eye *= st.eye;
+  K.size *= STAGE_SIZE[stage] || 1;
   const hover = body.hover || 0;
   const ground = new Set(rig.ground || ['body']);
   const bodyBox = body.box || partBounds(body);
@@ -388,8 +353,8 @@ function buildRigged(g, id, styleName, rig) {
   return { layers: [...outline, ...layers], defs: shared.defs.join(''), box: box || [-40, -40, 40, 40], feet, hover, K, body, clip: body.clip || [], elems: R.elems, wholeAura: R.wholeAura };
 }
 
-function buildCreature(g, id, styleName) {
-  return buildRigged(g, id, styleName, getRig(rigOf(g)));
+function buildCreature(g, id, styleName, stage = 1) {
+  return buildRigged(g, id, styleName, getRig(rigOf(g)), stage);
 }
 
 /** Canvas-space transform that places a built creature on the ground line. */
@@ -403,8 +368,8 @@ function placement(built, facing) {
 }
 
 /** Bounding box of a creature in canvas coordinates, shadow included. */
-export function measureCreature(g, facing = 'right') {
-  const built = buildCreature(g, 'm', 'classic');
+export function measureCreature(g, facing = 'right', stage = 1) {
+  const built = buildCreature(g, 'm', 'classic', stage);
   const chain = placement(built, facing);
   const box = boxThrough(built.box, chain);
   const sc = built.K.size;
@@ -416,13 +381,15 @@ export function measureCreature(g, facing = 'right') {
  * Render a creature.
  * opts: size (px width), facing ('right' | 'left'), animate (bool), id (svg id prefix),
  *       label (aria), fit (crop the viewBox to the creature instead of the fixed frame),
- *       style (one of RENDER_STYLES; defaults to the global render style)
+ *       style (one of RENDER_STYLES; defaults to the global render style),
+ *       stage (1..3 evolution stage) or level (the stage is derived from it)
  */
 export function renderCreatureSvg(g, opts = {}) {
   const { size = 200, facing = 'right', animate = true, fit = false } = opts;
   const styleName = RENDER_STYLES.includes(opts.style) ? opts.style : renderStyle;
   const id = opts.id || uid('cr');
-  const built = buildCreature(g, id, styleName);
+  const stage = opts.stage ? Math.max(1, Math.min(3, Math.round(opts.stage))) : stageOf(opts.level);
+  const built = buildCreature(g, id, styleName, stage);
   const chain = placement(built, facing);
   const sc = built.K.size;
   const shadowRx = 36 * sc * (built.hover ? 0.7 : 1), shadowRy = 7 * sc;

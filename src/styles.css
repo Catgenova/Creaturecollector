@@ -53,6 +53,9 @@ button, input, select, textarea { font: inherit; }
 .kind-badge.elemental { background: var(--elem); color: #14151c; }
 .elem-hint { color: var(--elem); }
 .elem-preview { max-width: 100%; }
+.stage-badge { display: inline-block; margin-left: 5px; padding: 0 6px; border-radius: 6px; font-size: 10px; font-weight: 800; letter-spacing: .06em; color: #14151c; background: var(--acc); vertical-align: middle; }
+.stage-badge.stage-3 { background: #ffd166; box-shadow: 0 0 10px -2px #ffd166; }
+.stage-row { justify-content: center; margin: 6px 0 2px; }
 .chips { display: flex; gap: 4px; flex-wrap: wrap; justify-content: center; }
 .chip { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 999px; color: #111; background: var(--chip, #999); }
 .chip b { font-size: 10px; opacity: .7; }

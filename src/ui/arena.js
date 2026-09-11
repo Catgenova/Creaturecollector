@@ -1,11 +1,12 @@
 // Endless Arena: the game loop. Starter -> floors of wild, trainer and boss
 // encounters -> capture, level up, fuse at altars -> run ends on a wipe.
 import { h, clear, toast, copyText, appendChildren } from './dom.js';
-import { creatureEl, typeChips, section } from './common.js';
+import { creatureEl, typeChips, section, stageBadge } from './common.js';
 import { freshSeed } from '../core/rng.js';
 import { openSheet } from './lab.js';
 import { mountFight, xpRow } from './fight.js';
 import { STATUS_INFO } from '../battle/engine.js';
+import { stageOf, stageName } from '../data/evolution.js';
 import { loadSave, persistSave, exportSave, importSave, emptySave, clearSave, recordCollection, endRun } from '../game/save.js';
 import { ARENA, floorLevel, newRun, chooseStarter, buildBattle, applyBattle, previewFusion, fuseMembers, skipAltar, moveMember, setLead, memberMaxHp, xpProgress, canFight, learnMove, biomeFor, canFuseMembers } from '../game/run.js';
 import { cladeName } from '../data/clades.js';
@@ -98,9 +99,9 @@ function memberRow(run, m, actions) {
   const frac = m.hp / max;
   const xp = xpProgress(m);
   return h('div', { class: `party-row static${m.hp <= 0 ? ' fainted' : ''}` },
-    creatureEl(m.genome, { size: 64, animate: false }),
+    creatureEl(m.genome, { size: 64, animate: false, level: m.level }),
     h('div', { class: 'party-info' },
-      h('div', {}, h('b', {}, m.genome.name), ' ', h('span', { class: 'lvl' }, `Lv ${m.level}`), ' ',
+      h('div', {}, h('b', {}, m.genome.name), ' ', h('span', { class: 'lvl' }, `Lv ${m.level}`), stageBadge(m.level), ' ',
         m.status ? h('span', { class: `status st-${m.status}` }, STATUS_INFO[m.status].short) : null,
         m.hp <= 0 ? h('span', { class: 'status' }, 'FAINTED') : null),
       h('div', { class: 'hpbar' }, h('i', { class: frac > 0.5 ? 'ok' : frac > 0.2 ? 'warn' : 'low', style: { width: `${Math.max(0, frac * 100)}%` } })),
@@ -133,7 +134,7 @@ function reportCard(report) {
   if (!report || !report.won) return null;
   const lines = [];
   lines.push(`Beat ${report.foe} on floor ${report.floor}. +${report.xp} XP each.`);
-  for (const l of report.levelUps) lines.push(`${l.name} grew to Lv ${l.to}!`);
+  for (const l of report.levelUps) { lines.push(`${l.name} grew to Lv ${l.to}!`); if (stageOf(l.to) > stageOf(l.from)) lines.push(`${l.name} evolved! ${stageName(stageOf(l.to))}: larger, with its features ${stageOf(l.to) === 3 ? 'exaggerated' : 'more pronounced'}.`); }
   for (const l of report.learned || []) lines.push(`${l.name} learned ${l.move}!`);
   if (report.captured) lines.push(`${report.captured.genome.name} joined ${report.toBox ? 'the box' : 'the party'}.`);
   return h('div', { class: 'result-card slim' }, lines.map((t) => h('div', {}, t)),
@@ -147,8 +148,8 @@ function floorView(root, run) {
   const elem = enc.foes.map((f) => elementalOf(f.genome)).find((e) => e && e.pure) || null;
   const kindLabel = elem ? `${elem.name} Elemental!` : { wild: 'Wild encounter', trainer: 'Trainer battle', boss: 'Warden' }[enc.kind];
   const foesRow = h('div', { class: 'foes' }, enc.foes.map((f) => h('div', { class: 'foe-card' },
-    creatureEl(f.genome, { size: enc.foes.length > 2 ? 78 : 120, facing: 'left', animate: enc.foes.length <= 2 }),
-    h('span', {}, `${f.genome.name} · Lv ${f.level}`))));
+    creatureEl(f.genome, { size: enc.foes.length > 2 ? 78 : 120, facing: 'left', animate: enc.foes.length <= 2, level: f.level }),
+    h('span', {}, `${f.genome.name} · Lv ${f.level}`, stageBadge(f.level)))));
   appendChildren(root, [
     h('div', { class: 'floor-head' },
       h('div', {}, h('h2', { class: 'screen-title' }, `Floor ${run.floor} · ${biomeFor(run.floor).name}`), h('span', { class: 'hint' }, `wild level ${L} · ${run.stats.captures} caught · ${run.stats.fusions} fused`)),
@@ -216,7 +217,7 @@ function altarView(root, run) {
       if (off) { toast(canFuseMembers(run, anchorUid, m.uid).reason); return; }
       if (pick.a === m.uid) pick.a = null; else if (pick.b === m.uid) pick.b = null; else if (!pick.a) pick.a = m.uid; else if (!pick.b) pick.b = m.uid; else pick.b = m.uid;
       rerender();
-    } }, tag ? h('span', { class: `sel badge ${tag.toLowerCase()}` }, tag) : null, h('span', { class: 'gen' }, cladeName(cladeOf(m.genome))), creatureEl(m.genome, { size: 104, animate: false }), h('span', {}, `${m.genome.name} · Lv ${m.level}`)));
+    } }, tag ? h('span', { class: `sel badge ${tag.toLowerCase()}` }, tag) : null, h('span', { class: 'gen' }, cladeName(cladeOf(m.genome))), creatureEl(m.genome, { size: 104, animate: false, level: m.level }), h('span', {}, `${m.genome.name} · Lv ${m.level}`)));
   }
   const child = pick.a && pick.b ? previewFusion(run, pick.a, pick.b) : null;
   appendChildren(root, [
@@ -244,7 +245,7 @@ function altarView(root, run) {
 function gameOverView(root, run) {
   const rerender = () => renderArenaScreen(root);
   const fallen = h('div', { class: 'pool' });
-  for (const m of [...run.party, ...run.box]) fallen.append(h('button', { class: 'pcard', type: 'button', onclick: () => openSheet(m.genome) }, creatureEl(m.genome, { size: 104, animate: false }), h('span', {}, `${m.genome.name} · Lv ${m.level}`)));
+  for (const m of [...run.party, ...run.box]) fallen.append(h('button', { class: 'pcard', type: 'button', onclick: () => openSheet(m.genome, { level: m.level }) }, creatureEl(m.genome, { size: 104, animate: false, level: m.level }), h('span', {}, `${m.genome.name} · Lv ${m.level}`)));
   root.append(
     h('div', { class: 'hero-card' },
       h('h2', {}, `Run over on floor ${run.floor}`),

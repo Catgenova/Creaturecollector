@@ -512,6 +512,51 @@ Shadow, Light and Earth, each with a core ability and one SVG filter.
   element plus fused descendants; `scripts/hero.mjs fox+elemental=fire`
   previews one.
 
+## Evolution
+
+Every species evolves twice, by level alone: stage 2 at level 33 and stage 3
+at level 66 (`STAGE_LEVELS` in `src/data/evolution.js`). Nothing is stored on
+the genome or the save: `stageOf(level)` decides, so a code shared from the
+Lab is the same creature at any level and old saves pick up their stages the
+moment they load. Stats are untouched: evolution is a look; the level curve
+already carries the power.
+
+- **Render.** `renderCreatureSvg(g, { level })` (or `{ stage }`) resolves the
+  parts through `evolvedPart(part, stage)` (`src/creature/evolve.js`) and
+  scales the whole creature by `STAGE_SIZE` (1 / 1.1 / 1.22). Bounds are
+  cached per `boundsKey`, so evolved parts never reuse their base boxes.
+- **Hand-authored art.** A part spec takes `stages: { 2: {...}, 3: {...} }`.
+  Each stage overrides any drawing key of the base (`shapes`, `extra`,
+  `sockets`, ...) or uses the deltas: `addBehind` / `addShapes` (extra
+  silhouette shapes behind or on top of the originals, joining the clip),
+  `add` (detail prims), `grow: [sx, sy]` (scales the compiled art about the
+  origin, compounding across stages), `spikes` (runs the procedural tip pass
+  on the result) and `reset` (stage 3 starts from the base instead of from
+  stage 2). The builders compile these into `part.stages[stage]`. Shared
+  shape helpers live in `src/data/parts/_evo.js`: `evoFan` (tuft fans that
+  poke out from behind a shape), `evoGem`, `evoRing`, `evoGlow`, `evoBands`
+  and `evoLegStages` (claws at stage 2, longer claws and armour bands at 3;
+  hoof bands and fetlock tufts for hoofed legs).
+- **Procedural fallback.** Any part without a hand stage grows by its slot
+  family's factors (`SLOT_GROWTH`: bodies and heads a little; ears, tails,
+  wings, fins and fur a lot) and, for the protruding families, lengthens its
+  tips: the outline points locally farthest from their shape's centre get a
+  spike in the shape's own colour, drawn behind it so it reads as the tip
+  growing longer; stage 3 spikes carry an accent "energy" tip. This keeps
+  every species complete while the hand batches land.
+- **The art language.** Stage 2 is "more pronounced": the defining feature
+  gains one extra element (a second flame lick, ear tufts, a fourth stripe,
+  claws, a darker ruff layered behind the mane). Stage 3 is "exaggerated":
+  the feature dominates (a forked tail, a crown of tufts, a sunburst mane,
+  gems and glows, armour bands, a second wing membrane). Hand batches so far:
+  mammals (85 parts).
+- **UI.** Cards and sheets show a II / III chip (`stageBadge`), sprites in the
+  arena, fights and battle setup draw at their level, level-up reports and the
+  fight log announce evolutions, and the Lab sheet has Stage 1 / 2 / 3
+  buttons to preview any creature at any stage. `node scripts/evolutions.mjs
+  <rig>` renders every species of a class at all three stages;
+  `scripts/hero.mjs fox+stage=3` previews one.
+
 ## Polish and balance (Phase 5 — implemented)
 
 Balance was done with the two simulators, not by feel:

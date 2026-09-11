@@ -2,6 +2,7 @@
 import { h, svgEl } from './dom.js';
 import { elementalOf, combatStyleOf } from '../creature/genome.js';
 import { DAMAGE_TYPES } from '../data/damage.js';
+import { stageOf, STAGE_MARK, stageName } from '../data/evolution.js';
 import { TYPE_INFO } from '../data/types.js';
 import { renderCreatureSvg } from '../creature/render.js';
 
@@ -27,6 +28,12 @@ export function styleChip(g, style) {
   const id = style || combatStyleOf(g);
   const dt = DAMAGE_TYPES[id];
   return h('span', { class: `chip style-chip style-${id}`, style: { '--chip': dt.color }, title: `${dt.name} style: its best attack stat is ${dt.name}. ${dt.name} beats ${DAMAGE_TYPES[dt.beats].name}.` }, h('b', {}, dt.icon), dt.name);
+}
+
+/** 'II' / 'III' chip for an evolved creature's level, or null before level 33. */
+export function stageBadge(level) {
+  const st = stageOf(level);
+  return st > 1 ? h('span', { class: `stage-badge stage-${st}`, title: `${stageName(st)} evolution` }, STAGE_MARK[st]) : null;
 }
 
 export function creatureEl(genome, opts) {

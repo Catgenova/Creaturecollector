@@ -1,9 +1,12 @@
 // Mammal tails. Origin = tail root on the body's rear. Tails sweep left (-x) and up or down.
 // Every tail ends in something a real animal's would not: a flame-cut brush, a curled tuft,
 // a leaf, a floating sparkle, a banner stripe or an orb.
+// Evolutions: stage 2 adds a second element (an extra flame lick, rings, sparkles, leaflets);
+// stage 3 forks or doubles the tail and crowns it with accent light.
 import { mPart } from './_shared.js';
 import { fur, S, P, C, L, SH, HL, tube, puff } from '../_dsl.js';
-import { sparklePath } from '../_sigils.js';
+import { sparklePath, starPath } from '../_sigils.js';
+import { evoFan, evoRing } from '../_evo.js';
 
 export const M_TAILS = [
   mPart({
@@ -14,6 +17,14 @@ export const M_TAILS = [
       SH('M-80,4 C-46,16 -22,20 6,12 L6,32 L-80,32 Z', 0.13),
       HL('M-52,-28 C-38,-30 -22,-24 -6,-14 L-8,-8 C-22,-16 -38,-22 -52,-20 Z', 0.16),
     ],
+    stages: {
+      2: { grow: [1.1, 1.08], addBehind: [evoFan(-56, -26, 200, 300, 3, 10, 36)], add: [S([[-70, -38], [-62, -52], [-54, -40], [-58, -30]], 'a', { ns: true, op: 0.85 })] },
+      3: {
+        grow: [1.1, 1.1],
+        addBehind: [[[0, 8], [-18, 18], [-40, 30], [-58, 44], [-76, 54, 'c'], [-64, 38], [-74, 30, 'c'], [-56, 26], [-38, 18], [-16, 8]]],
+        add: [S([[-74, 52], [-64, 40], [-58, 30], [-52, 40]], 's', { ns: true, cl: true }), P(sparklePath(-84, -36, 4.5), 'a', { ns: true })],
+      },
+    },
   }),
 
   mPart({
@@ -27,11 +38,19 @@ export const M_TAILS = [
       SH('M-50,0 C-30,10 -10,12 6,8 L6,20 L-50,20 Z', 0.13),
       HL('M-42,-26 C-40,-36 -36,-42 -30,-46 L-26,-42 C-32,-38 -36,-30 -38,-24 Z', 0.16),
     ],
+    stages: {
+      2: { grow: [1.08, 1.1], add: [L('M-40,-14 L-30,-10 M-43,-26 L-34,-24 M-32,6 L-30,-2', 'a', 2.6, { ns: true, cl: true, op: 0.9 })] },
+      3: { grow: [1.08, 1.08], addShapes: [[[-12, -54], [-4, -72, 0.3], [4, -58, 'c'], [-2, -48], [-10, -46]]], add: [S([[-8, -60], [-4, -66], [-2, -56], [-6, -52]], 'a', { ns: true, cl: true, op: 0.9 })] },
+    },
   }),
   mPart({
     id: 'bear', slot: 'tail', name: 'Pom', tags: ['bear', 'short'], dom: 0.4, w: 2,
     shapes: [puff(-8, -2, 9, 7, 3, { rot: 15 })],
     extra: [C(-8, -2, 4.5, 's', { ns: true, cl: true }), SH('M-20,2 L4,2 L4,14 L-20,14 Z', 0.14), HL('M-13,-10 C-9,-13 -4,-12 -2,-9 L-4,-6 C-7,-8 -10,-8 -12,-6 Z', 0.16)],
+    stages: {
+      2: { grow: [1.25, 1.25], add: [P(starPath(-8, -2, 4.5, 5, 0.5), 'a', { ns: true })] },
+      3: { grow: [1.15, 1.15], addBehind: [puff(-18, -10, 7, 7, 2.5, { rot: 40 })], add: [C(-18, -10, 3, 's', { ns: true, cl: true }), P(starPath(-18, -10, 2.6, 5, 0.5), 'a', { ns: true, op: 0.9 })] },
+    },
   }),
   mPart({
     id: 'rabbit', slot: 'tail', name: 'Cloud puff', tags: ['rabbit', 'short'], dom: 0.45, w: 2,
@@ -41,6 +60,10 @@ export const M_TAILS = [
       SH('M-24,-2 L4,-2 L4,12 L-24,12 Z', 0.14), HL('M-16,-15 C-12,-18 -6,-17 -4,-14 L-6,-11 C-9,-13 -13,-13 -15,-11 Z', 0.18),
       P(sparklePath(-24, -20, 4.5), 'a', { ns: true }), P(sparklePath(-4, -22, 2.6, 20), 'a', { ns: true, op: 0.8 }),
     ],
+    stages: {
+      2: { grow: [1.15, 1.15], add: [P(sparklePath(-30, -8, 3.4, 10), 'a', { ns: true, op: 0.9 }), P(sparklePath(-14, -26, 2.4, 30), 'a', { ns: true, op: 0.8 })] },
+      3: { grow: [1.12, 1.12], addBehind: [puff(-24, -16, 9, 7, 3, { rot: 25 })], add: [S(puff(-24, -16, 4.5, 7, 1.5, { rot: 45 }), 's', { ns: true, cl: true, op: 0.6 }), P(sparklePath(-38, -26, 4, 15), 'a', { ns: true })] },
+    },
   }),
 
   mPart({
@@ -51,6 +74,10 @@ export const M_TAILS = [
       L('M0,0 C-10,-6 -22,-10 -34,-13', 'k', 1.3, { op: 0.4 }),
       L('M-10,-4 L-14,-13 M-18,-7 L-22,-17 M-10,-4 L-8,4 M-18,-7 L-18,3', 'k', 1, { op: 0.3 }),
     ],
+    stages: {
+      2: { grow: [1.15, 1.15], addBehind: [[[-6, 2], [-16, 10], [-30, 16, 'c'], [-22, 4], [-12, -2]], [[-10, -10], [-22, -24], [-36, -30, 'c'], [-26, -16], [-16, -8]]] },
+      3: { grow: [1.12, 1.12], addBehind: [[[-16, -6], [-34, -4], [-50, 0, 'c'], [-34, -10], [-20, -12]]], add: [C(-14, -12, 2.6, 'a', { ns: true }), C(-19, -8, 2.2, 'a', { ns: true }), C(-13, -6, 2, 'a', { ns: true })] },
+    },
   }),
   mPart({
     id: 'wolf', slot: 'tail', name: 'Banner', tags: ['wolf', 'bushy'], dom: 0.55, w: 2,
@@ -61,6 +88,14 @@ export const M_TAILS = [
       SH('M-60,26 C-42,32 -26,26 -14,14 L-2,14 L-2,62 L-60,62 Z', 0.12),
       HL('M-24,0 C-16,-4 -8,-6 0,-6 L0,-1 C-8,-1 -16,2 -22,6 Z', 0.16),
     ],
+    stages: {
+      2: { grow: [1.12, 1.1], addBehind: [[[-30, 12], [-46, 22], [-64, 30, 'c'], [-60, 40], [-72, 50, 'c'], [-54, 46], [-40, 30], [-28, 20]]] },
+      3: {
+        grow: [1.1, 1.1],
+        addBehind: [[[-10, 6], [-28, 30], [-40, 52], [-48, 72, 'c'], [-36, 62], [-32, 74, 'c'], [-26, 52], [-18, 30], [-6, 12]]],
+        add: [S([[-8, 4], [-22, 12], [-36, 26], [-40, 20], [-28, 8], [-12, 0]], 'a', { ns: true, cl: true, op: 0.85 }), P(sparklePath(-70, 52, 4), 'a', { ns: true })],
+      },
+    },
   }),
   mPart({
     id: 'mouse', slot: 'tail', name: 'Orb cord', tags: ['mouse', 'long'], dom: 0.45, w: 3,
@@ -69,5 +104,12 @@ export const M_TAILS = [
       C(-24, 55, 5, 'a', { sw: 2.2 }), C(-25.6, 53.4, 1.4, 'w', { ns: true, op: 0.85 }),
       SH('M-36,30 C-30,42 -20,50 -6,52 L-6,60 L-36,60 Z', 0.14),
     ],
+    stages: {
+      2: { grow: [1.1, 1.1], add: [evoRing(-24, 55, 8.5, 'a', 1.4, { op: 0.8 })] },
+      3: {
+        grow: [1.1, 1.1], addShapes: [tube([[-24, 40], [-34, 36], [-42, 30]], 5, 2.5)],
+        add: [C(-44, 28, 3.6, 'a', { sw: 2 }), C(-45.2, 26.8, 1, 'w', { ns: true, op: 0.85 }), C(-24, 55, 6.2, 'a', { sw: 2.2 }), C(-26, 53, 1.8, 'w', { ns: true, op: 0.85 })],
+      },
+    },
   }),
 ];

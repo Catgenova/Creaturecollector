@@ -46,7 +46,7 @@ function setupView(root) {
     } },
       idx >= 0 ? h('span', { class: 'sel badge a' }, String(idx + 1)) : null,
       g.gen ? h('span', { class: 'gen' }, `gen ${g.gen}`) : null,
-      creatureEl(g, { size: 104, animate: false }),
+      creatureEl(g, { size: 104, animate: false, level: bs.level }),
       h('span', {}, g.name)));
   }
   const start = (auto) => {

@@ -2,7 +2,7 @@
 // events, takes the player's choices, asks the AI for the foe's, and reports
 // the final state. Used by the sandbox Battle tab and by the Arena.
 import { h, clear, toast, appendChildren } from './dom.js';
-import { typeChips, creatureEl, styleChip } from './common.js';
+import { typeChips, creatureEl, styleChip, stageBadge } from './common.js';
 import { makeRng } from '../core/rng.js';
 import { step, legalActions, activeOf, describeEvent, moveEffectiveness, aliveCount, captureChance, STATUS_INFO } from '../battle/engine.js';
 import { chooseAction } from '../battle/ai.js';
@@ -10,6 +10,7 @@ import { getMove } from '../data/moves.js';
 import { TYPE_INFO } from '../data/types.js';
 import { abilityName } from '../data/abilities.js';
 import { DAMAGE_TYPES, triangleEdge } from '../data/damage.js';
+import { STAGE_LEVELS, stageOf, stageName } from '../data/evolution.js';
 import { openSheet } from './lab.js';
 import { sfx } from '../core/sfx.js';
 
@@ -60,7 +61,7 @@ function renderPanel(f, i) {
   const el = i === 0 ? f.els.mePanel : f.els.foePanel;
   const frac = b.hp / b.maxHp;
   appendChildren(clear(el), [
-    h('div', { class: 'panel-head' }, h('b', {}, b.name), h('span', { class: 'lvl' }, `Lv ${b.level}`), styleChip(null, b.style),
+    h('div', { class: 'panel-head' }, h('b', {}, b.name), h('span', { class: 'lvl' }, `Lv ${b.level}`), stageBadge(b.level), styleChip(null, b.style),
       b.status ? h('span', { class: `status st-${b.status}` }, STATUS_INFO[b.status].short) : null),
     typeChips(b.types),
     h('div', { class: 'hpbar' }, h('i', { class: hpClass(frac), style: { width: `${Math.max(0, frac * 100)}%` } })),
@@ -105,6 +106,7 @@ async function animateXp(f, gains) {
     sfx.levelUp();
     if (lvl) lvl.textContent = `Lv ${level}`;
     logLine(f, `${name} grew to Lv ${level}!`);
+    if (STAGE_LEVELS.includes(level)) logLine(f, `${name} evolved! ${stageName(stageOf(level))}: larger, with its features ${stageOf(level) === 3 ? 'exaggerated' : 'more pronounced'}.`);
     bar.style.transition = 'none';
     bar.style.width = '0%';
     await wait(90);
@@ -117,7 +119,7 @@ async function animateXp(f, gains) {
 function renderStage(f, i) {
   const b = activeOf(f.state, i);
   const el = i === 0 ? f.els.meStage : f.els.foeStage;
-  clear(el).append(h('div', { class: 'combatant enter' }, creatureEl(b.genome, { size: 200, facing: i === 0 ? 'right' : 'left' })));
+  clear(el).append(h('div', { class: 'combatant enter' }, creatureEl(b.genome, { size: 200, facing: i === 0 ? 'right' : 'left', level: b.level })));
   setTimeout(() => { const c = el.firstChild; if (c) c.classList.remove('enter'); }, 400);
 }
 
@@ -310,7 +312,7 @@ function openFightParty(f, forced) {
     const can = legal.some((a) => a.type === 'switch' && a.index === i);
     const frac = b.hp / b.maxHp;
     list.append(h('button', { class: `party-row${i === side.active ? ' active' : ''}${b.fainted ? ' fainted' : ''}`, type: 'button', disabled: !can, onclick: () => { close(); doFightStep(f, { type: 'switch', index: i }); } },
-      creatureEl(b.genome, { size: 64, animate: false }),
+      creatureEl(b.genome, { size: 64, animate: false, level: b.level }),
       h('div', { class: 'party-info' },
         h('div', {}, h('b', {}, b.name), ' ', h('span', { class: 'lvl' }, `Lv ${b.level}`), ' ', b.status ? h('span', { class: `status st-${b.status}` }, STATUS_INFO[b.status].short) : null, i === side.active ? h('span', { class: 'status' }, 'ACTIVE') : null),
         h('div', { class: 'hpbar' }, h('i', { class: hpClass(frac), style: { width: `${frac * 100}%` } })),

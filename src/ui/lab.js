@@ -5,6 +5,7 @@ import { makeRng, freshSeed } from '../core/rng.js';
 import { randomGenome, speciesGenome, baseStats, encodeGenome, decodeGenome, resolveParts, TRAIT_KEYS, speciesOf, rigOf, makeElemental, elementalOf } from '../creature/genome.js';
 import { STAT_KEYS, STAT_NAMES } from '../data/damage.js';
 import { ELEMENT_IDS, ELEMENTS } from '../data/elements.js';
+import { stageOf, stageName } from '../data/evolution.js';
 import { swatchCss } from '../creature/palette.js';
 import { SPECIES, SPECIES_BY_ID } from '../data/species.js';
 import { getPart } from '../data/parts/index.js';
@@ -119,14 +120,16 @@ function traitRows(g) {
 let activeSheet = null;
 export function closeSheet() { if (activeSheet) { activeSheet(); activeSheet = null; } }
 
-export function openSheet(g) {
+export function openSheet(g, sheetOpts = {}) {
   closeSheet();
   const sp = speciesOf(g);
   const code = encodeGenome(g);
   let facing = 'right';
   let shown = g; // the sheet can preview the creature as an Elemental without changing it
-  const hero = h('div', { class: 'hero' }, creatureEl(g, { size: 260, facing, fit: true }));
-  const redraw = () => clear(hero).append(creatureEl(shown, { size: 260, facing, fit: true }));
+  let stage = stageOf(sheetOpts.level); // and at any evolution stage
+  const hero = h('div', { class: 'hero' }, creatureEl(g, { size: 260, facing, fit: true, stage }));
+  const redraw = () => clear(hero).append(creatureEl(shown, { size: 260, facing, fit: true, stage }));
+  const stageRow = h('div', { class: 'chips-row stage-row' }, [1, 2, 3].map((st) => h('button', { class: `btn small stage-pick${stage === st ? ' on' : ''}`, type: 'button', title: st === 1 ? 'Below level 33' : st === 2 ? 'Level 33 and up' : 'Level 66 and up', onclick: () => { stage = st; for (const b of stageRow.children) b.classList.toggle('on', Number(b.dataset.stage) === st); redraw(); }, dataset: { stage: String(st) } }, stageName(st))));
   const close = () => { backdrop.remove(); sheet.remove(); document.removeEventListener('keydown', onKey); if (activeSheet === close) activeSheet = null; };
   activeSheet = close;
   const onKey = (e) => { if (e.key === 'Escape') close(); };
@@ -141,6 +144,7 @@ export function openSheet(g) {
       h('button', { class: 'btn close', onclick: close, 'aria-label': 'Close' }, '✕')),
     h('p', { class: 'meta' }, sp ? `${sp.name} · ${sp.tier}` : 'Fusion', ` · ${cladeName(cladeOf(g))} · gen ${g.gen} · seed ${g.seed}`),
     hero,
+    stageRow,
     h('div', { class: 'row' },
       h('button', { class: 'btn', onclick: () => { facing = facing === 'right' ? 'left' : 'right'; redraw(); } }, 'Flip'),
       h('button', { class: 'btn', onclick: async () => toast((await copyText(code)) ? 'Code copied' : 'Copy failed, select the text below') }, 'Copy code'),
