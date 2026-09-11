@@ -1,5 +1,5 @@
 // Screenshot the built index.html at phone size for visual checks.
-// Usage: node scripts/shot.mjs [seed]   -> shots/lab.png, sheet, fusion, battle and parts screenshots (the overworld has scripts/shot-world.mjs)
+// Usage: node scripts/shot.mjs [seed]   -> shots/lab.png, sheet, fusion and parts screenshots (fights are covered by scripts/shot-world.mjs)
 import { createRequire } from 'node:module';
 import fs from 'node:fs';
 import path from 'node:path';
@@ -46,17 +46,6 @@ await page.click('text=Breed 5 generations');
 await page.waitForSelector('.chain');
 await page.locator('.chain').scrollIntoViewIfNeeded();
 await page.screenshot({ path: path.join(out, 'fusion-chain.png') });
-await page.goto(`${url}#battle`);
-await page.waitForSelector('.pool .pcard');
-const roster = page.locator('.pool .pcard');
-await roster.nth(0).click(); await roster.nth(1).click(); await roster.nth(2).click();
-await page.screenshot({ path: path.join(out, 'battle-setup.png'), fullPage: true });
-await page.click('text=Battle!');
-await page.waitForSelector('.move-btn', { timeout: 20000 });
-await page.screenshot({ path: path.join(out, 'battle.png'), fullPage: true });
-await page.locator('.move-btn').first().click();
-await page.waitForTimeout(2500);
-await page.screenshot({ path: path.join(out, 'battle-turn.png'), fullPage: true });
 await page.goto(`${url}#parts`);
 await page.waitForSelector('.part svg');
 await page.screenshot({ path: path.join(out, 'parts.png'), fullPage: true });

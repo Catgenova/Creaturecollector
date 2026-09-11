@@ -17,7 +17,7 @@ feed children back into the pool, stress-test five generations.
 
 Phase 3 — Battle: a deterministic, headless battle engine (157 moves, 30
 abilities, status, stages, switching, parties of five, AI opponent, balance
-simulator) and a portrait battle screen.
+simulator) and a portrait fight view.
 
 Phase 4 — The game loop: starters, in-battle capture, XP and levels, party and
 box, autosave with export and import, and a persistent collection. It first
@@ -98,7 +98,7 @@ Balance reports: `node scripts/sim.mjs [games] [level] [partySize] [seed]` runs
 AI-vs-AI tournaments and prints win rates by species and type.
 
 Visual review: `node scripts/shot.mjs [seed]` screenshots the Lab, a detail
-sheet, the Fusion Lab, a sandbox battle and the Parts tab at phone size into
+sheet, the Fusion Lab and the Parts tab at phone size into
 `shots/`, and `node scripts/shot-world.mjs [seed]` walks the overworld into an
 encounter and back (both need Playwright installed globally or locally; dev
 only).

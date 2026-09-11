@@ -32,7 +32,7 @@ src/data/species.js   base species recipes
 src/data/elements.js  Elementals: the eight elements, their core abilities and one SVG filter each
 src/creature/         genome (schema, rolls, codes), palette, render (SVG)
 src/game/             world (map generation and content), journey (rules), party (members, xp), save
-src/ui/               dom helpers, screens (world, battle, fusion, lab, parts), app shell (main.js = build entry)
+src/ui/               dom helpers, screens (world, fusion, lab, parts), the fight view, app shell (main.js = build entry)
 tests/                node:test suites
 scripts/              screenshot helpers for visual review (Playwright, dev only):
                       shot.mjs (app flow), shot-world.mjs (overworld flow), board.mjs <rig> + shot-board.mjs (library board), hero.mjs (close-ups)
@@ -277,11 +277,11 @@ events back, so a battle is replayable from its start state and action log.
   about 7 turns per battle, no timeouts, win rates from 34% (Pufflet) to 65%
   (Moltrix). Tuning happens in the polish phase.
 
-The battle screen (`ui/battle.js`) is portrait: foe panel and creature on top,
-yours below, a four-line log, a 2×2 move grid with type, PP and an
-effectiveness marker, party sheet for switching, Fast and Auto toggles, and a
-result card with rematch. Events play with lunge, hit-shake, HP transitions
-and faint animations.
+The fight view (`ui/fight.js`) is portrait: foe panel and creature on top,
+yours below, a four-line log, then move cards with type, damage type, power,
+PP and effectiveness words, plus Party, Info, capture, Fast and Auto. It plays
+the engine's events back with sprite poses and sound, and is mounted by the
+overworld for every wild, trainer, Warden and Council fight.
 
 ## Capture, XP and save
 
@@ -310,8 +310,7 @@ through `src/game/party.js` and `src/game/save.js`.
   where any creature can be inspected or sent to the Fusion Lab. A save from
   the arena days folds its run's creatures into the collection on load.
 
-The fight view is a reusable component (`ui/fight.js`) shared by the overworld
-and the sandbox Battle tab.
+The fight view is a reusable component (`ui/fight.js`) mounted by the overworld.
 
 ## Classes and fusion locks (implemented)
 
