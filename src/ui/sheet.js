@@ -147,8 +147,11 @@ function renameButton(g, opts, titleEl, sheetEl) {
 let activeSheet = null;
 export function closeSheet() { if (activeSheet) { activeSheet(); activeSheet = null; } }
 
-export function openSheet(g, sheetOpts = {}) {
-  closeSheet();
+/**
+ * The sheet's contents for one creature. ctx.close closes the sheet; ctx.nav, when the sheet was opened over a
+ * list, is { index, count, label, go(step) } and puts previous / next arrows at the top.
+ */
+function sheetContent(g, sheetOpts, ctx) {
   const sp = speciesOf(g);
   let facing = 'right';
   let shown = g; // the sheet can preview the creature as an Elemental without changing it
@@ -156,14 +159,15 @@ export function openSheet(g, sheetOpts = {}) {
   const hero = h('div', { class: 'hero' }, creatureEl(g, { size: 260, facing, fit: true, stage }));
   const redraw = () => clear(hero).append(creatureEl(shown, { size: 260, facing, fit: true, stage }));
   const stageRow = h('div', { class: 'chips-row stage-row' }, [1, 2, 3].map((st) => h('button', { class: `btn small stage-pick${stage === st ? ' on' : ''}`, type: 'button', title: st === 1 ? 'Below level 33' : st === 2 ? 'Level 33 and up' : 'Level 66 and up', onclick: () => { stage = st; for (const b of stageRow.children) b.classList.toggle('on', Number(b.dataset.stage) === st); redraw(); }, dataset: { stage: String(st) } }, stageName(st))));
-  const close = () => { backdrop.remove(); sheet.remove(); document.removeEventListener('keydown', onKey); if (activeSheet === close) activeSheet = null; };
-  activeSheet = close;
-  const onKey = (e) => { if (e.key === 'Escape') close(); };
-  const backdrop = h('div', { class: 'sheet-backdrop', onclick: close });
   const title = h('h2', {}, g.name, g.shiny ? ' ✦' : '');
-  const releaseBtn = sheetOpts.release ? releaseButton(sheetOpts.release, close) : null;
-  const sheet = h('section', { class: 'sheet', role: 'dialog', 'aria-modal': 'true', 'aria-label': g.name },
+  const releaseBtn = sheetOpts.release ? releaseButton(sheetOpts.release, ctx.close) : null;
+  const nav = ctx.nav;
+  return [
     h('div', { class: 'grab' }),
+    nav ? h('div', { class: 'sheet-nav' },
+      h('button', { class: 'btn small nav-prev', type: 'button', 'aria-label': 'Previous creature', title: 'Previous (left arrow)', onclick: () => nav.go(-1) }, '◀'),
+      h('span', { class: 'hint' }, `${nav.index + 1} of ${nav.count}${nav.label ? ` · ${nav.label}` : ''}`),
+      h('button', { class: 'btn small nav-next', type: 'button', 'aria-label': 'Next creature', title: 'Next (right arrow)', onclick: () => nav.go(1) }, '▶')) : null,
     h('div', { class: 'sheet-head' },
       title,
       typeChips(g.types),
@@ -173,7 +177,7 @@ export function openSheet(g, sheetOpts = {}) {
         sheetOpts.lock ? lockButton(sheetOpts.lock, () => { if (releaseBtn) releaseBtn.refresh(); }) : null,
         sheetOpts.rename ? renameButton(g, sheetOpts.rename, title, null) : null,
         releaseBtn) : null,
-      h('button', { class: 'btn close', onclick: close, 'aria-label': 'Close' }, '✕')),
+      h('button', { class: 'btn close', onclick: ctx.close, 'aria-label': 'Close' }, '✕')),
     h('p', { class: 'meta' }, sp ? `${sp.name} · ${sp.tier}` : 'Fusion', ` · ${cladeName(cladeOf(g))} · gen ${g.gen} · seed ${g.seed}`),
     abilityCard(g),
     hero,
@@ -192,7 +196,40 @@ export function openSheet(g, sheetOpts = {}) {
     ...section('Parts', partRows(g)),
     ...section('Palette', h('div', { class: 'swatches' }, ['c1', 'c2', 'c3', 'eye'].map((k) => h('span', { class: 'sw', title: k, style: { background: swatchCss(g.palette[k]) } })))),
     ...section('Traits', traitRows(g)),
-  );
+  ].filter(Boolean);
+}
+
+/**
+ * Open the sheet for a creature. sheetOpts: level, moves, lock, rename, release (see above) and nav, which lets the
+ * sheet cycle through a list: { items: [{ genome, opts }], index?, label? }. Arrows at the top and the left / right
+ * keys step through it, wrapping at the ends; each item is drawn with its own options in the same sheet.
+ */
+export function openSheet(g, sheetOpts = {}) {
+  closeSheet();
+  const list = sheetOpts.nav && Array.isArray(sheetOpts.nav.items) && sheetOpts.nav.items.length > 1 ? sheetOpts.nav : null;
+  let index = list ? (Number.isInteger(list.index) && list.items[list.index] ? list.index : Math.max(0, list.items.findIndex((it) => it.genome === g))) : 0;
+  const close = () => { backdrop.remove(); sheet.remove(); document.removeEventListener('keydown', onKey); if (activeSheet === close) activeSheet = null; };
+  const go = (step) => {
+    if (!list) return;
+    index = (index + step + list.items.length) % list.items.length;
+    const it = list.items[index];
+    draw(it.genome, it.opts || {});
+    sheet.scrollTop = 0;
+  };
+  const onKey = (e) => {
+    if (e.key === 'Escape') { close(); return; }
+    if (!list || (e.target && e.target.closest && e.target.closest('input, select, textarea'))) return;
+    if (e.key === 'ArrowLeft') { e.preventDefault(); e.stopPropagation(); go(-1); }
+    else if (e.key === 'ArrowRight') { e.preventDefault(); e.stopPropagation(); go(1); }
+  };
+  const backdrop = h('div', { class: 'sheet-backdrop', onclick: () => close() });
+  const sheet = h('section', { class: 'sheet', role: 'dialog', 'aria-modal': 'true', 'aria-label': g.name });
+  const draw = (gg, opts) => {
+    clear(sheet).append(...sheetContent(gg, opts, { close, nav: list ? { index, count: list.items.length, label: list.label, go } : null }));
+    sheet.setAttribute('aria-label', gg.name);
+  };
+  activeSheet = close;
+  draw(g, sheetOpts);
   document.body.append(backdrop, sheet);
-  document.addEventListener('keydown', onKey);
+  document.addEventListener('keydown', onKey, true);
 }

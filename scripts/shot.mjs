@@ -147,6 +147,29 @@ await page.screenshot({ path: path.join(out, 'world-tower-encounter.png'), fullP
 console.log('tower encounter:', JSON.stringify(await page.evaluate(() => ({ foes: document.querySelectorAll('.encounter .foe-card').length, head: document.querySelector('.enc-head b').textContent, levels: [...document.querySelectorAll('.foe-card > span')].map((s) => (s.textContent.match(/Lv (\d+)/) || [])[1]) }))));
 await page.click('.encounter .btn:has-text("Back down")');
 await page.waitForSelector('canvas.ow-map');
+// the first floor at level 50: tap the foe's panel in the fight and cycle its party with the sheet's arrows
+// (backing down leaves the player on the door tile, so step off and back on to open the tower again)
+await page.keyboard.press('ArrowUp');
+await page.waitForTimeout(250);
+await page.keyboard.press('ArrowDown');
+await page.waitForSelector('.tower-row', { timeout: 5000 });
+await page.click('.tower-tiers .btn:has-text("Lv 50")');
+await page.click('.tower-row:first-child .btn');
+await page.waitForSelector('.encounter.tower', { timeout: 5000 });
+await page.click('.encounter .btn.primary');
+await page.waitForSelector('.move-btn', { timeout: 20000 });
+await page.click('.panel-foe');
+await page.waitForSelector('.sheet .sheet-nav', { timeout: 5000 });
+const navBefore = await page.evaluate(() => ({ title: document.querySelector('.sheet h2').textContent, label: document.querySelector('.sheet-nav .hint').textContent }));
+await page.click('.sheet-nav .nav-next');
+await page.waitForTimeout(150);
+const navAfter = await page.evaluate(() => ({ title: document.querySelector('.sheet h2').textContent, label: document.querySelector('.sheet-nav .hint').textContent }));
+await page.keyboard.press('ArrowLeft');
+await page.waitForTimeout(150);
+const navBack = await page.evaluate(() => document.querySelector('.sheet-nav .hint').textContent);
+console.log('sheet nav:', JSON.stringify({ before: navBefore, after: navAfter, back: navBack }));
+await page.screenshot({ path: path.join(out, 'world-sheet-nav.png'), fullPage: true });
+await page.click('.sheet .close');
 const saved = await page.evaluate(() => { const s = JSON.parse(localStorage.getItem('creaturecollector.save')); return s && s.journey ? { steps: s.journey.stats.steps, battles: s.journey.stats.battles, pos: s.journey.player } : null; });
 console.log('saved journey:', JSON.stringify(saved));
 console.log('errors:', errors.length ? errors.join('\n') : 'none');

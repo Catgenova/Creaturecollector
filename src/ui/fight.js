@@ -58,13 +58,22 @@ function buildFight(f) {
   renderFightControls(f);
 }
 
+/** Sheet options for a battler: your own show their moves, a foe's only its level. */
+function sheetOptsFor(i, b) { return i === 0 ? { level: b.level, moves: b.moves.map((x) => x.id) } : { level: b.level }; }
+
+/** The list a battler's sheet cycles through: its whole side, drawn the same way. */
+function partyNav(st, i, b) {
+  const side = st.sides[i];
+  return { label: i === 0 ? 'Your party' : 'Their party', index: side.party.indexOf(b), items: side.party.map((p) => ({ genome: p.genome, opts: sheetOptsFor(i, p) })) };
+}
+
 function renderPanel(f, i) {
   const st = f.state, side = st.sides[i], b = activeOf(st, i);
   const el = i === 0 ? f.els.mePanel : f.els.foePanel;
   const frac = b.hp / b.maxHp;
   // tapping a panel opens the creature's sheet, so the full passive text is always a tap away on a small screen
   el.setAttribute('role', 'button'); el.setAttribute('tabindex', '0'); el.setAttribute('aria-label', `${b.name}: details`);
-  const open = () => openSheet(b.genome, i === 0 ? { level: b.level, moves: b.moves.map((x) => x.id) } : { level: b.level });
+  const open = () => openSheet(b.genome, { ...sheetOptsFor(i, b), nav: partyNav(st, i, b) });
   el.onclick = open;
   el.onkeydown = (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); open(); } };
   appendChildren(clear(el), [
@@ -317,7 +326,7 @@ function renderFightControls(f) {
   if (struggle) grid.append(h('button', { class: 'move-btn cat-melee', type: 'button', onclick: () => doFightStep(f, struggle) }, h('span', { class: 'mv-name' }, 'Struggle'), h('span', { class: 'mv-meta' }, 'No PP left')));
   const row = h('div', { class: 'row wrap' },
     h('button', { class: 'btn', type: 'button', onclick: () => openFightParty(f, false) }, `Party (${aliveCount(st.sides[0])})`),
-    h('button', { class: 'btn', type: 'button', onclick: () => openSheet(me.genome, { level: me.level, moves: me.moves.map((x) => x.id) }) }, 'Info'));
+    h('button', { class: 'btn', type: 'button', onclick: () => openSheet(me.genome, { ...sheetOptsFor(0, me), nav: partyNav(st, 0, me) }) }, 'Info'));
   const stock = itemStock(st);
   if (stock > 0) row.append(h('button', { class: 'btn', type: 'button', onclick: () => openFightItems(f) }, `Items (${stock})`));
   if (legal.some((a) => a.type === 'capture')) {

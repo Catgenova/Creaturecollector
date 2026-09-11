@@ -69,6 +69,9 @@ button, input, select, textarea { font: inherit; }
 }
 .sheet .grab { width: 44px; height: 5px; border-radius: 3px; background: var(--line); margin: 4px auto 12px; }
 .sheet-head { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.sheet-nav { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin: -6px 0 8px; }
+.sheet-nav .btn { min-width: 52px; min-height: 40px; font-size: 15px; }
+.sheet-nav .hint { margin: 0; text-align: center; }
 .sheet h2 { margin: 0; font-size: 20px; }
 .sheet .close { margin-left: auto; min-width: var(--tap); padding: 0; }
 .sheet-head .head-actions { margin-left: auto; display: inline-flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end; }
@@ -12674,8 +12677,11 @@ function renameButton(g, opts, titleEl, sheetEl) {
 let activeSheet = null;
 function closeSheet() { if (activeSheet) { activeSheet(); activeSheet = null; } }
 
-function openSheet(g, sheetOpts = {}) {
-  closeSheet();
+/**
+ * The sheet's contents for one creature. ctx.close closes the sheet; ctx.nav, when the sheet was opened over a
+ * list, is { index, count, label, go(step) } and puts previous / next arrows at the top.
+ */
+function sheetContent(g, sheetOpts, ctx) {
   const sp = speciesOf(g);
   let facing = 'right';
   let shown = g; // the sheet can preview the creature as an Elemental without changing it
@@ -12683,14 +12689,15 @@ function openSheet(g, sheetOpts = {}) {
   const hero = h('div', { class: 'hero' }, creatureEl(g, { size: 260, facing, fit: true, stage }));
   const redraw = () => clear(hero).append(creatureEl(shown, { size: 260, facing, fit: true, stage }));
   const stageRow = h('div', { class: 'chips-row stage-row' }, [1, 2, 3].map((st) => h('button', { class: `btn small stage-pick${stage === st ? ' on' : ''}`, type: 'button', title: st === 1 ? 'Below level 33' : st === 2 ? 'Level 33 and up' : 'Level 66 and up', onclick: () => { stage = st; for (const b of stageRow.children) b.classList.toggle('on', Number(b.dataset.stage) === st); redraw(); }, dataset: { stage: String(st) } }, stageName(st))));
-  const close = () => { backdrop.remove(); sheet.remove(); document.removeEventListener('keydown', onKey); if (activeSheet === close) activeSheet = null; };
-  activeSheet = close;
-  const onKey = (e) => { if (e.key === 'Escape') close(); };
-  const backdrop = h('div', { class: 'sheet-backdrop', onclick: close });
   const title = h('h2', {}, g.name, g.shiny ? ' ✦' : '');
-  const releaseBtn = sheetOpts.release ? releaseButton(sheetOpts.release, close) : null;
-  const sheet = h('section', { class: 'sheet', role: 'dialog', 'aria-modal': 'true', 'aria-label': g.name },
+  const releaseBtn = sheetOpts.release ? releaseButton(sheetOpts.release, ctx.close) : null;
+  const nav = ctx.nav;
+  return [
     h('div', { class: 'grab' }),
+    nav ? h('div', { class: 'sheet-nav' },
+      h('button', { class: 'btn small nav-prev', type: 'button', 'aria-label': 'Previous creature', title: 'Previous (left arrow)', onclick: () => nav.go(-1) }, '◀'),
+      h('span', { class: 'hint' }, `${nav.index + 1} of ${nav.count}${nav.label ? ` · ${nav.label}` : ''}`),
+      h('button', { class: 'btn small nav-next', type: 'button', 'aria-label': 'Next creature', title: 'Next (right arrow)', onclick: () => nav.go(1) }, '▶')) : null,
     h('div', { class: 'sheet-head' },
       title,
       typeChips(g.types),
@@ -12700,7 +12707,7 @@ function openSheet(g, sheetOpts = {}) {
         sheetOpts.lock ? lockButton(sheetOpts.lock, () => { if (releaseBtn) releaseBtn.refresh(); }) : null,
         sheetOpts.rename ? renameButton(g, sheetOpts.rename, title, null) : null,
         releaseBtn) : null,
-      h('button', { class: 'btn close', onclick: close, 'aria-label': 'Close' }, '✕')),
+      h('button', { class: 'btn close', onclick: ctx.close, 'aria-label': 'Close' }, '✕')),
     h('p', { class: 'meta' }, sp ? `${sp.name} · ${sp.tier}` : 'Fusion', ` · ${cladeName(cladeOf(g))} · gen ${g.gen} · seed ${g.seed}`),
     abilityCard(g),
     hero,
@@ -12719,9 +12726,42 @@ function openSheet(g, sheetOpts = {}) {
     ...section('Parts', partRows(g)),
     ...section('Palette', h('div', { class: 'swatches' }, ['c1', 'c2', 'c3', 'eye'].map((k) => h('span', { class: 'sw', title: k, style: { background: swatchCss(g.palette[k]) } })))),
     ...section('Traits', traitRows(g)),
-  );
+  ].filter(Boolean);
+}
+
+/**
+ * Open the sheet for a creature. sheetOpts: level, moves, lock, rename, release (see above) and nav, which lets the
+ * sheet cycle through a list: { items: [{ genome, opts }], index?, label? }. Arrows at the top and the left / right
+ * keys step through it, wrapping at the ends; each item is drawn with its own options in the same sheet.
+ */
+function openSheet(g, sheetOpts = {}) {
+  closeSheet();
+  const list = sheetOpts.nav && Array.isArray(sheetOpts.nav.items) && sheetOpts.nav.items.length > 1 ? sheetOpts.nav : null;
+  let index = list ? (Number.isInteger(list.index) && list.items[list.index] ? list.index : Math.max(0, list.items.findIndex((it) => it.genome === g))) : 0;
+  const close = () => { backdrop.remove(); sheet.remove(); document.removeEventListener('keydown', onKey); if (activeSheet === close) activeSheet = null; };
+  const go = (step) => {
+    if (!list) return;
+    index = (index + step + list.items.length) % list.items.length;
+    const it = list.items[index];
+    draw(it.genome, it.opts || {});
+    sheet.scrollTop = 0;
+  };
+  const onKey = (e) => {
+    if (e.key === 'Escape') { close(); return; }
+    if (!list || (e.target && e.target.closest && e.target.closest('input, select, textarea'))) return;
+    if (e.key === 'ArrowLeft') { e.preventDefault(); e.stopPropagation(); go(-1); }
+    else if (e.key === 'ArrowRight') { e.preventDefault(); e.stopPropagation(); go(1); }
+  };
+  const backdrop = h('div', { class: 'sheet-backdrop', onclick: () => close() });
+  const sheet = h('section', { class: 'sheet', role: 'dialog', 'aria-modal': 'true', 'aria-label': g.name });
+  const draw = (gg, opts) => {
+    clear(sheet).append(...sheetContent(gg, opts, { close, nav: list ? { index, count: list.items.length, label: list.label, go } : null }));
+    sheet.setAttribute('aria-label', gg.name);
+  };
+  activeSheet = close;
+  draw(g, sheetOpts);
   document.body.append(backdrop, sheet);
-  document.addEventListener('keydown', onKey);
+  document.addEventListener('keydown', onKey, true);
 }
 
 // ---- src/battle/stats.js ----
@@ -13648,13 +13688,22 @@ function buildFight(f) {
   renderFightControls(f);
 }
 
+/** Sheet options for a battler: your own show their moves, a foe's only its level. */
+function sheetOptsFor(i, b) { return i === 0 ? { level: b.level, moves: b.moves.map((x) => x.id) } : { level: b.level }; }
+
+/** The list a battler's sheet cycles through: its whole side, drawn the same way. */
+function partyNav(st, i, b) {
+  const side = st.sides[i];
+  return { label: i === 0 ? 'Your party' : 'Their party', index: side.party.indexOf(b), items: side.party.map((p) => ({ genome: p.genome, opts: sheetOptsFor(i, p) })) };
+}
+
 function renderPanel(f, i) {
   const st = f.state, side = st.sides[i], b = activeOf(st, i);
   const el = i === 0 ? f.els.mePanel : f.els.foePanel;
   const frac = b.hp / b.maxHp;
   // tapping a panel opens the creature's sheet, so the full passive text is always a tap away on a small screen
   el.setAttribute('role', 'button'); el.setAttribute('tabindex', '0'); el.setAttribute('aria-label', `${b.name}: details`);
-  const open = () => openSheet(b.genome, i === 0 ? { level: b.level, moves: b.moves.map((x) => x.id) } : { level: b.level });
+  const open = () => openSheet(b.genome, { ...sheetOptsFor(i, b), nav: partyNav(st, i, b) });
   el.onclick = open;
   el.onkeydown = (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); open(); } };
   appendChildren(clear(el), [
@@ -13907,7 +13956,7 @@ function renderFightControls(f) {
   if (struggle) grid.append(h('button', { class: 'move-btn cat-melee', type: 'button', onclick: () => doFightStep(f, struggle) }, h('span', { class: 'mv-name' }, 'Struggle'), h('span', { class: 'mv-meta' }, 'No PP left')));
   const row = h('div', { class: 'row wrap' },
     h('button', { class: 'btn', type: 'button', onclick: () => openFightParty(f, false) }, `Party (${aliveCount(st.sides[0])})`),
-    h('button', { class: 'btn', type: 'button', onclick: () => openSheet(me.genome, { level: me.level, moves: me.moves.map((x) => x.id) }) }, 'Info'));
+    h('button', { class: 'btn', type: 'button', onclick: () => openSheet(me.genome, { ...sheetOptsFor(0, me), nav: partyNav(st, 0, me) }) }, 'Info'));
   const stock = itemStock(st);
   if (stock > 0) row.append(h('button', { class: 'btn', type: 'button', onclick: () => openFightItems(f) }, `Items (${stock})`));
   if (legal.some((a) => a.type === 'capture')) {
@@ -15728,7 +15777,7 @@ function owStarterView(root, j) {
     cards,
     h('div', { class: 'row wrap' },
       h('button', { class: 'btn primary fuse-btn', type: 'button', disabled: !pick, onclick: () => { chooseJourneyStarter(j, ow.starterPick); recordCollection(ow.save, j.party[0].genome); owSave(); rerender(); } }, pick ? `Set out with ${pick.name}` : 'Pick a companion'),
-      pick ? h('button', { class: 'btn', type: 'button', onclick: () => openSheet(pick, { level: JOURNEY.starterLevel }) }, 'Details') : null,
+      pick ? h('button', { class: 'btn', type: 'button', onclick: () => openSheet(pick, { level: JOURNEY.starterLevel, nav: { label: 'Starters', index: ow.starterPick, items: j.starters.map((g) => ({ genome: g, opts: { level: JOURNEY.starterLevel } })) } }) }, 'Details') : null,
       h('button', { class: 'btn', type: 'button', onclick: () => { ow.save.journey = null; owSave(); rerender(); } }, 'Cancel')),
   );
 }
@@ -15837,6 +15886,7 @@ const KEY_DIRS = { ArrowUp: 'up', ArrowDown: 'down', ArrowLeft: 'left', ArrowRig
 
 function owKeyDown(e) {
   if (!ow.canvas || !ow.canvas.isConnected) return;
+  if (document.querySelector('.sheet')) return; // a sheet is open: its keys are its own
   const tag = e.target && e.target.tagName;
   if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
   const dir = KEY_DIRS[e.key];
@@ -16143,6 +16193,11 @@ function owInfoOpts(j, m, render) {
   };
 }
 
+/** The list an Info sheet cycles through: every member given, each with its own Lock, Rename and Release actions. */
+function owMemberNav(j, list, m, render, label) {
+  return { label, index: list.indexOf(m), items: list.map((mm) => ({ genome: mm.genome, opts: owInfoOpts(j, mm, render) })) };
+}
+
 function owPartySheet(j) {
   const body = h('div');
   const draw = () => {
@@ -16151,7 +16206,7 @@ function owPartySheet(j) {
     const partyList = h('div', { class: 'party-list' });
     j.party.forEach((m, i) => partyList.append(owMemberRow(j, m, [
       btn('Lead', () => { setLead(j, m.uid); owSave(); render(); }, i === 0),
-      btn('Info', () => openSheet(m.genome, owInfoOpts(j, m, render))),
+      btn('Info', () => openSheet(m.genome, { ...owInfoOpts(j, m, render), nav: owMemberNav(j, j.party, m, render, 'Party') })),
       owReleaseBtn(j, m, render),
     ])));
     appendChildren(body, [
@@ -16360,13 +16415,13 @@ function owStorageSheet(j) {
     j.party.forEach((m, i) => partyList.append(owMemberRow(j, m, [
       btn('Lead', () => { setLead(j, m.uid); owSave(); render(); }, i === 0),
       btn('Deposit', () => { moveMember(j, m.uid, 'box'); owSave(); render(); }, j.party.length <= 1),
-      btn('Info', () => openSheet(m.genome, owInfoOpts(j, m, render))),
+      btn('Info', () => openSheet(m.genome, { ...owInfoOpts(j, m, render), nav: owMemberNav(j, [...j.party, ...j.box], m, render, 'Party and storage') })),
       owReleaseBtn(j, m, render),
     ])));
     const boxList = h('div', { class: 'party-list' });
     for (const m of j.box) boxList.append(owMemberRow(j, m, [
       btn('Withdraw', () => { moveMember(j, m.uid, 'party'); owSave(); render(); }, j.party.length >= JOURNEY.partyMax),
-      btn('Info', () => openSheet(m.genome, owInfoOpts(j, m, render))),
+      btn('Info', () => openSheet(m.genome, { ...owInfoOpts(j, m, render), nav: owMemberNav(j, [...j.party, ...j.box], m, render, 'Party and storage') })),
       owReleaseBtn(j, m, render),
     ]));
     appendChildren(body, [
@@ -16413,11 +16468,12 @@ function owTowerSheet(j) {
 /** Grid of everything caught, chosen or fused, newest first. */
 function owCollectionGrid() {
   const grid = h('div', { class: 'pool' });
-  for (const e of ow.save.collection.slice().reverse()) {
-    grid.append(h('button', { class: 'pcard', type: 'button', onclick: () => openSheet(e.genome) },
+  const entries = ow.save.collection.slice().reverse();
+  entries.forEach((e, i) => {
+    grid.append(h('button', { class: 'pcard', type: 'button', onclick: () => openSheet(e.genome, { nav: { label: 'Collection', index: i, items: entries.map((x) => ({ genome: x.genome })) } }) },
       e.genome.gen ? h('span', { class: 'gen' }, `gen ${e.genome.gen}`) : null,
       creatureEl(e.genome, { size: 104, animate: false }), h('span', {}, e.genome.name)));
-  }
+  });
   return grid;
 }
 

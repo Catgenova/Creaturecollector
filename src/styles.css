@@ -53,6 +53,9 @@ button, input, select, textarea { font: inherit; }
 }
 .sheet .grab { width: 44px; height: 5px; border-radius: 3px; background: var(--line); margin: 4px auto 12px; }
 .sheet-head { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.sheet-nav { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin: -6px 0 8px; }
+.sheet-nav .btn { min-width: 52px; min-height: 40px; font-size: 15px; }
+.sheet-nav .hint { margin: 0; text-align: center; }
 .sheet h2 { margin: 0; font-size: 20px; }
 .sheet .close { margin-left: auto; min-width: var(--tap); padding: 0; }
 .sheet-head .head-actions { margin-left: auto; display: inline-flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end; }

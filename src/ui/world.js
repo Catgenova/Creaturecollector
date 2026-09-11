@@ -94,7 +94,7 @@ function owStarterView(root, j) {
     cards,
     h('div', { class: 'row wrap' },
       h('button', { class: 'btn primary fuse-btn', type: 'button', disabled: !pick, onclick: () => { chooseJourneyStarter(j, ow.starterPick); recordCollection(ow.save, j.party[0].genome); owSave(); rerender(); } }, pick ? `Set out with ${pick.name}` : 'Pick a companion'),
-      pick ? h('button', { class: 'btn', type: 'button', onclick: () => openSheet(pick, { level: JOURNEY.starterLevel }) }, 'Details') : null,
+      pick ? h('button', { class: 'btn', type: 'button', onclick: () => openSheet(pick, { level: JOURNEY.starterLevel, nav: { label: 'Starters', index: ow.starterPick, items: j.starters.map((g) => ({ genome: g, opts: { level: JOURNEY.starterLevel } })) } }) }, 'Details') : null,
       h('button', { class: 'btn', type: 'button', onclick: () => { ow.save.journey = null; owSave(); rerender(); } }, 'Cancel')),
   );
 }
@@ -203,6 +203,7 @@ const KEY_DIRS = { ArrowUp: 'up', ArrowDown: 'down', ArrowLeft: 'left', ArrowRig
 
 function owKeyDown(e) {
   if (!ow.canvas || !ow.canvas.isConnected) return;
+  if (document.querySelector('.sheet')) return; // a sheet is open: its keys are its own
   const tag = e.target && e.target.tagName;
   if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
   const dir = KEY_DIRS[e.key];
@@ -509,6 +510,11 @@ function owInfoOpts(j, m, render) {
   };
 }
 
+/** The list an Info sheet cycles through: every member given, each with its own Lock, Rename and Release actions. */
+function owMemberNav(j, list, m, render, label) {
+  return { label, index: list.indexOf(m), items: list.map((mm) => ({ genome: mm.genome, opts: owInfoOpts(j, mm, render) })) };
+}
+
 function owPartySheet(j) {
   const body = h('div');
   const draw = () => {
@@ -517,7 +523,7 @@ function owPartySheet(j) {
     const partyList = h('div', { class: 'party-list' });
     j.party.forEach((m, i) => partyList.append(owMemberRow(j, m, [
       btn('Lead', () => { setLead(j, m.uid); owSave(); render(); }, i === 0),
-      btn('Info', () => openSheet(m.genome, owInfoOpts(j, m, render))),
+      btn('Info', () => openSheet(m.genome, { ...owInfoOpts(j, m, render), nav: owMemberNav(j, j.party, m, render, 'Party') })),
       owReleaseBtn(j, m, render),
     ])));
     appendChildren(body, [
@@ -726,13 +732,13 @@ function owStorageSheet(j) {
     j.party.forEach((m, i) => partyList.append(owMemberRow(j, m, [
       btn('Lead', () => { setLead(j, m.uid); owSave(); render(); }, i === 0),
       btn('Deposit', () => { moveMember(j, m.uid, 'box'); owSave(); render(); }, j.party.length <= 1),
-      btn('Info', () => openSheet(m.genome, owInfoOpts(j, m, render))),
+      btn('Info', () => openSheet(m.genome, { ...owInfoOpts(j, m, render), nav: owMemberNav(j, [...j.party, ...j.box], m, render, 'Party and storage') })),
       owReleaseBtn(j, m, render),
     ])));
     const boxList = h('div', { class: 'party-list' });
     for (const m of j.box) boxList.append(owMemberRow(j, m, [
       btn('Withdraw', () => { moveMember(j, m.uid, 'party'); owSave(); render(); }, j.party.length >= JOURNEY.partyMax),
-      btn('Info', () => openSheet(m.genome, owInfoOpts(j, m, render))),
+      btn('Info', () => openSheet(m.genome, { ...owInfoOpts(j, m, render), nav: owMemberNav(j, [...j.party, ...j.box], m, render, 'Party and storage') })),
       owReleaseBtn(j, m, render),
     ]));
     appendChildren(body, [
@@ -779,11 +785,12 @@ function owTowerSheet(j) {
 /** Grid of everything caught, chosen or fused, newest first. */
 function owCollectionGrid() {
   const grid = h('div', { class: 'pool' });
-  for (const e of ow.save.collection.slice().reverse()) {
-    grid.append(h('button', { class: 'pcard', type: 'button', onclick: () => openSheet(e.genome) },
+  const entries = ow.save.collection.slice().reverse();
+  entries.forEach((e, i) => {
+    grid.append(h('button', { class: 'pcard', type: 'button', onclick: () => openSheet(e.genome, { nav: { label: 'Collection', index: i, items: entries.map((x) => ({ genome: x.genome })) } }) },
       e.genome.gen ? h('span', { class: 'gen' }, `gen ${e.genome.gen}`) : null,
       creatureEl(e.genome, { size: 104, animate: false }), h('span', {}, e.genome.name)));
-  }
+  });
   return grid;
 }
 

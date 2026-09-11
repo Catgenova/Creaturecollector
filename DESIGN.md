@@ -732,7 +732,11 @@ into the collection on load.
   Rename (a nickname of up to 16 characters, stored as the genome's name) and
   Lock: a locked creature cannot be released or fused at the shrine
   (`member.locked`, kept by the save). Sheet re-renders keep the scroll
-  position (`owKeepScroll`).
+  position (`owKeepScroll`). Arrows at the top of the sheet, and the left and
+  right keys, cycle through the list it was opened from (`sheetOpts.nav`):
+  the party, party and storage together, the collection, the three starters,
+  or in a fight your own or the opposing party, each creature drawn with its
+  own actions; the map ignores keys while any sheet is open.
 - **Battle Tower** (`src/game/tower.js`). A keep on the hub's south-west edge
   with six floors, each a trainer who fights six on six with random creatures at
   a level the player picks from 50, 60, 70, 80, 90 or 100 (`TOWER.levels`).
