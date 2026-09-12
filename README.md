@@ -18,9 +18,9 @@ Phase 2 — Fusion: fuse any two creatures of a class into one, with an
 inheritance report; stress-tested over five generations. It shipped as a
 Fusion Lab tab and now lives at the overworld's shrine.
 
-Phase 3 — Battle: a deterministic, headless battle engine (531 moves, 900
-passives, status, stages, switching, parties of five, AI opponent, balance
-simulator) and a portrait fight view.
+Phase 3 — Battle: a deterministic, headless battle engine (549 moves, 1,000
+passives, weather and terrain, status, stages, switching, parties of five, AI
+opponent, balance simulator) and a portrait fight view.
 
 Phase 4 — The game loop: starters, in-battle capture, XP and levels, party and
 box, autosave with export and import, and a persistent collection. It first
@@ -105,10 +105,23 @@ region you hold a badge for has an Elder waiting at its lair, a rare of that
 class at level 78 that shows itself once and can be caught.
 
 Dex, Index and Team: the Dex searches every class at once by name, filters by
-type and by caught, seen or missing, indexes all 900 passives and 531 moves
+type and by caught, seen or missing, indexes all 1,000 passives and 549 moves
 with a search that also reads the wording, and reads your party back to you:
 what it can hit, what hits it for double, and how it splits across the
 Melee, Ranged and Magic triangle.
+
+The field: four weathers (Harsh Sun, Rain, Sandstorm, Snowfall) and three
+terrains (Grassy, Charged, Misty), five turns each, set by eighteen new moves,
+by a hundred new passives as their owner walks in, or by the region the fight
+started in — the Ember Scar opens bright, the Fen wet, the Warren all grit.
+Weather lifts and smothers by type and wears down anything not born in it;
+terrain only reaches what is standing on it, so a Flying type is above all of
+it. A chip under the arena names what is up and how long it has left.
+
+Settings and slots: sound, battle speed, text size, motion and contrast are
+kept in their own key, so they follow you across saves; three save slots hold
+three journeys at once, and the picker shows the badges, party and gold in
+each.
 
 Trainers: each of the road's trainers has one of eight personalities that
 leans their team towards a damage style and gives them their own rematch

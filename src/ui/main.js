@@ -6,20 +6,28 @@ import { partCount } from '../data/parts/index.js';
 import { SPECIES } from '../data/species.js';
 import { sfx, setSfxEnabled, sfxEnabled } from '../core/sfx.js';
 import { setRenderStyle, getRenderStyle, setReducedMotion } from '../creature/render.js';
+import { loadSettings, saveSettings, applySettings } from '../game/settings.js';
+import { getSettings, setSettings } from './settings.js';
 
 function bootApp() {
   const app = document.getElementById('app');
   clear(app);
   try { const s = new URLSearchParams(location.search).get('style'); if (s) setRenderStyle(s); } catch { /* ignore */ }
-  try { const mq = matchMedia('(prefers-reduced-motion: reduce)'); setReducedMotion(mq.matches); mq.addEventListener('change', (e) => setReducedMotion(e.matches)); } catch { /* ignore */ }
+  const settings = setSettings(applySettings(loadSettings()));
+  try {
+    const mq = matchMedia('(prefers-reduced-motion: reduce)');
+    const motionOff = () => setReducedMotion(mq.matches || getSettings().motion === 'reduced');
+    motionOff(); mq.addEventListener('change', motionOff);
+  } catch { /* ignore */ }
   const main = h('main', { class: 'screen' });
-  try { setSfxEnabled(localStorage.getItem('creaturecollector.sfx') !== 'off'); } catch { /* default on */ }
+  setSfxEnabled(settings.sound);
   const soundBtn = h('button', { class: 'btn small sound', type: 'button', 'aria-label': 'Toggle sound', onclick: () => {
-    setSfxEnabled(!sfxEnabled());
-    try { localStorage.setItem('creaturecollector.sfx', sfxEnabled() ? 'on' : 'off'); } catch { /* ignore */ }
-    soundBtn.textContent = sfxEnabled() ? '🔊' : '🔇';
-    if (sfxEnabled()) sfx.tap();
-  } }, sfxEnabled() ? '🔊' : '🔇');
+    const next = setSettings({ ...getSettings(), sound: !sfxEnabled() });
+    setSfxEnabled(next.sound);
+    saveSettings(next);
+    soundBtn.textContent = next.sound ? '🔊' : '🔇';
+    if (next.sound) sfx.tap();
+  } }, settings.sound ? '🔊' : '🔇');
   app.append(
     h('header', { class: 'topbar' }, h('h1', {}, 'Creature Collector'), h('span', { class: 'ver' }, `${SPECIES.length} species · ${partCount()} parts${getRenderStyle() !== 'classic' ? ` · ${getRenderStyle()} style` : ''}`), soundBtn),
     main,

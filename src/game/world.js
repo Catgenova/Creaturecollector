@@ -389,33 +389,47 @@ export function generateWorld(seed) {
   });
 
   // assign biomes (jittered Voronoi) and terrain
+  // Everything a tile needs is looked up by biome index and worked out once: this loop runs 43,008 times
+  // and every allocation, closure or repeated sum inside it is paid forty thousand times over.
   const habTypes = Object.fromEntries(BIOME_ORDER.map((c) => [c, habitatTypesFor(c)]));
+  const nBiomes = biomes.length;
+  const wedges = new Float64Array(nBiomes);
+  const regionOf = new Array(nBiomes), habListOf = new Array(nBiomes), habTotalOf = new Float64Array(nBiomes);
+  for (let i = 0; i < nBiomes; i++) {
+    wedges[i] = biomes[i].wedge;
+    regionOf[i] = REGIONS[biomes[i].clade];
+    const list = habTypes[biomes[i].clade];
+    habListOf[i] = list.map(([ty, wt]) => [TYPE_LIST.indexOf(ty) + 1, wt]);
+    let total = 0; for (const [, wt] of list) total += wt;
+    habTotalOf[i] = total;
+  }
+  const TAU = Math.PI * 2;
+  const nHab = n1 ^ n4, nCell = n2 ^ n3;
   for (let y = 0; y < h; y++) {
     for (let x = 0; x < w; x++) {
       // boundaries stay crisp near the Crossroads, so the gentlest biome always begins straight south of town, and wander further out
       const jit = 8 * Math.min(1, Math.max(0, (Math.hypot(x - hub.x, y - hub.y) - WORLD.hubR) / 24));
       const jx = x + (fbm(n1, x, y, 9) - 0.5) * jit, jy = y + (fbm(n2, x, y, 9) - 0.5) * jit;
       // wedges around the hub by angle: the centres sit on one ring, so this is their Voronoi split with even slices that stay put as classes are added
-      const ta = Math.atan2((jy - hub.y) / h, (jx - hub.x) / w), TAU = Math.PI * 2;
+      const ta = Math.atan2((jy - hub.y) / h, (jx - hub.x) / w);
       let best = 0, bd = Infinity;
-      biomes.forEach((b, i) => { let d = Math.abs((((ta - b.wedge) % TAU) + TAU) % TAU); d = Math.min(d, TAU - d); if (d < bd) { bd = d; best = i; } });
+      for (let k = 0; k < nBiomes; k++) { let d = Math.abs((((ta - wedges[k]) % TAU) + TAU) % TAU); d = Math.min(d, TAU - d); if (d < bd) { bd = d; best = k; } }
       const i = idx(x, y);
       bio[i] = best;
-      const region = REGIONS[biomes[best].clade];
+      const region = regionOf[best];
       let t = TILE.grass;
       if (x < 2 || y < 2 || x >= w - 2 || y >= h - 2) t = TILE.wall;
       else if (fbm(n3, x, y, 7) > region.waterT) t = TILE.water;
       else if (fbm(n4, x, y, 6) > 0.6) t = TILE.wall;
-      else if (fbm(n1 ^ n4, x + 37, y + 91, 5) > 0.5) t = TILE.habitat;
+      else if (fbm(nHab, x + 37, y + 91, 5) > 0.5) t = TILE.habitat;
       tiles[i] = t;
       if (t === TILE.habitat) {
         // one element per coarse cell so a patch reads as one kind of place
-        const cellR = latticeHash(n2 ^ n3, Math.floor(x / 6), Math.floor(y / 6));
-        const list = habTypes[biomes[best].clade];
-        let total = 0; for (const [, wt] of list) total += wt;
-        let acc = cellR * total, type = list[list.length - 1][0];
-        for (const [ty, wt] of list) { acc -= wt; if (acc < 0) { type = ty; break; } }
-        hab[i] = TYPE_LIST.indexOf(type) + 1;
+        const cellR = latticeHash(nCell, Math.floor(x / 6), Math.floor(y / 6));
+        const list = habListOf[best];
+        let acc = cellR * habTotalOf[best], code = list[list.length - 1][0];
+        for (let k = 0; k < list.length; k++) { acc -= list[k][1]; if (acc < 0) { code = list[k][0]; break; } }
+        hab[i] = code;
       }
     }
   }

@@ -72,7 +72,7 @@ if (fighting) {
   console.log('info skill:', JSON.stringify(await page.evaluate(() => { const c = document.querySelector('.sheet .ability-card'); return c ? c.textContent : null; })));
   console.log('learn tags:', JSON.stringify(await page.evaluate(() => [...document.querySelectorAll('.sheet .shop-row .shop-tag')].map((t) => t.textContent))));
   await page.click('.sheet .close');
-  await page.click('text=Fast');
+  await page.click('.speed-btn'); // Normal -> Fast
   await page.click('text=Auto');
   await page.waitForSelector('.result-card', { timeout: 90000 });
   await page.click('text=Continue');

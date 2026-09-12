@@ -131,22 +131,68 @@ function storageOf(storage) {
   try { return globalThis.localStorage || null; } catch { return null; }
 }
 
-export function loadSave(storage) {
+// ---- save slots -------------------------------------------------------------------------------
+// Three journeys can be kept at once. Each slot is its own key; one more key remembers which is in
+// play, and everything that already said loadSave/persistSave goes on meaning "the slot in play".
+export const SLOTS = 3;
+export const SLOT_KEY = 'creaturecollector.slot';
+/** The storage key a slot lives under. Slot 1 keeps the original key, so an old save is already in it. */
+export function slotKey(n) { return n === 1 ? SAVE_KEY : `${SAVE_KEY}.${n}`; }
+export function slotNumber(n) { const v = Math.floor(Number(n)); return v >= 1 && v <= SLOTS ? v : 1; }
+
+/** Which slot is in play (1 when nothing has been chosen). */
+export function activeSlot(storage) {
+  const st = storageOf(storage);
+  if (!st) return 1;
+  try { return slotNumber(st.getItem(SLOT_KEY)); } catch { return 1; }
+}
+/** Put a slot in play. Returns the slot number actually set. */
+export function useSlot(n, storage) {
+  const st = storageOf(storage);
+  const slot = slotNumber(n);
+  try { if (st) st.setItem(SLOT_KEY, String(slot)); } catch { /* a blocked storage still plays, it just forgets */ }
+  return slot;
+}
+
+export function loadSlot(n, storage) {
   const st = storageOf(storage);
   if (!st) return emptySave();
-  try { const raw = st.getItem(SAVE_KEY); return raw ? normalizeSave(JSON.parse(raw)) : emptySave(); } catch { return emptySave(); }
+  try { const raw = st.getItem(slotKey(slotNumber(n))); return raw ? normalizeSave(JSON.parse(raw)) : emptySave(); } catch { return emptySave(); }
 }
-
-export function persistSave(save, storage) {
+export function persistSlot(save, n, storage) {
   const st = storageOf(storage);
   if (!st) return false;
-  try { st.setItem(SAVE_KEY, JSON.stringify(save)); return true; } catch { return false; }
+  try { st.setItem(slotKey(slotNumber(n)), JSON.stringify(save)); return true; } catch { return false; }
+}
+export function clearSlot(n, storage) {
+  const st = storageOf(storage);
+  try { if (st) st.removeItem(slotKey(slotNumber(n))); } catch { /* ignore */ }
 }
 
-export function clearSave(storage) {
+/** What a slot looks like from the outside, for the picker: enough to tell three journeys apart. */
+export function slotSummary(n, storage) {
+  const slot = slotNumber(n);
   const st = storageOf(storage);
-  try { if (st) st.removeItem(SAVE_KEY); } catch { /* ignore */ }
+  let raw = null;
+  try { raw = st ? st.getItem(slotKey(slot)) : null; } catch { raw = null; }
+  if (!raw) return { slot, empty: true, journey: null, journeys: 0, caught: 0, collection: 0, champion: false };
+  const save = loadSlot(slot, storage);
+  const j = save.journey;
+  return {
+    slot,
+    empty: false,
+    journey: j ? { seed: j.seed, phase: j.phase, badges: (j.badges || []).length, party: j.party.length, level: j.party.length ? Math.max(...j.party.map((m) => m.level)) : 0, steps: j.stats.steps, gold: j.gold || 0, champion: Boolean(j.champion) } : null,
+    journeys: save.totals.journeys,
+    caught: Object.keys((save.dex && save.dex.caught) || {}).length,
+    collection: save.collection.length,
+    champion: save.totals.champions > 0,
+  };
 }
+export function slotSummaries(storage) { return Array.from({ length: SLOTS }, (_, i) => slotSummary(i + 1, storage)); }
+
+export function loadSave(storage) { return loadSlot(activeSlot(storage), storage); }
+export function persistSave(save, storage) { return persistSlot(save, activeSlot(storage), storage); }
+export function clearSave(storage) { clearSlot(activeSlot(storage), storage); }
 
 export function exportSave(save) { return SAVE_PREFIX + b64uEncode(JSON.stringify(save)); }
 

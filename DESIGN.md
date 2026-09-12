@@ -1649,6 +1649,136 @@ the doorway opens it like the Market, the Storage, the Tower and the Bounty
 Office. The map changed, so the world version moves to 12 and saved journeys
 regenerate their map.
 
+## The field: weather and terrain (implemented)
+
+The engine had no field layer at all. Nine hundred passives and 531 moves read
+the two creatures in front of them and nothing else, so every fight was played
+on the same blank floor under the same blank sky.
+
+**The sky.** Four weathers, each five turns long: Harsh Sun (Fire 1.5x, Water
+at half), Rain (the reverse), Sandstorm (a sixteenth of max HP a turn off
+everything but Rock, Ground and Steel, and Rock types keep 1.5x Magic Def) and
+Snowfall (the same bite, sparing Ice, and Ice types keep 1.5x Melee Def).
+Harsh Sun also refuses to let anything freeze.
+
+**The ground.** Three terrains, five turns each, and they only reach what is
+standing on them — a Flying type or anything that hovers is above the whole
+argument. Grassy Field lifts Grass moves by 30% and mends a sixteenth of max HP
+a turn; Charged Field lifts Electric by 30% and lets nothing sleep; Misty Field
+halves Dragon moves and refuses every status.
+
+**Who sets it.** Eighteen new moves: four weather callers, three ground
+raisers, Clear Skies to sweep both away, and ten that cash the field in —
+Solar Lance at 1.5x in the sun (2.25x with the sun's own Fire bonus),
+Thunderline and Frost Gale, 70% accuracy moves that never miss in their own
+weather, Static Spike and Rootdraw and Mist Lash for the ground, and
+Weathervane, a Normal magic attack that takes whatever type the sky is. A
+weather move that names the weather already up simply fails, which is what
+stops the AI looping on it.
+
+**A hundred new passives**, taking the pool to a round thousand. Thirteen new
+entry kinds carry them: `entryWeather` and `entryTerrain` bring a field in as
+their owner walks on, `weatherBoost`/`terrainBoost` pay for attacks,
+`weatherStat`/`terrainStat` move a stat while it holds (Sun Sprint doubles
+Speed in the sun; Dune Racer does it in the sand), `weatherDef` softens what
+lands, `weatherHeal`/`terrainHeal` mend each turn, `weatherEvade` hides in the
+grit, `weatherImmune` shrugs the chip damage off, `fieldExtend` makes what its
+owner sets last eight turns instead of five, and `noWeather` flattens the sky
+for both sides while it is out. They are homed by climate: sun passives sit on
+Fire and Grass species, rain on Water and Electric, sand on Ground, Rock and
+Steel, snow on Ice and Flying, the terrains on Grass, Bug, Electric, Fairy,
+Ghost and Psychic, with the weatherproof ones on Rock, Steel, Normal, Ground
+and Dragon. 122 homes over 100 passives, every one of them carried.
+
+**The map argues first.** A fight in the open has a 35% chance of opening under
+the region's own sky and another 35% of its own ground: the Ember Scar and the
+Brimstone Sinks are bright, Drakefell Peaks and Windward Crags are cold, the
+Fen, the Marsh and the Lagoon are wet, the Warren, the Barrows, the Caverns and
+the Gorge are all grit, the Downs and the Wilds and the Meadow are grass, the
+Sporewood and the Chasm and the Hollow are misty, and the Sump crackles.
+Indoor fights — the Tower, the Trial, a Warden's hall, the Council — start on a
+clear field.
+
+**The AI** scores a field by what it would actually get out of it: the attacks
+it holds that the weather pays for, whether its own types are lifted or
+smothered, whether the grit would wear it down, and the same sum for the
+creature opposite. It never calls for weather that is already up, and Clear
+Skies is worth something only when the field favours the other side.
+
+**Reading it.** A chip under the arena names each of the two with its clock,
+in the weather's own colour, and the log calls it as it lands and as it runs
+out. Move cards say `×1.5 in Harsh Sun` or `never misses in Rain` in the same
+plain words as every other side effect, and a passive's text is generated from
+its entries as usual, so `Speed is 2x in Harsh Sun` needs no hand-writing.
+
+## Settings and save slots (implemented)
+
+The game had one switch (a speaker in the header) and one save (a single
+`creaturecollector.save` key), which is thin for something with this many
+screens.
+
+**Settings** live in their own key, apart from the save, because they belong to
+the person playing rather than to a journey: sound on or off, battle speed
+(Normal, Fast at 0.35x every pause, Instant at 0.08x), text size, motion and
+contrast. The Speed button in a fight walks the same three speeds and writes
+the choice back, so setting it mid-battle sets it for good. Text size is the
+awkward one: the stylesheet is written in pixels rather than ems, so growing
+the type honestly means scaling the page — `zoom` on the root element at 1.12
+and 1.25, which reflows the layout as if the screen were smaller instead of
+overflowing it. Reduced motion and high contrast are one data attribute each
+on the root, read by a handful of rules at the end of the stylesheet, and
+reduced motion also reaches the sprite renderer's own animation switch. The
+old lone sound key is carried over the first time the new one is written.
+
+**Three save slots.** Slot one keeps the original key, so anyone who was
+already playing is in slot one without a migration; slots two and three are
+`creaturecollector.save.2` and `.3`, and one more key remembers which is in
+play. Everything in the game that already said `loadSave`/`persistSave` now
+means "the slot in play", so the whole app took the change without edits.
+The picker shows what is in each: badges, party size, top level, steps and
+gold for a journey in progress, or the journeys finished and species caught
+for a slot between runs. Switching saves what is in play first. Export and
+import work on the slot in play, so a code can be moved from one to another.
+
+## Load time (implemented)
+
+The single file had grown to 2.66 MB and nothing was painted until all of it
+had been parsed: on a phone that is a second or two of empty screen. Rather
+than guess, the boot was profiled in the browser (Chrome's sampling profiler
+driven over CDP) and in Node, and the numbers redirected the work twice.
+
+**What the profile said.** Cold, the browser spent 409 ms in `(program)` —
+parsing and compiling the script — and only about 40 ms in our own top-level
+code, most of it building the 1,614 part objects. Loading straight into a
+journey added roughly 140 ms of world generation and 77 ms of collection. So
+the part library was not worth making lazy (40 ms), and neither was the idea
+of shipping the species table as JSON: a benchmark of the same 895 records as
+an object literal against `JSON.parse` came out at 88 ms versus 84 ms from
+navigation, for 24% more bytes. Both ideas were dropped on the evidence.
+
+**A card that paints before the script runs.** The template now carries a
+small boot card inside `#app`, which the app clears when it takes over. First
+contentful paint went from 456 ms to 60 ms cold, and from 480 ms to 36 ms when
+loading into a journey: the same work happens, but the player is looking at
+the game's name rather than at nothing.
+
+**A squeeze on the way out.** `build.js` now strips comments and indentation
+from the bundle: 2.66 MB to 2.43 MB, about 230 KB less to parse. It is a
+scanner rather than a regex, because a `//` inside a string, a slash that
+starts a regex and a template literal that spans lines all have to be told
+apart, and it never joins lines, so automatic semicolon insertion behaves
+exactly as it did. The result is compiled with `new Function` during the build,
+so a squeeze that broke the syntax could never reach a browser, and
+`node build.js --pretty` keeps the built file readable when you want to read it.
+
+**The world loop.** Generation is 43,008 tiles of jittered Voronoi and value
+noise, so everything inside it is paid forty thousand times: the per-tile
+closure over the eighteen biomes, the region lookup, and the habitat weight
+sum are now worked out once into flat tables. The generated world is byte for
+byte what it was — checked by hashing the tile, biome and habitat arrays for
+three seeds before and after — since every existing save reads its map back
+out of the same seed.
+
 ## Mobile view (implemented)
 
 The game was drawn for a phone from the start (portrait layout, 44px targets,

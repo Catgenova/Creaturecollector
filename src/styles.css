@@ -164,6 +164,33 @@ h3.sec { font-size: 12px; text-transform: uppercase; letter-spacing: .1em; color
 @keyframes shake { 0%, 100% { transform: translateX(0); filter: none; } 20% { transform: translateX(-8px); filter: brightness(1.8); } 40% { transform: translateX(8px); } 60% { transform: translateX(-6px); filter: brightness(1.8); } 80% { transform: translateX(6px); } }
 @keyframes lunge-r { 0%, 100% { transform: translate(0, 0); } 40% { transform: translate(28px, -10px); } }
 @keyframes lunge-l { 0%, 100% { transform: translate(0, 0); } 40% { transform: translate(-28px, -10px); } }
+/* the boot card: painted from the markup before a byte of script runs, and cleared by the app itself */
+.boot { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; min-height: 70dvh; color: var(--fg2); text-align: center; }
+.boot b { color: var(--fg); font-size: 19px; letter-spacing: .2px; }
+.boot span { font-size: 13px; }
+.boot-mark { font-size: 34px; color: var(--acc); animation: bootpulse 1.4s ease-in-out infinite; }
+@keyframes bootpulse { 0%, 100% { opacity: .35; transform: scale(.94); } 50% { opacity: 1; transform: scale(1.06); } }
+@media (prefers-reduced-motion: reduce) { .boot-mark { animation: none; opacity: .8; } }
+
+/* settings: type size scales the page itself (see game/settings.js), motion and contrast are read off the root */
+html[data-motion="reduced"] *, html[data-motion="reduced"] *::before, html[data-motion="reduced"] *::after {
+  animation-duration: .001ms !important; animation-iteration-count: 1 !important; transition-duration: .001ms !important;
+}
+html[data-contrast="high"] {
+  --bg: #05060a; --bg2: #14161f; --bg3: #232636; --fg: #ffffff; --fg2: #cfd4e4; --line: #6a7191;
+}
+html[data-contrast="high"] .panel { background: var(--bg2); }
+html[data-contrast="high"] .hint, html[data-contrast="high"] .meta, html[data-contrast="high"] .shop-meta { color: var(--fg2); }
+html[data-contrast="high"] .battle-log .line { opacity: .85; }
+.set-row { display: flex; flex-wrap: wrap; gap: 6px 12px; align-items: baseline; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid var(--line); }
+.set-row .set-label { flex: 1 1 180px; min-width: 0; }
+.set-row .set-label span { display: block; margin: 2px 0 0; }
+.set-row .toolbar { margin: 0; }
+.shop-row.on { border-color: var(--acc); }
+.field-bar { display: flex; flex-wrap: wrap; gap: 6px; margin: 6px 0 0; }
+.field-chip { display: inline-flex; align-items: center; gap: 5px; font-size: 11px; font-weight: 700; letter-spacing: .02em; text-transform: uppercase; padding: 3px 8px; border-radius: 999px; color: var(--chip); border: 1px solid var(--chip); background: color-mix(in srgb, var(--chip) 14%, transparent); }
+.field-icon { font-size: 12px; }
+.field-turns { font-weight: 800; color: var(--fg2); }
 .battle-log { min-height: 56px; margin: 8px 0; padding: 8px 12px; background: var(--bg2); border: 1px solid var(--line); border-radius: 12px; font-size: 14px; line-height: 1.35; }
 .battle-log .line { opacity: .6; }
 .battle-log .line:last-child { opacity: 1; font-weight: 600; }

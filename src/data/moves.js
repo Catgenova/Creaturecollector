@@ -11,9 +11,13 @@
 //   { k:'pierce' }       ignore the target's defence boosts (and the user's attack drops), like a critical hit
 //   { k:'recharge' }     the user rests the turn after a hit           { k:'cleanse' }   reset the target's stat stages
 //   { k:'boostIfLow', m } power ×m at a third HP or less               { k:'boostIfFirst', m } power ×m when the target has not moved yet
+//   { k:'weather', w } / { k:'terrain', t } / { k:'clearField' }        set the sky, set the ground, or sweep both away
+//   { k:'weatherPower', w, m } / { k:'terrainPower', t, m }             power ×m while that weather holds / on that ground
+//   { k:'sureShotIn', w } never misses in that weather                  { k:'weatherType' } the move takes the weather's own type
 // flags: contact, punch, bite, powder, sound. `signature: speciesId` marks a rare's own move: learned at 38, never sold.
 
 import { STAT_NAMES } from './damage.js';
+import { WEATHER, TERRAIN } from './field.js';
 
 /**
  * PP rule: the harder a move hits, or the nastier its side effect, the fewer times it can be used.
@@ -26,7 +30,7 @@ import { STAT_NAMES } from './damage.js';
 export const PP_RULE = {
   bands: [[40, 35], [50, 30], [60, 25], [70, 20], [90, 15], [100, 10], [Infinity, 5]],
   multiHits: 3, fixedAsPower: 60, strongStatus: 30, strongFlinch: 30, strongStat: 50,
-  status: { sleepOrFreeze: 10, major: 15, heal: 10, sharpStat: 20, stat: 30, other: 30 },
+  status: { sleepOrFreeze: 10, major: 15, heal: 10, sharpStat: 20, stat: 30, field: 10, other: 30 },
 };
 const sharpStat = (f) => Object.entries(f.stats).some(([k, v]) => Math.abs(v) >= 2 || k === 'acc' || k === 'eva') || Object.keys(f.stats).length >= 3;
 export function ppFor(mv) {
@@ -35,6 +39,7 @@ export function ppFor(mv) {
   const status = find('status'), flinch = find('flinch'), stat = find('stat'), heal = find('heal'), drain = find('drain'), multi = find('multi'), fixed = find('fixed');
   const R = PP_RULE;
   if (mv.cat === 'status') {
+    if (fx.some((f) => f.k === 'weather' || f.k === 'terrain' || f.k === 'clearField')) return R.status.field;
     if (status) return status.s === 'slp' || status.s === 'frz' ? R.status.sleepOrFreeze : R.status.major;
     if (heal) return R.status.heal;
     if (stat) return sharpStat(stat) ? R.status.sharpStat : R.status.stat;
@@ -92,6 +97,13 @@ export function moveEffects(mv) {
       case 'cleanse': out.push('resets foe stat changes'); break;
       case 'boostIfLow': out.push(`×${f.m} at low HP`); break;
       case 'boostIfFirst': out.push(`×${f.m} moving first`); break;
+      case 'weather': out.push(`sets ${WEATHER[f.w].name}`); break;
+      case 'terrain': out.push(`sets ${TERRAIN[f.t].name}`); break;
+      case 'clearField': out.push('clears the field'); break;
+      case 'weatherPower': out.push(`×${f.m} in ${WEATHER[f.w].name}`); break;
+      case 'terrainPower': out.push(`×${f.m} on ${TERRAIN[f.t].name}`); break;
+      case 'sureShotIn': out.push(`never misses in ${WEATHER[f.w].name}`); break;
+      case 'weatherType': out.push('takes the weather’s type'); break;
       default: break;
     }
   }
@@ -678,6 +690,26 @@ export const MOVES = [
   m('moonbeam_chant', 'Moonbeam Chant', 'Fairy', 'magic', 100, 90),
   m('wisp_focus', 'Wisp Focus', 'Fairy', 'status', 0, null, { fx: [STAT('self', {melee: 1, meleeDef: 1})] }),
   m('charm_focus', 'Charm Focus', 'Fairy', 'status', 0, null, { fx: [STAT('self', {magic: 2})] }),
+
+  // ---- the field pass: moves that argue with the sky and the ground, and the ones that cash it in ----
+  m('sunflare', 'Sunflare', 'Fire', 'status', 0, null, { fx: [{ k: 'weather', w: 'sun' }] }),
+  m('cloudburst', 'Cloudburst', 'Water', 'status', 0, null, { fx: [{ k: 'weather', w: 'rain' }] }),
+  m('duststorm', 'Duststorm', 'Ground', 'status', 0, null, { fx: [{ k: 'weather', w: 'sand' }] }),
+  m('snowveil', 'Snowveil', 'Ice', 'status', 0, null, { fx: [{ k: 'weather', w: 'snow' }] }),
+  m('wildgrass', 'Wildgrass', 'Grass', 'status', 0, null, { fx: [{ k: 'terrain', t: 'grassy' }] }),
+  m('sparkbed', 'Sparkbed', 'Electric', 'status', 0, null, { fx: [{ k: 'terrain', t: 'charged' }] }),
+  m('mistfall', 'Mistfall', 'Fairy', 'status', 0, null, { fx: [{ k: 'terrain', t: 'misty' }] }),
+  m('clear_skies', 'Clear Skies', 'Normal', 'status', 0, null, { fx: [{ k: 'clearField' }] }),
+  m('solar_lance', 'Solar Lance', 'Fire', 'magic', 85, 100, { fx: [{ k: 'weatherPower', w: 'sun', m: 1.5 }] }),
+  m('steam_burst', 'Steam Burst', 'Water', 'magic', 80, 100, { fx: [{ k: 'weatherPower', w: 'sun', m: 1.4 }] }),
+  m('thunderline', 'Thunderline', 'Electric', 'ranged', 110, 70, { fx: [{ k: 'sureShotIn', w: 'rain' }, ST('par', 30)] }),
+  m('frost_gale', 'Frost Gale', 'Ice', 'magic', 110, 70, { fx: [{ k: 'sureShotIn', w: 'snow' }, ST('frz', 10)] }),
+  m('sandblast', 'Sandblast', 'Rock', 'ranged', 75, 100, { fx: [{ k: 'weatherPower', w: 'sand', m: 1.4 }] }),
+  m('hailstone', 'Hailstone', 'Ice', 'ranged', 60, 100, { fx: [{ k: 'weatherPower', w: 'snow', m: 1.5 }, FLINCH(10)] }),
+  m('weathervane', 'Weathervane', 'Normal', 'magic', 80, 100, { fx: [{ k: 'weatherType' }] }),
+  m('rootdraw', 'Rootdraw', 'Grass', 'magic', 85, 100, { fx: [{ k: 'terrainPower', t: 'grassy', m: 1.4 }] }),
+  m('static_spike', 'Static Spike', 'Electric', 'melee', 75, 100, { flags: CONTACT, fx: [{ k: 'terrainPower', t: 'charged', m: 1.4 }] }),
+  m('mist_lash', 'Mist Lash', 'Fairy', 'ranged', 80, 100, { fx: [{ k: 'terrainPower', t: 'misty', m: 1.4 }] }),
 ];
 
 
@@ -686,6 +718,9 @@ export const STRUGGLE = m('struggle', 'Struggle', 'Normal', 'melee', 50, null, {
 
 export const MOVES_BY_ID = new Map(MOVES.map((mv) => [mv.id, mv]));
 export function getMove(id) { return id === 'struggle' ? STRUGGLE : MOVES_BY_ID.get(id) || null; }
+/** Every fx kind the engine reads off a move; the move table must not invent others. */
+export const MOVE_FX_KINDS = ['status', 'stat', 'flinch', 'drain', 'recoil', 'heal', 'multi', 'fixed', 'boostIfStatus', 'restore', 'cure', 'pierce', 'recharge', 'cleanse', 'boostIfLow', 'boostIfFirst',
+  'weather', 'terrain', 'clearField', 'weatherPower', 'terrainPower', 'sureShotIn', 'weatherType'];
 export function moveFx(mv, kind) { return mv.fx.find((f) => f.k === kind) || null; }
 export function isDamaging(mv) { return mv.cat !== 'status'; }
 /** Moves that belong to one rare species: never sold, and tagged on sheets and cards. */

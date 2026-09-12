@@ -9,7 +9,9 @@ import { openSheet } from './sheet.js';
 import { mountFight, xpRow } from './fight.js';
 import { STATUS_INFO, levelCaptureMul } from '../battle/engine.js';
 import { stageOf, stageName } from '../data/evolution.js';
-import { loadSave, persistSave, exportSave, importSave, recordCollection, retireJourney } from '../game/save.js';
+import { loadSave, persistSave, exportSave, importSave, recordCollection, retireJourney, SLOTS, activeSlot, useSlot, persistSlot, clearSlot, slotSummaries } from '../game/save.js';
+import { SPEEDS, TEXT_SIZES, MOTIONS, CONTRASTS } from '../game/settings.js';
+import { getSettings, updateSetting, fightSpeed } from './settings.js';
 import { memberMaxHp, xpProgress, learnMove, moveMember, setLead, canFight, releaseMember, renameMember, setLocked } from '../game/party.js';
 import { JOURNEY, newJourney, chooseJourneyStarter, tryMove, facing, talkTo, acceptChallenge, rematchTeam, challengeWarden, seekElder, enterSpire, trialToday, startTrial, fleeEncounter, buildJourneyBattle, applyJourneyBattle, journeyPlace, badgeList, canFuseJourney, previewShrineFusion, shrineFuse, NATURE_REROLL, natureBlock, rerollNature, respawnJourney } from '../game/journey.js';
 import { WORLD, TILE, REGIONS, HUB, BIOME_ORDER, worldFor, tileAt, biomeAt, habitatTypeAt, trainerAt, findPath, isHubTile } from '../game/world.js';
@@ -91,9 +93,12 @@ function owIntroView(root) {
       } }, 'Set out')),
     ...(ow.save.collection.length ? section(`Collection · ${ow.save.collection.length}`, h('p', { class: 'hint' }, 'Every species and fusion that has travelled with you. Tap one for its sheet and code.'), owCollectionGrid()) : []),
     ...section('Save',
+      h('div', { class: 'toolbar' },
+        h('button', { class: 'btn', type: 'button', onclick: () => owSlotsSheet() }, `Save slots · in slot ${activeSlot()}`),
+        h('button', { class: 'btn', type: 'button', onclick: () => owSettingsSheet() }, 'Settings')),
       h('div', { class: 'toolbar' }, importInput,
         h('button', { class: 'btn', type: 'button', onclick: () => { try { ow.save = importSave(importInput.value); owSave(); toast('Save loaded'); rerender(); } catch (e) { toast(e.message); } } }, 'Import')),
-      h('p', { class: 'hint' }, 'Progress autosaves in this browser. Export gives you a code to move it elsewhere.')),
+      h('p', { class: 'hint' }, `Progress autosaves in this browser, in whichever of the ${SLOTS} slots is in play. Export gives you a code to move it elsewhere.`)),
   );
 }
 
@@ -445,7 +450,7 @@ function owStartFight() {
   const host = h('div');
   ow.root.append(h('div', { class: 'floor-head compact' }, h('b', {}, `${enc.name}${enc.kind === 'council' ? ` · fight ${enc.stage + 1} of ${JOURNEY.councilFights}` : ''}`)), host);
   ow.fight = mountFight(host, {
-    state: built.state, events: built.events, names: ['You', enc.name], wild: enc.capturable, fast: ow.save.settings.fast,
+    state: built.state, events: built.events, names: ['You', enc.name], wild: enc.capturable, speed: fightSpeed(),
     dexStatus: (g) => (g && g.species ? dexStatus(ow.save, g.species) : null),
     onQuit: enc.kind === 'wild' ? (state) => { fleeEncounter(j, state); owSave(); renderWorldScreen(ow.root); } : null,
     onEnd: (state) => {
@@ -631,6 +636,84 @@ function owMapSheet(j) {
   owSheet('World map', h('div', {}, c, legend, h('p', { class: 'hint', style: { marginTop: '8px' } }, 'You are the gold dot. White: camps. Red: Wardens (gold once beaten). Blue: trainers. Purple: the Council Spire. Green: the Market. Teal: Creature Storage. Orange: the Battle Tower. Straw: the notice board. Pink: the Bounty Office.')));
 }
 
+/** Sound, speed, type size, motion and contrast. Kept apart from the save, so they hold across slots. */
+function owSettingsSheet() {
+  const body = h('div');
+  const draw = () => {
+    clear(body);
+    const now = getSettings();
+    const choice = (label, hint, key, table) => h('div', { class: 'set-row' },
+      h('div', { class: 'set-label' }, h('b', {}, label), h('span', { class: 'hint' }, hint)),
+      h('div', { class: 'toolbar' }, Object.values(table).map((o) => h('button', { class: `btn small${now[key] === o.id ? ' on' : ''}`, type: 'button', onclick: () => { updateSetting(key, o.id); render(); } }, o.name))));
+    appendChildren(body, [
+      h('div', { class: 'set-row' },
+        h('div', { class: 'set-label' }, h('b', {}, 'Sound'), h('span', { class: 'hint' }, 'Cries, hits and menu taps, all made on the fly. Nothing is downloaded.')),
+        h('div', { class: 'toolbar' },
+          h('button', { class: `btn small${now.sound ? ' on' : ''}`, type: 'button', onclick: () => { updateSetting('sound', true); render(); } }, 'On'),
+          h('button', { class: `btn small${now.sound ? '' : ' on'}`, type: 'button', onclick: () => { updateSetting('sound', false); render(); } }, 'Off'))),
+      choice('Battle speed', 'How long the fight view waits between lines. The Speed button in a fight sets this too.', 'speed', SPEEDS),
+      choice('Text size', 'The whole layout is sized off this, so everything grows together.', 'text', TEXT_SIZES),
+      choice('Motion', 'Reduced stops the sprites lunging, shaking and sliding.', 'motion', MOTIONS),
+      choice('Contrast', 'High firms up every border and drops the see-through panels.', 'contrast', CONTRASTS),
+      h('p', { class: 'hint' }, 'Settings belong to this browser rather than to a save, so all three slots play the same way.'),
+    ]);
+  };
+  const render = () => owKeepScroll(body, draw);
+  render();
+  owSheet('Settings', body);
+}
+
+/** Three journeys, side by side: switch between them, or clear one out. */
+function owSlotsSheet() {
+  const body = h('div');
+  let confirmWipe = 0;
+  const draw = () => {
+    clear(body);
+    const here = activeSlot();
+    const list = h('div', { class: 'shop-list' });
+    for (const s of slotSummaries()) {
+      const j = s.journey;
+      const line = s.empty ? 'Empty'
+        : j ? `${j.champion ? 'Champion · ' : ''}${j.badges}/${BIOME_ORDER.length} badges · ${j.party} in the party${j.level ? ` · Lv ${j.level}` : ''} · ${j.steps.toLocaleString()} steps · ◆ ${j.gold.toLocaleString()}`
+          : `No journey in progress · ${s.journeys} finished · ${s.caught} species caught`;
+      list.append(h('div', { class: `shop-row${s.slot === here ? ' on' : ''}` },
+        h('div', { class: 'shop-info' }, h('div', {}, h('b', {}, `Slot ${s.slot}${s.slot === here ? ' · in play' : ''}`), h('div', { class: 'shop-meta' }, h('span', {}, line)))),
+        h('div', { class: 'toolbar' },
+          s.slot === here ? null : h('button', { class: 'btn small primary', type: 'button', onclick: () => switchTo(s.slot) }, 'Play'),
+          s.empty ? null : h('button', { class: `btn small${confirmWipe === s.slot ? ' danger' : ''}`, type: 'button', onclick: () => {
+            if (confirmWipe !== s.slot) { confirmWipe = s.slot; toast(`Tap again to erase slot ${s.slot}`); render(); setTimeout(() => { confirmWipe = 0; if (body.isConnected) render(); }, 4000); return; }
+            clearSlot(s.slot);
+            confirmWipe = 0;
+            if (s.slot === here) { ow.save = loadSave(); toast(`Slot ${s.slot} erased`); sheetRef.close(); renderWorldScreen(ow.root); return; }
+            toast(`Slot ${s.slot} erased`);
+            render();
+          } }, confirmWipe === s.slot ? 'Really erase?' : 'Erase'))));
+    }
+    const importInput = h('input', { class: 'seed code-in', type: 'text', placeholder: 'Paste a save code (CCSAVE1....)', autocapitalize: 'off', autocomplete: 'off', spellcheck: 'false', 'aria-label': 'Save code' });
+    appendChildren(body, [
+      h('p', { class: 'hint' }, `${SLOTS} journeys can be kept at once. Switching saves what is in play first; the slot you pick is remembered next time the game opens.`),
+      list,
+      h('div', { class: 'toolbar' },
+        h('button', { class: 'btn', type: 'button', onclick: async () => toast((await copyText(exportSave(ow.save))) ? 'Save code copied' : 'Copy failed') }, 'Export this slot')),
+      h('div', { class: 'toolbar' }, importInput,
+        h('button', { class: 'btn', type: 'button', onclick: () => {
+          try { ow.save = importSave(importInput.value); owSave(); toast(`Loaded into slot ${activeSlot()}`); sheetRef.close(); renderWorldScreen(ow.root); } catch (e) { toast(e.message); }
+        } }, 'Import here')),
+    ]);
+  };
+  const switchTo = (n) => {
+    persistSlot(ow.save, activeSlot());
+    useSlot(n);
+    ow.save = loadSave();
+    sheetRef.close();
+    toast(`Now playing slot ${n}`);
+    renderWorldScreen(ow.root);
+  };
+  const render = () => owKeepScroll(body, draw);
+  render();
+  const sheetRef = owSheet('Save slots', body);
+}
+
 function owMenuSheet(j) {
   const body = h('div');
   const draw = () => {
@@ -638,7 +721,8 @@ function owMenuSheet(j) {
     const importInput = h('input', { class: 'seed code-in', type: 'text', placeholder: 'Paste a save code (CCSAVE1....)', autocapitalize: 'off', autocomplete: 'off', spellcheck: 'false', 'aria-label': 'Save code' });
     appendChildren(body, [
       h('div', { class: 'toolbar' },
-        h('button', { class: `btn small${ow.save.settings.fast ? ' on' : ''}`, type: 'button', onclick: () => { ow.save.settings.fast = !ow.save.settings.fast; owSave(); render(); } }, ow.save.settings.fast ? 'Fast battles ✓' : 'Fast battles'),
+        h('button', { class: 'btn small', type: 'button', onclick: () => { sheetRef.close(); owSettingsSheet(); } }, 'Settings'),
+        h('button', { class: 'btn small', type: 'button', onclick: () => { sheetRef.close(); owSlotsSheet(); } }, `Slots · ${activeSlot()}`),
         h('button', { class: 'btn small', type: 'button', onclick: () => { respawnJourney(j); owSave(); toast('Back at the last camp, rested.'); sheetRef.close(); renderWorldScreen(ow.root); } }, 'Return to camp'),
         h('button', { class: 'btn small', type: 'button', onclick: () => { sheetRef.close(); owCollectionSheet(); } }, `Collection · ${ow.save.collection.length}`),
         h('button', { class: 'btn small', type: 'button', onclick: () => { sheetRef.close(); owDexSheet(); } }, `Dex · ${dexCounts(ow.save).caught}/${dexCounts(ow.save).total}`)),

@@ -15,6 +15,7 @@ import { getCharm, heldKind, charmValue, CHARM_RULE, WARDEN_CHARMS } from '../da
 import { NATURE_IDS } from '../data/natures.js';
 import { TRIAL, trialDay, trialOf, trialState, trialBlock, enterTrial, trialEncounter, trialGold } from './trial.js';
 import { abilityWorldMul } from '../data/abilities.js';
+import { BIOME_WEATHER, BIOME_TERRAIN } from '../data/field.js';
 import { recordTowerWin, towerRecord } from './tower.js';
 import { newBoard, ensureBoard, questEvent } from './quests.js';
 import { newBounties, ensureBounties } from './bounties.js';
@@ -243,6 +244,23 @@ export function fleeEncounter(j, state) {
   return j;
 }
 
+/** How often a fight in the open starts under the region's own sky or on its own ground. */
+export const FIELD_CHANCE = 0.35;
+/**
+ * The field a fight opens on. Outdoors the region argues first: the Ember Scar is bright, the Fen is wet,
+ * the Warren is all grit. Indoor fights — the Tower, the Trial, a Warden's hall — start on a clear field.
+ */
+export function openingField(j, kind) {
+  if (kind !== 'wild' && kind !== 'trainer') return null;
+  const biome = biomeAt(worldFor(j.seed), j.player.x, j.player.y);
+  const rng = makeRng(`${j.seed}:field:${j.stats.battles}:${j.player.x},${j.player.y}`);
+  const out = {};
+  const w = BIOME_WEATHER[biome.id], t = BIOME_TERRAIN[biome.id];
+  if (w && rng.chance(FIELD_CHANCE)) out.weather = w;
+  if (t && rng.chance(FIELD_CHANCE)) out.terrain = t;
+  return Object.keys(out).length ? out : null;
+}
+
 /** Build the engine state for the pending encounter. Rotates a fainted lead out of the first slot. */
 export function buildJourneyBattle(j) {
   const enc = j.encounter;
@@ -265,6 +283,7 @@ export function buildJourneyBattle(j) {
     seed: `${j.seed}:battle:${j.stats.battles}:${enc.kind}`,
     capturable: enc.capturable,
     items: battleItems(j),
+    field: openingField(j, enc.kind),
   });
 }
 

@@ -7,8 +7,13 @@
 //   - every top-level declaration name is unique across ALL modules,
 //     because the bundle shares one script scope
 //
+// The bundle is squeezed on the way out: comments and indentation go, the code itself is untouched
+// (no renaming, no joining of lines, so behaviour and stack lines stay as they are). Pass --pretty to
+// keep the source as written when you want to read the built file.
+//
 // Usage: node build.js            -> writes ./index.html
 //        node build.js --check    -> builds to memory only, exits non-zero on problems
+//        node build.js --pretty   -> skip the squeeze
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -20,6 +25,7 @@ const TEMPLATE = path.join(SRC, 'app.html');
 const CSS = path.join(SRC, 'styles.css');
 const OUT = path.join(ROOT, 'index.html');
 const checkOnly = process.argv.includes('--check');
+const pretty = process.argv.includes('--pretty');
 
 const IMPORT_RE = /^[ \t]*import\s*(?:\{[^}]*\}|\*\s+as\s+\w+|\w+)?\s*(?:from\s*)?['"]([^'"]+)['"]\s*;?[ \t]*$/gm;
 
@@ -43,6 +49,79 @@ function readModule(file, seen, order) {
 }
 
 function rel(f) { return path.relative(ROOT, f).split(path.sep).join('/'); }
+
+/**
+ * Drop comments and indentation without touching the code. A scanner rather than a regex, because a
+ * `//` inside a string, a `/` that starts a regex and a template literal that spans lines all have to
+ * be told apart. Lines are never joined: automatic semicolon insertion then behaves exactly as before.
+ */
+export function squeeze(src) {
+  const out = [];
+  const n = src.length;
+  let i = 0, atLineStart = true, prevSig = '', tail = '';
+  const push = (ch) => {
+    out.push(ch);
+    tail = (tail + ch).slice(-24);
+    if (!/\s/.test(ch)) prevSig = ch;
+    atLineStart = ch === '\n';
+  };
+  const KEYWORD_BEFORE_REGEX = /(?:^|[^\w$.])(?:return|typeof|instanceof|in|of|new|delete|void|throw|case|do|else|yield|await)$/;
+  while (i < n) {
+    const c = src[i];
+    if (atLineStart && (c === ' ' || c === '\t')) { i++; continue; }
+    if (c === '\n') {
+      if (!out.length || out[out.length - 1] === '\n') { i++; continue; } // no blank lines
+      push('\n'); i++; continue;
+    }
+    if (c === '/' && src[i + 1] === '/') { while (i < n && src[i] !== '\n') i++; continue; }
+    if (c === '/' && src[i + 1] === '*') {
+      let lines = 0;
+      i += 2;
+      while (i < n && !(src[i] === '*' && src[i + 1] === '/')) { if (src[i] === '\n') lines++; i++; }
+      i += 2;
+      if (lines) { for (let k = 0; k < lines; k++) if (out.length && out[out.length - 1] !== '\n') push('\n'); }
+      else if (out.length && !/[\s({[,;]/.test(out[out.length - 1])) push(' ');
+      continue;
+    }
+    if (c === '"' || c === "'") {
+      push(c); i++;
+      while (i < n) { const d = src[i]; push(d); i++; if (d === '\\') { push(src[i]); i++; continue; } if (d === c) break; }
+      continue;
+    }
+    if (c === '`') { // a template keeps every character it has, newlines and indentation included
+      push(c); i++;
+      let depth = 0;
+      while (i < n) {
+        const d = src[i];
+        if (d === '\\') { out.push(d); out.push(src[i + 1]); i += 2; continue; }
+        if (d === '$' && src[i + 1] === '{') { depth++; out.push('$'); out.push('{'); i += 2; continue; }
+        if (d === '}' && depth) { depth--; out.push('}'); i++; continue; }
+        if (d === '`' && !depth) { push('`'); i++; break; }
+        out.push(d); i++;
+      }
+      atLineStart = false; prevSig = '`';
+      continue;
+    }
+    if (c === '/') { // a slash here is either a regex or a division
+      if (!prevSig || /[(,=:[!&|?{};+\-*%~^<>]/.test(prevSig) || KEYWORD_BEFORE_REGEX.test(tail)) {
+        push(c); i++;
+        let inClass = false;
+        while (i < n) {
+          const d = src[i];
+          push(d); i++;
+          if (d === '\\') { push(src[i]); i++; continue; }
+          if (d === '[') inClass = true;
+          else if (d === ']') inClass = false;
+          else if (d === '/' && !inClass) break;
+        }
+        while (i < n && /[a-z]/.test(src[i])) { push(src[i]); i++; }
+        continue;
+      }
+    }
+    push(c); i++;
+  }
+  return out.join('');
+}
 
 function transform(code, file) {
   let out = code.replace(IMPORT_RE, '');
@@ -85,7 +164,10 @@ export function bundle() {
   const css = fs.readFileSync(CSS, 'utf8');
   const template = fs.readFileSync(TEMPLATE, 'utf8');
   const banner = `<!-- GENERATED FILE. Edit files in src/ and run: node build.js -->\n`;
-  const script = `<script>\n"use strict";\n(() => {\n${chunks.join('\n')}\n})();\n</script>`;
+  const body = pretty ? chunks.join('\n') : squeeze(chunks.join('\n'));
+  // a syntax error in the squeezed body would only show up in a browser, so compile it here and now
+  if (!pretty) { try { new Function(body); } catch (e) { throw new Error(`the squeezed bundle does not parse: ${e.message}`); } }
+  const script = `<script>\n"use strict";\n(() => {\n${body}\n})();\n</script>`;
   const html = banner + template
     .replace('<!--STYLES-->', () => `<style>\n${css.trim()}\n</style>`)
     .replace('<!--SCRIPT-->', () => script);

@@ -77,7 +77,11 @@ export const ABILITIES = {
 //   statusImmune {s}  allStatusImmune  statusMoveImmune  synchronize  liquidOoze  noStatDrop {stat}  debuffedStat {stats}
 // Either: entryStat {who, stats}  turnHeal {r}  turnStat {stats, p}  turnCure {p}  poisonHeal  turnHurtFoe {r, statusOnly}
 //   switchCure  switchHeal {r}  flinchStat {stats}  magicGuard  recoilImmune
+// The field: entryWeather {w}  entryTerrain {t}  weatherBoost {w, m, type}  terrainBoost {t, m}  weatherStat {w, stat, m}
+//   terrainStat {t, stat, m}  weatherDef {w, m}  weatherHeal {w, r}  terrainHeal {t, r}  weatherEvade {w, m}
+//   weatherImmune  fieldExtend  noWeather
 import { STAT_NAMES } from './damage.js';
+import { FIELD, WEATHER, TERRAIN } from './field.js';
 
 const AB_CAT_NAME = { melee: 'Melee', ranged: 'Ranged', magic: 'Magic' };
 const AB_STATUS_NAME = { brn: 'burn', psn: 'poison', par: 'paralysis', slp: 'sleep', frz: 'freeze' };
@@ -238,6 +242,19 @@ export function describeFx(f) {
     case 'healBlock': return 'Foes cannot heal themselves.';
     case 'drainImmune': return 'Foes drain no HP from it.';
     case 'noContact': return 'Its moves never count as contact.';
+    case 'entryWeather': return `Calls up ${WEATHER[f.w].name} on entry.`;
+    case 'entryTerrain': return `Raises ${TERRAIN[f.t].name} on entry.`;
+    case 'weatherBoost': return `${f.type ? `${f.type} moves hit` : 'Hits'} ${abHarder(f.m)} in ${WEATHER[f.w].name}.`;
+    case 'terrainBoost': return `Hits ${abHarder(f.m)} on ${TERRAIN[f.t].name}.`;
+    case 'weatherStat': return `${AB_STAT_NAME[f.stat]} is ${abX(f.m)} in ${WEATHER[f.w].name}.`;
+    case 'terrainStat': return `${AB_STAT_NAME[f.stat]} is ${abX(f.m)} on ${TERRAIN[f.t].name}.`;
+    case 'weatherDef': return `Takes ${abX(f.m)} damage in ${WEATHER[f.w].name}.`;
+    case 'weatherHeal': return `Restores ${abFrac(f.r)} of max HP each turn in ${WEATHER[f.w].name}.`;
+    case 'terrainHeal': return `Restores ${abFrac(f.r)} of max HP each turn on ${TERRAIN[f.t].name}.`;
+    case 'weatherEvade': return `Foes’ moves have ${abX(f.m)} accuracy against it in ${WEATHER[f.w].name}.`;
+    case 'weatherImmune': return 'The weather never wears it down.';
+    case 'fieldExtend': return `The weather and ground it calls up last ${FIELD.longTurns} turns instead of ${FIELD.turns}.`;
+    case 'noWeather': return 'While it is out, the weather does nothing to either side.';
     case 'sureShot': return 'Its own moves never miss.';
     case 'ignoreEvasion': return 'Ignores everything the foe does to dodge.';
     case 'damageCap': return `No single hit takes more than ${abFrac(f.r)} of its max HP.`;
@@ -1082,6 +1099,109 @@ defA('ghost_feast', 'Ghost Feast', { k: 'typeAbsorb', type: 'Ghost', heal: 1 / 3
 defA('last_word', 'Last Word', [{ k: 'lastOneBoost', m: 1.3 }, { k: 'lastStrike', m: 1.2 }]);
 defA('sky_sovereign', 'Sky Sovereign', [{ k: 'typeBoost', type: 'Flying', m: 1.25 }, { k: 'typeImmune', type: 'Ground' }, { k: 'typeWeak', type: 'Electric', m: 1.3 }]);
 defA('loam_sovereign', 'Loam Sovereign', [{ k: 'typeBoost', type: 'Ground', m: 1.25 }, { k: 'typeImmune', type: 'Electric' }, { k: 'typeWeak', type: 'Water', m: 1.3 }]);
+
+
+// Batch fifteen: the field. A hundred passives that call the weather in, stand up to it, or read the ground underfoot.
+defA('sunmaker', 'Sunmaker', { k: 'entryWeather', w: 'sun' });
+defA('sunglare', 'Sunglare', { k: 'weatherBoost', w: 'sun', m: 1.3 });
+defA('sun_sprint', 'Sun Sprint', { k: 'weatherStat', w: 'sun', stat: 'spe', m: 2 });
+defA('solar_leaf', 'Solar Leaf', { k: 'weatherBoost', w: 'sun', m: 1.5, type: 'Grass' });
+defA('sun_drinking', 'Sun Drinking', { k: 'weatherHeal', w: 'sun', r: 1 / 8 });
+defA('mirage_step', 'Mirage Step', { k: 'weatherEvade', w: 'sun', m: 0.8 });
+defA('sunshield', 'Sunshield', { k: 'weatherDef', w: 'sun', m: 0.75 });
+defA('flare_grip', 'Flare Grip', { k: 'weatherStat', w: 'sun', stat: 'melee', m: 1.3 });
+defA('sun_focus', 'Sun Focus', { k: 'weatherStat', w: 'sun', stat: 'magic', m: 1.3 });
+defA('dry_hide', 'Dry Hide', { k: 'weatherStat', w: 'sun', stat: 'meleeDef', m: 1.3 });
+defA('sunbaked', 'Sunbaked', { k: 'weatherStat', w: 'sun', stat: 'rangedDef', m: 1.3 });
+defA('solar_engine', 'Solar Engine', [{ k: 'weatherBoost', w: 'sun', m: 1.2 }, { k: 'weatherStat', w: 'sun', stat: 'spe', m: 1.3 }]);
+defA('heliotrope', 'Heliotrope', [{ k: 'weatherHeal', w: 'sun', r: 1 / 16 }, { k: 'weatherBoost', w: 'sun', m: 1.2, type: 'Fire' }]);
+defA('sun_dancer', 'Sun Dancer', [{ k: 'entryWeather', w: 'sun' }, { k: 'weatherStat', w: 'sun', stat: 'spe', m: 1.5 }]);
+defA('raincaller', 'Raincaller', { k: 'entryWeather', w: 'rain' });
+defA('stream_step', 'Stream Step', { k: 'weatherStat', w: 'rain', stat: 'spe', m: 2 });
+defA('downpour', 'Downpour', { k: 'weatherBoost', w: 'rain', m: 1.3 });
+defA('rain_drinker', 'Rain Drinker', { k: 'weatherHeal', w: 'rain', r: 1 / 8 });
+defA('storm_coat', 'Storm Coat', { k: 'weatherDef', w: 'rain', m: 0.75 });
+defA('wet_grip', 'Wet Grip', { k: 'weatherStat', w: 'rain', stat: 'melee', m: 1.3 });
+defA('tide_focus', 'Tide Focus', { k: 'weatherStat', w: 'rain', stat: 'magic', m: 1.3 });
+defA('drizzle_veil', 'Drizzle Veil', { k: 'weatherEvade', w: 'rain', m: 0.8 });
+defA('thunderhead', 'Thunderhead', { k: 'weatherBoost', w: 'rain', m: 1.5, type: 'Electric' });
+defA('spray_guard', 'Spray Guard', { k: 'weatherStat', w: 'rain', stat: 'rangedDef', m: 1.3 });
+defA('rainslick', 'Rainslick', { k: 'weatherStat', w: 'rain', stat: 'meleeDef', m: 1.3 });
+defA('monsoon_heart', 'Monsoon Heart', [{ k: 'entryWeather', w: 'rain' }, { k: 'weatherBoost', w: 'rain', m: 1.2 }]);
+defA('cloud_gather', 'Cloud Gather', [{ k: 'entryWeather', w: 'rain' }, { k: 'fieldExtend' }]);
+defA('rainrunner', 'Rainrunner', [{ k: 'weatherStat', w: 'rain', stat: 'spe', m: 1.5 }, { k: 'weatherHeal', w: 'rain', r: 1 / 16 }]);
+defA('sandcaller', 'Sandcaller', { k: 'entryWeather', w: 'sand' });
+defA('sand_lung', 'Sand Lung', [{ k: 'weatherImmune' }, { k: 'weatherStat', w: 'sand', stat: 'rangedDef', m: 1.2 }]);
+defA('dune_racer', 'Dune Racer', { k: 'weatherStat', w: 'sand', stat: 'spe', m: 2 });
+defA('grit_edge', 'Grit Edge', { k: 'weatherBoost', w: 'sand', m: 1.3 });
+defA('sandshield', 'Sandshield', { k: 'weatherDef', w: 'sand', m: 0.75 });
+defA('dust_step', 'Dust Step', { k: 'weatherEvade', w: 'sand', m: 0.75 });
+defA('stone_polish', 'Stone Polish', { k: 'weatherStat', w: 'sand', stat: 'meleeDef', m: 1.3 });
+defA('desert_born', 'Desert Born', [{ k: 'weatherHeal', w: 'sand', r: 1 / 16 }, { k: 'weatherImmune' }]);
+defA('grindstone', 'Grindstone', { k: 'weatherStat', w: 'sand', stat: 'melee', m: 1.3 });
+defA('quarry_focus', 'Quarry Focus', { k: 'weatherStat', w: 'sand', stat: 'magic', m: 1.3 });
+defA('sandblasted', 'Sandblasted', { k: 'weatherBoost', w: 'sand', m: 1.5, type: 'Rock' });
+defA('whirl_grit', 'Whirl Grit', { k: 'weatherBoost', w: 'sand', m: 1.4, type: 'Ground' });
+defA('duneborn', 'Duneborn', [{ k: 'entryWeather', w: 'sand' }, { k: 'weatherImmune' }]);
+defA('scour_hide', 'Scour Hide', { k: 'weatherStat', w: 'sand', stat: 'rangedDef', m: 1.3 });
+defA('snowcaller', 'Snowcaller', { k: 'entryWeather', w: 'snow' });
+defA('slush_step', 'Slush Step', { k: 'weatherStat', w: 'snow', stat: 'spe', m: 2 });
+defA('cold_snap', 'Cold Snap', { k: 'weatherBoost', w: 'snow', m: 1.3 });
+defA('snowmelt', 'Snowmelt', { k: 'weatherHeal', w: 'snow', r: 1 / 8 });
+defA('whiteout_veil', 'Whiteout Veil', { k: 'weatherEvade', w: 'snow', m: 0.75 });
+defA('frost_plate', 'Frost Plate', { k: 'weatherDef', w: 'snow', m: 0.75 });
+defA('chill_grip', 'Chill Grip', { k: 'weatherStat', w: 'snow', stat: 'melee', m: 1.3 });
+defA('rime_focus', 'Rime Focus', { k: 'weatherStat', w: 'snow', stat: 'magic', m: 1.3 });
+defA('blizzard_born', 'Blizzard Born', [{ k: 'entryWeather', w: 'snow' }, { k: 'weatherImmune' }]);
+defA('hoarfrost', 'Hoarfrost', { k: 'weatherBoost', w: 'snow', m: 1.5, type: 'Ice' });
+defA('packed_ice', 'Packed Ice', { k: 'weatherStat', w: 'snow', stat: 'meleeDef', m: 1.3 });
+defA('snowdrift', 'Snowdrift', { k: 'weatherStat', w: 'snow', stat: 'rangedDef', m: 1.3 });
+defA('winter_coat', 'Winter Coat', [{ k: 'weatherImmune' }, { k: 'weatherDef', w: 'snow', m: 0.8 }]);
+defA('glacier_step', 'Glacier Step', [{ k: 'weatherStat', w: 'snow', stat: 'spe', m: 1.5 }, { k: 'weatherHeal', w: 'snow', r: 1 / 16 }]);
+defA('fieldmaker', 'Fieldmaker', { k: 'entryTerrain', t: 'grassy' });
+defA('rootfoot', 'Rootfoot', { k: 'terrainHeal', t: 'grassy', r: 1 / 8 });
+defA('meadow_step', 'Meadow Step', { k: 'terrainStat', t: 'grassy', stat: 'spe', m: 1.3 });
+defA('bramble_grip', 'Bramble Grip', { k: 'terrainBoost', t: 'grassy', m: 1.3 });
+defA('taproot', 'Taproot', { k: 'terrainStat', t: 'grassy', stat: 'meleeDef', m: 1.4 });
+defA('seedling_focus', 'Seedling Focus', { k: 'terrainStat', t: 'grassy', stat: 'magic', m: 1.3 });
+defA('turf_hold', 'Turf Hold', { k: 'terrainStat', t: 'grassy', stat: 'rangedDef', m: 1.4 });
+defA('groundskeeper', 'Groundskeeper', [{ k: 'entryTerrain', t: 'grassy' }, { k: 'terrainHeal', t: 'grassy', r: 1 / 16 }]);
+defA('wildgrower', 'Wildgrower', [{ k: 'terrainBoost', t: 'grassy', m: 1.2 }, { k: 'terrainStat', t: 'grassy', stat: 'melee', m: 1.2 }]);
+defA('pollen_drift', 'Pollen Drift', [{ k: 'terrainHeal', t: 'grassy', r: 1 / 16 }, { k: 'terrainStat', t: 'grassy', stat: 'spe', m: 1.2 }]);
+defA('thicket_born', 'Thicket Born', [{ k: 'entryTerrain', t: 'grassy' }, { k: 'fieldExtend' }]);
+defA('green_thumb', 'Green Thumb', { k: 'terrainStat', t: 'grassy', stat: 'melee', m: 1.4 });
+defA('wire_layer', 'Wire Layer', { k: 'entryTerrain', t: 'charged' });
+defA('groundloop', 'Groundloop', { k: 'terrainStat', t: 'charged', stat: 'spe', m: 1.5 });
+defA('live_current', 'Live Current', { k: 'terrainBoost', t: 'charged', m: 1.3 });
+defA('spark_grip', 'Spark Grip', { k: 'terrainStat', t: 'charged', stat: 'melee', m: 1.4 });
+defA('dynamo_focus', 'Dynamo Focus', { k: 'terrainStat', t: 'charged', stat: 'magic', m: 1.4 });
+defA('insulator', 'Insulator', { k: 'terrainStat', t: 'charged', stat: 'rangedDef', m: 1.4 });
+defA('grounded_plate', 'Grounded Plate', { k: 'terrainStat', t: 'charged', stat: 'meleeDef', m: 1.4 });
+defA('charge_born', 'Charge Born', [{ k: 'entryTerrain', t: 'charged' }, { k: 'fieldExtend' }]);
+defA('static_field', 'Static Field', [{ k: 'entryTerrain', t: 'charged' }, { k: 'terrainBoost', t: 'charged', m: 1.2 }]);
+defA('capacitance', 'Capacitance', { k: 'terrainHeal', t: 'charged', r: 1 / 8 });
+defA('arc_runner', 'Arc Runner', [{ k: 'terrainStat', t: 'charged', stat: 'spe', m: 1.3 }, { k: 'terrainBoost', t: 'charged', m: 1.15 }]);
+defA('ground_wire', 'Ground Wire', [{ k: 'terrainHeal', t: 'charged', r: 1 / 16 }, { k: 'terrainStat', t: 'charged', stat: 'magic', m: 1.2 }]);
+defA('mistmaker', 'Mistmaker', { k: 'entryTerrain', t: 'misty' });
+defA('fogstep', 'Fogstep', { k: 'terrainStat', t: 'misty', stat: 'spe', m: 1.4 });
+defA('mist_grip', 'Mist Grip', { k: 'terrainBoost', t: 'misty', m: 1.3 });
+defA('veil_focus', 'Veil Focus', { k: 'terrainStat', t: 'misty', stat: 'magic', m: 1.4 });
+defA('haze_plate', 'Haze Plate', { k: 'terrainStat', t: 'misty', stat: 'magicDef', m: 1.4 });
+defA('dew_gather', 'Dew Gather', { k: 'terrainHeal', t: 'misty', r: 1 / 8 });
+defA('fey_born', 'Fey Born', [{ k: 'entryTerrain', t: 'misty' }, { k: 'fieldExtend' }]);
+defA('mist_walker', 'Mist Walker', [{ k: 'terrainStat', t: 'misty', stat: 'meleeDef', m: 1.3 }, { k: 'terrainStat', t: 'misty', stat: 'rangedDef', m: 1.3 }]);
+defA('glamour', 'Glamour', [{ k: 'entryTerrain', t: 'misty' }, { k: 'terrainBoost', t: 'misty', m: 1.2 }]);
+defA('soft_step', 'Soft Step', [{ k: 'terrainStat', t: 'misty', stat: 'spe', m: 1.2 }, { k: 'terrainHeal', t: 'misty', r: 1 / 16 }]);
+defA('pale_grip', 'Pale Grip', { k: 'terrainStat', t: 'misty', stat: 'melee', m: 1.4 });
+defA('mistbound', 'Mistbound', [{ k: 'terrainBoost', t: 'misty', m: 1.15 }, { k: 'terrainStat', t: 'misty', stat: 'magic', m: 1.2 }]);
+defA('weatherworn', 'Weatherworn', { k: 'weatherImmune' });
+defA('skyless', 'Skyless', { k: 'noWeather' });
+defA('dead_air', 'Dead Air', [{ k: 'noWeather' }, { k: 'weatherImmune' }]);
+defA('long_season', 'Long Season', { k: 'fieldExtend' });
+defA('stormbringer', 'Stormbringer', [{ k: 'entryWeather', w: 'rain' }, { k: 'entryTerrain', t: 'charged' }]);
+defA('bloomsower', 'Bloomsower', [{ k: 'entryWeather', w: 'sun' }, { k: 'entryTerrain', t: 'grassy' }]);
+defA('permafrost', 'Permafrost', [{ k: 'entryWeather', w: 'snow' }, { k: 'entryTerrain', t: 'misty' }]);
+defA('dust_bowl', 'Dust Bowl', [{ k: 'entryWeather', w: 'sand' }, { k: 'weatherEvade', w: 'sand', m: 0.85 }]);
 
 export const ABILITY_IDS = Object.keys(ABILITIES);
 export function getAbility(id) { return ABILITIES[id] || null; }

@@ -5,6 +5,9 @@ import { h, clear, toast, appendChildren } from './dom.js';
 import { typeChips, creatureEl, styleChip, stageBadge, dexMark } from './common.js';
 import { makeRng } from '../core/rng.js';
 import { step, legalActions, activeOf, describeEvent, moveEffectiveness, aliveCount, captureChance, levelCaptureMul, partyTopLevel, STATUS_INFO } from '../battle/engine.js';
+import { getWeather, getTerrain } from '../data/field.js';
+import { SPEEDS } from '../game/settings.js';
+import { fightSpeed, updateSetting, getSettings } from './settings.js';
 import { chooseAction } from '../battle/ai.js';
 import { getMove, accuracyText, moveEffects } from '../data/moves.js';
 import { ITEM_IDS, getItem } from '../data/items.js';
@@ -20,12 +23,13 @@ const wait = (ms) => new Promise((r) => setTimeout(r, ms));
 const hpClass = (frac) => (frac > 0.5 ? 'ok' : frac > 0.2 ? 'warn' : 'low');
 
 /**
- * cfg: { state, events, names, auto, fast, onEnd(state), onQuit(), resultButtons: [{label, primary, onclick}] }
+ * cfg: { state, events, names, auto, speed, onEnd(state), onQuit(), resultButtons: [{label, primary, onclick}] }
+ * speed is a multiplier on every pause the view takes; it starts from the player's setting and the Speed button cycles it.
  * Returns { destroy() }.
  */
 export function mountFight(root, cfg) {
   const f = {
-    root, state: cfg.state, names: cfg.names || ['You', 'Foe'], wild: Boolean(cfg.wild), auto: Boolean(cfg.auto), fast: Boolean(cfg.fast),
+    root, state: cfg.state, names: cfg.names || ['You', 'Foe'], wild: Boolean(cfg.wild), auto: Boolean(cfg.auto), speed: Number(cfg.speed) > 0 ? Number(cfg.speed) : fightSpeed(),
     busy: true, log: [], els: null, token: 1, alive: true, sheetClose: null,
     onEnd: cfg.onEnd || (() => {}), onQuit: cfg.onQuit || null, resultButtons: cfg.resultButtons || null, ended: false,
     dexStatus: cfg.dexStatus || null, // (genome) -> 'caught' | 'seen' | 'unseen' | null, for the mark beside a wild foe's name
@@ -44,6 +48,7 @@ function buildFight(f) {
     foeStage: h('div', { class: 'stage stage-foe' }),
     meStage: h('div', { class: 'stage stage-me' }),
     mePanel: h('div', { class: 'panel panel-me' }),
+    field: h('div', { class: 'field-bar', hidden: true }),
     log: h('div', { class: 'battle-log', 'aria-live': 'polite' }),
     controls: h('div', { class: 'controls' }),
   };
@@ -53,11 +58,26 @@ function buildFight(f) {
     h('div', { class: 'arena' },
       h('div', { class: 'arena-row' }, els.foePanel, els.foeStage),
       h('div', { class: 'arena-row' }, els.meStage, els.mePanel)),
+    els.field,
     els.log,
     els.controls,
   );
   for (const i of [0, 1]) { renderStage(f, i); renderPanel(f, i); }
+  renderFieldBar(f);
   renderFightControls(f);
+}
+
+/** The weather and the ground, with what is left on each clock. Hidden while the field is clear. */
+function renderFieldBar(f) {
+  const el = f.els.field;
+  const fl = f.state.field || {};
+  const rows = [[getWeather(fl.weather), fl.weatherTurns], [getTerrain(fl.terrain), fl.terrainTurns]].filter(([x]) => x);
+  clear(el);
+  el.hidden = !rows.length;
+  for (const [x, turns] of rows) {
+    el.append(h('span', { class: 'field-chip', style: { '--chip': x.color }, title: x.desc },
+      h('span', { class: 'field-icon' }, x.icon), x.name, h('span', { class: 'field-turns' }, `${turns}`)));
+  }
 }
 
 /** Sheet options for a battler: your own show their moves, a foe's only its level. */
@@ -114,7 +134,7 @@ async function animateXp(f, gains) {
   if (!g || !bar) return;
   const lvl = panel.querySelector('.lvl');
   const name = activeOf(st, 0).name;
-  const speed = f.fast ? 0.35 : 1;
+  const speed = f.speed;
   let level = g.from.level;
   bar.style.transition = 'none';
   bar.style.width = `${g.from.frac * 100}%`;
@@ -187,7 +207,8 @@ function logLine(f, text) {
 function applyFightEvent(f, e) {
   const text = describeEvent(e, f.names, { wild: f.wild });
   switch (e.t) {
-    case 'turn': logLine(f, text); return 250;
+    case 'turn': renderFieldBar(f); logLine(f, text); return 250;
+    case 'field': case 'fieldOver': case 'fieldClear': renderFieldBar(f); logLine(f, text); return 600;
     case 'switch': renderStage(f, e.side); renderPanel(f, e.side); logLine(f, text); sfx.cry(activeOf(f.state, e.side).genome); return 650;
     case 'move': logLine(f, text); animateStage(f, e.side, e.side === 0 ? 'lunge-r' : 'lunge-l', 450); poseStage(f, e.side, 'attack', 450); return 550;
     case 'damage': animateStage(f, e.side, 'hit', 450); poseStage(f, e.side, 'hurt', 450); setHp(f, e.side, e.hp, e.maxHp); logLine(f, text); sfx.hit(e.eff); return e.eff !== 1 || e.crit ? 750 : 550;
@@ -210,7 +231,7 @@ async function playFightEvents(f, events) {
   for (const e of events) {
     if (!f.alive || token !== f.token || !f.root.isConnected) return false;
     const ms = applyFightEvent(f, e);
-    if (ms) await wait(f.fast ? Math.round(ms * 0.3) : ms);
+    if (ms) await wait(Math.round(ms * f.speed));
   }
   return f.alive && token === f.token && f.root.isConnected;
 }
@@ -246,13 +267,13 @@ async function afterFightStep(f) {
   }
   if (st.phase === 'replace') {
     if (st.sides[0].needsReplace && !f.auto) { f.busy = false; renderFightControls(f); openFightParty(f, true); return; }
-    await wait(f.fast ? 200 : 500);
+    await wait(Math.round(500 * f.speed));
     if (f.alive) doFightStep(f, null);
     return;
   }
   f.busy = false;
   renderFightControls(f);
-  if (f.auto) { await wait(f.fast ? 250 : 700); if (f.alive && f.auto && !f.busy && f.state.phase === 'choose') doFightStep(f, null); }
+  if (f.auto) { await wait(Math.round(700 * f.speed)); if (f.alive && f.auto && !f.busy && f.state.phase === 'choose') doFightStep(f, null); }
 }
 
 /** Type-chart verdict for a move against the foe, as words. Empty when neutral or not applicable. */
@@ -289,13 +310,28 @@ function tintOf(hex, alpha) {
   return `rgba(${(n >> 16) & 255}, ${(n >> 8) & 255}, ${n & 255}, ${alpha})`;
 }
 
+/** Which of the three speeds the view is running at (the nearest one, for a hand-passed multiplier). */
+function speedId(f) {
+  let best = 'normal';
+  for (const id of Object.keys(SPEEDS)) if (Math.abs(SPEEDS[id].mul - f.speed) < Math.abs(SPEEDS[best].mul - f.speed)) best = id;
+  return best;
+}
+/** The Speed button walks Normal, Fast, Instant and remembers the choice for the next fight too. */
+function cycleSpeed(f) {
+  const ids = Object.keys(SPEEDS);
+  const next = ids[(ids.indexOf(speedId(f)) + 1) % ids.length];
+  f.speed = SPEEDS[next].mul;
+  if (getSettings().speed !== next) updateSetting('speed', next);
+  renderFightControls(f);
+}
+
 function renderFightControls(f) {
   const el = f.els && f.els.controls;
   if (!el) return;
   const st = f.state;
   clear(el);
   const util = h('div', { class: 'util-row' },
-    h('button', { class: `btn small${f.fast ? ' on' : ''}`, type: 'button', onclick: () => { f.fast = !f.fast; renderFightControls(f); } }, f.fast ? 'Fast ✓' : 'Fast'),
+    h('button', { class: `btn small speed-btn${f.speed < 1 ? ' on' : ''}`, type: 'button', title: 'Battle speed', 'aria-label': 'Battle speed', onclick: () => { cycleSpeed(f); } }, SPEEDS[speedId(f)].name),
     h('button', { class: `btn small${f.auto ? ' on' : ''}`, type: 'button', onclick: () => { f.auto = !f.auto; renderFightControls(f); if (f.auto && !f.busy && st.phase !== 'over') afterFightStep(f); } }, f.auto ? 'Auto ✓' : 'Auto'),
     f.onQuit ? h('button', { class: 'btn small', type: 'button', onclick: () => { f.alive = false; f.token++; f.onQuit(f.state); } }, 'Quit') : null,
   );

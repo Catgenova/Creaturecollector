@@ -1,6 +1,7 @@
 // Opponent AI: a scored heuristic. Deterministic given its rng.
 import { STRUGGLE, getMove, isDamaging, moveFx } from '../data/moves.js';
-import { legalActions, activeOf, calcDamage, moveEffectiveness, effectiveStat, affinityBonus, activeMove } from './engine.js';
+import { legalActions, activeOf, calcDamage, moveEffectiveness, effectiveStat, affinityBonus, activeMove, liveField, grounded } from './engine.js';
+import { WEATHER, TERRAIN, weatherChips, weatherGuard } from '../data/field.js';
 
 function bestEffVs(attacker, defender) {
   let best = 0;
@@ -13,15 +14,48 @@ function bestEffVs(attacker, defender) {
   return best;
 }
 
+/**
+ * What a creature would get out of this weather or terrain: the attacks it carries that the field pays
+ * for, whether the field suits its own types, and whether it is the sort the grit wears down.
+ */
+function fieldWorth(b, table, id, key) {
+  const entry = table[id];
+  if (!entry || !b) return 0;
+  const isTerrain = table === TERRAIN;
+  if (isTerrain && !grounded(b)) return 0; // nothing underfoot reaches it
+  const types = b.types.filter(Boolean);
+  let worth = 0;
+  for (const t of types) {
+    const own = (entry.boost && entry.boost[t]) || 1;
+    worth += own > 1 ? 0.5 : own < 1 ? -0.5 : 0;
+  }
+  if (!isTerrain) {
+    if (weatherChips(id, types)) worth -= 0.5;
+    for (const stat of ['meleeDef', 'magicDef']) if (weatherGuard(id, types, stat) > 1) worth += 0.5;
+  }
+  for (const slot of b.moves) {
+    const raw = getMove(slot.id);
+    if (!raw || slot.pp <= 0 || !isDamaging(raw)) continue;
+    const boost = (entry.boost && entry.boost[raw.type]) || 1;
+    const damp = (entry.damp && entry.damp[raw.type]) || 1;
+    worth += boost > 1 ? 1 : boost < 1 ? -1 : 0;
+    if (damp < 1) worth -= 1; // its own Dragon moves come off worse in the mist too
+    if (raw.fx.some((f) => (f.k === 'weatherPower' || f.k === 'terrainPower') && f[key] === id)) worth += 1;
+    if (raw.fx.some((f) => f.k === 'sureShotIn' && f.w === id) && raw.acc != null && raw.acc < 90) worth += 1;
+  }
+  return worth;
+}
+
 function scoreMove(state, side, action, rng) {
   const me = activeOf(state, side), foe = activeOf(state, 1 - side);
-  const mv = activeMove(me, action.struggle ? STRUGGLE : getMove(me.moves[action.index].id));
+  const field = liveField(state);
+  const mv = activeMove(me, action.struggle ? STRUGGLE : getMove(me.moves[action.index].id), field);
   const acc = mv.acc == null ? 1 : mv.acc / 100;
-  const faster = effectiveStat(me, 'spe') > effectiveStat(foe, 'spe') || mv.prio > 0;
+  const faster = effectiveStat(me, 'spe', field) > effectiveStat(foe, 'spe', field) || mv.prio > 0;
   if (isDamaging(mv)) {
     const eff = moveEffectiveness(mv, foe, me);
     if (eff === 0) return -60;
-    const est = calcDamage(me, foe, mv, eff, 0.925, false);
+    const est = calcDamage(me, foe, mv, eff, 0.925, false, field);
     const frac = Math.min(1, est / Math.max(1, foe.hp));
     let s = frac * 100 * acc;
     if (est >= foe.hp) s = 110 * acc + (faster ? 25 : 0);
@@ -67,6 +101,14 @@ function scoreMove(state, side, action, rng) {
       s += v * acc;
     } else if (f.k === 'heal') {
       s += me.hp < me.maxHp * 0.45 ? 55 : me.hp < me.maxHp * 0.7 ? 18 : -30;
+    } else if (f.k === 'weather') {
+      s += field.weather === f.w ? -40 : 8 + 9 * (fieldWorth(me, WEATHER, f.w, 'w') - fieldWorth(foe, WEATHER, f.w, 'w'));
+    } else if (f.k === 'terrain') {
+      s += field.terrain === f.t ? -40 : 8 + 9 * (fieldWorth(me, TERRAIN, f.t, 't') - fieldWorth(foe, TERRAIN, f.t, 't'));
+    } else if (f.k === 'clearField') {
+      const theirs = fieldWorth(foe, WEATHER, field.weather, 'w') + fieldWorth(foe, TERRAIN, field.terrain, 't');
+      const mine = fieldWorth(me, WEATHER, field.weather, 'w') + fieldWorth(me, TERRAIN, field.terrain, 't');
+      s += field.weather || field.terrain ? 6 + 9 * (theirs - mine) : -40;
     }
   }
   return s + rng.range(0, 2);

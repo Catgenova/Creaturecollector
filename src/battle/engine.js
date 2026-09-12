@@ -18,6 +18,7 @@ import { SPECIES_BY_ID } from '../data/species.js';
 import { statsAtLevel, movesAtLevel } from './stats.js';
 import { ITEM_IDS, getItem, potionHeal, potionUseful } from '../data/items.js';
 import { getCharm, charmPowerMul, heldKind, charmValue, charmUses, CHARM_RULE } from '../data/charms.js';
+import { FIELD, WEATHER, TERRAIN, WEATHER_TYPE, emptyField, weatherPower, terrainPower, weatherChips, weatherGuard } from '../data/field.js';
 
 export const STATUS_INFO = {
   brn: { name: 'Burn', short: 'BRN', verb: 'was burned' },
@@ -56,6 +57,26 @@ const guardFx = (user, target, kind) => (abHas(user, 'moldBreaker') ? [] : abFx(
 const guardMul = (user, target, kind, pred) => { let m = 1; for (const f of guardFx(user, target, kind)) if (!pred || pred(f)) m *= f.m; return m; };
 const announce = (events, side, b, kind) => events.push({ t: 'ability', side, name: b.name, ability: abilityName(kind ? abSource(b, kind) : b.ability) });
 const hasSecondary = (mv) => mv.fx.some((f) => f.k === 'status' || f.k === 'flinch' || (f.k === 'stat' && f.who === 'foe'));
+const CLEAR_FIELD = Object.freeze(emptyField());
+/** Terrain only reaches what stands on it: Flying types and anything that hovers are above all that. */
+export const grounded = (b) => Boolean(b) && !b.types.includes('Flying') && !abIs(b, 'hover') && !abFx(b, 'typeImmune').some((f) => f.type === 'Ground');
+/** The field as the fight actually feels it: a passive that flattens the sky hides the weather from both sides. */
+export function liveField(state) {
+  const f = state.field || CLEAR_FIELD;
+  if (!f.weather) return f;
+  const flattened = [0, 1].some((i) => { const b = activeOf(state, i); return b && !b.fainted && abHas(b, 'noWeather'); });
+  return flattened ? { ...f, weather: null } : f;
+}
+/** Set the weather or the terrain. Returns false when it was already this, which is how a move fails. */
+function setField(state, i, kind, id, events) {
+  const f = state.field;
+  const setter = i == null ? null : activeOf(state, i);
+  const turns = setter && abHas(setter, 'fieldExtend') ? FIELD.longTurns : FIELD.turns;
+  if (kind === 'weather') { if (f.weather === id) return false; f.weather = id; f.weatherTurns = turns; }
+  else { if (f.terrain === id) return false; f.terrain = id; f.terrainTurns = turns; }
+  events.push({ t: 'field', kind, id, turns, side: i });
+  return true;
+}
 /** Every fx kind the engine interprets; abilities.js must not use others. */
 export const PASSIVE_KINDS = ['typeBoost', 'catBoost', 'flagBoost', 'powerBand', 'fxBoost', 'firstStrike', 'lastStrike', 'statusBoost', 'fullHpBoost', 'foeLowBoost', 'prioBoost', 'sheerForce', 'statMul', 'statusStat', 'tintedLens', 'critBoost', 'critRate', 'mercilessCrit', 'accBoost', 'catAcc', 'noGuard', 'scrappy', 'addFlinch', 'addStatus', 'koStat', 'koHeal', 'prioType', 'prioStatus', 'prioHeal', 'quickDraw', 'earlyBird',
   'typeResist', 'typeWeak', 'catResist', 'flagResist', 'allResist', 'fullHpResist', 'lowHpResist', 'filter', 'defMul', 'statusDef', 'critImmune', 'evasion', 'typeImmune', 'typeAbsorb', 'contactHurt', 'contactStatus', 'contactStat', 'hurtStat', 'hitByTypeStat', 'hurtFoeStat', 'catThorns', 'critStat', 'lowHpStat', 'aftermath', 'shieldDust', 'flinchImmune', 'soundImmune', 'powderImmune', 'prioImmune', 'pressure', 'statusImmune', 'allStatusImmune', 'statusMoveImmune', 'synchronize', 'liquidOoze', 'noStatDrop', 'debuffedStat',
@@ -68,7 +89,9 @@ export const PASSIVE_KINDS = ['typeBoost', 'catBoost', 'flagBoost', 'powerBand',
   // the third three hundred: tempo, the party around it, sleight of hand and what it leaves behind
   'lateBoost', 'earlyBoost', 'charmBoost', 'charmless', 'underdogBoost', 'bullyBoost', 'fullPartyBoost', 'ppSave', 'benchHeal', 'benchCure',
   'statSwap', 'stageSteal', 'stageClear', 'statusSwap', 'healBlock', 'drainImmune', 'noContact', 'sureShot', 'ignoreEvasion', 'damageCap', 'critIf', 'actAsleep', 'thawFast',
-  'faintStatus', 'faintStat', 'faintHealParty'];
+  'faintStatus', 'faintStat', 'faintHealParty',
+  // the field: the weather overhead and the ground underfoot
+  'entryWeather', 'entryTerrain', 'weatherBoost', 'terrainBoost', 'weatherStat', 'terrainStat', 'weatherDef', 'weatherHeal', 'terrainHeal', 'weatherEvade', 'weatherImmune', 'fieldExtend', 'noWeather'];
 
 /** Build a battler from a genome at a level. opts.moves / opts.ability override the defaults; opts.held is the charm it carries. */
 export function makeBattler(genome, level, opts = {}) {
@@ -131,7 +154,7 @@ export function captureChance(b, partyLevel) {
  * capturable: side 0 may try to capture side 1's active creature (wild encounters).
  * items: { itemId: qty } — potions side 0 may use during the battle (a turn each).
  */
-export function createBattle({ sides, seed = 'battle', capturable = false, items = null }) {
+export function createBattle({ sides, seed = 'battle', capturable = false, items = null, field = null }) {
   if (!sides || sides.length !== 2) throw new Error('A battle needs exactly two sides.');
   const state = {
     seed: String(seed),
@@ -140,6 +163,7 @@ export function createBattle({ sides, seed = 'battle', capturable = false, items
     winner: null,
     capturable: Boolean(capturable),
     captured: null,
+    field: { ...emptyField(), ...(field || {}) },
     items: Object.fromEntries(Object.entries(items || {}).filter(([id, n]) => getItem(id) && n > 0).map(([id, n]) => [id, Math.floor(n)])),
     sides: sides.map((s, si) => {
       if (!s.party || !s.party.length) throw new Error(`Side ${si} has an empty party.`);
@@ -155,6 +179,8 @@ export function createBattle({ sides, seed = 'battle', capturable = false, items
   for (const s of state.sides) s.party[s.active].fought = true; // participants share the experience
   const events = [];
   const rng = makeRng(`${state.seed}:start`);
+  if (state.field.weather) { state.field.weatherTurns = state.field.weatherTurns || FIELD.turns; events.push({ t: 'field', kind: 'weather', id: state.field.weather, turns: state.field.weatherTurns, opening: true }); }
+  if (state.field.terrain) { state.field.terrainTurns = state.field.terrainTurns || FIELD.turns; events.push({ t: 'field', kind: 'terrain', id: state.field.terrain, turns: state.field.terrainTurns, opening: true }); }
   for (const i of [0, 1]) events.push({ t: 'switch', side: i, name: activeOf(state, i).name, uid: activeOf(state, i).uid, initial: true });
   for (const i of speedOrder(state, rng)) entryHooks(state, i, events);
   return { state, events };
@@ -189,16 +215,23 @@ export function itemActions(state, side) {
 function sameAction(a, b) { return a && b && a.type === b.type && a.index === b.index && (a.type !== 'item' || a.id === b.id); }
 
 function speedOrder(state, rng) {
-  const s0 = effectiveStat(activeOf(state, 0), 'spe'), s1 = effectiveStat(activeOf(state, 1), 'spe');
+  const fld = liveField(state);
+  const s0 = effectiveStat(activeOf(state, 0), 'spe', fld), s1 = effectiveStat(activeOf(state, 1), 'spe', fld);
   if (s0 === s1) return rng.chance(0.5) ? [0, 1] : [1, 0];
   return s0 > s1 ? [0, 1] : [1, 0];
 }
 
-export function effectiveStat(b, k) {
+export function effectiveStat(b, k, field) {
+  const fld = field || CLEAR_FIELD;
   let v = b.stats[k] * stageMul(b.stages[k]);
   if (k === 'spe' && b.status === 'par') v *= 0.5;
   if (k === 'spe' && heldKind(b.held) === 'speed') v *= charmValue(b.held, 'speedMul');
-  if (k === 'spe') { v *= abMul(b, 'statMul', (f) => f.stat === 'spe'); if (b.status) v *= abMul(b, 'statusStat', (f) => f.stat === 'spe'); }
+  if (k === 'spe') {
+    v *= abMul(b, 'statMul', (f) => f.stat === 'spe');
+    if (b.status) v *= abMul(b, 'statusStat', (f) => f.stat === 'spe');
+    v *= abMul(b, 'weatherStat', (f) => f.w === fld.weather && f.stat === 'spe');
+    if (grounded(b)) v *= abMul(b, 'terrainStat', (f) => f.t === fld.terrain && f.stat === 'spe');
+  }
   return v;
 }
 
@@ -206,6 +239,7 @@ export function effectiveStat(b, k) {
 export function step(input, actions) {
   const state = structuredClone(input);
   const events = [];
+  if (!state.field) state.field = emptyField();
   if (state.phase === 'over') return { state, events };
   const rng = makeRng(`${state.seed}:t${state.turn}:${state.phase}`);
 
@@ -240,7 +274,7 @@ export function step(input, actions) {
   const order = [0, 1].map((i) => {
     const a = actions[i];
     const prio = a.type === 'switch' || a.type === 'capture' || a.type === 'item' ? 100 : (a.struggle ? 0 : movePrio(activeOf(state, i), getMove(activeOf(state, i).moves[a.index].id), rng));
-    return { i, a, prio, spe: effectiveStat(activeOf(state, i), 'spe'), tie: rng.next() };
+    return { i, a, prio, spe: effectiveStat(activeOf(state, i), 'spe', liveField(state)), tie: rng.next() };
   }).sort((x, y) => (y.prio - x.prio) || (y.spe - x.spe) || (y.tie - x.tie));
 
   for (const o of order) {
@@ -371,6 +405,8 @@ function entryHooks(state, i, events) {
     announce(events, i, me);
     changeStages(state, f.who === 'foe' ? 1 - i : i, f.stats, events, f.who === 'foe');
   }
+  for (const f of abFx(me, 'entryWeather')) if (state.field.weather !== f.w) { announce(events, i, me); setField(state, i, 'weather', f.w, events); }
+  for (const f of abFx(me, 'entryTerrain')) if (state.field.terrain !== f.t) { announce(events, i, me); setField(state, i, 'terrain', f.t, events); }
   for (const f of abFx(me, 'download')) if (!foe.fainted) { // read the foe's guard and raise the attack it answers worst
     announce(events, i, me);
     changeStages(state, i, foe.stats.meleeDef <= foe.stats.magicDef ? { melee: f.n || 1 } : { magic: f.n || 1 }, events);
@@ -397,7 +433,7 @@ function entryHooks(state, i, events) {
     foe.stages = freshStages();
     events.push({ t: 'cleanse', side: 1 - i, name: foe.name });
   }
-  if (abHas(me, 'statusSwap') && me.status && !foe.fainted && canHaveStatus(foe, me.status)) {
+  if (abHas(me, 'statusSwap') && me.status && !foe.fainted && canHaveStatus(foe, me.status, null, liveField(state))) {
     const was = me.status;
     announce(events, i, me);
     me.status = null; me.sleepTurns = 0;
@@ -411,9 +447,16 @@ function entryHooks(state, i, events) {
   }
 }
 
-function canHaveStatus(b, status, mv) {
+function canHaveStatus(b, status, mv, field) {
   if (b.status || b.fainted) return false;
   if (abHas(b, 'allStatusImmune') || abFx(b, 'statusImmune').some((f) => f.s === status)) return false;
+  const fld = field || CLEAR_FIELD;
+  if (fld.weather === 'sun' && status === 'frz') return false; // nothing freezes under that sun
+  if (fld.terrain && grounded(b)) {
+    const t = TERRAIN[fld.terrain];
+    if (t.noStatus) return false;
+    if (t.noSleep && status === 'slp') return false;
+  }
   const t = b.types;
   if (mv && mv.flags.includes('powder') && t.includes('Grass')) return false;
   switch (status) {
@@ -428,7 +471,7 @@ function canHaveStatus(b, status, mv) {
 
 function setStatus(state, side, status, events, rng, mv) {
   const b = activeOf(state, side);
-  if (!canHaveStatus(b, status, mv)) return false;
+  if (!canHaveStatus(b, status, mv, liveField(state))) return false;
   b.status = status;
   if (status === 'slp') b.sleepTurns = rng.between(1, 3);
   events.push({ t: 'status', side, name: b.name, status });
@@ -467,7 +510,7 @@ function healBattler(state, side, amount, events, why) {
 function hurtBattler(state, side, amount, events, why) {
   const b = activeOf(state, side);
   if (b.fainted) return 0;
-  if ((why === 'brn' || why === 'psn' || why === 'recoil' || why === 'thorns') && abHas(b, 'magicGuard')) return 0;
+  if ((why === 'brn' || why === 'psn' || why === 'recoil' || why === 'thorns' || WEATHER[why]) && abHas(b, 'magicGuard')) return 0;
   const real = Math.max(1, Math.min(b.hp, Math.floor(amount)));
   b.hp -= real;
   events.push({ t: 'hurt', side, name: b.name, amount: real, hp: b.hp, maxHp: b.maxHp, why });
@@ -486,7 +529,7 @@ function faint(state, side, events) {
   const rng = makeRng(`${state.seed}:faint:${b.uid}`);
   for (const f of abFx(b, 'faintStatus')) {
     const status = f.s === 'own' ? carried : f.s;
-    if (!foe.fainted && status && canHaveStatus(foe, status)) { announce(events, side, b); setStatus(state, 1 - side, status, events, rng); }
+    if (!foe.fainted && status && canHaveStatus(foe, status, null, liveField(state))) { announce(events, side, b); setStatus(state, 1 - side, status, events, rng); }
   }
   for (const f of abFx(b, 'faintStat')) if (!foe.fainted) { announce(events, side, b); changeStages(state, 1 - side, f.stats, events, true); }
   for (const f of abFx(b, 'faintHealParty')) {
@@ -504,9 +547,12 @@ function faint(state, side, events) {
 function moveOfAction(b, a) { return a.struggle ? STRUGGLE : getMove(b.moves[a.index].id); }
 
 /** The move as this user throws it: a conversion passive retypes it and may lift its power. */
-export function activeMove(user, mv) {
-  const f = abFx(user, 'moveTypeChange').find((x) => x.from === mv.type && !mv.typeless);
-  let out = f ? { ...mv, type: f.to, power: Math.round(mv.power * (f.m || 1)) } : mv;
+export function activeMove(user, mv, field) {
+  const weather = (field || CLEAR_FIELD).weather;
+  const vane = weather && mv.fx.some((x) => x.k === 'weatherType') ? WEATHER_TYPE[weather] : null;
+  const base = vane && !mv.typeless ? { ...mv, type: vane } : mv;
+  const f = abFx(user, 'moveTypeChange').find((x) => x.from === base.type && !base.typeless);
+  let out = f ? { ...base, type: f.to, power: Math.round(base.power * (f.m || 1)) } : base;
   if (abHas(user, 'noContact') && out.flags.includes('contact')) out = { ...out, flags: out.flags.filter((x) => x !== 'contact') };
   return out;
 }
@@ -515,7 +561,8 @@ export function activeMove(user, mv) {
  * Damage for one hit. `roll` is the random factor in [0.85, 1], `crit` a boolean.
  * Exported so the AI can estimate with roll = 0.925 and no crit.
  */
-export function calcDamage(user, target, mv, eff, roll, crit) {
+export function calcDamage(user, target, mv, eff, roll, crit, field) {
+  const fld = field || CLEAR_FIELD;
   const fixed = moveFx(mv, 'fixed');
   if (fixed) return user.level;
   const dt = DAMAGE_TYPES[mv.cat] || DAMAGE_TYPES.melee;
@@ -530,6 +577,11 @@ export function calcDamage(user, target, mv, eff, roll, crit) {
   if (abIs(user, 'grit') && user.status && mv.cat !== 'magic') A *= 1.5;
   A *= abMul(user, 'statMul', (f) => f.stat === atkKey);
   if (user.status) A *= abMul(user, 'statusStat', (f) => f.stat === atkKey);
+  A *= abMul(user, 'weatherStat', (f) => f.w === fld.weather && f.stat === atkKey);
+  if (grounded(user)) A *= abMul(user, 'terrainStat', (f) => f.t === fld.terrain && f.stat === atkKey);
+  D *= weatherGuard(fld.weather, target.types, defKey);
+  D *= guardMul(user, target, 'weatherStat', (f) => f.w === fld.weather && f.stat === defKey);
+  if (grounded(target)) D *= guardMul(user, target, 'terrainStat', (f) => f.t === fld.terrain && f.stat === defKey);
   D *= guardMul(user, target, 'defMul', (f) => f.stat === defKey);
   if (target.status) D *= guardMul(user, target, 'statusDef', (f) => f.stat === defKey);
   let power = mv.power;
@@ -576,6 +628,17 @@ export function calcDamage(user, target, mv, eff, roll, crit) {
   power *= abMul(user, 'underdogBoost', () => target.level > user.level);
   power *= abMul(user, 'bullyBoost', () => target.level < user.level);
   if (!user.avenging) power *= abMul(user, 'fullPartyBoost');
+  if (!mv.typeless) { // the sky over the fight, and the ground the two of them are standing on
+    power *= weatherPower(fld.weather, mv.type);
+    if (grounded(user)) power *= terrainPower(fld.terrain, mv.type, 'user');
+    if (grounded(target)) power *= terrainPower(fld.terrain, mv.type, 'foe');
+  }
+  const wp = moveFx(mv, 'weatherPower');
+  if (wp && fld.weather === wp.w) power *= wp.m;
+  const tp = moveFx(mv, 'terrainPower');
+  if (tp && fld.terrain === tp.t && grounded(user)) power *= tp.m;
+  power *= abMul(user, 'weatherBoost', (f) => f.w === fld.weather && (!f.type || f.type === mv.type));
+  if (grounded(user)) power *= abMul(user, 'terrainBoost', (f) => f.t === fld.terrain);
   let dmg = Math.floor(Math.floor((Math.floor((2 * user.level) / 5) + 2) * power * A / D) / 50) + 2;
   if (crit) { const cb = abFx(user, 'critBoost')[0]; dmg = Math.floor(dmg * (cb ? cb.m : 1.5) * guardMul(user, target, 'critShield')); }
   dmg = Math.floor(dmg * roll);
@@ -595,7 +658,7 @@ export function calcDamage(user, target, mv, eff, roll, crit) {
   if (abIs(target, 'mirror_scale') && mv.cat === 'magic') dmg = Math.floor(dmg * 0.75);
   const guard = guardMul(user, target, 'typeResist', (f) => f.type === mv.type && !mv.typeless) * abMul(target, 'typeWeak', (f) => f.type === mv.type && !mv.typeless)
     * guardMul(user, target, 'catResist', (f) => f.cat === mv.cat) * guardMul(user, target, 'flagResist', (f) => mv.flags.includes(f.flag)) * guardMul(user, target, 'allResist')
-    * guardMul(user, target, 'fxResist', (f) => mv.fx.some((x) => x.k === f.fx))
+    * guardMul(user, target, 'fxResist', (f) => mv.fx.some((x) => x.k === f.fx)) * guardMul(user, target, 'weatherDef', (f) => f.w === fld.weather)
     * guardMul(user, target, 'bandResist', (f) => mv.power > 0 && (f.max != null ? mv.power <= f.max : mv.power >= f.min))
     * (target.hp === target.maxHp ? guardMul(user, target, 'fullHpResist') : 1) * (target.hp <= target.maxHp / 3 ? guardMul(user, target, 'lowHpResist') : 1);
   if (guard !== 1) dmg = Math.floor(dmg * guard);
@@ -629,12 +692,14 @@ export function moveEffectiveness(mv, target, user) {
   return typeEffectiveness(mv.type, target.types);
 }
 
-function hitChance(user, target, mv) {
-  if (mv.acc == null || abHas(user, 'noGuard') || abHas(target, 'noGuard') || abHas(user, 'sureShot')) return 1;
+function hitChance(user, target, mv, field) {
+  const fld = field || CLEAR_FIELD;
+  const sure = moveFx(mv, 'sureShotIn');
+  if (mv.acc == null || abHas(user, 'noGuard') || abHas(target, 'noGuard') || abHas(user, 'sureShot') || (sure && fld.weather === sure.w)) return 1;
   const blind = abHas(user, 'ignoreEvasion');
   const stage = clamp(user.stages.acc - (blind ? 0 : target.stages.eva), -6, 6);
   let base = Math.min(1, (mv.acc / 100) * accMul(stage) * abMul(user, 'accBoost') * abMul(user, 'catAcc', (f) => f.cat === mv.cat));
-  if (!blind) base *= abMul(target, 'evasion');
+  if (!blind) base *= abMul(target, 'evasion') * abMul(target, 'weatherEvade', (f) => f.w === fld.weather);
   return abIs(target, 'mist_core') ? base * 0.8 : base; // one attack in five slips through the mist
 }
 
@@ -643,7 +708,8 @@ function executeMove(state, i, action, events, rng) {
   const foeSide = 1 - i;
   const target = activeOf(state, foeSide);
   if (user.fainted) return;
-  const mv = activeMove(user, moveOfAction(user, action));
+  const fld = liveField(state);
+  const mv = activeMove(user, moveOfAction(user, action), fld);
 
   if (user.flinch) {
     user.flinch = false; user.moved = true; events.push({ t: 'flinch', side: i, name: user.name });
@@ -679,7 +745,7 @@ function executeMove(state, i, action, events, rng) {
     if ((mv.flags.includes('sound') && abHas(target, 'soundImmune')) || (mv.flags.includes('powder') && abHas(target, 'powderImmune')) || (mv.prio > 0 && abHas(target, 'prioImmune'))) {
       announce(events, foeSide, target); events.push({ t: 'immune', side: foeSide, name: target.name }); return;
     }
-    if (!rng.chance(hitChance(user, target, mv))) { events.push({ t: 'miss', side: i, name: user.name, target: target.name }); return; }
+    if (!rng.chance(hitChance(user, target, mv, fld))) { events.push({ t: 'miss', side: i, name: user.name, target: target.name }); return; }
   }
 
   if (!isDamaging(mv)) { applyStatusMove(state, i, mv, events, rng); return; }
@@ -722,7 +788,7 @@ function executeMove(state, i, action, events, rng) {
     else if (abFx(user, 'critIf').some((f) => (f.when === 'firstTurn' ? !user.turnsOut : f.when === 'lowHp' ? user.hp <= user.maxHp / 3 : user.hp === user.maxHp))) crit = true;
     if (crit) anyCrit = true;
     const roll = rng.between(85, 100) / 100;
-    let dmg = calcDamage(user, target, mv, eff, roll, crit);
+    let dmg = calcDamage(user, target, mv, eff, roll, crit, fld);
     const fhr = guardFx(user, target, 'firstHitResist')[0];
     if (fhr && !target.firstHitUsed) { target.firstHitUsed = true; dmg = Math.max(1, Math.floor(dmg * fhr.m)); announce(events, foeSide, target); }
     let held = false, sturdy = false, endured = false;
@@ -753,7 +819,7 @@ function executeMove(state, i, action, events, rng) {
     if (abHas(target, 'colorChange') && !mv.typeless && !target.types.includes(mv.type)) { announce(events, foeSide, target); target.types = [mv.type, null]; }
   }
   if (anyCrit && !target.fainted) for (const f of abFx(user, 'critStatus')) {
-    if (rng.chance((f.p == null ? 100 : f.p) / 100) && canHaveStatus(target, f.s, mv)) { announce(events, i, user); setStatus(state, foeSide, f.s, events, rng, mv); }
+    if (rng.chance((f.p == null ? 100 : f.p) / 100) && canHaveStatus(target, f.s, mv, liveField(state))) { announce(events, i, user); setStatus(state, foeSide, f.s, events, rng, mv); }
   }
   const drain = moveFx(mv, 'drain');
   if (drain && total > 0) {
@@ -802,7 +868,7 @@ function executeMove(state, i, action, events, rng) {
 function syncBack(state, from, victimSide, status, events, rng) {
   const victim = activeOf(state, victimSide);
   if (!abHas(victim, 'synchronize') || !['brn', 'psn', 'par'].includes(status)) return;
-  if (!canHaveStatus(activeOf(state, from), status)) return;
+  if (!canHaveStatus(activeOf(state, from), status, null, liveField(state))) return;
   announce(events, victimSide, victim);
   setStatus(state, from, status, events, rng);
 }
@@ -822,7 +888,7 @@ function applySecondaries(state, i, mv, events, rng) {
   }
   if (sheer || shield) return;
   for (const f of abFx(user, 'addFlinch')) if (!target.moved && !abHas(target, 'flinchImmune') && rng.chance(chanceOf(user, f.p))) { announce(events, i, user); target.flinch = true; }
-  for (const f of abFx(user, 'addStatus')) if ((!f.contact || mv.flags.includes('contact')) && rng.chance(chanceOf(user, f.p)) && canHaveStatus(target, f.s, mv)) {
+  for (const f of abFx(user, 'addStatus')) if ((!f.contact || mv.flags.includes('contact')) && rng.chance(chanceOf(user, f.p)) && canHaveStatus(target, f.s, mv, liveField(state))) {
     announce(events, i, user);
     if (setStatus(state, foeSide, f.s, events, rng, mv)) syncBack(state, i, foeSide, f.s, events, rng);
   }
@@ -842,7 +908,7 @@ function contactEffects(state, i, events, rng) {
     changeStages(state, i, { spe: -1 }, events, true);
   } else if ((ab === 'live_fur' || ab === 'hot_blooded' || ab === 'venom_barbs' || ab === 'inferno_core') && rng.chance(0.3)) {
     const status = ab === 'live_fur' ? 'par' : (ab === 'hot_blooded' || ab === 'inferno_core') ? 'brn' : 'psn';
-    if (canHaveStatus(user, status)) {
+    if (canHaveStatus(user, status, null, liveField(state))) {
       events.push({ t: 'ability', side: foeSide, name: target.name, ability: abilityName(ab) });
       setStatus(state, i, status, events, rng);
     }
@@ -850,7 +916,7 @@ function contactEffects(state, i, events, rng) {
   for (const f of abFx(target, 'contactHurt')) if (!user.fainted) { announce(events, foeSide, target); hurtBattler(state, i, Math.max(1, user.maxHp * f.r), events, 'thorns'); }
   for (const f of abFx(target, 'contactStatus')) if (!user.fainted && rng.chance(f.p / 100)) {
     const status = f.s === 'random' ? rng.pick(['brn', 'psn', 'par']) : f.s;
-    if (canHaveStatus(user, status)) { announce(events, foeSide, target); setStatus(state, i, status, events, rng); }
+    if (canHaveStatus(user, status, null, liveField(state))) { announce(events, foeSide, target); setStatus(state, i, status, events, rng); }
   }
   for (const f of abFx(target, 'contactStat')) if (!user.fainted && (f.p == null || rng.chance(f.p / 100))) { announce(events, foeSide, target); changeStages(state, i, f.stats, events, true); }
 }
@@ -883,6 +949,16 @@ function applyStatusMove(state, i, mv, events, rng, bounced = false) {
       const before = { ...activeOf(state, who).stages };
       changeStages(state, who, f.stats, events, f.who !== 'self');
       if (Object.keys(f.stats).some((k) => activeOf(state, who).stages[k] !== before[k])) didSomething = true;
+    } else if (f.k === 'weather' || f.k === 'terrain') {
+      if (setField(state, i, f.k, f.k === 'weather' ? f.w : f.t, events)) didSomething = true;
+      else events.push({ t: 'no_effect', side: i, name: activeOf(state, i).name, reason: 'failed' });
+    } else if (f.k === 'clearField') {
+      const fld = state.field;
+      if (fld.weather || fld.terrain) {
+        events.push({ t: 'fieldClear', weather: fld.weather, terrain: fld.terrain });
+        fld.weather = null; fld.weatherTurns = 0; fld.terrain = null; fld.terrainTurns = 0;
+        didSomething = true;
+      } else events.push({ t: 'no_effect', side: i, name: activeOf(state, i).name, reason: 'failed' });
     } else if (f.k === 'heal') {
       const me = activeOf(state, i);
       const sealer = activeOf(state, foeSide);
@@ -896,6 +972,7 @@ function applyStatusMove(state, i, mv, events, rng, bounced = false) {
 
 function endOfTurn(state, events, rng) {
   for (const i of [0, 1]) { const b = activeOf(state, i); if (!b.fainted) b.turnsOut = (b.turnsOut || 0) + 1; }
+  fieldEffects(state, events);
   for (const i of speedOrder(state, rng)) {
     const b = activeOf(state, i);
     if (b.fainted) continue;
@@ -952,6 +1029,26 @@ function endOfTurn(state, events, rng) {
   }
 }
 
+/** What the weather and the ground do at the end of a turn, and how much longer they hold. */
+function fieldEffects(state, events) {
+  const fld = liveField(state);
+  const rng = makeRng(`${state.seed}:field:${state.turn}`);
+  for (const i of speedOrder(state, rng)) {
+    const b = activeOf(state, i);
+    if (b.fainted) continue;
+    const chip = weatherChips(fld.weather, b.types);
+    if (chip && !abHas(b, 'weatherImmune')) hurtBattler(state, i, Math.max(1, b.maxHp * chip), events, fld.weather);
+    if (b.fainted) continue;
+    const ground = TERRAIN[fld.terrain];
+    if (ground && ground.heal && grounded(b) && b.hp < b.maxHp) healBattler(state, i, Math.max(1, b.maxHp * ground.heal), events, 'field');
+    for (const f of abFx(b, 'weatherHeal')) if (fld.weather === f.w && b.hp < b.maxHp) { announce(events, i, b); healBattler(state, i, Math.max(1, b.maxHp * f.r), events, 'ability'); }
+    for (const f of abFx(b, 'terrainHeal')) if (fld.terrain === f.t && grounded(b) && b.hp < b.maxHp) { announce(events, i, b); healBattler(state, i, Math.max(1, b.maxHp * f.r), events, 'ability'); }
+  }
+  const f = state.field;
+  if (f.weather && --f.weatherTurns <= 0) { events.push({ t: 'fieldOver', kind: 'weather', id: f.weather }); f.weather = null; f.weatherTurns = 0; }
+  if (f.terrain && --f.terrainTurns <= 0) { events.push({ t: 'fieldOver', kind: 'terrain', id: f.terrain }); f.terrain = null; f.terrainTurns = 0; }
+}
+
 function checkEnd(state, events) {
   const dead = [0, 1].map((i) => aliveCount(state.sides[i]) === 0);
   if (!dead[0] && !dead[1]) return false;
@@ -990,14 +1087,17 @@ export function describeEvent(e, names = ['You', 'Foe'], opts = {}) {
     case 'flinch': return `${who} flinched!`;
     case 'recharge': return `${who} must recharge!`;
     case 'cleanse': return `${who}'s stat changes were swept away!`;
+    case 'field': return (e.kind === 'weather' ? WEATHER[e.id] : TERRAIN[e.id]).line;
+    case 'fieldOver': return (e.kind === 'weather' ? WEATHER[e.id] : TERRAIN[e.id]).over;
+    case 'fieldClear': return 'The field was swept clear!';
     case 'stat': {
       const label = STAT_LABEL[e.stat] || e.stat;
       if (e.stages === 0) return `${who}'s ${label} won't go any ${e.wanted > 0 ? 'higher' : 'lower'}!`;
       const size = Math.abs(e.stages) >= 2 ? 'sharply ' : '';
       return `${who}'s ${label} ${size}${e.stages > 0 ? 'rose' : 'fell'}!`;
     }
-    case 'heal': return e.why === 'drain' ? `${who} drained some HP!` : e.why === 'restore' ? `${who} restored ${e.amount} HP!` : `${who} recovered ${e.amount} HP.`;
-    case 'hurt': return e.why === 'recoil' || e.why === 'struggle' ? `${who} is hit with recoil!` : e.why === 'brn' ? `${who} is hurt by its burn!` : e.why === 'psn' ? `${who} is hurt by poison!` : e.why === 'thorns' ? `${who} is pricked by thorns!` : `${who} took ${e.amount} damage.`;
+    case 'heal': return e.why === 'field' ? `${who} drew strength from the ground.` : e.why === 'drain' ? `${who} drained some HP!` : e.why === 'restore' ? `${who} restored ${e.amount} HP!` : `${who} recovered ${e.amount} HP.`;
+    case 'hurt': return WEATHER[e.why] ? `${who} is buffeted by the ${WEATHER[e.why].name.toLowerCase()}!` : e.why === 'recoil' || e.why === 'struggle' ? `${who} is hit with recoil!` : e.why === 'brn' ? `${who} is hurt by its burn!` : e.why === 'psn' ? `${who} is hurt by poison!` : e.why === 'thorns' ? `${who} is pricked by thorns!` : `${who} took ${e.amount} damage.`;
     case 'ability': return `[${who}'s ${e.ability}]`;
     case 'held': return `[${who}'s ${e.item}]`;
     case 'faint': return `${who} fainted!`;
