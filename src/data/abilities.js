@@ -487,7 +487,7 @@ defA('kindred', 'Kindred', { k: 'stab', m: 0.4 });
 defA('heritage', 'Heritage', [{ k: 'stab', m: 0.35 }, { k: 'accBoost', m: 1.1 }]);
 defA('zealot', 'Zealot', [{ k: 'stab', m: 0.5 }, { k: 'allResist', m: 1.15 }]);
 defA('executioner', 'Executioner', { k: 'effBoost', m: 1.3 });
-defA('steady_aim', 'Steady Aim', { k: 'neutralBoost', m: 1.2 });
+defA('true_line', 'True Line', { k: 'neutralBoost', m: 1.2 });
 defA('overwhelm', 'Overwhelm', [{ k: 'effBoost', m: 1.5 }, { k: 'accBoost', m: 0.9 }]);
 defA('lens_grinder', 'Lens Grinder', [{ k: 'tintedLens', m: 1.5 }, { k: 'neutralBoost', m: 1.1 }]);
 defA('cornered', 'Cornered', { k: 'lowHpBoost', m: 1.5 });
@@ -658,7 +658,7 @@ defA('battle_hymn', 'Battle Hymn', { k: 'entryStat', who: 'self', stats: { magic
 defA('standard_bearer', 'Standard Bearer', { k: 'entryStat', who: 'self', stats: { meleeDef: 1, rangedDef: 1, magicDef: 1 } });
 defA('dread_gaze', 'Dread Gaze', { k: 'entryStat', who: 'foe', stats: { magic: -1, magicDef: -1 } });
 defA('hobble', 'Hobble', { k: 'entryStat', who: 'foe', stats: { spe: -2 } });
-defA('blinding_dust', 'Blinding Dust', [{ k: 'entryStat', who: 'foe', stats: { acc: -1 } }, { k: 'powderImmune' }]);
+defA('dust_veil', 'Dust Veil', [{ k: 'entryStat', who: 'foe', stats: { acc: -1 } }, { k: 'powderImmune' }]);
 defA('skulk', 'Skulk', { k: 'entryStat', who: 'self', stats: { eva: 1 } });
 defA('herald', 'Herald', [{ k: 'entryStat', who: 'self', stats: { spe: 1 } }, { k: 'entryStat', who: 'foe', stats: { spe: -1 } }]);
 defA('loom', 'Loom', [{ k: 'entryStat', who: 'foe', stats: { melee: -1 } }, { k: 'foeFullBoost', m: 1.2 }]);
@@ -672,7 +672,7 @@ defA('withering_aura', 'Withering Aura', [{ k: 'turnHurtFoe', r: 1 / 16 }, { k: 
 defA('grinding_gears', 'Grinding Gears', { k: 'turnStat', stats: { melee: 1 }, p: 25 });
 defA('winding_up', 'Winding Up', { k: 'turnStat', stats: { ranged: 1 }, p: 25 });
 defA('focusing', 'Focusing', { k: 'turnStat', stats: { magic: 1 }, p: 25 });
-defA('hardening', 'Hardening', { k: 'turnStat', stats: { meleeDef: 1, rangedDef: 1 }, p: 20 });
+defA('shell_set', 'Shell Set', { k: 'turnStat', stats: { meleeDef: 1, rangedDef: 1 }, p: 20 });
 defA('quickening', 'Quickening', { k: 'turnStat', stats: { spe: 1 }, p: 30 });
 defA('sharpening', 'Sharpening', [{ k: 'turnStat', stats: { acc: 1 }, p: 30 }, { k: 'critRate', m: 1.5 }]);
 defA('fading', 'Fading', { k: 'turnStat', stats: { eva: 1 }, p: 25 });
@@ -687,7 +687,7 @@ defA('second_breath', 'Second Breath', [{ k: 'switchCure' }, { k: 'turnHeal', r:
 defA('regroup', 'Regroup', [{ k: 'switchHeal', r: 1 / 4 }, { k: 'avengeStat', stats: { meleeDef: 1 } }]);
 defA('hand_off', 'Hand-off', [{ k: 'switchHeal', r: 1 / 6 }, { k: 'koHeal', r: 1 / 8 }]);
 
-defA('bloodlust', 'Bloodlust', { k: 'koStat', stats: { melee: 1, spe: 1 } });
+defA('blood_rush', 'Blood Rush', { k: 'koStat', stats: { melee: 1, spe: 1 } });
 defA('soul_harvest', 'Soul Harvest', { k: 'koStat', stats: { magic: 2 } });
 defA('trophy_rack', 'Trophy Rack', { k: 'koHeal', r: 1 / 3 });
 defA('victors_rest', "Victor's Rest", [{ k: 'koHeal', r: 1 / 4 }, { k: 'koStat', stats: { meleeDef: 1 } }]);
@@ -810,7 +810,6 @@ defA('unburdened', 'Unburdened', [{ k: 'charmless', m: 1.2 }, { k: 'statMul', st
 defA('talisman', 'Talisman', [{ k: 'charmBoost', m: 1.15 }, { k: 'defMul', stat: 'magicDef', m: 1.1 }]);
 defA('ascetic', 'Ascetic', [{ k: 'charmless', m: 1.25 }, { k: 'turnCure', p: 20 }]);
 defA('collector', 'Collector', [{ k: 'charmBoost', m: 1.1 }, { k: 'worldGold', m: 1.2 }]);
-defA('minimalist', 'Minimalist', [{ k: 'charmless', m: 1.15 }, { k: 'worldXp', m: 1.2 }]);
 
 defA('giant_slayer', 'Giant Slayer', { k: 'underdogBoost', m: 1.4 });
 defA('pack_leader', 'Pack Leader', { k: 'bullyBoost', m: 1.3 });
@@ -851,12 +850,10 @@ defA('steady_drip', 'Steady Drip', [{ k: 'turnHeal', r: 1 / 16 }, { k: 'lateBoos
 defA('battle_rhythm', 'Battle Rhythm', [{ k: 'repeatBoost', m: 1.15 }, { k: 'turnStat', stats: { spe: 1 }, p: 20 }]);
 defA('relay_runner', 'Relay Runner', [{ k: 'switchHeal', r: 1 / 4 }, { k: 'earlyBoost', m: 1.2, until: 2 }]);
 defA('tag_team', 'Tag Team', [{ k: 'switchHeal', r: 1 / 6 }, { k: 'benchHeal', r: 1 / 16 }]);
-defA('relay', 'Relay', [{ k: 'entryStat', who: 'self', stats: { spe: 1 } }, { k: 'switchHeal', r: 1 / 8 }]);
 defA('anchor', 'Anchor', [{ k: 'fullPartyBoost', m: 1.2 }, { k: 'defMul', stat: 'rangedDef', m: 1.1 }]);
 defA('rearguard', 'Rearguard', [{ k: 'benchHeal', r: 1 / 16 }, { k: 'catResist', cat: 'ranged', m: 0.85 }]);
 defA('camp_cook', 'Camp Cook', [{ k: 'benchHeal', r: 1 / 8 }, { k: 'worldXp', m: 1.15 }]);
 defA('drill_sergeant', 'Drill Sergeant', [{ k: 'benchCure', p: 20 }, { k: 'entryStat', who: 'self', stats: { melee: 1 } }]);
-defA('kit_bag', 'Kit Bag', [{ k: 'charmBoost', m: 1.2 }, { k: 'koHeal', r: 1 / 8 }]);
 defA('long_campaign', 'Long Campaign', [{ k: 'lateBoost', m: 1.3, from: 6 }, { k: 'benchHeal', r: 1 / 16 }]);
 
 // ---- batch eleven: sleight of hand — trades, thefts, seals and the blows it will not feel ------------
@@ -939,7 +936,6 @@ for (const t of AB_TYPES) defA(`${t.toLowerCase()}_zeal`, AB_ZEAL[t], [{ k: 'typ
 // a bane hunts one type and pays for the obsession
 const AB_BANE = { Normal: 'Beast Bane', Electric: 'Storm Bane', Grass: 'Bramble Bane', Ice: 'Rime Bane', Fighting: 'Brawler Bane', Poison: 'Venom Bane', Ground: 'Burrow Bane', Flying: 'Sky Bane', Psychic: 'Psion Bane', Rock: 'Boulder Bane' };
 for (const t of Object.keys(AB_BANE)) defA(`${t.toLowerCase()}_bane`, AB_BANE[t], [{ k: 'foeTypeBoost', type: t, m: 1.3 }, { k: 'typeWeak', type: t, m: 1.2 }]);
-defA('twin_fang', 'Twin Fang', [{ k: 'foeTypeBoost', type: 'Dragon', m: 1.15 }, { k: 'foeTypeBoost', type: 'Dark', m: 1.15 }]);
 defA('elder_hunter', 'Elder Hunter', [{ k: 'foeTypeBoost', type: 'Ghost', m: 1.15 }, { k: 'foeTypeBoost', type: 'Psychic', m: 1.15 }]);
 
 defA('terraform', 'Terraform', { k: 'moveTypeChange', from: 'Normal', to: 'Ground', m: 1.2 });
@@ -983,7 +979,7 @@ defA('mist_mark', 'Mist Mark', [{ k: 'evasion', m: 0.85 }, { k: 'ignoreEvasion' 
 
 defA('sinew', 'Sinew', { k: 'statMul', stat: 'melee', m: 1.2 });
 defA('steady_hand', 'Steady Hand', { k: 'statMul', stat: 'ranged', m: 1.2 });
-defA('deep_focus', 'Deep Focus', { k: 'statMul', stat: 'magic', m: 1.2 });
+defA('deep_well', 'Deep Well', { k: 'statMul', stat: 'magic', m: 1.2 });
 defA('bracer', 'Bracer', { k: 'defMul', stat: 'meleeDef', m: 1.2 });
 defA('buckler', 'Buckler', { k: 'defMul', stat: 'rangedDef', m: 1.2 });
 defA('aegis', 'Aegis', { k: 'defMul', stat: 'magicDef', m: 1.2 });
@@ -1020,7 +1016,6 @@ defA('duster', 'Duster', { k: 'flagBoost', flag: 'powder', m: 1.3 });
 defA('grappler', 'Grappler', [{ k: 'flagBoost', flag: 'contact', m: 1.15 }, { k: 'statMul', stat: 'melee', m: 1.05 }]);
 defA('heavy_artillery', 'Heavy Artillery', [{ k: 'powerBand', min: 120, m: 1.3 }, { k: 'accBoost', m: 0.95 }]);
 defA('peashooter', 'Peashooter', { k: 'powerBand', max: 40, m: 1.4 });
-defA('balanced_form', 'Balanced Form', [{ k: 'powerBand', min: 60, m: 1.1 }, { k: 'powerBand', max: 90, m: 1.1 }]);
 
 // ---- batch fourteen: double-edged builds, sovereigns, the journey, and the last of the classics -----
 defA('all_in', 'All In', [{ k: 'statMul', stat: 'melee', m: 1.4 }, { k: 'defMul', stat: 'meleeDef', m: 0.7 }, { k: 'defMul', stat: 'rangedDef', m: 0.7 }]);
@@ -1054,10 +1049,8 @@ defA('scholars_heir', "Scholar's Heir", [{ k: 'worldXp', m: 1.6 }, { k: 'statMul
 defA('merchant', 'Merchant', [{ k: 'worldGold', m: 1.6 }, { k: 'statMul', stat: 'melee', m: 0.95 }]);
 defA('ranger', 'Ranger', [{ k: 'worldCatch', m: 1.6 }, { k: 'statMul', stat: 'spe', m: 0.95 }]);
 defA('naturalist', 'Naturalist', [{ k: 'worldCatch', m: 1.3 }, { k: 'worldXp', m: 1.3 }]);
-defA('prospectors_luck', "Prospector's Luck", [{ k: 'worldGold', m: 1.35 }, { k: 'critRate', m: 1.25 }]);
 defA('tracker', 'Tracker', [{ k: 'worldCatch', m: 1.3 }, { k: 'accBoost', m: 1.1 }]);
 defA('apprentice', 'Apprentice', [{ k: 'worldXp', m: 1.4 }, { k: 'defMul', stat: 'meleeDef', m: 0.95 }]);
-defA('guide', 'Guide', [{ k: 'worldXp', m: 1.25 }, { k: 'benchHeal', r: 1 / 16 }]);
 defA('fence', 'Fence', [{ k: 'worldGold', m: 1.45 }, { k: 'evasion', m: 0.95 }]);
 defA('beast_caller', 'Beast Caller', [{ k: 'worldCatch', m: 1.45 }, { k: 'entryStat', who: 'foe', stats: { spe: -1 } }]);
 defA('curator', 'Curator', [{ k: 'worldGold', m: 1.25 }, { k: 'worldXp', m: 1.25 }, { k: 'worldCatch', m: 1.25 }]);
@@ -1081,8 +1074,8 @@ defA('motor_drive', 'Motor Drive', { k: 'typeAbsorb', type: 'Electric', stats: {
 defA('flash_fire', 'Flash Fire', { k: 'typeAbsorb', type: 'Fire', stats: { magic: 1 } });
 defA('storm_drain', 'Storm Drain', { k: 'typeAbsorb', type: 'Water', stats: { magic: 1 } });
 defA('well_baked', 'Well Baked', { k: 'typeAbsorb', type: 'Fire', stats: { meleeDef: 2 } });
-defA('earth_eater', 'Earth Eater', { k: 'typeAbsorb', type: 'Ground', stats: { meleeDef: 1 } });
-defA('wind_rider', 'Wind Rider', { k: 'typeAbsorb', type: 'Flying', stats: { melee: 1 } });
+defA('stone_stomach', 'Stone Stomach', { k: 'typeAbsorb', type: 'Ground', stats: { meleeDef: 1 } });
+defA('updraft', 'Updraft', { k: 'typeAbsorb', type: 'Flying', stats: { melee: 1 } });
 defA('purifying_flame', 'Purifying Flame', { k: 'typeAbsorb', type: 'Fire', heal: 1 / 3 });
 defA('poison_feast', 'Poison Feast', { k: 'typeAbsorb', type: 'Poison', stats: { melee: 1 } });
 defA('ghost_feast', 'Ghost Feast', { k: 'typeAbsorb', type: 'Ghost', heal: 1 / 3 });

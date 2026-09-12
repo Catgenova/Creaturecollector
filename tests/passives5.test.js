@@ -67,12 +67,12 @@ test('and the user reads its own situation: cornered, first out, last up, avengi
   assert.ok(near(dmg(faint, foe, 'bump'), dmg(plain, foe, 'bump'), 0.5));
 });
 
-test('effectiveness keys: Executioner on super effective, Steady Aim on neutral, Kindred on its own type', () => {
+test('effectiveness keys: Executioner on super effective, True Line on neutral, Kindred on its own type', () => {
   const foe = mk('pufflet', 'lucky_streak'), plain = mk('pufflet', 'lucky_streak');
   assert.ok(near(dmg(mk('pufflet', 'executioner'), foe, 'bump', 2), dmg(plain, foe, 'bump', 2), 1.3));
   assert.ok(near(dmg(mk('pufflet', 'executioner'), foe, 'bump', 1), dmg(plain, foe, 'bump', 1), 1));
-  assert.ok(near(dmg(mk('pufflet', 'steady_aim'), foe, 'bump', 1), dmg(plain, foe, 'bump', 1), 1.2));
-  assert.ok(near(dmg(mk('pufflet', 'steady_aim'), foe, 'bump', 2), dmg(plain, foe, 'bump', 2), 1));
+  assert.ok(near(dmg(mk('pufflet', 'true_line'), foe, 'bump', 1), dmg(plain, foe, 'bump', 1), 1.2));
+  assert.ok(near(dmg(mk('pufflet', 'true_line'), foe, 'bump', 2), dmg(plain, foe, 'bump', 2), 1));
   // Pufflet is Normal: Bump matches its type, so the same-type bonus goes from 1.25 to 1.4.
   assert.ok(near(dmg(mk('pufflet', 'kindred'), foe, 'bump'), dmg(plain, foe, 'bump'), 1.4 / 1.25));
 });

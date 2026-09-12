@@ -445,7 +445,7 @@ export const SPECIES = [
     paint: { pectoral: 1, tail: 1, dorsal: 1, belly: 1 },
     traits: T([0.4, 0.7], MID, MID, [0.5, 0.8], MID, [0.4, 0.6]),
     learnset: [[1,'squirt'],[1,'mind_jolt'],[6,'ripple'],[11,'lull'],[16,'thought_beam'],[22,'mend'],[28,'cascade'],[34,'psi_shock'],[40,'blank_mind'],[46,'tidal_wave'],[52,'lunar_burst']],
-    abilities: ['sealed_well','prospectors_luck'],
+    abilities: ['sealed_well','updraft'],
     desc: 'Grants a small wish to anyone who guesses its age. Nobody has guessed correctly.',
   },
   {
@@ -1806,7 +1806,7 @@ export const SPECIES = [
     paint: { mane: 3, horns: 4 },
     traits: T([0.35, 0.6], MID, [0.3, 0.5], [0.6, 0.9], MID, [0.55, 0.85]),
     learnset: [[1,'glitter_gust'],[1,'glare'],[6,'mind_jolt'],[11,'wyrm_breath'],[16,'doe_eyes'],[22,'moonbathe'],[28,'dazzle'],[34,'wyrm_pulse'],[38,'hidden_pearl'],[40,'wyrm_dance'],[46,'lunar_burst'],[52,'comet_roar']],
-    abilities: ['sleep_coat','relay'],
+    abilities: ['sleep_coat','blood_rush'],
     desc: 'Carries a pearl it will not show anyone. Brings luck to the humble and headaches to the greedy.',
   },
   {
@@ -2597,7 +2597,7 @@ export const SPECIES = [
     palette: { c1: [265, 35, 50], c2: [270, 40, 35], c3: [45, 100, 65], eye: [45, 100, 65] }, vary: { h: 8, s: 6, l: 5 },
     traits: T([0.4, 0.65], MID, [0.55, 0.8], [0.5, 0.75], [0.4, 0.6], [0.5, 0.8]),
     learnset: [[1,'mind_jolt'],[1,'glare'],[6,'flare'],[11,'meditate'],[16,'thought_beam'],[22,'hex_glare'],[28,'heat_wave'],[34,'psi_shock'],[38,'signed_already'],[40,'lull'],[46,'mind_crush'],[52,'meltdown']],
-    abilities: ['good_as_gold','minimalist'],
+    abilities: ['good_as_gold','stone_stomach'],
     desc: 'Has your signature already and is only waiting for you to notice. The third eye reads the small print.',
   },
   {
@@ -3211,7 +3211,7 @@ export const SPECIES = [
     palette: { c1: [220, 46, 65], c2: [223, 46, 45], c3: [311, 71, 66], eye: [312, 78, 63] }, vary: { h: 8, s: 6, l: 5 },
     traits: T([0.25, 0.5], MID, [0.45, 0.7], MID, MID, [0.45, 0.75]),
     learnset: [[1,'flurry'],[1,'whetting'],[6,'pebble_barrage'],[11,'yowl'],[16,'rock_smash'],[22,'smooth_stone'],[28,'headbonk'],[34,'stone_trap'],[40,'mend'],[46,'belly_flop'],[52,'boulder_bash']],
-    abilities: ['sealed_body','guide'],
+    abilities: ['sealed_body','dust_veil'],
     desc: 'Armoured in slate and slow as a landslide, which is also how it fights.',
   },
   {
@@ -4873,7 +4873,7 @@ export const SPECIES = [
     palette: { c1: [237, 24, 83], c2: [247, 29, 59], c3: [59, 68, 87], eye: [60, 69, 72] }, vary: { h: 8, s: 6, l: 5 },
     traits: T([0.35, 0.65], [0.5, 0.75], MID, MID, MID, [0.45, 0.75]),
     learnset: [[1,'hex_glare'],[1,'brace'],[6,'flurry'],[11,'glare'],[16,'echo_burst'],[22,'scheme'],[28,'dazzle'],[34,'blindside'],[40,'yowl'],[46,'lunar_burst'],[52,'dread_pulse']],
-    abilities: ['chameleon_skin','minimalist'],
+    abilities: ['chameleon_skin','stone_stomach'],
     desc: 'Glows with a light that is not its own. On cloudy nights it sulks.',
   },
   {
@@ -6984,7 +6984,7 @@ export const SPECIES = [
     palette: { c1: [347, 44, 42], c2: [0, 36, 28], c3: [53, 92, 57], eye: [54, 93, 56] }, vary: { h: 8, s: 6, l: 5 },
     traits: T([0.35, 0.65], MID, [0.45, 0.7], MID, MID, [0.45, 0.75]),
     learnset: [[1,'bump'],[1,'whetting'],[6,'shout'],[11,'photosynth'],[16,'headbonk'],[22,'numb_spores'],[28,'wyrm_claw'],[34,'wyrm_breath'],[40,'glare'],[46,'belly_flop'],[52,'wyrm_rush']],
-    abilities: ['blood_mark','twin_fang'],
+    abilities: ['blood_mark','true_line'],
     desc: 'A thorn bush with a dragon\'s temper and a dragon\'s hoard of finches.',
   },
   {
@@ -9054,7 +9054,7 @@ export const SPECIES = [
     palette: { c1: [299, 50, 65], c2: [292, 41, 45], c3: [51, 89, 73], eye: [296, 85, 58] }, vary: { h: 8, s: 6, l: 5 },
     traits: T([0.35, 0.65], [0.5, 0.75], MID, MID, MID, [0.45, 0.75]),
     learnset: [[1,'mind_jolt'],[1,'glare'],[6,'cold_lick'],[11,'blank_mind'],[16,'wraith_touch'],[22,'lull'],[28,'umbral_orb'],[34,'headbonk'],[40,'brace'],[46,'mind_crush'],[52,'psystorm']],
-    abilities: ['balanced_form','precision_drill'],
+    abilities: ['deep_well','precision_drill'],
     desc: 'Stares until you sleep. Then it does the rest.',
   },
   {
@@ -9154,7 +9154,7 @@ export const SPECIES = [
     palette: { c1: [253, 20, 65], c2: [254, 26, 46], c3: [151, 71, 64], eye: [146, 78, 55] }, vary: { h: 8, s: 6, l: 5 },
     traits: T([0.5, 0.8], MID, [0.45, 0.7], MID, MID, [0.45, 0.75]),
     learnset: [[1,'cold_lick'],[1,'haunt'],[6,'shock_palm'],[11,'yowl'],[16,'leg_sweep'],[22,'brace'],[28,'blur'],[34,'wraith_touch'],[38,'one_more_fight'],[40,'whetting'],[46,'belly_flop'],[52,'all_out_brawl']],
-    abilities: ['battle_rhythm','kit_bag'],
+    abilities: ['battle_rhythm','shell_set'],
     desc: 'Came back for one more fight. Has not decided which.',
   },
   {

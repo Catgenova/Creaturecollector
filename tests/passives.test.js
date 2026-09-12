@@ -64,7 +64,7 @@ test('style, flag, power-band and effect boosts lift the right moves', () => {
   const near = (a, b, m) => Math.abs(a - b * m) <= Math.ceil(b * 0.02) + 1;
   assert.ok(near(dmg(mk('emberox', 'heavy_blows'), foe, 'bump'), dmg(plain, foe, 'bump'), 1.15));
   assert.equal(dmg(mk('emberox', 'heavy_blows'), foe, 'cinder'), dmg(plain, foe, 'cinder'), 'ranged untouched by a melee boost');
-  assert.ok(near(dmg(mk('emberox', 'deep_focus'), foe, 'flare'), dmg(plain, foe, 'flare'), 1.15));
+  assert.ok(near(dmg(mk('emberox', 'deep_focus'), foe, 'meltdown'), dmg(plain, foe, 'meltdown'), 1.15));
   assert.ok(near(dmg(mk('emberox', 'tough_claws'), foe, 'bump'), dmg(plain, foe, 'bump'), 1.25));
   assert.equal(dmg(mk('emberox', 'tough_claws'), foe, 'cinder'), dmg(plain, foe, 'cinder'));
   assert.ok(near(dmg(mk('emberox', 'loud_voice'), foe, 'bellow'), dmg(plain, foe, 'bellow'), 1.3));

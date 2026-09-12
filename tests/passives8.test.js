@@ -12,11 +12,11 @@ const fight = (a, b, seed = 'pv8') => createBattle({ sides: [{ name: 'A', party:
 const play = (st, ma = 0, mb = 0) => step(st, [{ type: 'move', index: ma }, { type: 'move', index: mb }]);
 
 test('entry passives read in accuracy and evasion, not raw stage keys', () => {
-  for (const id of ['blinding_dust', 'skulk', 'sharpening']) {
+  for (const id of ['dust_veil', 'skulk', 'sharpening']) {
     assert.ok(/accuracy|evasion/.test(ABILITIES[id].desc), `${id}: ${ABILITIES[id].desc}`);
     assert.ok(!/\bacc\b|\beva\b/.test(ABILITIES[id].desc), `${id} leaked a stage key`);
   }
-  const dust = fight(mk('pufflet', 'blinding_dust'), mk('thornwick', 'lucky_streak')).state;
+  const dust = fight(mk('pufflet', 'dust_veil'), mk('thornwick', 'lucky_streak')).state;
   assert.equal(activeOf(dust, 1).stages.acc, -1);
   assert.equal(activeOf(fight(mk('pufflet', 'skulk'), mk('thornwick', 'lucky_streak')).state, 0).stages.eva, 1);
   const bearer = activeOf(fight(mk('pufflet', 'standard_bearer'), mk('thornwick', 'lucky_streak')).state, 0);

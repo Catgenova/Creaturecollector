@@ -38,10 +38,10 @@ test('situational boosts: first and last strike, statused and low foes, full HP,
 
 test('stat leans: Brawn, Deadeye, Insight, Fleet, the guards, and the status-fed Quick Feet, Flare Boost, Toxic Boost and Marvel Scale', () => {
   const foe = mk('pufflet', 'lucky_streak'), plain = mk('emberox', 'lucky_streak');
-  assert.ok(near(dmg(mk('emberox', 'brawn'), foe, 'bump'), dmg(plain, foe, 'bump'), 1.3));
-  assert.equal(dmg(mk('emberox', 'brawn'), foe, 'cinder'), dmg(plain, foe, 'cinder'));
-  assert.ok(near(dmg(mk('emberox', 'deadeye'), foe, 'cinder'), dmg(plain, foe, 'cinder'), 1.3));
-  assert.ok(near(dmg(mk('emberox', 'insight'), foe, 'flare'), dmg(plain, foe, 'flare'), 1.3));
+  assert.ok(near(dmg(mk('emberox', 'brawn'), foe, 'headbonk'), dmg(plain, foe, 'headbonk'), 1.3));
+  assert.equal(dmg(mk('emberox', 'brawn'), foe, 'fire_stream'), dmg(plain, foe, 'fire_stream'));
+  assert.ok(near(dmg(mk('emberox', 'deadeye'), foe, 'fire_stream'), dmg(plain, foe, 'fire_stream'), 1.3));
+  assert.ok(near(dmg(mk('emberox', 'insight'), foe, 'meltdown'), dmg(plain, foe, 'meltdown'), 1.3));
   assert.ok(Math.abs(effectiveStat(mk('emberox', 'fleet'), 'spe') - plain.stats.spe * 1.3) < 1e-9);
   assert.ok(near(dmg(plain, mk('pufflet', 'thick_coat'), 'bump'), dmg(plain, foe, 'bump'), 1 / 1.3));
   assert.equal(dmg(plain, mk('pufflet', 'thick_coat'), 'cinder'), dmg(plain, foe, 'cinder'));
