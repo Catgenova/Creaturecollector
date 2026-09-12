@@ -417,7 +417,7 @@ export const MOVES = [
   m('iron_crown_kneel', 'Iron Crown Kneel', 'Steel', 'melee', 95, 100, { signature: 'ossarch', flags: ['contact'], fx: [STAT('foe', { meleeDef: -1 })] }),
   m('planned_pyre', 'Planned Pyre', 'Fire', 'magic', 100, 100, { signature: 'pyrelich', fx: [ST('brn', 20)] }),
   m('old_sea_volley', 'Old Sea Volley', 'Water', 'ranged', 45, 90, { signature: 'deepfossil', fx: [{ k: 'multi', min: 2, max: 3 }] }),
-  m('gone_before_seen', 'Gone Before Seen', 'Ghost', 'magic', 70, 100, { signature: 'wraithwing', prio: 1 }),
+  m('gone_before_seen', 'Gone Before Seen', 'Ghost', 'magic', 60, 100, { signature: 'wraithwing', prio: 1 }),
   m('blot_out', 'Blot Out', 'Dark', 'melee', 90, 100, { signature: 'nightmaw', flags: ['contact'], fx: [FLINCH(30)] }),
   m('nowhere_echo', 'Nowhere Echo', 'Psychic', 'magic', 90, null, { signature: 'voidbat', flags: ['sound'] }),
   m('fight_back_drink', 'Fight Back Drink', 'Dark', 'melee', 90, 100, { signature: 'bloodwing', flags: ['contact', 'bite'], fx: [{ k: 'drain', r: 0.5 }] }),
