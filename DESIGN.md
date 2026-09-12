@@ -968,6 +968,45 @@ instead. A final 40,000-game verification tournament (`node scripts/sim.mjs
 40000 50 3`) read 42–59% with nothing outside the band; totals still span 360
 to 520. Larger rounds are the lever when the roster grows again.
 
+## The type pass (implemented)
+
+Every class now covers every type. A type pass added twenty-one species to
+each of the eighteen classes, 378 in all, taking the roster from 517 to 895.
+
+- **Coverage.** In each class, eighteen of the twenty-one carry one type each
+  in a fixed order (Fire, Water, Electric, Grass, Ice, Fighting, Poison,
+  Ground, Flying, Psychic, Bug, Rock, Ghost, Dragon, Dark, Steel, Fairy,
+  Normal), paired with the class's anchor type (Normal for mammals, Rock for
+  reptiles and crystallines, Water for fish, invertebrates and amphibians,
+  Flying for birds, Bug for insects and myriapods, Grass for flora and fungi,
+  Poison for oozes, Dragon for wyrms and draconics, Ghost for skeletals and
+  spirits, Dark for nightwings, Fire for fiends); the anchor's own row is
+  mono-typed. Rows alternate common and uncommon, with the odd rows leading
+  with the anchor so the pair reads both ways. The last three in each class
+  are rare signatures with hand-picked type pairs and styles: the mammals'
+  Emberclaw, Auroralynx and Ironboar, the spirits' Banshee, Revenant and
+  Polterwisp, and so on.
+- **Style by type.** Each type has a fixed combat style (Fire, Ice, Psychic,
+  Ghost and Fairy magic; Water, Grass, Poison, Flying and Bug ranged;
+  Electric and Dark fast ranged; Fighting, Ground, Dragon and Normal melee;
+  Rock and Steel melee tanks), so a class's eighteen typed rows spread across
+  the three styles and the idle poses that follow them.
+- **Authored and derived.** As in the element pass, names, name parts and the
+  one-line descriptions were written by hand and everything else was derived
+  once into `species.js` as ordinary data. Recipes score each class part by
+  type keywords (ember and flame words for Fire, fin and drip for Water, bolt
+  and spark for Electric, leaf and moss for Grass, and so on) while avoiding
+  the body, head and eyes a sibling in the class already took; palettes come
+  from the type's base colours shifted per class and per species, a little
+  darker for melee and lighter for magic; stats follow the style archetype;
+  the two passives come from the types' ability pools. Learnsets are built
+  band-first: the strongest style attack of the species' types (plus Normal)
+  is reserved for level 46, the next for 28 and the weakest for level 1, 16
+  or 22 by power, and only then are the remaining slots filled with status
+  moves and off-style attacks. That ordering is what lets a three-move style
+  pool (Fairy and Normal magic, for instance) still put a style attack in
+  every band.
+
 ## Mobile view (implemented)
 
 The game was drawn for a phone from the start (portrait layout, 44px targets,
