@@ -7,7 +7,7 @@ import { speciesGenome, makeElemental } from '../src/creature/genome.js';
 import { makeMember } from '../src/game/party.js';
 import { TILE, tileAt, worldFor, isWalkable, findPath, isHubTile } from '../src/game/world.js';
 import { newJourney, chooseJourneyStarter, tryMove, acceptChallenge, challengeWarden, buildJourneyBattle, applyJourneyBattle, fleeEncounter } from '../src/game/journey.js';
-import { MARKET, GOLD, moveCost, marketCatalogue, goldReward, buyMove, bagList, bagCount, canTeach, teachMove, itemCatalogue, itemList, buyItem, useItem, scrollTypes, canLearnScroll, scrollLearners, listWords } from '../src/game/market.js';
+import { MARKET, GOLD, moveCost, marketCatalogue, goldReward, buyMove, bagList, bagCount, canTeach, teachMove, itemCatalogue, itemList, buyItem, useItem, scrollTypes, canLearnScroll, scrollLearners, listWords, isBasicMove } from '../src/game/market.js';
 import { normalizeJourney } from '../src/game/save.js';
 import { ITEMS, ITEM_IDS, getItem, potionHeal, potionUseful } from '../src/data/items.js';
 import { memberMaxHp } from '../src/game/party.js';
@@ -32,7 +32,10 @@ test('move prices climb with power in steps of a thousand', () => {
   assert.equal(moveCost('struggle'), 0);
   assert.equal(moveCost('nope'), 0);
   const cat = marketCatalogue();
-  assert.equal(cat.length, MOVES.length - SIGNATURE_MOVES.length, 'every move but the signatures is on sale');
+  // the Market keeps the basics; the type kit is sold by the biome tutors
+  assert.equal(cat.length, MOVES.filter(isBasicMove).length, 'the basics are on sale');
+  assert.ok(cat.every(({ move }) => move.type === 'Normal' || move.power <= MARKET.basicPower), 'nothing heavy on the shelf');
+  assert.ok(cat.length < MOVES.length - SIGNATURE_MOVES.length, 'and not the whole table');
   for (const { move, cost } of cat) {
     assert.ok(cost >= MARKET.unit && cost % MARKET.unit === 0, `${move.id} ${cost}`);
     assert.ok(!move.struggle);

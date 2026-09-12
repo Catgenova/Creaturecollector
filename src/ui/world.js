@@ -15,7 +15,7 @@ import { JOURNEY, newJourney, chooseJourneyStarter, tryMove, facing, talkTo, acc
 import { WORLD, TILE, REGIONS, HUB, BIOME_ORDER, worldFor, tileAt, biomeAt, habitatTypeAt, trainerAt, findPath, isHubTile } from '../game/world.js';
 import { TYPE_INFO, TYPE_LIST } from '../data/types.js';
 import { DAMAGE_TYPES } from '../data/damage.js';
-import { marketCatalogue, buyMove, bagList, bagCount, canTeach, teachMove, itemCatalogue, itemList, buyItem, useItem, scrollTypes, scrollLearners, listWords, charmCatalogue, charmList, buyCharm, giveCharm, takeCharm, charmHolders } from '../game/market.js';
+import { marketCatalogue, buyMove, bagList, bagCount, canTeach, teachMove, itemCatalogue, itemList, buyItem, useItem, scrollTypes, scrollLearners, listWords, charmCatalogue, charmList, buyCharm, giveCharm, takeCharm, charmHolders, tutorTypes, tutorCatalogue, buyTutorMove, recallOptions, recallCost, recallMove } from '../game/market.js';
 import { getCharm } from '../data/charms.js';
 import { dexSeen, dexCaught, dexCounts, dexStatus, dexMorphs, dexHabitat, dexRewards, claimDexReward, dexSpeciesOf } from '../game/dex.js';
 import { speciesGenome } from '../creature/genome.js';
@@ -316,7 +316,7 @@ function owInteract() {
   if (here === TILE.towerDoor) { owTowerSheet(j); return; }
   if (here === TILE.bountyDoor) { owBountySheet(j); return; }
   if (here === TILE.rookeryDoor) { owRookerySheet(j); return; }
-  if (here === TILE.camp) { toast('The fire is warm. Your party is rested.'); return; }
+  if (here === TILE.camp) { owCampSheet(j); return; }
   if (tileAt(world, f.x, f.y) === TILE.board) { owBoardSheet(j); return; }
   const ht = habitatTypeAt(world, f.x, f.y);
   if (tileAt(world, f.x, f.y) === TILE.habitat && ht) { toast(`${ht}-type creatures live in this ${biomeAt(world, f.x, f.y).name.toLowerCase()} patch.`); return; }
@@ -816,7 +816,7 @@ function owMarketSheet(j) {
       h('p', { class: 'hint' }, `◆ ${(j.gold || 0).toLocaleString()} gold. Everything goes to your Bag. Trainers pay gold when beaten.`),
       ...section('Potions', potionList),
       ...section('Charms', h('p', { class: 'hint' }, 'A held charm goes into every fight with its creature: a type charm lifts that type’s moves by a fifth, a band lifts one damage type by a tenth, and the rest carry a small passive of their own. Give them out from the Bag. Every Warden hands one over with their badge.'), charmRows),
-      ...section('Move scrolls', h('p', { class: 'hint' }, 'Every move is sold as a single-use scroll; prices rise with power in steps of 1000. A creature learns scrolls of its own types, of its Elemental element, and any Normal scroll; "My team" hides the rest.'), chips, shown ? list : h('p', { class: 'hint' }, 'No scroll here suits your team.')),
+      ...section('Move scrolls', h('p', { class: 'hint' }, 'The Market stocks the basics: every Normal scroll and anything of 60 power or less. The heavier type scrolls are taught at the camps out in the regions, three types apiece, once you hold that region\'s badge. A creature learns scrolls of its own types, of its Elemental element, and any Normal scroll; "My team" hides the rest.'), chips, shown ? list : h('p', { class: 'hint' }, 'No scroll here suits your team.')),
     ]);
   };
   const render = () => owKeepScroll(body, draw);
@@ -934,6 +934,84 @@ function owBountySheet(j) {
   const render = () => owKeepScroll(body, draw);
   render();
   owSheet('Bounty Office', body, () => owRefreshHud());
+}
+
+// ---- camps: the region's tutor, and recalling a move a creature has outgrown ----------------
+
+/** What the camp under the player belongs to: a region and its badge, or the Crossroads. */
+function owCampPlace(j) {
+  const world = ow.world, p = j.player;
+  if (isHubTile(world, p.x, p.y)) return { hub: true };
+  const b = biomeAt(world, p.x, p.y);
+  return b ? { hub: false, biome: b, clade: b.clade, region: REGIONS[b.clade], badge: (j.badges || []).includes(b.id) } : { hub: true };
+}
+
+/** The camp sheet: buy the region's scrolls from its tutor, or pay to recall a move. */
+function owCampSheet(j) {
+  const body = h('div');
+  let tab = 'tutor';
+  let recalling = null; // uid whose recall list is open
+  const place = owCampPlace(j);
+  if (place.hub) tab = 'recall';
+  const draw = () => {
+    clear(body);
+    const tabs = h('div', { class: 'type-filter' },
+      place.hub ? null : h('button', { class: `btn small${tab === 'tutor' ? ' on' : ''}`, type: 'button', onclick: () => { tab = 'tutor'; render(); } }, 'Tutor'),
+      h('button', { class: `btn small${tab === 'recall' ? ' on' : ''}`, type: 'button', onclick: () => { tab = 'recall'; recalling = null; render(); } }, 'Recall'));
+    body.append(tabs);
+    if (tab === 'tutor' && !place.hub) {
+      const types = tutorTypes(place.clade);
+      body.append(h('p', { class: 'hint' }, place.badge
+        ? `The tutor at this camp teaches ${listWords(types)} scrolls at seven tenths of the Market's price.`
+        : `The tutor teaches ${listWords(types)} scrolls to those who hold the ${place.region.badge}. Beat the Warden first.`));
+      const list = h('div', { class: 'shop-list' });
+      for (const { move, cost } of tutorCatalogue(place.clade)) {
+        const who = scrollLearners(j, move.id);
+        const owned = bagCount(j, move.id);
+        const info = moveInfoEl(move, owned ? `in bag ×${owned}` : '');
+        info.append(h('div', { class: `shop-who${who.length ? '' : ' none'}` }, who.length ? `for ${who.join(', ')}` : 'no one on your team can learn this'));
+        list.append(h('div', { class: 'shop-row' }, info,
+          h('button', { class: `btn small${place.badge && (j.gold || 0) >= cost ? ' primary' : ''}`, type: 'button', disabled: !place.badge || (j.gold || 0) < cost, onclick: () => {
+            const r = buyTutorMove(j, place.biome.id, place.clade, move.id);
+            if (!r.ok) { toast(r.reason); return; }
+            owSave(); sfx.heal(); toast(`The tutor sold you ${move.name} for ${cost.toLocaleString()} gold`); render(); owRefreshHud();
+          } }, `${cost.toLocaleString()} ◆`)));
+      }
+      body.append(list);
+      return;
+    }
+    body.append(h('p', { class: 'hint' }, 'A camp can bring back a move a creature has outgrown: anything from its own learnset it has passed but no longer knows, for a small fee that rises with its level.'));
+    const list = h('div', { class: 'party-list' });
+    for (const m of j.party) {
+      const options = recallOptions(j, m.uid);
+      const cost = recallCost(m);
+      if (recalling === m.uid && options.length) {
+        const rows = h('div', { class: 'shop-list' });
+        for (const { move, level } of options) {
+          rows.append(h('div', { class: 'shop-row' }, moveInfoEl(move, `learned at Lv ${level}`),
+            h('button', { class: `btn small${(j.gold || 0) >= cost ? ' primary' : ''}`, type: 'button', disabled: (j.gold || 0) < cost, onclick: () => {
+              const r = recallMove(j, m.uid, move.id, 0);
+              if (!r.ok) { toast(r.reason); return; }
+              owSave(); sfx.levelUp();
+              toast(r.replaced ? `${m.genome.name} forgot ${getMove(r.replaced).name} and remembered ${move.name}.` : `${m.genome.name} remembered ${move.name}.`);
+              recalling = null; render(); owRefreshHud();
+            } }, `${cost.toLocaleString()} ◆`)));
+        }
+        list.append(h('div', { class: 'party-row static' }, h('div', { class: 'party-info' },
+          h('div', {}, h('b', {}, m.genome.name), ' ', h('span', { class: 'hint' }, 'picks one back; the first of its four moves makes way')), rows,
+          h('button', { class: 'btn small', type: 'button', onclick: () => { recalling = null; render(); } }, 'Never mind'))));
+        continue;
+      }
+      list.append(owMemberRow(j, m, [
+        h('span', { class: 'hint', style: { margin: 0 } }, options.length ? `${options.length} to recall` : 'nothing to recall'),
+        h('button', { class: `btn small${options.length && (j.gold || 0) >= cost ? ' primary' : ''}`, type: 'button', disabled: !options.length || (j.gold || 0) < cost, onclick: () => { recalling = m.uid; render(); } }, `Recall ◆ ${cost.toLocaleString()}`),
+      ]));
+    }
+    body.append(list);
+  };
+  const render = () => owKeepScroll(body, draw);
+  render();
+  owSheet(place.hub ? 'Crossroads camp' : `${place.region.name} camp`, body, () => owRefreshHud());
 }
 
 // ---- the Rookery ------------------------------------------------------------------

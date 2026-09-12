@@ -70,6 +70,12 @@ more Melee Atk and less Ranged Atk, Timid more Speed and less Melee Atk);
 seven are even. HP is never touched. A fusion takes a parent's nature, and
 the creature sheet marks the lean on the stat bars.
 
+Learning a move: the Market stocks the basics (every Normal scroll and
+anything of 60 power or less), each region's camp has a tutor who teaches
+three types at seven tenths of the Market's price once you hold that region's
+badge, and any camp will recall a move a creature has outgrown from its own
+learnset for 150 gold plus 10 a level.
+
 The Rookery: a hut beside the notice board where a creature's passive can be
 turned over. A swap moves it to another passive its own bloodline carries (the
 other of its species' pair, or any parent's for a fusion) for 900 gold plus 20

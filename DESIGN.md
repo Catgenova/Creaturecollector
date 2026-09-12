@@ -1446,6 +1446,30 @@ on 498, the median move is learned by six species rather than eleven, and 525
 of the 531 moves appear in some learnset. A test now also refuses a learnset
 that repeats a move, which caught one that already did.
 
+## Learning a move (implemented)
+
+Every move but the signatures was sold at one shop, priced by power alone,
+from the first hour of the game: a shopping trip, not a decision. The scroll
+system stays, but where a scroll comes from now depends on the move.
+
+- **The Market keeps the basics**: every Normal scroll and anything of 60
+  power or less, 199 of the 402. Buying anything heavier there is refused with
+  a line pointing at the tutors.
+- **Each region's camp has a tutor** who teaches three types, authored per
+  region rather than derived: the Downs teach Normal, Fighting and Ground, the
+  Lagoon Water, Ice and Electric, the draconic reaches Dragon, Fire and
+  Flying, and so on. Every one of the eighteen types is taught in two or three
+  places, so a full kit means travelling. A tutor asks seven tenths of the
+  Market's price and wants that region's badge first, which puts the strong
+  scrolls behind the Warden who guards them.
+- **Any camp will recall a move** the creature has outgrown: anything in its
+  own learnset it has passed in level but no longer knows, for 150 gold plus
+  10 a level. Four move slots and a twelve-entry learnset meant most of what a
+  creature learned was gone for good.
+
+Camps still heal the party when you walk onto them; the sheet opens when you
+press A there.
+
 ## The Rookery (implemented)
 
 A creature's passive was rolled once, at capture, from the two its species

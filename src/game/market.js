@@ -1,6 +1,7 @@
-// Gold, the Market and the Bag. Trainers pay gold when beaten; the Market at the Crossroads
-// sells potions and every move as a single-use scroll priced by power; both sit in the Bag
-// (keyed by item or move id) until used. Pure functions over the journey object.
+// Gold, the Market, the biome tutors and the Bag. Trainers pay gold when beaten; the Market at the
+// Crossroads sells potions and the basic scrolls, each biome's tutor sells the scrolls of the types
+// that live there once you hold its badge, and a camp will recall a move a creature has outgrown.
+// Everything bought sits in the Bag (keyed by item or move id) until used. Pure functions over the journey.
 import { MOVES, getMove } from '../data/moves.js';
 import { ITEMS, ITEM_IDS, getItem, potionHeal, potionUseful } from '../data/items.js';
 import { CHARMS, CHARM_SHOP, getCharm } from '../data/charms.js';
@@ -9,7 +10,7 @@ import { elementalOf } from '../creature/genome.js';
 import { ELEMENTS } from '../data/elements.js';
 
 /** A thousand gold per twenty points of power beyond the first forty; status and weak moves cost the base. */
-export const MARKET = { unit: 1000, powerPerUnit: 20, maxStack: 99 };
+export const MARKET = { unit: 1000, powerPerUnit: 20, maxStack: 99, basicPower: 60, tutorShare: 0.7, recallBase: 150, recallPerLevel: 10 };
 /** Gold for beating a trainer: per creature, per level of their team's average; Wardens and the Council pay double, rematches a quarter. */
 export const GOLD = { perLevelPerCreature: 30, bossMultiplier: 2, rematchShare: 0.25 };
 
@@ -19,9 +20,67 @@ export function moveCost(mv) {
   return MARKET.unit * Math.max(1, Math.ceil((m.power || 0) / MARKET.powerPerUnit) - 1);
 }
 
-/** Everything the Market sells: every move but the rares' signatures, cheapest first, then by name. */
+/** A move the Market itself stocks: the plain Normal scrolls, and anything light enough to be common stock. */
+export function isBasicMove(mv) {
+  const m = typeof mv === 'string' ? getMove(mv) : mv;
+  return Boolean(m) && !m.struggle && !m.signature && (m.type === 'Normal' || (m.power || 0) <= MARKET.basicPower);
+}
+
+/** What the Market sells: the basics, cheapest first, then by name. The type kit comes from the tutors. */
 export function marketCatalogue() {
-  return MOVES.filter((m) => !m.struggle && !m.signature).map((move) => ({ move, cost: moveCost(move) })).sort((a, b) => a.cost - b.cost || (a.move.name < b.move.name ? -1 : 1));
+  return MOVES.filter(isBasicMove).map((move) => ({ move, cost: moveCost(move) })).sort((a, b) => a.cost - b.cost || (a.move.name < b.move.name ? -1 : 1));
+}
+
+/**
+ * What each region's tutor teaches. Nearly every class carries nearly every type once the roster is
+ * 895 strong, so the kit is authored by region instead: three types apiece, each type taught in two
+ * or three places, so a full kit means travelling and holding badges.
+ */
+export const TUTOR_TYPES = {
+  mammal: ['Normal', 'Fighting', 'Ground'],
+  amphibian: ['Water', 'Poison', 'Grass'],
+  flora: ['Grass', 'Fairy', 'Bug'],
+  insect: ['Bug', 'Flying', 'Poison'],
+  nightwing: ['Flying', 'Dark', 'Ghost'],
+  fungus: ['Grass', 'Poison', 'Psychic'],
+  bird: ['Flying', 'Normal', 'Fighting'],
+  crystalline: ['Rock', 'Psychic', 'Steel'],
+  ooze: ['Poison', 'Water', 'Dark'],
+  fish: ['Water', 'Ice', 'Electric'],
+  myriapod: ['Bug', 'Ground', 'Steel'],
+  wyrm: ['Dragon', 'Ground', 'Rock'],
+  invertebrate: ['Water', 'Bug', 'Psychic'],
+  skeletal: ['Ghost', 'Dark', 'Ground'],
+  reptile: ['Fire', 'Rock', 'Dragon'],
+  fiend: ['Fire', 'Dark', 'Fighting'],
+  draconic: ['Dragon', 'Fire', 'Flying'],
+  spirit: ['Ghost', 'Psychic', 'Fairy'],
+};
+
+/** The types a region's tutor teaches. */
+export function tutorTypes(clade) { return TUTOR_TYPES[clade] || []; }
+
+/** A tutor asks seven tenths of the Market's price, rounded to tens. */
+export function tutorCost(mv) { return Math.round((moveCost(mv) * MARKET.tutorShare) / 10) * 10; }
+
+/** What a region's tutor teaches: the scrolls of the types that live there, minus what the Market already stocks. */
+export function tutorCatalogue(clade) {
+  const types = tutorTypes(clade);
+  return MOVES.filter((m) => !m.struggle && !m.signature && !isBasicMove(m) && types.includes(m.type))
+    .map((move) => ({ move, cost: tutorCost(move) })).sort((a, b) => a.cost - b.cost || (a.move.name < b.move.name ? -1 : 1));
+}
+
+/** Buy a scroll from a region's tutor. The badge of that region is the price of admission. */
+export function buyTutorMove(j, biomeId, clade, moveId) {
+  const mv = getMove(moveId);
+  if (!mv || !tutorCatalogue(clade).some((row) => row.move.id === moveId)) return { ok: false, reason: 'This tutor does not teach that.', cost: 0 };
+  if (biomeId && !(j.badges || []).includes(biomeId)) return { ok: false, reason: 'The tutor teaches those who hold this region\'s badge.', cost: 0 };
+  const cost = tutorCost(mv);
+  if (bagCount(j, moveId) >= MARKET.maxStack) return { ok: false, reason: 'Your bag cannot hold more of those.', cost };
+  if ((j.gold || 0) < cost) return { ok: false, reason: `Not enough gold: ${mv.name} costs ${cost.toLocaleString()}.`, cost };
+  j.gold -= cost;
+  bagAdd(j, moveId);
+  return { ok: true, cost };
 }
 
 /** Gold for a beaten team: creature count times average level, scaled for bosses and rematches, rounded to tens. */
@@ -158,6 +217,7 @@ export function buyMove(j, moveId) {
   const mv = getMove(moveId);
   if (!mv || mv.struggle || getItem(moveId) || getCharm(moveId)) return { ok: false, reason: 'The Market does not sell that.', cost: 0 };
   if (mv.signature) return { ok: false, reason: `${mv.name} belongs to one species alone; no scroll of it exists.`, cost: 0 };
+  if (!isBasicMove(mv)) return { ok: false, reason: `The Market stocks the basics. A ${mv.type} tutor out in the regions teaches ${mv.name}.`, cost: moveCost(mv) };
   const cost = moveCost(mv);
   if (bagCount(j, moveId) >= MARKET.maxStack) return { ok: false, reason: 'Your bag cannot hold more of those.', cost };
   if ((j.gold || 0) < cost) return { ok: false, reason: `Not enough gold: ${mv.name} costs ${cost}.`, cost };
@@ -205,6 +265,38 @@ export function canTeach(j, uid, moveId) {
   if (!learn.ok) return { ok: false, reason: learn.reason, code: 'type', needsReplace: false };
   if (m.moves.includes(moveId)) return { ok: false, reason: `${m.genome.name} already knows ${mv.name}.`, code: 'known', needsReplace: false };
   return { ok: true, needsReplace: m.moves.length >= 4 };
+}
+
+/** Moves in this creature's own learnset that it has passed in level but no longer knows. */
+export function recallOptions(j, uid) {
+  const m = bagMember(j, uid);
+  if (!m) return [];
+  const seen = new Set();
+  return (m.genome.learnset || [])
+    .filter(([lvl, id]) => lvl <= m.level && getMove(id) && !m.moves.includes(id) && !seen.has(id) && seen.add(id))
+    .map(([lvl, id]) => ({ move: getMove(id), level: lvl }))
+    .sort((a, b) => a.level - b.level);
+}
+
+/** What a camp asks to bring a move back: a base fee and a little per level. */
+export function recallCost(m) { return MARKET.recallBase + MARKET.recallPerLevel * (m ? m.level : 1); }
+
+/** Bring back a move the creature has outgrown. No scroll: the camp teaches it for gold. */
+export function recallMove(j, uid, moveId, replaceIndex) {
+  const m = bagMember(j, uid);
+  if (!m) return { ok: false, reason: 'No such creature.', needsReplace: false };
+  if (!recallOptions(j, uid).some((row) => row.move.id === moveId)) return { ok: false, reason: `${m.genome.name} never knew that.`, needsReplace: false };
+  const cost = recallCost(m);
+  if ((j.gold || 0) < cost) return { ok: false, reason: `Recalling a move costs ${cost.toLocaleString()} gold.`, needsReplace: false };
+  const needsReplace = m.moves.length >= 4;
+  let replaced = null;
+  if (needsReplace) {
+    if (!(replaceIndex >= 0 && replaceIndex < m.moves.length)) return { ok: false, reason: 'Choose a move to replace.', needsReplace: true };
+    replaced = m.moves[replaceIndex];
+    m.moves[replaceIndex] = moveId;
+  } else m.moves.push(moveId);
+  j.gold -= cost;
+  return { ok: true, replaced, needsReplace, cost };
 }
 
 /** Teach a scroll to a creature, replacing the move at replaceIndex when it already knows four. Consumes the scroll. */
