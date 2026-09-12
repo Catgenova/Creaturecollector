@@ -70,6 +70,12 @@ more Melee Atk and less Ranged Atk, Timid more Speed and less Melee Atk);
 seven are even. HP is never touched. A fusion takes a parent's nature, and
 the creature sheet marks the lean on the stat bars.
 
+The Trophy Hall: a room in the Storage building where 20,000 gold buys a wing
+of three shelves, up to five wings, and any creature in your collection can
+stand on one for free. The hall persists across journeys. The dyer's bench
+there draws a party creature a new colour morph for 12,000 gold, random and
+never the one it has.
+
 The broker: 2,000 gold at the Market buys word of a creature your Dex has
 never seen, naming its region and types and marking it seen. Three offers
 stand at a time and the list runs dry once the Dex has seen everything.

@@ -27263,6 +27263,7 @@ function emptySave() {
     v: SAVE_VERSION,
     totals: { battles: 0, captures: 0, fusions: 0, journeys: 0, champions: 0 },
     collection: [],
+    hall: { tier: 0, slots: [] }, // the Trophy Hall: shelf room bought with gold, and who stands on it
     journey: null,
     settings: { fast: false },
     dex: emptyDex(),
@@ -27286,6 +27287,12 @@ function normalizeSave(raw) {
   if (!raw || typeof raw !== 'object' || raw.v !== SAVE_VERSION) return s;
   if (raw.totals) for (const k of Object.keys(s.totals)) s.totals[k] = Math.max(0, Number(raw.totals[k]) || 0);
   if (raw.settings) s.settings.fast = Boolean(raw.settings.fast);
+  if (raw.hall && typeof raw.hall === 'object') {
+    s.hall = {
+      tier: Math.max(0, Math.min(5, Math.floor(Number(raw.hall.tier) || 0))),
+      slots: Array.isArray(raw.hall.slots) ? raw.hall.slots.filter((k) => typeof k === 'string').slice(0, 15) : [],
+    };
+  }
   if (Array.isArray(raw.collection)) {
     for (const e of raw.collection) {
       if (e && validGenome(e.genome)) s.collection.push({ genome: e.genome, when: Number(e.when) || 0 });
@@ -28015,6 +28022,88 @@ function partyHealth(j) {
   return max ? hp / max : 0;
 }
 
+// ---- src/game/hall.js ----
+// The Trophy Hall at the Crossroads: gold buys shelf room for the creatures you are proudest of, and
+// a dyer's bench that draws a creature a new colour morph. Both are vanity, which is the point: the
+// hall changes nothing in a fight.
+
+
+
+const HALL = { tierCost: 20000, tiers: 5, perTier: 3, morphCost: 12000 };
+
+/** The hall as it stands: tier bought, shelf room, and who is on display. */
+function hallOf(save) {
+  const h = (save && save.hall) || {};
+  const tier = Math.max(0, Math.min(HALL.tiers, Math.floor(Number(h.tier) || 0)));
+  const slots = Array.isArray(h.slots) ? h.slots.filter((k) => typeof k === 'string').slice(0, tier * HALL.perTier) : [];
+  return { tier, slots, room: tier * HALL.perTier };
+}
+
+/** What the next tier costs, or 0 when the hall is finished. */
+function nextTierCost(save) { return hallOf(save).tier >= HALL.tiers ? 0 : HALL.tierCost; }
+
+/** The key a collection entry is displayed under. */
+function trophyKey(genome) { return genome.gen ? `${genome.name}#${genome.seed}` : genome.species; }
+
+/** Buy the next tier of shelf room. */
+function buyTier(save, j) {
+  const hall = hallOf(save);
+  if (hall.tier >= HALL.tiers) return { ok: false, reason: 'The hall is as grand as it gets.' };
+  const cost = nextTierCost(save);
+  if ((j.gold || 0) < cost) return { ok: false, reason: `The next wing costs ${cost.toLocaleString()} gold.` };
+  j.gold -= cost;
+  save.hall = { tier: hall.tier + 1, slots: hall.slots };
+  return { ok: true, tier: hall.tier + 1, room: (hall.tier + 1) * HALL.perTier, paid: cost };
+}
+
+/** Put a creature from the collection on a shelf, or take it down. Free: the room was the expensive part. */
+function setTrophy(save, key, on) {
+  const hall = hallOf(save);
+  const slots = hall.slots.filter((k) => k !== key);
+  if (on) {
+    if (!hall.room) return { ok: false, reason: 'Buy a wing first.' };
+    if (slots.length >= hall.room) return { ok: false, reason: 'Every shelf is full. Take one down, or buy a wing.' };
+    slots.push(key);
+  }
+  save.hall = { tier: hall.tier, slots };
+  return { ok: true, slots };
+}
+
+/** The creatures on display, in the order they were put up. */
+function trophies(save) {
+  const hall = hallOf(save);
+  const byKey = new Map((save.collection || []).map((e) => [trophyKey(e.genome), e]));
+  return hall.slots.map((k) => byKey.get(k)).filter(Boolean);
+}
+
+/** Why the dyer cannot work on this creature, or null when it can. */
+function morphBlock(m) {
+  if (!m || !m.genome) return 'No creature.';
+  if (m.genome.shiny) return 'A shiny keeps the colours it was born with.';
+  return null;
+}
+
+/**
+ * Draw a creature a new colour morph: one of the three, or none at all, and never the one it has.
+ * Deterministic per journey and per drawing, so a reload cannot fish for a better colour.
+ */
+function drawMorph(j, uid) {
+  const m = [...(j.party || []), ...(j.box || [])].find((x) => x.uid === uid);
+  if (!m) return { ok: false, reason: 'That creature is not with you.' };
+  const block = morphBlock(m);
+  if (block) return { ok: false, reason: block };
+  if ((j.gold || 0) < HALL.morphCost) return { ok: false, reason: `The dyer asks ${HALL.morphCost.toLocaleString()} gold.` };
+  j.stats = j.stats || {};
+  j.stats.morphs = (j.stats.morphs || 0) + 1;
+  const pool = [null, ...MORPH_IDS].filter((id) => id !== (m.genome.morph || null));
+  const rng = makeRng(`${j.seed}:morph:${uid}:${j.stats.morphs}`);
+  const to = pool[Math.floor(rng.next() * pool.length)];
+  const from = m.genome.morph || null;
+  j.gold -= HALL.morphCost;
+  if (to) m.genome.morph = to; else delete m.genome.morph;
+  return { ok: true, member: m, from, to, paid: HALL.morphCost, name: to ? MORPHS[to].name : 'its own colours' };
+}
+
 // ---- src/game/rookery.js ----
 // The Rookery: a hut on the Crossroads where a creature's passive can be turned over.
 // A swap moves it to another passive its own bloodline carries; a wild draw takes one from the
@@ -28248,6 +28337,7 @@ function coachMember(j, uid, from, to) {
 // tap on the ground; wild encounters on habitat tiles, trainers who fight when asked,
 // Wardens in their lairs, the Council Spire, camps that heal and a shrine that fuses.
 // Fights hand off to the shared fight view and come back to the same spot.
+
 
 
 
@@ -29129,8 +29219,13 @@ function owMarketSheet(j) {
 /** Creature Storage: the only place the box opens. Deposit from the party, withdraw into it. */
 function owStorageSheet(j) {
   const body = h('div');
+  let tab = 'store';
   const draw = () => {
     clear(body);
+    body.append(h('div', { class: 'type-filter' },
+      h('button', { class: `btn small${tab === 'store' ? ' on' : ''}`, type: 'button', onclick: () => { tab = 'store'; render(); } }, 'Storage'),
+      h('button', { class: `btn small${tab === 'hall' ? ' on' : ''}`, type: 'button', onclick: () => { tab = 'hall'; render(); } }, 'Trophy Hall')));
+    if (tab === 'hall') { body.append(owHallPanel(j)); return; }
     const btn = (label, onclick, disabled) => h('button', { class: 'btn small', type: 'button', disabled, onclick }, label);
     const partyList = h('div', { class: 'party-list' });
     j.party.forEach((m, i) => partyList.append(owMemberRow(j, m, [
@@ -29154,6 +29249,67 @@ function owStorageSheet(j) {
   const render = () => owKeepScroll(body, draw);
   render();
   owSheet('Creature Storage', body, () => owRefreshHud());
+}
+
+/** The Trophy Hall: shelf room bought with gold, and a dyer who draws new colours. */
+function owHallPanel(j) {
+  const wrap = h('div');
+  const hall = hallOf(ow.save);
+  const cost = nextTierCost(ow.save);
+  const shown = trophies(ow.save);
+  const head = h('p', { class: 'hint' }, hall.tier
+    ? `Wing ${hall.tier} of ${HALL.tiers}: ${shown.length} of ${hall.room} shelves filled. `
+    : 'The hall is bare. A wing buys three shelves for the creatures you are proudest of. ');
+  const buy = h('div', { class: 'row' }, cost
+    ? h('button', { class: `btn${(j.gold || 0) >= cost ? ' primary' : ''}`, type: 'button', disabled: (j.gold || 0) < cost, onclick: () => {
+      const r = buyTier(ow.save, j);
+      if (!r.ok) { toast(r.reason); return; }
+      owSave(); sfx.win(); toast(`Wing ${r.tier} opens: ${r.room} shelves.`);
+      renderHall();
+    } }, `Build wing ${hall.tier + 1} ◆ ${cost.toLocaleString()}`)
+    : h('span', { class: 'hint', style: { margin: 0 } }, 'Every wing is built.'));
+  const shelf = h('div', { class: 'pool dex-grid' });
+  for (const e of shown) {
+    shelf.append(h('button', { class: 'pcard dex-card caught', type: 'button', onclick: () => openSheet(e.genome) },
+      creatureEl(e.genome, { size: 96, animate: false }), h('span', {}, e.genome.name)));
+  }
+  const pickable = (ow.save.collection || []).slice().reverse().slice(0, 40);
+  const picker = h('div', { class: 'shop-list' });
+  for (const e of pickable) {
+    const key = trophyKey(e.genome), on = hall.slots.includes(key);
+    picker.append(h('div', { class: `shop-row${on ? ' known' : ''}` },
+      h('div', { class: 'shop-info' }, h('b', {}, e.genome.name),
+        h('div', { class: 'shop-meta' }, h('span', {}, e.genome.gen ? `gen ${e.genome.gen} fusion` : 'caught'), on ? h('span', { class: 'shop-tag' }, 'on show') : null)),
+      h('button', { class: 'btn small', type: 'button', disabled: !hall.room, onclick: () => {
+        const r = setTrophy(ow.save, key, !on);
+        if (!r.ok) { toast(r.reason); return; }
+        owSave(); renderHall();
+      } }, on ? 'Take down' : 'Put up')));
+  }
+  const dye = h('div', { class: 'party-list' });
+  for (const m of j.party) {
+    const block = morphBlock(m);
+    dye.append(owMemberRow(j, m, [
+      h('span', { class: 'hint', style: { margin: 0 } }, m.genome.morph ? MORPHS[m.genome.morph].name : 'its own colours'),
+      h('button', { class: `btn small${!block && (j.gold || 0) >= HALL.morphCost ? ' primary' : ''}`, type: 'button', disabled: Boolean(block) || (j.gold || 0) < HALL.morphCost, title: block || '', onclick: () => {
+        if (ow.confirmMorph !== m.uid) { ow.confirmMorph = m.uid; toast('Tap again: the dyer cannot be told what to make'); setTimeout(() => { if (ow.confirmMorph === m.uid) ow.confirmMorph = null; }, 4000); return; }
+        ow.confirmMorph = null;
+        const r = drawMorph(j, m.uid);
+        if (!r.ok) { toast(r.reason); return; }
+        if (r.to) dexCaught(ow.save, r.member.genome);
+        owSave(); sfx.win(); toast(`${r.member.genome.name} came out ${r.name}.`);
+        renderHall();
+      } }, `Dye ◆ ${HALL.morphCost.toLocaleString()}`),
+    ]));
+  }
+  appendChildren(wrap, [
+    head, buy,
+    ...section('On show', shown.length ? shelf : h('p', { class: 'hint' }, 'No shelves filled yet.')),
+    ...section('The collection', h('p', { class: 'hint' }, 'The last forty creatures you recorded. Putting one up is free; the room was the expensive part.'), picker),
+    ...section("The dyer's bench", h('p', { class: 'hint' }, `${HALL.morphCost.toLocaleString()} gold draws a party creature a new colour morph, or its own colours back. It cannot be chosen, and a caught morph goes into the Dex.`), dye),
+  ]);
+  return wrap;
+  function renderHall() { const parent = wrap.parentNode; if (!parent) return; const next = owHallPanel(j); parent.replaceChild(next, wrap); owRefreshHud(); }
 }
 
 /** The Battle Tower: six floors, six on six, at a level of the player's choosing. */

@@ -1465,6 +1465,22 @@ tournament simulator all field one passive as before, so the 40-60% band the
 tuner maintains is untouched; what the player buys is a build, not a stat.
 An Elemental still keeps its core and cannot buy a slot.
 
+## The Trophy Hall (implemented)
+
+The Storage building gained a second room. A wing costs 20,000 gold and buys
+three shelves, up to five wings and fifteen shelves; putting a creature from
+the collection up on one is free, because the room was the expensive part. The
+hall persists in the save across journeys, so it is the one place a finished
+run leaves something behind.
+
+Beside it stands the dyer's bench: 12,000 gold draws a party creature a new
+colour morph, one of the three or its own colours back, never the one it has
+and never chosen. A morph drawn this way goes into the Dex like any other. A
+shiny is left alone, since its colours are what make it one.
+
+Both are vanity and neither touches a fight, which is what a gold sink at this
+end of the game should be.
+
 ## The broker (implemented)
 
 The Market keeps a broker who sells word of creatures the Dex has never seen:

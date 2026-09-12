@@ -22,6 +22,7 @@ export function emptySave() {
     v: SAVE_VERSION,
     totals: { battles: 0, captures: 0, fusions: 0, journeys: 0, champions: 0 },
     collection: [],
+    hall: { tier: 0, slots: [] }, // the Trophy Hall: shelf room bought with gold, and who stands on it
     journey: null,
     settings: { fast: false },
     dex: emptyDex(),
@@ -45,6 +46,12 @@ export function normalizeSave(raw) {
   if (!raw || typeof raw !== 'object' || raw.v !== SAVE_VERSION) return s;
   if (raw.totals) for (const k of Object.keys(s.totals)) s.totals[k] = Math.max(0, Number(raw.totals[k]) || 0);
   if (raw.settings) s.settings.fast = Boolean(raw.settings.fast);
+  if (raw.hall && typeof raw.hall === 'object') {
+    s.hall = {
+      tier: Math.max(0, Math.min(5, Math.floor(Number(raw.hall.tier) || 0))),
+      slots: Array.isArray(raw.hall.slots) ? raw.hall.slots.filter((k) => typeof k === 'string').slice(0, 15) : [],
+    };
+  }
   if (Array.isArray(raw.collection)) {
     for (const e of raw.collection) {
       if (e && validGenome(e.genome)) s.collection.push({ genome: e.genome, when: Number(e.when) || 0 });

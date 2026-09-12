@@ -21,6 +21,7 @@ import { dexSeen, dexCaught, dexCounts, dexStatus, dexMorphs, dexHabitat, dexRew
 import { speciesGenome } from '../creature/genome.js';
 import { MORPHS } from '../creature/palette.js';
 import { natureLabel } from '../data/natures.js';
+import { HALL, hallOf, nextTierCost, buyTier, setTrophy, trophies, trophyKey, morphBlock, drawMorph } from '../game/hall.js';
 import { CLADE_IDS } from '../data/clades.js';
 import { openQuests, questReady, rewardText, claimQuest, abandonQuest } from '../game/quests.js';
 import { openBounties, bountyCandidates, bountyPayout, bountyLevelMul, turnInBounty } from '../game/bounties.js';
@@ -883,8 +884,13 @@ function owMarketSheet(j) {
 /** Creature Storage: the only place the box opens. Deposit from the party, withdraw into it. */
 function owStorageSheet(j) {
   const body = h('div');
+  let tab = 'store';
   const draw = () => {
     clear(body);
+    body.append(h('div', { class: 'type-filter' },
+      h('button', { class: `btn small${tab === 'store' ? ' on' : ''}`, type: 'button', onclick: () => { tab = 'store'; render(); } }, 'Storage'),
+      h('button', { class: `btn small${tab === 'hall' ? ' on' : ''}`, type: 'button', onclick: () => { tab = 'hall'; render(); } }, 'Trophy Hall')));
+    if (tab === 'hall') { body.append(owHallPanel(j)); return; }
     const btn = (label, onclick, disabled) => h('button', { class: 'btn small', type: 'button', disabled, onclick }, label);
     const partyList = h('div', { class: 'party-list' });
     j.party.forEach((m, i) => partyList.append(owMemberRow(j, m, [
@@ -908,6 +914,67 @@ function owStorageSheet(j) {
   const render = () => owKeepScroll(body, draw);
   render();
   owSheet('Creature Storage', body, () => owRefreshHud());
+}
+
+/** The Trophy Hall: shelf room bought with gold, and a dyer who draws new colours. */
+function owHallPanel(j) {
+  const wrap = h('div');
+  const hall = hallOf(ow.save);
+  const cost = nextTierCost(ow.save);
+  const shown = trophies(ow.save);
+  const head = h('p', { class: 'hint' }, hall.tier
+    ? `Wing ${hall.tier} of ${HALL.tiers}: ${shown.length} of ${hall.room} shelves filled. `
+    : 'The hall is bare. A wing buys three shelves for the creatures you are proudest of. ');
+  const buy = h('div', { class: 'row' }, cost
+    ? h('button', { class: `btn${(j.gold || 0) >= cost ? ' primary' : ''}`, type: 'button', disabled: (j.gold || 0) < cost, onclick: () => {
+      const r = buyTier(ow.save, j);
+      if (!r.ok) { toast(r.reason); return; }
+      owSave(); sfx.win(); toast(`Wing ${r.tier} opens: ${r.room} shelves.`);
+      renderHall();
+    } }, `Build wing ${hall.tier + 1} ◆ ${cost.toLocaleString()}`)
+    : h('span', { class: 'hint', style: { margin: 0 } }, 'Every wing is built.'));
+  const shelf = h('div', { class: 'pool dex-grid' });
+  for (const e of shown) {
+    shelf.append(h('button', { class: 'pcard dex-card caught', type: 'button', onclick: () => openSheet(e.genome) },
+      creatureEl(e.genome, { size: 96, animate: false }), h('span', {}, e.genome.name)));
+  }
+  const pickable = (ow.save.collection || []).slice().reverse().slice(0, 40);
+  const picker = h('div', { class: 'shop-list' });
+  for (const e of pickable) {
+    const key = trophyKey(e.genome), on = hall.slots.includes(key);
+    picker.append(h('div', { class: `shop-row${on ? ' known' : ''}` },
+      h('div', { class: 'shop-info' }, h('b', {}, e.genome.name),
+        h('div', { class: 'shop-meta' }, h('span', {}, e.genome.gen ? `gen ${e.genome.gen} fusion` : 'caught'), on ? h('span', { class: 'shop-tag' }, 'on show') : null)),
+      h('button', { class: 'btn small', type: 'button', disabled: !hall.room, onclick: () => {
+        const r = setTrophy(ow.save, key, !on);
+        if (!r.ok) { toast(r.reason); return; }
+        owSave(); renderHall();
+      } }, on ? 'Take down' : 'Put up')));
+  }
+  const dye = h('div', { class: 'party-list' });
+  for (const m of j.party) {
+    const block = morphBlock(m);
+    dye.append(owMemberRow(j, m, [
+      h('span', { class: 'hint', style: { margin: 0 } }, m.genome.morph ? MORPHS[m.genome.morph].name : 'its own colours'),
+      h('button', { class: `btn small${!block && (j.gold || 0) >= HALL.morphCost ? ' primary' : ''}`, type: 'button', disabled: Boolean(block) || (j.gold || 0) < HALL.morphCost, title: block || '', onclick: () => {
+        if (ow.confirmMorph !== m.uid) { ow.confirmMorph = m.uid; toast('Tap again: the dyer cannot be told what to make'); setTimeout(() => { if (ow.confirmMorph === m.uid) ow.confirmMorph = null; }, 4000); return; }
+        ow.confirmMorph = null;
+        const r = drawMorph(j, m.uid);
+        if (!r.ok) { toast(r.reason); return; }
+        if (r.to) dexCaught(ow.save, r.member.genome);
+        owSave(); sfx.win(); toast(`${r.member.genome.name} came out ${r.name}.`);
+        renderHall();
+      } }, `Dye ◆ ${HALL.morphCost.toLocaleString()}`),
+    ]));
+  }
+  appendChildren(wrap, [
+    head, buy,
+    ...section('On show', shown.length ? shelf : h('p', { class: 'hint' }, 'No shelves filled yet.')),
+    ...section('The collection', h('p', { class: 'hint' }, 'The last forty creatures you recorded. Putting one up is free; the room was the expensive part.'), picker),
+    ...section("The dyer's bench", h('p', { class: 'hint' }, `${HALL.morphCost.toLocaleString()} gold draws a party creature a new colour morph, or its own colours back. It cannot be chosen, and a caught morph goes into the Dex.`), dye),
+  ]);
+  return wrap;
+  function renderHall() { const parent = wrap.parentNode; if (!parent) return; const next = owHallPanel(j); parent.replaceChild(next, wrap); owRefreshHud(); }
 }
 
 /** The Battle Tower: six floors, six on six, at a level of the player's choosing. */
