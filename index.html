@@ -383,6 +383,10 @@ button, .btn { touch-action: manipulation; }
   .ow-party-mini { width: 140px; }
   .ow-help { display: none; }
 }
+
+/* a rare's signature move: its own move, never sold */
+.shop-row.signature { border-color: rgba(245, 197, 24, .45); background: linear-gradient(90deg, rgba(245, 197, 24, .10), transparent 60%); }
+.shop-row.signature .shop-tag { color: #f5c518; }
 </style>
 </head>
 <body>
@@ -10499,7 +10503,7 @@ const SPECIES = [
     palette: { c1: [175, 55, 40], c2: [45, 70, 76], c3: [25, 80, 58], eye: [40, 90, 50] }, vary: { h: 12, s: 8, l: 6 },
     paint: { wings: 1, crest: 4 },
     traits: T([0.5, 0.8], MID, [0.45, 0.7], [0.5, 0.8], [0.5, 0.8], [0.3, 0.5]),
-    learnset: [[1,'swipe'],[1,'glare'],[6,'wyrm_breath'],[11,'ember_bite'],[16,'wyrm_claw'],[22,'wyrm_dance'],[28,'wyrm_pulse'],[34,'fire_stream'],[40,'wyrm_rush'],[46,'rampage'],[52,'comet_roar']],
+    learnset: [[1,'swipe'],[1,'glare'],[6,'wyrm_breath'],[11,'ember_bite'],[16,'wyrm_claw'],[22,'wyrm_dance'],[28,'wyrm_pulse'],[34,'fire_stream'],[38,'pebble_hoard_slam'],[40,'wyrm_rush'],[46,'rampage'],[52,'comet_roar']],
     abilities: ['menace','vice_jaw'],
     desc: 'A young dragon that hoards pebbles and sleeps on them. Its wings are still too small to carry it far.',
   },
@@ -10520,7 +10524,7 @@ const SPECIES = [
     palette: { c1: [220, 12, 62], c2: [220, 15, 40], c3: [200, 60, 55], eye: [0, 90, 52] }, vary: { h: 8, s: 5, l: 6 },
     paint: { back: 2, throat: 2 },
     traits: T([0.5, 0.8], MID, [0.4, 0.6], [0.4, 0.6], MID, [0.3, 0.5]),
-    learnset: [[1,'iron_claw'],[1,'glare'],[6,'bolt_jab'],[11,'steel_fin'],[16,'plate_up'],[22,'steel_ram'],[28,'grind_screech'],[34,'chrome_slam'],[40,'tremor'],[46,'comet_fist'],[52,'overpower']],
+    learnset: [[1,'iron_claw'],[1,'glare'],[6,'bolt_jab'],[11,'steel_fin'],[16,'plate_up'],[22,'steel_ram'],[28,'grind_screech'],[34,'chrome_slam'],[38,'rust_grinder'],[40,'tremor'],[46,'comet_fist'],[52,'overpower']],
     abilities: ['heavy_hands','stonewall'],
     desc: 'Nobody knows whether it was built or born. It sharpens its teeth on rusty nails.',
   },
@@ -10554,7 +10558,7 @@ const SPECIES = [
     palette: { c1: [200, 65, 42], c2: [185, 60, 68], c3: [165, 70, 60], eye: [45, 90, 55] }, vary: { h: 10, s: 6, l: 6 },
     paint: { crest: 4, back: 4, wings: 4 },
     traits: T([0.55, 0.85], MID, MID, [0.5, 0.8], [0.4, 0.7], [0.3, 0.5]),
-    learnset: [[1,'squirt'],[1,'glare'],[6,'ripple'],[11,'wyrm_breath'],[16,'wyrm_claw'],[22,'tidal_wave'],[28,'wyrm_dance'],[34,'riptide'],[40,'wyrm_pulse'],[46,'geyser'],[52,'comet_roar']],
+    learnset: [[1,'squirt'],[1,'glare'],[6,'ripple'],[11,'wyrm_breath'],[16,'wyrm_claw'],[22,'tidal_wave'],[28,'wyrm_dance'],[34,'riptide'],[38,'harbour_coil'],[40,'wyrm_pulse'],[46,'geyser'],[52,'comet_roar']],
     abilities: ['tide_heart','purebred'],
     desc: 'Coils around harbour posts during storms. Sailors leave it fish and it leaves them alone.',
   },
@@ -10641,7 +10645,7 @@ const SPECIES = [
     palette: { c1: [45, 30, 86], c2: [260, 40, 62], c3: [48, 90, 60], eye: [48, 100, 65] }, vary: { h: 10, s: 6, l: 5 },
     paint: { crest: 4, back: 2, beak: 4, legs: 4 },
     traits: T([0.45, 0.7], [0.5, 0.7], [0.4, 0.6], [0.5, 0.75], [0.6, 0.9], [0.6, 0.9]),
-    learnset: [[1,'gale'],[1,'mind_jolt'],[6,'wing_strike'],[11,'thought_beam'],[16,'lull'],[22,'wind_cutter'],[28,'meditate'],[34,'psi_shock'],[40,'quicken'],[46,'mind_crush'],[52,'cyclone']],
+    learnset: [[1,'gale'],[1,'mind_jolt'],[6,'wing_strike'],[11,'thought_beam'],[16,'lull'],[22,'wind_cutter'],[28,'meditate'],[34,'psi_shock'],[38,'dusk_answer'],[40,'quicken'],[46,'mind_crush'],[52,'cyclone']],
     abilities: ['hawkeye', 'restless'],
     desc: 'Seen only at dusk, circling old towers. It answers questions nobody asked aloud.',
   },
@@ -10662,7 +10666,7 @@ const SPECIES = [
     palette: { c1: [40, 75, 58], c2: [44, 60, 86], c3: [20, 82, 42], eye: [45, 90, 50] }, vary: { h: 6, s: 6, l: 6 },
     paint: { mane: 4, back: 4 },
     traits: T([0.55, 0.85], [0.5, 0.7], [0.45, 0.7], [0.5, 0.8], MID, MID),
-    learnset: [[1,'swipe'],[1,'cinder'],[6,'kindle_rush'],[11,'headbonk'],[16,'ember_bite'],[22,'whetting'],[28,'scorch_fist'],[34,'bellow'],[40,'blaze_tackle'],[46,'ram'],[52,'meltdown']],
+    learnset: [[1,'swipe'],[1,'cinder'],[6,'kindle_rush'],[11,'headbonk'],[16,'ember_bite'],[22,'whetting'],[28,'scorch_fist'],[34,'bellow'],[38,'noon_roar'],[40,'blaze_tackle'],[46,'ram'],[52,'meltdown']],
     abilities: ['ember_heart','menace'],
     desc: 'Its mane glows brighter at noon. Young ones practise roaring at their own shadows.',
   },
@@ -10757,7 +10761,7 @@ const SPECIES = [
     palette: { c1: [30, 85, 58], c2: [45, 80, 82], c3: [15, 70, 40], eye: [200, 60, 40] }, vary: { h: 10, s: 6, l: 6 },
     paint: { crest: 4 },
     traits: T([0.4, 0.7], MID, MID, [0.5, 0.8], MID, [0.4, 0.6]),
-    learnset: [[1,'squirt'],[1,'glare'],[6,'wyrm_breath'],[11,'ripple'],[16,'wyrm_pulse'],[22,'meditate'],[28,'cascade'],[34,'wyrm_dance'],[40,'tidal_wave'],[46,'comet_roar'],[52,'geyser']],
+    learnset: [[1,'squirt'],[1,'glare'],[6,'wyrm_breath'],[11,'ripple'],[16,'wyrm_pulse'],[22,'meditate'],[28,'cascade'],[34,'wyrm_dance'],[38,'grudge_current'],[40,'tidal_wave'],[46,'comet_roar'],[52,'geyser']],
     abilities: ['purebred','tide_heart'],
     desc: 'The fathers carry the eggs and the mothers carry the grudges. Curls its tail around coral to nap.',
   },
@@ -10822,7 +10826,7 @@ const SPECIES = [
     palette: { c1: [200, 70, 42], c2: [160, 60, 50], c3: [45, 90, 60], eye: [200, 60, 30] }, vary: { h: 12, s: 6, l: 5 },
     paint: { beak: 4, legs: 4, tail: 2 },
     traits: T([0.45, 0.75], MID, [0.5, 0.75], [0.6, 0.9], MID, MID),
-    learnset: [[1,'glitter_gust'],[1,'doe_eyes'],[6,'gale'],[11,'sweet_sip'],[16,'slipstream'],[22,'dazzle'],[28,'wind_cutter'],[34,'moonbathe'],[40,'jet_wave'],[46,'lunar_burst'],[52,'cyclone']],
+    learnset: [[1,'glitter_gust'],[1,'doe_eyes'],[6,'gale'],[11,'sweet_sip'],[16,'slipstream'],[22,'dazzle'],[28,'wind_cutter'],[34,'moonbathe'],[38,'hundred_eyes'],[40,'jet_wave'],[46,'lunar_burst'],[52,'cyclone']],
     abilities: ['swagger','finesse'],
     desc: 'Every eye on its tail is said to be watching a different admirer. It has never been short of them.',
   },
@@ -11075,7 +11079,7 @@ const SPECIES = [
     palette: { c1: [175, 40, 40], c2: [45, 70, 85], c3: [45, 95, 60], eye: [200, 70, 45] }, vary: { h: 8, s: 6, l: 5 },
     paint: { mane: 4, back: 4, horns: 4 },
     traits: T([0.45, 0.72], [0.35, 0.55], [0.5, 0.7], [0.5, 0.8], MID, [0.4, 0.65]),
-    learnset: [[1,'bump'],[1,'meditate'],[6,'wyrm_breath'],[11,'dash'],[16,'dazzle'],[22,'wyrm_claw'],[28,'wyrm_pulse'],[34,'wyrm_dance'],[40,'star_breath'],[46,'lunar_burst'],[52,'comet_roar']],
+    learnset: [[1,'bump'],[1,'meditate'],[6,'wyrm_breath'],[11,'dash'],[16,'dazzle'],[22,'wyrm_claw'],[28,'wyrm_pulse'],[34,'wyrm_dance'],[38,'unbent_grass'],[40,'star_breath'],[46,'lunar_burst'],[52,'comet_roar']],
     abilities: ['purebred','mirror_scale'],
     desc: 'Walks without bending the grass. Old stories say a Kirinth appears wherever a promise is about to be kept.',
   },
@@ -11143,7 +11147,7 @@ const SPECIES = [
     palette: { c1: [205, 40, 48], c2: [40, 50, 82], c3: [345, 70, 62], eye: [45, 90, 55] }, vary: { h: 10, s: 6, l: 5 },
     paint: { wings: 1, crest: 4 },
     traits: T([0.45, 0.75], MID, [0.4, 0.6], [0.5, 0.8], [0.65, 0.95], [0.35, 0.55]),
-    learnset: [[1,'gale'],[1,'glare'],[6,'wyrm_breath'],[11,'dash'],[16,'slipstream'],[22,'wyrm_claw'],[28,'wind_cutter'],[34,'wyrm_dance'],[40,'star_breath'],[46,'tempest_shot'],[52,'comet_roar']],
+    learnset: [[1,'gale'],[1,'glare'],[6,'wyrm_breath'],[11,'dash'],[16,'slipstream'],[22,'wyrm_claw'],[28,'wind_cutter'],[34,'wyrm_dance'],[38,'thermal_dive'],[40,'star_breath'],[46,'tempest_shot'],[52,'comet_roar']],
     abilities: ['hover','keen_edge'],
     desc: 'Rides thermals all day without a single wingbeat. Nests on the highest ledge it can find, then complains about the wind.',
   },
@@ -11233,7 +11237,7 @@ const SPECIES = [
     palette: { c1: [355, 65, 45], c2: [220, 60, 55], c3: [45, 95, 60], eye: [45, 90, 55] }, vary: { h: 8, s: 6, l: 5 },
     paint: { dorsal: 2, tail: 2, pectoral: 4 },
     traits: T([0.35, 0.65], MID, MID, [0.6, 0.9], MID, [0.4, 0.65]),
-    learnset: [[1,'chop'],[1,'squirt'],[6,'blitz_punch'],[11,'jetstream'],[16,'leg_sweep'],[22,'cascade'],[28,'slab_break'],[34,'muscle_up'],[40,'riptide'],[46,'all_out_brawl'],[52,'wave_crash']],
+    learnset: [[1,'chop'],[1,'squirt'],[6,'blitz_punch'],[11,'jetstream'],[16,'leg_sweep'],[22,'cascade'],[28,'slab_break'],[34,'muscle_up'],[38,'reflection_bout'],[40,'riptide'],[46,'all_out_brawl'],[52,'wave_crash']],
     abilities: ['grit','keen_edge'],
     desc: 'Flares its fins at its own reflection and fights it to a standstill every morning.',
   },
@@ -11312,7 +11316,7 @@ const SPECIES = [
     palette: { c1: [40, 85, 55], c2: [15, 85, 50], c3: [200, 70, 55], eye: [200, 80, 50] }, vary: { h: 6, s: 5, l: 5 },
     paint: { back: 2, tail: 2, crest: 4, beak: 4, legs: 4 },
     traits: T([0.45, 0.75], MID, [0.4, 0.6], [0.6, 0.9], [0.6, 0.9], [0.4, 0.6]),
-    learnset: [[1,'gale'],[1,'meditate'],[6,'wyrm_breath'],[11,'air_whisper'],[16,'slipstream'],[22,'wyrm_pulse'],[28,'jet_wave'],[34,'wyrm_dance'],[40,'star_breath'],[46,'cyclone'],[52,'comet_roar']],
+    learnset: [[1,'gale'],[1,'meditate'],[6,'wyrm_breath'],[11,'air_whisper'],[16,'slipstream'],[22,'wyrm_pulse'],[28,'jet_wave'],[34,'wyrm_dance'],[38,'sunwheel'],[40,'star_breath'],[46,'cyclone'],[52,'comet_roar']],
     abilities: ['purebred','gale_heart'],
     desc: 'Said to be the sun\u2019s own bird. Its tail fans into a wheel of flame at dawn and folds away by noon.',
   },
@@ -11391,7 +11395,7 @@ const SPECIES = [
     palette: { c1: [320, 55, 45], c2: [45, 60, 88], c3: [190, 85, 60], eye: [190, 90, 65] }, vary: { h: 8, s: 6, l: 5 },
     paint: { shell: 1, tail: 4 },
     traits: T([0.3, 0.55], [0.45, 0.65], [0.3, 0.5], [0.4, 0.6], [0.5, 0.8], [0.6, 0.9]),
-    learnset: [[1,'mind_jolt'],[1,'needle_volley'],[6,'hive_hum'],[11,'meditate'],[16,'thought_beam'],[22,'lull'],[28,'psi_shock'],[34,'pheromone_burst'],[40,'mind_crush'],[46,'blank_mind'],[52,'psystorm']],
+    learnset: [[1,'mind_jolt'],[1,'needle_volley'],[6,'hive_hum'],[11,'meditate'],[16,'thought_beam'],[22,'lull'],[28,'psi_shock'],[34,'pheromone_burst'],[38,'spot_count'],[40,'mind_crush'],[46,'blank_mind'],[52,'psystorm']],
     abilities: ['restless','mirror_scale'],
     desc: 'Counts the spots on its own back to tell fortunes. It has never once been wrong, or so it says.',
   },
@@ -11459,7 +11463,7 @@ const SPECIES = [
     palette: { c1: [160, 55, 42], c2: [20, 90, 58], c3: [300, 60, 60], eye: [190, 80, 55] }, vary: { h: 8, s: 6, l: 5 },
     paint: { arms: 1, shell: 2, crown: 4 },
     traits: T([0.35, 0.65], [0.4, 0.6], [0.5, 0.75], [0.5, 0.8], MID, [0.4, 0.65]),
-    learnset: [[1,'chop'],[1,'squirt'],[6,'blitz_punch'],[11,'jetstream'],[16,'leg_sweep'],[22,'cascade'],[28,'slab_break'],[34,'muscle_up'],[40,'riptide'],[46,'overpower'],[52,'wave_crash']],
+    learnset: [[1,'chop'],[1,'squirt'],[6,'blitz_punch'],[11,'jetstream'],[16,'leg_sweep'],[22,'cascade'],[28,'slab_break'],[34,'muscle_up'],[38,'boiling_punch'],[40,'riptide'],[46,'overpower'],[52,'wave_crash']],
     abilities: ['heavy_hands','keen_edge'],
     desc: 'Its punch boils the water. Aquarium glass is no match for a Smashrimp in a bad mood.',
   },
@@ -11549,7 +11553,7 @@ const SPECIES = [
     palette: { c1: [340, 45, 72], c2: [45, 60, 90], c3: [200, 75, 55], eye: [200, 80, 50] }, vary: { h: 8, s: 6, l: 5 },
     paint: { gills: 4, crest: 4, throat: 4 },
     traits: T([0.35, 0.65], [0.45, 0.65], [0.3, 0.5], [0.6, 0.9], MID, [0.5, 0.75]),
-    learnset: [[1,'squirt'],[1,'glare'],[6,'wyrm_breath'],[11,'jetstream'],[16,'water_jet'],[22,'wyrm_claw'],[28,'boiling_jet'],[34,'wyrm_dance'],[40,'star_breath'],[46,'geyser'],[52,'comet_roar']],
+    learnset: [[1,'squirt'],[1,'glare'],[6,'wyrm_breath'],[11,'jetstream'],[16,'water_jet'],[22,'wyrm_claw'],[28,'boiling_jet'],[34,'wyrm_dance'],[38,'regrow_spit'],[40,'star_breath'],[46,'geyser'],[52,'comet_roar']],
     abilities: ['purebred','regrowth'],
     desc: 'Regrows anything it loses, up to and including its dignity. Smiles through everything.',
   },
@@ -11649,7 +11653,7 @@ const SPECIES = [
     palette: { c1: [165, 40, 45], c2: [330, 55, 80], c3: [50, 80, 80], eye: [290, 70, 55] }, vary: { h: 8, s: 6, l: 5 },
     paint: { head: 3, canopy: 3, thorns: 4, pods: 4 },
     traits: T([0.35, 0.6], [0.55, 0.8], [0.3, 0.5], MID, [0.45, 0.7], [0.5, 0.75]),
-    learnset: [[1,'mind_jolt'],[1,'drowse_dust'],[6,'seed_volley'],[11,'meditate'],[16,'thought_beam'],[22,'sap_drain'],[28,'psi_shock'],[34,'photosynth'],[40,'mind_crush'],[46,'sunlance'],[52,'psystorm']],
+    learnset: [[1,'mind_jolt'],[1,'drowse_dust'],[6,'seed_volley'],[11,'meditate'],[16,'thought_beam'],[22,'sap_drain'],[28,'psi_shock'],[34,'photosynth'],[38,'pond_dream'],[40,'mind_crush'],[46,'sunlance'],[52,'psystorm']],
     abilities: ['steady','mirror_scale'],
     desc: 'Floats with its eyes half shut, dreaming for the whole pond. Sleep near one and you will dream its dreams.',
   },
@@ -11704,7 +11708,7 @@ const SPECIES = [
     palette: { c1: [28, 35, 30], c2: [140, 45, 40], c3: [0, 70, 55], eye: [50, 95, 60] }, vary: { h: 8, s: 6, l: 5 },
     paint: { head: 4, thorns: 4, leaves: 2, canopy: 2 },
     traits: T([0.4, 0.65], [0.45, 0.7], [0.4, 0.6], [0.6, 0.9], [0.5, 0.75], [0.45, 0.7]),
-    learnset: [[1,'wyrm_breath'],[1,'vine_lash'],[6,'seed_volley'],[11,'drowse_dust'],[16,'sap_drain'],[22,'photosynth'],[28,'wyrm_pulse'],[34,'brace'],[40,'wyrm_dance'],[46,'sunlance'],[52,'comet_roar']],
+    learnset: [[1,'wyrm_breath'],[1,'vine_lash'],[6,'seed_volley'],[11,'drowse_dust'],[16,'sap_drain'],[22,'photosynth'],[28,'wyrm_pulse'],[34,'brace'],[38,'root_memory'],[40,'wyrm_dance'],[46,'sunlance'],[52,'comet_roar']],
     abilities: ['purebred','regrowth'],
     desc: 'The oldest trees remember when dragons slept beneath them. This one grew around a sleeping wyrm and woke with its temper.',
   },
@@ -11781,7 +11785,7 @@ const SPECIES = [
     palette: { c1: [285, 50, 55], c2: [300, 45, 75], c3: [50, 90, 70], eye: [320, 80, 60] }, vary: { h: 8, s: 6, l: 5 },
     paint: { crown: 4, core: 4 },
     traits: T([0.35, 0.6], [0.5, 0.75], [0.3, 0.5], MID, MID, [0.5, 0.75]),
-    learnset: [[1,'mind_jolt'],[1,'venom_haze'],[6,'acid_spit'],[11,'meditate'],[16,'thought_beam'],[22,'lull'],[28,'psi_shock'],[34,'toxic_wave'],[40,'blank_mind'],[46,'mind_crush'],[52,'psystorm']],
+    learnset: [[1,'mind_jolt'],[1,'venom_haze'],[6,'acid_spit'],[11,'meditate'],[16,'thought_beam'],[22,'lull'],[28,'psi_shock'],[34,'toxic_wave'],[38,'ripple_thought'],[40,'blank_mind'],[46,'mind_crush'],[52,'psystorm']],
     abilities: ['steady','mirror_scale'],
     desc: 'It thinks in ripples. Stare into it long enough and it starts thinking your thoughts back at you, slowly.',
   },
@@ -11854,7 +11858,7 @@ const SPECIES = [
     palette: { c1: [265, 55, 45], c2: [275, 45, 62], c3: [140, 80, 55], eye: [140, 95, 60] }, vary: { h: 8, s: 6, l: 5 },
     paint: { crown: 4, bumps: 4, core: 4 },
     traits: T([0.4, 0.65], [0.5, 0.75], [0.35, 0.55], [0.6, 0.9], MID, [0.45, 0.7]),
-    learnset: [[1,'wyrm_breath'],[1,'venom_haze'],[6,'acid_spit'],[11,'blight'],[16,'slime_coat'],[22,'sludge_blast'],[28,'wyrm_pulse'],[34,'toxic_wave'],[40,'wyrm_dance'],[46,'comet_roar'],[52,'sludge_hurl']],
+    learnset: [[1,'wyrm_breath'],[1,'venom_haze'],[6,'acid_spit'],[11,'blight'],[16,'slime_coat'],[22,'sludge_blast'],[28,'wyrm_pulse'],[34,'toxic_wave'],[38,'sump_breath'],[40,'wyrm_dance'],[46,'comet_roar'],[52,'sludge_hurl']],
     abilities: ['purebred','venom_heart'],
     desc: 'Dragon blood spilled in the sump and the sump drank it. Now it breathes fire like one, badly.',
   },
@@ -11964,7 +11968,7 @@ const SPECIES = [
     palette: { c1: [300, 50, 55], c2: [280, 30, 80], c3: [190, 70, 60], eye: [200, 90, 55] }, vary: { h: 8, s: 6, l: 5 },
     paint: { head: 3, glow: 4, ring: 3 },
     traits: T([0.3, 0.55], [0.55, 0.8], [0.3, 0.5], MID, MID, [0.55, 0.85]),
-    learnset: [[1,'mind_jolt'],[1,'acid_spit'],[6,'drowse_dust'],[11,'thought_beam'],[16,'venom_haze'],[22,'meditate'],[28,'psi_shock'],[34,'toxic_wave'],[40,'lull'],[46,'psystorm'],[52,'mind_crush']],
+    learnset: [[1,'mind_jolt'],[1,'acid_spit'],[6,'drowse_dust'],[11,'thought_beam'],[16,'venom_haze'],[22,'meditate'],[28,'psi_shock'],[34,'toxic_wave'],[38,'unreal_colours'],[40,'lull'],[46,'psystorm'],[52,'mind_crush']],
     abilities: ['steady','restless'],
     desc: 'Its spores show you colours that do not exist. It finds your reaction fascinating every single time.',
   },
@@ -12008,7 +12012,7 @@ const SPECIES = [
     palette: { c1: [140, 50, 35], c2: [30, 40, 45], c3: [0, 75, 55], eye: [50, 95, 60] }, vary: { h: 8, s: 6, l: 5 },
     paint: { head: 3, shelves: 4, gills: 4 },
     traits: T([0.4, 0.65], [0.45, 0.7], [0.4, 0.6], MID, MID, [0.45, 0.7]),
-    learnset: [[1,'wyrm_breath'],[1,'venom_haze'],[6,'seed_volley'],[11,'toxin_dust'],[16,'sap_drain'],[22,'wyrm_claw'],[28,'wyrm_pulse'],[34,'photosynth'],[40,'wyrm_dance'],[46,'comet_roar'],[52,'sunlance']],
+    learnset: [[1,'wyrm_breath'],[1,'venom_haze'],[6,'seed_volley'],[11,'toxin_dust'],[16,'sap_drain'],[22,'wyrm_claw'],[28,'wyrm_pulse'],[34,'photosynth'],[38,'century_spore'],[40,'wyrm_dance'],[46,'comet_roar'],[52,'sunlance']],
     abilities: ['purebred','thorn_hide'],
     desc: 'Grew from a spore that landed on a sleeping dragon and stayed for the warmth. It picked up habits.',
   },
@@ -12128,7 +12132,7 @@ const SPECIES = [
     palette: { c1: [180, 25, 45], c2: [170, 20, 70], c3: [120, 70, 60], eye: [120, 95, 60] }, vary: { h: 10, s: 5, l: 5 },
     paint: { mane: 4, tail: 4, glow: 4 },
     traits: T([0.35, 0.6], MID, [0.3, 0.45], [0.6, 0.9], MID, [0.5, 0.75]),
-    learnset: [[1,'cold_lick'],[1,'glare'],[6,'wraith_touch'],[11,'wyrm_breath'],[16,'curse_bolt'],[22,'haunt'],[28,'umbral_orb'],[34,'wyrm_pulse'],[40,'wyrm_dance'],[46,'comet_roar'],[52,'dread_pulse']],
+    learnset: [[1,'cold_lick'],[1,'glare'],[6,'wraith_touch'],[11,'wyrm_breath'],[16,'curse_bolt'],[22,'haunt'],[28,'umbral_orb'],[34,'wyrm_pulse'],[38,'empty_hoard'],[40,'wyrm_dance'],[46,'comet_roar'],[52,'dread_pulse']],
     abilities: ['restless','mirror_scale'],
     desc: 'The ghost of a wyrm that never got its hoard. It guards an empty cave with great ceremony.',
   },
@@ -12139,7 +12143,7 @@ const SPECIES = [
     palette: { c1: [340, 35, 82], c2: [45, 40, 92], c3: [190, 60, 70], eye: [200, 70, 50] }, vary: { h: 8, s: 6, l: 4 },
     paint: { mane: 3, horns: 4 },
     traits: T([0.35, 0.6], MID, [0.3, 0.5], [0.6, 0.9], MID, [0.55, 0.85]),
-    learnset: [[1,'glitter_gust'],[1,'glare'],[6,'mind_jolt'],[11,'wyrm_breath'],[16,'doe_eyes'],[22,'moonbathe'],[28,'dazzle'],[34,'wyrm_pulse'],[40,'wyrm_dance'],[46,'lunar_burst'],[52,'comet_roar']],
+    learnset: [[1,'glitter_gust'],[1,'glare'],[6,'mind_jolt'],[11,'wyrm_breath'],[16,'doe_eyes'],[22,'moonbathe'],[28,'dazzle'],[34,'wyrm_pulse'],[38,'hidden_pearl'],[40,'wyrm_dance'],[46,'lunar_burst'],[52,'comet_roar']],
     abilities: ['lucky_streak','steady'],
     desc: 'Carries a pearl it will not show anyone. Brings luck to the humble and headaches to the greedy.',
   },
@@ -12161,7 +12165,7 @@ const SPECIES = [
     palette: { c1: [45, 60, 60], c2: [40, 50, 85], c3: [280, 60, 60], eye: [280, 80, 55] }, vary: { h: 8, s: 6, l: 5 },
     paint: { head: 3, mane: 4, glow: 4 },
     traits: T([0.35, 0.6], MID, [0.3, 0.45], [0.6, 0.9], MID, [0.5, 0.75]),
-    learnset: [[1,'mind_jolt'],[1,'glare'],[6,'meditate'],[11,'wyrm_breath'],[16,'thought_beam'],[22,'lull'],[28,'psi_shock'],[34,'wyrm_pulse'],[40,'blank_mind'],[46,'comet_roar'],[52,'psystorm']],
+    learnset: [[1,'mind_jolt'],[1,'glare'],[6,'meditate'],[11,'wyrm_breath'],[16,'thought_beam'],[22,'lull'],[28,'psi_shock'],[34,'wyrm_pulse'],[38,'nine_hundred_years'],[40,'blank_mind'],[46,'comet_roar'],[52,'psystorm']],
     abilities: ['hawkeye','mirror_scale'],
     desc: 'Has been thinking about one question for nine hundred years and is nearly ready to ask it.',
   },
@@ -12271,7 +12275,7 @@ const SPECIES = [
     palette: { c1: [340, 40, 80], c2: [45, 45, 92], c3: [190, 60, 70], eye: [200, 70, 50] }, vary: { h: 8, s: 6, l: 4 },
     paint: { spines: 3, horns: 4, wings: 3 },
     traits: T([0.3, 0.55], [0.5, 0.75], [0.3, 0.5], MID, [0.5, 0.8], [0.6, 0.9]),
-    learnset: [[1,'glitter_gust'],[1,'glare'],[6,'mind_jolt'],[11,'wyrm_breath'],[16,'doe_eyes'],[22,'moonbathe'],[28,'dazzle'],[34,'wyrm_pulse'],[40,'wyrm_dance'],[46,'lunar_burst'],[52,'comet_roar']],
+    learnset: [[1,'glitter_gust'],[1,'glare'],[6,'mind_jolt'],[11,'wyrm_breath'],[16,'doe_eyes'],[22,'moonbathe'],[28,'dazzle'],[34,'wyrm_pulse'],[38,'sleep_hum'],[40,'wyrm_dance'],[46,'lunar_burst'],[52,'comet_roar']],
     abilities: ['lucky_streak','regrowth'],
     desc: 'Glows softly in the dark and hums in its sleep. Children who find one are never lost again.',
   },
@@ -12282,7 +12286,7 @@ const SPECIES = [
     palette: { c1: [180, 25, 45], c2: [170, 20, 70], c3: [120, 70, 60], eye: [120, 95, 60] }, vary: { h: 10, s: 5, l: 5 },
     paint: { spines: 4, tail: 4, horns: 4 },
     traits: T([0.4, 0.65], MID, [0.3, 0.5], [0.6, 0.9], [0.5, 0.8], [0.5, 0.75]),
-    learnset: [[1,'cold_lick'],[1,'glare'],[6,'wraith_touch'],[11,'wyrm_breath'],[16,'curse_bolt'],[22,'haunt'],[28,'umbral_orb'],[34,'wyrm_pulse'],[40,'wyrm_dance'],[46,'comet_roar'],[52,'dread_pulse']],
+    learnset: [[1,'cold_lick'],[1,'glare'],[6,'wraith_touch'],[11,'wyrm_breath'],[16,'curse_bolt'],[22,'haunt'],[28,'umbral_orb'],[34,'wyrm_pulse'],[38,'unslain_breath'],[40,'wyrm_dance'],[46,'comet_roar'],[52,'dread_pulse']],
     abilities: ['restless','second_wind'],
     desc: 'A dragon that refused to stay slain. It still guards its hoard and will still not tell you where it is.',
   },
@@ -12315,7 +12319,7 @@ const SPECIES = [
     palette: { c1: [45, 55, 55], c2: [40, 45, 80], c3: [280, 60, 60], eye: [280, 80, 55] }, vary: { h: 8, s: 6, l: 5 },
     paint: { spines: 4, horns: 4, head: 0 },
     traits: T([0.45, 0.7], MID, [0.35, 0.55], [0.55, 0.85], [0.5, 0.8], [0.45, 0.7]),
-    learnset: [[1,'mind_jolt'],[1,'glare'],[6,'meditate'],[11,'wyrm_breath'],[16,'thought_beam'],[22,'wyrm_claw'],[28,'psi_shock'],[34,'wyrm_pulse'],[40,'wyrm_dance'],[46,'comet_roar'],[52,'psystorm']],
+    learnset: [[1,'mind_jolt'],[1,'glare'],[6,'meditate'],[11,'wyrm_breath'],[16,'thought_beam'],[22,'wyrm_claw'],[28,'psi_shock'],[34,'wyrm_pulse'],[38,'eldest_word'],[40,'wyrm_dance'],[46,'comet_roar'],[52,'psystorm']],
     abilities: ['purebred','steady'],
     desc: 'The eldest thing on the mountain and it will tell you so. Speaks in your head and does not wait for answers.',
   },
@@ -12426,7 +12430,7 @@ const SPECIES = [
     recipe: { body: 'k.body.keel', head: 'k.head.feline', eyes: 'k.eyes.ghostlight', jaw: 'k.jaw.grin', legsFront: 'k.legsFront.long', legsBack: 'k.legsBack.spring', tail: 'k.tail.arrow', horns: ['k.horns.crown', 'k.horns.none'], wings: ['k.wings.ribbed', 'k.wings.none'], light: ['k.light.moth', 'k.light.none'], shroud: ['k.shroud.mist', 'k.shroud.none'], cracks: ['k.cracks.runes', 'k.cracks.none'] },
     palette: { c1: [260, 20, 88], c2: [265, 25, 65], c3: [280, 80, 72], eye: [285, 90, 72] }, vary: { h: 8, s: 6, l: 4 },
     traits: T([0.35, 0.6], [0.45, 0.7], [0.5, 0.75], [0.55, 0.85], [0.35, 0.6], [0.55, 0.85]),
-    learnset: [[1,'mind_jolt'],[1,'glare'],[6,'cold_lick'],[11,'meditate'],[16,'curse_bolt'],[22,'haunt'],[28,'thought_beam'],[34,'umbral_orb'],[40,'lull'],[46,'mind_crush'],[52,'psystorm']],
+    learnset: [[1,'mind_jolt'],[1,'glare'],[6,'cold_lick'],[11,'meditate'],[16,'curse_bolt'],[22,'haunt'],[28,'thought_beam'],[34,'umbral_orb'],[38,'half_thought'],[40,'lull'],[46,'mind_crush'],[52,'psystorm']],
     abilities: ['umbral_core','finesse'],
     desc: 'The bones are only half there and the rest is a thought it keeps having. Reads yours before you finish them.',
   },
@@ -12456,7 +12460,7 @@ const SPECIES = [
     recipe: { body: 'k.body.giant', head: 'k.head.serpent', eyes: 'k.eyes.blaze', jaw: 'k.jaw.fangs', legsFront: 'k.legsFront.claw', legsBack: 'k.legsBack.hound', tail: 'k.tail.arrow', horns: ['k.horns.curved', 'k.horns.none'], wings: ['k.wings.wide', 'k.wings.none'], light: ['k.light.flame', 'k.light.none'], shroud: ['k.shroud.cape', 'k.shroud.none'], cracks: ['k.cracks.gilt', 'k.cracks.none'] },
     palette: { c1: [30, 15, 66], c2: [280, 20, 35], c3: [275, 85, 60], eye: [275, 95, 65] }, vary: { h: 6, s: 6, l: 5 },
     traits: T([0.55, 0.85], [0.5, 0.75], [0.4, 0.6], [0.55, 0.85], [0.55, 0.85], [0.5, 0.8]),
-    learnset: [[1,'cold_lick'],[1,'glare'],[6,'wyrm_breath'],[11,'haunt'],[16,'curse_bolt'],[22,'wyrm_claw'],[28,'umbral_orb'],[34,'wyrm_pulse'],[40,'wyrm_dance'],[46,'dread_pulse'],[52,'comet_roar']],
+    learnset: [[1,'cold_lick'],[1,'glare'],[6,'wyrm_breath'],[11,'haunt'],[16,'curse_bolt'],[22,'wyrm_claw'],[28,'umbral_orb'],[34,'wyrm_pulse'],[38,'barrow_waking'],[40,'wyrm_dance'],[46,'dread_pulse'],[52,'comet_roar']],
     abilities: ['purebred','menace'],
     desc: 'The dragon that the barrows were dug around. It does not sleep so much as wait, and it has been very patient.',
   },
@@ -12547,7 +12551,7 @@ const SPECIES = [
     recipe: { body: 'n.body.long', head: 'n.head.pointed', ears: 'n.ears.curled', eyes: 'n.eyes.glow', muzzle: 'n.muzzle.whiskered', wings: 'n.wings.ragged', legs: 'n.legs.long', tail: 'n.tail.whip', crest: ['n.crest.plume', 'n.crest.none'], ruff: ['n.ruff.feathery', 'n.ruff.none'], thumbs: ['n.thumbs.glowing', 'n.thumbs.none'], markings: ['n.markings.blaze', 'n.markings.none'] },
     palette: { c1: [260, 15, 70], c2: [265, 25, 45], c3: [280, 80, 72], eye: [280, 90, 70] }, vary: { h: 8, s: 6, l: 4 },
     traits: T([0.4, 0.65], MID, [0.45, 0.7], [0.6, 0.9], [0.6, 0.9], [0.5, 0.8]),
-    learnset: [[1,'hex_glare'],[1,'glare'],[6,'cold_lick'],[11,'air_whisper'],[16,'curse_bolt'],[22,'haunt'],[28,'jet_wave'],[34,'dread_pulse'],[40,'scheme'],[46,'umbral_orb'],[52,'cyclone']],
+    learnset: [[1,'hex_glare'],[1,'glare'],[6,'cold_lick'],[11,'air_whisper'],[16,'curse_bolt'],[22,'haunt'],[28,'jet_wave'],[34,'dread_pulse'],[38,'gone_before_seen'],[40,'scheme'],[46,'umbral_orb'],[52,'cyclone']],
     abilities: ['umbral_core','menace'],
     desc: 'You hear it before you see it and you see it after it has gone. The chasm folk leave a lamp out so it stays away.',
   },
@@ -12597,7 +12601,7 @@ const SPECIES = [
     recipe: { body: 'n.body.broad', head: 'n.head.long', ears: 'n.ears.curled', eyes: 'n.eyes.red', muzzle: 'n.muzzle.grin', wings: 'n.wings.huge', legs: 'n.legs.splayed', tail: 'n.tail.forked', crest: ['n.crest.horns', 'n.crest.none'], ruff: ['n.ruff.mane', 'n.ruff.none'], thumbs: ['n.thumbs.long', 'n.thumbs.none'], markings: ['n.markings.stripes', 'n.markings.none'] },
     palette: { c1: [250, 15, 38], c2: [255, 25, 30], c3: [280, 90, 60], eye: [275, 95, 65] }, vary: { h: 6, s: 6, l: 5 },
     traits: T([0.55, 0.85], [0.5, 0.75], [0.4, 0.6], [0.55, 0.85], [0.65, 0.95], [0.4, 0.65]),
-    learnset: [[1,'swipe'],[1,'glare'],[6,'cheap_shot'],[11,'wyrm_breath'],[16,'chomp'],[22,'scheme'],[28,'wyrm_claw'],[34,'dusk_slash'],[40,'wyrm_dance'],[46,'wyrm_rush'],[52,'rampage']],
+    learnset: [[1,'swipe'],[1,'glare'],[6,'cheap_shot'],[11,'wyrm_breath'],[16,'chomp'],[22,'scheme'],[28,'wyrm_claw'],[34,'dusk_slash'],[38,'blot_out'],[40,'wyrm_dance'],[46,'wyrm_rush'],[52,'rampage']],
     abilities: ['menace','swagger'],
     desc: 'The thing the other bats fly away from. Its wings blot out the chasm mouth and its grin has too many rows.',
   },
@@ -12638,7 +12642,7 @@ const SPECIES = [
     recipe: { body: 'c.body.shard', head: 'c.head.spike', eyes: 'c.eyes.glow', mouth: 'c.mouth.flat', legsFront: 'c.legsFront.tall', legsBack: 'c.legsBack.tall', tail: 'c.tail.shard', spines: ['c.spines.single', 'c.spines.none'], crown: ['c.crown.spire', 'c.crown.none'], seam: ['c.seam.rings', 'c.seam.none'], facets: ['c.facets.triangles', 'c.facets.none'], aura: ['c.aura.halo', 'c.aura.none'] },
     palette: { c1: [265, 35, 60], c2: [270, 40, 42], c3: [285, 80, 72], eye: [285, 90, 70] }, vary: { h: 8, s: 6, l: 5 },
     traits: T([0.4, 0.65], MID, [0.5, 0.75], [0.5, 0.75], MID, [0.5, 0.8]),
-    learnset: [[1,'mind_jolt'],[1,'glare'],[6,'primal_surge'],[11,'meditate'],[16,'thought_beam'],[22,'smooth_stone'],[28,'gem_gleam'],[34,'psi_shock'],[40,'lull'],[46,'mind_crush'],[52,'psystorm']],
+    learnset: [[1,'mind_jolt'],[1,'glare'],[6,'primal_surge'],[11,'meditate'],[16,'thought_beam'],[22,'smooth_stone'],[28,'gem_gleam'],[34,'psi_shock'],[38,'hum_back'],[40,'lull'],[46,'mind_crush'],[52,'psystorm']],
     abilities: ['steady','finesse'],
     desc: 'An amethyst that thinks. Hum near it and it hums back the thing you were about to say.',
   },
@@ -12738,7 +12742,7 @@ const SPECIES = [
     recipe: { body: 'c.body.cluster', head: 'c.head.spike', eyes: 'c.eyes.star', mouth: 'c.mouth.fanged', legsFront: 'c.legsFront.crystal', legsBack: 'c.legsBack.crystal', tail: 'c.tail.cluster', spines: ['c.spines.tall', 'c.spines.none'], crown: ['c.crown.antler', 'c.crown.none'], seam: ['c.seam.lattice', 'c.seam.none'], facets: ['c.facets.diamonds', 'c.facets.none'], aura: ['c.aura.shards', 'c.aura.none'] },
     palette: { c1: [345, 20, 42], c2: [350, 30, 30], c3: [350, 90, 62], eye: [350, 95, 65] }, vary: { h: 6, s: 6, l: 5 },
     traits: T([0.55, 0.85], [0.5, 0.75], [0.4, 0.6], [0.55, 0.85], MID, [0.45, 0.7]),
-    learnset: [[1,'swipe'],[1,'glare'],[6,'rock_smash'],[11,'wyrm_breath'],[16,'headbonk'],[22,'smooth_stone'],[28,'wyrm_claw'],[34,'whetting'],[40,'wyrm_dance'],[46,'boulder_bash'],[52,'rampage']],
+    learnset: [[1,'swipe'],[1,'glare'],[6,'rock_smash'],[11,'wyrm_breath'],[16,'headbonk'],[22,'smooth_stone'],[28,'wyrm_claw'],[34,'whetting'],[38,'garnet_fang'],[40,'wyrm_dance'],[46,'boulder_bash'],[52,'rampage']],
     abilities: ['purebred','stonewall'],
     desc: 'The garnet at the heart of the caverns grew teeth. Miners who find it come back rich or not at all.',
   },
@@ -12849,7 +12853,7 @@ const SPECIES = [
     recipe: { body: 'y.body.coiled', head: 'y.head.bulb', eyes: 'y.eyes.glow', mandibles: 'y.mandibles.small', antennae: 'y.antennae.feathered', legs: 'y.legs.thin', tail: 'y.tail.plume', plates: ['y.plates.crest', 'y.plates.none'], bristles: ['y.bristles.feathered', 'y.bristles.none'], glow: ['y.glow.halo', 'y.glow.none'], bands: ['y.bands.dots', 'y.bands.none'], venom: ['y.venom.glow', 'y.venom.none'] },
     palette: { c1: [270, 35, 66], c2: [275, 40, 48], c3: [285, 80, 72], eye: [285, 90, 70] }, vary: { h: 8, s: 6, l: 5 },
     traits: T([0.4, 0.65], [0.55, 0.8], [0.35, 0.55], [0.45, 0.7], MID, [0.55, 0.85]),
-    learnset: [[1,'mind_jolt'],[1,'glare'],[6,'hive_hum'],[11,'meditate'],[16,'thought_beam'],[22,'web_shot'],[28,'pheromone_burst'],[34,'psi_shock'],[40,'lull'],[46,'mind_crush'],[52,'psystorm']],
+    learnset: [[1,'mind_jolt'],[1,'glare'],[6,'hive_hum'],[11,'meditate'],[16,'thought_beam'],[22,'web_shot'],[28,'pheromone_burst'],[34,'psi_shock'],[38,'spiral_thought'],[40,'lull'],[46,'mind_crush'],[52,'psystorm']],
     abilities: ['steady','hawkeye'],
     desc: 'Coils in a spiral and thinks in one too. Count its legs and you will find yourself counting your own.',
   },
@@ -12879,7 +12883,7 @@ const SPECIES = [
     recipe: { body: 'y.body.spiky', head: 'y.head.horned', eyes: 'y.eyes.big', mandibles: 'y.mandibles.pincers', antennae: 'y.antennae.bent', legs: 'y.legs.spiny', tail: 'y.tail.spike', plates: ['y.plates.horns', 'y.plates.none'], bristles: ['y.bristles.tufted', 'y.bristles.none'], glow: ['y.glow.stripes', 'y.glow.none'], bands: ['y.bands.chevrons', 'y.bands.none'], venom: ['y.venom.sacs', 'y.venom.none'] },
     palette: { c1: [350, 25, 42], c2: [355, 35, 30], c3: [45, 90, 62], eye: [45, 95, 60] }, vary: { h: 6, s: 6, l: 5 },
     traits: T([0.55, 0.85], [0.5, 0.75], [0.4, 0.6], [0.55, 0.85], MID, [0.45, 0.7]),
-    learnset: [[1,'swipe'],[1,'glare'],[6,'nibble'],[11,'wyrm_breath'],[16,'headbonk'],[22,'web_shot'],[28,'wyrm_claw'],[34,'scissor_slash'],[40,'wyrm_dance'],[46,'wyrm_rush'],[52,'rampage']],
+    learnset: [[1,'swipe'],[1,'glare'],[6,'nibble'],[11,'wyrm_breath'],[16,'headbonk'],[22,'web_shot'],[28,'wyrm_claw'],[34,'scissor_slash'],[38,'longest_coil'],[40,'wyrm_dance'],[46,'wyrm_rush'],[52,'rampage']],
     abilities: ['purebred','momentum'],
     desc: 'The oldest thing under the roots, and the longest. Miners who break into its gallery back out very quietly.',
   },
@@ -12930,7 +12934,7 @@ const SPECIES = [
     recipe: { body: 'e.body.lanky', head: 'e.head.gaunt', eyes: 'e.eyes.three', mouth: 'e.mouth.smirk', horns: ['e.horns.crown', 'e.horns.none'], arms: 'e.arms.long', legs: 'e.legs.thin', tail: ['e.tail.forked', 'e.tail.none'], wings: ['e.wings.bat', 'e.wings.none'], hand: ['e.hand.orb', 'e.hand.none'], marks: ['e.marks.runes', 'e.marks.none'], aura: ['e.aura.halo', 'e.aura.none'] },
     palette: { c1: [265, 35, 50], c2: [270, 40, 35], c3: [45, 100, 65], eye: [45, 100, 65] }, vary: { h: 8, s: 6, l: 5 },
     traits: T([0.4, 0.65], MID, [0.55, 0.8], [0.5, 0.75], [0.4, 0.6], [0.5, 0.8]),
-    learnset: [[1,'mind_jolt'],[1,'glare'],[6,'flare'],[11,'meditate'],[16,'thought_beam'],[22,'hex_glare'],[28,'heat_wave'],[34,'psi_shock'],[40,'lull'],[46,'mind_crush'],[52,'meltdown']],
+    learnset: [[1,'mind_jolt'],[1,'glare'],[6,'flare'],[11,'meditate'],[16,'thought_beam'],[22,'hex_glare'],[28,'heat_wave'],[34,'psi_shock'],[38,'signed_already'],[40,'lull'],[46,'mind_crush'],[52,'meltdown']],
     abilities: ['inferno_core','finesse'],
     desc: 'Has your signature already and is only waiting for you to notice. The third eye reads the small print.',
   },
@@ -13020,7 +13024,7 @@ const SPECIES = [
     recipe: { body: 'e.body.regal', head: 'e.head.ridged', eyes: 'e.eyes.ember', mouth: 'e.mouth.maw', horns: ['e.horns.ram', 'e.horns.none'], arms: 'e.arms.gauntlet', legs: 'e.legs.hoofed', tail: ['e.tail.spade', 'e.tail.none'], wings: ['e.wings.ember', 'e.wings.none'], hand: ['e.hand.pitchfork', 'e.hand.none'], marks: ['e.marks.glow', 'e.marks.none'], aura: ['e.aura.flames', 'e.aura.none'] },
     palette: { c1: [350, 55, 42], c2: [345, 50, 30], c3: [45, 100, 62], eye: [45, 100, 60] }, vary: { h: 6, s: 6, l: 5 },
     traits: T([0.55, 0.85], MID, [0.45, 0.7], [0.55, 0.85], [0.55, 0.85], [0.45, 0.7]),
-    learnset: [[1,'flare'],[1,'glare'],[6,'wyrm_breath'],[11,'hex_glare'],[16,'kindle_rush'],[22,'scheme'],[28,'heat_wave'],[34,'wyrm_pulse'],[40,'wyrm_dance'],[46,'meltdown'],[52,'comet_roar']],
+    learnset: [[1,'flare'],[1,'glare'],[6,'wyrm_breath'],[11,'hex_glare'],[16,'kindle_rush'],[22,'scheme'],[28,'heat_wave'],[34,'wyrm_pulse'],[38,'sink_answer'],[40,'wyrm_dance'],[46,'meltdown'],[52,'comet_roar']],
     abilities: ['purebred','inferno_core'],
     desc: 'The sinks answer to it and so, eventually, does the fire. It does not raise its voice. It does not need to.',
   },
@@ -13071,7 +13075,7 @@ const SPECIES = [
     recipe: { body: 's.body.sheet', eyes: 's.eyes.wide', mouth: 's.mouth.smile', arms: 's.arms.mist', tail: 's.tail.smoke', hood: ['s.hood.halo', 's.hood.none'], chains: 's.chains.none', lantern: ['s.lantern.key', 's.lantern.none'], aura: ['s.aura.motes', 's.aura.none'], tatters: ['s.tatters.ribbons', 's.tatters.none'], mask: ['s.mask.theatre', 's.mask.none'], veil: ['s.veil.stars', 's.veil.none'] },
     palette: { c1: [270, 30, 76], c2: [275, 35, 56], c3: [290, 80, 74], eye: [290, 90, 65] }, vary: { h: 8, s: 6, l: 4 },
     traits: T([0.4, 0.65], MID, [0.4, 0.6], [0.45, 0.7], MID, [0.6, 0.9]),
-    learnset: [[1,'mind_jolt'],[1,'glare'],[6,'cold_lick'],[11,'meditate'],[16,'curse_bolt'],[22,'haunt'],[28,'thought_beam'],[34,'umbral_orb'],[40,'lull'],[46,'mind_crush'],[52,'psystorm']],
+    learnset: [[1,'mind_jolt'],[1,'glare'],[6,'cold_lick'],[11,'meditate'],[16,'curse_bolt'],[22,'haunt'],[28,'thought_beam'],[34,'umbral_orb'],[38,'sleeper_key'],[40,'lull'],[46,'mind_crush'],[52,'psystorm']],
     abilities: ['finesse','steady'],
     desc: 'Carries the key to a door that only exists while you are asleep. It is very fond of you, apparently.',
   },
@@ -13161,7 +13165,7 @@ const SPECIES = [
     recipe: { body: 's.body.flame', eyes: 's.eyes.spiral', mouth: 's.mouth.wail', arms: 's.arms.claws', tail: 's.tail.smoke', hood: ['s.hood.horns', 's.hood.none'], chains: ['s.chains.double', 's.chains.none'], lantern: ['s.lantern.skull', 's.lantern.none'], aura: ['s.aura.halo', 's.aura.none'], tatters: ['s.tatters.long', 's.tatters.none'], mask: ['s.mask.gilded', 's.mask.none'], veil: ['s.veil.runes', 's.veil.none'] },
     palette: { c1: [260, 25, 48], c2: [265, 30, 34], c3: [280, 85, 66], eye: [280, 95, 66] }, vary: { h: 6, s: 6, l: 5 },
     traits: T([0.55, 0.85], MID, [0.45, 0.7], [0.55, 0.85], MID, [0.5, 0.8]),
-    learnset: [[1,'cold_lick'],[1,'glare'],[6,'wyrm_breath'],[11,'haunt'],[16,'curse_bolt'],[22,'scheme'],[28,'umbral_orb'],[34,'wyrm_pulse'],[40,'wyrm_dance'],[46,'dread_pulse'],[52,'comet_roar']],
+    learnset: [[1,'cold_lick'],[1,'glare'],[6,'wyrm_breath'],[11,'haunt'],[16,'curse_bolt'],[22,'scheme'],[28,'umbral_orb'],[34,'wyrm_pulse'],[38,'what_is_left'],[40,'wyrm_dance'],[46,'dread_pulse'],[52,'comet_roar']],
     abilities: ['purebred','umbral_core'],
     desc: 'What is left of a dragon after the dragon is gone. The marsh was its hoard, and it still counts the reeds.',
   },
@@ -13212,7 +13216,7 @@ const SPECIES = [
     recipe: { body: 'm.body.rabbit', head: 'm.head.mouse', ears: 'm.ears.rabbit', eyes: 'm.eyes.slit', muzzle: 'm.muzzle.wolf', legsFront: 'm.legsFront.fox', legsBack: 'm.legsBack.deer', tail: 'm.tail.wolf', mane: ['m.mane.lion', 'm.mane.none'], horns: 'm.horns.none', back: 'm.back.batwings', markings: ['m.markings.star', 'm.markings.none'] },
     palette: { c1: [247, 29, 44], c2: [254, 31, 30], c3: [269, 88, 68], eye: [267, 92, 70] }, vary: { h: 8, s: 6, l: 5 },
     traits: T([0.5, 0.8], [0.5, 0.75], MID, MID, MID, [0.45, 0.75]),
-    learnset: [[1,'wraith_touch'],[1,'meditate'],[6,'flurry'],[11,'lull'],[16,'curse_bolt'],[22,'glare'],[28,'echo_burst'],[34,'headbonk'],[40,'haunt'],[46,'mind_crush'],[52,'psystorm']],
+    learnset: [[1,'wraith_touch'],[1,'meditate'],[6,'flurry'],[11,'lull'],[16,'curse_bolt'],[22,'glare'],[28,'echo_burst'],[34,'headbonk'],[38,'room_gap'],[40,'haunt'],[46,'mind_crush'],[52,'psystorm']],
     abilities: ['mirror_scale','steady'],
     desc: 'A cat-shaped gap in the room. It watches you from wherever you were not looking.',
   },
@@ -13292,7 +13296,7 @@ const SPECIES = [
     recipe: { body: 'm.body.fox', head: 'm.head.bear', ears: 'm.ears.wolf', eyes: 'm.eyes.fierce', muzzle: 'm.muzzle.rabbit', legsFront: 'm.legsFront.bear', legsBack: 'm.legsBack.mouse', tail: 'm.tail.rabbit', mane: ['m.mane.cat', 'm.mane.none'], horns: ['m.horns.unicorn', 'm.horns.none'], back: ['m.back.batwings', 'm.back.none'], markings: ['m.markings.stripes', 'm.markings.none'] },
     palette: { c1: [17, 57, 41], c2: [12, 50, 26], c3: [23, 92, 56], eye: [24, 87, 53] }, vary: { h: 8, s: 6, l: 5 },
     traits: T([0.5, 0.8], MID, [0.45, 0.7], MID, MID, [0.45, 0.75]),
-    learnset: [[1,'flurry'],[1,'muscle_up'],[6,'shock_palm'],[11,'whetting'],[16,'blindside'],[22,'yowl'],[28,'dusk_slash'],[34,'shadow_shot'],[40,'brace'],[46,'belly_flop'],[52,'all_out_brawl']],
+    learnset: [[1,'flurry'],[1,'muscle_up'],[6,'shock_palm'],[11,'whetting'],[16,'blindside'],[22,'yowl'],[28,'dusk_slash'],[34,'shadow_shot'],[38,'unmentioned_maul'],[40,'brace'],[46,'belly_flop'],[52,'all_out_brawl']],
     abilities: ['daredevil','momentum'],
     desc: 'The lion the other lions do not mention. Its mane is the colour it is for a reason.',
   },
@@ -13353,7 +13357,7 @@ const SPECIES = [
     recipe: { body: 'r.body.raptor', head: 'r.head.turtle', eyes: 'r.eyes.slit', jaw: 'r.jaw.smirk', crest: 'r.crest.horns', legsFront: 'r.legsFront.croc', legsBack: 'r.legsBack.gecko', tail: 'r.tail.lizard', back: ['r.back.plates', 'r.back.none'], wings: 'r.wings.crystal', throat: ['r.throat.dewlap', 'r.throat.none'], scales: ['r.scales.spots', 'r.scales.none'] },
     palette: { c1: [262, 28, 45], c2: [267, 29, 31], c3: [276, 87, 73], eye: [279, 88, 74] }, vary: { h: 8, s: 6, l: 5 },
     traits: T([0.5, 0.8], [0.5, 0.75], MID, MID, MID, [0.45, 0.75]),
-    learnset: [[1,'wraith_touch'],[1,'meditate'],[6,'flurry'],[11,'blank_mind'],[16,'curse_bolt'],[22,'lull'],[28,'echo_burst'],[34,'headbonk'],[40,'quicken'],[46,'mind_crush'],[52,'psystorm']],
+    learnset: [[1,'wraith_touch'],[1,'meditate'],[6,'flurry'],[11,'blank_mind'],[16,'curse_bolt'],[22,'lull'],[28,'echo_burst'],[34,'headbonk'],[38,'shadow_fang'],[40,'quicken'],[46,'mind_crush'],[52,'psystorm']],
     abilities: ['restless','steady'],
     desc: 'A snake you can only see the shadow of. The shadow is enough.',
   },
@@ -13433,7 +13437,7 @@ const SPECIES = [
     recipe: { body: 'r.body.lizard', head: 'r.head.cobra', eyes: 'r.eyes.fierce', jaw: 'r.jaw.fangs', crest: 'r.crest.horns', legsFront: 'r.legsFront.lizard', legsBack: 'r.legsBack.gecko', tail: 'r.tail.croc', back: ['r.back.feathers', 'r.back.none'], wings: 'r.wings.none', throat: 'r.throat.pouch', scales: 'r.scales.belly' },
     palette: { c1: [32, 56, 39], c2: [28, 50, 29], c3: [38, 89, 57], eye: [35, 91, 51] }, vary: { h: 8, s: 6, l: 5 },
     traits: T([0.5, 0.8], MID, [0.45, 0.7], MID, MID, [0.45, 0.75]),
-    learnset: [[1,'flurry'],[1,'brace'],[6,'shock_palm'],[11,'whetting'],[16,'blindside'],[22,'scheme'],[28,'dusk_slash'],[34,'shadow_shot'],[40,'mend'],[46,'belly_flop'],[52,'all_out_brawl']],
+    learnset: [[1,'flurry'],[1,'brace'],[6,'shock_palm'],[11,'whetting'],[16,'blindside'],[22,'scheme'],[28,'dusk_slash'],[34,'shadow_shot'],[38,'heat_sight_strike'],[40,'mend'],[46,'belly_flop'],[52,'all_out_brawl']],
     abilities: ['vice_jaw','second_wind'],
     desc: 'A raptor that hunts in the dark by heat. Fast enough that you are the last to know.',
   },
@@ -13494,7 +13498,7 @@ const SPECIES = [
     recipe: { body: 'f.body.round', eyes: 'f.eyes.glow', mouth: 'f.mouth.smile', dorsal: 'f.dorsal.flowing', pectoral: 'f.pectoral.paddle', tail: 'f.tail.forked', belly: 'f.belly.pelvic', gills: ['f.gills.glow', 'f.gills.none'], crest: 'f.crest.none', barbels: ['f.barbels.koi', 'f.barbels.none'], spines: ['f.spines.bumps', 'f.spines.none'], pattern: ['f.pattern.glow', 'f.pattern.none'] },
     palette: { c1: [274, 28, 45], c2: [282, 29, 33], c3: [290, 84, 73], eye: [296, 88, 74] }, vary: { h: 8, s: 6, l: 5 },
     traits: T([0.5, 0.8], [0.5, 0.75], MID, MID, MID, [0.45, 0.75]),
-    learnset: [[1,'wraith_touch'],[1,'brace'],[6,'flurry'],[11,'glare'],[16,'curse_bolt'],[22,'mend'],[28,'echo_burst'],[34,'headbonk'],[40,'quicken'],[46,'mind_crush'],[52,'psystorm']],
+    learnset: [[1,'wraith_touch'],[1,'brace'],[6,'flurry'],[11,'glare'],[16,'curse_bolt'],[22,'mend'],[28,'echo_burst'],[34,'headbonk'],[38,'almost_thought'],[40,'quicken'],[46,'mind_crush'],[52,'psystorm']],
     abilities: ['hawkeye','lucky_streak'],
     desc: 'Its lure is a thought you almost had. Follow it and you are already down there.',
   },
@@ -13574,7 +13578,7 @@ const SPECIES = [
     recipe: { body: 'f.body.round', eyes: 'f.eyes.fierce', mouth: 'f.mouth.fangs', dorsal: 'f.dorsal.sail', pectoral: 'f.pectoral.spiky', tail: 'f.tail.forked', belly: ['f.belly.ribbon', 'f.belly.none'], gills: 'f.gills.ridge', crest: ['f.crest.horn', 'f.crest.none'], barbels: 'f.barbels.spiky', spines: ['f.spines.side', 'f.spines.none'], pattern: 'f.pattern.glow' },
     palette: { c1: [47, 55, 36], c2: [37, 50, 26], c3: [48, 93, 55], eye: [48, 87, 51] }, vary: { h: 8, s: 6, l: 5 },
     traits: T([0.5, 0.8], MID, [0.45, 0.7], MID, MID, [0.45, 0.75]),
-    learnset: [[1,'flurry'],[1,'whetting'],[6,'shock_palm'],[11,'scheme'],[16,'blindside'],[22,'brace'],[28,'dusk_slash'],[34,'shadow_shot'],[40,'muscle_up'],[46,'belly_flop'],[52,'all_out_brawl']],
+    learnset: [[1,'flurry'],[1,'whetting'],[6,'shock_palm'],[11,'scheme'],[16,'blindside'],[22,'brace'],[28,'dusk_slash'],[34,'shadow_shot'],[38,'red_water'],[40,'muscle_up'],[46,'belly_flop'],[52,'all_out_brawl']],
     abilities: ['swagger','grit'],
     desc: 'Red water follows it. The lagoon folk fish elsewhere for a week after a sighting.',
   },
@@ -13635,7 +13639,7 @@ const SPECIES = [
     recipe: { body: 'b.body.hawk', head: 'b.head.penguin', eyes: 'b.eyes.ring', beak: 'b.beak.parrot', crest: 'b.crest.none', face: ['b.face.disc', 'b.face.none'], wings: 'b.wings.rounded', tail: 'b.tail.fantail', legs: 'b.legs.zygo', chest: 'b.chest.ruff', back: 'b.back.starcloak', pattern: ['b.pattern.belly', 'b.pattern.none'] },
     palette: { c1: [255, 28, 43], c2: [258, 29, 32], c3: [275, 83, 72], eye: [278, 90, 76] }, vary: { h: 8, s: 6, l: 5 },
     traits: T([0.5, 0.8], [0.5, 0.75], MID, MID, MID, [0.45, 0.75]),
-    learnset: [[1,'wraith_touch'],[1,'whetting'],[6,'flurry'],[11,'quicken'],[16,'curse_bolt'],[22,'blank_mind'],[28,'echo_burst'],[34,'headbonk'],[40,'brace'],[46,'mind_crush'],[52,'psystorm']],
+    learnset: [[1,'wraith_touch'],[1,'whetting'],[6,'flurry'],[11,'quicken'],[16,'curse_bolt'],[22,'blank_mind'],[28,'echo_burst'],[34,'headbonk'],[38,'silent_hoot'],[40,'brace'],[46,'mind_crush'],[52,'psystorm']],
     abilities: ['lucky_streak','menace'],
     desc: 'It does not hoot. The silence where a hoot would be is how you know.',
   },
@@ -13715,7 +13719,7 @@ const SPECIES = [
     recipe: { body: 'b.body.penguin', head: 'b.head.owl', eyes: 'b.eyes.fierce', beak: 'b.beak.needle', crest: ['b.crest.plume', 'b.crest.none'], face: ['b.face.disc', 'b.face.none'], wings: 'b.wings.flipper', tail: 'b.tail.fan', legs: 'b.legs.thin', chest: ['b.chest.medallion', 'b.chest.none'], back: 'b.back.none', pattern: 'b.pattern.spots' },
     palette: { c1: [25, 58, 40], c2: [20, 53, 26], c3: [37, 92, 55], eye: [29, 93, 54] }, vary: { h: 8, s: 6, l: 5 },
     traits: T([0.5, 0.8], MID, [0.45, 0.7], MID, MID, [0.45, 0.75]),
-    learnset: [[1,'flurry'],[1,'brace'],[6,'shock_palm'],[11,'glare'],[16,'blindside'],[22,'mend'],[28,'dusk_slash'],[34,'shadow_shot'],[40,'muscle_up'],[46,'belly_flop'],[52,'all_out_brawl']],
+    learnset: [[1,'flurry'],[1,'brace'],[6,'shock_palm'],[11,'glare'],[16,'blindside'],[22,'mend'],[28,'dusk_slash'],[34,'shadow_shot'],[38,'carrion_dive'],[40,'muscle_up'],[46,'belly_flop'],[52,'all_out_brawl']],
     abilities: ['heavy_hands','daredevil'],
     desc: 'The sky over a battlefield is full of them. They arrive before the fighting.',
   },
@@ -13776,7 +13780,7 @@ const SPECIES = [
     recipe: { body: 'i.body.moth', head: 'i.head.moth', eyes: 'i.eyes.glow', mandibles: 'i.mandibles.pincers', antennae: 'i.antennae.horn', wings: ['i.wings.fairy', 'i.wings.none'], legsFront: 'i.legsFront.thin', legsMid: 'i.legsMid.long', legsBack: 'i.legsBack.sturdy', tail: 'i.tail.lantern', shell: ['i.shell.fuzz', 'i.shell.none'], pattern: ['i.pattern.gradient', 'i.pattern.none'] },
     palette: { c1: [267, 26, 42], c2: [275, 34, 30], c3: [286, 83, 73], eye: [292, 89, 71] }, vary: { h: 8, s: 6, l: 5 },
     traits: T([0.5, 0.8], [0.5, 0.75], MID, MID, MID, [0.45, 0.75]),
-    learnset: [[1,'wraith_touch'],[1,'whetting'],[6,'flurry'],[11,'brace'],[16,'curse_bolt'],[22,'mend'],[28,'echo_burst'],[34,'headbonk'],[40,'quicken'],[46,'mind_crush'],[52,'psystorm']],
+    learnset: [[1,'wraith_touch'],[1,'whetting'],[6,'flurry'],[11,'brace'],[16,'curse_bolt'],[22,'mend'],[28,'echo_burst'],[34,'headbonk'],[38,'window_wings'],[40,'quicken'],[46,'mind_crush'],[52,'psystorm']],
     abilities: ['restless','menace'],
     desc: 'Its wings are windows onto nothing. Look too long and you forget the lamp.',
   },
@@ -13856,7 +13860,7 @@ const SPECIES = [
     recipe: { body: 'i.body.ant', head: 'i.head.bee', eyes: 'i.eyes.fierce', mandibles: 'i.mandibles.fangs', antennae: 'i.antennae.horn', wings: 'i.wings.butterfly', legsFront: 'i.legsFront.raptorial', legsMid: 'i.legsMid.hairy', legsBack: 'i.legsBack.hooked', tail: 'i.tail.club', shell: ['i.shell.leaf', 'i.shell.none'], pattern: 'i.pattern.none' },
     palette: { c1: [40, 52, 39], c2: [38, 53, 29], c3: [43, 88, 54], eye: [49, 87, 49] }, vary: { h: 8, s: 6, l: 5 },
     traits: T([0.5, 0.8], MID, [0.45, 0.7], MID, MID, [0.45, 0.75]),
-    learnset: [[1,'flurry'],[1,'muscle_up'],[6,'shock_palm'],[11,'scheme'],[16,'blindside'],[22,'yowl'],[28,'dusk_slash'],[34,'shadow_shot'],[40,'whetting'],[46,'belly_flop'],[52,'all_out_brawl']],
+    learnset: [[1,'flurry'],[1,'muscle_up'],[6,'shock_palm'],[11,'scheme'],[16,'blindside'],[22,'yowl'],[28,'dusk_slash'],[34,'shadow_shot'],[38,'enforcer_sting'],[40,'whetting'],[46,'belly_flop'],[52,'all_out_brawl']],
     abilities: ['second_wind','grit'],
     desc: 'The enforcer of the hive. Everything it stings stays stung.',
   },
@@ -13917,7 +13921,7 @@ const SPECIES = [
     recipe: { body: 'v.body.wisp', eyes: 'v.eyes.glow', mouth: 'v.mouth.grin', arms: ['v.arms.wisps', 'v.arms.none'], legs: 'v.legs.spindly', shell: ['v.shell.spiral', 'v.shell.none'], tail: 'v.tail.none', crown: ['v.crown.flame', 'v.crown.none'], feelers: 'v.feelers.frills', pattern: ['v.pattern.gradient', 'v.pattern.none'], glow: ['v.glow.mist', 'v.glow.none'], skirt: ['v.skirt.tentacles', 'v.skirt.none'] },
     palette: { c1: [248, 27, 44], c2: [253, 29, 29], c3: [269, 88, 72], eye: [276, 87, 72] }, vary: { h: 8, s: 6, l: 5 },
     traits: T([0.5, 0.8], [0.5, 0.75], MID, MID, MID, [0.45, 0.75]),
-    learnset: [[1,'wraith_touch'],[1,'whetting'],[6,'flurry'],[11,'blank_mind'],[16,'curse_bolt'],[22,'quicken'],[28,'echo_burst'],[34,'headbonk'],[40,'yowl'],[46,'mind_crush'],[52,'psystorm']],
+    learnset: [[1,'wraith_touch'],[1,'whetting'],[6,'flurry'],[11,'blank_mind'],[16,'curse_bolt'],[22,'quicken'],[28,'echo_burst'],[34,'headbonk'],[38,'last_light_bell'],[40,'yowl'],[46,'mind_crush'],[52,'psystorm']],
     abilities: ['mirror_scale','menace'],
     desc: 'A jellyfish full of dark. Its bell is the last thing you see and the first thing you forget.',
   },
@@ -13997,7 +14001,7 @@ const SPECIES = [
     recipe: { body: 'v.body.jelly', eyes: 'v.eyes.stalked', mouth: ['v.mouth.fangs', 'v.mouth.none'], arms: ['v.arms.claws', 'v.arms.none'], legs: ['v.legs.stubby', 'v.legs.none'], shell: 'v.shell.none', tail: ['v.tail.tentacle', 'v.tail.none'], crown: 'v.crown.horns', feelers: 'v.feelers.antennae', pattern: ['v.pattern.rings', 'v.pattern.none'], glow: ['v.glow.motes', 'v.glow.none'], skirt: 'v.skirt.roots' },
     palette: { c1: [25, 58, 38], c2: [19, 53, 27], c3: [24, 93, 52], eye: [28, 91, 50] }, vary: { h: 8, s: 6, l: 5 },
     traits: T([0.5, 0.8], MID, [0.45, 0.7], MID, MID, [0.45, 0.75]),
-    learnset: [[1,'flurry'],[1,'scheme'],[6,'shock_palm'],[11,'yowl'],[16,'blindside'],[22,'glare'],[28,'dusk_slash'],[34,'shadow_shot'],[40,'muscle_up'],[46,'belly_flop'],[52,'all_out_brawl']],
+    learnset: [[1,'flurry'],[1,'scheme'],[6,'shock_palm'],[11,'yowl'],[16,'blindside'],[22,'glare'],[28,'dusk_slash'],[34,'shadow_shot'],[38,'wrestle_drink'],[40,'muscle_up'],[46,'belly_flop'],[52,'all_out_brawl']],
     abilities: ['grit','heavy_hands'],
     desc: 'Wrestles what it drinks. Nothing down there has beaten it yet.',
   },
@@ -14058,7 +14062,7 @@ const SPECIES = [
     recipe: { body: 'a.body.frog', head: 'a.head.polliwog', eyes: 'a.eyes.glow', mouth: 'a.mouth.grin', gills: ['a.gills.leafy', 'a.gills.none'], legsFront: 'a.legsFront.polliwog', legsBack: 'a.legsBack.newt', tail: ['a.tail.salamander', 'a.tail.none'], throat: ['a.throat.glowsac', 'a.throat.none'], crest: ['a.crest.horns', 'a.crest.none'], back: ['a.back.warts', 'a.back.none'], pattern: ['a.pattern.belly', 'a.pattern.none'] },
     palette: { c1: [260, 31, 40], c2: [266, 29, 32], c3: [278, 84, 73], eye: [289, 92, 76] }, vary: { h: 8, s: 6, l: 5 },
     traits: T([0.5, 0.8], [0.5, 0.75], MID, MID, MID, [0.45, 0.75]),
-    learnset: [[1,'wraith_touch'],[1,'brace'],[6,'flurry'],[11,'lull'],[16,'curse_bolt'],[22,'whetting'],[28,'echo_burst'],[34,'headbonk'],[40,'glare'],[46,'mind_crush'],[52,'psystorm']],
+    learnset: [[1,'wraith_touch'],[1,'brace'],[6,'flurry'],[11,'lull'],[16,'curse_bolt'],[22,'whetting'],[28,'echo_burst'],[34,'headbonk'],[38,'nothing_smile'],[40,'glare'],[46,'mind_crush'],[52,'psystorm']],
     abilities: ['mirror_scale','steady'],
     desc: 'An axolotl that regrew itself out of nothing. It smiles about it.',
   },
@@ -14138,7 +14142,7 @@ const SPECIES = [
     recipe: { body: 'a.body.toad', head: 'a.head.axolotl', eyes: 'a.eyes.sleepy', mouth: 'a.mouth.tongue', gills: ['a.gills.spiky', 'a.gills.none'], legsFront: 'a.legsFront.salamander', legsBack: 'a.legsBack.toad', tail: ['a.tail.salamander', 'a.tail.none'], throat: ['a.throat.glowsac', 'a.throat.none'], crest: 'a.crest.spikes', back: ['a.back.spikes', 'a.back.none'], pattern: 'a.pattern.speckles' },
     palette: { c1: [38, 53, 41], c2: [30, 49, 30], c3: [43, 93, 52], eye: [38, 91, 49] }, vary: { h: 8, s: 6, l: 5 },
     traits: T([0.5, 0.8], MID, [0.45, 0.7], MID, MID, [0.45, 0.75]),
-    learnset: [[1,'flurry'],[1,'glare'],[6,'shock_palm'],[11,'muscle_up'],[16,'blindside'],[22,'whetting'],[28,'dusk_slash'],[34,'shadow_shot'],[40,'mend'],[46,'belly_flop'],[52,'all_out_brawl']],
+    learnset: [[1,'flurry'],[1,'glare'],[6,'shock_palm'],[11,'muscle_up'],[16,'blindside'],[22,'whetting'],[28,'dusk_slash'],[34,'shadow_shot'],[38,'fen_breaker'],[40,'mend'],[46,'belly_flop'],[52,'all_out_brawl']],
     abilities: ['daredevil','second_wind'],
     desc: 'Red as a wound and twice as sore. It fights the fen and the fen loses.',
   },
@@ -14199,7 +14203,7 @@ const SPECIES = [
     recipe: { body: 'p.body.sprout', head: 'p.head.rose', eyes: 'p.eyes.glow', mouth: 'p.mouth.grin', leaves: 'p.leaves.maple', roots: 'p.roots.threads', vines: 'p.vines.none', pods: 'p.pods.bulbs', thorns: ['p.thorns.halo', 'p.thorns.none'], canopy: 'p.canopy.pollen', bark: 'p.bark.knots', fruit: ['p.fruit.berry', 'p.fruit.none'] },
     palette: { c1: [276, 25, 42], c2: [284, 33, 33], c3: [297, 85, 68], eye: [298, 92, 71] }, vary: { h: 8, s: 6, l: 5 },
     traits: T([0.5, 0.8], [0.5, 0.75], MID, MID, MID, [0.45, 0.75]),
-    learnset: [[1,'wraith_touch'],[1,'meditate'],[6,'flurry'],[11,'yowl'],[16,'curse_bolt'],[22,'quicken'],[28,'echo_burst'],[34,'headbonk'],[40,'haunt'],[46,'mind_crush'],[52,'psystorm']],
+    learnset: [[1,'wraith_touch'],[1,'meditate'],[6,'flurry'],[11,'yowl'],[16,'curse_bolt'],[22,'quicken'],[28,'echo_burst'],[34,'headbonk'],[38,'inward_bloom'],[40,'haunt'],[46,'mind_crush'],[52,'psystorm']],
     abilities: ['restless','menace'],
     desc: 'A flower that blooms inward. Bees go in and forget the way out.',
   },
@@ -14279,7 +14283,7 @@ const SPECIES = [
     recipe: { body: 'p.body.vine', head: 'p.head.orchid', eyes: 'p.eyes.sharp', mouth: 'p.mouth.maw', leaves: 'p.leaves.needle', roots: 'p.roots.knot', vines: 'p.vines.coil', pods: ['p.pods.berries', 'p.pods.none'], thorns: ['p.thorns.spikes', 'p.thorns.none'], canopy: ['p.canopy.willow', 'p.canopy.none'], bark: ['p.bark.knots', 'p.bark.none'], fruit: 'p.fruit.berry' },
     palette: { c1: [52, 58, 41], c2: [41, 50, 29], c3: [50, 86, 54], eye: [50, 92, 52] }, vary: { h: 8, s: 6, l: 5 },
     traits: T([0.5, 0.8], MID, [0.45, 0.7], MID, MID, [0.45, 0.75]),
-    learnset: [[1,'flurry'],[1,'glare'],[6,'shock_palm'],[11,'yowl'],[16,'blindside'],[22,'whetting'],[28,'dusk_slash'],[34,'shadow_shot'],[40,'brace'],[46,'belly_flop'],[52,'all_out_brawl']],
+    learnset: [[1,'flurry'],[1,'glare'],[6,'shock_palm'],[11,'yowl'],[16,'blindside'],[22,'whetting'],[28,'dusk_slash'],[34,'shadow_shot'],[38,'duel_thorn'],[40,'brace'],[46,'belly_flop'],[52,'all_out_brawl']],
     abilities: ['grit','second_wind'],
     desc: 'The rose that grew where the duel was. Still settling it.',
   },
@@ -14340,7 +14344,7 @@ const SPECIES = [
     recipe: { body: 'o.body.tall', core: 'o.core.star', eyes: 'o.eyes.void', mouth: 'o.mouth.fangs', pseudopods: 'o.pseudopods.curl', drips: ['o.drips.trio', 'o.drips.none'], crown: ['o.crown.halo', 'o.crown.none'], tendrils: ['o.tendrils.fronds', 'o.tendrils.none'], base: 'o.base.splat', inclusions: 'o.inclusions.shards', sheen: ['o.sheen.bands', 'o.sheen.none'], bumps: 'o.bumps.blisters' },
     palette: { c1: [254, 32, 40], c2: [261, 35, 30], c3: [278, 87, 70], eye: [281, 87, 73] }, vary: { h: 8, s: 6, l: 5 },
     traits: T([0.5, 0.8], [0.5, 0.75], MID, MID, MID, [0.45, 0.75]),
-    learnset: [[1,'wraith_touch'],[1,'whetting'],[6,'flurry'],[11,'quicken'],[16,'curse_bolt'],[22,'haunt'],[28,'echo_burst'],[34,'headbonk'],[40,'lull'],[46,'mind_crush'],[52,'psystorm']],
+    learnset: [[1,'wraith_touch'],[1,'whetting'],[6,'flurry'],[11,'quicken'],[16,'curse_bolt'],[22,'haunt'],[28,'echo_burst'],[34,'headbonk'],[38,'absence_step'],[40,'lull'],[46,'mind_crush'],[52,'psystorm']],
     abilities: ['menace','finesse'],
     desc: 'A puddle of absence. Step in it and come out somewhere you have never been.',
   },
@@ -14420,7 +14424,7 @@ const SPECIES = [
     recipe: { body: 'o.body.drop', core: 'o.core.cluster', eyes: 'o.eyes.sleepy', mouth: 'o.mouth.fangs', pseudopods: 'o.pseudopods.fist', drips: 'o.drips.none', crown: 'o.crown.horns', tendrils: ['o.tendrils.pair', 'o.tendrils.none'], base: 'o.base.bubbles', inclusions: ['o.inclusions.skull', 'o.inclusions.none'], sheen: 'o.sheen.none', bumps: 'o.bumps.none' },
     palette: { c1: [33, 55, 37], c2: [26, 52, 30], c3: [38, 92, 57], eye: [39, 93, 50] }, vary: { h: 8, s: 6, l: 5 },
     traits: T([0.5, 0.8], MID, [0.45, 0.7], MID, MID, [0.45, 0.75]),
-    learnset: [[1,'flurry'],[1,'whetting'],[6,'shock_palm'],[11,'mend'],[16,'blindside'],[22,'muscle_up'],[28,'dusk_slash'],[34,'shadow_shot'],[40,'brace'],[46,'belly_flop'],[52,'all_out_brawl']],
+    learnset: [[1,'flurry'],[1,'whetting'],[6,'shock_palm'],[11,'mend'],[16,'blindside'],[22,'muscle_up'],[28,'dusk_slash'],[34,'shadow_shot'],[38,'crimson_rush'],[40,'brace'],[46,'belly_flop'],[52,'all_out_brawl']],
     abilities: ['momentum','vice_jaw'],
     desc: 'Crimson, hungry, and faster than anything that shape should be.',
   },
@@ -14481,7 +14485,7 @@ const SPECIES = [
     recipe: { body: 'g.body.morel', head: 'g.head.bent', eyes: 'g.eyes.glow', mouth: 'g.mouth.smile', gills: 'g.gills.dark', spores: ['g.spores.sparkle', 'g.spores.none'], roots: 'g.roots.stump', ring: 'g.ring.none', shelves: ['g.shelves.stack', 'g.shelves.none'], veil: ['g.veil.lace', 'g.veil.none'], glow: ['g.glow.halo', 'g.glow.none'], pattern: 'g.pattern.none' },
     palette: { c1: [274, 24, 42], c2: [273, 30, 33], c3: [290, 89, 74], eye: [294, 89, 71] }, vary: { h: 8, s: 6, l: 5 },
     traits: T([0.5, 0.8], [0.5, 0.75], MID, MID, MID, [0.45, 0.75]),
-    learnset: [[1,'wraith_touch'],[1,'brace'],[6,'flurry'],[11,'glare'],[16,'curse_bolt'],[22,'lull'],[28,'echo_burst'],[34,'headbonk'],[40,'quicken'],[46,'mind_crush'],[52,'psystorm']],
+    learnset: [[1,'wraith_touch'],[1,'brace'],[6,'flurry'],[11,'glare'],[16,'curse_bolt'],[22,'lull'],[28,'echo_burst'],[34,'headbonk'],[38,'memory_gap'],[40,'quicken'],[46,'mind_crush'],[52,'psystorm']],
     abilities: ['finesse','menace'],
     desc: 'Its spores are gaps in memory. The forest around it is very quiet about it.',
   },
@@ -14561,7 +14565,7 @@ const SPECIES = [
     recipe: { body: 'g.body.bell', head: 'g.head.woody', eyes: 'g.eyes.squint', mouth: 'g.mouth.grin', gills: 'g.gills.teeth', spores: ['g.spores.sparkle', 'g.spores.none'], roots: 'g.roots.stump', ring: 'g.ring.cuff', shelves: ['g.shelves.bracket', 'g.shelves.none'], veil: ['g.veil.curtain', 'g.veil.none'], glow: ['g.glow.motes', 'g.glow.none'], pattern: ['g.pattern.scales', 'g.pattern.none'] },
     palette: { c1: [42, 53, 36], c2: [37, 49, 26], c3: [50, 91, 56], eye: [52, 86, 50] }, vary: { h: 8, s: 6, l: 5 },
     traits: T([0.5, 0.8], MID, [0.45, 0.7], MID, MID, [0.45, 0.75]),
-    learnset: [[1,'flurry'],[1,'glare'],[6,'shock_palm'],[11,'mend'],[16,'blindside'],[22,'brace'],[28,'dusk_slash'],[34,'shadow_shot'],[40,'whetting'],[46,'belly_flop'],[52,'all_out_brawl']],
+    learnset: [[1,'flurry'],[1,'glare'],[6,'shock_palm'],[11,'mend'],[16,'blindside'],[22,'brace'],[28,'dusk_slash'],[34,'shadow_shot'],[38,'faster_warning'],[40,'whetting'],[46,'belly_flop'],[52,'all_out_brawl']],
     abilities: ['grit','heavy_hands'],
     desc: 'The red one you were warned about. It is faster than the warning.',
   },
@@ -14622,7 +14626,7 @@ const SPECIES = [
     recipe: { body: 'w.body.knot', head: 'w.head.frilled', eyes: 'w.eyes.slit', maw: 'w.maw.roar', whiskers: ['w.whiskers.curled', 'w.whiskers.none'], legs: 'w.legs.talon', tail: 'w.tail.curl', mane: ['w.mane.flames', 'w.mane.none'], plates: 'w.plates.none', horns: 'w.horns.none', glow: ['w.glow.halo', 'w.glow.none'], bands: 'w.bands.dorsal' },
     palette: { c1: [253, 32, 45], c2: [258, 35, 31], c3: [271, 89, 68], eye: [274, 92, 73] }, vary: { h: 8, s: 6, l: 5 },
     traits: T([0.5, 0.8], [0.5, 0.75], MID, MID, MID, [0.45, 0.75]),
-    learnset: [[1,'wraith_touch'],[1,'meditate'],[6,'flurry'],[11,'brace'],[16,'curse_bolt'],[22,'whetting'],[28,'echo_burst'],[34,'headbonk'],[40,'glare'],[46,'mind_crush'],[52,'psystorm']],
+    learnset: [[1,'wraith_touch'],[1,'meditate'],[6,'flurry'],[11,'brace'],[16,'curse_bolt'],[22,'whetting'],[28,'echo_burst'],[34,'headbonk'],[38,'star_gap'],[40,'glare'],[46,'mind_crush'],[52,'psystorm']],
     abilities: ['restless','finesse'],
     desc: 'A wyrm made of the gap between stars. It is very long and not entirely here.',
   },
@@ -14702,7 +14706,7 @@ const SPECIES = [
     recipe: { body: 'w.body.stout', head: 'w.head.blunt', eyes: 'w.eyes.fierce', maw: 'w.maw.fangs', whiskers: ['w.whiskers.curled', 'w.whiskers.none'], legs: 'w.legs.claw', tail: 'w.tail.flame', mane: 'w.mane.none', plates: ['w.plates.spikes', 'w.plates.none'], horns: ['w.horns.straight', 'w.horns.none'], glow: ['w.glow.halo', 'w.glow.none'], bands: ['w.bands.scales', 'w.bands.none'] },
     palette: { c1: [28, 57, 41], c2: [22, 54, 26], c3: [34, 86, 58], eye: [27, 94, 51] }, vary: { h: 8, s: 6, l: 5 },
     traits: T([0.5, 0.8], MID, [0.45, 0.7], MID, MID, [0.45, 0.75]),
-    learnset: [[1,'flurry'],[1,'glare'],[6,'shock_palm'],[11,'mend'],[16,'blindside'],[22,'brace'],[28,'dusk_slash'],[34,'shadow_shot'],[40,'scheme'],[46,'belly_flop'],[52,'all_out_brawl']],
+    learnset: [[1,'flurry'],[1,'glare'],[6,'shock_palm'],[11,'mend'],[16,'blindside'],[22,'brace'],[28,'dusk_slash'],[34,'shadow_shot'],[38,'quiet_gorge'],[40,'scheme'],[46,'belly_flop'],[52,'all_out_brawl']],
     abilities: ['heavy_hands','swagger'],
     desc: 'Red as a cut and just as quick. The gorge goes quiet when it hunts.',
   },
@@ -14763,7 +14767,7 @@ const SPECIES = [
     recipe: { body: 'd.body.armour', head: 'd.head.croc', eyes: 'd.eyes.glow', jaw: 'd.jaw.fangs', horns: ['d.horns.ram', 'd.horns.none'], wings: 'd.wings.fairy', legsFront: 'd.legsFront.claw', legsBack: 'd.legsBack.paw', tail: 'd.tail.flame', spines: 'd.spines.ridge', chest: ['d.chest.dorsal', 'd.chest.none'], breath: 'd.breath.void' },
     palette: { c1: [265, 29, 41], c2: [274, 33, 30], c3: [288, 83, 71], eye: [292, 89, 73] }, vary: { h: 8, s: 6, l: 5 },
     traits: T([0.5, 0.8], [0.5, 0.75], MID, MID, MID, [0.45, 0.75]),
-    learnset: [[1,'wraith_touch'],[1,'glare'],[6,'flurry'],[11,'brace'],[16,'curse_bolt'],[22,'lull'],[28,'echo_burst'],[34,'headbonk'],[40,'blank_mind'],[46,'mind_crush'],[52,'psystorm']],
+    learnset: [[1,'wraith_touch'],[1,'glare'],[6,'flurry'],[11,'brace'],[16,'curse_bolt'],[22,'lull'],[28,'echo_burst'],[34,'headbonk'],[38,'colourless_breath'],[40,'blank_mind'],[46,'mind_crush'],[52,'psystorm']],
     abilities: ['menace','hawkeye'],
     desc: 'A dragon-shaped hole in the sky. Its breath takes the colour out of things.',
   },
@@ -14843,7 +14847,7 @@ const SPECIES = [
     recipe: { body: 'd.body.brute', head: 'd.head.blunt', eyes: 'd.eyes.fierce', jaw: 'd.jaw.tusks', horns: 'd.horns.single', wings: 'd.wings.tattered', legsFront: 'd.legsFront.claw', legsBack: 'd.legsBack.stout', tail: 'd.tail.club', spines: 'd.spines.frill', chest: ['d.chest.stripes', 'd.chest.none'], breath: ['d.breath.flame', 'd.breath.none'] },
     palette: { c1: [36, 53, 41], c2: [37, 53, 30], c3: [47, 89, 58], eye: [47, 88, 49] }, vary: { h: 8, s: 6, l: 5 },
     traits: T([0.5, 0.8], MID, [0.45, 0.7], MID, MID, [0.45, 0.75]),
-    learnset: [[1,'flurry'],[1,'glare'],[6,'shock_palm'],[11,'yowl'],[16,'blindside'],[22,'brace'],[28,'dusk_slash'],[34,'shadow_shot'],[40,'mend'],[46,'belly_flop'],[52,'all_out_brawl']],
+    learnset: [[1,'flurry'],[1,'glare'],[6,'shock_palm'],[11,'yowl'],[16,'blindside'],[22,'brace'],[28,'dusk_slash'],[34,'shadow_shot'],[38,'second_try'],[40,'mend'],[46,'belly_flop'],[52,'all_out_brawl']],
     abilities: ['daredevil','second_wind'],
     desc: 'The old executioner of the peaks. It has never needed a second try.',
   },
@@ -14904,7 +14908,7 @@ const SPECIES = [
     recipe: { body: 'k.body.coil', head: 'k.head.serpent', eyes: 'k.eyes.hollow', jaw: 'k.jaw.fangs', legsFront: 'k.legsFront.heavy', legsBack: 'k.legsBack.heavy', tail: 'k.tail.rattle', horns: ['k.horns.ram', 'k.horns.none'], wings: ['k.wings.wide', 'k.wings.none'], light: ['k.light.star', 'k.light.none'], shroud: ['k.shroud.mist', 'k.shroud.none'], cracks: ['k.cracks.cracks', 'k.cracks.none'] },
     palette: { c1: [248, 27, 45], c2: [254, 35, 28], c3: [263, 82, 68], eye: [272, 93, 71] }, vary: { h: 8, s: 6, l: 5 },
     traits: T([0.5, 0.8], [0.5, 0.75], MID, MID, MID, [0.45, 0.75]),
-    learnset: [[1,'wraith_touch'],[1,'haunt'],[6,'flurry'],[11,'blank_mind'],[16,'curse_bolt'],[22,'mend'],[28,'echo_burst'],[34,'headbonk'],[40,'whetting'],[46,'mind_crush'],[52,'psystorm']],
+    learnset: [[1,'wraith_touch'],[1,'haunt'],[6,'flurry'],[11,'blank_mind'],[16,'curse_bolt'],[22,'mend'],[28,'echo_burst'],[34,'headbonk'],[38,'marrow_reader'],[40,'whetting'],[46,'mind_crush'],[52,'psystorm']],
     abilities: ['steady','finesse'],
     desc: 'The marrow went and something else moved in. It reads the dead of the barrow like a book.',
   },
@@ -14984,7 +14988,7 @@ const SPECIES = [
     recipe: { body: 'k.body.barrel', head: 'k.head.brute', eyes: 'k.eyes.twin', jaw: 'k.jaw.needle', legsFront: 'k.legsFront.heavy', legsBack: 'k.legsBack.heavy', tail: 'k.tail.club', horns: 'k.horns.none', wings: ['k.wings.ribbed', 'k.wings.none'], light: 'k.light.ember', shroud: ['k.shroud.tatters', 'k.shroud.none'], cracks: ['k.cracks.bands', 'k.cracks.none'] },
     palette: { c1: [20, 52, 40], c2: [15, 48, 29], c3: [30, 91, 53], eye: [27, 87, 52] }, vary: { h: 8, s: 6, l: 5 },
     traits: T([0.5, 0.8], MID, [0.45, 0.7], MID, MID, [0.45, 0.75]),
-    learnset: [[1,'flurry'],[1,'whetting'],[6,'shock_palm'],[11,'scheme'],[16,'blindside'],[22,'muscle_up'],[28,'dusk_slash'],[34,'shadow_shot'],[40,'yowl'],[46,'belly_flop'],[52,'all_out_brawl']],
+    learnset: [[1,'flurry'],[1,'whetting'],[6,'shock_palm'],[11,'scheme'],[16,'blindside'],[22,'muscle_up'],[28,'dusk_slash'],[34,'shadow_shot'],[38,'dry_bone_haymaker'],[40,'yowl'],[46,'belly_flop'],[52,'all_out_brawl']],
     abilities: ['daredevil','second_wind'],
     desc: 'The bones are dry but something red still moves in them. It hits like a live thing.',
   },
@@ -15045,7 +15049,7 @@ const SPECIES = [
     recipe: { body: 'n.body.broad', head: 'n.head.snub', ears: 'n.ears.leaf', eyes: 'n.eyes.glow', muzzle: 'n.muzzle.leaf', wings: 'n.wings.ragged', legs: 'n.legs.tucked', tail: 'n.tail.whip', crest: 'n.crest.leaf', ruff: 'n.ruff.petals', thumbs: 'n.thumbs.glowing', markings: 'n.markings.belly' },
     palette: { c1: [262, 28, 41], c2: [267, 34, 33], c3: [282, 89, 69], eye: [281, 91, 70] }, vary: { h: 8, s: 6, l: 5 },
     traits: T([0.5, 0.8], [0.5, 0.75], MID, MID, MID, [0.45, 0.75]),
-    learnset: [[1,'wraith_touch'],[1,'meditate'],[6,'flurry'],[11,'blank_mind'],[16,'curse_bolt'],[22,'haunt'],[28,'echo_burst'],[34,'headbonk'],[40,'mend'],[46,'mind_crush'],[52,'psystorm']],
+    learnset: [[1,'wraith_touch'],[1,'meditate'],[6,'flurry'],[11,'blank_mind'],[16,'curse_bolt'],[22,'haunt'],[28,'echo_burst'],[34,'headbonk'],[38,'nowhere_echo'],[40,'mend'],[46,'mind_crush'],[52,'psystorm']],
     abilities: ['restless','menace'],
     desc: 'Its echoes come back from places that are not there. It navigates by them anyway.',
   },
@@ -15125,7 +15129,7 @@ const SPECIES = [
     recipe: { body: 'n.body.pear', head: 'n.head.wide', ears: 'n.ears.leaf', eyes: 'n.eyes.slit', muzzle: 'n.muzzle.grin', wings: 'n.wings.hooked', legs: 'n.legs.clawed', tail: 'n.tail.tufted', crest: 'n.crest.spikes', ruff: ['n.ruff.spiky', 'n.ruff.none'], thumbs: ['n.thumbs.double', 'n.thumbs.none'], markings: 'n.markings.collar' },
     palette: { c1: [37, 54, 36], c2: [28, 50, 26], c3: [37, 91, 57], eye: [42, 89, 54] }, vary: { h: 8, s: 6, l: 5 },
     traits: T([0.5, 0.8], MID, [0.45, 0.7], MID, MID, [0.45, 0.75]),
-    learnset: [[1,'flurry'],[1,'muscle_up'],[6,'shock_palm'],[11,'whetting'],[16,'blindside'],[22,'scheme'],[28,'dusk_slash'],[34,'shadow_shot'],[40,'brace'],[46,'belly_flop'],[52,'all_out_brawl']],
+    learnset: [[1,'flurry'],[1,'muscle_up'],[6,'shock_palm'],[11,'whetting'],[16,'blindside'],[22,'scheme'],[28,'dusk_slash'],[34,'shadow_shot'],[38,'fight_back_drink'],[40,'brace'],[46,'belly_flop'],[52,'all_out_brawl']],
     abilities: ['swagger','heavy_hands'],
     desc: 'The one the other bats fly away from. Drinks from things that fight back.',
   },
@@ -15186,7 +15190,7 @@ const SPECIES = [
     recipe: { body: 'c.body.geode', head: 'c.head.cluster', eyes: 'c.eyes.star', mouth: 'c.mouth.grin', legsFront: 'c.legsFront.shard', legsBack: 'c.legsBack.crystal', spines: ['c.spines.low', 'c.spines.none'], crown: ['c.crown.halo', 'c.crown.none'], tail: 'c.tail.stub', seam: 'c.seam.none', facets: 'c.facets.diamonds', aura: ['c.aura.glow', 'c.aura.none'] },
     palette: { c1: [272, 25, 42], c2: [282, 30, 34], c3: [294, 82, 73], eye: [300, 92, 70] }, vary: { h: 8, s: 6, l: 5 },
     traits: T([0.5, 0.8], [0.5, 0.75], MID, MID, MID, [0.45, 0.75]),
-    learnset: [[1,'wraith_touch'],[1,'glare'],[6,'flurry'],[11,'meditate'],[16,'curse_bolt'],[22,'yowl'],[28,'echo_burst'],[34,'headbonk'],[40,'brace'],[46,'mind_crush'],[52,'psystorm']],
+    learnset: [[1,'wraith_touch'],[1,'glare'],[6,'flurry'],[11,'meditate'],[16,'curse_bolt'],[22,'yowl'],[28,'echo_burst'],[34,'headbonk'],[38,'light_sink'],[40,'brace'],[46,'mind_crush'],[52,'psystorm']],
     abilities: ['menace','lucky_streak'],
     desc: 'A crystal that is darker inside than out. Light goes in and does not report back.',
   },
@@ -15226,7 +15230,7 @@ const SPECIES = [
     recipe: { body: 'c.body.cluster', head: 'c.head.cluster', eyes: 'c.eyes.gem', mouth: 'c.mouth.flat', legsFront: 'c.legsFront.shard', legsBack: 'c.legsBack.crystal', spines: ['c.spines.cluster', 'c.spines.none'], crown: ['c.crown.cluster', 'c.crown.none'], tail: 'c.tail.cluster', seam: 'c.seam.rings', facets: 'c.facets.none', aura: 'c.aura.ring' },
     palette: { c1: [202, 44, 69], c2: [202, 40, 53], c3: [295, 67, 74], eye: [290, 79, 70] }, vary: { h: 8, s: 6, l: 5 },
     traits: T([0.5, 0.8], [0.5, 0.75], MID, MID, MID, [0.45, 0.75]),
-    learnset: [[1,'mind_jolt'],[1,'meditate'],[6,'flurry'],[11,'yowl'],[16,'primal_surge'],[22,'lull'],[28,'echo_burst'],[34,'rock_smash'],[40,'glare'],[46,'mind_crush'],[52,'psystorm']],
+    learnset: [[1,'mind_jolt'],[1,'meditate'],[6,'flurry'],[11,'yowl'],[16,'primal_surge'],[22,'lull'],[28,'echo_burst'],[34,'rock_smash'],[38,'lamp_read'],[40,'glare'],[46,'mind_crush'],[52,'psystorm']],
     abilities: ['finesse','stonewall'],
     desc: 'The purest crystal in the caverns and it knows it. Reads you like a lamp reads a lens.',
   },
@@ -15266,7 +15270,7 @@ const SPECIES = [
     recipe: { body: 'c.body.shard', head: 'c.head.spike', eyes: 'c.eyes.slit', mouth: 'c.mouth.grin', legsFront: 'c.legsFront.shard', legsBack: 'c.legsBack.shard', spines: 'c.spines.ridge', crown: 'c.crown.twin', tail: 'c.tail.spike', seam: 'c.seam.rings', facets: ['c.facets.shards', 'c.facets.none'], aura: 'c.aura.ring' },
     palette: { c1: [46, 57, 38], c2: [43, 53, 27], c3: [53, 94, 57], eye: [54, 90, 51] }, vary: { h: 8, s: 6, l: 5 },
     traits: T([0.5, 0.8], MID, [0.45, 0.7], MID, MID, [0.45, 0.75]),
-    learnset: [[1,'flurry'],[1,'scheme'],[6,'shock_palm'],[11,'glare'],[16,'blindside'],[22,'muscle_up'],[28,'dusk_slash'],[34,'shadow_shot'],[40,'whetting'],[46,'belly_flop'],[52,'all_out_brawl']],
+    learnset: [[1,'flurry'],[1,'scheme'],[6,'shock_palm'],[11,'glare'],[16,'blindside'],[22,'muscle_up'],[28,'dusk_slash'],[34,'shadow_shot'],[38,'cut_back'],[40,'whetting'],[46,'belly_flop'],[52,'all_out_brawl']],
     abilities: ['swagger','momentum'],
     desc: 'Red crystal that fights like a living thing. Cut it and it cuts back.',
   },
@@ -15327,7 +15331,7 @@ const SPECIES = [
     recipe: { body: 'y.body.spiky', head: 'y.head.bulb', eyes: 'y.eyes.glow', mandibles: 'y.mandibles.needles', antennae: 'y.antennae.curled', legs: 'y.legs.paddle', tail: 'y.tail.plume', plates: ['y.plates.dome', 'y.plates.none'], bristles: ['y.bristles.tufted', 'y.bristles.none'], glow: ['y.glow.halo', 'y.glow.none'], bands: 'y.bands.none', venom: 'y.venom.glow' },
     palette: { c1: [259, 32, 42], c2: [258, 30, 29], c3: [272, 84, 70], eye: [282, 88, 73] }, vary: { h: 8, s: 6, l: 5 },
     traits: T([0.5, 0.8], [0.5, 0.75], MID, MID, MID, [0.45, 0.75]),
-    learnset: [[1,'wraith_touch'],[1,'glare'],[6,'flurry'],[11,'lull'],[16,'curse_bolt'],[22,'quicken'],[28,'echo_burst'],[34,'headbonk'],[40,'blank_mind'],[46,'mind_crush'],[52,'psystorm']],
+    learnset: [[1,'wraith_touch'],[1,'glare'],[6,'flurry'],[11,'lull'],[16,'curse_bolt'],[22,'quicken'],[28,'echo_burst'],[34,'headbonk'],[38,'two_answers'],[40,'blank_mind'],[46,'mind_crush'],[52,'psystorm']],
     abilities: ['lucky_streak','mirror_scale'],
     desc: 'Its segments fade in and out. Count the legs twice and get two answers.',
   },
@@ -15407,7 +15411,7 @@ const SPECIES = [
     recipe: { body: 'y.body.spiky', head: 'y.head.capsule', eyes: 'y.eyes.slit', mandibles: 'y.mandibles.hooks', antennae: 'y.antennae.twin', legs: 'y.legs.thick', tail: 'y.tail.spike', plates: 'y.plates.spikes', bristles: ['y.bristles.spiky', 'y.bristles.none'], glow: 'y.glow.none', bands: 'y.bands.chevrons', venom: 'y.venom.none' },
     palette: { c1: [26, 54, 38], c2: [22, 51, 28], c3: [36, 92, 52], eye: [33, 87, 52] }, vary: { h: 8, s: 6, l: 5 },
     traits: T([0.5, 0.8], MID, [0.45, 0.7], MID, MID, [0.45, 0.75]),
-    learnset: [[1,'flurry'],[1,'scheme'],[6,'shock_palm'],[11,'brace'],[16,'blindside'],[22,'whetting'],[28,'dusk_slash'],[34,'shadow_shot'],[40,'muscle_up'],[46,'belly_flop'],[52,'all_out_brawl']],
+    learnset: [[1,'flurry'],[1,'scheme'],[6,'shock_palm'],[11,'brace'],[16,'blindside'],[22,'whetting'],[28,'dusk_slash'],[34,'shadow_shot'],[38,'tightening_coil'],[40,'muscle_up'],[46,'belly_flop'],[52,'all_out_brawl']],
     abilities: ['second_wind','heavy_hands'],
     desc: 'Red-banded and fast. Its coils tighten faster than anything can slip them.',
   },
@@ -15468,7 +15472,7 @@ const SPECIES = [
     recipe: { body: 'e.body.lanky', head: 'e.head.brute', eyes: 'e.eyes.three', mouth: 'e.mouth.tusks', horns: ['e.horns.ram', 'e.horns.none'], arms: 'e.arms.long', legs: 'e.legs.thin', tail: 'e.tail.thick', wings: 'e.wings.feathered', hand: 'e.hand.chain', marks: 'e.marks.none', aura: 'e.aura.halo' },
     palette: { c1: [266, 30, 44], c2: [274, 33, 28], c3: [290, 84, 72], eye: [294, 89, 76] }, vary: { h: 8, s: 6, l: 5 },
     traits: T([0.5, 0.8], [0.5, 0.75], MID, MID, MID, [0.45, 0.75]),
-    learnset: [[1,'wraith_touch'],[1,'glare'],[6,'flurry'],[11,'lull'],[16,'curse_bolt'],[22,'quicken'],[28,'echo_burst'],[34,'headbonk'],[40,'yowl'],[46,'mind_crush'],[52,'psystorm']],
+    learnset: [[1,'wraith_touch'],[1,'glare'],[6,'flurry'],[11,'lull'],[16,'curse_bolt'],[22,'quicken'],[28,'echo_burst'],[34,'headbonk'],[38,'sold_shadow'],[40,'yowl'],[46,'mind_crush'],[52,'psystorm']],
     abilities: ['finesse','steady'],
     desc: 'A fiend that sold its shadow and its shape. What is left still signs contracts.',
   },
@@ -15548,7 +15552,7 @@ const SPECIES = [
     recipe: { body: 'e.body.brute', head: 'e.head.brute', eyes: 'e.eyes.ember', mouth: 'e.mouth.fangs', horns: 'e.horns.none', arms: 'e.arms.clawed', legs: 'e.legs.brawny', tail: 'e.tail.none', wings: ['e.wings.small', 'e.wings.none'], hand: 'e.hand.claws', marks: 'e.marks.scars', aura: 'e.aura.none' },
     palette: { c1: [41, 58, 38], c2: [34, 47, 26], c3: [49, 88, 58], eye: [46, 94, 53] }, vary: { h: 8, s: 6, l: 5 },
     traits: T([0.5, 0.8], MID, [0.45, 0.7], MID, MID, [0.45, 0.75]),
-    learnset: [[1,'flurry'],[1,'whetting'],[6,'shock_palm'],[11,'mend'],[16,'blindside'],[22,'muscle_up'],[28,'dusk_slash'],[34,'shadow_shot'],[40,'scheme'],[46,'belly_flop'],[52,'all_out_brawl']],
+    learnset: [[1,'flurry'],[1,'whetting'],[6,'shock_palm'],[11,'mend'],[16,'blindside'],[22,'muscle_up'],[28,'dusk_slash'],[34,'shadow_shot'],[38,'scar_collector'],[40,'scheme'],[46,'belly_flop'],[52,'all_out_brawl']],
     abilities: ['heavy_hands','swagger'],
     desc: 'The champion of the sinks. Every scar on it belongs to someone who tried.',
   },
@@ -15609,7 +15613,7 @@ const SPECIES = [
     recipe: { body: 's.body.wisp', eyes: 's.eyes.hollow', mouth: 's.mouth.o', arms: 's.arms.mist', tail: 's.tail.spiral', hood: 's.hood.none', chains: ['s.chains.shackles', 's.chains.none'], lantern: ['s.lantern.candle', 's.lantern.none'], aura: ['s.aura.glow', 's.aura.none'], tatters: ['s.tatters.trail', 's.tatters.none'], mask: ['s.mask.porcelain', 's.mask.none'], veil: 's.veil.stars' },
     palette: { c1: [248, 25, 46], c2: [256, 36, 33], c3: [268, 84, 72], eye: [274, 86, 74] }, vary: { h: 8, s: 6, l: 5 },
     traits: T([0.5, 0.8], [0.5, 0.75], MID, MID, MID, [0.45, 0.75]),
-    learnset: [[1,'wraith_touch'],[1,'glare'],[6,'flurry'],[11,'haunt'],[16,'curse_bolt'],[22,'quicken'],[28,'echo_burst'],[34,'headbonk'],[40,'whetting'],[46,'mind_crush'],[52,'psystorm']],
+    learnset: [[1,'wraith_touch'],[1,'glare'],[6,'flurry'],[11,'haunt'],[16,'curse_bolt'],[22,'quicken'],[28,'echo_burst'],[34,'headbonk'],[38,'something_behind'],[40,'whetting'],[46,'mind_crush'],[52,'psystorm']],
     abilities: ['lucky_streak','menace'],
     desc: 'A shroud with nothing in it and something behind it. The marsh goes quiet when it passes.',
   },
@@ -15689,7 +15693,7 @@ const SPECIES = [
     recipe: { body: 's.body.wraith', eyes: 's.eyes.slit', mouth: 's.mouth.fangs', arms: 's.arms.claws', tail: 's.tail.drips', hood: ['s.hood.horns', 's.hood.none'], chains: 's.chains.none', lantern: ['s.lantern.key', 's.lantern.none'], aura: ['s.aura.motes', 's.aura.none'], tatters: ['s.tatters.ribbons', 's.tatters.none'], mask: ['s.mask.porcelain', 's.mask.none'], veil: ['s.veil.spots', 's.veil.none'] },
     palette: { c1: [23, 58, 39], c2: [21, 49, 28], c3: [27, 90, 56], eye: [32, 93, 52] }, vary: { h: 8, s: 6, l: 5 },
     traits: T([0.5, 0.8], MID, [0.45, 0.7], MID, MID, [0.45, 0.75]),
-    learnset: [[1,'flurry'],[1,'whetting'],[6,'shock_palm'],[11,'glare'],[16,'blindside'],[22,'mend'],[28,'dusk_slash'],[34,'shadow_shot'],[40,'scheme'],[46,'belly_flop'],[52,'all_out_brawl']],
+    learnset: [[1,'flurry'],[1,'whetting'],[6,'shock_palm'],[11,'glare'],[16,'blindside'],[22,'mend'],[28,'dusk_slash'],[34,'shadow_shot'],[38,'vigil_fists'],[40,'scheme'],[46,'belly_flop'],[52,'all_out_brawl']],
     abilities: ['swagger','heavy_hands'],
     desc: 'Wears the red of the vigil it kept. Still keeps it, with its fists.',
   },
@@ -15890,7 +15894,7 @@ const SPECIES = [
     recipe: { body: 'm.body.rabbit', head: 'm.head.bear', ears: 'm.ears.bear', eyes: 'm.eyes.slit', muzzle: 'm.muzzle.wolf', legsFront: 'm.legsFront.bear', legsBack: 'm.legsBack.rabbit', tail: 'm.tail.fox', mane: ['m.mane.cat', 'm.mane.none'], horns: ['m.horns.antlers', 'm.horns.none'], back: ['m.back.flame', 'm.back.none'], markings: ['m.markings.stripes', 'm.markings.none'] },
     palette: { c1: [6, 76, 47], c2: [354, 69, 34], c3: [24, 100, 56], eye: [35, 98, 50] }, vary: { h: 8, s: 6, l: 5 },
     traits: T([0.5, 0.8], MID, [0.45, 0.7], MID, MID, [0.45, 0.75]),
-    learnset: [[1,'blitz_punch'],[1,'glare'],[6,'cinder'],[11,'muscle_up'],[16,'ember_bite'],[22,'ghostflame'],[28,'blur'],[34,'echo_burst'],[40,'brace'],[46,'belly_flop'],[52,'inferno_charge']],
+    learnset: [[1,'blitz_punch'],[1,'glare'],[6,'cinder'],[11,'muscle_up'],[16,'ember_bite'],[22,'ghostflame'],[28,'blur'],[34,'echo_burst'],[38,'smoulder_swipe'],[40,'brace'],[46,'belly_flop'],[52,'inferno_charge']],
     abilities: ['grit','ember_heart'],
     desc: 'A bear with paws that smoulder. The hive it robbed is still smoking.',
   },
@@ -15900,7 +15904,7 @@ const SPECIES = [
     recipe: { body: 'm.body.cat', head: 'm.head.rabbit', ears: 'm.ears.rabbit', eyes: 'm.eyes.bead', muzzle: 'm.muzzle.deer', legsFront: 'm.legsFront.fox', legsBack: 'm.legsBack.bear', tail: 'm.tail.rabbit', mane: ['m.mane.deer', 'm.mane.none'], horns: 'm.horns.nubs', back: 'm.back.none', markings: ['m.markings.star', 'm.markings.none'] },
     palette: { c1: [185, 47, 85], c2: [189, 44, 63], c3: [176, 90, 83], eye: [191, 81, 52] }, vary: { h: 8, s: 6, l: 5 },
     traits: T([0.5, 0.8], [0.5, 0.75], MID, [0.5, 0.8], MID, [0.45, 0.75]),
-    learnset: [[1,'bump'],[1,'brace'],[6,'dash'],[11,'whetting'],[16,'chill_gust'],[22,'glare'],[28,'dazzle'],[34,'headbonk'],[40,'moonbathe'],[46,'glacier_ray'],[52,'lunar_burst']],
+    learnset: [[1,'bump'],[1,'brace'],[6,'dash'],[11,'whetting'],[16,'chill_gust'],[22,'glare'],[28,'dazzle'],[34,'headbonk'],[38,'northern_veil'],[40,'moonbathe'],[46,'glacier_ray'],[52,'lunar_burst']],
     abilities: ['blubber','regrowth'],
     desc: 'A lynx wearing the northern lights. Seen once a winter, believed twice.',
   },
@@ -15910,7 +15914,7 @@ const SPECIES = [
     recipe: { body: 'm.body.bear', head: 'm.head.mouse', ears: 'm.ears.bear', eyes: 'm.eyes.sleepy', muzzle: 'm.muzzle.deer', legsFront: 'm.legsFront.mouse', legsBack: 'm.legsBack.cat', tail: 'm.tail.bear', mane: 'm.mane.none', horns: ['m.horns.ram', 'm.horns.none'], back: 'm.back.flame', markings: ['m.markings.rings', 'm.markings.none'] },
     palette: { c1: [14, 49, 55], c2: [9, 39, 37], c3: [29, 66, 63], eye: [23, 56, 40] }, vary: { h: 8, s: 6, l: 5 },
     traits: T([0.5, 0.8], [0.45, 0.7], [0.45, 0.7], MID, MID, [0.45, 0.75]),
-    learnset: [[1,'bolt_jab'],[1,'brace'],[6,'mud_fling'],[11,'glare'],[16,'stampede'],[22,'mend'],[28,'chrome_slam'],[34,'bone_rattle'],[40,'yowl'],[46,'belly_flop'],[52,'bull_rush']],
+    learnset: [[1,'bolt_jab'],[1,'brace'],[6,'mud_fling'],[11,'glare'],[16,'stampede'],[22,'mend'],[28,'chrome_slam'],[34,'bone_rattle'],[38,'furrow_charge'],[40,'yowl'],[46,'belly_flop'],[52,'bull_rush']],
     abilities: ['bulwark','grit'],
     desc: 'Ploughs the hillside with a snout of iron. Farmers follow it with seed.',
   },
@@ -16101,7 +16105,7 @@ const SPECIES = [
     recipe: { body: 'r.body.serpent', head: 'r.head.raptor', eyes: 'r.eyes.turret', jaw: 'r.jaw.grin', crest: ['r.crest.spikes', 'r.crest.none'], legsFront: 'r.legsFront.chameleon', legsBack: 'r.legsBack.dragon', tail: 'r.tail.lizard', back: 'r.back.plates', wings: ['r.wings.flame', 'r.wings.none'], throat: 'r.throat.none', scales: ['r.scales.scutes', 'r.scales.none'] },
     palette: { c1: [12, 79, 44], c2: [5, 68, 34], c3: [40, 97, 59], eye: [42, 97, 51] }, vary: { h: 8, s: 6, l: 5 },
     traits: T([0.5, 0.8], MID, [0.45, 0.7], MID, MID, [0.45, 0.75]),
-    learnset: [[1,'bump'],[1,'brace'],[6,'cinder'],[11,'smooth_stone'],[16,'rock_smash'],[22,'yowl'],[28,'blur'],[34,'stone_trap'],[40,'mend'],[46,'belly_flop'],[52,'boulder_bash']],
+    learnset: [[1,'bump'],[1,'brace'],[6,'cinder'],[11,'smooth_stone'],[16,'rock_smash'],[22,'yowl'],[28,'blur'],[34,'stone_trap'],[38,'lava_wallow'],[40,'mend'],[46,'belly_flop'],[52,'boulder_bash']],
     abilities: ['ember_heart','warm_core'],
     desc: 'The mountain\'s own lizard. Sleeps in lava and wakes up annoyed.',
   },
@@ -16111,7 +16115,7 @@ const SPECIES = [
     recipe: { body: 'r.body.chameleon', head: 'r.head.dragon', eyes: 'r.eyes.gem', jaw: 'r.jaw.grin', crest: 'r.crest.spikes', legsFront: 'r.legsFront.chameleon', legsBack: 'r.legsBack.raptor', tail: 'r.tail.croc', back: ['r.back.crystals', 'r.back.none'], wings: 'r.wings.none', throat: 'r.throat.dewlap', scales: ['r.scales.spots', 'r.scales.none'] },
     palette: { c1: [296, 41, 64], c2: [296, 37, 50], c3: [51, 94, 76], eye: [296, 83, 56] }, vary: { h: 8, s: 6, l: 5 },
     traits: T([0.5, 0.8], [0.5, 0.75], MID, MID, MID, [0.45, 0.75]),
-    learnset: [[1,'mind_jolt'],[1,'brace'],[6,'bump'],[11,'yowl'],[16,'chill_gust'],[22,'glare'],[28,'psi_shock'],[34,'headbonk'],[40,'quicken'],[46,'glacier_ray'],[52,'psystorm']],
+    learnset: [[1,'mind_jolt'],[1,'brace'],[6,'bump'],[11,'yowl'],[16,'chill_gust'],[22,'glare'],[28,'psi_shock'],[34,'headbonk'],[38,'frost_mirror'],[40,'quicken'],[46,'glacier_ray'],[52,'psystorm']],
     abilities: ['finesse','lucky_streak'],
     desc: 'Scales like frost on glass. You see yourself in it, then you see nothing.',
   },
@@ -16121,7 +16125,7 @@ const SPECIES = [
     recipe: { body: 'r.body.lizard', head: 'r.head.lizard', eyes: 'r.eyes.bead', jaw: 'r.jaw.fangs', crest: ['r.crest.horns', 'r.crest.none'], legsFront: 'r.legsFront.chameleon', legsBack: 'r.legsBack.dragon', tail: 'r.tail.lizard', back: ['r.back.ridge', 'r.back.none'], wings: 'r.wings.leaf', throat: 'r.throat.none', scales: 'r.scales.saddle' },
     palette: { c1: [46, 84, 55], c2: [38, 70, 45], c3: [50, 100, 70], eye: [42, 90, 44] }, vary: { h: 8, s: 6, l: 5 },
     traits: T([0.5, 0.8], MID, MID, MID, MID, [0.45, 0.75]),
-    learnset: [[1,'zap'],[1,'whetting'],[6,'bump'],[11,'yowl'],[16,'static_net'],[22,'glare'],[28,'wyrm_breath'],[34,'headbonk'],[40,'wyrm_dance'],[46,'bellow'],[52,'star_breath']],
+    learnset: [[1,'zap'],[1,'whetting'],[6,'bump'],[11,'yowl'],[16,'static_net'],[22,'glare'],[28,'wyrm_breath'],[34,'headbonk'],[38,'quill_lightning'],[40,'wyrm_dance'],[46,'bellow'],[52,'star_breath']],
     abilities: ['capacitor','momentum'],
     desc: 'Spits lightning from a crest of quills. The crags smell of storms after.',
   },
@@ -16312,7 +16316,7 @@ const SPECIES = [
     recipe: { body: 'f.body.puffer', eyes: 'f.eyes.glow', mouth: 'f.mouth.fangs', dorsal: 'f.dorsal.crest', pectoral: 'f.pectoral.wing', tail: 'f.tail.eel', belly: ['f.belly.paddle', 'f.belly.none'], gills: 'f.gills.none', crest: 'f.crest.none', barbels: ['f.barbels.tentacles', 'f.barbels.none'], spines: 'f.spines.none', pattern: ['f.pattern.scales', 'f.pattern.none'] },
     palette: { c1: [210, 62, 55], c2: [223, 60, 40], c3: [191, 78, 70], eye: [206, 83, 46] }, vary: { h: 8, s: 6, l: 5 },
     traits: T([0.5, 0.8], [0.5, 0.75], MID, MID, MID, [0.45, 0.75]),
-    learnset: [[1,'bump'],[1,'brace'],[6,'dash'],[11,'yowl'],[16,'ripple'],[22,'mend'],[28,'echo_burst'],[34,'wyrm_breath'],[40,'glare'],[46,'wyrm_pulse'],[52,'maelstrom']],
+    learnset: [[1,'bump'],[1,'brace'],[6,'dash'],[11,'yowl'],[16,'ripple'],[22,'mend'],[28,'echo_burst'],[34,'wyrm_breath'],[38,'yearly_surfacing'],[40,'glare'],[46,'wyrm_pulse'],[52,'maelstrom']],
     abilities: ['regrowth','keen_edge'],
     desc: 'The lagoon\'s old god. It surfaces once a year and the fishing is cancelled.',
   },
@@ -16322,7 +16326,7 @@ const SPECIES = [
     recipe: { body: 'f.body.betta', eyes: 'f.eyes.wide', mouth: 'f.mouth.smile', dorsal: 'f.dorsal.sail', pectoral: 'f.pectoral.wing', tail: 'f.tail.fan', belly: ['f.belly.anal', 'f.belly.none'], gills: 'f.gills.glow', crest: ['f.crest.plume', 'f.crest.none'], barbels: ['f.barbels.catfish', 'f.barbels.none'], spines: 'f.spines.none', pattern: ['f.pattern.glow', 'f.pattern.none'] },
     palette: { c1: [58, 86, 62], c2: [52, 66, 45], c3: [68, 96, 70], eye: [58, 88, 42] }, vary: { h: 8, s: 6, l: 5 },
     traits: T([0.5, 0.8], [0.45, 0.7], MID, MID, MID, [0.45, 0.75]),
-    learnset: [[1,'gale'],[1,'preen'],[6,'bump'],[11,'brace'],[16,'static_net'],[22,'numb_pulse'],[28,'wind_cutter'],[34,'sky_strike'],[40,'glare'],[46,'bellow'],[52,'tempest_shot']],
+    learnset: [[1,'gale'],[1,'preen'],[6,'bump'],[11,'brace'],[16,'static_net'],[22,'numb_pulse'],[28,'wind_cutter'],[34,'sky_strike'],[38,'thunderhead_fall'],[40,'glare'],[46,'bellow'],[52,'tempest_shot']],
     abilities: ['momentum','hover'],
     desc: 'A flying fish that fell out of a thunderhead and never came down.',
   },
@@ -16332,7 +16336,7 @@ const SPECIES = [
     recipe: { body: 'f.body.seahorse', eyes: 'f.eyes.deadeye', mouth: 'f.mouth.smile', dorsal: 'f.dorsal.ribbon', pectoral: 'f.pectoral.paddle', tail: 'f.tail.shark', belly: 'f.belly.flowing', gills: ['f.gills.armour', 'f.gills.none'], crest: ['f.crest.lure', 'f.crest.none'], barbels: ['f.barbels.beard', 'f.barbels.none'], spines: ['f.spines.armour', 'f.spines.none'], pattern: ['f.pattern.scales', 'f.pattern.none'] },
     palette: { c1: [263, 23, 68], c2: [270, 20, 46], c3: [156, 70, 59], eye: [155, 80, 55] }, vary: { h: 8, s: 6, l: 5 },
     traits: T([0.5, 0.8], MID, [0.45, 0.7], MID, MID, [0.45, 0.75]),
-    learnset: [[1,'cold_lick'],[1,'haunt'],[6,'shout'],[11,'grind_screech'],[16,'headbonk'],[22,'glare'],[28,'chrome_slam'],[34,'wraith_touch'],[40,'yowl'],[46,'belly_flop'],[52,'reckless_charge']],
+    learnset: [[1,'cold_lick'],[1,'haunt'],[6,'shout'],[11,'grind_screech'],[16,'headbonk'],[22,'glare'],[28,'chrome_slam'],[34,'wraith_touch'],[38,'rivet_jaws'],[40,'yowl'],[46,'belly_flop'],[52,'reckless_charge']],
     abilities: ['menace','heavy_hands'],
     desc: 'A pike that is all jaws and rivets. What it bites stays bitten.',
   },
@@ -16523,7 +16527,7 @@ const SPECIES = [
     recipe: { body: 'b.body.duck', head: 'b.head.parrot', eyes: 'b.eyes.sparkle', beak: 'b.beak.hooked', crest: 'b.crest.none', face: 'b.face.none', wings: 'b.wings.broad', tail: 'b.tail.wedge', legs: 'b.legs.feathered', chest: ['b.chest.ruff', 'b.chest.none'], back: 'b.back.flame', pattern: ['b.pattern.belly', 'b.pattern.none'] },
     palette: { c1: [4, 77, 52], c2: [359, 64, 42], c3: [31, 97, 65], eye: [31, 98, 55] }, vary: { h: 8, s: 6, l: 5 },
     traits: T([0.5, 0.8], [0.5, 0.75], MID, MID, MID, [0.45, 0.75]),
-    learnset: [[1,'flare'],[1,'glare'],[6,'bump'],[11,'whetting'],[16,'echo_burst'],[22,'moonbathe'],[28,'heat_wave'],[34,'ember_bite'],[40,'brace'],[46,'lunar_burst'],[52,'meltdown']],
+    learnset: [[1,'flare'],[1,'glare'],[6,'bump'],[11,'whetting'],[16,'echo_burst'],[22,'moonbathe'],[28,'heat_wave'],[34,'ember_bite'],[38,'rekindle'],[40,'brace'],[46,'lunar_burst'],[52,'meltdown']],
     abilities: ['ember_heart','lucky_streak'],
     desc: 'Burns down to an egg every winter and hatches on the first warm day.',
   },
@@ -16533,7 +16537,7 @@ const SPECIES = [
     recipe: { body: 'b.body.owl', head: 'b.head.peacock', eyes: 'b.eyes.big', beak: 'b.beak.flat', crest: ['b.crest.tuft', 'b.crest.none'], face: ['b.face.cheeks', 'b.face.none'], wings: 'b.wings.broad', tail: 'b.tail.stubby', legs: 'b.legs.thin', chest: ['b.chest.scales', 'b.chest.none'], back: ['b.back.mantle', 'b.back.none'], pattern: 'b.pattern.none' },
     palette: { c1: [37, 85, 55], c2: [28, 68, 42], c3: [48, 98, 71], eye: [36, 93, 49] }, vary: { h: 8, s: 6, l: 5 },
     traits: T([0.5, 0.8], MID, MID, MID, MID, [0.45, 0.75]),
-    learnset: [[1,'zap'],[1,'whetting'],[6,'bump'],[11,'yowl'],[16,'static_net'],[22,'glare'],[28,'wyrm_breath'],[34,'headbonk'],[40,'brace'],[46,'bellow'],[52,'star_breath']],
+    learnset: [[1,'zap'],[1,'whetting'],[6,'bump'],[11,'yowl'],[16,'static_net'],[22,'glare'],[28,'wyrm_breath'],[34,'headbonk'],[38,'storm_shadow'],[40,'brace'],[46,'bellow'],[52,'star_breath']],
     abilities: ['swagger','restless'],
     desc: 'A bird the size of a barn with a storm for a shadow.',
   },
@@ -16543,7 +16547,7 @@ const SPECIES = [
     recipe: { body: 'b.body.penguin', head: 'b.head.penguin', eyes: 'b.eyes.ring', beak: 'b.beak.flat', crest: ['b.crest.tuft', 'b.crest.none'], face: 'b.face.beard', wings: 'b.wings.stubby', tail: 'b.tail.wedge', legs: 'b.legs.stilts', chest: ['b.chest.scales', 'b.chest.none'], back: 'b.back.icicles', pattern: 'b.pattern.none' },
     palette: { c1: [245, 18, 70], c2: [252, 22, 49], c3: [143, 70, 66], eye: [140, 80, 61] }, vary: { h: 8, s: 6, l: 5 },
     traits: T([0.5, 0.8], [0.5, 0.75], MID, MID, MID, [0.45, 0.75]),
-    learnset: [[1,'cold_lick'],[1,'glare'],[6,'bump'],[11,'yowl'],[16,'chill_gust'],[22,'haunt'],[28,'umbral_orb'],[34,'headbonk'],[40,'whetting'],[46,'glacier_ray'],[52,'whiteout']],
+    learnset: [[1,'cold_lick'],[1,'glare'],[6,'bump'],[11,'yowl'],[16,'chill_gust'],[22,'haunt'],[28,'umbral_orb'],[34,'headbonk'],[38,'causeway_lament'],[40,'whetting'],[46,'glacier_ray'],[52,'whiteout']],
     abilities: ['blubber','frost_heart'],
     desc: 'Stands in the frozen marsh where the old causeway sank. Waits for the ferry.',
   },
@@ -16734,7 +16738,7 @@ const SPECIES = [
     recipe: { body: 'i.body.ant', head: 'i.head.ant', eyes: 'i.eyes.fierce', mandibles: 'i.mandibles.grin', antennae: 'i.antennae.horn', wings: ['i.wings.clear', 'i.wings.none'], legsFront: 'i.legsFront.thin', legsMid: 'i.legsMid.stubby', legsBack: 'i.legsBack.long', tail: 'i.tail.club', shell: ['i.shell.elytra', 'i.shell.none'], pattern: ['i.pattern.spots', 'i.pattern.none'] },
     palette: { c1: [23, 70, 47], c2: [9, 68, 33], c3: [48, 100, 58], eye: [48, 91, 49] }, vary: { h: 8, s: 6, l: 5 },
     traits: T([0.5, 0.8], [0.45, 0.7], [0.45, 0.7], MID, MID, [0.45, 0.75]),
-    learnset: [[1,'blitz_punch'],[1,'glare'],[6,'cinder'],[11,'brace'],[16,'ember_bite'],[22,'muscle_up'],[28,'blur'],[34,'echo_burst'],[40,'ghostflame'],[46,'belly_flop'],[52,'inferno_charge']],
+    learnset: [[1,'blitz_punch'],[1,'glare'],[6,'cinder'],[11,'brace'],[16,'ember_bite'],[22,'muscle_up'],[28,'blur'],[34,'echo_burst'],[38,'short_prayer'],[40,'ghostflame'],[46,'belly_flop'],[52,'inferno_charge']],
     abilities: ['momentum','hot_blooded'],
     desc: 'Prays with burning forelegs. The prayer is short.',
   },
@@ -16744,7 +16748,7 @@ const SPECIES = [
     recipe: { body: 'i.body.dragonfly', head: 'i.head.mantis', eyes: 'i.eyes.wide', mandibles: 'i.mandibles.proboscis', antennae: 'i.antennae.curly', wings: 'i.wings.none', legsFront: 'i.legsFront.hairy', legsMid: 'i.legsMid.sturdy', legsBack: 'i.legsBack.hairy', tail: ['i.tail.lantern', 'i.tail.none'], shell: ['i.shell.crystal', 'i.shell.none'], pattern: ['i.pattern.chevrons', 'i.pattern.none'] },
     palette: { c1: [200, 49, 79], c2: [205, 45, 62], c3: [191, 89, 84], eye: [201, 88, 53] }, vary: { h: 8, s: 6, l: 5 },
     traits: T([0.5, 0.8], [0.5, 0.75], MID, MID, MID, [0.45, 0.75]),
-    learnset: [[1,'mind_jolt'],[1,'glare'],[6,'bump'],[11,'lull'],[16,'chill_gust'],[22,'whetting'],[28,'psi_shock'],[34,'headbonk'],[40,'blank_mind'],[46,'glacier_ray'],[52,'psystorm']],
+    learnset: [[1,'mind_jolt'],[1,'glare'],[6,'bump'],[11,'lull'],[16,'chill_gust'],[22,'whetting'],[28,'psi_shock'],[34,'headbonk'],[38,'meadow_frost'],[40,'blank_mind'],[46,'glacier_ray'],[52,'psystorm']],
     abilities: ['steady','frost_heart'],
     desc: 'Wings of frost you can see through. It dreams and the meadow frosts over.',
   },
@@ -16754,7 +16758,7 @@ const SPECIES = [
     recipe: { body: 'i.body.beetle', head: 'i.head.bee', eyes: 'i.eyes.ocelli', mandibles: 'i.mandibles.smile', antennae: 'i.antennae.curly', wings: ['i.wings.moth', 'i.wings.none'], legsFront: 'i.legsFront.spiny', legsMid: 'i.legsMid.spiny', legsBack: 'i.legsBack.spiny', tail: 'i.tail.cerci', shell: ['i.shell.armour', 'i.shell.none'], pattern: 'i.pattern.bands' },
     palette: { c1: [208, 8, 59], c2: [214, 13, 39], c3: [42, 72, 62], eye: [39, 78, 50] }, vary: { h: 8, s: 6, l: 5 },
     traits: T([0.5, 0.8], MID, [0.45, 0.7], MID, MID, [0.45, 0.75]),
-    learnset: [[1,'bolt_jab'],[1,'glare'],[6,'shout'],[11,'web_shot'],[16,'nibble'],[22,'grind_screech'],[28,'chrome_slam'],[34,'needle_volley'],[40,'plate_up'],[46,'belly_flop'],[52,'great_horn']],
+    learnset: [[1,'bolt_jab'],[1,'glare'],[6,'shout'],[11,'web_shot'],[16,'nibble'],[22,'grind_screech'],[28,'chrome_slam'],[34,'needle_volley'],[38,'union_pincer'],[40,'plate_up'],[46,'belly_flop'],[52,'great_horn']],
     abilities: ['stonewall','venom_barbs'],
     desc: 'A stag beetle in plate. The other beetles have unionised.',
   },
@@ -16945,7 +16949,7 @@ const SPECIES = [
     recipe: { body: 'v.body.jelly', eyes: 'v.eyes.big', mouth: 'v.mouth.fangs', arms: ['v.arms.claws', 'v.arms.none'], legs: ['v.legs.jointed', 'v.legs.none'], shell: ['v.shell.spiral', 'v.shell.none'], tail: ['v.tail.stinger', 'v.tail.none'], crown: ['v.crown.bubble', 'v.crown.none'], feelers: 'v.feelers.none', pattern: 'v.pattern.none', glow: ['v.glow.bubbles', 'v.glow.none'], skirt: ['v.skirt.fringe', 'v.skirt.none'] },
     palette: { c1: [216, 58, 45], c2: [226, 51, 36], c3: [195, 78, 70], eye: [216, 83, 41] }, vary: { h: 8, s: 6, l: 5 },
     traits: T([0.5, 0.8], MID, [0.45, 0.7], MID, MID, [0.45, 0.75]),
-    learnset: [[1,'bump'],[1,'brace'],[6,'squirt'],[11,'mend'],[16,'blindside'],[22,'whetting'],[28,'crush_bite'],[34,'ripple'],[40,'glare'],[46,'belly_flop'],[52,'wave_crash']],
+    learnset: [[1,'bump'],[1,'brace'],[6,'squirt'],[11,'mend'],[16,'blindside'],[22,'whetting'],[28,'crush_bite'],[34,'ripple'],[38,'small_grip'],[40,'glare'],[46,'belly_flop'],[52,'wave_crash']],
     abilities: ['keen_edge','sponge'],
     desc: 'The small one. The lagoon does not talk about the large one.',
   },
@@ -16955,7 +16959,7 @@ const SPECIES = [
     recipe: { body: 'v.body.crab', eyes: 'v.eyes.glow', mouth: 'v.mouth.none', arms: ['v.arms.feelers', 'v.arms.none'], legs: 'v.legs.spindly', shell: 'v.shell.none', tail: 'v.tail.none', crown: ['v.crown.crystal', 'v.crown.none'], feelers: ['v.feelers.antennae', 'v.feelers.none'], pattern: ['v.pattern.gradient', 'v.pattern.none'], glow: 'v.glow.static', skirt: 'v.skirt.tassels' },
     palette: { c1: [310, 45, 68], c2: [312, 41, 50], c3: [62, 86, 70], eye: [312, 85, 54] }, vary: { h: 8, s: 6, l: 5 },
     traits: T([0.5, 0.8], [0.5, 0.75], MID, MID, MID, [0.45, 0.75]),
-    learnset: [[1,'mind_jolt'],[1,'brace'],[6,'bump'],[11,'lull'],[16,'primal_surge'],[22,'quicken'],[28,'psi_shock'],[34,'rock_smash'],[40,'glare'],[46,'mind_crush'],[52,'psystorm']],
+    learnset: [[1,'mind_jolt'],[1,'brace'],[6,'bump'],[11,'lull'],[16,'primal_surge'],[22,'quicken'],[28,'psi_shock'],[34,'rock_smash'],[38,'reef_thought'],[40,'glare'],[46,'mind_crush'],[52,'psystorm']],
     abilities: ['finesse','steady'],
     desc: 'A reef that thinks. Slowly, and about everything.',
   },
@@ -16965,7 +16969,7 @@ const SPECIES = [
     recipe: { body: 'v.body.wisp', eyes: 'v.eyes.hollow', mouth: 'v.mouth.none', arms: ['v.arms.wisps', 'v.arms.none'], legs: 'v.legs.spider', shell: 'v.shell.plates', tail: 'v.tail.none', crown: ['v.crown.flame', 'v.crown.none'], feelers: ['v.feelers.flaps', 'v.feelers.none'], pattern: 'v.pattern.dots', glow: ['v.glow.mist', 'v.glow.none'], skirt: ['v.skirt.hem', 'v.skirt.none'] },
     palette: { c1: [65, 87, 63], c2: [52, 65, 42], c3: [68, 100, 72], eye: [60, 94, 47] }, vary: { h: 8, s: 6, l: 5 },
     traits: T([0.5, 0.8], [0.5, 0.75], MID, [0.5, 0.8], MID, [0.45, 0.75]),
-    learnset: [[1,'arc_beam'],[1,'glare'],[6,'cold_lick'],[11,'mend'],[16,'wraith_touch'],[22,'numb_pulse'],[28,'umbral_orb'],[34,'headbonk'],[40,'brace'],[46,'voltage'],[52,'plasma_burst']],
+    learnset: [[1,'arc_beam'],[1,'glare'],[6,'cold_lick'],[11,'mend'],[16,'wraith_touch'],[22,'numb_pulse'],[28,'umbral_orb'],[34,'headbonk'],[38,'drowned_lantern'],[40,'brace'],[46,'voltage'],[52,'plasma_burst']],
     abilities: ['storm_heart','menace'],
     desc: 'A drowned lantern jelly. Its light is a warning it does not mean.',
   },
@@ -17156,7 +17160,7 @@ const SPECIES = [
     recipe: { body: 'a.body.salamander', head: 'a.head.treefrog', eyes: 'a.eyes.bulge', mouth: 'a.mouth.tongue', gills: 'a.gills.stubs', legsFront: 'a.legsFront.frog', legsBack: 'a.legsBack.polliwog', tail: ['a.tail.flame', 'a.tail.none'], throat: 'a.throat.bubble', crest: 'a.crest.fin', back: 'a.back.none', pattern: 'a.pattern.stripes' },
     palette: { c1: [16, 79, 57], c2: [6, 61, 36], c3: [34, 100, 59], eye: [35, 97, 55] }, vary: { h: 8, s: 6, l: 5 },
     traits: T([0.5, 0.8], [0.5, 0.75], MID, [0.5, 0.8], MID, [0.45, 0.75]),
-    learnset: [[1,'flare'],[1,'whetting'],[6,'bump'],[11,'glare'],[16,'ripple'],[22,'ghostflame'],[28,'heat_wave'],[34,'ember_bite'],[40,'brace'],[46,'tidal_wave'],[52,'maelstrom']],
+    learnset: [[1,'flare'],[1,'whetting'],[6,'bump'],[11,'glare'],[16,'ripple'],[22,'ghostflame'],[28,'heat_wave'],[34,'ember_bite'],[38,'spa_scald'],[40,'brace'],[46,'tidal_wave'],[52,'maelstrom']],
     abilities: ['hot_blooded','swagger'],
     desc: 'Lives in the hot spring and treats scalding as a spa.',
   },
@@ -17166,7 +17170,7 @@ const SPECIES = [
     recipe: { body: 'a.body.treefrog', head: 'a.head.newt', eyes: 'a.eyes.glow', mouth: 'a.mouth.pout', gills: ['a.gills.fan', 'a.gills.none'], legsFront: 'a.legsFront.newt', legsBack: 'a.legsBack.toad', tail: 'a.tail.none', throat: ['a.throat.glowsac', 'a.throat.none'], crest: ['a.crest.horns', 'a.crest.none'], back: ['a.back.mushrooms', 'a.back.none'], pattern: 'a.pattern.belly' },
     palette: { c1: [39, 87, 54], c2: [35, 69, 38], c3: [52, 97, 67], eye: [48, 87, 42] }, vary: { h: 8, s: 6, l: 5 },
     traits: T([0.5, 0.8], MID, [0.45, 0.7], [0.5, 0.8], MID, [0.45, 0.75]),
-    learnset: [[1,'blitz_punch'],[1,'muscle_up'],[6,'zap'],[11,'whetting'],[16,'leg_sweep'],[22,'numb_pulse'],[28,'blur'],[34,'echo_burst'],[40,'mend'],[46,'belly_flop'],[52,'all_out_brawl']],
+    learnset: [[1,'blitz_punch'],[1,'muscle_up'],[6,'zap'],[11,'whetting'],[16,'leg_sweep'],[22,'numb_pulse'],[28,'blur'],[34,'echo_burst'],[38,'thunder_croak'],[40,'mend'],[46,'belly_flop'],[52,'all_out_brawl']],
     abilities: ['quick_start','momentum'],
     desc: 'A bullfrog that croaks thunder and punches lightning.',
   },
@@ -17176,7 +17180,7 @@ const SPECIES = [
     recipe: { body: 'a.body.toad', head: 'a.head.frog', eyes: 'a.eyes.big', mouth: 'a.mouth.frown', gills: 'a.gills.frills', legsFront: 'a.legsFront.newt', legsBack: 'a.legsBack.treefrog', tail: ['a.tail.leaf', 'a.tail.none'], throat: ['a.throat.bubble', 'a.throat.none'], crest: ['a.crest.moss', 'a.crest.none'], back: 'a.back.none', pattern: 'a.pattern.gradient' },
     palette: { c1: [99, 41, 43], c2: [119, 37, 31], c3: [70, 78, 63], eye: [91, 66, 38] }, vary: { h: 8, s: 6, l: 5 },
     traits: T([0.5, 0.8], MID, MID, MID, MID, [0.45, 0.75]),
-    learnset: [[1,'shout'],[1,'whetting'],[6,'cold_lick'],[11,'numb_spores'],[16,'leaf_razor'],[22,'glare'],[28,'seed_volley'],[34,'wraith_touch'],[40,'yowl'],[46,'grave_volley'],[52,'leaf_tempest']],
+    learnset: [[1,'shout'],[1,'whetting'],[6,'cold_lick'],[11,'numb_spores'],[16,'leaf_razor'],[22,'glare'],[28,'seed_volley'],[34,'wraith_touch'],[38,'old_toad_decree'],[40,'yowl'],[46,'grave_volley'],[52,'leaf_tempest']],
     abilities: ['bloom_heart','mirror_scale'],
     desc: 'The old toad under the fen. Every frog answers to it.',
   },
@@ -17367,7 +17371,7 @@ const SPECIES = [
     recipe: { body: 'p.body.gourd', head: 'p.head.thistle', eyes: 'p.eyes.seed', mouth: 'p.mouth.whistle', leaves: 'p.leaves.broad', roots: 'p.roots.taproot', vines: ['p.vines.thorny', 'p.vines.none'], pods: 'p.pods.seedpods', thorns: 'p.thorns.tuft', canopy: ['p.canopy.flowerbed', 'p.canopy.none'], bark: ['p.bark.moss', 'p.bark.none'], fruit: 'p.fruit.none' },
     palette: { c1: [19, 75, 54], c2: [15, 66, 42], c3: [49, 98, 61], eye: [47, 92, 62] }, vary: { h: 8, s: 6, l: 5 },
     traits: T([0.5, 0.8], [0.5, 0.75], MID, [0.5, 0.8], MID, [0.45, 0.75]),
-    learnset: [[1,'flare'],[1,'glare'],[6,'bump'],[11,'ghostflame'],[16,'echo_burst'],[22,'toxin_dust'],[28,'heat_wave'],[34,'ember_bite'],[40,'numb_spores'],[46,'sunlance'],[52,'meltdown']],
+    learnset: [[1,'flare'],[1,'glare'],[6,'bump'],[11,'ghostflame'],[16,'echo_burst'],[22,'toxin_dust'],[28,'heat_wave'],[34,'ember_bite'],[38,'outshine'],[40,'numb_spores'],[46,'sunlance'],[52,'meltdown']],
     abilities: ['sponge','daredevil'],
     desc: 'A sunflower that faces the sun and outshines it at noon.',
   },
@@ -17377,7 +17381,7 @@ const SPECIES = [
     recipe: { body: 'p.body.vine', head: 'p.head.tulip', eyes: 'p.eyes.sleepy', mouth: 'p.mouth.smile', leaves: 'p.leaves.broad', roots: 'p.roots.taproot', vines: 'p.vines.none', pods: ['p.pods.seedpods', 'p.pods.none'], thorns: ['p.thorns.tuft', 'p.thorns.none'], canopy: ['p.canopy.brambles', 'p.canopy.none'], bark: ['p.bark.moss', 'p.bark.none'], fruit: ['p.fruit.seed', 'p.fruit.none'] },
     palette: { c1: [117, 42, 43], c2: [121, 36, 30], c3: [82, 80, 58], eye: [100, 72, 33] }, vary: { h: 8, s: 6, l: 5 },
     traits: T([0.5, 0.8], MID, [0.45, 0.7], MID, MID, [0.45, 0.75]),
-    learnset: [[1,'bump'],[1,'whetting'],[6,'mud_fling'],[11,'numb_spores'],[16,'stampede'],[22,'yowl'],[28,'blur'],[34,'bone_rattle'],[40,'photosynth'],[46,'belly_flop'],[52,'bull_rush']],
+    learnset: [[1,'bump'],[1,'whetting'],[6,'mud_fling'],[11,'numb_spores'],[16,'stampede'],[22,'yowl'],[28,'blur'],[34,'bone_rattle'],[38,'slow_century'],[40,'photosynth'],[46,'belly_flop'],[52,'bull_rush']],
     abilities: ['bloom_heart','sponge'],
     desc: 'The oldest tree on the wilds, walking. Slowly. It has time.',
   },
@@ -17387,7 +17391,7 @@ const SPECIES = [
     recipe: { body: 'p.body.pad', head: 'p.head.bell', eyes: 'p.eyes.gem', mouth: 'p.mouth.whistle', leaves: 'p.leaves.succulent', roots: 'p.roots.taproot', vines: 'p.vines.none', pods: 'p.pods.pinecone', thorns: 'p.thorns.none', canopy: ['p.canopy.pollen', 'p.canopy.none'], bark: ['p.bark.rings', 'p.bark.none'], fruit: ['p.fruit.grapes', 'p.fruit.none'] },
     palette: { c1: [333, 41, 82], c2: [323, 37, 62], c3: [57, 87, 81], eye: [333, 76, 62] }, vary: { h: 8, s: 6, l: 5 },
     traits: T([0.5, 0.8], [0.5, 0.75], MID, MID, MID, [0.45, 0.75]),
-    learnset: [[1,'mind_jolt'],[1,'brace'],[6,'bump'],[11,'doe_eyes'],[16,'thought_beam'],[22,'blank_mind'],[28,'psi_shock'],[34,'headbonk'],[40,'meditate'],[46,'mind_crush'],[52,'lunar_burst']],
+    learnset: [[1,'mind_jolt'],[1,'brace'],[6,'bump'],[11,'doe_eyes'],[16,'thought_beam'],[22,'blank_mind'],[28,'psi_shock'],[34,'headbonk'],[38,'monthly_wish'],[40,'meditate'],[46,'mind_crush'],[52,'lunar_burst']],
     abilities: ['mirror_scale','steady'],
     desc: 'Blooms once a month and grants one wish to the first moth.',
   },
@@ -17578,7 +17582,7 @@ const SPECIES = [
     recipe: { body: 'o.body.whirl', core: 'o.core.bubble', eyes: 'o.eyes.cross', mouth: 'o.mouth.frown', pseudopods: 'o.pseudopods.paddle', drips: ['o.drips.drip', 'o.drips.none'], crown: ['o.crown.bubbles', 'o.crown.none'], tendrils: ['o.tendrils.fronds', 'o.tendrils.none'], base: 'o.base.bubbles', inclusions: ['o.inclusions.bubbles', 'o.inclusions.none'], sheen: ['o.sheen.wave', 'o.sheen.none'], bumps: 'o.bumps.blisters' },
     palette: { c1: [197, 61, 55], c2: [201, 60, 43], c3: [174, 77, 71], eye: [190, 83, 52] }, vary: { h: 8, s: 6, l: 5 },
     traits: T([0.5, 0.8], [0.5, 0.75], MID, MID, MID, [0.45, 0.75]),
-    learnset: [[1,'bump'],[1,'whetting'],[6,'dash'],[11,'brace'],[16,'sand_hex'],[22,'dust_kick'],[28,'echo_burst'],[34,'stampede'],[40,'yowl'],[46,'quake_pulse'],[52,'tremor']],
+    learnset: [[1,'bump'],[1,'whetting'],[6,'dash'],[11,'brace'],[16,'sand_hex'],[22,'dust_kick'],[28,'echo_burst'],[34,'stampede'],[38,'first_tide'],[40,'yowl'],[46,'quake_pulse'],[52,'tremor']],
     abilities: ['tide_heart','grit'],
     desc: 'The first ooze. Everything in the sump is descended from it and knows.',
   },
@@ -17588,7 +17592,7 @@ const SPECIES = [
     recipe: { body: 'o.body.wide', core: 'o.core.star', eyes: 'o.eyes.wide', mouth: 'o.mouth.gape', pseudopods: 'o.pseudopods.curl', drips: ['o.drips.spray', 'o.drips.none'], crown: 'o.crown.halo', tendrils: ['o.tendrils.streamers', 'o.tendrils.none'], base: 'o.base.bubbles', inclusions: ['o.inclusions.skull', 'o.inclusions.none'], sheen: ['o.sheen.bands', 'o.sheen.none'], bumps: ['o.bumps.blisters', 'o.bumps.none'] },
     palette: { c1: [37, 88, 55], c2: [32, 70, 45], c3: [40, 100, 72], eye: [37, 86, 47] }, vary: { h: 8, s: 6, l: 5 },
     traits: T([0.5, 0.8], MID, MID, MID, MID, [0.45, 0.75]),
-    learnset: [[1,'zap'],[1,'glare'],[6,'bump'],[11,'brace'],[16,'static_net'],[22,'numb_pulse'],[28,'mind_lance'],[34,'thought_beam'],[40,'quicken'],[46,'bellow'],[52,'skyfall_bolt']],
+    learnset: [[1,'zap'],[1,'glare'],[6,'bump'],[11,'brace'],[16,'static_net'],[22,'numb_pulse'],[28,'mind_lance'],[34,'thought_beam'],[38,'jarless_storm'],[40,'quicken'],[46,'bellow'],[52,'skyfall_bolt']],
     abilities: ['momentum','steady'],
     desc: 'A thinking storm in a jar with no jar.',
   },
@@ -17598,7 +17602,7 @@ const SPECIES = [
     recipe: { body: 'o.body.split', core: 'o.core.skull', eyes: 'o.eyes.void', mouth: 'o.mouth.fangs', pseudopods: 'o.pseudopods.reach', drips: ['o.drips.drip', 'o.drips.none'], crown: ['o.crown.halo', 'o.crown.none'], tendrils: ['o.tendrils.streamers', 'o.tendrils.none'], base: 'o.base.ring', inclusions: 'o.inclusions.none', sheen: ['o.sheen.sparkle', 'o.sheen.none'], bumps: ['o.bumps.lobes', 'o.bumps.none'] },
     palette: { c1: [269, 41, 39], c2: [271, 43, 29], c3: [85, 88, 54], eye: [81, 92, 49] }, vary: { h: 8, s: 6, l: 5 },
     traits: T([0.5, 0.8], MID, [0.45, 0.7], MID, MID, [0.45, 0.75]),
-    learnset: [[1,'venom_prick'],[1,'glare'],[6,'acid_spit'],[11,'whetting'],[16,'blindside'],[22,'mend'],[28,'venom_stab'],[34,'shadow_shot'],[40,'brace'],[46,'belly_flop'],[52,'venom_gore']],
+    learnset: [[1,'venom_prick'],[1,'glare'],[6,'acid_spit'],[11,'whetting'],[16,'blindside'],[22,'mend'],[28,'venom_stab'],[34,'shadow_shot'],[38,'worst_mood'],[40,'brace'],[46,'belly_flop'],[52,'venom_gore']],
     abilities: ['venom_heart','keen_edge'],
     desc: 'The sump\'s worst mood, given shape and appetite.',
   },
@@ -17789,7 +17793,7 @@ const SPECIES = [
     recipe: { body: 'g.body.funnel', head: 'g.head.stout', eyes: 'g.eyes.spore', mouth: 'g.mouth.tooth', gills: 'g.gills.lace', spores: ['g.spores.ring', 'g.spores.none'], roots: 'g.roots.knot', ring: 'g.ring.none', shelves: ['g.shelves.ears', 'g.shelves.none'], veil: ['g.veil.lace', 'g.veil.none'], glow: ['g.glow.aura', 'g.glow.none'], pattern: 'g.pattern.none' },
     palette: { c1: [106, 47, 50], c2: [120, 36, 32], c3: [78, 83, 60], eye: [91, 67, 47] }, vary: { h: 8, s: 6, l: 5 },
     traits: T([0.5, 0.8], [0.5, 0.75], MID, MID, MID, [0.45, 0.75]),
-    learnset: [[1,'venom_haze'],[1,'brace'],[6,'venom_prick'],[11,'drowse_dust'],[16,'echo_burst'],[22,'photosynth'],[28,'sap_drain'],[34,'headbonk'],[40,'whetting'],[46,'toxic_wave'],[52,'sunlance']],
+    learnset: [[1,'venom_haze'],[1,'brace'],[6,'venom_prick'],[11,'drowse_dust'],[16,'echo_burst'],[22,'photosynth'],[28,'sap_drain'],[34,'headbonk'],[38,'litter_dominion'],[40,'whetting'],[46,'toxic_wave'],[52,'sunlance']],
     abilities: ['lucky_streak','venom_heart'],
     desc: 'The wood\'s oldest fungus. Everything below the leaf litter is its.',
   },
@@ -17799,7 +17803,7 @@ const SPECIES = [
     recipe: { body: 'g.body.button', head: 'g.head.bulb', eyes: 'g.eyes.glow', mouth: 'g.mouth.gape', gills: 'g.gills.dark', spores: 'g.spores.none', roots: 'g.roots.pad', ring: ['g.ring.frill', 'g.ring.none'], shelves: ['g.shelves.bracket', 'g.shelves.none'], veil: ['g.veil.tatters', 'g.veil.none'], glow: ['g.glow.halo', 'g.glow.none'], pattern: 'g.pattern.freckles' },
     palette: { c1: [48, 87, 54], c2: [36, 66, 46], c3: [55, 97, 73], eye: [49, 87, 46] }, vary: { h: 8, s: 6, l: 5 },
     traits: T([0.5, 0.8], MID, MID, MID, MID, [0.45, 0.75]),
-    learnset: [[1,'zap'],[1,'glare'],[6,'cold_lick'],[11,'yowl'],[16,'static_net'],[22,'whetting'],[28,'grave_volley'],[34,'wraith_touch'],[40,'mend'],[46,'bellow'],[52,'skyfall_bolt']],
+    learnset: [[1,'zap'],[1,'glare'],[6,'cold_lick'],[11,'yowl'],[16,'static_net'],[22,'whetting'],[28,'grave_volley'],[34,'wraith_touch'],[38,'cold_blue_light'],[40,'mend'],[46,'bellow'],[52,'skyfall_bolt']],
     abilities: ['mirror_scale','restless'],
     desc: 'Lights the wood at night with a cold blue that the moths adore.',
   },
@@ -17809,7 +17813,7 @@ const SPECIES = [
     recipe: { body: 'g.body.cone', head: 'g.head.slender', eyes: 'g.eyes.squint', mouth: 'g.mouth.smile', gills: 'g.gills.lace', spores: 'g.spores.ring', roots: 'g.roots.knot', ring: ['g.ring.collar', 'g.ring.none'], shelves: 'g.shelves.cups', veil: ['g.veil.cobweb', 'g.veil.none'], glow: ['g.glow.aura', 'g.glow.none'], pattern: ['g.pattern.scales', 'g.pattern.none'] },
     palette: { c1: [33, 20, 53], c2: [27, 16, 37], c3: [48, 58, 58], eye: [39, 56, 46] }, vary: { h: 8, s: 6, l: 5 },
     traits: T([0.5, 0.8], MID, [0.45, 0.7], MID, MID, [0.45, 0.75]),
-    learnset: [[1,'bump'],[1,'whetting'],[6,'shout'],[11,'yowl'],[16,'rock_smash'],[22,'toxin_dust'],[28,'blur'],[34,'stone_trap'],[40,'smooth_stone'],[46,'belly_flop'],[52,'boulder_bash']],
+    learnset: [[1,'bump'],[1,'whetting'],[6,'shout'],[11,'yowl'],[16,'rock_smash'],[22,'toxin_dust'],[28,'blur'],[34,'stone_trap'],[38,'granite_cap_drop'],[40,'smooth_stone'],[46,'belly_flop'],[52,'boulder_bash']],
     abilities: ['thick_skull','stonewall'],
     desc: 'A cap of granite on a stalk of oak. Sheltering under it is a commitment.',
   },
@@ -18000,7 +18004,7 @@ const SPECIES = [
     recipe: { body: 'w.body.stout', head: 'w.head.lion', eyes: 'w.eyes.bead', maw: 'w.maw.fangs', whiskers: ['w.whiskers.forked', 'w.whiskers.none'], legs: 'w.legs.fin', tail: 'w.tail.flame', mane: ['w.mane.ridge', 'w.mane.none'], plates: ['w.plates.scales', 'w.plates.none'], horns: ['w.horns.crest', 'w.horns.none'], glow: 'w.glow.embers', bands: 'w.bands.scales' },
     palette: { c1: [22, 76, 52], c2: [22, 70, 39], c3: [52, 100, 61], eye: [51, 97, 57] }, vary: { h: 8, s: 6, l: 5 },
     traits: T([0.5, 0.8], [0.5, 0.75], MID, MID, MID, [0.45, 0.75]),
-    learnset: [[1,'flare'],[1,'whetting'],[6,'bump'],[11,'wyrm_dance'],[16,'echo_burst'],[22,'mend'],[28,'heat_wave'],[34,'wyrm_breath'],[40,'glare'],[46,'wyrm_pulse'],[52,'comet_roar']],
+    learnset: [[1,'flare'],[1,'whetting'],[6,'bump'],[11,'wyrm_dance'],[16,'echo_burst'],[22,'mend'],[28,'heat_wave'],[34,'wyrm_breath'],[38,'noon_crossing'],[40,'glare'],[46,'wyrm_pulse'],[52,'comet_roar']],
     abilities: ['hot_blooded','daredevil'],
     desc: 'Crosses the gorge at noon and the shadows all point the same way.',
   },
@@ -18010,7 +18014,7 @@ const SPECIES = [
     recipe: { body: 'w.body.knot', head: 'w.head.frilled', eyes: 'w.eyes.gem', maw: 'w.maw.grin', whiskers: ['w.whiskers.tufted', 'w.whiskers.none'], legs: 'w.legs.fin', tail: 'w.tail.fin', mane: ['w.mane.ridge', 'w.mane.none'], plates: ['w.plates.gems', 'w.plates.none'], horns: ['w.horns.straight', 'w.horns.none'], glow: 'w.glow.none', bands: 'w.bands.none' },
     palette: { c1: [212, 61, 53], c2: [218, 51, 41], c3: [194, 82, 72], eye: [213, 79, 42] }, vary: { h: 8, s: 6, l: 5 },
     traits: T([0.5, 0.8], [0.45, 0.7], MID, [0.5, 0.8], MID, [0.45, 0.75]),
-    learnset: [[1,'icicle_dart'],[1,'brace'],[6,'bump'],[11,'glare'],[16,'water_jet'],[22,'mend'],[28,'boiling_jet'],[34,'ripple'],[40,'yowl'],[46,'bellow'],[52,'glacier_toss']],
+    learnset: [[1,'icicle_dart'],[1,'brace'],[6,'bump'],[11,'glare'],[16,'water_jet'],[22,'mend'],[28,'boiling_jet'],[34,'ripple'],[38,'freeze_and_thaw'],[40,'yowl'],[46,'bellow'],[52,'glacier_toss']],
     abilities: ['regrowth','second_wind'],
     desc: 'Freezes the river as it passes and thaws it behind.',
   },
@@ -18020,7 +18024,7 @@ const SPECIES = [
     recipe: { body: 'w.body.arch', head: 'w.head.wide', eyes: 'w.eyes.gem', maw: 'w.maw.fangs', whiskers: 'w.whiskers.curled', legs: 'w.legs.fin', tail: 'w.tail.curl', mane: ['w.mane.spines', 'w.mane.none'], plates: ['w.plates.scales', 'w.plates.none'], horns: 'w.horns.none', glow: ['w.glow.halo', 'w.glow.none'], bands: ['w.bands.scales', 'w.bands.none'] },
     palette: { c1: [306, 48, 61], c2: [308, 44, 49], c3: [63, 92, 74], eye: [304, 75, 59] }, vary: { h: 8, s: 6, l: 5 },
     traits: T([0.5, 0.8], [0.5, 0.75], MID, MID, MID, [0.45, 0.75]),
-    learnset: [[1,'mind_jolt'],[1,'meditate'],[6,'bump'],[11,'blank_mind'],[16,'thought_beam'],[22,'lull'],[28,'psi_shock'],[34,'wyrm_breath'],[40,'wyrm_dance'],[46,'wyrm_pulse'],[52,'psystorm']],
+    learnset: [[1,'mind_jolt'],[1,'meditate'],[6,'bump'],[11,'blank_mind'],[16,'thought_beam'],[22,'lull'],[28,'psi_shock'],[34,'wyrm_breath'],[38,'inside_stars'],[40,'wyrm_dance'],[46,'wyrm_pulse'],[52,'psystorm']],
     abilities: ['menace','steady'],
     desc: 'A wyrm with the night sky on its back. It reads the stars from the inside.',
   },
@@ -18211,7 +18215,7 @@ const SPECIES = [
     recipe: { body: 'd.body.wyvern', head: 'd.head.narrow', eyes: 'd.eyes.narrow', jaw: 'd.jaw.fangs', horns: ['d.horns.straight', 'd.horns.none'], wings: 'd.wings.tattered', legsFront: 'd.legsFront.claw', legsBack: 'd.legsBack.haunch', tail: 'd.tail.flame', spines: 'd.spines.none', chest: ['d.chest.dorsal', 'd.chest.none'], breath: 'd.breath.smoke' },
     palette: { c1: [4, 71, 49], c2: [0, 64, 37], c3: [32, 100, 67], eye: [32, 94, 59] }, vary: { h: 8, s: 6, l: 5 },
     traits: T([0.5, 0.8], [0.5, 0.75], MID, MID, MID, [0.45, 0.75]),
-    learnset: [[1,'flare'],[1,'glare'],[6,'bump'],[11,'yowl'],[16,'echo_burst'],[22,'whetting'],[28,'heat_wave'],[34,'blindside'],[40,'brace'],[46,'meltdown'],[52,'reckless_charge']],
+    learnset: [[1,'flare'],[1,'glare'],[6,'bump'],[11,'yowl'],[16,'echo_burst'],[22,'whetting'],[28,'heat_wave'],[34,'blindside'],[38,'snowline_furnace'],[40,'brace'],[46,'meltdown'],[52,'reckless_charge']],
     abilities: ['hot_blooded','daredevil'],
     desc: 'The peaks\' own furnace. The snow line moves when it wakes.',
   },
@@ -18221,7 +18225,7 @@ const SPECIES = [
     recipe: { body: 'd.body.long', head: 'd.head.croc', eyes: 'd.eyes.glow', jaw: 'd.jaw.beak', horns: ['d.horns.single', 'd.horns.none'], wings: 'd.wings.fairy', legsFront: 'd.legsFront.claw', legsBack: 'd.legsBack.talon', tail: 'd.tail.whip', spines: ['d.spines.sail', 'd.spines.none'], chest: 'd.chest.none', breath: 'd.breath.lightning' },
     palette: { c1: [46, 88, 56], c2: [35, 74, 46], c3: [45, 100, 71], eye: [38, 85, 48] }, vary: { h: 8, s: 6, l: 5 },
     traits: T([0.5, 0.8], MID, MID, [0.5, 0.8], MID, [0.45, 0.75]),
-    learnset: [[1,'gale'],[1,'whetting'],[6,'bump'],[11,'preen'],[16,'static_net'],[22,'glare'],[28,'wind_cutter'],[34,'sky_strike'],[40,'brace'],[46,'bellow'],[52,'tempest_shot']],
+    learnset: [[1,'gale'],[1,'whetting'],[6,'bump'],[11,'preen'],[16,'static_net'],[22,'glare'],[28,'wind_cutter'],[34,'sky_strike'],[38,'cloud_argument'],[40,'brace'],[46,'bellow'],[52,'tempest_shot']],
     abilities: ['hawkeye','restless'],
     desc: 'Lives inside the storm cloud and only comes down to argue.',
   },
@@ -18231,7 +18235,7 @@ const SPECIES = [
     recipe: { body: 'd.body.armour', head: 'd.head.round', eyes: 'd.eyes.gem', jaw: 'd.jaw.fangs', horns: ['d.horns.curved', 'd.horns.none'], wings: 'd.wings.fairy', legsFront: 'd.legsFront.armoured', legsBack: 'd.legsBack.armoured', tail: 'd.tail.spade', spines: ['d.spines.plates', 'd.spines.none'], chest: ['d.chest.scales', 'd.chest.none'], breath: ['d.breath.smoke', 'd.breath.none'] },
     palette: { c1: [197, 8, 56], c2: [206, 10, 38], c3: [34, 71, 63], eye: [29, 80, 50] }, vary: { h: 8, s: 6, l: 5 },
     traits: T([0.5, 0.8], MID, [0.45, 0.7], MID, MID, [0.45, 0.75]),
-    learnset: [[1,'bolt_jab'],[1,'glare'],[6,'shout'],[11,'yowl'],[16,'headbonk'],[22,'grind_screech'],[28,'chrome_slam'],[34,'wyrm_breath'],[40,'plate_up'],[46,'belly_flop'],[52,'wyrm_rush']],
+    learnset: [[1,'bolt_jab'],[1,'glare'],[6,'shout'],[11,'yowl'],[16,'headbonk'],[22,'grind_screech'],[28,'chrome_slam'],[34,'wyrm_breath'],[38,'bell_scale_slam'],[40,'plate_up'],[46,'belly_flop'],[52,'wyrm_rush']],
     abilities: ['heavy_hands','purebred'],
     desc: 'Armoured in scales that ring like bells. It does not hurry.',
   },
@@ -18422,7 +18426,7 @@ const SPECIES = [
     recipe: { body: 'k.body.fishbone', head: 'k.head.beaked', eyes: 'k.eyes.ghostlight', jaw: 'k.jaw.tusked', legsFront: 'k.legsFront.claw', legsBack: 'k.legsBack.stubby', tail: 'k.tail.fishtail', horns: ['k.horns.ram', 'k.horns.none'], wings: ['k.wings.bare', 'k.wings.none'], light: 'k.light.coal', shroud: ['k.shroud.mist', 'k.shroud.none'], cracks: 'k.cracks.bands' },
     palette: { c1: [254, 23, 64], c2: [257, 26, 45], c3: [149, 66, 62], eye: [148, 82, 54] }, vary: { h: 8, s: 6, l: 5 },
     traits: T([0.5, 0.8], MID, [0.45, 0.7], [0.5, 0.8], MID, [0.45, 0.75]),
-    learnset: [[1,'cold_lick'],[1,'haunt'],[6,'shout'],[11,'glare'],[16,'headbonk'],[22,'grind_screech'],[28,'chrome_slam'],[34,'wraith_touch'],[40,'yowl'],[46,'belly_flop'],[52,'reckless_charge']],
+    learnset: [[1,'cold_lick'],[1,'haunt'],[6,'shout'],[11,'glare'],[16,'headbonk'],[22,'grind_screech'],[28,'chrome_slam'],[34,'wraith_touch'],[38,'iron_crown_kneel'],[40,'yowl'],[46,'belly_flop'],[52,'reckless_charge']],
     abilities: ['stonewall','second_wind'],
     desc: 'The barrow king in his iron crown. The other bones kneel.',
   },
@@ -18432,7 +18436,7 @@ const SPECIES = [
     recipe: { body: 'k.body.wrapped', head: 'k.head.canine', eyes: 'k.eyes.blaze', jaw: 'k.jaw.grin', legsFront: 'k.legsFront.heavy', legsBack: 'k.legsBack.hoof', tail: 'k.tail.spine', horns: ['k.horns.crown', 'k.horns.none'], wings: 'k.wings.wide', light: 'k.light.flame', shroud: 'k.shroud.roots', cracks: 'k.cracks.scorch' },
     palette: { c1: [18, 80, 55], c2: [7, 64, 41], c3: [46, 97, 65], eye: [43, 91, 60] }, vary: { h: 8, s: 6, l: 5 },
     traits: T([0.5, 0.8], [0.5, 0.75], MID, MID, MID, [0.45, 0.75]),
-    learnset: [[1,'flare'],[1,'meditate'],[6,'bump'],[11,'yowl'],[16,'thought_beam'],[22,'glare'],[28,'psi_shock'],[34,'ember_bite'],[40,'ghostflame'],[46,'mind_crush'],[52,'psystorm']],
+    learnset: [[1,'flare'],[1,'meditate'],[6,'bump'],[11,'yowl'],[16,'thought_beam'],[22,'glare'],[28,'psi_shock'],[34,'ember_bite'],[38,'planned_pyre'],[40,'ghostflame'],[46,'mind_crush'],[52,'psystorm']],
     abilities: ['mirror_scale','hot_blooded'],
     desc: 'A skull that burns with a mind\'s own fire. It plans.',
   },
@@ -18442,7 +18446,7 @@ const SPECIES = [
     recipe: { body: 'k.body.fishbone', head: 'k.head.fish', eyes: 'k.eyes.twin', jaw: 'k.jaw.slack', legsFront: 'k.legsFront.heavy', legsBack: 'k.legsBack.heavy', tail: 'k.tail.fishtail', horns: 'k.horns.none', wings: ['k.wings.tattered', 'k.wings.none'], light: ['k.light.ember', 'k.light.none'], shroud: 'k.shroud.tatters', cracks: 'k.cracks.none' },
     palette: { c1: [208, 56, 52], c2: [210, 60, 35], c3: [186, 80, 69], eye: [202, 79, 47] }, vary: { h: 8, s: 6, l: 5 },
     traits: T([0.5, 0.8], MID, MID, MID, MID, [0.45, 0.75]),
-    learnset: [[1,'squirt'],[1,'smooth_stone'],[6,'bump'],[11,'yowl'],[16,'stone_trap'],[22,'brace'],[28,'boiling_jet'],[34,'rock_smash'],[40,'glare'],[46,'bellow'],[52,'shard_spire']],
+    learnset: [[1,'squirt'],[1,'smooth_stone'],[6,'bump'],[11,'yowl'],[16,'stone_trap'],[22,'brace'],[28,'boiling_jet'],[34,'rock_smash'],[38,'old_sea_volley'],[40,'glare'],[46,'bellow'],[52,'shard_spire']],
     abilities: ['stone_heart','tide_heart'],
     desc: 'The bones of something from before the sea left. Wet still.',
   },
@@ -18633,7 +18637,7 @@ const SPECIES = [
     recipe: { body: 'n.body.pear', head: 'n.head.pointed', ears: 'n.ears.notched', eyes: 'n.eyes.red', muzzle: 'n.muzzle.whiskered', wings: 'n.wings.narrow', legs: 'n.legs.clawed', tail: 'n.tail.long', crest: ['n.crest.plume', 'n.crest.none'], ruff: 'n.ruff.none', thumbs: ['n.thumbs.double', 'n.thumbs.none'], markings: ['n.markings.blaze', 'n.markings.none'] },
     palette: { c1: [266, 22, 36], c2: [271, 24, 25], c3: [339, 79, 58], eye: [343, 86, 61] }, vary: { h: 8, s: 6, l: 5 },
     traits: T([0.5, 0.8], MID, [0.45, 0.7], [0.5, 0.8], MID, [0.45, 0.75]),
-    learnset: [[1,'bump'],[1,'scheme'],[6,'cinder'],[11,'glare'],[16,'blindside'],[22,'mend'],[28,'crush_bite'],[34,'shadow_shot'],[40,'whetting'],[46,'belly_flop'],[52,'inferno_charge']],
+    learnset: [[1,'bump'],[1,'scheme'],[6,'cinder'],[11,'glare'],[16,'blindside'],[22,'mend'],[28,'crush_bite'],[34,'shadow_shot'],[38,'heat_drink'],[40,'whetting'],[46,'belly_flop'],[52,'inferno_charge']],
     abilities: ['restless','hot_blooded'],
     desc: 'Drinks heat. Where it feeds the frost comes.',
   },
@@ -18643,7 +18647,7 @@ const SPECIES = [
     recipe: { body: 'n.body.long', head: 'n.head.long', ears: 'n.ears.huge', eyes: 'n.eyes.wide', muzzle: 'n.muzzle.long', wings: 'n.wings.narrow', legs: 'n.legs.long', tail: 'n.tail.fan', crest: ['n.crest.plume', 'n.crest.none'], ruff: 'n.ruff.none', thumbs: 'n.thumbs.long', markings: ['n.markings.collar', 'n.markings.none'] },
     palette: { c1: [308, 41, 62], c2: [307, 37, 45], c3: [66, 89, 76], eye: [309, 79, 57] }, vary: { h: 8, s: 6, l: 5 },
     traits: T([0.5, 0.8], [0.5, 0.75], MID, MID, MID, [0.45, 0.75]),
-    learnset: [[1,'air_whisper'],[1,'glare'],[6,'bump'],[11,'mend'],[16,'thought_beam'],[22,'whetting'],[28,'psi_shock'],[34,'sky_strike'],[40,'blank_mind'],[46,'mind_crush'],[52,'cyclone']],
+    learnset: [[1,'air_whisper'],[1,'glare'],[6,'bump'],[11,'mend'],[16,'thought_beam'],[22,'whetting'],[28,'psi_shock'],[34,'sky_strike'],[38,'chasm_echo'],[40,'blank_mind'],[46,'mind_crush'],[52,'cyclone']],
     abilities: ['finesse','steady'],
     desc: 'Its echo maps the whole chasm at once. It is never lost and never alone.',
   },
@@ -18653,7 +18657,7 @@ const SPECIES = [
     recipe: { body: 'n.body.round', head: 'n.head.snub', ears: 'n.ears.round', eyes: 'n.eyes.bead', muzzle: 'n.muzzle.tube', wings: 'n.wings.narrow', legs: 'n.legs.clawed', tail: 'n.tail.stub', crest: ['n.crest.spikes', 'n.crest.none'], ruff: ['n.ruff.petals', 'n.ruff.none'], thumbs: ['n.thumbs.double', 'n.thumbs.none'], markings: 'n.markings.mottled' },
     palette: { c1: [260, 19, 38], c2: [265, 21, 28], c3: [344, 85, 62], eye: [350, 83, 60] }, vary: { h: 8, s: 6, l: 5 },
     traits: T([0.5, 0.8], [0.5, 0.75], MID, MID, MID, [0.45, 0.75]),
-    learnset: [[1,'hex_glare'],[1,'scheme'],[6,'cold_lick'],[11,'haunt'],[16,'wraith_touch'],[22,'yowl'],[28,'dread_pulse'],[34,'blindside'],[40,'whetting'],[46,'umbral_orb'],[52,'reckless_charge']],
+    learnset: [[1,'hex_glare'],[1,'scheme'],[6,'cold_lick'],[11,'haunt'],[16,'wraith_touch'],[22,'yowl'],[28,'dread_pulse'],[34,'blindside'],[38,'shadow_roost'],[40,'whetting'],[46,'umbral_orb'],[52,'reckless_charge']],
     abilities: ['keen_edge','menace'],
     desc: 'A bat made of the dark between lamps. It roosts in your shadow.',
   },
@@ -18844,7 +18848,7 @@ const SPECIES = [
     recipe: { body: 'c.body.pebble', head: 'c.head.spike', eyes: 'c.eyes.twin', mouth: 'c.mouth.fanged', legsFront: 'c.legsFront.block', legsBack: 'c.legsBack.block', spines: 'c.spines.none', crown: ['c.crown.twin', 'c.crown.none'], tail: 'c.tail.club', seam: 'c.seam.cracks', facets: ['c.facets.shards', 'c.facets.none'], aura: 'c.aura.shards' },
     palette: { c1: [26, 16, 54], c2: [24, 17, 39], c3: [43, 62, 59], eye: [35, 61, 43] }, vary: { h: 8, s: 6, l: 5 },
     traits: T([0.5, 0.8], MID, [0.45, 0.7], MID, MID, [0.45, 0.75]),
-    learnset: [[1,'bump'],[1,'brace'],[6,'shout'],[11,'whetting'],[16,'rock_smash'],[22,'glare'],[28,'wyrm_claw'],[34,'stone_trap'],[40,'mend'],[46,'belly_flop'],[52,'boulder_bash']],
+    learnset: [[1,'bump'],[1,'brace'],[6,'shout'],[11,'whetting'],[16,'rock_smash'],[22,'glare'],[28,'wyrm_claw'],[34,'stone_trap'],[38,'hardest_thing'],[40,'mend'],[46,'belly_flop'],[52,'boulder_bash']],
     abilities: ['momentum','stonewall'],
     desc: 'The hardest thing in the caverns and the proudest.',
   },
@@ -18854,7 +18858,7 @@ const SPECIES = [
     recipe: { body: 'c.body.prism', head: 'c.head.gem', eyes: 'c.eyes.gem', mouth: 'c.mouth.wide', legsFront: 'c.legsFront.crystal', legsBack: 'c.legsBack.crystal', spines: ['c.spines.tall', 'c.spines.none'], crown: 'c.crown.none', tail: 'c.tail.stub', seam: ['c.seam.lattice', 'c.seam.none'], facets: 'c.facets.diamonds', aura: 'c.aura.halo' },
     palette: { c1: [193, 45, 83], c2: [191, 39, 61], c3: [185, 86, 79], eye: [196, 86, 56] }, vary: { h: 8, s: 6, l: 5 },
     traits: T([0.5, 0.8], [0.5, 0.75], MID, [0.5, 0.8], MID, [0.45, 0.75]),
-    learnset: [[1,'mind_jolt'],[1,'brace'],[6,'bump'],[11,'yowl'],[16,'chill_gust'],[22,'lull'],[28,'psi_shock'],[34,'headbonk'],[40,'mend'],[46,'glacier_ray'],[52,'psystorm']],
+    learnset: [[1,'mind_jolt'],[1,'brace'],[6,'bump'],[11,'yowl'],[16,'chill_gust'],[22,'lull'],[28,'psi_shock'],[34,'headbonk'],[38,'trapped_lights'],[40,'mend'],[46,'glacier_ray'],[52,'psystorm']],
     abilities: ['finesse','thick_skull'],
     desc: 'A gem with the northern lights trapped inside. It thinks in colours.',
   },
@@ -18864,7 +18868,7 @@ const SPECIES = [
     recipe: { body: 'c.body.cluster', head: 'c.head.cluster', eyes: 'c.eyes.slit', mouth: 'c.mouth.small', legsFront: 'c.legsFront.block', legsBack: 'c.legsBack.tall', spines: ['c.spines.tall', 'c.spines.none'], crown: ['c.crown.points', 'c.crown.none'], tail: 'c.tail.spike', seam: ['c.seam.zigzag', 'c.seam.none'], facets: ['c.facets.diamonds', 'c.facets.none'], aura: ['c.aura.glow', 'c.aura.none'] },
     palette: { c1: [11, 72, 56], c2: [5, 69, 39], c3: [34, 97, 65], eye: [41, 93, 60] }, vary: { h: 8, s: 6, l: 5 },
     traits: T([0.5, 0.8], [0.5, 0.75], MID, MID, MID, [0.45, 0.75]),
-    learnset: [[1,'flare'],[1,'glare'],[6,'bump'],[11,'brace'],[16,'echo_burst'],[22,'yowl'],[28,'heat_wave'],[34,'blindside'],[40,'mend'],[46,'meltdown'],[52,'reckless_charge']],
+    learnset: [[1,'flare'],[1,'glare'],[6,'bump'],[11,'brace'],[16,'echo_burst'],[22,'yowl'],[28,'heat_wave'],[34,'blindside'],[38,'unquenched_fire'],[40,'mend'],[46,'meltdown'],[52,'reckless_charge']],
     abilities: ['swagger','ember_heart'],
     desc: 'Black crystal with a fire in it that never goes out.',
   },
@@ -19055,7 +19059,7 @@ const SPECIES = [
     recipe: { body: 'y.body.spiky', head: 'y.head.pincer', eyes: 'y.eyes.dot', mandibles: 'y.mandibles.needles', antennae: 'y.antennae.feathered', legs: 'y.legs.spiny', tail: 'y.tail.forks', plates: ['y.plates.scutes', 'y.plates.none'], bristles: ['y.bristles.spiky', 'y.bristles.none'], glow: 'y.glow.dots', bands: ['y.bands.rings', 'y.bands.none'], venom: ['y.venom.glow', 'y.venom.none'] },
     palette: { c1: [21, 71, 45], c2: [13, 69, 36], c3: [47, 100, 58], eye: [56, 98, 54] }, vary: { h: 8, s: 6, l: 5 },
     traits: T([0.5, 0.8], MID, [0.45, 0.7], MID, MID, [0.45, 0.75]),
-    learnset: [[1,'bump'],[1,'web_shot'],[6,'cinder'],[11,'brace'],[16,'nibble'],[22,'glare'],[28,'scissor_slash'],[34,'needle_volley'],[40,'whetting'],[46,'belly_flop'],[52,'inferno_charge']],
+    learnset: [[1,'bump'],[1,'web_shot'],[6,'cinder'],[11,'brace'],[16,'nibble'],[22,'glare'],[28,'scissor_slash'],[34,'needle_volley'],[38,'root_kindler'],[40,'whetting'],[46,'belly_flop'],[52,'inferno_charge']],
     abilities: ['warm_core','daredevil'],
     desc: 'The warren\'s burning centipede. Roots catch as it passes.',
   },
@@ -19065,7 +19069,7 @@ const SPECIES = [
     recipe: { body: 'y.body.long', head: 'y.head.narrow', eyes: 'y.eyes.slit', mandibles: 'y.mandibles.hooks', antennae: 'y.antennae.feathered', legs: 'y.legs.paddle', tail: 'y.tail.fan', plates: ['y.plates.crest', 'y.plates.none'], bristles: ['y.bristles.fine', 'y.bristles.none'], glow: 'y.glow.dots', bands: 'y.bands.segments', venom: ['y.venom.bubbles', 'y.venom.none'] },
     palette: { c1: [212, 63, 48], c2: [220, 54, 37], c3: [189, 83, 73], eye: [208, 83, 47] }, vary: { h: 8, s: 6, l: 5 },
     traits: T([0.5, 0.8], [0.45, 0.7], MID, MID, MID, [0.45, 0.75]),
-    learnset: [[1,'squirt'],[1,'scheme'],[6,'bump'],[11,'brace'],[16,'sneer'],[22,'mend'],[28,'boiling_jet'],[34,'blindside'],[40,'glare'],[46,'bellow'],[52,'night_volley']],
+    learnset: [[1,'squirt'],[1,'scheme'],[6,'bump'],[11,'brace'],[16,'sneer'],[22,'mend'],[28,'boiling_jet'],[34,'blindside'],[38,'unmeasured_deep'],[40,'glare'],[46,'bellow'],[52,'night_volley']],
     abilities: ['tide_heart','restless'],
     desc: 'Lives in the flooded lower warren. Nobody has measured it.',
   },
@@ -19075,7 +19079,7 @@ const SPECIES = [
     recipe: { body: 'y.body.spiky', head: 'y.head.horned', eyes: 'y.eyes.bead', mandibles: 'y.mandibles.crushers', antennae: 'y.antennae.clubbed', legs: 'y.legs.spiny', tail: 'y.tail.stinger', plates: 'y.plates.horns', bristles: ['y.bristles.feathered', 'y.bristles.none'], glow: 'y.glow.none', bands: ['y.bands.stripes', 'y.bands.none'], venom: ['y.venom.fangs', 'y.venom.none'] },
     palette: { c1: [80, 42, 47], c2: [86, 37, 32], c3: [48, 90, 58], eye: [66, 69, 40] }, vary: { h: 8, s: 6, l: 5 },
     traits: T([0.5, 0.8], [0.45, 0.7], [0.45, 0.7], MID, MID, [0.45, 0.75]),
-    learnset: [[1,'bump'],[1,'web_shot'],[6,'shout'],[11,'yowl'],[16,'nibble'],[22,'whetting'],[28,'wyrm_claw'],[34,'wyrm_breath'],[40,'mend'],[46,'belly_flop'],[52,'wyrm_rush']],
+    learnset: [[1,'bump'],[1,'web_shot'],[6,'shout'],[11,'yowl'],[16,'nibble'],[22,'whetting'],[28,'wyrm_claw'],[34,'wyrm_breath'],[38,'make_way'],[40,'mend'],[46,'belly_flop'],[52,'wyrm_rush']],
     abilities: ['live_fur','swagger'],
     desc: 'The oldest centipede in the warren. The others make way.',
   },
@@ -19266,7 +19270,7 @@ const SPECIES = [
     recipe: { body: 'e.body.brute', head: 'e.head.brute', eyes: 'e.eyes.ember', mouth: 'e.mouth.tusks', horns: ['e.horns.crown', 'e.horns.none'], arms: 'e.arms.brawny', legs: 'e.legs.brawny', tail: 'e.tail.thick', wings: 'e.wings.ember', hand: 'e.hand.claws', marks: ['e.marks.cracks', 'e.marks.none'], aura: 'e.aura.smoke' },
     palette: { c1: [1, 80, 49], c2: [352, 60, 36], c3: [34, 100, 57], eye: [37, 99, 51] }, vary: { h: 8, s: 6, l: 5 },
     traits: T([0.5, 0.8], MID, [0.45, 0.7], [0.5, 0.8], MID, [0.45, 0.75]),
-    learnset: [[1,'blitz_punch'],[1,'muscle_up'],[6,'cinder'],[11,'glare'],[16,'ember_bite'],[22,'ghostflame'],[28,'blur'],[34,'echo_burst'],[40,'yowl'],[46,'belly_flop'],[52,'inferno_charge']],
+    learnset: [[1,'blitz_punch'],[1,'muscle_up'],[6,'cinder'],[11,'glare'],[16,'ember_bite'],[22,'ghostflame'],[28,'blur'],[34,'echo_burst'],[38,'spite_haymaker'],[40,'yowl'],[46,'belly_flop'],[52,'inferno_charge']],
     abilities: ['second_wind','daredevil'],
     desc: 'The bruiser of the sinks. It fights for the joy and wins for the spite.',
   },
@@ -19276,7 +19280,7 @@ const SPECIES = [
     recipe: { body: 'e.body.hunched', head: 'e.head.imp', eyes: 'e.eyes.blank', mouth: 'e.mouth.needle', horns: 'e.horns.crown', arms: 'e.arms.thin', legs: 'e.legs.armoured', tail: ['e.tail.barbed', 'e.tail.none'], wings: ['e.wings.ember', 'e.wings.none'], hand: ['e.hand.torch', 'e.hand.none'], marks: ['e.marks.cracks', 'e.marks.none'], aura: 'e.aura.smoke' },
     palette: { c1: [10, 74, 47], c2: [358, 61, 37], c3: [31, 100, 64], eye: [29, 98, 55] }, vary: { h: 8, s: 6, l: 5 },
     traits: T([0.5, 0.8], [0.45, 0.7], MID, MID, MID, [0.45, 0.75]),
-    learnset: [[1,'acid_spit'],[1,'glare'],[6,'venom_prick'],[11,'slime_coat'],[16,'kindle_rush'],[22,'whetting'],[28,'bellow'],[34,'ember_bite'],[40,'mend'],[46,'fire_stream'],[52,'sludge_hurl']],
+    learnset: [[1,'acid_spit'],[1,'glare'],[6,'venom_prick'],[11,'slime_coat'],[16,'kindle_rush'],[22,'whetting'],[28,'bellow'],[34,'ember_bite'],[38,'brimstone_bargain'],[40,'mend'],[46,'fire_stream'],[52,'sludge_hurl']],
     abilities: ['venom_barbs','warm_core'],
     desc: 'Breathes brimstone and bargains in it.',
   },
@@ -19286,7 +19290,7 @@ const SPECIES = [
     recipe: { body: 'e.body.regal', head: 'e.head.sly', eyes: 'e.eyes.three', mouth: 'e.mouth.fangs', horns: 'e.horns.none', arms: 'e.arms.clawed', legs: 'e.legs.clawed', tail: ['e.tail.thick', 'e.tail.none'], wings: 'e.wings.none', hand: ['e.hand.claws', 'e.hand.none'], marks: 'e.marks.glow', aura: ['e.aura.halo', 'e.aura.none'] },
     palette: { c1: [237, 16, 42], c2: [243, 20, 32], c3: [315, 83, 63], eye: [323, 90, 62] }, vary: { h: 8, s: 6, l: 5 },
     traits: T([0.5, 0.8], [0.5, 0.75], MID, MID, MID, [0.45, 0.75]),
-    learnset: [[1,'hex_glare'],[1,'glare'],[6,'bump'],[11,'brace'],[16,'thought_beam'],[22,'yowl'],[28,'psi_shock'],[34,'blindside'],[40,'lull'],[46,'mind_crush'],[52,'psystorm']],
+    learnset: [[1,'hex_glare'],[1,'glare'],[6,'bump'],[11,'brace'],[16,'thought_beam'],[22,'yowl'],[28,'psi_shock'],[34,'blindside'],[38,'already_known'],[40,'lull'],[46,'mind_crush'],[52,'psystorm']],
     abilities: ['finesse','keen_edge'],
     desc: 'The one the other fiends report to. It already knows what they will say.',
   },
@@ -19477,7 +19481,7 @@ const SPECIES = [
     recipe: { body: 's.body.blob', eyes: 's.eyes.wide', mouth: 's.mouth.jagged', arms: 's.arms.mist', tail: 's.tail.wisp', hood: 's.hood.candle', chains: 's.chains.double', lantern: 's.lantern.lantern', aura: ['s.aura.mist', 's.aura.none'], tatters: 's.tatters.long', mask: ['s.mask.fox', 's.mask.none'], veil: ['s.veil.stripes', 's.veil.none'] },
     palette: { c1: [254, 15, 69], c2: [264, 23, 52], c3: [149, 75, 65], eye: [149, 77, 61] }, vary: { h: 8, s: 6, l: 5 },
     traits: T([0.5, 0.8], [0.5, 0.75], MID, [0.5, 0.8], MID, [0.45, 0.75]),
-    learnset: [[1,'air_whisper'],[1,'brace'],[6,'cold_lick'],[11,'preen'],[16,'wraith_touch'],[22,'yowl'],[28,'umbral_orb'],[34,'sky_strike'],[40,'mend'],[46,'cyclone'],[52,'reckless_charge']],
+    learnset: [[1,'air_whisper'],[1,'brace'],[6,'cold_lick'],[11,'preen'],[16,'wraith_touch'],[22,'yowl'],[28,'umbral_orb'],[34,'sky_strike'],[38,'lamp_wail'],[40,'mend'],[46,'cyclone'],[52,'reckless_charge']],
     abilities: ['hawkeye','hover'],
     desc: 'Its wail crosses the marsh and every lamp gutters.',
   },
@@ -19487,7 +19491,7 @@ const SPECIES = [
     recipe: { body: 's.body.wisp', eyes: 's.eyes.sad', mouth: 's.mouth.o', arms: 's.arms.claws', tail: 's.tail.smoke', hood: ['s.hood.horns', 's.hood.none'], chains: 's.chains.heavy', lantern: ['s.lantern.lantern', 's.lantern.none'], aura: ['s.aura.mist', 's.aura.none'], tatters: 's.tatters.none', mask: 's.mask.none', veil: ['s.veil.swirl', 's.veil.none'] },
     palette: { c1: [253, 20, 65], c2: [254, 26, 46], c3: [151, 71, 64], eye: [146, 78, 55] }, vary: { h: 8, s: 6, l: 5 },
     traits: T([0.5, 0.8], MID, [0.45, 0.7], MID, MID, [0.45, 0.75]),
-    learnset: [[1,'cold_lick'],[1,'haunt'],[6,'shock_palm'],[11,'yowl'],[16,'leg_sweep'],[22,'brace'],[28,'blur'],[34,'wraith_touch'],[40,'whetting'],[46,'belly_flop'],[52,'all_out_brawl']],
+    learnset: [[1,'cold_lick'],[1,'haunt'],[6,'shock_palm'],[11,'yowl'],[16,'leg_sweep'],[22,'brace'],[28,'blur'],[34,'wraith_touch'],[38,'one_more_fight'],[40,'whetting'],[46,'belly_flop'],[52,'all_out_brawl']],
     abilities: ['heavy_hands','hover'],
     desc: 'Came back for one more fight. Has not decided which.',
   },
@@ -19497,7 +19501,7 @@ const SPECIES = [
     recipe: { body: 's.body.flame', eyes: 's.eyes.glow', mouth: 's.mouth.jagged', arms: 's.arms.mist', tail: 's.tail.wisp', hood: 's.hood.none', chains: ['s.chains.barbed', 's.chains.none'], lantern: 's.lantern.candle', aura: 's.aura.glow', tatters: ['s.tatters.trail', 's.tatters.none'], mask: ['s.mask.skull', 's.mask.none'], veil: 's.veil.swirl' },
     palette: { c1: [251, 16, 72], c2: [257, 17, 48], c3: [145, 67, 68], eye: [145, 82, 64] }, vary: { h: 8, s: 6, l: 5 },
     traits: T([0.5, 0.8], [0.45, 0.7], MID, MID, MID, [0.45, 0.75]),
-    learnset: [[1,'zap'],[1,'brace'],[6,'cold_lick'],[11,'whetting'],[16,'static_net'],[22,'haunt'],[28,'grave_volley'],[34,'wraith_touch'],[40,'yowl'],[46,'bellow'],[52,'skyfall_bolt']],
+    learnset: [[1,'zap'],[1,'brace'],[6,'cold_lick'],[11,'whetting'],[16,'static_net'],[22,'haunt'],[28,'grave_volley'],[34,'wraith_touch'],[38,'lamp_throw'],[40,'yowl'],[46,'bellow'],[52,'skyfall_bolt']],
     abilities: ['restless','capacitor'],
     desc: 'Throws things. Lamps mostly. It has excellent aim.',
   },
@@ -19772,7 +19776,11 @@ function isOldStatLayout(stats) { return Boolean(stats) && typeof stats === 'obj
 //   { k:'flinch', p }                                         target flinches if it has not moved yet
 //   { k:'drain', r }  { k:'recoil', r }  { k:'heal', r }      fractions of damage dealt / max HP
 //   { k:'multi', min, max }  { k:'fixed', v:'level' }  { k:'boostIfStatus', m }
-// flags: contact, punch, bite, powder, sound.
+//   { k:'restore', r }   heal the user r of its max HP after a hit     { k:'cure' }      clear the user's own status after a hit
+//   { k:'pierce' }       ignore the target's defence boosts (and the user's attack drops), like a critical hit
+//   { k:'recharge' }     the user rests the turn after a hit           { k:'cleanse' }   reset the target's stat stages
+//   { k:'boostIfLow', m } power ×m at a third HP or less               { k:'boostIfFirst', m } power ×m when the target has not moved yet
+// flags: contact, punch, bite, powder, sound. `signature: speciesId` marks a rare's own move: learned at 38, never sold.
 
 
 
@@ -19780,7 +19788,7 @@ function isOldStatLayout(stats) { return Boolean(stats) && typeof stats === 'obj
  * PP rule: the harder a move hits, or the nastier its side effect, the fewer times it can be used.
  * Damaging moves start from a band by power (multi-hit moves count three hits, fixed-damage moves as 60)
  * and drop one band per strong extra: a status at 30%+ (two bands when guaranteed), a flinch at 30%+, a
- * likely (50%+) foe debuff or self buff, draining, and each point of positive priority.
+ * likely (50%+) foe debuff or self buff, draining, restoring, piercing, cleansing, a first-mover bonus, and each point of positive priority.
  * Status moves: sleep or freeze 10, other major statuses 15, healing 10, sharp stat changes (±2, three
  * stats or more, accuracy or evasion) 20, ordinary stat changes 30.
  */
@@ -19811,6 +19819,7 @@ function ppFor(mv) {
     if ((stat.who === 'foe' && vals.some((v) => v < 0)) || (stat.who === 'self' && vals.some((v) => v > 0))) steps += 1;
   }
   if (drain) steps += 1;
+  for (const k of ['restore', 'pierce', 'cleanse', 'boostIfFirst']) if (find(k)) steps += 1;
   if (mv.prio > 0) steps += Math.min(2, mv.prio);
   band = Math.min(R.bands.length - 1, band + steps);
   return R.bands[band][1];
@@ -19845,6 +19854,13 @@ function moveEffects(mv) {
       case 'multi': out.push(`hits ${f.min}–${f.max}×`); break;
       case 'fixed': out.push('damage = level'); break;
       case 'boostIfStatus': out.push(`×${f.m} vs status`); break;
+      case 'restore': out.push(`restores ${Math.round(f.r * 100)}% HP`); break;
+      case 'cure': out.push('cures own status'); break;
+      case 'pierce': out.push('ignores defence boosts'); break;
+      case 'recharge': out.push('rests next turn'); break;
+      case 'cleanse': out.push('resets foe stat changes'); break;
+      case 'boostIfLow': out.push(`×${f.m} at low HP`); break;
+      case 'boostIfFirst': out.push(`×${f.m} moving first`); break;
       default: break;
     }
   }
@@ -20076,6 +20092,136 @@ const MOVES = [
   m('chrome_slam', 'Chrome Slam', 'Steel', 'melee', 85, 100, { flags: CONTACT, fx: [STAT('self', { meleeDef: 1, rangedDef: 1 }, 20)] }),
   m('venom_gore', 'Venom Gore', 'Poison', 'melee', 100, 90, { flags: CONTACT, fx: [ST('psn', 30)] }),
   m('inferno_charge', 'Inferno Charge', 'Fire', 'melee', 100, 90, { flags: CONTACT, fx: [ST('brn', 20)] }),
+  // ---- signature moves: one per rare species, learned at level 38 and never sold at the Market ----
+  m('pebble_hoard_slam', 'Pebble Hoard Slam', 'Dragon', 'melee', 95, 100, { signature: 'drakelet', flags: ['contact'], fx: [STAT('foe', { meleeDef: -1 })] }),
+  m('rust_grinder', 'Rust Grinder', 'Steel', 'melee', 90, 100, { signature: 'boltmaw', flags: ['contact', 'bite'], fx: [{ k: 'pierce' }] }),
+  m('harbour_coil', 'Harbour Coil', 'Water', 'magic', 95, 100, { signature: 'tidalisk', fx: [STAT('foe', { spe: -1 })] }),
+  m('thermal_dive', 'Thermal Dive', 'Flying', 'ranged', 85, 100, { signature: 'wyvernet', fx: [{ k: 'boostIfFirst', m: 1.5 }] }),
+  m('shadow_fang', 'Shadow Fang', 'Ghost', 'magic', 80, 100, { signature: 'voidviper', fx: [{ k: 'boostIfStatus', m: 2 }] }),
+  m('heat_sight_strike', 'Heat Sight Strike', 'Dark', 'melee', 90, null, { signature: 'bloodrake', flags: ['contact'] }),
+  m('lava_wallow', 'Lava Wallow', 'Fire', 'melee', 100, 100, { signature: 'magmasaur', flags: ['contact'], fx: [ST('brn', 20)] }),
+  m('frost_mirror', 'Frost Mirror', 'Ice', 'magic', 100, 100, { signature: 'mirrorviper', fx: [ST('frz', 10), STAT('foe', { spe: -1 }, 20)] }),
+  m('quill_lightning', 'Quill Lightning', 'Electric', 'ranged', 100, 100, { signature: 'thunderguana', fx: [ST('par', 20)] }),
+  m('dusk_answer', 'Dusk Answer', 'Psychic', 'magic', 90, 100, { signature: 'halowl', fx: [{ k: 'cleanse' }] }),
+  m('hundred_eyes', 'Hundred Eyes', 'Fairy', 'magic', 90, 95, { signature: 'plumaura', fx: [STAT('foe', { acc: -1 }, 50)] }),
+  m('sunwheel', 'Sunwheel', 'Dragon', 'magic', 90, 100, { signature: 'aurodrake', fx: [{ k: 'boostIfLow', m: 1.5 }] }),
+  m('silent_hoot', 'Silent Hoot', 'Ghost', 'magic', 90, 100, { signature: 'voidowl', fx: [FLINCH(30)] }),
+  m('carrion_dive', 'Carrion Dive', 'Dark', 'melee', 70, 100, { signature: 'bloodkite', prio: 1, flags: ['contact'] }),
+  m('rekindle', 'Rekindle', 'Fire', 'magic', 90, 100, { signature: 'phoenixquill', fx: [{ k: 'restore', r: 0.25 }] }),
+  m('storm_shadow', 'Storm Shadow', 'Electric', 'ranged', 140, 90, { signature: 'thunderroc', fx: [{ k: 'recharge' }] }),
+  m('causeway_lament', 'Causeway Lament', 'Ice', 'magic', 100, 100, { signature: 'gravecrane', fx: [ST('frz', 10), STAT('foe', { spe: -1 }, 20)] }),
+  m('noon_roar', 'Noon Roar', 'Fire', 'melee', 85, 100, { signature: 'solmane', flags: ['contact', 'sound'], fx: [STAT('self', { melee: 1 })] }),
+  m('unbent_grass', 'Unbent Grass', 'Dragon', 'magic', 90, null, { signature: 'kirinth' }),
+  m('room_gap', 'Room Gap', 'Ghost', 'magic', 85, 100, { signature: 'voidlynx', fx: [{ k: 'boostIfFirst', m: 1.5 }] }),
+  m('unmentioned_maul', 'Unmentioned Maul', 'Fighting', 'melee', 130, 100, { signature: 'bloodmane', flags: ['contact'], fx: [{ k: 'recoil', r: 0.33 }] }),
+  m('smoulder_swipe', 'Smoulder Swipe', 'Fire', 'melee', 100, 100, { signature: 'emberclaw', flags: ['contact'], fx: [ST('brn', 20)] }),
+  m('northern_veil', 'Northern Veil', 'Ice', 'magic', 85, 100, { signature: 'auroralynx', fx: [STAT('self', { spe: 1 })] }),
+  m('furrow_charge', 'Furrow Charge', 'Ground', 'melee', 95, 100, { signature: 'ironboar', flags: ['contact'], fx: [STAT('foe', { meleeDef: -1 })] }),
+  m('grudge_current', 'Grudge Current', 'Water', 'magic', 80, 100, { signature: 'hippodrake', fx: [{ k: 'boostIfStatus', m: 2 }] }),
+  m('reflection_bout', 'Reflection Bout', 'Fighting', 'melee', 85, 100, { signature: 'brawlfin', flags: ['contact'], fx: [STAT('self', { melee: 1 })] }),
+  m('almost_thought', 'Almost Thought', 'Psychic', 'magic', 90, 95, { signature: 'voidangler', fx: [STAT('foe', { acc: -1 }, 50)] }),
+  m('red_water', 'Red Water', 'Dark', 'melee', 90, 100, { signature: 'bloodgill', flags: ['contact', 'bite'], fx: [{ k: 'drain', r: 0.5 }] }),
+  m('yearly_surfacing', 'Yearly Surfacing', 'Water', 'magic', 140, 90, { signature: 'leviatide', fx: [{ k: 'recharge' }] }),
+  m('thunderhead_fall', 'Thunderhead Fall', 'Electric', 'ranged', 85, 100, { signature: 'stormgill', fx: [{ k: 'boostIfFirst', m: 1.5 }] }),
+  m('rivet_jaws', 'Rivet Jaws', 'Steel', 'melee', 90, 100, { signature: 'bonepike', flags: ['contact', 'bite'], fx: [{ k: 'pierce' }] }),
+  m('spot_count', 'Spot Count', 'Psychic', 'magic', 90, null, { signature: 'oraclebug' }),
+  m('window_wings', 'Window Wings', 'Ghost', 'magic', 90, 100, { signature: 'voidmoth', fx: [STAT('foe', { magic: -1 })] }),
+  m('enforcer_sting', 'Enforcer Sting', 'Fighting', 'melee', 100, 100, { signature: 'bloodhornet', flags: ['contact'], fx: [ST('psn', 20)] }),
+  m('short_prayer', 'Short Prayer', 'Fire', 'melee', 70, 100, { signature: 'infernomantis', prio: 1, flags: ['contact'] }),
+  m('meadow_frost', 'Meadow Frost', 'Ice', 'magic', 100, 100, { signature: 'glassmoth', fx: [ST('frz', 10), STAT('foe', { spe: -1 }, 20)] }),
+  m('union_pincer', 'Union Pincer', 'Steel', 'melee', 120, 100, { signature: 'ironstag', flags: ['contact'], fx: [STAT('self', { meleeDef: -1, rangedDef: -1, magicDef: -1 })] }),
+  m('boiling_punch', 'Boiling Punch', 'Fighting', 'melee', 100, 100, { signature: 'smashrimp', flags: ['contact', 'punch'], fx: [ST('brn', 20)] }),
+  m('last_light_bell', 'Last Light Bell', 'Ghost', 'magic', 90, 100, { signature: 'voidjelly', fx: [{ k: 'boostIfLow', m: 1.5 }] }),
+  m('wrestle_drink', 'Wrestle Drink', 'Fighting', 'melee', 90, 100, { signature: 'bloodleech', flags: ['contact'], fx: [{ k: 'drain', r: 0.5 }] }),
+  m('small_grip', 'Small Grip', 'Water', 'melee', 95, 100, { signature: 'krakenling', flags: ['contact'], fx: [STAT('foe', { spe: -1 })] }),
+  m('reef_thought', 'Reef Thought', 'Psychic', 'magic', 120, 100, { signature: 'coralmind', fx: [STAT('self', { magic: -2 })] }),
+  m('drowned_lantern', 'Drowned Lantern', 'Electric', 'magic', 100, 100, { signature: 'voltmedusa', fx: [ST('par', 20)] }),
+  m('regrow_spit', 'Regrow Spit', 'Dragon', 'ranged', 90, 100, { signature: 'wyrmlotl', fx: [{ k: 'restore', r: 0.25 }] }),
+  m('nothing_smile', 'Nothing Smile', 'Ghost', 'magic', 90, 100, { signature: 'voidlotl', fx: [{ k: 'cleanse' }] }),
+  m('fen_breaker', 'Fen Breaker', 'Fighting', 'melee', 120, 100, { signature: 'bloodnewt', flags: ['contact'], fx: [STAT('self', { meleeDef: -1, rangedDef: -1, magicDef: -1 })] }),
+  m('spa_scald', 'Spa Scald', 'Fire', 'magic', 95, 100, { signature: 'lavalotl', fx: [{ k: 'cure' }] }),
+  m('thunder_croak', 'Thunder Croak', 'Electric', 'melee', 100, 100, { signature: 'thunderbull', flags: ['contact', 'punch'], fx: [ST('par', 20)] }),
+  m('old_toad_decree', 'Old Toad Decree', 'Grass', 'ranged', 90, 100, { signature: 'marshwarden', fx: [STAT('foe', { ranged: -1 })] }),
+  m('pond_dream', 'Pond Dream', 'Psychic', 'magic', 80, 100, { signature: 'dreamlotus', fx: [{ k: 'boostIfStatus', m: 2 }] }),
+  m('root_memory', 'Root Memory', 'Grass', 'magic', 140, 90, { signature: 'wyrmwood', fx: [{ k: 'recharge' }] }),
+  m('inward_bloom', 'Inward Bloom', 'Ghost', 'magic', 90, 100, { signature: 'voidbloom', fx: [{ k: 'drain', r: 0.5 }] }),
+  m('duel_thorn', 'Duel Thorn', 'Fighting', 'melee', 90, 100, { signature: 'bloodrose', crit: 1, flags: ['contact'] }),
+  m('outshine', 'Outshine', 'Fire', 'magic', 90, 100, { signature: 'sunflare', fx: [{ k: 'boostIfLow', m: 1.5 }] }),
+  m('slow_century', 'Slow Century', 'Grass', 'melee', 140, 90, { signature: 'ancientoak', flags: ['contact'], fx: [{ k: 'recharge' }] }),
+  m('monthly_wish', 'Monthly Wish', 'Fairy', 'magic', 90, 100, { signature: 'moonlily', fx: [{ k: 'restore', r: 0.25 }] }),
+  m('ripple_thought', 'Ripple Thought', 'Psychic', 'magic', 90, 100, { signature: 'mindmuck', fx: [STAT('foe', { magic: -1 })] }),
+  m('sump_breath', 'Sump Breath', 'Dragon', 'magic', 100, 100, { signature: 'dragoop', fx: [ST('psn', 20)] }),
+  m('absence_step', 'Absence Step', 'Ghost', 'magic', 85, 100, { signature: 'voidslime', fx: [{ k: 'boostIfFirst', m: 1.5 }] }),
+  m('crimson_rush', 'Crimson Rush', 'Dark', 'melee', 70, 100, { signature: 'bloodooze', prio: 1, flags: ['contact'] }),
+  m('first_tide', 'First Tide', 'Water', 'magic', 90, 100, { signature: 'primordium', fx: [{ k: 'cleanse' }] }),
+  m('jarless_storm', 'Jarless Storm', 'Electric', 'ranged', 100, 100, { signature: 'plasmoid', fx: [ST('par', 20)] }),
+  m('worst_mood', 'Worst Mood', 'Poison', 'melee', 100, 100, { signature: 'bilebeast', flags: ['contact', 'bite'], fx: [ST('psn', 20)] }),
+  m('unreal_colours', 'Unreal Colours', 'Psychic', 'magic', 90, 95, { signature: 'mindcap', fx: [STAT('foe', { acc: -1 }, 50)] }),
+  m('century_spore', 'Century Spore', 'Dragon', 'magic', 80, 100, { signature: 'drakecap', fx: [{ k: 'boostIfStatus', m: 2 }] }),
+  m('memory_gap', 'Memory Gap', 'Ghost', 'magic', 90, 100, { signature: 'voidcap', fx: [{ k: 'cleanse' }] }),
+  m('faster_warning', 'Faster Warning', 'Fighting', 'melee', 70, 100, { signature: 'bloodmorel', prio: 1, flags: ['contact'] }),
+  m('litter_dominion', 'Litter Dominion', 'Grass', 'magic', 90, 100, { signature: 'sporelord', fx: [{ k: 'drain', r: 0.5 }] }),
+  m('cold_blue_light', 'Cold Blue Light', 'Electric', 'ranged', 95, 100, { signature: 'glowshroom', fx: [STAT('foe', { spe: -1 })] }),
+  m('granite_cap_drop', 'Granite Cap Drop', 'Rock', 'melee', 140, 90, { signature: 'stonecap', flags: ['contact'], fx: [{ k: 'recharge' }] }),
+  m('empty_hoard', 'Empty Hoard', 'Ghost', 'magic', 90, 100, { signature: 'gloomwyrm', fx: [{ k: 'boostIfLow', m: 1.5 }] }),
+  m('hidden_pearl', 'Hidden Pearl', 'Fairy', 'magic', 90, 100, { signature: 'pearlwyrm', fx: [{ k: 'restore', r: 0.25 }] }),
+  m('nine_hundred_years', 'Nine Hundred Years', 'Psychic', 'magic', 140, 90, { signature: 'sagecoil', fx: [{ k: 'recharge' }] }),
+  m('star_gap', 'Star Gap', 'Ghost', 'magic', 90, 100, { signature: 'voidwyrm', fx: [{ k: 'pierce' }] }),
+  m('quiet_gorge', 'Quiet Gorge', 'Dark', 'melee', 85, 100, { signature: 'bloodwyrm', flags: ['contact'], fx: [{ k: 'boostIfFirst', m: 1.5 }] }),
+  m('noon_crossing', 'Noon Crossing', 'Fire', 'magic', 100, 100, { signature: 'sunwyrm', fx: [ST('brn', 20)] }),
+  m('freeze_and_thaw', 'Freeze and Thaw', 'Ice', 'ranged', 100, 100, { signature: 'tidalcoil', fx: [ST('frz', 10), STAT('foe', { spe: -1 }, 20)] }),
+  m('inside_stars', 'Inside Stars', 'Psychic', 'magic', 90, null, { signature: 'starcoil' }),
+  m('sleep_hum', 'Sleep Hum', 'Fairy', 'magic', 90, 100, { signature: 'lightdrake', flags: ['sound'], fx: [{ k: 'restore', r: 0.25 }] }),
+  m('unslain_breath', 'Unslain Breath', 'Ghost', 'magic', 80, 100, { signature: 'wraithdrake', fx: [{ k: 'boostIfStatus', m: 2 }] }),
+  m('eldest_word', 'Eldest Word', 'Dragon', 'magic', 90, 100, { signature: 'eldrake', flags: ['sound'], fx: [STAT('foe', { magic: -1 })] }),
+  m('colourless_breath', 'Colourless Breath', 'Ghost', 'magic', 120, 100, { signature: 'voiddrake', fx: [STAT('self', { magic: -2 })] }),
+  m('second_try', 'Second Try', 'Fighting', 'melee', 90, null, { signature: 'blooddrake', flags: ['contact'] }),
+  m('snowline_furnace', 'Snowline Furnace', 'Fire', 'magic', 140, 90, { signature: 'infernodrake', fx: [{ k: 'recharge' }] }),
+  m('cloud_argument', 'Cloud Argument', 'Electric', 'ranged', 90, 100, { signature: 'tempestdrake', fx: [FLINCH(30)] }),
+  m('bell_scale_slam', 'Bell Scale Slam', 'Steel', 'melee', 120, 100, { signature: 'titandrake', flags: ['contact'], fx: [STAT('self', { meleeDef: -1, rangedDef: -1, magicDef: -1 })] }),
+  m('half_thought', 'Half Thought', 'Psychic', 'magic', 85, 100, { signature: 'wispbone', fx: [{ k: 'boostIfFirst', m: 1.5 }] }),
+  m('barrow_waking', 'Barrow Waking', 'Dragon', 'magic', 90, 100, { signature: 'dreadrake', fx: [FLINCH(30)] }),
+  m('marrow_reader', 'Marrow Reader', 'Ghost', 'magic', 90, 100, { signature: 'voidmarrow', fx: [STAT('foe', { magic: -1 })] }),
+  m('dry_bone_haymaker', 'Dry Bone Haymaker', 'Fighting', 'melee', 130, 100, { signature: 'bloodmarrow', flags: ['contact', 'punch'], fx: [{ k: 'recoil', r: 0.33 }] }),
+  m('iron_crown_kneel', 'Iron Crown Kneel', 'Steel', 'melee', 95, 100, { signature: 'ossarch', flags: ['contact'], fx: [STAT('foe', { meleeDef: -1 })] }),
+  m('planned_pyre', 'Planned Pyre', 'Fire', 'magic', 100, 100, { signature: 'pyrelich', fx: [ST('brn', 20)] }),
+  m('old_sea_volley', 'Old Sea Volley', 'Water', 'ranged', 45, 90, { signature: 'deepfossil', fx: [{ k: 'multi', min: 2, max: 3 }] }),
+  m('gone_before_seen', 'Gone Before Seen', 'Ghost', 'magic', 70, 100, { signature: 'wraithwing', prio: 1 }),
+  m('blot_out', 'Blot Out', 'Dark', 'melee', 90, 100, { signature: 'nightmaw', flags: ['contact'], fx: [FLINCH(30)] }),
+  m('nowhere_echo', 'Nowhere Echo', 'Psychic', 'magic', 90, null, { signature: 'voidbat', flags: ['sound'] }),
+  m('fight_back_drink', 'Fight Back Drink', 'Dark', 'melee', 90, 100, { signature: 'bloodwing', flags: ['contact', 'bite'], fx: [{ k: 'drain', r: 0.5 }] }),
+  m('heat_drink', 'Heat Drink', 'Fire', 'melee', 90, 100, { signature: 'vampryre', flags: ['contact', 'bite'], fx: [{ k: 'restore', r: 0.25 }] }),
+  m('chasm_echo', 'Chasm Echo', 'Psychic', 'magic', 90, 100, { signature: 'sonarch', flags: ['sound'], fx: [{ k: 'cleanse' }] }),
+  m('shadow_roost', 'Shadow Roost', 'Dark', 'magic', 80, 100, { signature: 'umbrabat', fx: [{ k: 'boostIfStatus', m: 2 }] }),
+  m('hum_back', 'Hum Back', 'Psychic', 'magic', 90, 100, { signature: 'mindshard', flags: ['sound'], fx: [STAT('foe', { magic: -1 })] }),
+  m('garnet_fang', 'Garnet Fang', 'Rock', 'melee', 90, 100, { signature: 'drakonyx', crit: 1, flags: ['contact', 'bite'] }),
+  m('light_sink', 'Light Sink', 'Ghost', 'magic', 90, 100, { signature: 'voidcrystal', fx: [{ k: 'drain', r: 0.5 }] }),
+  m('lamp_read', 'Lamp Read', 'Psychic', 'magic', 90, 100, { signature: 'prismgeode', fx: [{ k: 'pierce' }] }),
+  m('cut_back', 'Cut Back', 'Fighting', 'melee', 90, 100, { signature: 'bloodgarnet', flags: ['contact'], fx: [{ k: 'boostIfLow', m: 1.5 }] }),
+  m('hardest_thing', 'Hardest Thing', 'Rock', 'melee', 90, 100, { signature: 'diamondrake', flags: ['contact'], fx: [{ k: 'pierce' }] }),
+  m('trapped_lights', 'Trapped Lights', 'Ice', 'magic', 100, 100, { signature: 'auroragem', fx: [ST('frz', 10), STAT('foe', { spe: -1 }, 20)] }),
+  m('unquenched_fire', 'Unquenched Fire', 'Fire', 'magic', 90, 100, { signature: 'emberonyx', fx: [{ k: 'boostIfLow', m: 1.5 }] }),
+  m('spiral_thought', 'Spiral Thought', 'Psychic', 'magic', 120, 100, { signature: 'mindcoil', fx: [STAT('self', { magic: -2 })] }),
+  m('longest_coil', 'Longest Coil', 'Dragon', 'melee', 95, 100, { signature: 'wyrmpede', flags: ['contact'], fx: [STAT('foe', { spe: -1 })] }),
+  m('two_answers', 'Two Answers', 'Ghost', 'magic', 90, 95, { signature: 'voidcrawl', fx: [STAT('foe', { acc: -1 }, 50)] }),
+  m('tightening_coil', 'Tightening Coil', 'Fighting', 'melee', 95, 100, { signature: 'bloodcoil', flags: ['contact'], fx: [STAT('foe', { spe: -1 })] }),
+  m('root_kindler', 'Root Kindler', 'Fire', 'melee', 100, 100, { signature: 'scolopyre', flags: ['contact'], fx: [ST('brn', 20)] }),
+  m('unmeasured_deep', 'Unmeasured Deep', 'Water', 'ranged', 140, 90, { signature: 'deepcrawl', fx: [{ k: 'recharge' }] }),
+  m('make_way', 'Make Way', 'Bug', 'melee', 120, 100, { signature: 'kingpede', flags: ['contact'], fx: [STAT('self', { meleeDef: -1, rangedDef: -1, magicDef: -1 })] }),
+  m('signed_already', 'Signed Already', 'Psychic', 'magic', 80, 100, { signature: 'pactling', fx: [{ k: 'boostIfStatus', m: 2 }] }),
+  m('sink_answer', 'Sink Answer', 'Fire', 'magic', 140, 90, { signature: 'archfiend', fx: [{ k: 'recharge' }] }),
+  m('sold_shadow', 'Sold Shadow', 'Ghost', 'magic', 85, 100, { signature: 'voidfiend', fx: [{ k: 'boostIfFirst', m: 1.5 }] }),
+  m('scar_collector', 'Scar Collector', 'Fighting', 'melee', 85, 100, { signature: 'bloodfiend', flags: ['contact'], fx: [STAT('self', { melee: 1 })] }),
+  m('spite_haymaker', 'Spite Haymaker', 'Fighting', 'melee', 130, 100, { signature: 'hellion', flags: ['contact', 'punch'], fx: [{ k: 'recoil', r: 0.33 }] }),
+  m('brimstone_bargain', 'Brimstone Bargain', 'Poison', 'ranged', 100, 100, { signature: 'sulfurax', fx: [ST('psn', 20)] }),
+  m('already_known', 'Already Known', 'Dark', 'magic', 90, null, { signature: 'nightsovereign' }),
+  m('sleeper_key', 'Sleeper Key', 'Psychic', 'magic', 90, 95, { signature: 'dreamveil', fx: [STAT('foe', { acc: -1 }, 50)] }),
+  m('what_is_left', 'What Is Left', 'Dragon', 'magic', 90, 100, { signature: 'eldershade', fx: [{ k: 'boostIfLow', m: 1.5 }] }),
+  m('something_behind', 'Something Behind', 'Ghost', 'magic', 90, 100, { signature: 'voidwraith', fx: [FLINCH(30)] }),
+  m('vigil_fists', 'Vigil Fists', 'Fighting', 'melee', 85, 100, { signature: 'bloodwraith', flags: ['contact', 'punch'], fx: [STAT('self', { melee: 1 })] }),
+  m('lamp_wail', 'Lamp Wail', 'Ghost', 'magic', 95, 100, { signature: 'banshee', flags: ['sound'], fx: [STAT('foe', { spe: -1 })] }),
+  m('one_more_fight', 'One More Fight', 'Fighting', 'melee', 90, 100, { signature: 'revenant', flags: ['contact'], fx: [{ k: 'boostIfLow', m: 1.5 }] }),
+  m('lamp_throw', 'Lamp Throw', 'Electric', 'ranged', 90, 100, { signature: 'polterwisp', fx: [FLINCH(30)] }),
 ];
 
 
@@ -20086,6 +20232,9 @@ const MOVES_BY_ID = new Map(MOVES.map((mv) => [mv.id, mv]));
 function getMove(id) { return id === 'struggle' ? STRUGGLE : MOVES_BY_ID.get(id) || null; }
 function moveFx(mv, kind) { return mv.fx.find((f) => f.k === kind) || null; }
 function isDamaging(mv) { return mv.cat !== 'status'; }
+/** Moves that belong to one rare species: never sold, and tagged on sheets and cards. */
+const SIGNATURE_MOVES = MOVES.filter((mv) => mv.signature);
+function signatureOf(speciesId) { return SIGNATURE_MOVES.find((mv) => mv.signature === speciesId) || null; }
 
 /** Fallback moves any creature can learn, used to pad thin learnsets. */
 const UNIVERSAL_LEARNSET = [[1, 'bump'], [10, 'dash'], [20, 'rake'], [30, 'bellow']];
@@ -21871,7 +22020,7 @@ function traitRows(g) {
 
 /** The moves a creature knows (ids) as detail rows, or nothing when none are given. */
 function moveRows(ids) {
-  const rows = (ids || []).map((id) => getMove(id)).filter(Boolean).map((mv) => h('div', { class: 'shop-row' }, moveInfoEl(mv)));
+  const rows = (ids || []).map((id) => getMove(id)).filter(Boolean).map((mv) => h('div', { class: `shop-row${mv.signature ? ' signature' : ''}` }, moveInfoEl(mv, mv.signature ? 'signature' : null)));
   return rows.length ? h('div', { class: 'shop-list' }, rows) : null;
 }
 
@@ -21885,8 +22034,9 @@ function learnsetRows(g, level, known) {
   const next = level != null ? entries.find(([lv]) => lv > level) : null;
   const rows = entries.map(([lv, id]) => {
     const isKnown = set.has(id), ahead = level != null && lv > level;
-    const tag = isKnown ? `Lv ${lv} · known` : next && next[0] === lv ? `next · Lv ${lv}` : ahead ? `at Lv ${lv}` : level != null ? `Lv ${lv} · forgotten` : `Lv ${lv}`;
-    return h('div', { class: `shop-row${isKnown ? ' known' : ''}${next && next[0] === lv ? ' next' : ''}` }, moveInfoEl(getMove(id), tag));
+    const mv = getMove(id);
+    const tag = (isKnown ? `Lv ${lv} · known` : next && next[0] === lv ? `next · Lv ${lv}` : ahead ? `at Lv ${lv}` : level != null ? `Lv ${lv} · forgotten` : `Lv ${lv}`) + (mv.signature ? ' · signature' : '');
+    return h('div', { class: `shop-row${isKnown ? ' known' : ''}${next && next[0] === lv ? ' next' : ''}${mv.signature ? ' signature' : ''}` }, moveInfoEl(mv, tag));
   });
   const ahead = level != null ? entries.filter(([lv]) => lv > level).length : entries.length;
   const intro = level == null ? `${entries.length} moves by level.` : ahead ? `${ahead} more ${ahead === 1 ? 'move' : 'moves'} to come${next ? `, the next at Lv ${next[0]}` : ''}. With four known, a new move replaces one you choose.` : 'Every move on its list has been reached.';
@@ -22374,6 +22524,7 @@ function doSwitch(state, i, index, events, forced) {
   }
   out.stages = freshStages();
   out.flinch = false;
+  out.recharge = false;
   side.active = index;
   side.party[index].fought = true;
   const inn = side.party[index];
@@ -22478,14 +22629,19 @@ function calcDamage(user, target, mv, eff, roll, crit) {
   if (fixed) return user.level;
   const dt = DAMAGE_TYPES[mv.cat] || DAMAGE_TYPES.melee;
   const atkKey = dt.atk, defKey = dt.def;
-  const aStage = crit ? Math.max(0, user.stages[atkKey]) : user.stages[atkKey];
-  const dStage = crit ? Math.min(0, target.stages[defKey]) : target.stages[defKey];
+  const pierce = crit || Boolean(moveFx(mv, 'pierce')); // a critical hit, or a piercing move, ignores the target's guard and the user's own drops
+  const aStage = pierce ? Math.max(0, user.stages[atkKey]) : user.stages[atkKey];
+  const dStage = pierce ? Math.min(0, target.stages[defKey]) : target.stages[defKey];
   let A = user.stats[atkKey] * stageMul(aStage);
   const D = Math.max(1, target.stats[defKey] * stageMul(dStage));
   if (user.ability === 'grit' && user.status && mv.cat !== 'magic') A *= 1.5;
   let power = mv.power;
   const bis = moveFx(mv, 'boostIfStatus');
   if (bis && target.status) power *= bis.m;
+  const low = moveFx(mv, 'boostIfLow');
+  if (low && user.hp <= user.maxHp / 3) power *= low.m;
+  const first = moveFx(mv, 'boostIfFirst');
+  if (first && !target.moved) power *= first.m;
   if (user.ability === 'finesse' && power <= 60) power *= 1.5;
   if (user.ability === 'heavy_hands' && mv.flags.includes('punch')) power *= 1.2;
   if (user.ability === 'vice_jaw' && mv.flags.includes('bite')) power *= 1.5;
@@ -22544,6 +22700,7 @@ function executeMove(state, i, action, events, rng) {
   const mv = moveOfAction(user, action);
 
   if (user.flinch) { user.flinch = false; user.moved = true; events.push({ t: 'flinch', side: i, name: user.name }); return; }
+  if (user.recharge) { user.recharge = false; user.moved = true; events.push({ t: 'recharge', side: i, name: user.name }); return; }
   if (user.status === 'slp') {
     user.sleepTurns--;
     if (user.sleepTurns > 0) { user.moved = true; events.push({ t: 'status_skip', side: i, name: user.name, status: 'slp' }); return; }
@@ -22612,6 +22769,11 @@ function executeMove(state, i, action, events, rng) {
   }
   const recoil = moveFx(mv, 'recoil');
   if (recoil && total > 0 && user.ability !== 'thick_skull') hurtBattler(state, i, Math.max(1, total * recoil.r), events, 'recoil');
+  const restore = moveFx(mv, 'restore');
+  if (restore && total > 0 && !user.fainted) healBattler(state, i, Math.max(1, user.maxHp * restore.r), events, 'restore');
+  if (moveFx(mv, 'cure') && total > 0 && user.status) { const was = user.status; user.status = null; user.sleepTurns = 0; events.push({ t: 'cure', side: i, name: user.name, status: was, why: 'move' }); }
+  if (moveFx(mv, 'recharge') && total > 0 && !user.fainted) user.recharge = true;
+  if (moveFx(mv, 'cleanse') && total > 0 && !target.fainted && Object.values(target.stages).some((n) => n !== 0)) { target.stages = freshStages(); events.push({ t: 'cleanse', side: foeSide, name: target.name }); }
   if (mv.struggle) hurtBattler(state, i, Math.max(1, user.maxHp / 4), events, 'struggle');
 
   if (!target.fainted) applySecondaries(state, i, mv, events, rng);
@@ -22731,16 +22893,18 @@ function describeEvent(e, names = ['You', 'Foe'], opts = {}) {
     case 'no_effect': return e.reason === 'already' ? `${who} is already affected.` : e.reason === 'full' ? `${who}'s HP is already full.` : e.reason === 'immune' ? `It doesn't affect ${who}…` : 'But it failed!';
     case 'status': return `${who} ${STATUS_INFO[e.status].verb}!`;
     case 'status_skip': return e.status === 'slp' ? `${who} is fast asleep.` : e.status === 'frz' ? `${who} is frozen solid!` : `${who} is paralyzed and can't move!`;
-    case 'cure': return e.why === 'item' ? `${who} was cured of its ${STATUS_INFO[e.status].name.toLowerCase()}!` : e.status === 'slp' ? `${who} woke up!` : e.status === 'frz' ? `${who} thawed out!` : `${who} recovered.`;
+    case 'cure': return e.why === 'item' || e.why === 'move' ? `${who} was cured of its ${STATUS_INFO[e.status].name.toLowerCase()}!` : e.status === 'slp' ? `${who} woke up!` : e.status === 'frz' ? `${who} thawed out!` : `${who} recovered.`;
     case 'item': return `${foe ? names[1] : names[0]} used a ${e.item} on ${e.name}!`;
     case 'flinch': return `${who} flinched!`;
+    case 'recharge': return `${who} must recharge!`;
+    case 'cleanse': return `${who}'s stat changes were swept away!`;
     case 'stat': {
       const label = STAT_LABEL[e.stat] || e.stat;
       if (e.stages === 0) return `${who}'s ${label} won't go any ${e.wanted > 0 ? 'higher' : 'lower'}!`;
       const size = Math.abs(e.stages) >= 2 ? 'sharply ' : '';
       return `${who}'s ${label} ${size}${e.stages > 0 ? 'rose' : 'fell'}!`;
     }
-    case 'heal': return e.why === 'drain' ? `${who} drained some HP!` : `${who} recovered ${e.amount} HP.`;
+    case 'heal': return e.why === 'drain' ? `${who} drained some HP!` : e.why === 'restore' ? `${who} restored ${e.amount} HP!` : `${who} recovered ${e.amount} HP.`;
     case 'hurt': return e.why === 'recoil' || e.why === 'struggle' ? `${who} is hit with recoil!` : e.why === 'brn' ? `${who} is hurt by its burn!` : e.why === 'psn' ? `${who} is hurt by poison!` : e.why === 'thorns' ? `${who} is pricked by thorns!` : `${who} took ${e.amount} damage.`;
     case 'ability': return `[${who}'s ${e.ability}]`;
     case 'faint': return `${who} fainted!`;
@@ -22785,6 +22949,11 @@ function scoreMove(state, side, action, rng) {
       if (f.k === 'drain') s += frac * 25 * f.r;
       if (f.k === 'recoil') s -= frac * 20 * f.r;
       if (f.k === 'flinch' && faster) s += 15 * p;
+      if (f.k === 'restore' && me.hp < me.maxHp) s += 20 * f.r * (1 - me.hp / me.maxHp) * 4;
+      if (f.k === 'cure' && me.status) s += 12;
+      if (f.k === 'recharge' && est < foe.hp) s -= 18;
+      if (f.k === 'cleanse') s += 4 * Object.values(foe.stages).reduce((a, n) => a + Math.max(0, n), 0);
+      if (f.k === 'pierce') s += 4 * Math.max(0, foe.stages[`${mv.cat}Def`] || 0);
     }
     if (mv.struggle) s -= 30;
     return s;
@@ -24541,9 +24710,9 @@ function moveCost(mv) {
   return MARKET.unit * Math.max(1, Math.ceil((m.power || 0) / MARKET.powerPerUnit) - 1);
 }
 
-/** Everything the Market sells: every move, cheapest first, then by name. */
+/** Everything the Market sells: every move but the rares' signatures, cheapest first, then by name. */
 function marketCatalogue() {
-  return MOVES.filter((m) => !m.struggle).map((move) => ({ move, cost: moveCost(move) })).sort((a, b) => a.cost - b.cost || (a.move.name < b.move.name ? -1 : 1));
+  return MOVES.filter((m) => !m.struggle && !m.signature).map((move) => ({ move, cost: moveCost(move) })).sort((a, b) => a.cost - b.cost || (a.move.name < b.move.name ? -1 : 1));
 }
 
 /** Gold for a beaten team: creature count times average level, scaled for bosses and rematches, rounded to tens. */
@@ -24624,6 +24793,7 @@ function bagList(j) {
 function buyMove(j, moveId) {
   const mv = getMove(moveId);
   if (!mv || mv.struggle || getItem(moveId)) return { ok: false, reason: 'The Market does not sell that.', cost: 0 };
+  if (mv.signature) return { ok: false, reason: `${mv.name} belongs to one species alone; no scroll of it exists.`, cost: 0 };
   const cost = moveCost(mv);
   if (bagCount(j, moveId) >= MARKET.maxStack) return { ok: false, reason: 'Your bag cannot hold more of those.', cost };
   if ((j.gold || 0) < cost) return { ok: false, reason: `Not enough gold: ${mv.name} costs ${cost}.`, cost };

@@ -23,7 +23,7 @@ test('move and ability tables are well formed', () => {
     if (mv.cat === 'status') assert.equal(mv.power, 0, mv.id);
     else assert.ok(mv.power > 0 || moveFx(mv, 'fixed'), mv.id);
     assert.ok(mv.pp > 0 && (mv.acc == null || (mv.acc > 0 && mv.acc <= 100)), mv.id);
-    for (const f of mv.fx) assert.ok(['status', 'stat', 'flinch', 'drain', 'recoil', 'heal', 'multi', 'fixed', 'boostIfStatus'].includes(f.k), `${mv.id} fx ${f.k}`);
+    for (const f of mv.fx) assert.ok(['status', 'stat', 'flinch', 'drain', 'recoil', 'heal', 'multi', 'fixed', 'boostIfStatus', 'restore', 'cure', 'pierce', 'recharge', 'cleanse', 'boostIfLow', 'boostIfFirst'].includes(f.k), `${mv.id} fx ${f.k}`);
   }
   for (const s of SPECIES) {
     assert.ok(s.learnset.length >= 6, `${s.id} learnset`);

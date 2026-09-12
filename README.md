@@ -18,7 +18,7 @@ Phase 2 — Fusion: fuse any two creatures of a class into one, with an
 inheritance report; stress-tested over five generations. It shipped as a
 Fusion Lab tab and now lives at the overworld's shrine.
 
-Phase 3 — Battle: a deterministic, headless battle engine (157 moves, 30
+Phase 3 — Battle: a deterministic, headless battle engine (326 moves, 30
 abilities, status, stages, switching, parties of five, AI opponent, balance
 simulator) and a portrait fight view.
 
@@ -63,6 +63,12 @@ signatures), taking the roster to 895. Classes lock fusion to
 the same anatomy. All eighteen classes are on rigs and the old shared skeleton is gone. A fantasy pass then
 pushed every slot away from field-guide realism: forehead sigils, tufted and
 leaf ears, orb and flame tails, glowing tips and bold markings. See `DESIGN.md`.
+
+Signature moves: every rare species (129 of them) learns a move of its own at
+level 38 that no other species has and no scroll teaches; fusion can carry it
+on. Seven new move effects came with them: restoring HP on a hit, curing the
+user's own status, piercing defence boosts, resting the turn after a huge hit,
+sweeping the foe's stat changes, and bonuses at low HP or for moving first.
 
 Damage triangle: every attack is Melee, Ranged or Magic with its own attack and
 defense stat; Magic beats Ranged beats Melee beats Magic against a creature's

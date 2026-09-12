@@ -7,7 +7,11 @@
 //   { k:'flinch', p }                                         target flinches if it has not moved yet
 //   { k:'drain', r }  { k:'recoil', r }  { k:'heal', r }      fractions of damage dealt / max HP
 //   { k:'multi', min, max }  { k:'fixed', v:'level' }  { k:'boostIfStatus', m }
-// flags: contact, punch, bite, powder, sound.
+//   { k:'restore', r }   heal the user r of its max HP after a hit     { k:'cure' }      clear the user's own status after a hit
+//   { k:'pierce' }       ignore the target's defence boosts (and the user's attack drops), like a critical hit
+//   { k:'recharge' }     the user rests the turn after a hit           { k:'cleanse' }   reset the target's stat stages
+//   { k:'boostIfLow', m } power ×m at a third HP or less               { k:'boostIfFirst', m } power ×m when the target has not moved yet
+// flags: contact, punch, bite, powder, sound. `signature: speciesId` marks a rare's own move: learned at 38, never sold.
 
 import { STAT_NAMES } from './damage.js';
 
@@ -15,7 +19,7 @@ import { STAT_NAMES } from './damage.js';
  * PP rule: the harder a move hits, or the nastier its side effect, the fewer times it can be used.
  * Damaging moves start from a band by power (multi-hit moves count three hits, fixed-damage moves as 60)
  * and drop one band per strong extra: a status at 30%+ (two bands when guaranteed), a flinch at 30%+, a
- * likely (50%+) foe debuff or self buff, draining, and each point of positive priority.
+ * likely (50%+) foe debuff or self buff, draining, restoring, piercing, cleansing, a first-mover bonus, and each point of positive priority.
  * Status moves: sleep or freeze 10, other major statuses 15, healing 10, sharp stat changes (±2, three
  * stats or more, accuracy or evasion) 20, ordinary stat changes 30.
  */
@@ -46,6 +50,7 @@ export function ppFor(mv) {
     if ((stat.who === 'foe' && vals.some((v) => v < 0)) || (stat.who === 'self' && vals.some((v) => v > 0))) steps += 1;
   }
   if (drain) steps += 1;
+  for (const k of ['restore', 'pierce', 'cleanse', 'boostIfFirst']) if (find(k)) steps += 1;
   if (mv.prio > 0) steps += Math.min(2, mv.prio);
   band = Math.min(R.bands.length - 1, band + steps);
   return R.bands[band][1];
@@ -80,6 +85,13 @@ export function moveEffects(mv) {
       case 'multi': out.push(`hits ${f.min}–${f.max}×`); break;
       case 'fixed': out.push('damage = level'); break;
       case 'boostIfStatus': out.push(`×${f.m} vs status`); break;
+      case 'restore': out.push(`restores ${Math.round(f.r * 100)}% HP`); break;
+      case 'cure': out.push('cures own status'); break;
+      case 'pierce': out.push('ignores defence boosts'); break;
+      case 'recharge': out.push('rests next turn'); break;
+      case 'cleanse': out.push('resets foe stat changes'); break;
+      case 'boostIfLow': out.push(`×${f.m} at low HP`); break;
+      case 'boostIfFirst': out.push(`×${f.m} moving first`); break;
       default: break;
     }
   }
@@ -311,6 +323,136 @@ export const MOVES = [
   m('chrome_slam', 'Chrome Slam', 'Steel', 'melee', 85, 100, { flags: CONTACT, fx: [STAT('self', { meleeDef: 1, rangedDef: 1 }, 20)] }),
   m('venom_gore', 'Venom Gore', 'Poison', 'melee', 100, 90, { flags: CONTACT, fx: [ST('psn', 30)] }),
   m('inferno_charge', 'Inferno Charge', 'Fire', 'melee', 100, 90, { flags: CONTACT, fx: [ST('brn', 20)] }),
+  // ---- signature moves: one per rare species, learned at level 38 and never sold at the Market ----
+  m('pebble_hoard_slam', 'Pebble Hoard Slam', 'Dragon', 'melee', 95, 100, { signature: 'drakelet', flags: ['contact'], fx: [STAT('foe', { meleeDef: -1 })] }),
+  m('rust_grinder', 'Rust Grinder', 'Steel', 'melee', 90, 100, { signature: 'boltmaw', flags: ['contact', 'bite'], fx: [{ k: 'pierce' }] }),
+  m('harbour_coil', 'Harbour Coil', 'Water', 'magic', 95, 100, { signature: 'tidalisk', fx: [STAT('foe', { spe: -1 })] }),
+  m('thermal_dive', 'Thermal Dive', 'Flying', 'ranged', 85, 100, { signature: 'wyvernet', fx: [{ k: 'boostIfFirst', m: 1.5 }] }),
+  m('shadow_fang', 'Shadow Fang', 'Ghost', 'magic', 80, 100, { signature: 'voidviper', fx: [{ k: 'boostIfStatus', m: 2 }] }),
+  m('heat_sight_strike', 'Heat Sight Strike', 'Dark', 'melee', 90, null, { signature: 'bloodrake', flags: ['contact'] }),
+  m('lava_wallow', 'Lava Wallow', 'Fire', 'melee', 100, 100, { signature: 'magmasaur', flags: ['contact'], fx: [ST('brn', 20)] }),
+  m('frost_mirror', 'Frost Mirror', 'Ice', 'magic', 100, 100, { signature: 'mirrorviper', fx: [ST('frz', 10), STAT('foe', { spe: -1 }, 20)] }),
+  m('quill_lightning', 'Quill Lightning', 'Electric', 'ranged', 100, 100, { signature: 'thunderguana', fx: [ST('par', 20)] }),
+  m('dusk_answer', 'Dusk Answer', 'Psychic', 'magic', 90, 100, { signature: 'halowl', fx: [{ k: 'cleanse' }] }),
+  m('hundred_eyes', 'Hundred Eyes', 'Fairy', 'magic', 90, 95, { signature: 'plumaura', fx: [STAT('foe', { acc: -1 }, 50)] }),
+  m('sunwheel', 'Sunwheel', 'Dragon', 'magic', 90, 100, { signature: 'aurodrake', fx: [{ k: 'boostIfLow', m: 1.5 }] }),
+  m('silent_hoot', 'Silent Hoot', 'Ghost', 'magic', 90, 100, { signature: 'voidowl', fx: [FLINCH(30)] }),
+  m('carrion_dive', 'Carrion Dive', 'Dark', 'melee', 70, 100, { signature: 'bloodkite', prio: 1, flags: ['contact'] }),
+  m('rekindle', 'Rekindle', 'Fire', 'magic', 90, 100, { signature: 'phoenixquill', fx: [{ k: 'restore', r: 0.25 }] }),
+  m('storm_shadow', 'Storm Shadow', 'Electric', 'ranged', 140, 90, { signature: 'thunderroc', fx: [{ k: 'recharge' }] }),
+  m('causeway_lament', 'Causeway Lament', 'Ice', 'magic', 100, 100, { signature: 'gravecrane', fx: [ST('frz', 10), STAT('foe', { spe: -1 }, 20)] }),
+  m('noon_roar', 'Noon Roar', 'Fire', 'melee', 85, 100, { signature: 'solmane', flags: ['contact', 'sound'], fx: [STAT('self', { melee: 1 })] }),
+  m('unbent_grass', 'Unbent Grass', 'Dragon', 'magic', 90, null, { signature: 'kirinth' }),
+  m('room_gap', 'Room Gap', 'Ghost', 'magic', 85, 100, { signature: 'voidlynx', fx: [{ k: 'boostIfFirst', m: 1.5 }] }),
+  m('unmentioned_maul', 'Unmentioned Maul', 'Fighting', 'melee', 130, 100, { signature: 'bloodmane', flags: ['contact'], fx: [{ k: 'recoil', r: 0.33 }] }),
+  m('smoulder_swipe', 'Smoulder Swipe', 'Fire', 'melee', 100, 100, { signature: 'emberclaw', flags: ['contact'], fx: [ST('brn', 20)] }),
+  m('northern_veil', 'Northern Veil', 'Ice', 'magic', 85, 100, { signature: 'auroralynx', fx: [STAT('self', { spe: 1 })] }),
+  m('furrow_charge', 'Furrow Charge', 'Ground', 'melee', 95, 100, { signature: 'ironboar', flags: ['contact'], fx: [STAT('foe', { meleeDef: -1 })] }),
+  m('grudge_current', 'Grudge Current', 'Water', 'magic', 80, 100, { signature: 'hippodrake', fx: [{ k: 'boostIfStatus', m: 2 }] }),
+  m('reflection_bout', 'Reflection Bout', 'Fighting', 'melee', 85, 100, { signature: 'brawlfin', flags: ['contact'], fx: [STAT('self', { melee: 1 })] }),
+  m('almost_thought', 'Almost Thought', 'Psychic', 'magic', 90, 95, { signature: 'voidangler', fx: [STAT('foe', { acc: -1 }, 50)] }),
+  m('red_water', 'Red Water', 'Dark', 'melee', 90, 100, { signature: 'bloodgill', flags: ['contact', 'bite'], fx: [{ k: 'drain', r: 0.5 }] }),
+  m('yearly_surfacing', 'Yearly Surfacing', 'Water', 'magic', 140, 90, { signature: 'leviatide', fx: [{ k: 'recharge' }] }),
+  m('thunderhead_fall', 'Thunderhead Fall', 'Electric', 'ranged', 85, 100, { signature: 'stormgill', fx: [{ k: 'boostIfFirst', m: 1.5 }] }),
+  m('rivet_jaws', 'Rivet Jaws', 'Steel', 'melee', 90, 100, { signature: 'bonepike', flags: ['contact', 'bite'], fx: [{ k: 'pierce' }] }),
+  m('spot_count', 'Spot Count', 'Psychic', 'magic', 90, null, { signature: 'oraclebug' }),
+  m('window_wings', 'Window Wings', 'Ghost', 'magic', 90, 100, { signature: 'voidmoth', fx: [STAT('foe', { magic: -1 })] }),
+  m('enforcer_sting', 'Enforcer Sting', 'Fighting', 'melee', 100, 100, { signature: 'bloodhornet', flags: ['contact'], fx: [ST('psn', 20)] }),
+  m('short_prayer', 'Short Prayer', 'Fire', 'melee', 70, 100, { signature: 'infernomantis', prio: 1, flags: ['contact'] }),
+  m('meadow_frost', 'Meadow Frost', 'Ice', 'magic', 100, 100, { signature: 'glassmoth', fx: [ST('frz', 10), STAT('foe', { spe: -1 }, 20)] }),
+  m('union_pincer', 'Union Pincer', 'Steel', 'melee', 120, 100, { signature: 'ironstag', flags: ['contact'], fx: [STAT('self', { meleeDef: -1, rangedDef: -1, magicDef: -1 })] }),
+  m('boiling_punch', 'Boiling Punch', 'Fighting', 'melee', 100, 100, { signature: 'smashrimp', flags: ['contact', 'punch'], fx: [ST('brn', 20)] }),
+  m('last_light_bell', 'Last Light Bell', 'Ghost', 'magic', 90, 100, { signature: 'voidjelly', fx: [{ k: 'boostIfLow', m: 1.5 }] }),
+  m('wrestle_drink', 'Wrestle Drink', 'Fighting', 'melee', 90, 100, { signature: 'bloodleech', flags: ['contact'], fx: [{ k: 'drain', r: 0.5 }] }),
+  m('small_grip', 'Small Grip', 'Water', 'melee', 95, 100, { signature: 'krakenling', flags: ['contact'], fx: [STAT('foe', { spe: -1 })] }),
+  m('reef_thought', 'Reef Thought', 'Psychic', 'magic', 120, 100, { signature: 'coralmind', fx: [STAT('self', { magic: -2 })] }),
+  m('drowned_lantern', 'Drowned Lantern', 'Electric', 'magic', 100, 100, { signature: 'voltmedusa', fx: [ST('par', 20)] }),
+  m('regrow_spit', 'Regrow Spit', 'Dragon', 'ranged', 90, 100, { signature: 'wyrmlotl', fx: [{ k: 'restore', r: 0.25 }] }),
+  m('nothing_smile', 'Nothing Smile', 'Ghost', 'magic', 90, 100, { signature: 'voidlotl', fx: [{ k: 'cleanse' }] }),
+  m('fen_breaker', 'Fen Breaker', 'Fighting', 'melee', 120, 100, { signature: 'bloodnewt', flags: ['contact'], fx: [STAT('self', { meleeDef: -1, rangedDef: -1, magicDef: -1 })] }),
+  m('spa_scald', 'Spa Scald', 'Fire', 'magic', 95, 100, { signature: 'lavalotl', fx: [{ k: 'cure' }] }),
+  m('thunder_croak', 'Thunder Croak', 'Electric', 'melee', 100, 100, { signature: 'thunderbull', flags: ['contact', 'punch'], fx: [ST('par', 20)] }),
+  m('old_toad_decree', 'Old Toad Decree', 'Grass', 'ranged', 90, 100, { signature: 'marshwarden', fx: [STAT('foe', { ranged: -1 })] }),
+  m('pond_dream', 'Pond Dream', 'Psychic', 'magic', 80, 100, { signature: 'dreamlotus', fx: [{ k: 'boostIfStatus', m: 2 }] }),
+  m('root_memory', 'Root Memory', 'Grass', 'magic', 140, 90, { signature: 'wyrmwood', fx: [{ k: 'recharge' }] }),
+  m('inward_bloom', 'Inward Bloom', 'Ghost', 'magic', 90, 100, { signature: 'voidbloom', fx: [{ k: 'drain', r: 0.5 }] }),
+  m('duel_thorn', 'Duel Thorn', 'Fighting', 'melee', 90, 100, { signature: 'bloodrose', crit: 1, flags: ['contact'] }),
+  m('outshine', 'Outshine', 'Fire', 'magic', 90, 100, { signature: 'sunflare', fx: [{ k: 'boostIfLow', m: 1.5 }] }),
+  m('slow_century', 'Slow Century', 'Grass', 'melee', 140, 90, { signature: 'ancientoak', flags: ['contact'], fx: [{ k: 'recharge' }] }),
+  m('monthly_wish', 'Monthly Wish', 'Fairy', 'magic', 90, 100, { signature: 'moonlily', fx: [{ k: 'restore', r: 0.25 }] }),
+  m('ripple_thought', 'Ripple Thought', 'Psychic', 'magic', 90, 100, { signature: 'mindmuck', fx: [STAT('foe', { magic: -1 })] }),
+  m('sump_breath', 'Sump Breath', 'Dragon', 'magic', 100, 100, { signature: 'dragoop', fx: [ST('psn', 20)] }),
+  m('absence_step', 'Absence Step', 'Ghost', 'magic', 85, 100, { signature: 'voidslime', fx: [{ k: 'boostIfFirst', m: 1.5 }] }),
+  m('crimson_rush', 'Crimson Rush', 'Dark', 'melee', 70, 100, { signature: 'bloodooze', prio: 1, flags: ['contact'] }),
+  m('first_tide', 'First Tide', 'Water', 'magic', 90, 100, { signature: 'primordium', fx: [{ k: 'cleanse' }] }),
+  m('jarless_storm', 'Jarless Storm', 'Electric', 'ranged', 100, 100, { signature: 'plasmoid', fx: [ST('par', 20)] }),
+  m('worst_mood', 'Worst Mood', 'Poison', 'melee', 100, 100, { signature: 'bilebeast', flags: ['contact', 'bite'], fx: [ST('psn', 20)] }),
+  m('unreal_colours', 'Unreal Colours', 'Psychic', 'magic', 90, 95, { signature: 'mindcap', fx: [STAT('foe', { acc: -1 }, 50)] }),
+  m('century_spore', 'Century Spore', 'Dragon', 'magic', 80, 100, { signature: 'drakecap', fx: [{ k: 'boostIfStatus', m: 2 }] }),
+  m('memory_gap', 'Memory Gap', 'Ghost', 'magic', 90, 100, { signature: 'voidcap', fx: [{ k: 'cleanse' }] }),
+  m('faster_warning', 'Faster Warning', 'Fighting', 'melee', 70, 100, { signature: 'bloodmorel', prio: 1, flags: ['contact'] }),
+  m('litter_dominion', 'Litter Dominion', 'Grass', 'magic', 90, 100, { signature: 'sporelord', fx: [{ k: 'drain', r: 0.5 }] }),
+  m('cold_blue_light', 'Cold Blue Light', 'Electric', 'ranged', 95, 100, { signature: 'glowshroom', fx: [STAT('foe', { spe: -1 })] }),
+  m('granite_cap_drop', 'Granite Cap Drop', 'Rock', 'melee', 140, 90, { signature: 'stonecap', flags: ['contact'], fx: [{ k: 'recharge' }] }),
+  m('empty_hoard', 'Empty Hoard', 'Ghost', 'magic', 90, 100, { signature: 'gloomwyrm', fx: [{ k: 'boostIfLow', m: 1.5 }] }),
+  m('hidden_pearl', 'Hidden Pearl', 'Fairy', 'magic', 90, 100, { signature: 'pearlwyrm', fx: [{ k: 'restore', r: 0.25 }] }),
+  m('nine_hundred_years', 'Nine Hundred Years', 'Psychic', 'magic', 140, 90, { signature: 'sagecoil', fx: [{ k: 'recharge' }] }),
+  m('star_gap', 'Star Gap', 'Ghost', 'magic', 90, 100, { signature: 'voidwyrm', fx: [{ k: 'pierce' }] }),
+  m('quiet_gorge', 'Quiet Gorge', 'Dark', 'melee', 85, 100, { signature: 'bloodwyrm', flags: ['contact'], fx: [{ k: 'boostIfFirst', m: 1.5 }] }),
+  m('noon_crossing', 'Noon Crossing', 'Fire', 'magic', 100, 100, { signature: 'sunwyrm', fx: [ST('brn', 20)] }),
+  m('freeze_and_thaw', 'Freeze and Thaw', 'Ice', 'ranged', 100, 100, { signature: 'tidalcoil', fx: [ST('frz', 10), STAT('foe', { spe: -1 }, 20)] }),
+  m('inside_stars', 'Inside Stars', 'Psychic', 'magic', 90, null, { signature: 'starcoil' }),
+  m('sleep_hum', 'Sleep Hum', 'Fairy', 'magic', 90, 100, { signature: 'lightdrake', flags: ['sound'], fx: [{ k: 'restore', r: 0.25 }] }),
+  m('unslain_breath', 'Unslain Breath', 'Ghost', 'magic', 80, 100, { signature: 'wraithdrake', fx: [{ k: 'boostIfStatus', m: 2 }] }),
+  m('eldest_word', 'Eldest Word', 'Dragon', 'magic', 90, 100, { signature: 'eldrake', flags: ['sound'], fx: [STAT('foe', { magic: -1 })] }),
+  m('colourless_breath', 'Colourless Breath', 'Ghost', 'magic', 120, 100, { signature: 'voiddrake', fx: [STAT('self', { magic: -2 })] }),
+  m('second_try', 'Second Try', 'Fighting', 'melee', 90, null, { signature: 'blooddrake', flags: ['contact'] }),
+  m('snowline_furnace', 'Snowline Furnace', 'Fire', 'magic', 140, 90, { signature: 'infernodrake', fx: [{ k: 'recharge' }] }),
+  m('cloud_argument', 'Cloud Argument', 'Electric', 'ranged', 90, 100, { signature: 'tempestdrake', fx: [FLINCH(30)] }),
+  m('bell_scale_slam', 'Bell Scale Slam', 'Steel', 'melee', 120, 100, { signature: 'titandrake', flags: ['contact'], fx: [STAT('self', { meleeDef: -1, rangedDef: -1, magicDef: -1 })] }),
+  m('half_thought', 'Half Thought', 'Psychic', 'magic', 85, 100, { signature: 'wispbone', fx: [{ k: 'boostIfFirst', m: 1.5 }] }),
+  m('barrow_waking', 'Barrow Waking', 'Dragon', 'magic', 90, 100, { signature: 'dreadrake', fx: [FLINCH(30)] }),
+  m('marrow_reader', 'Marrow Reader', 'Ghost', 'magic', 90, 100, { signature: 'voidmarrow', fx: [STAT('foe', { magic: -1 })] }),
+  m('dry_bone_haymaker', 'Dry Bone Haymaker', 'Fighting', 'melee', 130, 100, { signature: 'bloodmarrow', flags: ['contact', 'punch'], fx: [{ k: 'recoil', r: 0.33 }] }),
+  m('iron_crown_kneel', 'Iron Crown Kneel', 'Steel', 'melee', 95, 100, { signature: 'ossarch', flags: ['contact'], fx: [STAT('foe', { meleeDef: -1 })] }),
+  m('planned_pyre', 'Planned Pyre', 'Fire', 'magic', 100, 100, { signature: 'pyrelich', fx: [ST('brn', 20)] }),
+  m('old_sea_volley', 'Old Sea Volley', 'Water', 'ranged', 45, 90, { signature: 'deepfossil', fx: [{ k: 'multi', min: 2, max: 3 }] }),
+  m('gone_before_seen', 'Gone Before Seen', 'Ghost', 'magic', 70, 100, { signature: 'wraithwing', prio: 1 }),
+  m('blot_out', 'Blot Out', 'Dark', 'melee', 90, 100, { signature: 'nightmaw', flags: ['contact'], fx: [FLINCH(30)] }),
+  m('nowhere_echo', 'Nowhere Echo', 'Psychic', 'magic', 90, null, { signature: 'voidbat', flags: ['sound'] }),
+  m('fight_back_drink', 'Fight Back Drink', 'Dark', 'melee', 90, 100, { signature: 'bloodwing', flags: ['contact', 'bite'], fx: [{ k: 'drain', r: 0.5 }] }),
+  m('heat_drink', 'Heat Drink', 'Fire', 'melee', 90, 100, { signature: 'vampryre', flags: ['contact', 'bite'], fx: [{ k: 'restore', r: 0.25 }] }),
+  m('chasm_echo', 'Chasm Echo', 'Psychic', 'magic', 90, 100, { signature: 'sonarch', flags: ['sound'], fx: [{ k: 'cleanse' }] }),
+  m('shadow_roost', 'Shadow Roost', 'Dark', 'magic', 80, 100, { signature: 'umbrabat', fx: [{ k: 'boostIfStatus', m: 2 }] }),
+  m('hum_back', 'Hum Back', 'Psychic', 'magic', 90, 100, { signature: 'mindshard', flags: ['sound'], fx: [STAT('foe', { magic: -1 })] }),
+  m('garnet_fang', 'Garnet Fang', 'Rock', 'melee', 90, 100, { signature: 'drakonyx', crit: 1, flags: ['contact', 'bite'] }),
+  m('light_sink', 'Light Sink', 'Ghost', 'magic', 90, 100, { signature: 'voidcrystal', fx: [{ k: 'drain', r: 0.5 }] }),
+  m('lamp_read', 'Lamp Read', 'Psychic', 'magic', 90, 100, { signature: 'prismgeode', fx: [{ k: 'pierce' }] }),
+  m('cut_back', 'Cut Back', 'Fighting', 'melee', 90, 100, { signature: 'bloodgarnet', flags: ['contact'], fx: [{ k: 'boostIfLow', m: 1.5 }] }),
+  m('hardest_thing', 'Hardest Thing', 'Rock', 'melee', 90, 100, { signature: 'diamondrake', flags: ['contact'], fx: [{ k: 'pierce' }] }),
+  m('trapped_lights', 'Trapped Lights', 'Ice', 'magic', 100, 100, { signature: 'auroragem', fx: [ST('frz', 10), STAT('foe', { spe: -1 }, 20)] }),
+  m('unquenched_fire', 'Unquenched Fire', 'Fire', 'magic', 90, 100, { signature: 'emberonyx', fx: [{ k: 'boostIfLow', m: 1.5 }] }),
+  m('spiral_thought', 'Spiral Thought', 'Psychic', 'magic', 120, 100, { signature: 'mindcoil', fx: [STAT('self', { magic: -2 })] }),
+  m('longest_coil', 'Longest Coil', 'Dragon', 'melee', 95, 100, { signature: 'wyrmpede', flags: ['contact'], fx: [STAT('foe', { spe: -1 })] }),
+  m('two_answers', 'Two Answers', 'Ghost', 'magic', 90, 95, { signature: 'voidcrawl', fx: [STAT('foe', { acc: -1 }, 50)] }),
+  m('tightening_coil', 'Tightening Coil', 'Fighting', 'melee', 95, 100, { signature: 'bloodcoil', flags: ['contact'], fx: [STAT('foe', { spe: -1 })] }),
+  m('root_kindler', 'Root Kindler', 'Fire', 'melee', 100, 100, { signature: 'scolopyre', flags: ['contact'], fx: [ST('brn', 20)] }),
+  m('unmeasured_deep', 'Unmeasured Deep', 'Water', 'ranged', 140, 90, { signature: 'deepcrawl', fx: [{ k: 'recharge' }] }),
+  m('make_way', 'Make Way', 'Bug', 'melee', 120, 100, { signature: 'kingpede', flags: ['contact'], fx: [STAT('self', { meleeDef: -1, rangedDef: -1, magicDef: -1 })] }),
+  m('signed_already', 'Signed Already', 'Psychic', 'magic', 80, 100, { signature: 'pactling', fx: [{ k: 'boostIfStatus', m: 2 }] }),
+  m('sink_answer', 'Sink Answer', 'Fire', 'magic', 140, 90, { signature: 'archfiend', fx: [{ k: 'recharge' }] }),
+  m('sold_shadow', 'Sold Shadow', 'Ghost', 'magic', 85, 100, { signature: 'voidfiend', fx: [{ k: 'boostIfFirst', m: 1.5 }] }),
+  m('scar_collector', 'Scar Collector', 'Fighting', 'melee', 85, 100, { signature: 'bloodfiend', flags: ['contact'], fx: [STAT('self', { melee: 1 })] }),
+  m('spite_haymaker', 'Spite Haymaker', 'Fighting', 'melee', 130, 100, { signature: 'hellion', flags: ['contact', 'punch'], fx: [{ k: 'recoil', r: 0.33 }] }),
+  m('brimstone_bargain', 'Brimstone Bargain', 'Poison', 'ranged', 100, 100, { signature: 'sulfurax', fx: [ST('psn', 20)] }),
+  m('already_known', 'Already Known', 'Dark', 'magic', 90, null, { signature: 'nightsovereign' }),
+  m('sleeper_key', 'Sleeper Key', 'Psychic', 'magic', 90, 95, { signature: 'dreamveil', fx: [STAT('foe', { acc: -1 }, 50)] }),
+  m('what_is_left', 'What Is Left', 'Dragon', 'magic', 90, 100, { signature: 'eldershade', fx: [{ k: 'boostIfLow', m: 1.5 }] }),
+  m('something_behind', 'Something Behind', 'Ghost', 'magic', 90, 100, { signature: 'voidwraith', fx: [FLINCH(30)] }),
+  m('vigil_fists', 'Vigil Fists', 'Fighting', 'melee', 85, 100, { signature: 'bloodwraith', flags: ['contact', 'punch'], fx: [STAT('self', { melee: 1 })] }),
+  m('lamp_wail', 'Lamp Wail', 'Ghost', 'magic', 95, 100, { signature: 'banshee', flags: ['sound'], fx: [STAT('foe', { spe: -1 })] }),
+  m('one_more_fight', 'One More Fight', 'Fighting', 'melee', 90, 100, { signature: 'revenant', flags: ['contact'], fx: [{ k: 'boostIfLow', m: 1.5 }] }),
+  m('lamp_throw', 'Lamp Throw', 'Electric', 'ranged', 90, 100, { signature: 'polterwisp', fx: [FLINCH(30)] }),
 ];
 
 
@@ -321,6 +463,9 @@ export const MOVES_BY_ID = new Map(MOVES.map((mv) => [mv.id, mv]));
 export function getMove(id) { return id === 'struggle' ? STRUGGLE : MOVES_BY_ID.get(id) || null; }
 export function moveFx(mv, kind) { return mv.fx.find((f) => f.k === kind) || null; }
 export function isDamaging(mv) { return mv.cat !== 'status'; }
+/** Moves that belong to one rare species: never sold, and tagged on sheets and cards. */
+export const SIGNATURE_MOVES = MOVES.filter((mv) => mv.signature);
+export function signatureOf(speciesId) { return SIGNATURE_MOVES.find((mv) => mv.signature === speciesId) || null; }
 
 /** Fallback moves any creature can learn, used to pad thin learnsets. */
 export const UNIVERSAL_LEARNSET = [[1, 'bump'], [10, 'dash'], [20, 'rake'], [30, 'bellow']];

@@ -32,6 +32,11 @@ function scoreMove(state, side, action, rng) {
       if (f.k === 'drain') s += frac * 25 * f.r;
       if (f.k === 'recoil') s -= frac * 20 * f.r;
       if (f.k === 'flinch' && faster) s += 15 * p;
+      if (f.k === 'restore' && me.hp < me.maxHp) s += 20 * f.r * (1 - me.hp / me.maxHp) * 4;
+      if (f.k === 'cure' && me.status) s += 12;
+      if (f.k === 'recharge' && est < foe.hp) s -= 18;
+      if (f.k === 'cleanse') s += 4 * Object.values(foe.stages).reduce((a, n) => a + Math.max(0, n), 0);
+      if (f.k === 'pierce') s += 4 * Math.max(0, foe.stages[`${mv.cat}Def`] || 0);
     }
     if (mv.struggle) s -= 30;
     return s;

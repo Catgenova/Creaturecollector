@@ -255,7 +255,7 @@ events back, so a battle is replayable from its start state and action log.
   the user's style), chart effectiveness, the damage triangle (below), burn
   halves Melee and Ranged.
   Multi-hit, drain, recoil, fixed damage, and secondary effects are data on the
-  move (`src/data/moves.js`, 157 moves, original names).
+  move (`src/data/moves.js`, 326 moves, original names, 129 of them signatures).
 - **Status:** burn, poison, paralysis, sleep, freeze with the usual type
   immunities; status-inflicting moves also respect the move type's immunity.
   Stat stages ±6. Struggle when all PP is gone. PP is not authored but derived
@@ -1021,6 +1021,33 @@ spread for the plain ranged one. The final 40,000-game verification read
 40–61% with one species at 61% and a mean of 50.0%. Totals still span 360 to
 520: 72 fast Dark, Ghost and Electric attackers rest on the floor and one
 Fighting brawler on the cap, all inside the band.
+
+## Signature moves (implemented)
+
+Every rare species owns one move. The 129 rares each learn a signature at
+level 38, a twelfth entry on the shared curve, so by the level-50 tournament it
+sits among their four known moves. A signature carries `signature: speciesId`
+in the move table: the Market never lists it, `buyMove` refuses it, and sheets
+and cards tag it. Fusion can pass one down like any other move of the child's
+types, which is the only way a second species ever knows one.
+
+- **Shape.** Each is typed to one of its species' types and cast in the
+  species' own combat style, so it is always the creature's best move rather
+  than a curiosity: 90 power and fully accurate as the baseline, 85 with a
+  first-mover bonus, 70 at priority, 100 with a status chance, 95 with a stat
+  drop, 120 with a self-debuff, 130 with recoil, 140 with a rest turn.
+  Names come from the species' own descriptions (Phoenixquill's Rekindle,
+  Nightsovereign's Already Known, Bloodmarrow's Dry Bone Haymaker).
+- **Seven new effect kinds** were added to the engine for them and are priced
+  by the PP rule like the other extras: `restore` (heal a share of max HP
+  after a hit), `cure` (shake off the user's own status), `pierce` (ignore the
+  target's defence boosts and the user's attack drops, as a critical hit
+  does), `recharge` (the user rests the turn after a hit; switching clears
+  it), `cleanse` (reset the target's stat stages), `boostIfLow` (half again
+  at a third HP or less) and `boostIfFirst` (half again while the target has
+  not moved this turn). The AI weighs each of them.
+- **Balance.** Rares gained a strong move at 50, so the tuner ran again after
+  this patch; see the balance note at the end of the content patches.
 
 ## Mobile view (implemented)
 

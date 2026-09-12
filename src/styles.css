@@ -367,3 +367,7 @@ button, .btn { touch-action: manipulation; }
   .ow-party-mini { width: 140px; }
   .ow-help { display: none; }
 }
+
+/* a rare's signature move: its own move, never sold */
+.shop-row.signature { border-color: rgba(245, 197, 24, .45); background: linear-gradient(90deg, rgba(245, 197, 24, .10), transparent 60%); }
+.shop-row.signature .shop-tag { color: #f5c518; }

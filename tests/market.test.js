@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { makeRng } from '../src/core/rng.js';
-import { MOVES, getMove } from '../src/data/moves.js';
+import { MOVES, getMove, SIGNATURE_MOVES } from '../src/data/moves.js';
 import { SPECIES_BY_ID } from '../src/data/species.js';
 import { speciesGenome, makeElemental } from '../src/creature/genome.js';
 import { makeMember } from '../src/game/party.js';
@@ -32,7 +32,7 @@ test('move prices climb with power in steps of a thousand', () => {
   assert.equal(moveCost('struggle'), 0);
   assert.equal(moveCost('nope'), 0);
   const cat = marketCatalogue();
-  assert.equal(cat.length, MOVES.length);
+  assert.equal(cat.length, MOVES.length - SIGNATURE_MOVES.length, 'every move but the signatures is on sale');
   for (const { move, cost } of cat) {
     assert.ok(cost >= MARKET.unit && cost % MARKET.unit === 0, `${move.id} ${cost}`);
     assert.ok(!move.struggle);

@@ -260,6 +260,7 @@ function doSwitch(state, i, index, events, forced) {
   }
   out.stages = freshStages();
   out.flinch = false;
+  out.recharge = false;
   side.active = index;
   side.party[index].fought = true;
   const inn = side.party[index];
@@ -364,14 +365,19 @@ export function calcDamage(user, target, mv, eff, roll, crit) {
   if (fixed) return user.level;
   const dt = DAMAGE_TYPES[mv.cat] || DAMAGE_TYPES.melee;
   const atkKey = dt.atk, defKey = dt.def;
-  const aStage = crit ? Math.max(0, user.stages[atkKey]) : user.stages[atkKey];
-  const dStage = crit ? Math.min(0, target.stages[defKey]) : target.stages[defKey];
+  const pierce = crit || Boolean(moveFx(mv, 'pierce')); // a critical hit, or a piercing move, ignores the target's guard and the user's own drops
+  const aStage = pierce ? Math.max(0, user.stages[atkKey]) : user.stages[atkKey];
+  const dStage = pierce ? Math.min(0, target.stages[defKey]) : target.stages[defKey];
   let A = user.stats[atkKey] * stageMul(aStage);
   const D = Math.max(1, target.stats[defKey] * stageMul(dStage));
   if (user.ability === 'grit' && user.status && mv.cat !== 'magic') A *= 1.5;
   let power = mv.power;
   const bis = moveFx(mv, 'boostIfStatus');
   if (bis && target.status) power *= bis.m;
+  const low = moveFx(mv, 'boostIfLow');
+  if (low && user.hp <= user.maxHp / 3) power *= low.m;
+  const first = moveFx(mv, 'boostIfFirst');
+  if (first && !target.moved) power *= first.m;
   if (user.ability === 'finesse' && power <= 60) power *= 1.5;
   if (user.ability === 'heavy_hands' && mv.flags.includes('punch')) power *= 1.2;
   if (user.ability === 'vice_jaw' && mv.flags.includes('bite')) power *= 1.5;
@@ -430,6 +436,7 @@ function executeMove(state, i, action, events, rng) {
   const mv = moveOfAction(user, action);
 
   if (user.flinch) { user.flinch = false; user.moved = true; events.push({ t: 'flinch', side: i, name: user.name }); return; }
+  if (user.recharge) { user.recharge = false; user.moved = true; events.push({ t: 'recharge', side: i, name: user.name }); return; }
   if (user.status === 'slp') {
     user.sleepTurns--;
     if (user.sleepTurns > 0) { user.moved = true; events.push({ t: 'status_skip', side: i, name: user.name, status: 'slp' }); return; }
@@ -498,6 +505,11 @@ function executeMove(state, i, action, events, rng) {
   }
   const recoil = moveFx(mv, 'recoil');
   if (recoil && total > 0 && user.ability !== 'thick_skull') hurtBattler(state, i, Math.max(1, total * recoil.r), events, 'recoil');
+  const restore = moveFx(mv, 'restore');
+  if (restore && total > 0 && !user.fainted) healBattler(state, i, Math.max(1, user.maxHp * restore.r), events, 'restore');
+  if (moveFx(mv, 'cure') && total > 0 && user.status) { const was = user.status; user.status = null; user.sleepTurns = 0; events.push({ t: 'cure', side: i, name: user.name, status: was, why: 'move' }); }
+  if (moveFx(mv, 'recharge') && total > 0 && !user.fainted) user.recharge = true;
+  if (moveFx(mv, 'cleanse') && total > 0 && !target.fainted && Object.values(target.stages).some((n) => n !== 0)) { target.stages = freshStages(); events.push({ t: 'cleanse', side: foeSide, name: target.name }); }
   if (mv.struggle) hurtBattler(state, i, Math.max(1, user.maxHp / 4), events, 'struggle');
 
   if (!target.fainted) applySecondaries(state, i, mv, events, rng);
@@ -617,16 +629,18 @@ export function describeEvent(e, names = ['You', 'Foe'], opts = {}) {
     case 'no_effect': return e.reason === 'already' ? `${who} is already affected.` : e.reason === 'full' ? `${who}'s HP is already full.` : e.reason === 'immune' ? `It doesn't affect ${who}…` : 'But it failed!';
     case 'status': return `${who} ${STATUS_INFO[e.status].verb}!`;
     case 'status_skip': return e.status === 'slp' ? `${who} is fast asleep.` : e.status === 'frz' ? `${who} is frozen solid!` : `${who} is paralyzed and can't move!`;
-    case 'cure': return e.why === 'item' ? `${who} was cured of its ${STATUS_INFO[e.status].name.toLowerCase()}!` : e.status === 'slp' ? `${who} woke up!` : e.status === 'frz' ? `${who} thawed out!` : `${who} recovered.`;
+    case 'cure': return e.why === 'item' || e.why === 'move' ? `${who} was cured of its ${STATUS_INFO[e.status].name.toLowerCase()}!` : e.status === 'slp' ? `${who} woke up!` : e.status === 'frz' ? `${who} thawed out!` : `${who} recovered.`;
     case 'item': return `${foe ? names[1] : names[0]} used a ${e.item} on ${e.name}!`;
     case 'flinch': return `${who} flinched!`;
+    case 'recharge': return `${who} must recharge!`;
+    case 'cleanse': return `${who}'s stat changes were swept away!`;
     case 'stat': {
       const label = STAT_LABEL[e.stat] || e.stat;
       if (e.stages === 0) return `${who}'s ${label} won't go any ${e.wanted > 0 ? 'higher' : 'lower'}!`;
       const size = Math.abs(e.stages) >= 2 ? 'sharply ' : '';
       return `${who}'s ${label} ${size}${e.stages > 0 ? 'rose' : 'fell'}!`;
     }
-    case 'heal': return e.why === 'drain' ? `${who} drained some HP!` : `${who} recovered ${e.amount} HP.`;
+    case 'heal': return e.why === 'drain' ? `${who} drained some HP!` : e.why === 'restore' ? `${who} restored ${e.amount} HP!` : `${who} recovered ${e.amount} HP.`;
     case 'hurt': return e.why === 'recoil' || e.why === 'struggle' ? `${who} is hit with recoil!` : e.why === 'brn' ? `${who} is hurt by its burn!` : e.why === 'psn' ? `${who} is hurt by poison!` : e.why === 'thorns' ? `${who} is pricked by thorns!` : `${who} took ${e.amount} damage.`;
     case 'ability': return `[${who}'s ${e.ability}]`;
     case 'faint': return `${who} fainted!`;

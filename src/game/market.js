@@ -18,9 +18,9 @@ export function moveCost(mv) {
   return MARKET.unit * Math.max(1, Math.ceil((m.power || 0) / MARKET.powerPerUnit) - 1);
 }
 
-/** Everything the Market sells: every move, cheapest first, then by name. */
+/** Everything the Market sells: every move but the rares' signatures, cheapest first, then by name. */
 export function marketCatalogue() {
-  return MOVES.filter((m) => !m.struggle).map((move) => ({ move, cost: moveCost(move) })).sort((a, b) => a.cost - b.cost || (a.move.name < b.move.name ? -1 : 1));
+  return MOVES.filter((m) => !m.struggle && !m.signature).map((move) => ({ move, cost: moveCost(move) })).sort((a, b) => a.cost - b.cost || (a.move.name < b.move.name ? -1 : 1));
 }
 
 /** Gold for a beaten team: creature count times average level, scaled for bosses and rematches, rounded to tens. */
@@ -101,6 +101,7 @@ export function bagList(j) {
 export function buyMove(j, moveId) {
   const mv = getMove(moveId);
   if (!mv || mv.struggle || getItem(moveId)) return { ok: false, reason: 'The Market does not sell that.', cost: 0 };
+  if (mv.signature) return { ok: false, reason: `${mv.name} belongs to one species alone; no scroll of it exists.`, cost: 0 };
   const cost = moveCost(mv);
   if (bagCount(j, moveId) >= MARKET.maxStack) return { ok: false, reason: 'Your bag cannot hold more of those.', cost };
   if ((j.gold || 0) < cost) return { ok: false, reason: `Not enough gold: ${mv.name} costs ${cost}.`, cost };

@@ -49,7 +49,7 @@ function traitRows(g) {
 
 /** The moves a creature knows (ids) as detail rows, or nothing when none are given. */
 function moveRows(ids) {
-  const rows = (ids || []).map((id) => getMove(id)).filter(Boolean).map((mv) => h('div', { class: 'shop-row' }, moveInfoEl(mv)));
+  const rows = (ids || []).map((id) => getMove(id)).filter(Boolean).map((mv) => h('div', { class: `shop-row${mv.signature ? ' signature' : ''}` }, moveInfoEl(mv, mv.signature ? 'signature' : null)));
   return rows.length ? h('div', { class: 'shop-list' }, rows) : null;
 }
 
@@ -63,8 +63,9 @@ function learnsetRows(g, level, known) {
   const next = level != null ? entries.find(([lv]) => lv > level) : null;
   const rows = entries.map(([lv, id]) => {
     const isKnown = set.has(id), ahead = level != null && lv > level;
-    const tag = isKnown ? `Lv ${lv} · known` : next && next[0] === lv ? `next · Lv ${lv}` : ahead ? `at Lv ${lv}` : level != null ? `Lv ${lv} · forgotten` : `Lv ${lv}`;
-    return h('div', { class: `shop-row${isKnown ? ' known' : ''}${next && next[0] === lv ? ' next' : ''}` }, moveInfoEl(getMove(id), tag));
+    const mv = getMove(id);
+    const tag = (isKnown ? `Lv ${lv} · known` : next && next[0] === lv ? `next · Lv ${lv}` : ahead ? `at Lv ${lv}` : level != null ? `Lv ${lv} · forgotten` : `Lv ${lv}`) + (mv.signature ? ' · signature' : '');
+    return h('div', { class: `shop-row${isKnown ? ' known' : ''}${next && next[0] === lv ? ' next' : ''}${mv.signature ? ' signature' : ''}` }, moveInfoEl(mv, tag));
   });
   const ahead = level != null ? entries.filter(([lv]) => lv > level).length : entries.length;
   const intro = level == null ? `${entries.length} moves by level.` : ahead ? `${ahead} more ${ahead === 1 ? 'move' : 'moves'} to come${next ? `, the next at Lv ${next[0]}` : ''}. With four known, a new move replaces one you choose.` : 'Every move on its list has been reached.';
