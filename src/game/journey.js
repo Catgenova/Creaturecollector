@@ -17,6 +17,7 @@ import { TRIAL, trialDay, trialOf, trialState, trialBlock, enterTrial, trialEnco
 import { abilityWorldMul } from '../data/abilities.js';
 import { BIOME_WEATHER, BIOME_TERRAIN } from '../data/field.js';
 import { titanOf, titanWaiting } from './titan.js';
+import { BOND_TIERS, bondOfMember, bondAfterBattle } from './bond.js';
 import { recordTowerWin, towerRecord } from './tower.js';
 import { newBoard, ensureBoard, questEvent } from './quests.js';
 import { newBounties, ensureBounties } from './bounties.js';
@@ -284,7 +285,7 @@ export function buildJourneyBattle(j) {
     j.party.unshift(...j.party.splice(k, 1));
   }
   const mine = j.party.map((m) => {
-    const b = makeBattler(m.genome, m.level, { moves: m.moves, xp: xpProgress(m), held: m.held });
+    const b = makeBattler(m.genome, m.level, { moves: m.moves, xp: xpProgress(m), held: m.held, bond: bondOfMember(m).tier });
     b.hp = Math.max(0, Math.min(m.hp, b.maxHp));
     b.status = m.status;
     b.fainted = b.hp <= 0;
@@ -320,7 +321,7 @@ export function applyJourneyBattle(j, state) {
   const capturedBattler = state.captured ? foes.find((f) => f.uid === state.captured) : null;
   const won = state.winner === 0 || Boolean(capturedBattler);
   j.stats.battles++;
-  const report = { won, kind: enc.kind, foe: enc.name, xp: 0, gold: 0, xpGains: [], levelUps: [], learned: [], captured: null, toBox: false, badge: null, charm: null, quests: [], champion: false, nextStage: null, wiped: false, alpha: Boolean(enc.alpha) };
+  const report = { won, kind: enc.kind, foe: enc.name, xp: 0, gold: 0, xpGains: [], levelUps: [], learned: [], captured: null, toBox: false, badge: null, charm: null, quests: [], champion: false, nextStage: null, wiped: false, alpha: Boolean(enc.alpha), bond: [] };
   if (!won) {
     if (!canFight(j)) { report.wiped = true; j.stats.wipes++; respawnJourney(j); }
     else { j.encounter = null; j.gauntlet = null; j.cooldown = WORLD.encounterCooldown; }
@@ -400,6 +401,16 @@ export function applyJourneyBattle(j, state) {
       if (getCharm(gift)) { j.bag = j.bag || {}; j.bag[gift] = (j.bag[gift] || 0) + 1; report.charm = gift; }
     }
   }
+  // what the fight was worth to the ones who were in it
+  const BOND_BOSSES = new Set(['boss', 'council', 'titan', 'trial', 'elder']);
+  report.bond = bondAfterBattle(j.party, {
+    won,
+    boss: BOND_BOSSES.has(enc.kind),
+    fought: new Set(j.party.filter((m, i) => mine[i] && mine[i].fought).map((m) => m.uid)),
+    fainted: new Set(j.party.filter((m, i) => mine[i] && mine[i].fainted).map((m) => m.uid)),
+    levels: Object.fromEntries(report.xpGains.map((g) => [g.uid, Math.max(0, g.to.level - g.from.level)])),
+  });
+
   // the notice board hears about it
   const done = [];
   if (capturedBattler) done.push(...questEvent(j, { kind: 'capture', genome: capturedBattler.genome, level: capturedBattler.level, alpha: Boolean(enc.alpha) }));

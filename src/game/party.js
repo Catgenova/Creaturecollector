@@ -31,7 +31,7 @@ export function xpProgress(m) {
 }
 
 export function makeMember(genome, level, uid) {
-  const m = { uid, genome, level, xp: xpForLevel(level), hp: 0, status: null, moves: movesAtLevel(learnsetOf(genome), level), held: null };
+  const m = { uid, genome, level, xp: xpForLevel(level), hp: 0, status: null, moves: movesAtLevel(learnsetOf(genome), level), held: null, bond: 0 };
   m.hp = memberMaxHp(m);
   return m;
 }

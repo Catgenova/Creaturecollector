@@ -19,6 +19,7 @@ import { statsAtLevel, movesAtLevel } from './stats.js';
 import { ITEM_IDS, getItem, potionHeal, potionUseful } from '../data/items.js';
 import { getCharm, charmPowerMul, heldKind, charmValue, charmUses, CHARM_RULE } from '../data/charms.js';
 import { FIELD, WEATHER, TERRAIN, WEATHER_TYPE, HAZARDS, SIDE_CONDITIONS, SCREEN_OF, VOLATILES, BIND, SUB, CONFUSE, TAUNT_TURNS, ENCORE_TURNS, emptyField, weatherPower, terrainPower, weatherChips, weatherGuard } from '../data/field.js';
+import { bondPerks } from '../game/bond.js';
 
 export const STATUS_INFO = {
   brn: { name: 'Burn', short: 'BRN', verb: 'was burned' },
@@ -113,7 +114,10 @@ export const PASSIVE_KINDS = ['typeBoost', 'catBoost', 'flagBoost', 'powerBand',
 
 /** Build a battler from a genome at a level. opts.moves / opts.ability override the defaults; opts.held is the charm it carries. */
 export function makeBattler(genome, level, opts = {}) {
+  const bond = Math.max(0, Math.floor(opts.bond || 0)); // only the player's own creatures ever carry one
+  const perks = bondPerks(bond);
   const stats = statsAtLevel(genome, level);
+  if (perks.statMul !== 1) for (const k of Object.keys(stats)) stats[k] = Math.max(1, Math.round(stats[k] * perks.statMul));
   const moveIds = (opts.moves && opts.moves.length ? opts.moves : movesAtLevel(learnsetOf(genome), level)).slice(0, 4);
   return {
     uid: opts.uid || null,
@@ -139,6 +143,9 @@ export function makeBattler(genome, level, opts = {}) {
     lastMove: null,
     turnsOut: 0, // turns since it came in, for the passives that open or close strong
     confuse: 0, bind: null, taunt: 0, encore: null, protect: false, protectRun: 0, sub: 0, // what it carries until it leaves
+    bond, // the tier it has reached with you, and what that is worth in a fight
+    bondCureUsed: false,
+    bondEndureUsed: false,
   };
 }
 
@@ -903,7 +910,7 @@ function executeMove(state, i, action, events, rng) {
   const sub = behindSub(user, target, mv);
   for (let h = 0; h < hits; h++) {
     if (target.fainted) break;
-    let crit = rng.chance((mv.crit >= 1 ? 1 / 8 : 1 / 24) * (abIs(user, 'keen_edge') ? 2 : 1) * (heldKind(user.held) === 'crit' ? charmValue(user.held, 'critMul') || 2 : 1) * abMul(user, 'critRate'));
+    let crit = rng.chance((mv.crit >= 1 ? 1 / 8 : 1 / 24) * (abIs(user, 'keen_edge') ? 2 : 1) * (heldKind(user.held) === 'crit' ? charmValue(user.held, 'critMul') || 2 : 1) * abMul(user, 'critRate') * bondPerks(user.bond).critMul);
     if (guardFx(user, target, 'critImmune').length) crit = false;
     else if (target.status && abHas(user, 'mercilessCrit')) crit = true;
     else if (abFx(user, 'critIf').some((f) => (f.when === 'firstTurn' ? !user.turnsOut : f.when === 'lowHp' ? user.hp <= user.maxHp / 3 : user.hp === user.maxHp))) crit = true;
@@ -912,10 +919,11 @@ function executeMove(state, i, action, events, rng) {
     let dmg = calcDamage(user, target, mv, eff, roll, crit, fld, sideCond(state, foeSide));
     const fhr = guardFx(user, target, 'firstHitResist')[0];
     if (fhr && !target.firstHitUsed) { target.firstHitUsed = true; dmg = Math.max(1, Math.floor(dmg * fhr.m)); announce(events, foeSide, target); }
-    let held = false, sturdy = false, endured = false;
+    let held = false, sturdy = false, endured = false, bonded = false;
     if (dmg >= target.hp && target.hp === target.maxHp && abIs(target, 'stonewall')) { dmg = target.hp - 1; held = true; }
     else if (dmg >= target.hp && target.hp === target.maxHp && guardFx(user, target, 'endure').length && !target.endureUsed) { dmg = target.hp - 1; endured = true; target.endureUsed = true; }
     else if (dmg >= target.hp && target.hp === target.maxHp && heldKind(target.held) === 'sturdy' && (target.sturdyUsed || 0) < charmUses(target.held)) { dmg = target.hp - 1; sturdy = true; target.sturdyUsed = (target.sturdyUsed || 0) + 1; }
+    else if (dmg >= target.hp && target.hp > 1 && bondPerks(target.bond).endure && !target.bondEndureUsed) { dmg = target.hp - 1; bonded = true; target.bondEndureUsed = true; }
     if (sub && target.sub > 0) { // the decoy takes it instead, and what is left over is lost with it
       const took = Math.min(target.sub, dmg);
       target.sub -= took;
@@ -929,6 +937,7 @@ function executeMove(state, i, action, events, rng) {
     events.push({ t: 'damage', side: foeSide, name: target.name, amount: dmg, hp: target.hp, maxHp: target.maxHp, eff, crit });
     if (held || endured) events.push({ t: 'ability', side: foeSide, name: target.name, ability: abilityName(target.ability) });
     if (sturdy) events.push({ t: 'held', side: foeSide, name: target.name, item: getCharm(target.held).name });
+    if (bonded) events.push({ t: 'bond', side: foeSide, name: target.name, kind: 'endure' });
     if (target.hp <= 0) faint(state, foeSide, events);
   }
   if (hits > 1) events.push({ t: 'multihit', side: i, hits: landed });
@@ -1167,6 +1176,12 @@ function endOfTurn(state, events, rng) {
     for (const f of abFx(b, 'turnHeal')) if (!b.fainted && b.hp < b.maxHp) { announce(events, i, b); healBattler(state, i, Math.max(1, b.maxHp * f.r), events, 'ability'); }
     for (const f of abFx(b, 'turnStat')) if (!b.fainted && (f.p == null || rng.chance(f.p / 100))) { announce(events, i, b); changeStages(state, i, f.stats, events); }
     for (const f of abFx(b, 'turnCure')) if (!b.fainted && b.status && rng.chance(f.p / 100)) { const was = b.status; b.status = null; b.sleepTurns = 0; announce(events, i, b); events.push({ t: 'cure', side: i, name: b.name, status: was }); }
+    if (!b.fainted && b.status && !b.bondCureUsed && bondPerks(b.bond).cure) {
+      const was = b.status;
+      b.status = null; b.sleepTurns = 0; b.bondCureUsed = true;
+      events.push({ t: 'bond', side: i, name: b.name, kind: 'cure' });
+      events.push({ t: 'cure', side: i, name: b.name, status: was, why: 'bond' });
+    }
     for (const f of abFx(b, 'benchHeal')) {
       const bench = state.sides[i].party.filter((p) => p !== b && !p.fainted && p.hp < p.maxHp);
       if (!b.fainted && bench.length) {
@@ -1299,6 +1314,7 @@ export function describeEvent(e, names = ['You', 'Foe'], opts = {}) {
     }
     case 'heal': return e.why === 'field' ? `${who} drew strength from the ground.` : e.why === 'drain' ? `${who} drained some HP!` : e.why === 'restore' ? `${who} restored ${e.amount} HP!` : `${who} recovered ${e.amount} HP.`;
     case 'hurt': return e.why === 'bind' ? `${who} is squeezed tight!` : e.why === 'confusion' ? `${who} hurt itself in its confusion!` : e.why === 'spikes' ? `${who} is pricked by the caltrops!` : e.why === 'shards' ? `${who} is cut by the stones!` : WEATHER[e.why] ? `${who} is buffeted by the ${WEATHER[e.why].name.toLowerCase()}!` : e.why === 'recoil' || e.why === 'struggle' ? `${who} is hit with recoil!` : e.why === 'brn' ? `${who} is hurt by its burn!` : e.why === 'psn' ? `${who} is hurt by poison!` : e.why === 'thorns' ? `${who} is pricked by thorns!` : `${who} took ${e.amount} damage.`;
+    case 'bond': return e.kind === 'endure' ? `${who} holds on for you!` : `${who} shakes it off for you!`;
     case 'ability': return `[${who}'s ${e.ability}]`;
     case 'held': return `[${who}'s ${e.item}]`;
     case 'faint': return `${who} fainted!`;

@@ -18,6 +18,8 @@ import { DAMAGE_TYPES, triangleEdge } from '../data/damage.js';
 import { STAGE_LEVELS, stageOf, stageName } from '../data/evolution.js';
 import { openSheet } from './sheet.js';
 import { sfx } from '../core/sfx.js';
+import { playMoveEffect } from './effects.js';
+import { trapFocus, hpLabel } from './a11y.js';
 
 const wait = (ms) => new Promise((r) => setTimeout(r, ms));
 const hpClass = (frac) => (frac > 0.5 ? 'ok' : frac > 0.2 ? 'warn' : 'low');
@@ -48,7 +50,7 @@ function buildFight(f) {
     foeStage: h('div', { class: 'stage stage-foe' }),
     meStage: h('div', { class: 'stage stage-me' }),
     mePanel: h('div', { class: 'panel panel-me' }),
-    field: h('div', { class: 'field-bar', hidden: true }),
+    field: h('div', { class: 'field-bar', hidden: true, role: 'group', 'aria-label': 'The field' }),
     log: h('div', { class: 'battle-log', 'aria-live': 'polite' }),
     controls: h('div', { class: 'controls' }),
   };
@@ -75,7 +77,7 @@ function volatileBadges(b) {
   if (b.taunt > 0) out.push(['TAUNT', `${VOLATILES.taunt.name} · ${b.taunt}`]);
   if (b.encore && b.encore.turns > 0) out.push(['ENC', `${VOLATILES.encore.name} · ${b.encore.turns}`]);
   if (b.sub > 0) out.push(['DECOY', `Decoy · ${b.sub} HP`]);
-  return out.map(([short, title]) => h('span', { class: 'status st-vol', title }, short));
+  return out.map(([short, title]) => h('span', { class: 'status st-vol', title, role: 'img', 'aria-label': title }, short));
 }
 
 /** The weather and the ground, with what is left on each clock. Hidden while the field is clear. */
@@ -85,8 +87,8 @@ function renderFieldBar(f) {
   clear(el);
   const rows = [[getWeather(fl.weather), fl.weatherTurns], [getTerrain(fl.terrain), fl.terrainTurns]].filter(([x]) => x);
   for (const [x, turns] of rows) {
-    el.append(h('span', { class: 'field-chip', style: { '--chip': x.color }, title: x.desc },
-      h('span', { class: 'field-icon' }, x.icon), x.name, h('span', { class: 'field-turns' }, `${turns}`)));
+    el.append(h('span', { class: 'field-chip', style: { '--chip': x.color }, title: x.desc, role: 'img', 'aria-label': `${x.name}, ${turns} ${turns === 1 ? 'turn' : 'turns'} left` },
+      h('span', { class: 'field-icon', 'aria-hidden': 'true' }, x.icon), x.name, h('span', { class: 'field-turns' }, `${turns}`)));
   }
   let sides = 0;
   for (const i of [0, 1]) {
@@ -95,13 +97,13 @@ function renderFieldBar(f) {
     for (const id of Object.keys(SIDE_CONDITIONS)) {
       if (!(cond[id] > 0)) continue;
       sides++;
-      el.append(h('span', { class: `field-chip side-chip${mine ? ' mine' : ''}`, title: `${mine ? 'Your side' : 'Their side'}: ${SIDE_CONDITIONS[id].name}` },
+      el.append(h('span', { class: `field-chip side-chip${mine ? ' mine' : ''}`, title: `${mine ? 'Your side' : 'Their side'}: ${SIDE_CONDITIONS[id].name}`, role: 'img', 'aria-label': `${mine ? 'Your side' : 'Their side'}: ${SIDE_CONDITIONS[id].name}, ${cond[id]} ${cond[id] === 1 ? 'turn' : 'turns'} left` },
         `${mine ? '▲' : '▼'} ${SIDE_CONDITIONS[id].name}`, h('span', { class: 'field-turns' }, `${cond[id]}`)));
     }
     for (const id of Object.keys(HAZARDS)) {
       if (!(cond[id] > 0)) continue;
       sides++;
-      el.append(h('span', { class: `field-chip side-chip hazard${mine ? ' mine' : ''}`, title: `${mine ? 'Your side' : 'Their side'}: ${HAZARDS[id].name}` },
+      el.append(h('span', { class: `field-chip side-chip hazard${mine ? ' mine' : ''}`, title: `${mine ? 'Your side' : 'Their side'}: ${HAZARDS[id].name}`, role: 'img', 'aria-label': `${mine ? 'Your side' : 'Their side'}: ${HAZARDS[id].name}${HAZARDS[id].max > 1 ? `, ${cond[id]} deep` : ''}` },
         `${mine ? '▲' : '▼'} ${HAZARDS[id].name}`, HAZARDS[id].max > 1 ? h('span', { class: 'field-turns' }, `×${cond[id]}`) : null));
     }
   }
@@ -134,7 +136,7 @@ function renderPanel(f, i) {
     typeChips(b.types),
     h('div', { class: 'passive' }, h('b', {}, abilityName(b.ability)), h('span', {}, ` ${(getAbility(b.ability) || { desc: 'No passive skill.' }).desc}`)),
     b.held && getCharm(b.held) ? h('div', { class: 'passive held' }, h('b', {}, getCharm(b.held).name), h('span', {}, ` ${getCharm(b.held).desc}`)) : null,
-    h('div', { class: 'hpbar' }, h('i', { class: hpClass(frac), style: { width: `${Math.max(0, frac * 100)}%` } })),
+    h('div', { class: 'hpbar', role: 'img', 'aria-label': hpLabel(b.name, b.hp, b.maxHp) }, h('i', { class: hpClass(frac), style: { width: `${Math.max(0, frac * 100)}%` } })),
     h('div', { class: 'panel-foot' },
       h('span', { class: 'hpnum' }, i === 0 ? `${b.hp} / ${b.maxHp}` : `${Math.ceil(frac * 100)}%`),
       h('span', { class: 'balls' }, side.party.map((p) => h('i', { class: p.fainted ? 'out' : '' })))),
@@ -212,8 +214,17 @@ function setHp(f, i, hp, maxHp) {
   const bar = el.querySelector('.hpbar i');
   const frac = hp / maxHp;
   if (bar) { bar.style.width = `${Math.max(0, frac * 100)}%`; bar.className = hpClass(frac); }
+  const box = el.querySelector('.hpbar');
+  if (box) box.setAttribute('aria-label', hpLabel(activeOf(f.state, i).name, hp, maxHp)); // the bar is a picture: keep the words it reads out in step with it
   const num = el.querySelector('.hpnum');
   if (num) num.textContent = i === 0 ? `${hp} / ${maxHp}` : `${Math.ceil(frac * 100)}%`;
+}
+
+/** Throw the last move's effect over one side's stage. Skipped outright when the player asked for less motion. */
+function stageEffect(f, i, opts = {}) {
+  if (getSettings().motion === 'reduced') return;
+  const el = i === 0 ? f.els.meStage : f.els.foeStage;
+  playMoveEffect(el, f.lastMove, opts);
 }
 
 function animateStage(f, i, cls, ms = 500) {
@@ -242,10 +253,10 @@ function applyFightEvent(f, e) {
     case 'volatile': case 'volatileOver': renderPanel(f, e.side); logLine(f, text); sfx.status(); return 550;
     case 'volatileHit': logLine(f, text); return 450;
     case 'guard': case 'protect': logLine(f, text); return 500;
-    case 'sub': renderPanel(f, e.side); if (e.kind !== 'up') animateStage(f, e.side, 'hit', 350); logLine(f, text); return 600;
+    case 'sub': renderPanel(f, e.side); if (e.kind !== 'up') { stageEffect(f, e.side, { crit: e.crit, eff: e.eff }); animateStage(f, e.side, 'hit', 350); } logLine(f, text); return 600;
     case 'switch': renderStage(f, e.side); renderPanel(f, e.side); logLine(f, text); sfx.cry(activeOf(f.state, e.side).genome); return 650;
-    case 'move': logLine(f, text); animateStage(f, e.side, e.side === 0 ? 'lunge-r' : 'lunge-l', 450); poseStage(f, e.side, 'attack', 450); return 550;
-    case 'damage': animateStage(f, e.side, 'hit', 450); poseStage(f, e.side, 'hurt', 450); setHp(f, e.side, e.hp, e.maxHp); logLine(f, text); sfx.hit(e.eff); return e.eff !== 1 || e.crit ? 750 : 550;
+    case 'move': f.lastMove = { type: e.type, cat: e.cat }; logLine(f, text); animateStage(f, e.side, e.side === 0 ? 'lunge-r' : 'lunge-l', 450); poseStage(f, e.side, 'attack', 450); return 550;
+    case 'damage': stageEffect(f, e.side, { crit: e.crit, eff: e.eff }); animateStage(f, e.side, 'hit', 450); poseStage(f, e.side, 'hurt', 450); setHp(f, e.side, e.hp, e.maxHp); logLine(f, text); sfx.hit(e.eff); return e.eff !== 1 || e.crit ? 750 : 550;
     case 'hurt': animateStage(f, e.side, 'hit', 350); poseStage(f, e.side, 'hurt', 350); setHp(f, e.side, e.hp, e.maxHp); logLine(f, text); sfx.hit(1); return 550;
     case 'heal': if (!e.uid || e.uid === activeOf(f.state, e.side).uid) setHp(f, e.side, e.hp, e.maxHp); logLine(f, text); sfx.heal(); return 550;
     case 'item': logLine(f, text); return 500;
@@ -419,7 +430,8 @@ function openFightItems(f) {
   if (f.sheetClose) f.sheetClose();
   const st = f.state;
   const legal = legalActions(st, 0);
-  const close = () => { backdrop.remove(); sheet.remove(); f.sheetClose = null; };
+  let untrap = () => {};
+  const close = () => { untrap(); backdrop.remove(); sheet.remove(); f.sheetClose = null; };
   f.sheetClose = close;
   const backdrop = h('div', { class: 'sheet-backdrop', onclick: close });
   const list = h('div', { class: 'party-list' });
@@ -440,6 +452,7 @@ function openFightItems(f) {
     h('p', { class: 'hint' }, 'Using an item takes your turn.'),
     list);
   document.body.append(backdrop, sheet);
+  untrap = trapFocus([sheet, backdrop], { onEscape: close });
 }
 
 /** Second step of the item flow: pick the party member to use the potion on. */
@@ -447,7 +460,8 @@ function openFightTarget(f, itemId) {
   if (f.sheetClose) f.sheetClose();
   const st = f.state, side = st.sides[0], item = getItem(itemId);
   const legal = legalActions(st, 0);
-  const close = () => { backdrop.remove(); sheet.remove(); f.sheetClose = null; };
+  let untrap = () => {};
+  const close = () => { untrap(); backdrop.remove(); sheet.remove(); f.sheetClose = null; };
   f.sheetClose = close;
   const backdrop = h('div', { class: 'sheet-backdrop', onclick: close });
   const list = h('div', { class: 'party-list' });
@@ -467,13 +481,15 @@ function openFightTarget(f, itemId) {
     h('p', { class: 'hint' }, item.desc),
     list);
   document.body.append(backdrop, sheet);
+  untrap = trapFocus([sheet, backdrop], { onEscape: close });
 }
 
 function openFightParty(f, forced) {
   if (f.sheetClose) f.sheetClose();
   const st = f.state, side = st.sides[0];
   const legal = legalActions(st, 0);
-  const close = () => { backdrop.remove(); sheet.remove(); f.sheetClose = null; };
+  let untrap = () => {};
+  const close = () => { untrap(); backdrop.remove(); sheet.remove(); f.sheetClose = null; };
   f.sheetClose = close;
   const backdrop = h('div', { class: 'sheet-backdrop', onclick: forced ? null : close });
   const list = h('div', { class: 'party-list' });
@@ -495,6 +511,7 @@ function openFightParty(f, forced) {
     held ? h('p', { class: 'hint' }, `${activeOf(st, 0).name} is held on the field and cannot be swapped out.`) : null,
     list);
   document.body.append(backdrop, sheet);
+  untrap = trapFocus([sheet, backdrop], forced ? {} : { onEscape: close }); // a forced switch has to be answered: Escape will not do it
 }
 
 function showFightResult(f) {

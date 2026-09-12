@@ -46,6 +46,11 @@ button, input, select, textarea { font: inherit; }
 .toolbar .code-in { text-transform: none; letter-spacing: 0; font-size: 13px; }
 .toolbar select { flex: 1 1 100%; }
 .btn { font-weight: 600; cursor: pointer; }
+/* the keyboard has to be able to see where it is: one ring, on everything, drawn outside the shape so it never
+   changes a layout. Only :focus-visible, so a tap does not leave a ring behind on a touchscreen. */
+:focus-visible { outline: 3px solid var(--acc2); outline-offset: 2px; border-radius: 6px; }
+.sheet:focus-visible, .ow-dialog:focus-visible, .encounter:focus-visible { outline-offset: -3px; }
+@media (forced-colors: active) { :focus-visible { outline-color: Highlight; } }
 .btn:active { transform: translateY(1px); }
 .btn.primary { background: var(--acc); color: #1a1400; border-color: transparent; }
 .elem-badge { display: inline-block; margin-left: 6px; padding: 1px 8px; border-radius: 999px; font-size: 11px; font-weight: 700; color: #14151c; background: var(--elem, #ccc); vertical-align: middle; white-space: nowrap; }
@@ -153,7 +158,7 @@ h3.sec { font-size: 12px; text-transform: uppercase; letter-spacing: .1em; color
 .pcard.is-on { outline: 2px solid var(--acc); }
 .arena { display: flex; flex-direction: column; gap: 4px; background: radial-gradient(ellipse at 50% 120%, #2a3350 0%, var(--bg) 70%); border: 1px solid var(--line); border-radius: var(--radius); padding: 8px; }
 .arena-row { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; align-items: end; }
-.stage { display: flex; justify-content: center; align-items: flex-end; min-height: min(150px, 20dvh); }
+.stage { position: relative; display: flex; justify-content: center; align-items: flex-end; min-height: min(150px, 20dvh); }
 .stage svg { width: min(46vw, 210px); height: auto; max-height: 24dvh; }
 .panel { background: rgba(18, 19, 26, .85); border: 1px solid var(--line); border-radius: 12px; padding: 8px 10px; font-size: 13px; align-self: start; }
 .panel-me { align-self: end; }
@@ -211,6 +216,55 @@ html[data-contrast="high"] .battle-log .line { opacity: .85; }
 .side-chip.hazard { --chip: #d88a5a; }
 .side-chip.hazard.mine { --chip: #ff9f43; }
 .status.st-vol { background: #3a2f52; color: #d9c7ff; }
+/* move effects: every one runs a single pass and is gone inside 600ms, so nothing here flashes twice */
+.fx { position: absolute; inset: 0; pointer-events: none; overflow: visible; z-index: 2; }
+/* the shapes are authored small; a battle stage is 200px of creature, so the whole layer scales up over one */
+.stage .fx { scale: 1.5; }
+.fx i { position: absolute; left: 50%; top: 55%; display: block; background: var(--fx); border-radius: 2px; opacity: 0; }
+.fx.fx-crit i { filter: brightness(1.3); }
+.fx.fx-super i { box-shadow: 0 0 10px var(--fx); }
+@media (prefers-reduced-motion: reduce) { .fx { display: none; } }
+html[data-motion="reduced"] .fx { display: none; }
+
+.fx-impact i { width: 6px; height: 26px; margin: -13px 0 0 -3px; border-radius: 3px; transform-origin: 50% 50%; animation: fx-impact var(--fx-ms) ease-out forwards; }
+.fx-impact i:nth-child(1) { rotate: 0deg; } .fx-impact i:nth-child(2) { rotate: 45deg; }
+.fx-impact i:nth-child(3) { rotate: 90deg; } .fx-impact i:nth-child(4) { rotate: 135deg; }
+@keyframes fx-impact { 0% { opacity: .95; scale: .3 1; } 60% { opacity: .8; scale: 1 1.5; } 100% { opacity: 0; scale: 1.2 1.9; } }
+
+.fx-ember i { width: 9px; height: 9px; border-radius: 50%; margin: -4px 0 0 -4px; left: calc(50% + (var(--i) - 2.5) * 12px); animation: fx-rise var(--fx-ms) ease-out forwards; animation-delay: calc(var(--i) * 35ms); }
+@keyframes fx-rise { 0% { opacity: 0; translate: 0 10px; scale: .5; } 25% { opacity: .95; } 100% { opacity: 0; translate: 0 -46px; scale: 1.1; } }
+
+.fx-splash i { width: 8px; height: 8px; border-radius: 50%; margin: -4px 0 0 -4px; --dx: calc((var(--i) - (var(--n) - 1) / 2) * 15px); animation: fx-splash var(--fx-ms) cubic-bezier(.2,.7,.4,1) forwards; animation-delay: calc(var(--i) * 22ms); }
+@keyframes fx-splash { 0% { opacity: .95; translate: 0 8px; scale: .7; } 30% { opacity: .95; } 100% { opacity: 0; translate: var(--dx) -34px; scale: .5; } }
+
+.fx-spark i { width: 4px; height: 34px; margin: -17px 0 0 -2px; left: calc(50% + (var(--i) - 1.5) * 16px); rotate: calc((var(--i) - 1.5) * 18deg); animation: fx-spark var(--fx-ms) steps(3, end) forwards; animation-delay: calc(var(--i) * 30ms); }
+@keyframes fx-spark { 0% { opacity: 1; scale: 1 .2; } 50% { opacity: 1; scale: 1 1; } 100% { opacity: 0; scale: 1 1.1; } }
+
+.fx-leaf i { width: 12px; height: 7px; border-radius: 50% 20% 50% 20%; margin: -4px 0 0 -6px; animation: fx-leaf var(--fx-ms) ease-in-out forwards; animation-delay: calc(var(--i) * 40ms); }
+@keyframes fx-leaf { 0% { opacity: .9; translate: 0 -6px; rotate: 0deg; } 100% { opacity: 0; translate: calc((var(--i) - 2) * 22px) 26px; rotate: 220deg; } }
+
+.fx-shard i { width: 7px; height: 18px; clip-path: polygon(50% 0, 100% 100%, 0 100%); border-radius: 0; margin: -9px 0 0 -3px; left: calc(50% + (var(--i) - 2) * 14px); animation: fx-shard var(--fx-ms) ease-in forwards; animation-delay: calc(var(--i) * 28ms); }
+@keyframes fx-shard { 0% { opacity: .95; translate: 0 -28px; rotate: 0deg; } 100% { opacity: 0; translate: 0 18px; rotate: 40deg; } }
+
+.fx-chunk i { width: 11px; height: 9px; border-radius: 3px; margin: -4px 0 0 -5px; left: calc(50% + (var(--i) - 2) * 15px); animation: fx-chunk var(--fx-ms) cubic-bezier(.3,.9,.6,1) forwards; animation-delay: calc(var(--i) * 25ms); }
+@keyframes fx-chunk { 0% { opacity: .95; translate: 0 16px; rotate: 0deg; } 100% { opacity: 0; translate: calc((var(--i) - 2) * 10px) -28px; rotate: 90deg; } }
+
+.fx-gleam i { width: 120px; height: 8px; margin: -4px 0 0 -60px; rotate: -28deg; animation: fx-gleam var(--fx-ms) ease-out forwards; animation-delay: calc(var(--i) * 90ms); }
+@keyframes fx-gleam { 0% { opacity: 0; translate: -50px 26px; } 40% { opacity: .9; } 100% { opacity: 0; translate: 50px -26px; } }
+
+.fx-bubble i { width: 12px; height: 12px; border-radius: 50%; margin: -6px 0 0 -6px; left: calc(50% + (var(--i) - 2) * 13px); background: none; border: 2px solid var(--fx); animation: fx-rise var(--fx-ms) ease-out forwards; animation-delay: calc(var(--i) * 45ms); }
+
+.fx-wisp i { width: 10px; height: 10px; border-radius: 50%; margin: -5px 0 0 -5px; animation: fx-wisp var(--fx-ms) ease-in-out forwards; animation-delay: calc(var(--i) * 50ms); }
+@keyframes fx-wisp { 0% { opacity: 0; translate: 0 8px; scale: .6; } 30% { opacity: .85; } 100% { opacity: 0; translate: calc((var(--i) - 1.5) * 20px) -40px; scale: 1.4; } }
+
+.fx-ring i { width: 26px; height: 26px; border-radius: 50%; margin: -13px 0 0 -13px; background: none; border: 3px solid var(--fx); animation: fx-ring var(--fx-ms) ease-out forwards; animation-delay: calc(var(--i) * 70ms); }
+@keyframes fx-ring { 0% { opacity: .9; scale: .3; } 100% { opacity: 0; scale: 2.6; } }
+
+.fx-gust i { width: 46px; height: 4px; border-radius: 2px; margin: 0 0 0 -23px; top: calc(45% + var(--i) * 11px); animation: fx-gust var(--fx-ms) ease-out forwards; animation-delay: calc(var(--i) * 30ms); }
+@keyframes fx-gust { 0% { opacity: 0; translate: -40px 0; scale: .4 1; } 30% { opacity: .9; } 100% { opacity: 0; translate: 44px 0; scale: 1.3 1; } }
+
+.bond-chip { --chip: #ff7ab6; color: var(--chip); border-color: var(--chip); }
+.bond-chip.t3, .bond-chip.t4 { background: color-mix(in srgb, var(--chip) 18%, transparent); font-weight: 700; }
 .field-turns { font-weight: 800; color: var(--fg2); }
 .battle-log { min-height: 56px; margin: 8px 0; padding: 8px 12px; background: var(--bg2); border: 1px solid var(--line); border-radius: 12px; font-size: 14px; line-height: 1.35; }
 .battle-log .line { opacity: .6; }
@@ -366,7 +420,7 @@ html[data-contrast="high"] .battle-log .line { opacity: .85; }
 .ability-card .second-slot { margin-top: 6px; padding-top: 6px; border-top: 1px dashed var(--line); }
 .coach-pick { font: inherit; font-size: 12px; color: var(--fg); background: var(--bg); border: 1px solid var(--line); border-radius: 8px; padding: 3px 4px; }
 .dex-search { width: 100%; box-sizing: border-box; margin: 2px 0 6px; padding: 8px 10px; font: inherit; font-size: 16px; color: var(--fg); background: var(--bg); border: 1px solid var(--line); border-radius: 10px; }
-.dex-search:focus { outline: none; border-color: var(--acc2); }
+.dex-search:focus { border-color: var(--acc2); }
 .move-chips .chip.none { opacity: .45; text-decoration: line-through; }
 .move-chips .chip.on { box-shadow: inset 0 0 0 1px var(--chip, var(--acc2)); font-weight: 700; }
 .shop-list { display: flex; flex-direction: column; gap: 6px; }
@@ -20841,6 +20895,75 @@ for (let i = 0; i < 8; i++) s += alphabet[Math.floor(Math.random() * alphabet.le
 }
 return s;
 }
+function focusablesIn(root) {
+if (!root) return [];
+const sel = 'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
+return [...root.querySelectorAll(sel)].filter((el) => !el.hidden && el.getAttribute('aria-hidden') !== 'true' && (el.offsetWidth || el.offsetHeight || el.getClientRects().length));
+}
+function firstFocus(root) {
+const wanted = root && root.querySelector('[data-autofocus]');
+if (wanted) return wanted;
+const all = focusablesIn(root);
+return all.find((el) => !el.classList.contains('close')) || all[0] || null;
+}
+function nameOf(el) { return el && ((el.getAttribute && el.getAttribute('aria-label')) || (el.textContent || '').trim()).slice(0, 60); }
+function restoreFocus(el, tag, name) {
+if (el && el.isConnected && el.focus) { el.focus({ preventScroll: true }); return true; }
+if (!name) return false;
+const again = focusablesIn(document.body).find((c) => c.tagName === tag && nameOf(c) === name);
+if (again) { again.focus({ preventScroll: true }); return true; }
+return false;
+}
+function coveredBy(nodes) {
+const keep = new Set();
+for (const n of nodes) for (let el = n; el && el !== document.body; el = el.parentElement) keep.add(el);
+const out = [];
+const walk = (parent) => {
+for (const el of parent.children) {
+if (el.tagName === 'SCRIPT') continue;
+if (nodes.includes(el)) continue;
+if (keep.has(el)) walk(el); else out.push(el);
+}
+};
+walk(document.body);
+return out;
+}
+function trapFocus(nodes, opts = {}) {
+const list = (Array.isArray(nodes) ? nodes : [nodes]).filter(Boolean);
+const panel = list[0];
+if (!panel) return () => {};
+const wasFocused = document.activeElement;
+const wasTag = wasFocused && wasFocused.tagName, wasName = nameOf(wasFocused);
+const hidden = coveredBy(list).map((el) => ({ el, inert: el.inert, aria: el.getAttribute('aria-hidden') }));
+for (const { el } of hidden) { el.inert = true; el.setAttribute('aria-hidden', 'true'); }
+const onKey = (e) => {
+if (e.key === 'Escape' && opts.onEscape) { e.preventDefault(); e.stopPropagation(); opts.onEscape(); return; }
+if (e.key !== 'Tab') return;
+const items = focusablesIn(panel);
+if (!items.length) { e.preventDefault(); panel.focus(); return; }
+const first = items[0], last = items[items.length - 1];
+const here = document.activeElement;
+if (!panel.contains(here)) { e.preventDefault(); (e.shiftKey ? last : first).focus(); return; }
+if (e.shiftKey && here === first) { e.preventDefault(); last.focus(); }
+else if (!e.shiftKey && here === last) { e.preventDefault(); first.focus(); }
+};
+document.addEventListener('keydown', onKey, true);
+if (!panel.hasAttribute('tabindex')) panel.setAttribute('tabindex', '-1');
+const target = opts.focus === false ? null : firstFocus(panel) || panel;
+if (target) requestAnimationFrame(() => { if (target.isConnected) target.focus({ preventScroll: true }); });
+return () => {
+document.removeEventListener('keydown', onKey, true);
+for (const { el, inert, aria } of hidden) {
+el.inert = inert;
+if (aria == null) el.removeAttribute('aria-hidden'); else el.setAttribute('aria-hidden', aria);
+}
+if (opts.restore !== false && wasFocused && wasFocused !== document.body) requestAnimationFrame(() => restoreFocus(wasFocused, wasTag, wasName));
+};
+}
+function hpLabel(name, hp, maxHp) {
+const pct = maxHp > 0 ? Math.round((hp / maxHp) * 100) : 0;
+return `${name}: ${hp} of ${maxHp} health, ${pct} percent`;
+}
 const TYPE_CHARM_NAMES = {
 Fire: 'Ember Charm', Water: 'Tide Charm', Electric: 'Spark Charm', Grass: 'Leaf Charm', Ice: 'Frost Charm', Fighting: 'Fist Charm',
 Poison: 'Venom Charm', Ground: 'Loam Charm', Flying: 'Feather Charm', Psychic: 'Mind Charm', Bug: 'Chitin Charm', Rock: 'Stone Charm',
@@ -21086,7 +21209,8 @@ function openSheet(g, sheetOpts = {}) {
 closeSheet();
 const list = sheetOpts.nav && Array.isArray(sheetOpts.nav.items) && sheetOpts.nav.items.length > 1 ? sheetOpts.nav : null;
 let index = list ? (Number.isInteger(list.index) && list.items[list.index] ? list.index : Math.max(0, list.items.findIndex((it) => it.genome === g))) : 0;
-const close = () => { backdrop.remove(); sheet.remove(); document.removeEventListener('keydown', onKey); if (activeSheet === close) activeSheet = null; };
+let untrap = () => {};
+const close = () => { untrap(); backdrop.remove(); sheet.remove(); document.removeEventListener('keydown', onKey, true); if (activeSheet === close) activeSheet = null; };
 const go = (step) => {
 if (!list) return;
 index = (index + step + list.items.length) % list.items.length;
@@ -21095,7 +21219,6 @@ draw(it.genome, it.opts || {});
 sheet.scrollTop = 0;
 };
 const onKey = (e) => {
-if (e.key === 'Escape') { close(); return; }
 if (!list || (e.target && e.target.closest && e.target.closest('input, select, textarea'))) return;
 if (e.key === 'ArrowLeft') { e.preventDefault(); e.stopPropagation(); go(-1); }
 else if (e.key === 'ArrowRight') { e.preventDefault(); e.stopPropagation(); go(1); }
@@ -21110,6 +21233,7 @@ activeSheet = close;
 draw(g, sheetOpts);
 document.body.append(backdrop, sheet);
 document.addEventListener('keydown', onKey, true);
+untrap = trapFocus([sheet, backdrop], { onEscape: close });
 }
 const HP_SCALE = 1.15;
 function statsAtLevel(genome, level) {
@@ -21145,6 +21269,62 @@ return Math.max(0, item.full ? maxHp - hp : Math.min(item.heal || 0, maxHp - hp)
 }
 function potionUseful(item, hp, maxHp, status) {
 return potionHeal(item, hp, maxHp) > 0 || Boolean(item && item.cure && status && hp > 0);
+}
+const BOND = {
+perBattle: 2, 
+perLevel: 3,
+perBoss: 12, 
+perFaint: -15,
+perRelease: 0,
+max: 400,
+};
+const BOND_TIERS = [
+{ tier: 0, at: 0, name: 'New', line: 'It hardly knows you yet.' },
+{ tier: 1, at: 40, name: 'Willing', line: 'Once a battle, shakes off a status at the end of the turn.', cure: true },
+{ tier: 2, at: 110, name: 'Trusted', line: 'Once a battle, hangs on with 1 HP when a blow would knock it out.', cure: true, endure: true },
+{ tier: 3, at: 220, name: 'Sworn', line: 'Critical hits land half again as often.', cure: true, endure: true, critMul: 1.5 },
+{ tier: 4, at: 340, name: 'Inseparable', line: 'Every stat is 1.05x, and everything below.', cure: true, endure: true, critMul: 1.5, statMul: 1.05 },
+];
+function bondOf(member) { return Math.max(0, Math.min(BOND.max, Math.round((member && member.bond) || 0))); }
+function bondTier(points) {
+let out = BOND_TIERS[0];
+for (const t of BOND_TIERS) if (points >= t.at) out = t;
+return out;
+}
+function bondOfMember(member) { return bondTier(bondOf(member)); }
+function bondProgress(member) {
+const have = bondOf(member);
+const tier = bondTier(have);
+const next = BOND_TIERS[tier.tier + 1] || null;
+if (!next) return { tier, next: null, have, need: 0, frac: 1 };
+const span = next.at - tier.at;
+return { tier, next, have, need: next.at - have, frac: span > 0 ? (have - tier.at) / span : 1 };
+}
+function addBond(member, points) {
+if (!member) return { from: 0, to: 0, tier: BOND_TIERS[0], rose: false };
+const from = bondOf(member);
+const to = Math.max(0, Math.min(BOND.max, from + Math.round(points || 0)));
+member.bond = to;
+const before = bondTier(from), after = bondTier(to);
+return { from, to, tier: after, rose: after.tier > before.tier };
+}
+function bondAfterBattle(party, outcome) {
+const rises = [];
+for (const m of party || []) {
+let points = 0;
+if (outcome.fought && outcome.fought.has(m.uid)) points += outcome.won ? BOND.perBattle : 0;
+if (outcome.won && outcome.boss && outcome.fought && outcome.fought.has(m.uid)) points += BOND.perBoss;
+if (outcome.levels && outcome.levels[m.uid]) points += BOND.perLevel * outcome.levels[m.uid];
+if (outcome.fainted && outcome.fainted.has(m.uid)) points += BOND.perFaint;
+if (!points) continue;
+const r = addBond(m, points);
+if (r.rose) rises.push({ uid: m.uid, name: m.genome ? m.genome.name : '', tier: r.tier });
+}
+return rises;
+}
+function bondPerks(points) {
+const t = bondTier(Math.max(0, Math.floor(points || 0)));
+return { tier: t.tier, cure: Boolean(t.cure), endure: Boolean(t.endure), critMul: t.critMul || 1, statMul: t.statMul || 1 };
 }
 const STATUS_INFO = {
 brn: { name: 'Burn', short: 'BRN', verb: 'was burned' },
@@ -21216,7 +21396,10 @@ const PASSIVE_KINDS = ['typeBoost', 'catBoost', 'flagBoost', 'powerBand', 'fxBoo
 'entryWeather', 'entryTerrain', 'weatherBoost', 'terrainBoost', 'weatherStat', 'terrainStat', 'weatherDef', 'weatherHeal', 'terrainHeal', 'weatherEvade', 'weatherImmune', 'fieldExtend', 'noWeather',
 'confuseImmune', 'tauntImmune', 'trapImmune', 'trapFoe', 'addConfuse', 'hazardImmune', 'screenBreak', 'entryHazard', 'entryScreen'];
 function makeBattler(genome, level, opts = {}) {
+const bond = Math.max(0, Math.floor(opts.bond || 0)); 
+const perks = bondPerks(bond);
 const stats = statsAtLevel(genome, level);
+if (perks.statMul !== 1) for (const k of Object.keys(stats)) stats[k] = Math.max(1, Math.round(stats[k] * perks.statMul));
 const moveIds = (opts.moves && opts.moves.length ? opts.moves : movesAtLevel(learnsetOf(genome), level)).slice(0, 4);
 return {
 uid: opts.uid || null,
@@ -21242,6 +21425,9 @@ fainted: false,
 lastMove: null,
 turnsOut: 0, 
 confuse: 0, bind: null, taunt: 0, encore: null, protect: false, protectRun: 0, sub: 0, 
+bond, 
+bondCureUsed: false,
+bondEndureUsed: false,
 };
 }
 function activeOf(state, side) { const s = state.sides[side]; return s.party[s.active]; }
@@ -21926,7 +22112,7 @@ let total = 0, landed = 0, anyCrit = false, hpDamage = 0;
 const sub = behindSub(user, target, mv);
 for (let h = 0; h < hits; h++) {
 if (target.fainted) break;
-let crit = rng.chance((mv.crit >= 1 ? 1 / 8 : 1 / 24) * (abIs(user, 'keen_edge') ? 2 : 1) * (heldKind(user.held) === 'crit' ? charmValue(user.held, 'critMul') || 2 : 1) * abMul(user, 'critRate'));
+let crit = rng.chance((mv.crit >= 1 ? 1 / 8 : 1 / 24) * (abIs(user, 'keen_edge') ? 2 : 1) * (heldKind(user.held) === 'crit' ? charmValue(user.held, 'critMul') || 2 : 1) * abMul(user, 'critRate') * bondPerks(user.bond).critMul);
 if (guardFx(user, target, 'critImmune').length) crit = false;
 else if (target.status && abHas(user, 'mercilessCrit')) crit = true;
 else if (abFx(user, 'critIf').some((f) => (f.when === 'firstTurn' ? !user.turnsOut : f.when === 'lowHp' ? user.hp <= user.maxHp / 3 : user.hp === user.maxHp))) crit = true;
@@ -21935,10 +22121,11 @@ const roll = rng.between(85, 100) / 100;
 let dmg = calcDamage(user, target, mv, eff, roll, crit, fld, sideCond(state, foeSide));
 const fhr = guardFx(user, target, 'firstHitResist')[0];
 if (fhr && !target.firstHitUsed) { target.firstHitUsed = true; dmg = Math.max(1, Math.floor(dmg * fhr.m)); announce(events, foeSide, target); }
-let held = false, sturdy = false, endured = false;
+let held = false, sturdy = false, endured = false, bonded = false;
 if (dmg >= target.hp && target.hp === target.maxHp && abIs(target, 'stonewall')) { dmg = target.hp - 1; held = true; }
 else if (dmg >= target.hp && target.hp === target.maxHp && guardFx(user, target, 'endure').length && !target.endureUsed) { dmg = target.hp - 1; endured = true; target.endureUsed = true; }
 else if (dmg >= target.hp && target.hp === target.maxHp && heldKind(target.held) === 'sturdy' && (target.sturdyUsed || 0) < charmUses(target.held)) { dmg = target.hp - 1; sturdy = true; target.sturdyUsed = (target.sturdyUsed || 0) + 1; }
+else if (dmg >= target.hp && target.hp > 1 && bondPerks(target.bond).endure && !target.bondEndureUsed) { dmg = target.hp - 1; bonded = true; target.bondEndureUsed = true; }
 if (sub && target.sub > 0) { 
 const took = Math.min(target.sub, dmg);
 target.sub -= took;
@@ -21952,6 +22139,7 @@ total += dmg; landed++; hpDamage += dmg;
 events.push({ t: 'damage', side: foeSide, name: target.name, amount: dmg, hp: target.hp, maxHp: target.maxHp, eff, crit });
 if (held || endured) events.push({ t: 'ability', side: foeSide, name: target.name, ability: abilityName(target.ability) });
 if (sturdy) events.push({ t: 'held', side: foeSide, name: target.name, item: getCharm(target.held).name });
+if (bonded) events.push({ t: 'bond', side: foeSide, name: target.name, kind: 'endure' });
 if (target.hp <= 0) faint(state, foeSide, events);
 }
 if (hits > 1) events.push({ t: 'multihit', side: i, hits: landed });
@@ -22179,6 +22367,12 @@ events.push({ t: 'cure', side: i, name: b.name, status: was, why: 'held' });
 for (const f of abFx(b, 'turnHeal')) if (!b.fainted && b.hp < b.maxHp) { announce(events, i, b); healBattler(state, i, Math.max(1, b.maxHp * f.r), events, 'ability'); }
 for (const f of abFx(b, 'turnStat')) if (!b.fainted && (f.p == null || rng.chance(f.p / 100))) { announce(events, i, b); changeStages(state, i, f.stats, events); }
 for (const f of abFx(b, 'turnCure')) if (!b.fainted && b.status && rng.chance(f.p / 100)) { const was = b.status; b.status = null; b.sleepTurns = 0; announce(events, i, b); events.push({ t: 'cure', side: i, name: b.name, status: was }); }
+if (!b.fainted && b.status && !b.bondCureUsed && bondPerks(b.bond).cure) {
+const was = b.status;
+b.status = null; b.sleepTurns = 0; b.bondCureUsed = true;
+events.push({ t: 'bond', side: i, name: b.name, kind: 'cure' });
+events.push({ t: 'cure', side: i, name: b.name, status: was, why: 'bond' });
+}
 for (const f of abFx(b, 'benchHeal')) {
 const bench = state.sides[i].party.filter((p) => p !== b && !p.fainted && p.hp < p.maxHp);
 if (!b.fainted && bench.length) {
@@ -22302,6 +22496,7 @@ return `${who}'s ${label} ${size}${e.stages > 0 ? 'rose' : 'fell'}!`;
 }
 case 'heal': return e.why === 'field' ? `${who} drew strength from the ground.` : e.why === 'drain' ? `${who} drained some HP!` : e.why === 'restore' ? `${who} restored ${e.amount} HP!` : `${who} recovered ${e.amount} HP.`;
 case 'hurt': return e.why === 'bind' ? `${who} is squeezed tight!` : e.why === 'confusion' ? `${who} hurt itself in its confusion!` : e.why === 'spikes' ? `${who} is pricked by the caltrops!` : e.why === 'shards' ? `${who} is cut by the stones!` : WEATHER[e.why] ? `${who} is buffeted by the ${WEATHER[e.why].name.toLowerCase()}!` : e.why === 'recoil' || e.why === 'struggle' ? `${who} is hit with recoil!` : e.why === 'brn' ? `${who} is hurt by its burn!` : e.why === 'psn' ? `${who} is hurt by poison!` : e.why === 'thorns' ? `${who} is pricked by thorns!` : `${who} took ${e.amount} damage.`;
+case 'bond': return e.kind === 'endure' ? `${who} holds on for you!` : `${who} shakes it off for you!`;
 case 'ability': return `[${who}'s ${e.ability}]`;
 case 'held': return `[${who}'s ${e.item}]`;
 case 'faint': return `${who} fainted!`;
@@ -22758,6 +22953,35 @@ if (score > bestScore) { best = a; bestScore = score; }
 }
 return best;
 }
+const EFFECT_OF_TYPE = {
+Normal: 'impact', Fighting: 'impact',
+Fire: 'ember', Water: 'splash', Electric: 'spark', Grass: 'leaf', Ice: 'shard',
+Rock: 'chunk', Ground: 'chunk', Steel: 'gleam',
+Poison: 'bubble', Bug: 'bubble',
+Ghost: 'wisp', Dark: 'wisp',
+Psychic: 'ring', Fairy: 'ring', Dragon: 'ring',
+Flying: 'gust',
+};
+const EFFECT_SHAPE = {
+impact: { n: 4, ms: 420 }, ember: { n: 6, ms: 560 }, splash: { n: 6, ms: 520 }, spark: { n: 4, ms: 400 },
+leaf: { n: 5, ms: 600 }, shard: { n: 5, ms: 520 }, chunk: { n: 5, ms: 520 }, gleam: { n: 2, ms: 420 },
+bubble: { n: 5, ms: 560 }, wisp: { n: 4, ms: 580 }, ring: { n: 3, ms: 480 }, gust: { n: 4, ms: 440 },
+};
+function effectKind(mv) { return (mv && EFFECT_OF_TYPE[mv.type]) || 'impact'; }
+function playMoveEffect(host, mv, opts = {}) {
+if (!host || opts.reduced) return null;
+const kind = effectKind(mv);
+const shape = EFFECT_SHAPE[kind] || EFFECT_SHAPE.impact;
+const colour = (TYPE_INFO[mv && mv.type] || TYPE_INFO.Normal).color;
+const layer = h('div', {
+class: `fx fx-${kind}${opts.crit ? ' fx-crit' : ''}${opts.eff >= 2 ? ' fx-super' : ''}`,
+'aria-hidden': 'true',
+style: { '--fx': colour, '--fx-ms': `${shape.ms}ms` },
+}, Array.from({ length: shape.n }, (_, i) => h('i', { style: { '--i': String(i), '--n': String(shape.n) } })));
+host.append(layer);
+setTimeout(() => layer.remove(), shape.ms + 80);
+return layer;
+}
 const wait = (ms) => new Promise((r) => setTimeout(r, ms));
 const hpClass = (frac) => (frac > 0.5 ? 'ok' : frac > 0.2 ? 'warn' : 'low');
 function mountFight(root, cfg) {
@@ -22780,7 +23004,7 @@ foePanel: h('div', { class: 'panel panel-foe' }),
 foeStage: h('div', { class: 'stage stage-foe' }),
 meStage: h('div', { class: 'stage stage-me' }),
 mePanel: h('div', { class: 'panel panel-me' }),
-field: h('div', { class: 'field-bar', hidden: true }),
+field: h('div', { class: 'field-bar', hidden: true, role: 'group', 'aria-label': 'The field' }),
 log: h('div', { class: 'battle-log', 'aria-live': 'polite' }),
 controls: h('div', { class: 'controls' }),
 };
@@ -22805,7 +23029,7 @@ if (b.bind && b.bind.turns > 0) out.push(['BIND', `${VOLATILES.bind.name} · ${b
 if (b.taunt > 0) out.push(['TAUNT', `${VOLATILES.taunt.name} · ${b.taunt}`]);
 if (b.encore && b.encore.turns > 0) out.push(['ENC', `${VOLATILES.encore.name} · ${b.encore.turns}`]);
 if (b.sub > 0) out.push(['DECOY', `Decoy · ${b.sub} HP`]);
-return out.map(([short, title]) => h('span', { class: 'status st-vol', title }, short));
+return out.map(([short, title]) => h('span', { class: 'status st-vol', title, role: 'img', 'aria-label': title }, short));
 }
 function renderFieldBar(f) {
 const el = f.els.field;
@@ -22813,8 +23037,8 @@ const fl = f.state.field || {};
 clear(el);
 const rows = [[getWeather(fl.weather), fl.weatherTurns], [getTerrain(fl.terrain), fl.terrainTurns]].filter(([x]) => x);
 for (const [x, turns] of rows) {
-el.append(h('span', { class: 'field-chip', style: { '--chip': x.color }, title: x.desc },
-h('span', { class: 'field-icon' }, x.icon), x.name, h('span', { class: 'field-turns' }, `${turns}`)));
+el.append(h('span', { class: 'field-chip', style: { '--chip': x.color }, title: x.desc, role: 'img', 'aria-label': `${x.name}, ${turns} ${turns === 1 ? 'turn' : 'turns'} left` },
+h('span', { class: 'field-icon', 'aria-hidden': 'true' }, x.icon), x.name, h('span', { class: 'field-turns' }, `${turns}`)));
 }
 let sides = 0;
 for (const i of [0, 1]) {
@@ -22823,13 +23047,13 @@ const mine = i === 0;
 for (const id of Object.keys(SIDE_CONDITIONS)) {
 if (!(cond[id] > 0)) continue;
 sides++;
-el.append(h('span', { class: `field-chip side-chip${mine ? ' mine' : ''}`, title: `${mine ? 'Your side' : 'Their side'}: ${SIDE_CONDITIONS[id].name}` },
+el.append(h('span', { class: `field-chip side-chip${mine ? ' mine' : ''}`, title: `${mine ? 'Your side' : 'Their side'}: ${SIDE_CONDITIONS[id].name}`, role: 'img', 'aria-label': `${mine ? 'Your side' : 'Their side'}: ${SIDE_CONDITIONS[id].name}, ${cond[id]} ${cond[id] === 1 ? 'turn' : 'turns'} left` },
 `${mine ? '▲' : '▼'} ${SIDE_CONDITIONS[id].name}`, h('span', { class: 'field-turns' }, `${cond[id]}`)));
 }
 for (const id of Object.keys(HAZARDS)) {
 if (!(cond[id] > 0)) continue;
 sides++;
-el.append(h('span', { class: `field-chip side-chip hazard${mine ? ' mine' : ''}`, title: `${mine ? 'Your side' : 'Their side'}: ${HAZARDS[id].name}` },
+el.append(h('span', { class: `field-chip side-chip hazard${mine ? ' mine' : ''}`, title: `${mine ? 'Your side' : 'Their side'}: ${HAZARDS[id].name}`, role: 'img', 'aria-label': `${mine ? 'Your side' : 'Their side'}: ${HAZARDS[id].name}${HAZARDS[id].max > 1 ? `, ${cond[id]} deep` : ''}` },
 `${mine ? '▲' : '▼'} ${HAZARDS[id].name}`, HAZARDS[id].max > 1 ? h('span', { class: 'field-turns' }, `×${cond[id]}`) : null));
 }
 }
@@ -22856,7 +23080,7 @@ h('span', { class: 'panel-info', 'aria-hidden': 'true' }, 'i')),
 typeChips(b.types),
 h('div', { class: 'passive' }, h('b', {}, abilityName(b.ability)), h('span', {}, ` ${(getAbility(b.ability) || { desc: 'No passive skill.' }).desc}`)),
 b.held && getCharm(b.held) ? h('div', { class: 'passive held' }, h('b', {}, getCharm(b.held).name), h('span', {}, ` ${getCharm(b.held).desc}`)) : null,
-h('div', { class: 'hpbar' }, h('i', { class: hpClass(frac), style: { width: `${Math.max(0, frac * 100)}%` } })),
+h('div', { class: 'hpbar', role: 'img', 'aria-label': hpLabel(b.name, b.hp, b.maxHp) }, h('i', { class: hpClass(frac), style: { width: `${Math.max(0, frac * 100)}%` } })),
 h('div', { class: 'panel-foot' },
 h('span', { class: 'hpnum' }, i === 0 ? `${b.hp} / ${b.maxHp}` : `${Math.ceil(frac * 100)}%`),
 h('span', { class: 'balls' }, side.party.map((p) => h('i', { class: p.fainted ? 'out' : '' })))),
@@ -22925,8 +23149,15 @@ const el = i === 0 ? f.els.mePanel : f.els.foePanel;
 const bar = el.querySelector('.hpbar i');
 const frac = hp / maxHp;
 if (bar) { bar.style.width = `${Math.max(0, frac * 100)}%`; bar.className = hpClass(frac); }
+const box = el.querySelector('.hpbar');
+if (box) box.setAttribute('aria-label', hpLabel(activeOf(f.state, i).name, hp, maxHp)); 
 const num = el.querySelector('.hpnum');
 if (num) num.textContent = i === 0 ? `${hp} / ${maxHp}` : `${Math.ceil(frac * 100)}%`;
+}
+function stageEffect(f, i, opts = {}) {
+if (getSettings().motion === 'reduced') return;
+const el = i === 0 ? f.els.meStage : f.els.foeStage;
+playMoveEffect(el, f.lastMove, opts);
 }
 function animateStage(f, i, cls, ms = 500) {
 const el = i === 0 ? f.els.meStage : f.els.foeStage;
@@ -22951,10 +23182,10 @@ case 'side': case 'sideOver': case 'sweep': renderFieldBar(f); logLine(f, text);
 case 'volatile': case 'volatileOver': renderPanel(f, e.side); logLine(f, text); sfx.status(); return 550;
 case 'volatileHit': logLine(f, text); return 450;
 case 'guard': case 'protect': logLine(f, text); return 500;
-case 'sub': renderPanel(f, e.side); if (e.kind !== 'up') animateStage(f, e.side, 'hit', 350); logLine(f, text); return 600;
+case 'sub': renderPanel(f, e.side); if (e.kind !== 'up') { stageEffect(f, e.side, { crit: e.crit, eff: e.eff }); animateStage(f, e.side, 'hit', 350); } logLine(f, text); return 600;
 case 'switch': renderStage(f, e.side); renderPanel(f, e.side); logLine(f, text); sfx.cry(activeOf(f.state, e.side).genome); return 650;
-case 'move': logLine(f, text); animateStage(f, e.side, e.side === 0 ? 'lunge-r' : 'lunge-l', 450); poseStage(f, e.side, 'attack', 450); return 550;
-case 'damage': animateStage(f, e.side, 'hit', 450); poseStage(f, e.side, 'hurt', 450); setHp(f, e.side, e.hp, e.maxHp); logLine(f, text); sfx.hit(e.eff); return e.eff !== 1 || e.crit ? 750 : 550;
+case 'move': f.lastMove = { type: e.type, cat: e.cat }; logLine(f, text); animateStage(f, e.side, e.side === 0 ? 'lunge-r' : 'lunge-l', 450); poseStage(f, e.side, 'attack', 450); return 550;
+case 'damage': stageEffect(f, e.side, { crit: e.crit, eff: e.eff }); animateStage(f, e.side, 'hit', 450); poseStage(f, e.side, 'hurt', 450); setHp(f, e.side, e.hp, e.maxHp); logLine(f, text); sfx.hit(e.eff); return e.eff !== 1 || e.crit ? 750 : 550;
 case 'hurt': animateStage(f, e.side, 'hit', 350); poseStage(f, e.side, 'hurt', 350); setHp(f, e.side, e.hp, e.maxHp); logLine(f, text); sfx.hit(1); return 550;
 case 'heal': if (!e.uid || e.uid === activeOf(f.state, e.side).uid) setHp(f, e.side, e.hp, e.maxHp); logLine(f, text); sfx.heal(); return 550;
 case 'item': logLine(f, text); return 500;
@@ -23109,7 +23340,8 @@ function openFightItems(f) {
 if (f.sheetClose) f.sheetClose();
 const st = f.state;
 const legal = legalActions(st, 0);
-const close = () => { backdrop.remove(); sheet.remove(); f.sheetClose = null; };
+let untrap = () => {};
+const close = () => { untrap(); backdrop.remove(); sheet.remove(); f.sheetClose = null; };
 f.sheetClose = close;
 const backdrop = h('div', { class: 'sheet-backdrop', onclick: close });
 const list = h('div', { class: 'party-list' });
@@ -23130,12 +23362,14 @@ h('div', { class: 'sheet-head' }, h('h2', {}, 'Items'), h('button', { class: 'bt
 h('p', { class: 'hint' }, 'Using an item takes your turn.'),
 list);
 document.body.append(backdrop, sheet);
+untrap = trapFocus([sheet, backdrop], { onEscape: close });
 }
 function openFightTarget(f, itemId) {
 if (f.sheetClose) f.sheetClose();
 const st = f.state, side = st.sides[0], item = getItem(itemId);
 const legal = legalActions(st, 0);
-const close = () => { backdrop.remove(); sheet.remove(); f.sheetClose = null; };
+let untrap = () => {};
+const close = () => { untrap(); backdrop.remove(); sheet.remove(); f.sheetClose = null; };
 f.sheetClose = close;
 const backdrop = h('div', { class: 'sheet-backdrop', onclick: close });
 const list = h('div', { class: 'party-list' });
@@ -23155,12 +23389,14 @@ h('div', { class: 'sheet-head' }, h('h2', {}, `Use ${item.name} on…`), h('butt
 h('p', { class: 'hint' }, item.desc),
 list);
 document.body.append(backdrop, sheet);
+untrap = trapFocus([sheet, backdrop], { onEscape: close });
 }
 function openFightParty(f, forced) {
 if (f.sheetClose) f.sheetClose();
 const st = f.state, side = st.sides[0];
 const legal = legalActions(st, 0);
-const close = () => { backdrop.remove(); sheet.remove(); f.sheetClose = null; };
+let untrap = () => {};
+const close = () => { untrap(); backdrop.remove(); sheet.remove(); f.sheetClose = null; };
 f.sheetClose = close;
 const backdrop = h('div', { class: 'sheet-backdrop', onclick: forced ? null : close });
 const list = h('div', { class: 'party-list' });
@@ -23182,6 +23418,7 @@ h('div', { class: 'sheet-head' }, h('h2', {}, forced ? 'Choose your next creatur
 held ? h('p', { class: 'hint' }, `${activeOf(st, 0).name} is held on the field and cannot be swapped out.`) : null,
 list);
 document.body.append(backdrop, sheet);
+untrap = trapFocus([sheet, backdrop], forced ? {} : { onEscape: close }); 
 }
 function showFightResult(f) {
 const st = f.state;
@@ -23413,7 +23650,7 @@ const frac = next > prev ? Math.max(0, Math.min(1, (m.xp - prev) / (next - prev)
 return { cur: m.xp, prev, next, frac };
 }
 function makeMember(genome, level, uid) {
-const m = { uid, genome, level, xp: xpForLevel(level), hp: 0, status: null, moves: movesAtLevel(learnsetOf(genome), level), held: null };
+const m = { uid, genome, level, xp: xpForLevel(level), hp: 0, status: null, moves: movesAtLevel(learnsetOf(genome), level), held: null, bond: 0 };
 m.hp = memberMaxHp(m);
 return m;
 }
@@ -24639,7 +24876,7 @@ if (!Number.isFinite(m.level)) return null;
 const level = Math.max(1, Math.min(100, Math.round(m.level)));
 let moves = Array.isArray(m.moves) ? m.moves.filter((id) => typeof id === 'string' && getMove(id)).slice(0, 4) : [];
 if (!moves.length) moves = movesAtLevel(learnsetOf(m.genome), level);
-return { uid: String(m.uid || ''), genome: m.genome, level, xp: Number.isFinite(m.xp) ? m.xp : 0, hp: Number.isFinite(m.hp) ? Math.max(0, m.hp) : 1, status: m.status || null, moves, locked: Boolean(m.locked), held: getCharm(m.held) ? m.held : null };
+return { uid: String(m.uid || ''), genome: m.genome, level, xp: Number.isFinite(m.xp) ? m.xp : 0, hp: Number.isFinite(m.hp) ? Math.max(0, m.hp) : 1, status: m.status || null, moves, locked: Boolean(m.locked), held: getCharm(m.held) ? m.held : null, bond: Number.isFinite(m.bond) ? Math.max(0, Math.min(BOND.max, Math.round(m.bond))) : 0 };
 }
 function normalizeSave(raw) {
 const s = emptySave();
@@ -25172,7 +25409,7 @@ if (k < 0) throw new Error('Nobody in the party can fight.');
 j.party.unshift(...j.party.splice(k, 1));
 }
 const mine = j.party.map((m) => {
-const b = makeBattler(m.genome, m.level, { moves: m.moves, xp: xpProgress(m), held: m.held });
+const b = makeBattler(m.genome, m.level, { moves: m.moves, xp: xpProgress(m), held: m.held, bond: bondOfMember(m).tier });
 b.hp = Math.max(0, Math.min(m.hp, b.maxHp));
 b.status = m.status;
 b.fainted = b.hp <= 0;
@@ -25204,7 +25441,7 @@ syncBagFromBattle(j, state);
 const capturedBattler = state.captured ? foes.find((f) => f.uid === state.captured) : null;
 const won = state.winner === 0 || Boolean(capturedBattler);
 j.stats.battles++;
-const report = { won, kind: enc.kind, foe: enc.name, xp: 0, gold: 0, xpGains: [], levelUps: [], learned: [], captured: null, toBox: false, badge: null, charm: null, quests: [], champion: false, nextStage: null, wiped: false, alpha: Boolean(enc.alpha) };
+const report = { won, kind: enc.kind, foe: enc.name, xp: 0, gold: 0, xpGains: [], levelUps: [], learned: [], captured: null, toBox: false, badge: null, charm: null, quests: [], champion: false, nextStage: null, wiped: false, alpha: Boolean(enc.alpha), bond: [] };
 if (!won) {
 if (!canFight(j)) { report.wiped = true; j.stats.wipes++; respawnJourney(j); }
 else { j.encounter = null; j.gauntlet = null; j.cooldown = WORLD.encounterCooldown; }
@@ -25280,6 +25517,14 @@ const gift = WARDEN_CHARMS[enc.biome];
 if (getCharm(gift)) { j.bag = j.bag || {}; j.bag[gift] = (j.bag[gift] || 0) + 1; report.charm = gift; }
 }
 }
+const BOND_BOSSES = new Set(['boss', 'council', 'titan', 'trial', 'elder']);
+report.bond = bondAfterBattle(j.party, {
+won,
+boss: BOND_BOSSES.has(enc.kind),
+fought: new Set(j.party.filter((m, i) => mine[i] && mine[i].fought).map((m) => m.uid)),
+fainted: new Set(j.party.filter((m, i) => mine[i] && mine[i].fainted).map((m) => m.uid)),
+levels: Object.fromEntries(report.xpGains.map((g) => [g.uid, Math.max(0, g.to.level - g.from.level)])),
+});
 const done = [];
 if (capturedBattler) done.push(...questEvent(j, { kind: 'capture', genome: capturedBattler.genome, level: capturedBattler.level, alpha: Boolean(enc.alpha) }));
 if (enc.kind === 'wild' && !capturedBattler) for (const f of foes) if (f.fainted) done.push(...questEvent(j, { kind: 'wildwin', genome: f.genome }));
@@ -25605,6 +25850,7 @@ if (ow.fight) { ow.fight.destroy(); ow.fight = null; }
 if (ow.raf) { cancelAnimationFrame(ow.raf); ow.raf = 0; }
 for (const [target, type, fn] of ow.listeners) target.removeEventListener(type, fn);
 ow.listeners = [];
+if (ow.dialogUntrap) { ow.dialogUntrap(); ow.dialogUntrap = null; } 
 ow.tween = null; ow.queue = []; ow.held = null; ow.keys.clear(); ow.dialog = null; ow.target = null;
 }
 function owListen(target, type, fn, opts) { target.addEventListener(type, fn, opts); ow.listeners.push([target, type, fn]); }
@@ -25681,6 +25927,7 @@ if (r.captured) lines.push(`${r.captured.genome.name} joined ${r.toBox ? 'the bo
 if (r.badge) lines.push(`You earned the ${r.badge}!`);
 if (r.charm && getCharm(r.charm)) lines.push(`The Warden handed over a ${getCharm(r.charm).name}. It is in your Bag.`);
 for (const t of r.quests || []) lines.push(`Notice done: ${t} Claim it at the board in the Crossroads.`);
+for (const b of r.bond || []) lines.push(`${b.name} is ${b.tier.name} now. ${b.tier.line}`);
 if (r.champion) lines.push('The Council is beaten. You are the Champion of the Crossroads!');
 }
 return h('div', { class: `result-card slim${r.badge || r.champion ? ' learn' : ''}` }, lines.map((t) => h('div', {}, t)),
@@ -25714,12 +25961,18 @@ h('button', { class: 'btn small', type: 'button', onclick: () => owDexSheet() },
 h('button', { class: 'btn small', type: 'button', onclick: () => owMenuSheet(j) }, 'Menu')));
 }
 function owPartyMini(j) {
-const row = h('div', { class: 'ow-party-mini', role: 'button', tabindex: '0', onclick: () => owPartySheet(j) });
+const open = () => owPartySheet(j);
+const row = h('div', { class: 'ow-party-mini', role: 'button', tabindex: '0', onclick: open,
+onkeydown: (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); open(); } } });
+const words = [];
 for (const m of j.party) {
-const frac = Math.max(0, m.hp / memberMaxHp(m));
+const max = memberMaxHp(m);
+const frac = Math.max(0, m.hp / max);
+words.push(hpLabel(m.genome.name, Math.max(0, m.hp), max));
 row.append(h('div', { class: `mini${m.hp <= 0 ? ' fainted' : ''}` }, creatureEl(m.genome, { size: 44, animate: false, level: m.level }),
 h('div', { class: 'hpbar' }, h('i', { class: frac > 0.5 ? 'ok' : frac > 0.2 ? 'warn' : 'low', style: { width: `${frac * 100}%` } }))));
 }
+row.setAttribute('aria-label', `Party: ${words.join('; ') || 'empty'}. Open the party.`);
 return row;
 }
 function owMapView(root, j) {
@@ -25763,10 +26016,12 @@ if (!ow.canvas || !ow.canvas.isConnected) return;
 if (document.querySelector('.sheet')) return; 
 const tag = e.target && e.target.tagName;
 if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
+if (e.key === 'Escape' && ow.dialog) { owCloseDialog(); return; }
+const onControl = e.target && e.target.closest && e.target.closest('button, a[href], [role="button"]');
 const dir = KEY_DIRS[e.key];
 if (dir) { e.preventDefault(); ow.queue = []; if (!ow.keys.has(dir)) { ow.keys.add(dir); ow.held = dir; owStep(dir); } return; }
+if (onControl) return;
 if (e.key === ' ' || e.key === 'Enter' || e.key === 'e' || e.key === 'E') { if (!ow.dialog) { e.preventDefault(); owInteract(); } }
-if (e.key === 'Escape' && ow.dialog) owCloseDialog();
 }
 function owKeyUp(e) {
 const dir = KEY_DIRS[e.key];
@@ -25861,12 +26116,14 @@ const ht = habitatTypeAt(world, f.x, f.y);
 if (tileAt(world, f.x, f.y) === TILE.habitat && ht) { toast(`${ht}-type creatures live in this ${biomeAt(world, f.x, f.y).name.toLowerCase()} patch.`); return; }
 toast('Nothing here.');
 }
-function owCloseDialog() { if (ow.dialogHost) clear(ow.dialogHost); ow.dialog = null; }
+function owCloseDialog() { if (ow.dialogUntrap) { ow.dialogUntrap(); ow.dialogUntrap = null; } if (ow.dialogHost) clear(ow.dialogHost); ow.dialog = null; }
 function owShowDialog(...content) {
 owCloseDialog();
 ow.dialog = true;
 ow.held = null; ow.queue = [];
-ow.dialogHost.append(h('div', { class: 'ow-dialog', role: 'dialog' }, ...content));
+const box = h('div', { class: 'ow-dialog', role: 'dialog', 'aria-modal': 'true', 'aria-label': 'Message', tabindex: '-1' }, ...content);
+ow.dialogHost.append(box);
+ow.dialogUntrap = trapFocus([box], { onEscape: owCloseDialog });
 }
 function owTalk(t) {
 const j = ow.j;
@@ -25957,7 +26214,7 @@ const intro = enc.kind === 'wild' ? (enc.alpha ? `An alpha, well above the local
 : enc.kind === 'tower' ? `${enc.line} Six on six at level ${enc.level}. A win pays experience and gold${towerRecord(j, enc.floor, enc.level) ? ', a quarter of the gold now this floor is beaten at this level' : ''}.` : 'A friendly match. No captures.';
 root.append(
 h('div', { class: 'ow' }, owHud(j),
-h('div', { class: `encounter ${enc.kind === 'boss' || enc.kind === 'council' ? 'boss' : enc.kind}${elem && elem.pure ? ` elemental elem-${elem.id}` : ''}` },
+h('div', { class: `encounter ${enc.kind === 'boss' || enc.kind === 'council' ? 'boss' : enc.kind}${elem && elem.pure ? ` elemental elem-${elem.id}` : ''}`, role: 'group', 'aria-label': `${kind}: ${enc.name}`, tabindex: '-1' },
 h('div', { class: 'enc-head' }, h('span', { class: `kind-badge ${enc.kind === 'council' ? 'boss' : enc.kind}${elem && elem.pure ? ' elemental' : ''}` }, kind), h('b', {}, enc.kind === 'tower' ? `${enc.name} · Lv ${enc.level}` : enc.name)),
 foes,
 h('p', { class: 'hint' }, intro),
@@ -25993,14 +26250,16 @@ resultButtons: [{ label: j.encounter && ((j.encounter.kind === 'council' && j.ga
 });
 }
 function owSheet(title, body, onClose) {
-const close = () => { backdrop.remove(); sheet.remove(); if (onClose) onClose(); };
+let untrap = () => {};
+const close = () => { untrap(); backdrop.remove(); sheet.remove(); if (onClose) onClose(); };
 const backdrop = h('div', { class: 'sheet-backdrop', onclick: close });
 const sheet = h('section', { class: 'sheet', role: 'dialog', 'aria-modal': 'true', 'aria-label': title },
 h('div', { class: 'grab' }),
 h('div', { class: 'sheet-head' }, h('h2', {}, title), h('button', { class: 'btn close', type: 'button', onclick: close, 'aria-label': 'Close' }, '✕')),
 body);
 document.body.append(backdrop, sheet);
-ow.held = null; ow.queue = [];
+ow.held = null; ow.queue = []; 
+untrap = trapFocus([sheet, backdrop], { onEscape: close });
 return { close, sheet };
 }
 function owKeepScroll(container, draw) {
@@ -26037,6 +26296,13 @@ total: (a, b) => (b.genome.bst || 0) - (a.genome.bst || 0),
 };
 return out.sort(by[store.sort] || by.recent);
 }
+function owBondChip(m) {
+const points = bondOf(m);
+if (!points) return null;
+const { tier, next, need } = bondProgress(m);
+const title = `${tier.name}: ${tier.line}${next ? ` · ${need} more to ${next.name}` : ''}`;
+return h('span', { class: `chip bond-chip t${tier.tier}`, title }, `♥ ${tier.name}`);
+}
 function owMemberRow(j, m, actions) {
 const max = memberMaxHp(m), frac = m.hp / max, xp = xpProgress(m);
 return h('div', { class: `party-row static${m.hp <= 0 ? ' fainted' : ''}` },
@@ -26047,7 +26313,7 @@ m.status ? h('span', { class: `status st-${m.status}` }, STATUS_INFO[m.status].s
 h('div', { class: 'hpbar' }, h('i', { class: frac > 0.5 ? 'ok' : frac > 0.2 ? 'warn' : 'low', style: { width: `${Math.max(0, frac * 100)}%` } })),
 h('div', { class: 'xpline' }, xpRow(xp), h('span', { class: 'xpnum' }, xp.next > xp.prev ? `${xp.cur - xp.prev} / ${xp.next - xp.prev}` : 'MAX')),
 h('div', { class: 'move-chips' }, (m.moves || []).map((id) => { const mv = getMove(id); return mv ? h('span', { class: 'chip', style: { '--chip': TYPE_INFO[mv.type].color } }, mv.name) : null; })),
-h('div', { class: 'row-actions' }, h('span', { class: 'hint', style: { margin: 0 } }, `${m.hp} / ${max} · ${abilityName(m.genome.ability)}`), owHeldChip(m), ...actions)));
+h('div', { class: 'row-actions' }, h('span', { class: 'hint', style: { margin: 0 } }, `${m.hp} / ${max} · ${abilityName(m.genome.ability)}`), owBondChip(m), owHeldChip(m), ...actions)));
 }
 function owHeldChip(m) {
 const c = getCharm(m.held);

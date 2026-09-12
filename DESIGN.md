@@ -1923,6 +1923,87 @@ every phone in either orientation and made it installable.
   sideways scroll or if the map with its pad, or a fight's move buttons, fall
   outside the first screen, and writes `shots/mobile/*.png` for review.
 
+## Bond (implemented)
+
+A creature picks something up from travelling with you that a creature in a
+box does not. Bond is points on the party member, not a stat on the genome: two
+for a battle it fought and won, three a level, twelve for a Warden, a Titan,
+the Council or a Trial, and fifteen back when it faints. Five tiers sit on top
+of that — New, Willing at 40, Trusted at 110, Sworn at 220, Inseparable at 340
+— and each buys one thing the coach and the Rookery cannot sell: a status shaken
+off once a battle, a knockout survived at 1 HP once a battle, critical hits half
+again as often, and at the top 1.05× on every stat.
+
+Only the player's own creatures ever carry one. Wild creatures, trainers,
+Wardens and the tournament simulator all fight at zero, so the 40–60% band the
+tuner keeps is measuring the same game it always was. `bondPerks` reads points
+and resolves the tier itself, so there is one place that decides what a number
+of points is worth and no caller can pass the wrong kind of number.
+
+## Move effects on screen (implemented)
+
+A move that lands now throws something over the creature it hit. Nothing is
+drawn ahead of time: an effect is a handful of `<i>` spans on a layer over the
+target's stage, coloured by the move's own type through a CSS variable and
+animated once by the stylesheet. Eighteen types map onto twelve shapes — a
+burst, embers, a splash, sparks, leaves, shards, chunks, a gleam, bubbles,
+wisps, rings and gusts — so the colour carries the type and the shape carries
+the feel. A critical hit brightens the pieces and a super-effective hit adds a
+glow; nothing about the effect changes what happened.
+
+Every effect runs a single pass and is gone inside 600 ms, and the layer is
+removed after it. Reduced motion — the system setting or the game's own — skips
+them entirely rather than shortening them.
+
+## Getting around without a touchscreen (implemented)
+
+The game was built for a phone, and a few things only a finger could do had
+crept in. This pass made the keyboard a first-class way to play.
+
+- **One dialog behaviour, shared.** `src/ui/a11y.js` holds what a bottom sheet
+  owes its reader: focus moves into it when it opens, Tab cannot walk out of
+  it, Escape closes it, and focus goes back to whatever opened it. Behind it
+  the rest of the page is marked `inert`, so a screen reader reads the dialog
+  and nothing else. All six dialogs use it — the creature sheet, the three
+  fight sheets, the overworld sheets and the in-map dialog — and the two that
+  must be answered (a forced switch, and the map dialog while it is up) simply
+  withhold `onEscape`.
+- **Focus survives a redraw.** Closing a sheet usually redraws the screen
+  underneath it, so the button that opened it is a different node by the time
+  focus goes home. The restore looks for a control with the same name and tag
+  and lands there instead of dropping the reader at the top of the page.
+- **The map stopped stealing keys.** The overworld listens on `window` for
+  Enter and Space to interact; that also swallowed Enter on whatever button had
+  the focus, so the HUD could be reached by Tab but never pressed. It now
+  leaves a focused control alone.
+- **A ring you can see.** There was no focus styling at all, and one rule that
+  removed the browser's. There is now one `:focus-visible` ring everywhere,
+  drawn outside the shape so it never moves a layout, with a `forced-colors`
+  variant.
+- **The battle in words.** HP bars carry a spoken label kept in step with the
+  bar ("Ghastshell: 12 of 48 health, 25 percent"), weather, terrain, screens
+  and hazards each say which side they are on and how many turns are left, and
+  the short volatile badges (CONF, BIND, ENC) carry their full names. The log
+  was already a polite live region.
+- **Nothing flashes.** Every move effect runs once; the fastest repeating
+  animation in the stylesheet is a 1.3 s wingbeat, well under three a second,
+  and both the system setting and the game's own Motion setting stop all of it.
+
+## A deeper AI for the fights that matter (cut)
+
+Wardens, Titans and the Council pick their move with the same one-ply heuristic
+as a wild creature, so a two-ply search — score my move, then the best reply to
+it, with a switch-out term and an urgency term for a creature about to be
+knocked out — looked like an easy way to make the big fights read as
+deliberate. It was built and measured, and it did not survive the measurement.
+
+A parameter sweep on one seed suggested +8.3 points of win rate. Fresh seeds
+gave −1.0 and +2.5. A pooled run of 800 games a side gave +1.0 for search with
+urgency and +1.4 for urgency alone, against a standard error of about 2.5 —
+indistinguishable from the one-ply heuristic it was meant to beat, at several
+times the cost per turn. It was cut on the evidence rather than shipped, and
+this note is here so nobody builds it twice.
+
 ## Polish and balance (Phase 5 — implemented)
 
 Balance was done with the two simulators, not by feel:

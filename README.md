@@ -139,6 +139,28 @@ speed, text size, motion and contrast are kept in their own key, so they follow
 you across saves; three save slots hold three journeys at once, and the picker
 shows the badges, party and gold in each.
 
+Bond: a creature that travels with you earns points for the battles it fights,
+the levels it takes and the big fights it survives, and loses some when it
+falls. Five tiers — Willing, Trusted, Sworn, Inseparable — each buy something
+small the shops cannot sell: a status shaken off once a battle, a knockout
+survived at 1 HP once a battle, sharper critical hits, and at the top a shade
+more of every stat. Only your own creatures carry one.
+
+Move effects: a move that lands throws something over the creature it hit,
+coloured by the move's own type — embers, a splash, sparks, leaves, shards,
+chunks, a gleam, bubbles, wisps, rings, gusts or a plain burst. A critical hit
+brightens it and a super-effective hit gives it a glow. Every one runs once
+and is gone inside 600ms, and reduced motion skips them entirely.
+
+Keyboard and screen readers: the whole game can be played without a
+touchscreen. Arrows or WASD walk, Enter and Space interact, Tab reaches every
+control and a visible ring says where it is. A sheet takes the focus when it
+opens, will not let Tab out, closes on Escape and hands the focus back to the
+button that opened it even when the screen behind was redrawn; everything else
+on the page is marked inert while it is up. HP bars, the field chips and the
+short volatile badges all carry the words behind them, the battle log is a
+live region, and nothing on the page flashes.
+
 Storage: the box has a search, six sort orders and a select mode for
 withdrawing or releasing a handful at once, plus three saved teams you can put
 back on at any time.

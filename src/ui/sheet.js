@@ -2,6 +2,7 @@
 // base stats, parts, palette and traits. Opened from party rows, the collection, fusion previews
 // and the fight view.
 import { h, clear } from './dom.js';
+import { trapFocus } from './a11y.js';
 import { typeChips, creatureEl, section, elementalBadge, styleChip, moveInfoEl } from './common.js';
 import { baseStats, resolveParts, TRAIT_KEYS, speciesOf, rigOf, makeElemental, elementalOf, cladeOf, learnsetOf } from '../creature/genome.js';
 import { getMove } from '../data/moves.js';
@@ -231,7 +232,8 @@ export function openSheet(g, sheetOpts = {}) {
   closeSheet();
   const list = sheetOpts.nav && Array.isArray(sheetOpts.nav.items) && sheetOpts.nav.items.length > 1 ? sheetOpts.nav : null;
   let index = list ? (Number.isInteger(list.index) && list.items[list.index] ? list.index : Math.max(0, list.items.findIndex((it) => it.genome === g))) : 0;
-  const close = () => { backdrop.remove(); sheet.remove(); document.removeEventListener('keydown', onKey); if (activeSheet === close) activeSheet = null; };
+  let untrap = () => {};
+  const close = () => { untrap(); backdrop.remove(); sheet.remove(); document.removeEventListener('keydown', onKey, true); if (activeSheet === close) activeSheet = null; };
   const go = (step) => {
     if (!list) return;
     index = (index + step + list.items.length) % list.items.length;
@@ -240,7 +242,6 @@ export function openSheet(g, sheetOpts = {}) {
     sheet.scrollTop = 0;
   };
   const onKey = (e) => {
-    if (e.key === 'Escape') { close(); return; }
     if (!list || (e.target && e.target.closest && e.target.closest('input, select, textarea'))) return;
     if (e.key === 'ArrowLeft') { e.preventDefault(); e.stopPropagation(); go(-1); }
     else if (e.key === 'ArrowRight') { e.preventDefault(); e.stopPropagation(); go(1); }
@@ -255,4 +256,5 @@ export function openSheet(g, sheetOpts = {}) {
   draw(g, sheetOpts);
   document.body.append(backdrop, sheet);
   document.addEventListener('keydown', onKey, true);
+  untrap = trapFocus([sheet, backdrop], { onEscape: close });
 }

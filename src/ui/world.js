@@ -6,6 +6,7 @@ import { h, clear, toast, copyText, appendChildren } from './dom.js';
 import { creatureEl, typeChips, section, stageBadge, moveInfoEl, dexMark } from './common.js';
 import { freshSeed, makeRng } from '../core/rng.js';
 import { openSheet } from './sheet.js';
+import { trapFocus, hpLabel } from './a11y.js';
 import { mountFight, xpRow } from './fight.js';
 import { STATUS_INFO, levelCaptureMul } from '../battle/engine.js';
 import { stageOf, stageName } from '../data/evolution.js';
@@ -30,6 +31,7 @@ import { openQuests, questReady, rewardText, claimQuest, abandonQuest } from '..
 import { openBounties, bountyCandidates, bountyPayout, bountyLevelMul, turnInBounty } from '../game/bounties.js';
 import { swapChoices, wildPool, swapPrice, drawPrice, secondSlotPrice, rookeryBlock, swapPassive, wildDraw, openSecondSlot } from '../game/rookery.js';
 import { TITAN_BY_BIOME, titanOf, titanLevel } from '../game/titan.js';
+import { BOND, bondOf, bondOfMember, bondProgress } from '../game/bond.js';
 import { SPECIES } from '../data/species.js';
 import { MOVES } from '../data/moves.js';
 import { ABILITY_IDS, ABILITIES } from '../data/abilities.js';
@@ -57,6 +59,7 @@ function owTeardown() {
   if (ow.raf) { cancelAnimationFrame(ow.raf); ow.raf = 0; }
   for (const [target, type, fn] of ow.listeners) target.removeEventListener(type, fn);
   ow.listeners = [];
+  if (ow.dialogUntrap) { ow.dialogUntrap(); ow.dialogUntrap = null; } // a screen change while a dialog is up must not leave the page inert
   ow.tween = null; ow.queue = []; ow.held = null; ow.keys.clear(); ow.dialog = null; ow.target = null;
 }
 
@@ -144,6 +147,7 @@ function owReportCard(j) {
     if (r.badge) lines.push(`You earned the ${r.badge}!`);
     if (r.charm && getCharm(r.charm)) lines.push(`The Warden handed over a ${getCharm(r.charm).name}. It is in your Bag.`);
     for (const t of r.quests || []) lines.push(`Notice done: ${t} Claim it at the board in the Crossroads.`);
+    for (const b of r.bond || []) lines.push(`${b.name} is ${b.tier.name} now. ${b.tier.line}`);
     if (r.champion) lines.push('The Council is beaten. You are the Champion of the Crossroads!');
   }
   return h('div', { class: `result-card slim${r.badge || r.champion ? ' learn' : ''}` }, lines.map((t) => h('div', {}, t)),
@@ -180,12 +184,18 @@ function owHud(j) {
 }
 
 function owPartyMini(j) {
-  const row = h('div', { class: 'ow-party-mini', role: 'button', tabindex: '0', onclick: () => owPartySheet(j) });
+  const open = () => owPartySheet(j);
+  const row = h('div', { class: 'ow-party-mini', role: 'button', tabindex: '0', onclick: open,
+    onkeydown: (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); open(); } } });
+  const words = [];
   for (const m of j.party) {
-    const frac = Math.max(0, m.hp / memberMaxHp(m));
+    const max = memberMaxHp(m);
+    const frac = Math.max(0, m.hp / max);
+    words.push(hpLabel(m.genome.name, Math.max(0, m.hp), max));
     row.append(h('div', { class: `mini${m.hp <= 0 ? ' fainted' : ''}` }, creatureEl(m.genome, { size: 44, animate: false, level: m.level }),
       h('div', { class: 'hpbar' }, h('i', { class: frac > 0.5 ? 'ok' : frac > 0.2 ? 'warn' : 'low', style: { width: `${frac * 100}%` } }))));
   }
+  row.setAttribute('aria-label', `Party: ${words.join('; ') || 'empty'}. Open the party.`);
   return row;
 }
 
@@ -234,10 +244,13 @@ function owKeyDown(e) {
   if (document.querySelector('.sheet')) return; // a sheet is open: its keys are its own
   const tag = e.target && e.target.tagName;
   if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
+  if (e.key === 'Escape' && ow.dialog) { owCloseDialog(); return; }
+  // a button that has the focus keeps its own Enter and Space, or the keyboard could never press one
+  const onControl = e.target && e.target.closest && e.target.closest('button, a[href], [role="button"]');
   const dir = KEY_DIRS[e.key];
   if (dir) { e.preventDefault(); ow.queue = []; if (!ow.keys.has(dir)) { ow.keys.add(dir); ow.held = dir; owStep(dir); } return; }
+  if (onControl) return;
   if (e.key === ' ' || e.key === 'Enter' || e.key === 'e' || e.key === 'E') { if (!ow.dialog) { e.preventDefault(); owInteract(); } }
-  if (e.key === 'Escape' && ow.dialog) owCloseDialog();
 }
 function owKeyUp(e) {
   const dir = KEY_DIRS[e.key];
@@ -343,13 +356,17 @@ function owInteract() {
 
 // ---- dialogs -------------------------------------------------------------------
 
-function owCloseDialog() { if (ow.dialogHost) clear(ow.dialogHost); ow.dialog = null; }
+function owCloseDialog() { if (ow.dialogUntrap) { ow.dialogUntrap(); ow.dialogUntrap = null; } if (ow.dialogHost) clear(ow.dialogHost); ow.dialog = null; }
 
 function owShowDialog(...content) {
   owCloseDialog();
   ow.dialog = true;
   ow.held = null; ow.queue = [];
-  ow.dialogHost.append(h('div', { class: 'ow-dialog', role: 'dialog' }, ...content));
+  const box = h('div', { class: 'ow-dialog', role: 'dialog', 'aria-modal': 'true', 'aria-label': 'Message', tabindex: '-1' }, ...content);
+  ow.dialogHost.append(box);
+  // the map stops listening while this is up, so the dialog takes the keyboard: the cursor goes to its first
+  // answer instead of staying behind on the map, and Tab stays among the answers
+  ow.dialogUntrap = trapFocus([box], { onEscape: owCloseDialog });
 }
 
 function owTalk(t) {
@@ -449,7 +466,7 @@ function owEncounterView(root, j) {
     : enc.kind === 'tower' ? `${enc.line} Six on six at level ${enc.level}. A win pays experience and gold${towerRecord(j, enc.floor, enc.level) ? ', a quarter of the gold now this floor is beaten at this level' : ''}.` : 'A friendly match. No captures.';
   root.append(
     h('div', { class: 'ow' }, owHud(j),
-      h('div', { class: `encounter ${enc.kind === 'boss' || enc.kind === 'council' ? 'boss' : enc.kind}${elem && elem.pure ? ` elemental elem-${elem.id}` : ''}` },
+      h('div', { class: `encounter ${enc.kind === 'boss' || enc.kind === 'council' ? 'boss' : enc.kind}${elem && elem.pure ? ` elemental elem-${elem.id}` : ''}`, role: 'group', 'aria-label': `${kind}: ${enc.name}`, tabindex: '-1' },
         h('div', { class: 'enc-head' }, h('span', { class: `kind-badge ${enc.kind === 'council' ? 'boss' : enc.kind}${elem && elem.pure ? ' elemental' : ''}` }, kind), h('b', {}, enc.kind === 'tower' ? `${enc.name} · Lv ${enc.level}` : enc.name)),
         foes,
         h('p', { class: 'hint' }, intro),
@@ -489,14 +506,16 @@ function owStartFight() {
 // ---- sheets: party, map, menu, shrine -----------------------------------------------
 
 function owSheet(title, body, onClose) {
-  const close = () => { backdrop.remove(); sheet.remove(); if (onClose) onClose(); };
+  let untrap = () => {};
+  const close = () => { untrap(); backdrop.remove(); sheet.remove(); if (onClose) onClose(); };
   const backdrop = h('div', { class: 'sheet-backdrop', onclick: close });
   const sheet = h('section', { class: 'sheet', role: 'dialog', 'aria-modal': 'true', 'aria-label': title },
     h('div', { class: 'grab' }),
     h('div', { class: 'sheet-head' }, h('h2', {}, title), h('button', { class: 'btn close', type: 'button', onclick: close, 'aria-label': 'Close' }, '✕')),
     body);
   document.body.append(backdrop, sheet);
-  ow.held = null; ow.queue = [];
+  ow.held = null; ow.queue = []; // a sheet takes the keys: whatever was held down does not carry on walking underneath it
+  untrap = trapFocus([sheet, backdrop], { onEscape: close });
   return { close, sheet };
 }
 
@@ -540,6 +559,15 @@ function storeFilter(box, store) {
   return out.sort(by[store.sort] || by.recent);
 }
 
+/** Where a creature stands with you, once it stands anywhere at all. */
+function owBondChip(m) {
+  const points = bondOf(m);
+  if (!points) return null;
+  const { tier, next, need } = bondProgress(m);
+  const title = `${tier.name}: ${tier.line}${next ? ` · ${need} more to ${next.name}` : ''}`;
+  return h('span', { class: `chip bond-chip t${tier.tier}`, title }, `♥ ${tier.name}`);
+}
+
 function owMemberRow(j, m, actions) {
   const max = memberMaxHp(m), frac = m.hp / max, xp = xpProgress(m);
   return h('div', { class: `party-row static${m.hp <= 0 ? ' fainted' : ''}` },
@@ -550,7 +578,7 @@ function owMemberRow(j, m, actions) {
       h('div', { class: 'hpbar' }, h('i', { class: frac > 0.5 ? 'ok' : frac > 0.2 ? 'warn' : 'low', style: { width: `${Math.max(0, frac * 100)}%` } })),
       h('div', { class: 'xpline' }, xpRow(xp), h('span', { class: 'xpnum' }, xp.next > xp.prev ? `${xp.cur - xp.prev} / ${xp.next - xp.prev}` : 'MAX')),
       h('div', { class: 'move-chips' }, (m.moves || []).map((id) => { const mv = getMove(id); return mv ? h('span', { class: 'chip', style: { '--chip': TYPE_INFO[mv.type].color } }, mv.name) : null; })),
-      h('div', { class: 'row-actions' }, h('span', { class: 'hint', style: { margin: 0 } }, `${m.hp} / ${max} · ${abilityName(m.genome.ability)}`), owHeldChip(m), ...actions)));
+      h('div', { class: 'row-actions' }, h('span', { class: 'hint', style: { margin: 0 } }, `${m.hp} / ${max} · ${abilityName(m.genome.ability)}`), owBondChip(m), owHeldChip(m), ...actions)));
 }
 
 /** '◈ Ember Charm' for a member holding a charm, or nothing. */
