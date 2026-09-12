@@ -13,6 +13,7 @@ import { WORLD, TILE, REGIONS, BIOME_ORDER, worldFor, tileAt, biomeAt, trainerAt
 import { goldReward, battleItems, syncBagFromBattle, returnCharms } from './market.js';
 import { getCharm, heldKind, CHARM_RULE, WARDEN_CHARMS } from '../data/charms.js';
 import { recordTowerWin, towerRecord } from './tower.js';
+import { newBoard, ensureBoard, questEvent } from './quests.js';
 
 export const JOURNEY = { starterLevel: PARTY.starterLevel, maxLevel: PARTY.maxLevel, partyMax: PARTY.max, gauntletHeal: 0.35, badgesForSpire: BIOME_ORDER.length, councilFights: 4 };
 export const DIRS = { up: [0, -1], down: [0, 1], left: [-1, 0], right: [1, 0] };
@@ -32,11 +33,11 @@ export function newJourney(seed) {
   const world = worldFor(seed);
   return {
     seed: String(seed), world: WORLD.version, phase: 'starter', starters, party: [], box: [], nextId: 1, pendingLearns: [],
-    stats: { steps: 0, battles: 0, captures: 0, fusions: 0, trainers: 0, bosses: 0, wipes: 0, tower: 0 },
+    stats: { steps: 0, battles: 0, captures: 0, fusions: 0, trainers: 0, bosses: 0, wipes: 0, tower: 0, quests: 0 },
     tower: { challenges: 0, wins: {} },
     player: { x: world.start.x, y: world.start.y, dir: 'down' },
     badges: [], beaten: {}, camps: [], lastCamp: { x: world.hubCamp.x, y: world.hubCamp.y }, cooldown: 0,
-    gold: 0, bag: {},
+    gold: 0, bag: {}, quests: newBoard(),
     gauntlet: null, champion: false, encounter: null, lastReport: null,
   };
 }
@@ -47,6 +48,7 @@ export function chooseJourneyStarter(j, index) {
   j.party = [makeMember(g, JOURNEY.starterLevel, nextJourneyUid(j))];
   j.starters = null;
   j.phase = 'roam';
+  ensureBoard(j); // the first three notices go up once there is a party to send
   return j;
 }
 
@@ -85,7 +87,8 @@ export function tryMove(j, dir) {
     j.lastCamp = { x: nx, y: ny };
     const place = journeyPlace(j);
     if (place.id !== 'hub' && !j.camps.includes(place.id)) j.camps.push(place.id);
-    return { moved: true, event: { kind: 'camp', place } };
+    const quests = place.id !== 'hub' ? questEvent(j, { kind: 'camp', biome: place.id }) : [];
+    return { moved: true, event: { kind: 'camp', place, quests } };
   }
   if (tile === TILE.door) {
     const b = biomeAt(world, nx, ny);
@@ -96,6 +99,7 @@ export function tryMove(j, dir) {
   if (tile === TILE.marketDoor) return { moved: true, event: { kind: 'market' } };
   if (tile === TILE.storageDoor) return { moved: true, event: { kind: 'storage' } };
   if (tile === TILE.towerDoor) return { moved: true, event: { kind: 'tower' } };
+  if (tileAt(world, nx + DIRS[dir][0], ny + DIRS[dir][1]) === TILE.board) return { moved: true, event: { kind: 'board' } };
   if (tile === TILE.habitat && j.cooldown <= 0) {
     const rng = makeRng(`${j.seed}:step:${j.stats.steps}`);
     const leadHeld = heldKind(j.party[0] && j.party[0].held); // the lead's charm shapes the road: a Lure draws creatures out, a Prism draws out Elementals
@@ -214,7 +218,7 @@ export function applyJourneyBattle(j, state) {
   const capturedBattler = state.captured ? foes.find((f) => f.uid === state.captured) : null;
   const won = state.winner === 0 || Boolean(capturedBattler);
   j.stats.battles++;
-  const report = { won, kind: enc.kind, foe: enc.name, xp: 0, gold: 0, xpGains: [], levelUps: [], learned: [], captured: null, toBox: false, badge: null, charm: null, champion: false, nextStage: null, wiped: false, alpha: Boolean(enc.alpha) };
+  const report = { won, kind: enc.kind, foe: enc.name, xp: 0, gold: 0, xpGains: [], levelUps: [], learned: [], captured: null, toBox: false, badge: null, charm: null, quests: [], champion: false, nextStage: null, wiped: false, alpha: Boolean(enc.alpha) };
   if (!won) {
     if (!canFight(j)) { report.wiped = true; j.stats.wipes++; respawnJourney(j); }
     else { j.encounter = null; j.gauntlet = null; j.cooldown = WORLD.encounterCooldown; }
@@ -272,6 +276,14 @@ export function applyJourneyBattle(j, state) {
       if (getCharm(gift)) { j.bag = j.bag || {}; j.bag[gift] = (j.bag[gift] || 0) + 1; report.charm = gift; }
     }
   }
+  // the notice board hears about it
+  const done = [];
+  if (capturedBattler) done.push(...questEvent(j, { kind: 'capture', genome: capturedBattler.genome, level: capturedBattler.level, alpha: Boolean(enc.alpha) }));
+  if (enc.kind === 'wild' && !capturedBattler) for (const f of foes) if (f.fainted) done.push(...questEvent(j, { kind: 'wildwin', genome: f.genome }));
+  if (enc.kind === 'trainer') done.push(...questEvent(j, { kind: 'trainer', biome: enc.biome }));
+  if (enc.kind === 'boss') done.push(...questEvent(j, { kind: 'boss', biome: enc.biome }));
+  if (enc.kind === 'tower') done.push(...questEvent(j, { kind: 'tower', floor: enc.floor, level: enc.level }));
+  report.quests = done.map((q) => q.text);
   j.encounter = null;
   j.cooldown = WORLD.encounterCooldown;
   if (enc.kind === 'council') {
@@ -319,7 +331,8 @@ export function shrineFuse(j, uidA, uidB) {
   (j.party.length < JOURNEY.partyMax ? j.party : j.box).push(member);
   if (!j.party.length && j.box.length) j.party.push(j.box.shift());
   j.stats.fusions++;
-  return { journey: j, child: member };
+  const quests = questEvent(j, { kind: 'fusion', clade: child.clade });
+  return { journey: j, child: member, quests: quests.map((q) => q.text) };
 }
 
 /** Badge summary for the HUD: every biome with whether its badge is held. */

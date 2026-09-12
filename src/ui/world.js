@@ -21,6 +21,7 @@ import { dexSeen, dexCaught, dexCounts, dexStatus, dexMorphs, dexHabitat, dexRew
 import { speciesGenome } from '../creature/genome.js';
 import { MORPHS } from '../creature/palette.js';
 import { CLADE_IDS } from '../data/clades.js';
+import { openQuests, questReady, rewardText, claimQuest, abandonQuest } from '../game/quests.js';
 import { TOWER, TOWER_TRAINERS, challengeTower, towerRecord } from '../game/tower.js';
 import { abilityName } from '../data/abilities.js';
 import { getMove } from '../data/moves.js';
@@ -124,6 +125,7 @@ function owReportCard(j) {
     if (r.captured) lines.push(`${r.captured.genome.name} joined ${r.toBox ? 'the box' : 'the party'}.`);
     if (r.badge) lines.push(`You earned the ${r.badge}!`);
     if (r.charm && getCharm(r.charm)) lines.push(`The Warden handed over a ${getCharm(r.charm).name}. It is in your Bag.`);
+    for (const t of r.quests || []) lines.push(`Notice done: ${t} Claim it at the board in the Crossroads.`);
     if (r.champion) lines.push('The Council is beaten. You are the Champion of the Crossroads!');
   }
   return h('div', { class: `result-card slim${r.badge || r.champion ? ' learn' : ''}` }, lines.map((t) => h('div', {}, t)),
@@ -236,7 +238,13 @@ function owCanvasTap(e) {
   const j = ow.j, world = ow.world;
   const t = trainerAt(world, tx, ty);
   if (t && Math.abs(tx - j.player.x) + Math.abs(ty - j.player.y) === 1) { j.player.dir = tx > j.player.x ? 'right' : tx < j.player.x ? 'left' : ty > j.player.y ? 'down' : 'up'; owTalk(t); return; }
-  const path = findPath(world, j.player, { x: tx, y: ty }, 90);
+  let goal = { x: tx, y: ty };
+  if (tileAt(world, tx, ty) === TILE.board) {
+    if (Math.abs(tx - j.player.x) + Math.abs(ty - j.player.y) === 1) { j.player.dir = tx > j.player.x ? 'right' : tx < j.player.x ? 'left' : ty > j.player.y ? 'down' : 'up'; owBoardSheet(j); return; }
+    // walk to the square below the board (the side facing the town square) and read it from there
+    goal = { x: tx, y: ty + 1 };
+  }
+  const path = findPath(world, j.player, goal, 90);
   if (!path) { toast('No way there'); return; }
   ow.queue = path;
   ow.target = { x: tx, y: ty };
@@ -272,7 +280,8 @@ function owAfterStep(event) {
   if (!event) { if (ow.queue.length) owNextQueued(); else if (ow.held) owStep(ow.held); return; }
   ow.queue = []; ow.target = null;
   if (event.kind === 'encounter') { owSave(); sfx.cry(j.encounter.foes[0].genome); renderWorldScreen(ow.root); return; }
-  if (event.kind === 'camp') { owSave(); sfx.heal(); toast(event.place.id === 'hub' ? 'Rested at the Crossroads. Party healed.' : `Camp reached. Party healed.`); owRefreshHud(); return; }
+  if (event.kind === 'camp') { owSave(); sfx.heal(); toast(event.place.id === 'hub' ? 'Rested at the Crossroads. Party healed.' : event.quests && event.quests.length ? 'Camp reached. Party healed. A notice is done: claim it at the board.' : 'Camp reached. Party healed.'); owRefreshHud(); return; }
+  if (event.kind === 'board') { owBoardSheet(j); return; }
   if (event.kind === 'lair') { owLairDialog(event); return; }
   if (event.kind === 'spire') { owSpireDialog(event); return; }
   if (event.kind === 'shrine') { owShrineSheet(j); return; }
@@ -302,6 +311,7 @@ function owInteract() {
   if (here === TILE.storageDoor) { owStorageSheet(j); return; }
   if (here === TILE.towerDoor) { owTowerSheet(j); return; }
   if (here === TILE.camp) { toast('The fire is warm. Your party is rested.'); return; }
+  if (tileAt(world, f.x, f.y) === TILE.board) { owBoardSheet(j); return; }
   const ht = habitatTypeAt(world, f.x, f.y);
   if (tileAt(world, f.x, f.y) === TILE.habitat && ht) { toast(`${ht}-type creatures live in this ${biomeAt(world, f.x, f.y).name.toLowerCase()} patch.`); return; }
   toast('Nothing here.');
@@ -555,7 +565,7 @@ function owPartySheet(j) {
     appendChildren(body, [
       ...section(`Party · ${j.party.length}/${JOURNEY.partyMax}`, h('p', { class: 'hint' }, `The lead goes out first. Camps heal everyone; a wipe sends you back to the last one you rested at. ${j.box.length ? `${j.box.length} in storage` : 'Storage is empty'}; deposit and withdraw at the Creature Storage in the Crossroads. Release lets a creature go for good; it stays in your Collection.`), partyList),
     ]);
-    body.append(h('p', { class: 'hint' }, `${j.stats.steps} steps · ${j.stats.battles} battles · ${j.stats.captures} caught · ${j.stats.trainers} trainers · ${j.stats.bosses} wardens · ${j.stats.fusions} fusions`));
+    body.append(h('p', { class: 'hint' }, `${j.stats.steps} steps · ${j.stats.battles} battles · ${j.stats.captures} caught · ${j.stats.trainers} trainers · ${j.stats.bosses} wardens · ${j.stats.fusions} fusions · ${j.stats.quests || 0} notices`));
   };
   const render = () => owKeepScroll(body, draw);
   render();
@@ -577,10 +587,11 @@ function owMapSheet(j) {
   dot(world.marketDoor, '#7fe38a', 5);
   dot(world.storageDoor, '#4fc0a0', 5);
   dot(world.towerDoor, '#ff9f43', 5);
+  dot(world.board, '#e0c86f', 4);
   for (const t of world.trainers) dot({ x: t.x, y: t.y }, j.beaten[t.id] ? '#8f96a8' : '#4f8ef7', 2.5);
   dot(j.player, '#f5c518', 6); ctx.strokeStyle = '#000'; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.arc(j.player.x * S + S / 2, j.player.y * S + S / 2, 6, 0, Math.PI * 2); ctx.stroke();
   const legend = h('div', { class: 'ow-legend' }, world.biomes.map((b) => h('div', {}, h('i', { style: { background: REGIONS[b.clade].ground } }), `${b.name} · to Lv ${b.level}${j.badges.includes(b.id) ? ' · badge ✓' : ''}`)));
-  owSheet('World map', h('div', {}, c, legend, h('p', { class: 'hint', style: { marginTop: '8px' } }, 'You are the gold dot. White: camps. Red: Wardens (gold once beaten). Blue: trainers. Purple: the Council Spire. Green: the Market. Teal: Creature Storage. Orange: the Battle Tower.')));
+  owSheet('World map', h('div', {}, c, legend, h('p', { class: 'hint', style: { marginTop: '8px' } }, 'You are the gold dot. White: camps. Red: Wardens (gold once beaten). Blue: trainers. Purple: the Council Spire. Green: the Market. Teal: Creature Storage. Orange: the Battle Tower. Straw: the notice board.')));
 }
 
 function owMenuSheet(j) {
@@ -862,6 +873,41 @@ function owTowerSheet(j) {
   const { close } = owSheet('Battle Tower', body, () => owRefreshHud());
 }
 
+// ---- the notice board -------------------------------------------------------------
+
+/** The board's three notices: what to do, how far along, what it pays; Claim when done, or tear one down for another. */
+function owBoardSheet(j) {
+  const body = h('div');
+  const draw = () => {
+    clear(body);
+    const list = h('div', { class: 'shop-list' });
+    for (const q of openQuests(j)) {
+      const ready = questReady(q);
+      list.append(h('div', { class: `shop-row notice${ready ? ' next' : ''}` },
+        h('div', { class: 'shop-info' }, h('b', {}, q.text),
+          h('div', { class: 'shop-meta' }, h('span', {}, `Pays ${rewardText(q)}.`), h('span', { class: 'shop-tag' }, ready ? 'done' : q.goal > 1 ? `${q.progress} / ${q.goal}` : 'open'))),
+        h('div', { class: 'stack' },
+          h('button', { class: `btn small${ready ? ' primary' : ''}`, type: 'button', disabled: !ready, onclick: () => {
+            const r = claimQuest(j, q.id);
+            if (!r.ok) { toast(r.reason); return; }
+            owSave(); sfx.levelUp(); toast(`Claimed ${rewardText(r.quest)}.`); render(); owRefreshHud();
+          } }, 'Claim'),
+          ready ? null : h('button', { class: 'btn small', type: 'button', title: 'Take this notice down; another goes up', onclick: () => {
+            if (ow.confirmTear !== q.id) { ow.confirmTear = q.id; toast('Tap again to tear it down'); setTimeout(() => { if (ow.confirmTear === q.id) ow.confirmTear = null; }, 4000); return; }
+            ow.confirmTear = null;
+            abandonQuest(j, q.id); owSave(); render();
+          } }, 'Tear down'))));
+    }
+    appendChildren(body, [
+      h('p', { class: 'hint' }, `Three requests from the townsfolk at a time, pinned for whoever passes. Finish one anywhere on the ring and claim it here; a fresh notice goes up in its place. ${j.stats.quests || 0} done so far.`),
+      list,
+    ]);
+  };
+  const render = () => owKeepScroll(body, draw);
+  render();
+  owSheet('Notice board', body, () => owRefreshHud());
+}
+
 // ---- the Fusiondex ----------------------------------------------------------------
 
 const DEX_SEED = 'dex';
@@ -971,9 +1017,9 @@ function owShrineSheet(j) {
         h('div', { class: 'hero' }, creatureEl(child, { size: 240, fit: true })),
         h('div', { class: 'row wrap' },
           h('button', { class: 'btn primary', type: 'button', onclick: () => {
-            const { child: member } = shrineFuse(j, pick.a, pick.b);
+            const { child: member, quests } = shrineFuse(j, pick.a, pick.b);
             recordCollection(ow.save, member.genome);
-            owSave(); toast(`${member.genome.name} is born!`); pick.a = null; pick.b = null; render();
+            owSave(); toast(`${member.genome.name} is born!${quests && quests.length ? ' A notice is done: claim it at the board.' : ''}`); pick.a = null; pick.b = null; render();
           } }, 'Fuse them'),
           h('button', { class: 'btn', type: 'button', onclick: () => openSheet(child) }, 'Details'))) : null,
     ]);
@@ -1091,7 +1137,7 @@ function owDraw(ts) {
       const i = y * world.w + x, t = world.tiles[i], region = REGIONS[world.biomes[world.bio[i]].clade];
       const px = x * T - cam.x, py = y * T - cam.y, hsh = owHash(x, y);
       let ground = hsh > 0.5 ? region.ground : region.ground2;
-      if (t === TILE.hub || t === TILE.shrine || t === TILE.spireDoor || t === TILE.camp && isHubTile(world, x, y)) ground = (x + y) % 2 ? HUB.paving : HUB.ground;
+      if (t === TILE.hub || t === TILE.shrine || t === TILE.spireDoor || t === TILE.board || t === TILE.camp && isHubTile(world, x, y)) ground = (x + y) % 2 ? HUB.paving : HUB.ground;
       else if (t === TILE.path || t === TILE.door) ground = region.path;
       else if (t === TILE.water) ground = region.water;
       else if (t === TILE.habitat) ground = region.habitat;
@@ -1116,6 +1162,15 @@ function owDraw(ts) {
         ctx.fillStyle = '#f5c518'; ctx.beginPath(); ctx.moveTo(px + T / 2, py + T * 0.12); ctx.lineTo(px + T * 0.78, py + T / 2); ctx.lineTo(px + T / 2, py + T * 0.88); ctx.lineTo(px + T * 0.22, py + T / 2); ctx.closePath(); ctx.fill();
         ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(px + T / 2, py + T / 2, T * 0.1, 0, Math.PI * 2); ctx.fill();
       } else if (t === TILE.door || t === TILE.spireDoor || t === TILE.marketDoor || t === TILE.storageDoor || t === TILE.towerDoor) { ctx.fillStyle = 'rgba(0,0,0,.25)'; ctx.fillRect(px + T * 0.2, py + T * 0.3, T * 0.6, T * 0.4); }
+      else if (t === TILE.board) {
+        // the notice board: two posts, a straw-coloured panel and three pinned slips
+        ctx.fillStyle = 'rgba(0,0,0,.22)'; ctx.fillRect(px + T * 0.15, py + T * 0.82, T * 0.7, 3 * s);
+        ctx.fillStyle = '#5b3a22'; ctx.fillRect(px + T * 0.2, py + T * 0.35, 3 * s, T * 0.5); ctx.fillRect(px + T * 0.8 - 3 * s, py + T * 0.35, 3 * s, T * 0.5);
+        ctx.fillStyle = '#7a5230'; ctx.fillRect(px + T * 0.1, py + T * 0.12, T * 0.8, T * 0.5);
+        ctx.fillStyle = '#e0c86f'; ctx.fillRect(px + T * 0.14, py + T * 0.16, T * 0.72, T * 0.42);
+        ctx.fillStyle = '#fff7e0'; ctx.fillRect(px + T * 0.2, py + T * 0.22, T * 0.18, T * 0.26); ctx.fillRect(px + T * 0.42, py + T * 0.2, T * 0.18, T * 0.3); ctx.fillRect(px + T * 0.64, py + T * 0.24, T * 0.16, T * 0.24);
+        ctx.fillStyle = '#c23b3b'; ctx.fillRect(px + T * 0.27, py + T * 0.2, 2 * s, 2 * s); ctx.fillRect(px + T * 0.49, py + T * 0.18, 2 * s, 2 * s); ctx.fillRect(px + T * 0.7, py + T * 0.22, 2 * s, 2 * s);
+      }
       if (t === TILE.lair || t === TILE.spire) deferred.push({ x, y, t, region, px, py });
     }
   }

@@ -407,6 +407,9 @@ button, .btn { touch-action: manipulation; }
 .morph-dot.morph-albino { background: #f4f0ea; color: #f4f0ea; } .morph-dot.morph-melanistic { background: #2a262e; color: #8a8090; } .morph-dot.morph-pastel { background: #f2c4d8; color: #f2c4d8; }
 .morph-chip { background: var(--bg3); color: var(--fg); border: 1px solid var(--line); }
 .morph-chip.morph-albino { background: #f4f0ea; color: #3a2a30; } .morph-chip.morph-melanistic { background: #2a262e; color: #f0d9a0; } .morph-chip.morph-pastel { background: #f2c4d8; color: #4a2a40; }
+
+/* the notice board */
+.shop-row.notice .stack .btn { min-width: 84px; }
 </style>
 </head>
 <body>
@@ -24194,8 +24197,8 @@ function challengeTower(j, k, level) {
 // around the ring, so the recommended order is a lap. Every biome has a camp that heals,
 // a lair where its Warden waits with a badge, and a few trainers on the paths who fight
 // when asked. The hub also has a fusion
-// shrine, a Market selling moves for the gold trainers pay, a Creature Storage holding the box and a Battle Tower
-// of six-on-six fights at chosen levels. The Council Spire in the hub opens with every badge: four fights in a row.
+// shrine, a Market selling moves for the gold trainers pay, a Creature Storage holding the box, a Battle Tower
+// of six-on-six fights at chosen levels and a notice board of requests. The Council Spire in the hub opens with every badge: four fights in a row.
 //
 // Everything here is pure data derived from the seed. The map is three Uint8Arrays
 // (tile kind, biome index, habitat type) plus placed content.
@@ -24208,10 +24211,10 @@ function challengeTower(j, k, level) {
 
 
 /** Map size and ring geometry. `version` bumps whenever the layout changes, so saved positions from an older map reset to the Crossroads. */
-const WORLD = { version: 9, w: 224, h: 192, hubR: 6, ringR: 58, lairR: 84, trainersPerBiome: 6, encounterChance: 0.12, encounterCooldown: 4, homeSpawnShare: 0.72 };
+const WORLD = { version: 10, w: 224, h: 192, hubR: 6, ringR: 58, lairR: 84, trainersPerBiome: 6, encounterChance: 0.12, encounterCooldown: 4, homeSpawnShare: 0.72 };
 
 /** Tile kinds. */
-const TILE = { grass: 0, habitat: 1, path: 2, wall: 3, water: 4, hub: 5, lair: 6, door: 7, camp: 8, spire: 9, spireDoor: 10, shrine: 11, market: 12, marketDoor: 13, storage: 14, storageDoor: 15, tower: 16, towerDoor: 17 };
+const TILE = { grass: 0, habitat: 1, path: 2, wall: 3, water: 4, hub: 5, lair: 6, door: 7, camp: 8, spire: 9, spireDoor: 10, shrine: 11, market: 12, marketDoor: 13, storage: 14, storageDoor: 15, tower: 16, towerDoor: 17, board: 18 };
 const WALKABLE_TILES = new Set([TILE.grass, TILE.habitat, TILE.path, TILE.hub, TILE.door, TILE.camp, TILE.spireDoor, TILE.shrine, TILE.marketDoor, TILE.storageDoor, TILE.towerDoor]);
 
 /** Biomes in difficulty order, clockwise from the south of the hub. Levels climb 5 to the fifties; the gaps in the ladder are for classes still to come. */
@@ -24558,7 +24561,7 @@ function generateWorld(seed) {
       }
     }
   }
-  const world = { seed: String(seed), w, h, tiles, bio, hab, hub, biomes, trainers: [], trainerAt: new Map(), wardens: {}, council: [], start: { x: hub.x, y: hub.y + 1 }, spireDoor: { x: hub.x, y: hub.y - 5 }, shrine: { x: hub.x + 3, y: hub.y }, hubCamp: { x: hub.x - 3, y: hub.y }, market: { x: hub.x + 4, y: hub.y - 4 }, marketDoor: { x: hub.x + 4, y: hub.y - 2 }, storage: { x: hub.x - 4, y: hub.y - 4 }, storageDoor: { x: hub.x - 4, y: hub.y - 2 }, tower: { x: hub.x - 4, y: hub.y + 3 }, towerDoor: { x: hub.x - 4, y: hub.y + 2 } };
+  const world = { seed: String(seed), w, h, tiles, bio, hab, hub, biomes, trainers: [], trainerAt: new Map(), wardens: {}, council: [], start: { x: hub.x, y: hub.y + 1 }, spireDoor: { x: hub.x, y: hub.y - 5 }, shrine: { x: hub.x + 3, y: hub.y }, hubCamp: { x: hub.x - 3, y: hub.y }, market: { x: hub.x + 4, y: hub.y - 4 }, marketDoor: { x: hub.x + 4, y: hub.y - 2 }, storage: { x: hub.x - 4, y: hub.y - 4 }, storageDoor: { x: hub.x - 4, y: hub.y - 2 }, tower: { x: hub.x - 4, y: hub.y + 3 }, towerDoor: { x: hub.x - 4, y: hub.y + 2 }, board: { x: hub.x + 2, y: hub.y + 3 } };
 
   // the hub disc, its spire, shrine and camp
   for (let y = hub.y - WORLD.hubR; y <= hub.y + WORLD.hubR; y++) for (let x = hub.x - WORLD.hubR; x <= hub.x + WORLD.hubR; x++) if (isHubTile(world, x, y)) tiles[idx(x, y)] = TILE.hub;
@@ -24566,6 +24569,7 @@ function generateWorld(seed) {
   tiles[idx(world.spireDoor.x, world.spireDoor.y)] = TILE.spireDoor;
   tiles[idx(world.shrine.x, world.shrine.y)] = TILE.shrine;
   tiles[idx(world.hubCamp.x, world.hubCamp.y)] = TILE.camp;
+  tiles[idx(world.board.x, world.board.y)] = TILE.board; // the notice board: stand beside it and press A
   // the Market: a 3 x 2 shop on the hub's north-east edge, door facing the square
   for (let y = world.market.y; y <= world.market.y + 1; y++) for (let x = world.market.x - 1; x <= world.market.x + 1; x++) tiles[idx(x, y)] = TILE.market;
   tiles[idx(world.marketDoor.x, world.marketDoor.y)] = TILE.marketDoor;
@@ -24786,9 +24790,210 @@ function dexSpeciesOf(clade) {
   return SPECIES.filter((s) => s.clade === clade && !s.hidden).sort((a, b) => rank[a.tier] - rank[b.tier] || (a.name < b.name ? -1 : 1));
 }
 
+// ---- src/game/quests.js ----
+// The notice board at the Crossroads: three open requests at a time, drawn from ten kinds and scaled to
+// the badges held. Progress is booked from journey events (captures, trainer and Warden wins, tower wins,
+// fusions, camps) and the reward, gold plus a potion, a scroll or a charm, is claimed back at the board,
+// which then pins up a fresh notice. Everything is deterministic from the journey seed and a running count.
+
+
+
+
+
+
+
+
+
+
+
+const BOARD = { open: 3, baseGold: 400, goldPerBadge: 250 };
+const QUEST_KINDS = ['catch_type', 'catch_species', 'beat_trainers', 'fuse_class', 'rest_camp', 'win_tower', 'beat_warden', 'catch_alpha', 'catch_count', 'win_wild'];
+const TIER = { catch_type: 1, catch_count: 1, rest_camp: 1, catch_species: 1.6, beat_trainers: 1.6, fuse_class: 1.6, win_wild: 1.6, win_tower: 2.5, beat_warden: 2.5, catch_alpha: 2.5 };
+
+function newBoard() { return { issued: 0, done: 0, open: [] }; }
+
+function topLevel(j) { return Math.max(0, ...(j.party || []).map((m) => m.level)); }
+/** Biomes within reach: every badge held plus the next two on the ring. */
+function reachOf(j) { return BIOME_ORDER.slice(0, Math.min(BIOME_ORDER.length, (j.badges || []).length + 2)); }
+const round10 = (n) => Math.max(10, Math.round(n / 10) * 10);
+
+function rewardFor(kind, rng, j, hint) {
+  const badges = (j.badges || []).length;
+  const gold = round10((BOARD.baseGold + BOARD.goldPerBadge * badges) * TIER[kind]);
+  const taken = new Set((j.quests.open || []).map((q) => q.reward && q.reward.item)); // no two notices offer the same scroll or charm
+  let item = null;
+  if (TIER[kind] === 1) item = badges >= 10 ? 'hyper_potion' : badges >= 4 ? 'super_potion' : 'potion';
+  else if (TIER[kind] < 2) {
+    const pool = MOVES.filter((m) => !m.signature && !m.struggle && m.cat !== 'status' && m.power >= 60 && m.power <= 95 && (!hint || m.type === hint));
+    const fresh = pool.filter((m) => !taken.has(m.id));
+    item = ((fresh.length ? fresh : pool).length ? rng.pick(fresh.length ? fresh : pool) : getMove('headbonk')).id;
+  } else {
+    const utility = CHARM_IDS.filter((id) => CHARMS[id].kind !== 'type' && CHARMS[id].kind !== 'prism' && !taken.has(id));
+    const typed = hint ? `${hint.toLowerCase()}_charm` : null;
+    item = typed && CHARMS[typed] && !taken.has(typed) && rng.chance(0.5) ? typed : rng.pick(utility.length ? utility : CHARM_IDS);
+  }
+  return { gold, item };
+}
+
+/** The kinds that can be offered right now: no two open notices of one kind, and nothing that cannot be done. */
+function eligibleKinds(j, world) {
+  const open = new Set((j.quests.open || []).map((q) => q.kind));
+  const reach = reachOf(j);
+  return QUEST_KINDS.filter((k) => {
+    if (open.has(k)) return false;
+    if (k === 'win_tower') return topLevel(j) >= TOWER.levels[0] - 5;
+    if (k === 'beat_trainers') return reach.some((b) => world.trainers.filter((t) => t.biome === b && !j.beaten[t.id]).length >= 2);
+    if (k === 'fuse_class') return true;
+    return true;
+  });
+}
+
+function makeQuest(j, n) {
+  const rng = makeRng(`${j.seed}:quest:${n}`);
+  const world = worldFor(j.seed);
+  const reach = reachOf(j);
+  const kinds = eligibleKinds(j, world);
+  const kind = rng.pick(kinds.length ? kinds : ['catch_count']);
+  const q = { id: `q${n}`, kind, progress: 0, goal: 1 };
+  const biomeOf = () => rng.pick(reach);
+  let hint = null;
+  if (kind === 'catch_type') {
+    const b = biomeOf(); const types = habitatTypesFor(b).slice(0, 4).map(([t]) => t);
+    q.type = rng.pick(types); q.minLevel = Math.max(2, REGIONS[b].level - 3); hint = q.type;
+    q.text = `Catch a ${q.type} creature of Lv ${q.minLevel} or higher.`;
+  } else if (kind === 'catch_species') {
+    const b = biomeOf(); const pool = WILD_SPECIES.filter((s) => s.clade === b && s.tier !== 'rare');
+    const sp = rng.pick(pool); q.species = sp.id; hint = sp.types[0];
+    q.text = `Catch a ${sp.name}. They live in the ${REGIONS[b].name}.`;
+  } else if (kind === 'beat_trainers') {
+    const options = reach.filter((b) => world.trainers.filter((t) => t.biome === b && !j.beaten[t.id]).length >= 2);
+    const b = rng.pick(options.length ? options : reach); const left = world.trainers.filter((t) => t.biome === b && !j.beaten[t.id]).length;
+    q.biome = b; q.goal = Math.max(1, Math.min(3, left));
+    q.text = `Beat ${q.goal} trainer${q.goal > 1 ? 's' : ''} on the roads of the ${REGIONS[b].name}.`;
+  } else if (kind === 'fuse_class') {
+    const counts = {}; for (const m of [...(j.party || []), ...(j.box || [])]) { const c = cladeOf(m.genome); counts[c] = (counts[c] || 0) + 1; }
+    const pairs = Object.keys(counts).filter((c) => counts[c] >= 2);
+    q.clade = pairs.length ? rng.pick(pairs) : cladeOf((j.party && j.party[0] ? j.party[0] : { genome: {} }).genome) || rng.pick(CLADE_IDS);
+    q.text = `Fuse two ${cladeName(q.clade).toLowerCase()}s at the shrine.`;
+  } else if (kind === 'rest_camp') {
+    const fresh = reach.filter((b) => !(j.camps || []).includes(b));
+    q.biome = rng.pick(fresh.length ? fresh : reach);
+    q.text = `Rest at the camp in the ${REGIONS[q.biome].name}.`;
+  } else if (kind === 'win_tower') {
+    q.floor = rng.int(3); q.level = TOWER.levels.filter((L) => L <= topLevel(j) + 5).pop() || TOWER.levels[0];
+    q.text = `Win floor ${q.floor + 1} of the Battle Tower at Lv ${q.level}.`;
+  } else if (kind === 'beat_warden') {
+    const next = BIOME_ORDER.find((b) => !(j.badges || []).includes(b));
+    q.biome = next && rng.chance(0.6) ? next : rng.pick((j.badges || []).length ? j.badges : [next || BIOME_ORDER[0]]);
+    const held = (j.badges || []).includes(q.biome);
+    q.text = `Beat ${REGIONS[q.biome].warden} of the ${REGIONS[q.biome].name}${held ? ' again' : ''}.`;
+  } else if (kind === 'catch_alpha') {
+    q.text = 'Catch an alpha: a wild creature well above its patch’s level.';
+  } else if (kind === 'catch_count') {
+    q.goal = 3 + rng.int(3);
+    q.text = `Catch ${q.goal} wild creatures.`;
+  } else if (kind === 'win_wild') {
+    const b = biomeOf(); const types = habitatTypesFor(b).slice(0, 3).map(([t]) => t);
+    q.type = rng.pick(types); q.goal = 4 + rng.int(4); hint = q.type;
+    q.text = `Defeat ${q.goal} wild ${q.type} creatures.`;
+  }
+  q.reward = rewardFor(kind, rng.fork('reward'), j, hint);
+  return q;
+}
+
+function issue(j) { const n = j.quests.issued++; const q = makeQuest(j, n); j.quests.open.push(q); return q; }
+
+/** The board, created or topped up to three notices. */
+function ensureBoard(j) {
+  if (!j.quests || typeof j.quests !== 'object') j.quests = newBoard();
+  if (!Array.isArray(j.quests.open)) j.quests.open = [];
+  let guard = 0;
+  while (j.quests.open.length < BOARD.open && guard++ < 10) issue(j);
+  return j.quests;
+}
+
+/** Book a journey event against every open notice. Returns the notices it finished. */
+function questEvent(j, ev) {
+  const board = ensureBoard(j), done = [];
+  for (const q of board.open) {
+    if (q.progress >= q.goal) continue;
+    let hit = false;
+    switch (q.kind) {
+      case 'catch_type': hit = ev.kind === 'capture' && ev.genome.types.includes(q.type) && ev.level >= q.minLevel; break;
+      case 'catch_species': hit = ev.kind === 'capture' && ev.genome.species === q.species; break;
+      case 'beat_trainers': hit = ev.kind === 'trainer' && ev.biome === q.biome; break;
+      case 'fuse_class': hit = ev.kind === 'fusion' && ev.clade === q.clade; break;
+      case 'rest_camp': hit = ev.kind === 'camp' && ev.biome === q.biome; break;
+      case 'win_tower': hit = ev.kind === 'tower' && ev.floor === q.floor && ev.level >= q.level; break;
+      case 'beat_warden': hit = ev.kind === 'boss' && ev.biome === q.biome; break;
+      case 'catch_alpha': hit = ev.kind === 'capture' && Boolean(ev.alpha); break;
+      case 'catch_count': hit = ev.kind === 'capture'; break;
+      case 'win_wild': hit = ev.kind === 'wildwin' && ev.genome.types.includes(q.type); break;
+      default: break;
+    }
+    if (hit) { q.progress++; if (q.progress >= q.goal) done.push(q); }
+  }
+  return done;
+}
+
+function openQuests(j) { return ensureBoard(j).open.slice(); }
+function questReady(q) { return q.progress >= q.goal; }
+
+/** What a reward's item is called on the board. */
+function rewardText(q) {
+  const it = q.reward.item;
+  const name = !it ? '' : ITEMS[it] ? ITEMS[it].name : CHARMS[it] ? CHARMS[it].name : getMove(it) ? `${getMove(it).name} scroll` : '';
+  return `${q.reward.gold.toLocaleString()} gold${name ? ` and a ${name}` : ''}`;
+}
+
+/** Claim a finished notice: gold to the purse, the item to the Bag, a new notice pinned up. { ok, reason?, quest } */
+function claimQuest(j, id) {
+  const board = ensureBoard(j);
+  const q = board.open.find((x) => x.id === id);
+  if (!q) return { ok: false, reason: 'That notice is gone.' };
+  if (!questReady(q)) return { ok: false, reason: 'Not finished yet.' };
+  j.gold = (j.gold || 0) + q.reward.gold;
+  if (q.reward.item) { j.bag = j.bag || {}; j.bag[q.reward.item] = Math.min(99, (j.bag[q.reward.item] || 0) + 1); }
+  board.open = board.open.filter((x) => x !== q);
+  board.done++;
+  j.stats.quests = (j.stats.quests || 0) + 1;
+  ensureBoard(j);
+  return { ok: true, quest: q };
+}
+
+/** Tear a notice down unfinished; another takes its place. */
+function abandonQuest(j, id) {
+  const board = ensureBoard(j);
+  const q = board.open.find((x) => x.id === id);
+  if (!q) return { ok: false, reason: 'That notice is gone.' };
+  board.open = board.open.filter((x) => x !== q);
+  ensureBoard(j);
+  return { ok: true };
+}
+
+/** Coerce a parsed board: notices with a known kind, sane numbers and real targets survive; the rest are replaced. */
+function normalizeBoard(raw) {
+  const b = newBoard();
+  if (!raw || typeof raw !== 'object') return b;
+  b.issued = Math.max(0, Math.floor(Number(raw.issued) || 0));
+  b.done = Math.max(0, Math.floor(Number(raw.done) || 0));
+  const okItem = (it) => it == null || ITEMS[it] || CHARMS[it] || (getMove(it) && it !== 'struggle');
+  for (const q of Array.isArray(raw.open) ? raw.open : []) {
+    if (!q || !QUEST_KINDS.includes(q.kind) || typeof q.text !== 'string' || !q.reward || !Number.isFinite(q.reward.gold) || !okItem(q.reward.item)) continue;
+    if ((q.biome != null && !BIOME_ORDER.includes(q.biome)) || (q.species != null && !SPECIES_BY_ID[q.species]) || (q.type != null && !TYPE_LIST.includes(q.type)) || (q.clade != null && !CLADE_IDS.includes(q.clade))) continue;
+    if (q.floor != null && !(Number.isInteger(q.floor) && q.floor >= 0 && q.floor < 6)) continue;
+    if (q.level != null && !TOWER.levels.includes(q.level)) continue;
+    const goal = Math.max(1, Math.floor(Number(q.goal) || 1));
+    b.open.push({ ...q, id: String(q.id || `q${b.open.length}`), goal, progress: Math.max(0, Math.min(goal, Math.floor(Number(q.progress) || 0))), reward: { gold: Math.max(0, Math.floor(q.reward.gold)), item: q.reward.item || null } });
+    if (b.open.length >= BOARD.open) break;
+  }
+  return b;
+}
+
 // ---- src/game/save.js ----
 // Persistent save: totals, the creature collection, the journey in progress and settings.
 // One localStorage key, versioned, normalised on load so junk cannot brick it.
+
 
 
 
@@ -24865,7 +25070,7 @@ function normalizeJourney(r) {
     box: (Array.isArray(r.box) ? r.box : []).map(cleanMember).filter(Boolean),
     nextId: Number(r.nextId) || 1,
     pendingLearns: (Array.isArray(r.pendingLearns) ? r.pendingLearns : []).filter((q) => q && typeof q.uid === 'string' && getMove(q.moveId)),
-    stats: { steps: 0, battles: 0, captures: 0, fusions: 0, trainers: 0, bosses: 0, wipes: 0, tower: 0 },
+    stats: { steps: 0, battles: 0, captures: 0, fusions: 0, trainers: 0, bosses: 0, wipes: 0, tower: 0, quests: 0 },
     tower: { challenges: 0, wins: {} },
     player: { ...cleanPoint(sameWorld ? r.player : null, { x: hub.x, y: hub.y + 1 }), dir: ['up', 'down', 'left', 'right'].includes(r.player && r.player.dir) ? r.player.dir : 'down' },
     badges: Array.isArray(r.badges) ? r.badges.filter((b, i, arr) => BIOME_ORDER.includes(b) && arr.indexOf(b) === i) : [],
@@ -24873,7 +25078,7 @@ function normalizeJourney(r) {
     lastCamp: cleanPoint(sameWorld ? r.lastCamp : null, { x: hub.x - 3, y: hub.y }), cooldown: Math.max(0, Number(r.cooldown) || 0),
     gauntlet: r.gauntlet && Number.isFinite(r.gauntlet.stage) && r.gauntlet.stage >= 0 && r.gauntlet.stage < 4 ? { stage: Math.round(r.gauntlet.stage) } : null,
     champion: Boolean(r.champion), encounter: null, lastReport: r.lastReport || null,
-    gold: Math.max(0, Math.floor(Number(r.gold) || 0)), bag: {},
+    gold: Math.max(0, Math.floor(Number(r.gold) || 0)), bag: {}, quests: normalizeBoard(r.quests),
   };
   if (r.bag && typeof r.bag === 'object') for (const [id, q] of Object.entries(r.bag)) { const n = Math.min(99, Math.floor(Number(q) || 0)); if (n > 0 && (getItem(id) || getCharm(id) || getMove(id)) && id !== 'struggle') j.bag[id] = n; }
   if (r.stats && typeof r.stats === 'object') for (const k of Object.keys(j.stats)) j.stats[k] = Math.max(0, Number(r.stats[k]) || 0);
@@ -24897,6 +25102,7 @@ function normalizeJourney(r) {
     return j.starters.length === 3 ? j : null;
   }
   if (!j.party.length) { if (!j.box.length) return null; j.party.push(j.box.shift()); }
+  ensureBoard(j); // top the board back up to three notices
   return j;
 }
 
@@ -25200,6 +25406,7 @@ function teachMove(j, uid, moveId, replaceIndex) {
 
 
 
+
 const JOURNEY = { starterLevel: PARTY.starterLevel, maxLevel: PARTY.maxLevel, partyMax: PARTY.max, gauntletHeal: 0.35, badgesForSpire: BIOME_ORDER.length, councilFights: 4 };
 const DIRS = { up: [0, -1], down: [0, 1], left: [-1, 0], right: [1, 0] };
 
@@ -25218,11 +25425,11 @@ function newJourney(seed) {
   const world = worldFor(seed);
   return {
     seed: String(seed), world: WORLD.version, phase: 'starter', starters, party: [], box: [], nextId: 1, pendingLearns: [],
-    stats: { steps: 0, battles: 0, captures: 0, fusions: 0, trainers: 0, bosses: 0, wipes: 0, tower: 0 },
+    stats: { steps: 0, battles: 0, captures: 0, fusions: 0, trainers: 0, bosses: 0, wipes: 0, tower: 0, quests: 0 },
     tower: { challenges: 0, wins: {} },
     player: { x: world.start.x, y: world.start.y, dir: 'down' },
     badges: [], beaten: {}, camps: [], lastCamp: { x: world.hubCamp.x, y: world.hubCamp.y }, cooldown: 0,
-    gold: 0, bag: {},
+    gold: 0, bag: {}, quests: newBoard(),
     gauntlet: null, champion: false, encounter: null, lastReport: null,
   };
 }
@@ -25233,6 +25440,7 @@ function chooseJourneyStarter(j, index) {
   j.party = [makeMember(g, JOURNEY.starterLevel, nextJourneyUid(j))];
   j.starters = null;
   j.phase = 'roam';
+  ensureBoard(j); // the first three notices go up once there is a party to send
   return j;
 }
 
@@ -25271,7 +25479,8 @@ function tryMove(j, dir) {
     j.lastCamp = { x: nx, y: ny };
     const place = journeyPlace(j);
     if (place.id !== 'hub' && !j.camps.includes(place.id)) j.camps.push(place.id);
-    return { moved: true, event: { kind: 'camp', place } };
+    const quests = place.id !== 'hub' ? questEvent(j, { kind: 'camp', biome: place.id }) : [];
+    return { moved: true, event: { kind: 'camp', place, quests } };
   }
   if (tile === TILE.door) {
     const b = biomeAt(world, nx, ny);
@@ -25282,6 +25491,7 @@ function tryMove(j, dir) {
   if (tile === TILE.marketDoor) return { moved: true, event: { kind: 'market' } };
   if (tile === TILE.storageDoor) return { moved: true, event: { kind: 'storage' } };
   if (tile === TILE.towerDoor) return { moved: true, event: { kind: 'tower' } };
+  if (tileAt(world, nx + DIRS[dir][0], ny + DIRS[dir][1]) === TILE.board) return { moved: true, event: { kind: 'board' } };
   if (tile === TILE.habitat && j.cooldown <= 0) {
     const rng = makeRng(`${j.seed}:step:${j.stats.steps}`);
     const leadHeld = heldKind(j.party[0] && j.party[0].held); // the lead's charm shapes the road: a Lure draws creatures out, a Prism draws out Elementals
@@ -25400,7 +25610,7 @@ function applyJourneyBattle(j, state) {
   const capturedBattler = state.captured ? foes.find((f) => f.uid === state.captured) : null;
   const won = state.winner === 0 || Boolean(capturedBattler);
   j.stats.battles++;
-  const report = { won, kind: enc.kind, foe: enc.name, xp: 0, gold: 0, xpGains: [], levelUps: [], learned: [], captured: null, toBox: false, badge: null, charm: null, champion: false, nextStage: null, wiped: false, alpha: Boolean(enc.alpha) };
+  const report = { won, kind: enc.kind, foe: enc.name, xp: 0, gold: 0, xpGains: [], levelUps: [], learned: [], captured: null, toBox: false, badge: null, charm: null, quests: [], champion: false, nextStage: null, wiped: false, alpha: Boolean(enc.alpha) };
   if (!won) {
     if (!canFight(j)) { report.wiped = true; j.stats.wipes++; respawnJourney(j); }
     else { j.encounter = null; j.gauntlet = null; j.cooldown = WORLD.encounterCooldown; }
@@ -25458,6 +25668,14 @@ function applyJourneyBattle(j, state) {
       if (getCharm(gift)) { j.bag = j.bag || {}; j.bag[gift] = (j.bag[gift] || 0) + 1; report.charm = gift; }
     }
   }
+  // the notice board hears about it
+  const done = [];
+  if (capturedBattler) done.push(...questEvent(j, { kind: 'capture', genome: capturedBattler.genome, level: capturedBattler.level, alpha: Boolean(enc.alpha) }));
+  if (enc.kind === 'wild' && !capturedBattler) for (const f of foes) if (f.fainted) done.push(...questEvent(j, { kind: 'wildwin', genome: f.genome }));
+  if (enc.kind === 'trainer') done.push(...questEvent(j, { kind: 'trainer', biome: enc.biome }));
+  if (enc.kind === 'boss') done.push(...questEvent(j, { kind: 'boss', biome: enc.biome }));
+  if (enc.kind === 'tower') done.push(...questEvent(j, { kind: 'tower', floor: enc.floor, level: enc.level }));
+  report.quests = done.map((q) => q.text);
   j.encounter = null;
   j.cooldown = WORLD.encounterCooldown;
   if (enc.kind === 'council') {
@@ -25505,7 +25723,8 @@ function shrineFuse(j, uidA, uidB) {
   (j.party.length < JOURNEY.partyMax ? j.party : j.box).push(member);
   if (!j.party.length && j.box.length) j.party.push(j.box.shift());
   j.stats.fusions++;
-  return { journey: j, child: member };
+  const quests = questEvent(j, { kind: 'fusion', clade: child.clade });
+  return { journey: j, child: member, quests: quests.map((q) => q.text) };
 }
 
 /** Badge summary for the HUD: every biome with whether its badge is held. */
@@ -25525,6 +25744,7 @@ function partyHealth(j) {
 // tap on the ground; wild encounters on habitat tiles, trainers who fight when asked,
 // Wardens in their lairs, the Council Spire, camps that heal and a shrine that fuses.
 // Fights hand off to the shared fight view and come back to the same spot.
+
 
 
 
@@ -25647,6 +25867,7 @@ function owReportCard(j) {
     if (r.captured) lines.push(`${r.captured.genome.name} joined ${r.toBox ? 'the box' : 'the party'}.`);
     if (r.badge) lines.push(`You earned the ${r.badge}!`);
     if (r.charm && getCharm(r.charm)) lines.push(`The Warden handed over a ${getCharm(r.charm).name}. It is in your Bag.`);
+    for (const t of r.quests || []) lines.push(`Notice done: ${t} Claim it at the board in the Crossroads.`);
     if (r.champion) lines.push('The Council is beaten. You are the Champion of the Crossroads!');
   }
   return h('div', { class: `result-card slim${r.badge || r.champion ? ' learn' : ''}` }, lines.map((t) => h('div', {}, t)),
@@ -25759,7 +25980,13 @@ function owCanvasTap(e) {
   const j = ow.j, world = ow.world;
   const t = trainerAt(world, tx, ty);
   if (t && Math.abs(tx - j.player.x) + Math.abs(ty - j.player.y) === 1) { j.player.dir = tx > j.player.x ? 'right' : tx < j.player.x ? 'left' : ty > j.player.y ? 'down' : 'up'; owTalk(t); return; }
-  const path = findPath(world, j.player, { x: tx, y: ty }, 90);
+  let goal = { x: tx, y: ty };
+  if (tileAt(world, tx, ty) === TILE.board) {
+    if (Math.abs(tx - j.player.x) + Math.abs(ty - j.player.y) === 1) { j.player.dir = tx > j.player.x ? 'right' : tx < j.player.x ? 'left' : ty > j.player.y ? 'down' : 'up'; owBoardSheet(j); return; }
+    // walk to the square below the board (the side facing the town square) and read it from there
+    goal = { x: tx, y: ty + 1 };
+  }
+  const path = findPath(world, j.player, goal, 90);
   if (!path) { toast('No way there'); return; }
   ow.queue = path;
   ow.target = { x: tx, y: ty };
@@ -25795,7 +26022,8 @@ function owAfterStep(event) {
   if (!event) { if (ow.queue.length) owNextQueued(); else if (ow.held) owStep(ow.held); return; }
   ow.queue = []; ow.target = null;
   if (event.kind === 'encounter') { owSave(); sfx.cry(j.encounter.foes[0].genome); renderWorldScreen(ow.root); return; }
-  if (event.kind === 'camp') { owSave(); sfx.heal(); toast(event.place.id === 'hub' ? 'Rested at the Crossroads. Party healed.' : `Camp reached. Party healed.`); owRefreshHud(); return; }
+  if (event.kind === 'camp') { owSave(); sfx.heal(); toast(event.place.id === 'hub' ? 'Rested at the Crossroads. Party healed.' : event.quests && event.quests.length ? 'Camp reached. Party healed. A notice is done: claim it at the board.' : 'Camp reached. Party healed.'); owRefreshHud(); return; }
+  if (event.kind === 'board') { owBoardSheet(j); return; }
   if (event.kind === 'lair') { owLairDialog(event); return; }
   if (event.kind === 'spire') { owSpireDialog(event); return; }
   if (event.kind === 'shrine') { owShrineSheet(j); return; }
@@ -25825,6 +26053,7 @@ function owInteract() {
   if (here === TILE.storageDoor) { owStorageSheet(j); return; }
   if (here === TILE.towerDoor) { owTowerSheet(j); return; }
   if (here === TILE.camp) { toast('The fire is warm. Your party is rested.'); return; }
+  if (tileAt(world, f.x, f.y) === TILE.board) { owBoardSheet(j); return; }
   const ht = habitatTypeAt(world, f.x, f.y);
   if (tileAt(world, f.x, f.y) === TILE.habitat && ht) { toast(`${ht}-type creatures live in this ${biomeAt(world, f.x, f.y).name.toLowerCase()} patch.`); return; }
   toast('Nothing here.');
@@ -26078,7 +26307,7 @@ function owPartySheet(j) {
     appendChildren(body, [
       ...section(`Party · ${j.party.length}/${JOURNEY.partyMax}`, h('p', { class: 'hint' }, `The lead goes out first. Camps heal everyone; a wipe sends you back to the last one you rested at. ${j.box.length ? `${j.box.length} in storage` : 'Storage is empty'}; deposit and withdraw at the Creature Storage in the Crossroads. Release lets a creature go for good; it stays in your Collection.`), partyList),
     ]);
-    body.append(h('p', { class: 'hint' }, `${j.stats.steps} steps · ${j.stats.battles} battles · ${j.stats.captures} caught · ${j.stats.trainers} trainers · ${j.stats.bosses} wardens · ${j.stats.fusions} fusions`));
+    body.append(h('p', { class: 'hint' }, `${j.stats.steps} steps · ${j.stats.battles} battles · ${j.stats.captures} caught · ${j.stats.trainers} trainers · ${j.stats.bosses} wardens · ${j.stats.fusions} fusions · ${j.stats.quests || 0} notices`));
   };
   const render = () => owKeepScroll(body, draw);
   render();
@@ -26100,10 +26329,11 @@ function owMapSheet(j) {
   dot(world.marketDoor, '#7fe38a', 5);
   dot(world.storageDoor, '#4fc0a0', 5);
   dot(world.towerDoor, '#ff9f43', 5);
+  dot(world.board, '#e0c86f', 4);
   for (const t of world.trainers) dot({ x: t.x, y: t.y }, j.beaten[t.id] ? '#8f96a8' : '#4f8ef7', 2.5);
   dot(j.player, '#f5c518', 6); ctx.strokeStyle = '#000'; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.arc(j.player.x * S + S / 2, j.player.y * S + S / 2, 6, 0, Math.PI * 2); ctx.stroke();
   const legend = h('div', { class: 'ow-legend' }, world.biomes.map((b) => h('div', {}, h('i', { style: { background: REGIONS[b.clade].ground } }), `${b.name} · to Lv ${b.level}${j.badges.includes(b.id) ? ' · badge ✓' : ''}`)));
-  owSheet('World map', h('div', {}, c, legend, h('p', { class: 'hint', style: { marginTop: '8px' } }, 'You are the gold dot. White: camps. Red: Wardens (gold once beaten). Blue: trainers. Purple: the Council Spire. Green: the Market. Teal: Creature Storage. Orange: the Battle Tower.')));
+  owSheet('World map', h('div', {}, c, legend, h('p', { class: 'hint', style: { marginTop: '8px' } }, 'You are the gold dot. White: camps. Red: Wardens (gold once beaten). Blue: trainers. Purple: the Council Spire. Green: the Market. Teal: Creature Storage. Orange: the Battle Tower. Straw: the notice board.')));
 }
 
 function owMenuSheet(j) {
@@ -26385,6 +26615,41 @@ function owTowerSheet(j) {
   const { close } = owSheet('Battle Tower', body, () => owRefreshHud());
 }
 
+// ---- the notice board -------------------------------------------------------------
+
+/** The board's three notices: what to do, how far along, what it pays; Claim when done, or tear one down for another. */
+function owBoardSheet(j) {
+  const body = h('div');
+  const draw = () => {
+    clear(body);
+    const list = h('div', { class: 'shop-list' });
+    for (const q of openQuests(j)) {
+      const ready = questReady(q);
+      list.append(h('div', { class: `shop-row notice${ready ? ' next' : ''}` },
+        h('div', { class: 'shop-info' }, h('b', {}, q.text),
+          h('div', { class: 'shop-meta' }, h('span', {}, `Pays ${rewardText(q)}.`), h('span', { class: 'shop-tag' }, ready ? 'done' : q.goal > 1 ? `${q.progress} / ${q.goal}` : 'open'))),
+        h('div', { class: 'stack' },
+          h('button', { class: `btn small${ready ? ' primary' : ''}`, type: 'button', disabled: !ready, onclick: () => {
+            const r = claimQuest(j, q.id);
+            if (!r.ok) { toast(r.reason); return; }
+            owSave(); sfx.levelUp(); toast(`Claimed ${rewardText(r.quest)}.`); render(); owRefreshHud();
+          } }, 'Claim'),
+          ready ? null : h('button', { class: 'btn small', type: 'button', title: 'Take this notice down; another goes up', onclick: () => {
+            if (ow.confirmTear !== q.id) { ow.confirmTear = q.id; toast('Tap again to tear it down'); setTimeout(() => { if (ow.confirmTear === q.id) ow.confirmTear = null; }, 4000); return; }
+            ow.confirmTear = null;
+            abandonQuest(j, q.id); owSave(); render();
+          } }, 'Tear down'))));
+    }
+    appendChildren(body, [
+      h('p', { class: 'hint' }, `Three requests from the townsfolk at a time, pinned for whoever passes. Finish one anywhere on the ring and claim it here; a fresh notice goes up in its place. ${j.stats.quests || 0} done so far.`),
+      list,
+    ]);
+  };
+  const render = () => owKeepScroll(body, draw);
+  render();
+  owSheet('Notice board', body, () => owRefreshHud());
+}
+
 // ---- the Fusiondex ----------------------------------------------------------------
 
 const DEX_SEED = 'dex';
@@ -26494,9 +26759,9 @@ function owShrineSheet(j) {
         h('div', { class: 'hero' }, creatureEl(child, { size: 240, fit: true })),
         h('div', { class: 'row wrap' },
           h('button', { class: 'btn primary', type: 'button', onclick: () => {
-            const { child: member } = shrineFuse(j, pick.a, pick.b);
+            const { child: member, quests } = shrineFuse(j, pick.a, pick.b);
             recordCollection(ow.save, member.genome);
-            owSave(); toast(`${member.genome.name} is born!`); pick.a = null; pick.b = null; render();
+            owSave(); toast(`${member.genome.name} is born!${quests && quests.length ? ' A notice is done: claim it at the board.' : ''}`); pick.a = null; pick.b = null; render();
           } }, 'Fuse them'),
           h('button', { class: 'btn', type: 'button', onclick: () => openSheet(child) }, 'Details'))) : null,
     ]);
@@ -26614,7 +26879,7 @@ function owDraw(ts) {
       const i = y * world.w + x, t = world.tiles[i], region = REGIONS[world.biomes[world.bio[i]].clade];
       const px = x * T - cam.x, py = y * T - cam.y, hsh = owHash(x, y);
       let ground = hsh > 0.5 ? region.ground : region.ground2;
-      if (t === TILE.hub || t === TILE.shrine || t === TILE.spireDoor || t === TILE.camp && isHubTile(world, x, y)) ground = (x + y) % 2 ? HUB.paving : HUB.ground;
+      if (t === TILE.hub || t === TILE.shrine || t === TILE.spireDoor || t === TILE.board || t === TILE.camp && isHubTile(world, x, y)) ground = (x + y) % 2 ? HUB.paving : HUB.ground;
       else if (t === TILE.path || t === TILE.door) ground = region.path;
       else if (t === TILE.water) ground = region.water;
       else if (t === TILE.habitat) ground = region.habitat;
@@ -26639,6 +26904,15 @@ function owDraw(ts) {
         ctx.fillStyle = '#f5c518'; ctx.beginPath(); ctx.moveTo(px + T / 2, py + T * 0.12); ctx.lineTo(px + T * 0.78, py + T / 2); ctx.lineTo(px + T / 2, py + T * 0.88); ctx.lineTo(px + T * 0.22, py + T / 2); ctx.closePath(); ctx.fill();
         ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(px + T / 2, py + T / 2, T * 0.1, 0, Math.PI * 2); ctx.fill();
       } else if (t === TILE.door || t === TILE.spireDoor || t === TILE.marketDoor || t === TILE.storageDoor || t === TILE.towerDoor) { ctx.fillStyle = 'rgba(0,0,0,.25)'; ctx.fillRect(px + T * 0.2, py + T * 0.3, T * 0.6, T * 0.4); }
+      else if (t === TILE.board) {
+        // the notice board: two posts, a straw-coloured panel and three pinned slips
+        ctx.fillStyle = 'rgba(0,0,0,.22)'; ctx.fillRect(px + T * 0.15, py + T * 0.82, T * 0.7, 3 * s);
+        ctx.fillStyle = '#5b3a22'; ctx.fillRect(px + T * 0.2, py + T * 0.35, 3 * s, T * 0.5); ctx.fillRect(px + T * 0.8 - 3 * s, py + T * 0.35, 3 * s, T * 0.5);
+        ctx.fillStyle = '#7a5230'; ctx.fillRect(px + T * 0.1, py + T * 0.12, T * 0.8, T * 0.5);
+        ctx.fillStyle = '#e0c86f'; ctx.fillRect(px + T * 0.14, py + T * 0.16, T * 0.72, T * 0.42);
+        ctx.fillStyle = '#fff7e0'; ctx.fillRect(px + T * 0.2, py + T * 0.22, T * 0.18, T * 0.26); ctx.fillRect(px + T * 0.42, py + T * 0.2, T * 0.18, T * 0.3); ctx.fillRect(px + T * 0.64, py + T * 0.24, T * 0.16, T * 0.24);
+        ctx.fillStyle = '#c23b3b'; ctx.fillRect(px + T * 0.27, py + T * 0.2, 2 * s, 2 * s); ctx.fillRect(px + T * 0.49, py + T * 0.18, 2 * s, 2 * s); ctx.fillRect(px + T * 0.7, py + T * 0.22, 2 * s, 2 * s);
+      }
       if (t === TILE.lair || t === TILE.spire) deferred.push({ x, y, t, region, px, py });
     }
   }

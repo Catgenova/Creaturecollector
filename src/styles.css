@@ -391,3 +391,6 @@ button, .btn { touch-action: manipulation; }
 .morph-dot.morph-albino { background: #f4f0ea; color: #f4f0ea; } .morph-dot.morph-melanistic { background: #2a262e; color: #8a8090; } .morph-dot.morph-pastel { background: #f2c4d8; color: #f2c4d8; }
 .morph-chip { background: var(--bg3); color: var(--fg); border: 1px solid var(--line); }
 .morph-chip.morph-albino { background: #f4f0ea; color: #3a2a30; } .morph-chip.morph-melanistic { background: #2a262e; color: #f0d9a0; } .morph-chip.morph-pastel { background: #f2c4d8; color: #4a2a40; }
+
+/* the notice board */
+.shop-row.notice .stack .btn { min-width: 84px; }

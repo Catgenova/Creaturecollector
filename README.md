@@ -64,6 +64,14 @@ the same anatomy. All eighteen classes are on rigs and the old shared skeleton i
 pushed every slot away from field-guide realism: forehead sigils, tufted and
 leaf ears, orb and flame tails, glowing tips and bold markings. See `DESIGN.md`.
 
+Notice board: three requests from the townsfolk hang in the Crossroads at a
+time, drawn from ten kinds (catch a type above a level, catch a named species,
+beat trainers on a biome's roads, fuse two of a class, rest at a camp, win a
+Tower floor, beat a Warden, catch an alpha, catch a count, defeat wild
+creatures of a type) and scaled to the badges held. Finish one anywhere,
+claim it at the board for gold and a potion, a scroll or a charm, and a fresh
+notice goes up.
+
 Fusiondex: a dex of all 895 species, per class, with everything you have
 faced marked seen and everything you have chosen, caught or fused marked
 caught, silhouettes for the seen, numbered blanks for the rest, a habitat hint
@@ -108,7 +116,7 @@ a hub town, one per class in rising difficulty. Habitat patches spawn the
 class's species by element type, with stronger and rarer creatures turning up
 less often; trainers on the roads fight when asked; each biome's Warden holds
 a badge; camps heal and set the respawn point; a shrine fuses; trainers pay
-gold that the Market turns into potions and single-use move scrolls for your
+gold that the Market turns into potions, charms and single-use move scrolls for your
 Bag (potions work in battle too, and take the turn; a creature learns
 scrolls of its own types, of its Elemental element, and any Normal scroll); the Creature Storage
 holds the box; the Battle Tower's six floors fight six on six with random

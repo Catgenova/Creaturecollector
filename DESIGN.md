@@ -1104,6 +1104,35 @@ the collection and the journey so older saves fill in on load.
   the blended coat, the wild encounter is announced as an Albino Fernhare,
   and the creature sheet shows a morph chip beside the types.
 
+## The notice board (implemented)
+
+A board in the town square (`TILE.board`, faced and read rather than walked
+on; `WORLD.version` 10) carries three open requests. `src/game/quests.js`
+draws each from ten kinds, deterministically from the journey seed and a
+running count, never two of a kind at once and never one that cannot be done
+(a trainer notice needs two unbeaten trainers in reach, a Tower notice a
+party within five levels of the first floor). Targets come from the biomes
+in reach: every badge held plus the next two on the ring.
+
+- **Kinds.** Catch a type at or above a level, catch a named common or
+  uncommon species (with its region named), beat two or three trainers on a
+  biome's roads, fuse two creatures of a class, rest at a biome's camp, win a
+  Tower floor at a level, beat a Warden (the next one, or a rematch), catch
+  an alpha, catch a count of wild creatures, or defeat wild creatures of a
+  type.
+- **Rewards.** Gold scales with badges held (400 plus 250 a badge) times a
+  tier (1, 1.6 or 2.5 by difficulty) rounded to tens, plus an item: a potion
+  for easy notices, a 60 to 95 power scroll matching the notice's type for
+  middling ones, and a utility charm (or the type's charm) for the hard ones.
+  Signature moves are never rewards.
+- **Flow.** `questEvent` is booked from the journey: captures (with level and
+  alpha), wild wins, trainer, Warden and Tower wins, fusions at the shrine
+  and camps. Finished notices are named in the battle report and camp toast;
+  claiming happens at the board, which pays into the purse and the Bag and
+  pins a new notice. A notice can be torn down for another. The board
+  survives the save with its progress; unknown kinds or rewards are dropped
+  and the board topped back up.
+
 ## Mobile view (implemented)
 
 The game was drawn for a phone from the start (portrait layout, 44px targets,
