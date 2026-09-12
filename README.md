@@ -70,6 +70,11 @@ more Melee Atk and less Ranged Atk, Timid more Speed and less Melee Atk);
 seven are even. HP is never touched. A fusion takes a parent's nature, and
 the creature sheet marks the lean on the stat bars.
 
+Stat coaching: a camp moves one point of a creature's stat spread from one
+stat to another for 2,000 gold plus 50 a level, up to ten times each. The
+spread always sums to the same total, so coaching changes a creature's shape
+and never its power.
+
 The charm forge: two of the same charm and twice its price in gold make its
 greater form, which is never sold. Greater charms carry stronger numbers, and
 the once-a-battle ones fire twice.

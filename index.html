@@ -332,6 +332,7 @@ h3.sec { font-size: 12px; text-transform: uppercase; letter-spacing: .1em; color
 .type-filter .btn { flex: 0 0 auto; }
 .type-filter .btn.on { border-color: var(--chip, var(--acc2)); box-shadow: inset 0 0 0 1px var(--chip, var(--acc2)); }
 .ability-card .second-slot { margin-top: 6px; padding-top: 6px; border-top: 1px dashed var(--line); }
+.coach-pick { font: inherit; font-size: 12px; color: var(--fg); background: var(--bg); border: 1px solid var(--line); border-radius: 8px; padding: 3px 4px; }
 .dex-search { width: 100%; box-sizing: border-box; margin: 2px 0 6px; padding: 8px 10px; font: inherit; font-size: 16px; color: var(--fg); background: var(--bg); border: 1px solid var(--line); border-radius: 10px; }
 .dex-search:focus { outline: none; border-color: var(--acc2); }
 .move-chips .chip.none { opacity: .45; text-decoration: line-through; }
@@ -28127,11 +28128,60 @@ function teamReport(party) {
   };
 }
 
+// ---- src/game/coach.js ----
+// Stat coaching at the camps: gold moves a point of a creature's spread from one stat to another.
+// The total never changes, so a coached creature is a different build and not a stronger one; a
+// creature may be coached ten times, and no stat may be starved below a twentieth or fattened past
+// three tenths of its total.
+
+
+
+const COACH = { base: 2000, perLevel: 50, step: 0.01, sessions: 10, floor: 0.05, ceiling: 0.3 };
+
+function coachCost(m) { return COACH.base + COACH.perLevel * (m ? m.level : 1); }
+function coachDone(m) { return (m && m.genome && m.genome.coached) || 0; }
+function coachLeft(m) { return Math.max(0, COACH.sessions - coachDone(m)); }
+const coachStats = () => STAT_KEYS.slice();
+const statLabel = (k) => STAT_NAMES[k] || k;
+
+/** Why this creature cannot move a point from `from` to `to`, or null when it can. */
+function coachBlock(m, from, to) {
+  if (!m || !m.genome) return 'No creature.';
+  if (!STAT_KEYS.includes(from) || !STAT_KEYS.includes(to)) return 'That is not a stat.';
+  if (from === to) return 'Pick two different stats.';
+  if (!coachLeft(m)) return `${m.genome.name} has learned all it can: ${COACH.sessions} sessions is the limit.`;
+  const stats = m.genome.stats || {};
+  if ((stats[from] || 0) - COACH.step < COACH.floor - 1e-9) return `Its ${statLabel(from)} is as low as coaching can take it.`;
+  if ((stats[to] || 0) + COACH.step > COACH.ceiling + 1e-9) return `Its ${statLabel(to)} is as high as coaching can take it.`;
+  return null;
+}
+
+/**
+ * Move one point of the spread from one stat to another for gold. The sum is unchanged, so the
+ * creature's base total stays exactly where the tuner put it.
+ */
+function coachMember(j, uid, from, to) {
+  const m = [...(j.party || []), ...(j.box || [])].find((x) => x.uid === uid);
+  if (!m) return { ok: false, reason: 'That creature is not with you.' };
+  const block = coachBlock(m, from, to);
+  if (block) return { ok: false, reason: block };
+  const cost = coachCost(m);
+  if ((j.gold || 0) < cost) return { ok: false, reason: `A session costs ${cost.toLocaleString()} gold.` };
+  j.gold -= cost;
+  const stats = m.genome.stats;
+  stats[from] = Math.round((stats[from] - COACH.step) * 1000) / 1000;
+  stats[to] = Math.round((stats[to] + COACH.step) * 1000) / 1000;
+  m.genome.coached = coachDone(m) + 1;
+  if (from === 'hp' || to === 'hp') m.hp = Math.max(1, Math.min(m.hp, statsAtLevel(m.genome, m.level).hp));
+  return { ok: true, member: m, from, to, paid: cost, left: coachLeft(m) };
+}
+
 // ---- src/ui/world.js ----
 // Overworld screen: a canvas map you walk across with the keyboard, an on-screen pad or a
 // tap on the ground; wild encounters on habitat tiles, trainers who fight when asked,
 // Wardens in their lairs, the Council Spire, camps that heal and a shrine that fuses.
 // Fights hand off to the shared fight view and come back to the same spot.
+
 
 
 
@@ -29125,7 +29175,8 @@ function owCampSheet(j) {
     clear(body);
     const tabs = h('div', { class: 'type-filter' },
       place.hub ? null : h('button', { class: `btn small${tab === 'tutor' ? ' on' : ''}`, type: 'button', onclick: () => { tab = 'tutor'; render(); } }, 'Tutor'),
-      h('button', { class: `btn small${tab === 'recall' ? ' on' : ''}`, type: 'button', onclick: () => { tab = 'recall'; recalling = null; render(); } }, 'Recall'));
+      h('button', { class: `btn small${tab === 'recall' ? ' on' : ''}`, type: 'button', onclick: () => { tab = 'recall'; recalling = null; render(); } }, 'Recall'),
+      h('button', { class: `btn small${tab === 'coach' ? ' on' : ''}`, type: 'button', onclick: () => { tab = 'coach'; render(); } }, 'Coach'));
     body.append(tabs);
     if (tab === 'tutor' && !place.hub) {
       const types = tutorTypes(place.clade);
@@ -29144,6 +29195,34 @@ function owCampSheet(j) {
             if (!r.ok) { toast(r.reason); return; }
             owSave(); sfx.heal(); toast(`The tutor sold you ${move.name} for ${cost.toLocaleString()} gold`); render(); owRefreshHud();
           } }, `${cost.toLocaleString()} ◆`)));
+      }
+      body.append(list);
+      return;
+    }
+    if (tab === 'coach') {
+      body.append(h('p', { class: 'hint' }, `A coach moves one point of a creature's spread from one stat to another for `
+        + `${COACH.base.toLocaleString()} gold and ${COACH.perLevel} a level. The total never changes, so this is a different build and not a stronger creature. `
+        + `Ten sessions each, and no stat goes below a twentieth or above three tenths.`));
+      const list = h('div', { class: 'party-list' });
+      for (const m of j.party) {
+        const left = coachLeft(m), cost = coachCost(m);
+        const from = (ow.coachFrom && ow.coachFrom[m.uid]) || 'magic';
+        const to = (ow.coachTo && ow.coachTo[m.uid]) || 'melee';
+        const block = coachBlock(m, from, to);
+        const picker = (which, value) => h('select', {
+          class: 'coach-pick',
+          onchange: (e) => { ow[which] = ow[which] || {}; ow[which][m.uid] = e.target.value; render(); },
+        }, coachStats().map((k) => h('option', { value: k, selected: k === value ? '' : null }, statLabel(k))));
+        list.append(owMemberRow(j, m, [
+          h('span', { class: 'hint', style: { margin: 0 } }, `${left} session${left === 1 ? '' : 's'} left`),
+          picker('coachFrom', from), h('span', { class: 'hint', style: { margin: 0 } }, '→'), picker('coachTo', to),
+          h('button', { class: `btn small${!block && j.gold >= cost ? ' primary' : ''}`, type: 'button', disabled: Boolean(block) || j.gold < cost, title: block || '', onclick: () => {
+            const r = coachMember(j, m.uid, from, to);
+            if (!r.ok) { toast(r.reason); return; }
+            owSave(); sfx.levelUp(); toast(`${r.member.genome.name} moved a point from ${statLabel(r.from)} to ${statLabel(r.to)}.`);
+            render(); owRefreshHud();
+          } }, `Coach ◆ ${cost.toLocaleString()}`),
+        ]));
       }
       body.append(list);
       return;

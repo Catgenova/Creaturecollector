@@ -1465,6 +1465,19 @@ tournament simulator all field one passive as before, so the 40-60% band the
 tuner maintains is untouched; what the player buys is a build, not a stat.
 An Elemental still keeps its core and cannot buy a slot.
 
+## Stat coaching (implemented)
+
+A camp will move one point of a creature's stat spread from one stat to
+another for 2,000 gold plus 50 a level. The spread is a set of fractions that
+sum to one, and coaching moves a hundredth from one to another, so the sum,
+and therefore the creature's base total, is exactly where the tuner left it.
+What changes is the shape: a Magic-leaning starter can be walked towards Melee
+over several sessions, and its damage type may change with it.
+
+The limits keep it a build rather than a min-max: ten sessions a creature, no
+stat below a twentieth of the total, none above three tenths. The camp sheet
+picks the two stats from dropdowns and says how many sessions are left.
+
 ## The charm forge (implemented)
 
 Thirty-one charms, each bought once and then done with. Every one now has a

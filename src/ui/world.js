@@ -29,6 +29,7 @@ import { MOVES } from '../data/moves.js';
 import { ABILITY_IDS, ABILITIES } from '../data/abilities.js';
 import { isCoreAbility } from '../data/elements.js';
 import { teamReport } from '../game/planner.js';
+import { COACH, coachCost, coachLeft, coachStats, coachBlock, coachMember, statLabel } from '../game/coach.js';
 import { TOWER, TOWER_TRAINERS, challengeTower, towerRecord } from '../game/tower.js';
 import { abilityName } from '../data/abilities.js';
 import { getMove } from '../data/moves.js';
@@ -995,7 +996,8 @@ function owCampSheet(j) {
     clear(body);
     const tabs = h('div', { class: 'type-filter' },
       place.hub ? null : h('button', { class: `btn small${tab === 'tutor' ? ' on' : ''}`, type: 'button', onclick: () => { tab = 'tutor'; render(); } }, 'Tutor'),
-      h('button', { class: `btn small${tab === 'recall' ? ' on' : ''}`, type: 'button', onclick: () => { tab = 'recall'; recalling = null; render(); } }, 'Recall'));
+      h('button', { class: `btn small${tab === 'recall' ? ' on' : ''}`, type: 'button', onclick: () => { tab = 'recall'; recalling = null; render(); } }, 'Recall'),
+      h('button', { class: `btn small${tab === 'coach' ? ' on' : ''}`, type: 'button', onclick: () => { tab = 'coach'; render(); } }, 'Coach'));
     body.append(tabs);
     if (tab === 'tutor' && !place.hub) {
       const types = tutorTypes(place.clade);
@@ -1014,6 +1016,34 @@ function owCampSheet(j) {
             if (!r.ok) { toast(r.reason); return; }
             owSave(); sfx.heal(); toast(`The tutor sold you ${move.name} for ${cost.toLocaleString()} gold`); render(); owRefreshHud();
           } }, `${cost.toLocaleString()} ◆`)));
+      }
+      body.append(list);
+      return;
+    }
+    if (tab === 'coach') {
+      body.append(h('p', { class: 'hint' }, `A coach moves one point of a creature's spread from one stat to another for `
+        + `${COACH.base.toLocaleString()} gold and ${COACH.perLevel} a level. The total never changes, so this is a different build and not a stronger creature. `
+        + `Ten sessions each, and no stat goes below a twentieth or above three tenths.`));
+      const list = h('div', { class: 'party-list' });
+      for (const m of j.party) {
+        const left = coachLeft(m), cost = coachCost(m);
+        const from = (ow.coachFrom && ow.coachFrom[m.uid]) || 'magic';
+        const to = (ow.coachTo && ow.coachTo[m.uid]) || 'melee';
+        const block = coachBlock(m, from, to);
+        const picker = (which, value) => h('select', {
+          class: 'coach-pick',
+          onchange: (e) => { ow[which] = ow[which] || {}; ow[which][m.uid] = e.target.value; render(); },
+        }, coachStats().map((k) => h('option', { value: k, selected: k === value ? '' : null }, statLabel(k))));
+        list.append(owMemberRow(j, m, [
+          h('span', { class: 'hint', style: { margin: 0 } }, `${left} session${left === 1 ? '' : 's'} left`),
+          picker('coachFrom', from), h('span', { class: 'hint', style: { margin: 0 } }, '→'), picker('coachTo', to),
+          h('button', { class: `btn small${!block && j.gold >= cost ? ' primary' : ''}`, type: 'button', disabled: Boolean(block) || j.gold < cost, title: block || '', onclick: () => {
+            const r = coachMember(j, m.uid, from, to);
+            if (!r.ok) { toast(r.reason); return; }
+            owSave(); sfx.levelUp(); toast(`${r.member.genome.name} moved a point from ${statLabel(r.from)} to ${statLabel(r.to)}.`);
+            render(); owRefreshHud();
+          } }, `Coach ◆ ${cost.toLocaleString()}`),
+        ]));
       }
       body.append(list);
       return;
