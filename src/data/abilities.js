@@ -690,6 +690,79 @@ defA('open_guard', 'Open Guard', [{ k: 'accBoost', m: 1.2 }, { k: 'evasion', m: 
 defA('storm_rider', 'Storm Rider', { k: 'prioType', type: 'Electric' });
 defA('deep_breath', 'Deep Breath', [{ k: 'earlyBird' }, { k: 'turnCure', p: 20 }]);
 
+// ---- batch nine: legends of the twelve biomes, class marks, specialists and the grand finishers ------
+defA('meadow_king', 'Meadow King', [{ k: 'typeBoost', type: 'Grass', m: 1.2 }, { k: 'turnHeal', r: 1 / 16 }, { k: 'entryStat', who: 'self', stats: { melee: 1 } }]);
+defA('dune_walker', 'Dune Walker', [{ k: 'typeResist', type: 'Ground', m: 0.6 }, { k: 'statusImmune', s: 'brn' }, { k: 'statMul', stat: 'spe', m: 1.1 }]);
+defA('tundra_heart', 'Tundra Heart', [{ k: 'typeBoost', type: 'Ice', m: 1.2 }, { k: 'statusImmune', s: 'frz' }, { k: 'typeResist', type: 'Ice', m: 0.6 }]);
+defA('marsh_lord', 'Marsh Lord', [{ k: 'typeBoost', type: 'Poison', m: 1.2 }, { k: 'poisonHeal' }, { k: 'contactStatus', s: 'psn', p: 20 }]);
+defA('peak_warden', 'Peak Warden', [{ k: 'typeBoost', type: 'Rock', m: 1.2 }, { k: 'critShield', m: 0.7 }, { k: 'defMul', stat: 'meleeDef', m: 1.1 }]);
+defA('deep_current', 'Deep Current', [{ k: 'typeBoost', type: 'Water', m: 1.2 }, { k: 'switchHeal', r: 1 / 4 }, { k: 'statMul', stat: 'spe', m: 1.05 }]);
+defA('emberwake', 'Emberwake', [{ k: 'typeBoost', type: 'Fire', m: 1.2 }, { k: 'contactStatus', s: 'brn', p: 20 }, { k: 'statusImmune', s: 'brn' }]);
+defA('storm_crown', 'Storm Crown', [{ k: 'typeBoost', type: 'Electric', m: 1.2 }, { k: 'prioType', type: 'Electric' }, { k: 'statusImmune', s: 'par' }]);
+defA('gloomweaver', 'Gloomweaver', [{ k: 'typeBoost', type: 'Ghost', m: 1.2 }, { k: 'evasion', m: 0.9 }, { k: 'turnHurtFoe', r: 1 / 16 }]);
+defA('grove_ancient', 'Grove Ancient', [{ k: 'typeResist', type: 'Grass', m: 0.6 }, { k: 'turnHeal', r: 1 / 8 }, { k: 'statMul', stat: 'spe', m: 0.9 }]);
+defA('skyfather', 'Skyfather', [{ k: 'typeBoost', type: 'Flying', m: 1.2 }, { k: 'typeImmune', type: 'Ground' }, { k: 'statMul', stat: 'spe', m: 1.05 }]);
+defA('cave_mother', 'Cave Mother', [{ k: 'typeResist', type: 'Rock', m: 0.6 }, { k: 'contactHurt', r: 1 / 8 }, { k: 'defMul', stat: 'rangedDef', m: 1.15 }]);
+
+defA('alpha_beast', 'Alpha Beast', [{ k: 'statMul', stat: 'melee', m: 1.15 }, { k: 'koStat', stats: { melee: 1 } }, { k: 'entryStat', who: 'foe', stats: { melee: -1 } }]);
+defA('coldblood_patience', 'Coldblood Patience', [{ k: 'statusDef', stat: 'meleeDef', m: 1.3 }, { k: 'turnCure', p: 25 }, { k: 'typeResist', type: 'Ice', m: 0.75 }]);
+defA('shoal_mind', 'Shoal Mind', [{ k: 'catBoost', cat: 'ranged', m: 1.15 }, { k: 'evasion', m: 0.9 }, { k: 'hitByTypeStat', type: 'Water', stats: { spe: 1 } }]);
+defA('wingmaster', 'Wingmaster', [{ k: 'flagBoost', flag: 'contact', m: 1.2 }, { k: 'prioType', type: 'Flying' }, { k: 'statMul', stat: 'spe', m: 1.1 }]);
+defA('hive_queen', 'Hive Queen', [{ k: 'addStatus', s: 'psn', p: 20 }, { k: 'turnStat', stats: { ranged: 1 }, p: 20 }, { k: 'powderImmune' }]);
+defA('tidepool_mind', 'Tidepool Mind', [{ k: 'catBoost', cat: 'magic', m: 1.15 }, { k: 'statusMoveImmune' }, { k: 'statMul', stat: 'spe', m: 0.95 }]);
+defA('bog_chorus', 'Bog Chorus', [{ k: 'flagBoost', flag: 'sound', m: 1.3 }, { k: 'soundImmune' }, { k: 'addFlinch', p: 15 }]);
+defA('bloomcaller', 'Bloomcaller', [{ k: 'typeBoost', type: 'Grass', m: 1.15 }, { k: 'turnStat', stats: { magic: 1 }, p: 25 }, { k: 'powderImmune' }]);
+defA('ooze_logic', 'Ooze Logic', [{ k: 'allResist', m: 0.85 }, { k: 'contactStat', stats: { spe: -1 }, p: 30 }, { k: 'statMul', stat: 'spe', m: 0.85 }]);
+defA('sporeheart', 'Sporeheart', [{ k: 'contactStatus', s: 'slp', p: 20 }, { k: 'powderImmune' }, { k: 'turnHeal', r: 1 / 16 }]);
+defA('wyrm_coil', 'Wyrm Coil', [{ k: 'typeBoost', type: 'Dragon', m: 1.2 }, { k: 'bandResist', min: 100, m: 0.85 }, { k: 'defMul', stat: 'meleeDef', m: 1.1 }]);
+defA('dracoform', 'Dracoform', [{ k: 'typeBoost', type: 'Dragon', m: 1.15 }, { k: 'stab', m: 0.35 }, { k: 'fullHpBoost', m: 1.2 }]);
+
+defA('blade_sage', 'Blade Sage', [{ k: 'catAcc', cat: 'melee', m: 1.2 }, { k: 'catBoost', cat: 'melee', m: 1.1 }]);
+defA('bow_sage', 'Bow Sage', [{ k: 'catAcc', cat: 'ranged', m: 1.2 }, { k: 'catBoost', cat: 'ranged', m: 1.1 }]);
+defA('rune_sage', 'Rune Sage', [{ k: 'catAcc', cat: 'magic', m: 1.2 }, { k: 'catBoost', cat: 'magic', m: 1.1 }]);
+defA('duelist', 'Duelist', [{ k: 'firstStrike', m: 1.2 }, { k: 'critRate', m: 1.5 }]);
+defA('closer', 'Closer', [{ k: 'lastStrike', m: 1.2 }, { k: 'foeLowBoost', m: 1.2 }]);
+defA('opener', 'Opener', [{ k: 'firstTurnBoost', m: 1.3 }, { k: 'entryStat', who: 'self', stats: { spe: 1 } }]);
+defA('featherhand', 'Featherhand', [{ k: 'powerBand', max: 50, m: 1.3 }, { k: 'quickDraw', p: 20 }]);
+defA('sledger', 'Sledger', [{ k: 'powerBand', min: 110, m: 1.2 }, { k: 'accBoost', m: 1.1 }]);
+defA('bleeder', 'Bleeder', [{ k: 'fxBoost', fx: 'drain', m: 1.3 }, { k: 'drainMul', m: 1.25 }]);
+defA('crasher', 'Crasher', [{ k: 'fxBoost', fx: 'recoil', m: 1.3 }, { k: 'recoilMul', m: 0.75 }]);
+defA('swarmer', 'Swarmer', [{ k: 'fxBoost', fx: 'multi', m: 1.2 }, { k: 'multiExtra' }]);
+defA('hexer', 'Hexer', [{ k: 'fxBoost', fx: 'status', m: 1.2 }, { k: 'statusChanceMul', m: 1.5 }]);
+
+defA('dragon_nemesis', 'Dragon Nemesis', [{ k: 'foeTypeBoost', type: 'Dragon', m: 1.25 }, { k: 'typeResist', type: 'Dragon', m: 0.7 }]);
+defA('ghost_nemesis', 'Ghost Nemesis', [{ k: 'foeTypeBoost', type: 'Ghost', m: 1.25 }, { k: 'typeResist', type: 'Ghost', m: 0.7 }]);
+defA('steel_nemesis', 'Steel Nemesis', [{ k: 'foeTypeBoost', type: 'Steel', m: 1.25 }, { k: 'typeResist', type: 'Steel', m: 0.7 }]);
+defA('fire_nemesis', 'Fire Nemesis', [{ k: 'foeTypeBoost', type: 'Fire', m: 1.25 }, { k: 'typeResist', type: 'Fire', m: 0.7 }]);
+defA('water_nemesis', 'Water Nemesis', [{ k: 'foeTypeBoost', type: 'Water', m: 1.25 }, { k: 'typeResist', type: 'Water', m: 0.7 }]);
+defA('dark_nemesis', 'Dark Nemesis', [{ k: 'foeTypeBoost', type: 'Dark', m: 1.25 }, { k: 'typeResist', type: 'Dark', m: 0.7 }]);
+defA('fairy_nemesis', 'Fairy Nemesis', [{ k: 'foeTypeBoost', type: 'Fairy', m: 1.25 }, { k: 'typeResist', type: 'Fairy', m: 0.7 }]);
+defA('bug_nemesis', 'Bug Nemesis', [{ k: 'foeTypeBoost', type: 'Bug', m: 1.25 }, { k: 'typeResist', type: 'Bug', m: 0.7 }]);
+
+defA('blazing_fists', 'Blazing Fists', { k: 'moveTypeChange', from: 'Fighting', to: 'Fire', m: 1.1 });
+defA('frostbite_fists', 'Frostbite Fists', { k: 'moveTypeChange', from: 'Fighting', to: 'Ice', m: 1.1 });
+defA('thunder_fists', 'Thunder Fists', { k: 'moveTypeChange', from: 'Fighting', to: 'Electric', m: 1.1 });
+defA('venom_bloom', 'Venom Bloom', { k: 'moveTypeChange', from: 'Grass', to: 'Poison', m: 1.1 });
+defA('sunflare', 'Sunflare', { k: 'moveTypeChange', from: 'Grass', to: 'Fire', m: 1.1 });
+defA('moonwater', 'Moonwater', { k: 'moveTypeChange', from: 'Water', to: 'Fairy', m: 1.1 });
+
+defA('sniffer', 'Sniffer', [{ k: 'worldGold', m: 1.2 }, { k: 'worldXp', m: 1.2 }]);
+defA('lure', 'Lure', [{ k: 'worldCatch', m: 1.25 }, { k: 'entryStat', who: 'foe', stats: { spe: -1 } }]);
+defA('trainers_pet', "Trainer's Pet", [{ k: 'worldXp', m: 1.3 }, { k: 'koHeal', r: 1 / 8 }]);
+defA('tomb_robber', 'Tomb Robber', [{ k: 'worldGold', m: 1.4 }, { k: 'foeTypeBoost', type: 'Ghost', m: 1.2 }]);
+defA('beast_whisperer', 'Beast Whisperer', [{ k: 'worldCatch', m: 1.35 }, { k: 'statusMoveImmune' }]);
+defA('prospector', 'Prospector', [{ k: 'worldGold', m: 1.3 }, { k: 'typeResist', type: 'Rock', m: 0.8 }]);
+
+defA('titan_heart', 'Titan Heart', [{ k: 'statMul', stat: 'melee', m: 1.2 }, { k: 'statMul', stat: 'spe', m: 0.85 }, { k: 'endure' }]);
+defA('phoenix_down', 'Phoenix Down', [{ k: 'lowHpHeal', r: 1 / 2, at: 0.25 }, { k: 'typeResist', type: 'Fire', m: 0.5 }, { k: 'statusImmune', s: 'brn' }]);
+defA('void_mantle', 'Void Mantle', [{ k: 'allResist', m: 0.85 }, { k: 'statusMoveImmune' }, { k: 'statMul', stat: 'spe', m: 0.9 }]);
+defA('sunrise_aura', 'Sunrise Aura', [{ k: 'turnHeal', r: 1 / 16 }, { k: 'turnStat', stats: { magic: 1 }, p: 20 }, { k: 'typeBoost', type: 'Fire', m: 1.15 }]);
+defA('moonshadow', 'Moonshadow', [{ k: 'evasion', m: 0.85 }, { k: 'prioStatus' }, { k: 'statMul', stat: 'magic', m: 1.1 }]);
+defA('iron_will', 'Iron Will', [{ k: 'noStatDrop', stat: 'melee' }, { k: 'noStatDrop', stat: 'spe' }, { k: 'defMul', stat: 'meleeDef', m: 1.1 }]);
+defA('bloodmoon', 'Bloodmoon', [{ k: 'lowHpBoost', m: 1.4 }, { k: 'drainMul', m: 1.25 }, { k: 'contactHurt', r: 1 / 16 }]);
+defA('starcaller', 'Starcaller', [{ k: 'statMul', stat: 'magic', m: 1.2 }, { k: 'magicBounce' }, { k: 'defMul', stat: 'meleeDef', m: 0.9 }]);
+defA('world_serpent', 'World Serpent', [{ k: 'stab', m: 0.45 }, { k: 'allResist', m: 0.95 }, { k: 'statMul', stat: 'spe', m: 0.9 }]);
+
 export const ABILITY_IDS = Object.keys(ABILITIES);
 export function getAbility(id) { return ABILITIES[id] || null; }
 export function abilityName(id) { const a = ABILITIES[id]; return a ? a.name : 'None'; }

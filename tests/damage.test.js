@@ -56,7 +56,8 @@ test('every species can fight in its own style at low, mid and high levels', () 
 test('damage uses the matching attack and defense stat, and the triangle', () => {
   const g = speciesGenome(SPECIES_BY_ID.bruxor, makeRng('d'));
   const foeG = speciesGenome(SPECIES_BY_ID.mystril, makeRng('df'));
-  const user = makeBattler(g, 50), foe = makeBattler(foeG, 50);
+  // pinned to a passive that touches nothing, so the roster's own passives cannot skew the maths
+  const user = makeBattler(g, 50, { ability: 'lucky_streak' }), foe = makeBattler(foeG, 50, { ability: 'lucky_streak' });
   assert.equal(user.style, 'melee');
   assert.equal(foe.style, 'magic');
   const melee = getMove('slab_break'), magic = getMove('psi_shock'), ranged = getMove('stone_toss');
@@ -77,7 +78,7 @@ test('damage uses the matching attack and defense stat, and the triangle', () =>
   assert.ok(calcDamage(burned, foe, melee, 1, 1, false) < calcDamage(user, foe, melee, 1, 1, false));
   assert.equal(calcDamage(burned, foe, magic, 1, 1, false), calcDamage(user, foe, magic, 1, 1, false));
   // stat moves stage the new keys and a whole battle turn runs
-  const { state } = createBattle({ seed: 'tri', sides: [{ name: 'You', party: [makeBattler(g, 50, { moves: ['muscle_up'] })] }, { name: 'Foe', party: [makeBattler(foeG, 50, { moves: ['meditate'] })] }] });
+  const { state } = createBattle({ seed: 'tri', sides: [{ name: 'You', party: [makeBattler(g, 50, { moves: ['muscle_up'], ability: 'lucky_streak' })] }, { name: 'Foe', party: [makeBattler(foeG, 50, { moves: ['meditate'], ability: 'lucky_streak' })] }] });
   const after = step(state, [{ type: 'move', index: 0 }, { type: 'move', index: 0 }]).state;
   assert.equal(activeOf(after, 0).stages.melee, 1);
   assert.equal(activeOf(after, 0).stages.meleeDef, 1);
@@ -86,7 +87,7 @@ test('damage uses the matching attack and defense stat, and the triangle', () =>
 });
 
 test('move cards describe effectiveness and the triangle in words', () => {
-  const foe = makeBattler(speciesGenome(SPECIES_BY_ID.mystril, makeRng('t')), 50); // Psychic, magic style
+  const foe = makeBattler(speciesGenome(SPECIES_BY_ID.mystril, makeRng('t')), 50, { ability: 'lucky_streak' }); // Psychic, magic style
   assert.equal(effText(getMove('chomp'), foe), 'Super effective');
   assert.equal(effText(getMove('aura_cannon'), foe), 'Not very effective');
   assert.equal(effText(getMove('bump'), foe), '');

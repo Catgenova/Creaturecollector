@@ -1254,7 +1254,8 @@ originals and fourteen Elemental cores) and two hundred and forty-four data
 rows. A test walks every data row through `describeFx` to check the text uses
 the game's stat words, and every kind in a row is one the engine interprets.
 
-Distribution. While the batches landed, a script handed each new passive to
+Distribution (as it stood at three hundred; the pass below rebuilt it).
+While the batches landed, a script handed each new passive to
 about six species by affinity (its type first, then its style, then
 anywhere), preferring species not yet touched. After the last batch a final
 pass redistributed the whole pool: each species picks two passives from the
@@ -1284,6 +1285,67 @@ nothing outside, and the final 40,000-game verification 39–60% with one
 species at 39% (Brawlimp, not pinned) and a mean of 49.9%; totals span 360 to
 520 with 21 species on the floor and 11 on the cap. Wraithwing and Voltskull
 now read 52%, Glidefin 56% and Brawlshroom 49%.
+
+### The second three hundred
+
+Three hundred more followed, and they needed mechanics the first three
+hundred could not express, so the engine learned forty new entry kinds:
+matchup power (the foe's type, style, status or health), the user's own
+situation (first turn out, last one standing, avenging a fallen teammate,
+repeating a move, cornered, a slow starter, a faint heart), conversion (a
+move retyped on the way out, Shifter, Chameleon Skin), costs and yields
+(HP for power, halved recoil, bigger gulps, an extra multi-hit), tactics
+(Mold Breaker, Unaware, Contrary, Simple, Download, Trace, Magic Bounce),
+guards that fire once a battle (Disguise, Endure, a low-HP heal, a softer
+first hit), cushions against critical hits, heavy moves, light moves,
+draining and multi-hit, and three hooks that reach outside the fight.
+
+- **Batch 5 (59).** Eighteen type hunters (a Dragonslayer is not a dragon:
+  the type names its prey), five status reapers, three style readers, the
+  same-type sharpeners, nine conversions from Normal, and the costed builds
+  (Heart Burn, Crash Helmet, Slow Burner, Faint Heart).
+
+- **Batch 6 (60).** Twenty tactics, sixteen once-a-battle guards, ten
+  cushions, nine world passives and five that answer for a fallen teammate.
+
+- **Batch 7 (60).** The armoury: ten absorbs for the types that had none, six
+  immunities bought with a weakness, six style platings, eight pieces of
+  status armour, ten reactions to a type or a style, eight sets of thorns and
+  twelve odd guards.
+
+- **Batch 8 (60).** Field craft: twelve entry effects, eleven that hold the
+  field turn by turn, eight for going out and coming back, eight paid on a
+  knockout, twelve that punish contact, and eight around flinching, priority
+  and the odds. Accuracy and evasion are stage keys like any other, so the
+  generator now names them in words.
+
+- **Batch 9 (65).** Legends of the twelve biomes and twelve class marks (three
+  entries each), style sages, power-band and move-effect specialists, eight
+  Nemesis pairs that hit a type harder and take less from it, six more
+  conversions, six world combinations, and nine grand finishers (Titan Heart,
+  Phoenix Down, Void Mantle, Sunrise Aura, Moonshadow, Iron Will, Bloodmoon,
+  Starcaller, World Serpent).
+
+Six hundred passives in all: fifty-six implemented by id and five hundred and
+forty-four data rows. A test holds every name and every set of entries
+distinct, so no two passives share a name or do exactly the same thing, and
+every entry is a kind the engine reads and can describe.
+
+**Outside the fight.** Three kinds leave the battle: `worldXp` lifts its
+carrier's own share of experience, `worldGold` pays the party more when the
+best forager in it is holding, and `worldCatch` makes wild creatures easier
+to catch while that passive leads the fight. They read in the same words as
+the charms that do the same jobs, and stack with them.
+
+**Distribution.** With 586 ordinary passives over 1,790 species slots the
+pool can only sit about three deep, so the final pass rebuilt every species'
+pair: each picks two by affinity with a bonus for what it already carried,
+under a cap of four, and a second pass lifts anything under two. The result:
+every ordinary passive sits on two to four of the 895 species, 550 species
+kept at least one of the passives they had before, no species carries the
+same passive twice, and 94% of the typed passives sit on a species of that
+type. The tests hold the floor at two and the ceiling at six.
+
 
 ## Mobile view (implemented)
 

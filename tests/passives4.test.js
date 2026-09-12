@@ -1,9 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { makeRng } from '../src/core/rng.js';
-import { SPECIES, SPECIES_BY_ID } from '../src/data/species.js';
-import { ABILITY_IDS, ABILITIES, DATA_ABILITY_IDS } from '../src/data/abilities.js';
-import { isCoreAbility } from '../src/data/elements.js';
+import { SPECIES_BY_ID } from '../src/data/species.js';
 import { getMove } from '../src/data/moves.js';
 import { speciesGenome } from '../src/creature/genome.js';
 import { createBattle, step, makeBattler, calcDamage, moveEffectiveness, activeOf } from '../src/battle/engine.js';
@@ -13,20 +11,6 @@ const fight = (a, b, seed = 'pv4') => createBattle({ sides: [{ name: 'A', party:
 const play = (st, ma, mb) => step(st, [{ type: 'move', index: ma }, { type: 'move', index: mb }]);
 const near = (a, b, m) => Math.abs(a - b * m) <= Math.ceil(b * 0.03) + 1;
 const dmg = (u, t, id, eff = 1) => calcDamage(u, t, getMove(id), eff, 1, false);
-
-test('the whole passive pool is spread across the roster', () => {
-  assert.equal(ABILITY_IDS.length, 535);
-  assert.ok(DATA_ABILITY_IDS.length >= 479);
-  const use = {};
-  for (const s of SPECIES) for (const ab of s.abilities) use[ab] = (use[ab] || 0) + 1;
-  // While a batch is landing the incremental placer gives new passives a few homes each; the final
-  // redistribution evens the pool out and tests/passives9.test.js holds it to two homes and six.
-  const ordinary = ABILITY_IDS.filter((id) => !isCoreAbility(id));
-  for (const id of ordinary) assert.ok(use[id] >= 1, `${id} is carried by ${use[id] || 0} species`);
-  const counts = ordinary.map((id) => use[id]);
-  assert.ok(Math.max(...counts) <= 12, `most carried: ${Math.max(...counts)}`);
-  for (const s of SPECIES) assert.ok(s.abilities[0] !== s.abilities[1] && s.abilities.every((a) => ABILITIES[a] && !isCoreAbility(a)), s.id);
-});
 
 test('combined passives: Dry Skin drinks Water and fears Fire, Fluffy halves contact and doubles Fire, Water Bubble, Punk Rock, Purifying Salt, Glass Cannon', () => {
   const plain = mk('emberox', 'lucky_streak'), foe = mk('pufflet', 'lucky_streak');
