@@ -52,7 +52,11 @@ export const PASSIVE_KINDS = ['typeBoost', 'catBoost', 'flagBoost', 'powerBand',
   'stab', 'foeTypeBoost', 'foeStatusBoost', 'foeCatBoost', 'foeFullBoost', 'effBoost', 'neutralBoost', 'lowHpBoost', 'firstTurnBoost', 'lastOneBoost', 'revengeBoost', 'repeatBoost',
   'slowStart', 'defeatist', 'hpCostBoost', 'multiExtra', 'drainMul', 'recoilMul', 'moveTypeChange', 'protean', 'colorChange', 'statusChanceMul', 'critStatus',
   'moldBreaker', 'unaware', 'contrary', 'simple', 'download', 'avengeStat', 'trace', 'disguise', 'endure', 'lowHpHeal', 'magicBounce', 'critShield', 'firstHitResist', 'fxResist', 'bandResist',
-  'worldXp', 'worldGold', 'worldCatch'];
+  'worldXp', 'worldGold', 'worldCatch',
+  // the third three hundred: tempo, the party around it, sleight of hand and what it leaves behind
+  'lateBoost', 'earlyBoost', 'charmBoost', 'charmless', 'underdogBoost', 'bullyBoost', 'fullPartyBoost', 'ppSave', 'benchHeal', 'benchCure',
+  'statSwap', 'stageSteal', 'stageClear', 'statusSwap', 'healBlock', 'drainImmune', 'noContact', 'sureShot', 'ignoreEvasion', 'damageCap', 'critIf', 'actAsleep', 'thawFast',
+  'faintStatus', 'faintStat', 'faintHealParty'];
 
 /** Build a battler from a genome at a level. opts.moves / opts.ability override the defaults; opts.held is the charm it carries. */
 export function makeBattler(genome, level, opts = {}) {
@@ -214,6 +218,7 @@ export function step(input, actions) {
   for (const i of [0, 1]) {
     const b = activeOf(state, i);
     b.moved = false; b.flinch = false;
+    b.battleTurn = state.turn; // for the passives that read the clock
     b.lastStanding = aliveCount(state.sides[i]) === 1; // for the passives that rally when it is the last one up
     b.avenging = state.sides[i].party.some((p) => p.fainted); // and those that answer for a fallen teammate
   }
@@ -358,6 +363,34 @@ function entryHooks(state, i, events) {
     changeStages(state, i, foe.stats.meleeDef <= foe.stats.magicDef ? { melee: f.n || 1 } : { magic: f.n || 1 }, events);
   }
   for (const f of abFx(me, 'avengeStat')) if (state.sides[i].party.some((p) => p.fainted)) { announce(events, i, me); changeStages(state, i, f.stats, events); }
+  for (const f of abFx(me, 'statSwap')) if (!me.swapUsed) {
+    me.swapUsed = true;
+    const a = me.stats[f.a], b = me.stats[f.b];
+    me.stats[f.a] = b; me.stats[f.b] = a;
+    me.style = combatStyle(me.stats);
+    announce(events, i, me);
+  }
+  if (abHas(me, 'stageSteal') && !foe.fainted) {
+    const taken = Object.fromEntries(Object.entries(foe.stages).filter(([, n]) => n > 0));
+    if (Object.keys(taken).length) {
+      announce(events, i, me);
+      for (const k of Object.keys(taken)) foe.stages[k] = 0;
+      changeStages(state, i, taken, events);
+      events.push({ t: 'cleanse', side: 1 - i, name: foe.name });
+    }
+  }
+  if (abHas(me, 'stageClear') && !foe.fainted && Object.values(foe.stages).some((n) => n !== 0)) {
+    announce(events, i, me);
+    foe.stages = freshStages();
+    events.push({ t: 'cleanse', side: 1 - i, name: foe.name });
+  }
+  if (abHas(me, 'statusSwap') && me.status && !foe.fainted && canHaveStatus(foe, me.status)) {
+    const was = me.status;
+    announce(events, i, me);
+    me.status = null; me.sleepTurns = 0;
+    events.push({ t: 'cure', side: i, name: me.name, status: was });
+    setStatus(state, 1 - i, was, events, makeRng(`${state.seed}:swap:${me.uid}`));
+  }
   if (abHas(me, 'trace') && !foe.fainted && foe.ability && !abilityFx(foe.ability, 'trace').length) {
     announce(events, i, me);
     me.ability = foe.ability;
@@ -431,10 +464,28 @@ function hurtBattler(state, side, amount, events, why) {
 
 function faint(state, side, events) {
   const b = activeOf(state, side);
+  const carried = b.status;
   b.hp = 0;
   b.fainted = true;
   b.status = null;
   events.push({ t: 'faint', side, name: b.name, uid: b.uid });
+  const foe = activeOf(state, 1 - side);
+  const rng = makeRng(`${state.seed}:faint:${b.uid}`);
+  for (const f of abFx(b, 'faintStatus')) {
+    const status = f.s === 'own' ? carried : f.s;
+    if (!foe.fainted && status && canHaveStatus(foe, status)) { announce(events, side, b); setStatus(state, 1 - side, status, events, rng); }
+  }
+  for (const f of abFx(b, 'faintStat')) if (!foe.fainted) { announce(events, side, b); changeStages(state, 1 - side, f.stats, events, true); }
+  for (const f of abFx(b, 'faintHealParty')) {
+    const bench = state.sides[side].party.filter((p) => !p.fainted && p !== b && p.hp < p.maxHp);
+    if (!bench.length) continue;
+    announce(events, side, b);
+    for (const p of bench) {
+      const amount = Math.max(1, Math.min(p.maxHp - p.hp, Math.floor(p.maxHp * f.r)));
+      p.hp += amount;
+      events.push({ t: 'heal', side, name: p.name, uid: p.uid, amount, hp: p.hp, maxHp: p.maxHp, why: 'ability' });
+    }
+  }
 }
 
 function moveOfAction(b, a) { return a.struggle ? STRUGGLE : getMove(b.moves[a.index].id); }
@@ -442,7 +493,9 @@ function moveOfAction(b, a) { return a.struggle ? STRUGGLE : getMove(b.moves[a.i
 /** The move as this user throws it: a conversion passive retypes it and may lift its power. */
 export function activeMove(user, mv) {
   const f = abFx(user, 'moveTypeChange').find((x) => x.from === mv.type && !mv.typeless);
-  return f ? { ...mv, type: f.to, power: Math.round(mv.power * (f.m || 1)) } : mv;
+  let out = f ? { ...mv, type: f.to, power: Math.round(mv.power * (f.m || 1)) } : mv;
+  if (abHas(user, 'noContact') && out.flags.includes('contact')) out = { ...out, flags: out.flags.filter((x) => x !== 'contact') };
+  return out;
 }
 
 /**
@@ -504,6 +557,12 @@ export function calcDamage(user, target, mv, eff, roll, crit) {
   power *= abMul(user, 'slowStart', (f) => (user.turnsOut || 0) < (f.turns || 2));
   power *= abMul(user, 'defeatist', (f) => user.hp <= user.maxHp * (f.at || 0.5));
   power *= abMul(user, 'hpCostBoost');
+  power *= abMul(user, 'lateBoost', (f) => (user.battleTurn || 0) >= (f.from || 5));
+  power *= abMul(user, 'earlyBoost', (f) => (user.battleTurn || 1) <= (f.until || 3));
+  power *= user.held ? abMul(user, 'charmBoost') : abMul(user, 'charmless');
+  power *= abMul(user, 'underdogBoost', () => target.level > user.level);
+  power *= abMul(user, 'bullyBoost', () => target.level < user.level);
+  if (!user.avenging) power *= abMul(user, 'fullPartyBoost');
   let dmg = Math.floor(Math.floor((Math.floor((2 * user.level) / 5) + 2) * power * A / D) / 50) + 2;
   if (crit) { const cb = abFx(user, 'critBoost')[0]; dmg = Math.floor(dmg * (cb ? cb.m : 1.5) * guardMul(user, target, 'critShield')); }
   dmg = Math.floor(dmg * roll);
@@ -527,6 +586,7 @@ export function calcDamage(user, target, mv, eff, roll, crit) {
     * guardMul(user, target, 'bandResist', (f) => mv.power > 0 && (f.max != null ? mv.power <= f.max : mv.power >= f.min))
     * (target.hp === target.maxHp ? guardMul(user, target, 'fullHpResist') : 1) * (target.hp <= target.maxHp / 3 ? guardMul(user, target, 'lowHpResist') : 1);
   if (guard !== 1) dmg = Math.floor(dmg * guard);
+  for (const f of guardFx(user, target, 'damageCap')) dmg = Math.min(dmg, Math.max(1, Math.floor(target.maxHp * f.r)));
   return Math.max(1, dmg);
 }
 
@@ -557,10 +617,11 @@ export function moveEffectiveness(mv, target, user) {
 }
 
 function hitChance(user, target, mv) {
-  if (mv.acc == null || abHas(user, 'noGuard') || abHas(target, 'noGuard')) return 1;
-  const stage = clamp(user.stages.acc - target.stages.eva, -6, 6);
+  if (mv.acc == null || abHas(user, 'noGuard') || abHas(target, 'noGuard') || abHas(user, 'sureShot')) return 1;
+  const blind = abHas(user, 'ignoreEvasion');
+  const stage = clamp(user.stages.acc - (blind ? 0 : target.stages.eva), -6, 6);
   let base = Math.min(1, (mv.acc / 100) * accMul(stage) * abMul(user, 'accBoost') * abMul(user, 'catAcc', (f) => f.cat === mv.cat));
-  base *= abMul(target, 'evasion');
+  if (!blind) base *= abMul(target, 'evasion');
   return target.ability === 'mist_core' ? base * 0.8 : base; // one attack in five slips through the mist
 }
 
@@ -579,17 +640,20 @@ function executeMove(state, i, action, events, rng) {
   if (user.recharge) { user.recharge = false; user.moved = true; events.push({ t: 'recharge', side: i, name: user.name }); return; }
   if (user.status === 'slp') {
     user.sleepTurns -= abHas(user, 'earlyBird') ? 2 : 1;
-    if (user.sleepTurns > 0) { user.moved = true; events.push({ t: 'status_skip', side: i, name: user.name, status: 'slp' }); return; }
-    user.status = null;
-    events.push({ t: 'cure', side: i, name: user.name, status: 'slp' });
+    const dreaming = abHas(user, 'actAsleep'); // it fights on through the dream
+    if (user.sleepTurns > 0 && !dreaming) { user.moved = true; events.push({ t: 'status_skip', side: i, name: user.name, status: 'slp' }); return; }
+    if (user.sleepTurns <= 0) { user.status = null; events.push({ t: 'cure', side: i, name: user.name, status: 'slp' }); }
+    else announce(events, i, user);
   }
   if (user.status === 'frz') {
-    if (mv.type === 'Fire' || rng.chance(0.2)) { user.status = null; events.push({ t: 'cure', side: i, name: user.name, status: 'frz' }); }
+    if (mv.type === 'Fire' || abHas(user, 'thawFast') || rng.chance(0.2)) { user.status = null; events.push({ t: 'cure', side: i, name: user.name, status: 'frz' }); }
     else { user.moved = true; events.push({ t: 'status_skip', side: i, name: user.name, status: 'frz' }); return; }
   }
   if (user.status === 'par' && rng.chance(0.25)) { user.moved = true; events.push({ t: 'status_skip', side: i, name: user.name, status: 'par' }); return; }
 
-  if (!action.struggle) user.moves[action.index].pp = Math.max(0, user.moves[action.index].pp - (abHas(target, 'pressure') && !target.fainted ? 2 : 1));
+  const saver = abFx(user, 'ppSave')[0];
+  const spared = saver && rng.chance(saver.p / 100);
+  if (!action.struggle && !spared) user.moves[action.index].pp = Math.max(0, user.moves[action.index].pp - (abHas(target, 'pressure') && !target.fainted ? 2 : 1));
   user.repeating = user.lastMove === mv.id; // pressing the same attack again feeds the passives that build
   user.lastMove = mv.id;
   user.moved = true;
@@ -642,6 +706,7 @@ function executeMove(state, i, action, events, rng) {
     let crit = rng.chance((mv.crit >= 1 ? 1 / 8 : 1 / 24) * (user.ability === 'keen_edge' ? 2 : 1) * (heldKind(user.held) === 'crit' ? 2 : 1) * abMul(user, 'critRate'));
     if (guardFx(user, target, 'critImmune').length) crit = false;
     else if (target.status && abHas(user, 'mercilessCrit')) crit = true;
+    else if (abFx(user, 'critIf').some((f) => (f.when === 'firstTurn' ? !user.turnsOut : f.when === 'lowHp' ? user.hp <= user.maxHp / 3 : user.hp === user.maxHp))) crit = true;
     if (crit) anyCrit = true;
     const roll = rng.between(85, 100) / 100;
     let dmg = calcDamage(user, target, mv, eff, roll, crit);
@@ -680,6 +745,7 @@ function executeMove(state, i, action, events, rng) {
   const drain = moveFx(mv, 'drain');
   if (drain && total > 0) {
     if (abHas(target, 'liquidOoze')) { announce(events, foeSide, target); hurtBattler(state, i, Math.max(1, total * drain.r), events, 'thorns'); }
+    else if (abHas(target, 'drainImmune')) announce(events, foeSide, target); // nothing in it to drink
     else healBattler(state, i, Math.max(1, total * drain.r * abMul(user, 'drainMul')), events, 'drain');
   }
   if (heldKind(user.held) === 'siphon' && total > 0 && user.hp < user.maxHp) {
@@ -699,7 +765,7 @@ function executeMove(state, i, action, events, rng) {
   const cost = abFx(user, 'hpCostBoost')[0];
   if (cost && total > 0 && !user.fainted) { announce(events, i, user); hurtBattler(state, i, Math.max(1, user.maxHp * cost.r), events, 'recoil'); }
   const restore = moveFx(mv, 'restore');
-  if (restore && total > 0 && !user.fainted) healBattler(state, i, Math.max(1, user.maxHp * restore.r), events, 'restore');
+  if (restore && total > 0 && !user.fainted && !(abHas(target, 'healBlock') && !target.fainted)) healBattler(state, i, Math.max(1, user.maxHp * restore.r), events, 'restore');
   if (moveFx(mv, 'cure') && total > 0 && user.status) { const was = user.status; user.status = null; user.sleepTurns = 0; events.push({ t: 'cure', side: i, name: user.name, status: was, why: 'move' }); }
   if (moveFx(mv, 'recharge') && total > 0 && !user.fainted) user.recharge = true;
   if (moveFx(mv, 'cleanse') && total > 0 && !target.fainted && Object.values(target.stages).some((n) => n !== 0)) { target.stages = freshStages(); events.push({ t: 'cleanse', side: foeSide, name: target.name }); }
@@ -806,7 +872,9 @@ function applyStatusMove(state, i, mv, events, rng, bounced = false) {
       if (Object.keys(f.stats).some((k) => activeOf(state, who).stages[k] !== before[k])) didSomething = true;
     } else if (f.k === 'heal') {
       const me = activeOf(state, i);
-      if (healBattler(state, i, me.maxHp * f.r, events, 'heal')) didSomething = true;
+      const sealer = activeOf(state, foeSide);
+      if (abHas(sealer, 'healBlock') && !sealer.fainted) { announce(events, foeSide, sealer); events.push({ t: 'no_effect', side: i, name: me.name, reason: 'failed' }); }
+      else if (healBattler(state, i, me.maxHp * f.r, events, 'heal')) didSomething = true;
       else events.push({ t: 'no_effect', side: i, name: me.name, reason: 'full' });
     }
   }
@@ -844,6 +912,26 @@ function endOfTurn(state, events, rng) {
     for (const f of abFx(b, 'turnHeal')) if (!b.fainted && b.hp < b.maxHp) { announce(events, i, b); healBattler(state, i, Math.max(1, b.maxHp * f.r), events, 'ability'); }
     for (const f of abFx(b, 'turnStat')) if (!b.fainted && (f.p == null || rng.chance(f.p / 100))) { announce(events, i, b); changeStages(state, i, f.stats, events); }
     for (const f of abFx(b, 'turnCure')) if (!b.fainted && b.status && rng.chance(f.p / 100)) { const was = b.status; b.status = null; b.sleepTurns = 0; announce(events, i, b); events.push({ t: 'cure', side: i, name: b.name, status: was }); }
+    for (const f of abFx(b, 'benchHeal')) {
+      const bench = state.sides[i].party.filter((p) => p !== b && !p.fainted && p.hp < p.maxHp);
+      if (!b.fainted && bench.length) {
+        announce(events, i, b);
+        for (const p of bench) {
+          const amount = Math.max(1, Math.min(p.maxHp - p.hp, Math.floor(p.maxHp * f.r)));
+          p.hp += amount;
+          events.push({ t: 'heal', side: i, name: p.name, uid: p.uid, amount, hp: p.hp, maxHp: p.maxHp, why: 'ability' });
+        }
+      }
+    }
+    for (const f of abFx(b, 'benchCure')) {
+      const sick = state.sides[i].party.find((p) => p !== b && !p.fainted && p.status);
+      if (!b.fainted && sick && rng.chance(f.p / 100)) {
+        const was = sick.status;
+        sick.status = null; sick.sleepTurns = 0;
+        announce(events, i, b);
+        events.push({ t: 'cure', side: i, name: sick.name, uid: sick.uid, status: was });
+      }
+    }
     for (const f of abFx(b, 'turnHurtFoe')) {
       const foe = activeOf(state, 1 - i);
       if (!b.fainted && !foe.fainted && (!f.statusOnly || foe.status)) { announce(events, i, b); hurtBattler(state, 1 - i, Math.max(1, foe.maxHp * f.r), events, 'aura'); }

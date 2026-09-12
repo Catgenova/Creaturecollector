@@ -1347,6 +1347,53 @@ same passive twice, and 94% of the typed passives sit on a species of that
 type. The tests hold the floor at two and the ceiling at six.
 
 
+### The third three hundred
+
+The pool doubled again, and again the engine learned what the rows needed:
+twenty-six more kinds for tempo (the turn count, the charm in its hand, the
+level gap, whether the whole team still stands), the party around it (a bench
+that heals or is cured while it fights, a legacy paid out when it falls),
+sleight of hand (trading two of its own stats, stealing or sweeping the foe's
+boasting, handing over its own sickness, sealing healing, souring its blood,
+striking without contact, never missing, ignoring evasion, capping any single
+blow, certain critical hits, fighting in its sleep, thawing at once) and the
+mark it leaves behind when it faints.
+
+- **Batch 10 (60).** Ten that read the clock, eight built around holding a
+  charm or holding nothing, six for the level gap, ten for the party
+  (formations, field medics, chaplains, last wills), four that spare PP,
+  eight death marks, and fourteen tempo mixes.
+
+- **Batch 11 (60).** Five stat trades, five thefts and sweeps, ten seals and
+  denials, ten caps and certain crits, six around sleep and thaw, ten
+  sicknesses, and fourteen tricks.
+
+- **Batch 12 (60).** A full kit for every type: eighteen wardens (resist the
+  type, harden when it lands), eighteen zealots (master one type, thin-skinned
+  against its answer), ten banes with the same bargain reversed, two twin
+  hunters, and twelve more conversions, which leaves seventeen of the
+  eighteen types reachable from Normal.
+
+- **Batch 13 (60).** Twenty-four marks of the creature kinds, each combining
+  three entries, and thirty-six plain leans a builder reaches for: single
+  stats, seven trade-off builds, status-fed leans, accuracy and crit, and the
+  move-flag specialists.
+
+- **Batch 14 (62).** Twelve double-edged builds, fourteen sovereigns of the
+  types, twelve journey passives, and the last of the classics, including
+  eleven absorbs that lift a stat or heal.
+
+Nine hundred passives: fifty-six implemented by id and eight hundred and
+forty-four data rows, over 146 entry kinds. Every name and every set of
+entries is distinct, and the tests check both.
+
+**Distribution.** 886 ordinary passives over 1,790 species slots is barely two
+deep, so the last pass caps a passive at three homes and asks only that each
+has one. Every ordinary passive is carried by one to three of the 895 species,
+and 91% of the typed passives sit on a species of that type. Because the pool
+is now larger than the roster, a species' pair is closer to a fingerprint than
+a build: two creatures rarely share both.
+
 ## Mobile view (implemented)
 
 The game was drawn for a phone from the start (portrait layout, 44px targets,

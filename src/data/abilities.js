@@ -97,23 +97,25 @@ const abStages = (stats, who) => {
 };
 const abChance = (p) => (p == null || p >= 100 ? '' : `${p}% chance to `);
 const abX = (m) => `${m}x`;
+// a multiplier below one is not "harder": say it plainly
+const abHarder = (m) => (m >= 1 ? `${abX(m)} harder` : `at ${abX(m)}`);
 export function describeFx(f) {
   switch (f.k) {
-    case 'typeBoost': return f.low ? `${f.type} moves hit ${abX(f.m)} harder when HP is a third or less.` : `${f.type} moves hit ${abX(f.m)} harder.`;
-    case 'catBoost': return `${AB_CAT_NAME[f.cat]} moves hit ${abX(f.m)} harder.`;
-    case 'flagBoost': return `${AB_FLAG_NAME[f.flag]} moves hit ${abX(f.m)} harder.`;
-    case 'powerBand': return f.max != null ? `Moves with ${f.max} power or less hit ${abX(f.m)} harder.` : `Moves with ${f.min} power or more hit ${abX(f.m)} harder.`;
-    case 'fxBoost': return `${AB_FX_NAME[f.fx]} moves hit ${abX(f.m)} harder.`;
-    case 'firstStrike': return `Hits ${abX(f.m)} harder when it moves before the foe.`;
-    case 'lastStrike': return `Hits ${abX(f.m)} harder when it moves after the foe.`;
-    case 'statusBoost': return `Hits ${abX(f.m)} harder against a foe with a status.`;
-    case 'fullHpBoost': return `Hits ${abX(f.m)} harder at full HP.`;
-    case 'foeLowBoost': return `Hits ${abX(f.m)} harder against a foe at half HP or less.`;
-    case 'prioBoost': return `Priority moves hit ${abX(f.m)} harder.`;
-    case 'sheerForce': return `Moves with a side effect hit ${abX(f.m)} harder but lose the effect.`;
+    case 'typeBoost': return f.low ? `${f.type} moves hit ${abHarder(f.m)} when HP is a third or less.` : `${f.type} moves hit ${abHarder(f.m)}.`;
+    case 'catBoost': return `${AB_CAT_NAME[f.cat]} moves hit ${abHarder(f.m)}.`;
+    case 'flagBoost': return `${AB_FLAG_NAME[f.flag]} moves hit ${abHarder(f.m)}.`;
+    case 'powerBand': return f.max != null ? `Moves with ${f.max} power or less hit ${abHarder(f.m)}.` : `Moves with ${f.min} power or more hit ${abHarder(f.m)}.`;
+    case 'fxBoost': return `${AB_FX_NAME[f.fx]} moves hit ${abHarder(f.m)}.`;
+    case 'firstStrike': return `Hits ${abHarder(f.m)} when it moves before the foe.`;
+    case 'lastStrike': return `Hits ${abHarder(f.m)} when it moves after the foe.`;
+    case 'statusBoost': return `Hits ${abHarder(f.m)} against a foe with a status.`;
+    case 'fullHpBoost': return `Hits ${abHarder(f.m)} at full HP.`;
+    case 'foeLowBoost': return `Hits ${abHarder(f.m)} against a foe at half HP or less.`;
+    case 'prioBoost': return `Priority moves hit ${abHarder(f.m)}.`;
+    case 'sheerForce': return `Moves with a side effect hit ${abHarder(f.m)} but lose the effect.`;
     case 'statMul': return `${STAT_NAMES[f.stat]} is ${abX(f.m)}.`;
     case 'statusStat': return `${STAT_NAMES[f.stat]} is ${abX(f.m)} while statused.`;
-    case 'tintedLens': return `Not very effective moves hit ${abX(f.m)} harder.`;
+    case 'tintedLens': return `Not very effective moves hit ${abHarder(f.m)}.`;
     case 'critBoost': return `Critical hits deal ${abX(f.m)} damage instead of 1.5x.`;
     case 'critRate': return `Critical hits land ${f.m}x as often.`;
     case 'mercilessCrit': return 'Always lands a critical hit on a foe with a status.';
@@ -179,24 +181,24 @@ export function describeFx(f) {
     case 'magicGuard': return 'Takes no damage from burns, poison, recoil or thorns.';
     case 'recoilImmune': return 'Takes no recoil damage.';
     case 'stab': return `Moves of its own type earn ${Math.round(f.m * 100)}% instead of 25%.`;
-    case 'foeTypeBoost': return `Hits ${abX(f.m)} harder against ${f.type} types.`;
-    case 'foeCatBoost': return `Hits ${abX(f.m)} harder against ${AB_CAT_NAME[f.cat]} fighters.`;
-    case 'foeStatusBoost': return `Hits ${abX(f.m)} harder against a foe with ${f.s ? `a ${AB_STATUS_NAME[f.s]}` : 'a status'}.`;
-    case 'foeFullBoost': return `Hits ${abX(f.m)} harder against a foe at full HP.`;
-    case 'effBoost': return `Super effective moves hit ${abX(f.m)} harder.`;
-    case 'neutralBoost': return `Moves the foe neither resists nor fears hit ${abX(f.m)} harder.`;
-    case 'lowHpBoost': return `Hits ${abX(f.m)} harder when its own HP is a third or less.`;
-    case 'firstTurnBoost': return `Hits ${abX(f.m)} harder on the turn it comes in.`;
-    case 'lastOneBoost': return `Hits ${abX(f.m)} harder as the last one standing.`;
-    case 'revengeBoost': return `Hits ${abX(f.m)} harder once a teammate has fallen.`;
-    case 'repeatBoost': return `Hits ${abX(f.m)} harder when it uses the same move again.`;
-    case 'slowStart': return `Hits ${abX(f.m)} for its first ${f.turns || 2} turns out.`;
-    case 'defeatist': return `Hits ${abX(f.m)} while its HP is ${abFrac(f.at || 0.5)} or less.`;
-    case 'hpCostBoost': return `Moves hit ${abX(f.m)} harder but cost ${abFrac(f.r)} of max HP.`;
+    case 'foeTypeBoost': return `Hits ${abHarder(f.m)} against ${f.type} types.`;
+    case 'foeCatBoost': return `Hits ${abHarder(f.m)} against ${AB_CAT_NAME[f.cat]} fighters.`;
+    case 'foeStatusBoost': return `Hits ${abHarder(f.m)} against a foe with ${f.s ? `a ${AB_STATUS_NAME[f.s]}` : 'a status'}.`;
+    case 'foeFullBoost': return `Hits ${abHarder(f.m)} against a foe at full HP.`;
+    case 'effBoost': return `Super effective moves hit ${abHarder(f.m)}.`;
+    case 'neutralBoost': return `Moves the foe neither resists nor fears hit ${abHarder(f.m)}.`;
+    case 'lowHpBoost': return `Hits ${abHarder(f.m)} when its own HP is a third or less.`;
+    case 'firstTurnBoost': return `Hits ${abHarder(f.m)} on the turn it comes in.`;
+    case 'lastOneBoost': return `Hits ${abHarder(f.m)} as the last one standing.`;
+    case 'revengeBoost': return `Hits ${abHarder(f.m)} once a teammate has fallen.`;
+    case 'repeatBoost': return `Hits ${abHarder(f.m)} when it uses the same move again.`;
+    case 'slowStart': return `Hits ${abHarder(f.m)} for its first ${f.turns || 2} turns out.`;
+    case 'defeatist': return `Hits ${abHarder(f.m)} while its HP is ${abFrac(f.at || 0.5)} or less.`;
+    case 'hpCostBoost': return `Moves hit ${abHarder(f.m)} but cost ${abFrac(f.r)} of max HP.`;
     case 'multiExtra': return 'Multi-hit moves land one extra hit.';
     case 'drainMul': return `Draining moves recover ${abX(f.m)} as much.`;
     case 'recoilMul': return `Recoil costs ${abX(f.m)} as much.`;
-    case 'moveTypeChange': return `${f.from} moves become ${f.to}${f.m && f.m !== 1 ? ` and hit ${abX(f.m)} harder` : ''}.`;
+    case 'moveTypeChange': return `${f.from} moves become ${f.to}${f.m && f.m !== 1 ? ` and hit ${abHarder(f.m)}` : ''}.`;
     case 'protean': return 'Becomes the type of the move it uses.';
     case 'colorChange': return 'Becomes the type of the move that hits it.';
     case 'statusChanceMul': return `Its moves’ side effects are ${abX(f.m)} as likely.`;
@@ -219,6 +221,32 @@ export function describeFx(f) {
     case 'worldXp': return `Earns ${abX(f.m)} experience.`;
     case 'worldGold': return `Trainers pay ${abX(f.m)} gold while it is in the party.`;
     case 'worldCatch': return `Wild creatures are ${abX(f.m)} as easy to catch while it leads the fight.`;
+    case 'lateBoost': return `Hits ${abHarder(f.m)} from turn ${f.from || 5} onward.`;
+    case 'earlyBoost': return `Hits ${abHarder(f.m)} for the first ${f.until || 3} turns of a battle.`;
+    case 'charmBoost': return `Hits ${abHarder(f.m)} while it holds a charm.`;
+    case 'charmless': return `Hits ${abHarder(f.m)} while it holds nothing.`;
+    case 'underdogBoost': return `Hits ${abHarder(f.m)} against a higher-level foe.`;
+    case 'bullyBoost': return `Hits ${abHarder(f.m)} against a lower-level foe.`;
+    case 'fullPartyBoost': return `Hits ${abHarder(f.m)} while the whole team still stands.`;
+    case 'ppSave': return `${f.p}% chance to use a move without spending its PP.`;
+    case 'benchHeal': return `Waiting teammates recover ${abFrac(f.r)} of max HP at the end of every turn.`;
+    case 'benchCure': return `${f.p}% chance each turn to cure a waiting teammate's status.`;
+    case 'statSwap': return `Trades its own ${AB_STAT_NAME[f.a]} and ${AB_STAT_NAME[f.b]} on entry.`;
+    case 'stageSteal': return 'Takes the foe’s stat boosts for itself on entry.';
+    case 'stageClear': return 'Sweeps away the foe’s stat changes on entry.';
+    case 'statusSwap': return 'Hands its own status to the foe on entry.';
+    case 'healBlock': return 'Foes cannot heal themselves.';
+    case 'drainImmune': return 'Foes drain no HP from it.';
+    case 'noContact': return 'Its moves never count as contact.';
+    case 'sureShot': return 'Its own moves never miss.';
+    case 'ignoreEvasion': return 'Ignores everything the foe does to dodge.';
+    case 'damageCap': return `No single hit takes more than ${abFrac(f.r)} of its max HP.`;
+    case 'critIf': return `Always lands a critical hit ${f.when === 'firstTurn' ? 'on the turn it comes in' : f.when === 'lowHp' ? 'when its HP is a third or less' : 'at full HP'}.`;
+    case 'actAsleep': return 'Attacks in its sleep.';
+    case 'thawFast': return 'Thaws the moment it acts.';
+    case 'faintStatus': return f.s === 'own' ? 'When it faints, its status passes to the foe.' : `When it faints, the foe ${AB_STATUS_VERB[f.s] === 'put to sleep' ? 'is put to sleep' : `is ${AB_STATUS_VERB[f.s]}`}.`;
+    case 'faintStat': return `${abStages(f.stats, 'The foe’s')} when it faints.`;
+    case 'faintHealParty': return `When it faints, waiting teammates recover ${abFrac(f.r)} of max HP.`;
     default: return '';
   }
 }
@@ -762,6 +790,305 @@ defA('iron_will', 'Iron Will', [{ k: 'noStatDrop', stat: 'melee' }, { k: 'noStat
 defA('bloodmoon', 'Bloodmoon', [{ k: 'lowHpBoost', m: 1.4 }, { k: 'drainMul', m: 1.25 }, { k: 'contactHurt', r: 1 / 16 }]);
 defA('starcaller', 'Starcaller', [{ k: 'statMul', stat: 'magic', m: 1.2 }, { k: 'magicBounce' }, { k: 'defMul', stat: 'meleeDef', m: 0.9 }]);
 defA('world_serpent', 'World Serpent', [{ k: 'stab', m: 0.45 }, { k: 'allResist', m: 0.95 }, { k: 'statMul', stat: 'spe', m: 0.9 }]);
+
+// ---- batch ten: tempo, the bag, the level gap and the team standing behind it ------------------------
+defA('slow_burn', 'Slow Burn', { k: 'lateBoost', m: 1.4, from: 5 });
+defA('war_of_attrition', 'War of Attrition', [{ k: 'lateBoost', m: 1.25, from: 4 }, { k: 'turnHeal', r: 1 / 16 }]);
+defA('blitz', 'Blitz', { k: 'earlyBoost', m: 1.35, until: 3 });
+defA('opening_gambit', 'Opening Gambit', [{ k: 'earlyBoost', m: 1.5, until: 2 }, { k: 'lateBoost', m: 0.9, from: 6 }]);
+defA('marathon', 'Marathon', [{ k: 'lateBoost', m: 1.2, from: 6 }, { k: 'turnStat', stats: { meleeDef: 1 }, p: 20 }]);
+defA('sprinter', 'Sprinter', [{ k: 'earlyBoost', m: 1.3, until: 2 }, { k: 'statMul', stat: 'spe', m: 1.1 }]);
+defA('endgame', 'Endgame', { k: 'lateBoost', m: 1.5, from: 8 });
+defA('ambush_timer', 'Ambush Timer', [{ k: 'earlyBoost', m: 1.4, until: 1 }, { k: 'firstStrike', m: 1.1 }]);
+defA('second_act', 'Second Act', [{ k: 'lateBoost', m: 1.3, from: 5 }, { k: 'switchHeal', r: 1 / 8 }]);
+defA('patient_hunter', 'Patient Hunter', [{ k: 'lateBoost', m: 1.25, from: 5 }, { k: 'accBoost', m: 1.1 }]);
+
+defA('charm_bound', 'Charm Bound', { k: 'charmBoost', m: 1.3 });
+defA('bare_hands', 'Bare Hands', { k: 'charmless', m: 1.3 });
+defA('trinket_love', 'Trinket Love', [{ k: 'charmBoost', m: 1.2 }, { k: 'turnHeal', r: 1 / 16 }]);
+defA('unburdened', 'Unburdened', [{ k: 'charmless', m: 1.2 }, { k: 'statMul', stat: 'spe', m: 1.15 }]);
+defA('talisman', 'Talisman', [{ k: 'charmBoost', m: 1.15 }, { k: 'defMul', stat: 'magicDef', m: 1.1 }]);
+defA('ascetic', 'Ascetic', [{ k: 'charmless', m: 1.25 }, { k: 'turnCure', p: 20 }]);
+defA('collector', 'Collector', [{ k: 'charmBoost', m: 1.1 }, { k: 'worldGold', m: 1.2 }]);
+defA('minimalist', 'Minimalist', [{ k: 'charmless', m: 1.15 }, { k: 'worldXp', m: 1.2 }]);
+
+defA('giant_slayer', 'Giant Slayer', { k: 'underdogBoost', m: 1.4 });
+defA('pack_leader', 'Pack Leader', { k: 'bullyBoost', m: 1.3 });
+defA('upstart', 'Upstart', [{ k: 'underdogBoost', m: 1.25 }, { k: 'statMul', stat: 'spe', m: 1.1 }]);
+defA('veteran', 'Veteran', [{ k: 'bullyBoost', m: 1.2 }, { k: 'accBoost', m: 1.1 }]);
+defA('underdog_heart', 'Underdog Heart', [{ k: 'underdogBoost', m: 1.3 }, { k: 'lowHpResist', m: 0.8 }]);
+defA('schoolyard', 'Schoolyard', [{ k: 'bullyBoost', m: 1.25 }, { k: 'addFlinch', p: 15 }]);
+
+defA('formation', 'Formation', { k: 'fullPartyBoost', m: 1.25 });
+defA('standard', 'Standard', [{ k: 'fullPartyBoost', m: 1.15 }, { k: 'entryStat', who: 'self', stats: { meleeDef: 1 } }]);
+defA('field_medic', 'Field Medic', { k: 'benchHeal', r: 1 / 16 });
+defA('chaplain', 'Chaplain', { k: 'benchCure', p: 25 });
+defA('quartermaster', 'Quartermaster', [{ k: 'benchHeal', r: 1 / 8 }, { k: 'statMul', stat: 'spe', m: 0.9 }]);
+defA('nurse_log', 'Nurse Log', [{ k: 'benchHeal', r: 1 / 16 }, { k: 'turnHeal', r: 1 / 16 }]);
+defA('herbalist', 'Herbalist', [{ k: 'benchCure', p: 35 }, { k: 'statusImmune', s: 'psn' }]);
+defA('last_will', 'Last Will', { k: 'faintHealParty', r: 1 / 4 });
+defA('martyr', 'Martyr', [{ k: 'faintHealParty', r: 1 / 3 }, { k: 'defMul', stat: 'meleeDef', m: 0.9 }]);
+defA('bequest', 'Bequest', [{ k: 'faintHealParty', r: 1 / 6 }, { k: 'benchCure', p: 20 }]);
+
+defA('efficient', 'Efficient', { k: 'ppSave', p: 20 });
+defA('bottomless', 'Bottomless', [{ k: 'ppSave', p: 35 }, { k: 'statMul', stat: 'spe', m: 0.95 }]);
+defA('conservationist', 'Conservationist', [{ k: 'ppSave', p: 25 }, { k: 'pressure' }]);
+defA('well_rehearsed', 'Well Rehearsed', [{ k: 'ppSave', p: 15 }, { k: 'repeatBoost', m: 1.15 }]);
+
+defA('plague_bearer', 'Plague Bearer', { k: 'faintStatus', s: 'own' });
+defA('final_curse', 'Final Curse', { k: 'faintStatus', s: 'psn' });
+defA('dying_ember', 'Dying Ember', { k: 'faintStatus', s: 'brn' });
+defA('static_death', 'Static Death', { k: 'faintStatus', s: 'par' });
+defA('last_laugh', 'Last Laugh', { k: 'faintStat', stats: { melee: -1, ranged: -1 } });
+defA('withering_death', 'Withering Death', { k: 'faintStat', stats: { magic: -1, magicDef: -1 } });
+defA('collapse', 'Collapse', { k: 'faintStat', stats: { spe: -2 } });
+defA('deathgrip', 'Deathgrip', [{ k: 'faintStat', stats: { meleeDef: -1 } }, { k: 'aftermath', r: 1 / 4 }]);
+
+defA('stalwart_clock', 'Stalwart Clock', [{ k: 'lateBoost', m: 1.2, from: 5 }, { k: 'lowHpResist', m: 0.85 }]);
+defA('warm_machine', 'Warm Machine', [{ k: 'earlyBoost', m: 0.8, until: 2 }, { k: 'lateBoost', m: 1.4, from: 5 }]);
+defA('flash_in_the_pan', 'Flash in the Pan', [{ k: 'earlyBoost', m: 1.5, until: 2 }, { k: 'lateBoost', m: 0.8, from: 5 }]);
+defA('steady_drip', 'Steady Drip', [{ k: 'turnHeal', r: 1 / 16 }, { k: 'lateBoost', m: 1.15, from: 4 }]);
+defA('battle_rhythm', 'Battle Rhythm', [{ k: 'repeatBoost', m: 1.15 }, { k: 'turnStat', stats: { spe: 1 }, p: 20 }]);
+defA('relay_runner', 'Relay Runner', [{ k: 'switchHeal', r: 1 / 4 }, { k: 'earlyBoost', m: 1.2, until: 2 }]);
+defA('tag_team', 'Tag Team', [{ k: 'switchHeal', r: 1 / 6 }, { k: 'benchHeal', r: 1 / 16 }]);
+defA('relay', 'Relay', [{ k: 'entryStat', who: 'self', stats: { spe: 1 } }, { k: 'switchHeal', r: 1 / 8 }]);
+defA('anchor', 'Anchor', [{ k: 'fullPartyBoost', m: 1.2 }, { k: 'defMul', stat: 'rangedDef', m: 1.1 }]);
+defA('rearguard', 'Rearguard', [{ k: 'benchHeal', r: 1 / 16 }, { k: 'catResist', cat: 'ranged', m: 0.85 }]);
+defA('camp_cook', 'Camp Cook', [{ k: 'benchHeal', r: 1 / 8 }, { k: 'worldXp', m: 1.15 }]);
+defA('drill_sergeant', 'Drill Sergeant', [{ k: 'benchCure', p: 20 }, { k: 'entryStat', who: 'self', stats: { melee: 1 } }]);
+defA('kit_bag', 'Kit Bag', [{ k: 'charmBoost', m: 1.2 }, { k: 'koHeal', r: 1 / 8 }]);
+defA('long_campaign', 'Long Campaign', [{ k: 'lateBoost', m: 1.3, from: 6 }, { k: 'benchHeal', r: 1 / 16 }]);
+
+// ---- batch eleven: sleight of hand — trades, thefts, seals and the blows it will not feel ------------
+defA('power_trick', 'Power Trick', { k: 'statSwap', a: 'melee', b: 'meleeDef' });
+defA('mind_trick', 'Mind Trick', { k: 'statSwap', a: 'magic', b: 'magicDef' });
+defA('volley_trick', 'Volley Trick', { k: 'statSwap', a: 'ranged', b: 'rangedDef' });
+defA('fleet_trade', 'Fleet Trade', { k: 'statSwap', a: 'spe', b: 'meleeDef' });
+defA('brawn_trade', 'Brawn Trade', { k: 'statSwap', a: 'melee', b: 'magic' });
+defA('larceny', 'Larceny', { k: 'stageSteal' });
+defA('thiefs_eye', "Thief's Eye", [{ k: 'stageSteal' }, { k: 'statMul', stat: 'spe', m: 1.05 }]);
+defA('housekeeping', 'Housekeeping', { k: 'stageClear' });
+defA('cold_reset', 'Cold Reset', [{ k: 'stageClear' }, { k: 'entryStat', who: 'self', stats: { spe: 1 } }]);
+defA('hot_potato', 'Hot Potato', { k: 'statusSwap' });
+
+defA('sealed_well', 'Sealed Well', { k: 'healBlock' });
+defA('dry_well', 'Dry Well', [{ k: 'healBlock' }, { k: 'drainImmune' }]);
+defA('hollow_blood', 'Hollow Blood', { k: 'drainImmune' });
+defA('bitter_blood', 'Bitter Blood', [{ k: 'drainImmune' }, { k: 'contactHurt', r: 1 / 16 }]);
+defA('ghost_hands', 'Ghost Hands', { k: 'noContact' });
+defA('long_reach', 'Long Reach', [{ k: 'noContact' }, { k: 'flagBoost', flag: 'contact', m: 1.1 }]);
+defA('dead_eye', 'Dead Eye', { k: 'sureShot' });
+defA('perfect_aim', 'Perfect Aim', [{ k: 'sureShot' }, { k: 'statMul', stat: 'spe', m: 0.95 }]);
+defA('clear_sight', 'Clear Sight', { k: 'ignoreEvasion' });
+defA('hawk_sight', 'Hawk Sight', [{ k: 'ignoreEvasion' }, { k: 'accBoost', m: 1.1 }]);
+
+defA('padded_soul', 'Padded Soul', { k: 'damageCap', r: 1 / 3 });
+defA('iron_cap', 'Iron Cap', [{ k: 'damageCap', r: 1 / 4 }, { k: 'statMul', stat: 'spe', m: 0.9 }]);
+defA('bulk_frame', 'Bulk Frame', [{ k: 'damageCap', r: 1 / 2 }, { k: 'defMul', stat: 'meleeDef', m: 1.1 }]);
+defA('first_blood', 'First Blood', { k: 'critIf', when: 'firstTurn' });
+defA('desperate_edge', 'Desperate Edge', { k: 'critIf', when: 'lowHp' });
+defA('fresh_edge', 'Fresh Edge', { k: 'critIf', when: 'fullHp' });
+defA('executioners_eye', "Executioner's Eye", [{ k: 'critIf', when: 'lowHp' }, { k: 'critBoost', m: 1.75 }]);
+defA('ambush_edge', 'Ambush Edge', [{ k: 'critIf', when: 'firstTurn' }, { k: 'firstStrike', m: 1.15 }]);
+defA('keen_opening', 'Keen Opening', [{ k: 'critIf', when: 'fullHp' }, { k: 'fullHpBoost', m: 1.15 }]);
+defA('glass_edge', 'Glass Edge', [{ k: 'critBoost', m: 2 }, { k: 'defMul', stat: 'meleeDef', m: 0.85 }]);
+
+defA('sleepwalker', 'Sleepwalker', { k: 'actAsleep' });
+defA('dream_fighter', 'Dream Fighter', [{ k: 'actAsleep' }, { k: 'statusStat', stat: 'melee', m: 1.3 }]);
+defA('deep_sleeper', 'Deep Sleeper', [{ k: 'actAsleep' }, { k: 'turnHeal', r: 1 / 16 }]);
+defA('quick_thaw', 'Quick Thaw', { k: 'thawFast' });
+defA('thaw_blood', 'Thaw Blood', [{ k: 'thawFast' }, { k: 'typeResist', type: 'Ice', m: 0.8 }]);
+defA('restless_dream', 'Restless Dream', [{ k: 'actAsleep' }, { k: 'earlyBird' }]);
+
+defA('sickly_gift', 'Sickly Gift', [{ k: 'statusSwap' }, { k: 'turnCure', p: 15 }]);
+defA('curse_carrier', 'Curse Carrier', [{ k: 'statusSwap' }, { k: 'faintStatus', s: 'own' }]);
+defA('contagion', 'Contagion', [{ k: 'addStatus', s: 'psn', p: 15 }, { k: 'faintStatus', s: 'psn' }]);
+defA('blight_aura', 'Blight Aura', [{ k: 'turnHurtFoe', r: 1 / 16, statusOnly: true }, { k: 'addStatus', s: 'psn', p: 15 }]);
+defA('feverish', 'Feverish', [{ k: 'statusStat', stat: 'melee', m: 1.4 }, { k: 'turnCure', p: 10 }]);
+defA('delirium', 'Delirium', [{ k: 'statusStat', stat: 'magic', m: 1.4 }, { k: 'statusDef', stat: 'magicDef', m: 1.2 }]);
+defA('numb_hide', 'Numb Hide', [{ k: 'statusImmune', s: 'par' }, { k: 'contactStatus', s: 'par', p: 25 }]);
+defA('cold_sweat', 'Cold Sweat', [{ k: 'statusImmune', s: 'frz' }, { k: 'contactStatus', s: 'frz', p: 15 }]);
+defA('ash_blood', 'Ash Blood', [{ k: 'statusImmune', s: 'brn' }, { k: 'contactStatus', s: 'brn', p: 25 }]);
+defA('sleepless_watch', 'Sleepless Watch', [{ k: 'statusImmune', s: 'slp' }, { k: 'entryStat', who: 'foe', stats: { acc: -1 } }]);
+
+defA('pickpocket', 'Pickpocket', [{ k: 'worldGold', m: 1.3 }, { k: 'stageSteal' }]);
+defA('trap_sense', 'Trap Sense', [{ k: 'ignoreEvasion' }, { k: 'evasion', m: 0.9 }]);
+defA('shell_game', 'Shell Game', [{ k: 'damageCap', r: 1 / 3 }, { k: 'evasion', m: 0.9 }]);
+defA('feint', 'Feint', [{ k: 'noContact' }, { k: 'addFlinch', p: 15 }]);
+defA('phantom_step', 'Phantom Step', [{ k: 'noContact' }, { k: 'typeResist', type: 'Fighting', m: 0.7 }]);
+defA('silent_kill', 'Silent Kill', [{ k: 'sureShot' }, { k: 'koStat', stats: { spe: 1 } }]);
+defA('cheap_shot', 'Cheap Shot', [{ k: 'bullyBoost', m: 1.2 }, { k: 'addFlinch', p: 20 }]);
+defA('stolen_valor', 'Stolen Valor', [{ k: 'stageSteal' }, { k: 'koStat', stats: { melee: 1 } }]);
+defA('mercy_rule', 'Mercy Rule', [{ k: 'damageCap', r: 1 / 4 }, { k: 'lowHpHeal', r: 1 / 4, at: 0.25 }]);
+defA('blackout', 'Blackout', { k: 'faintStat', stats: { acc: -2 } });
+defA('sabotage', 'Sabotage', [{ k: 'healBlock' }, { k: 'entryStat', who: 'foe', stats: { magic: -1 } }]);
+defA('hex_seal', 'Hex Seal', [{ k: 'healBlock' }, { k: 'statusMoveImmune' }]);
+defA('numbing_sleep', 'Numbing Sleep', [{ k: 'contactStatus', s: 'slp', p: 20 }, { k: 'actAsleep' }]);
+defA('second_sight', 'Second Sight', [{ k: 'ignoreEvasion' }, { k: 'critRate', m: 1.5 }]);
+
+// ---- batch twelve: a full kit for every type — wardens, zealots, banes and more conversions ----------
+const AB_WARDEN = { Normal: 'Plain Warden', Fire: 'Flame Warden', Water: 'Wave Warden', Electric: 'Spark Warden', Grass: 'Leaf Warden', Ice: 'Frost Warden', Fighting: 'Fist Warden', Poison: 'Fume Warden', Ground: 'Loam Warden', Flying: 'Gale Warden', Psychic: 'Mind Warden', Bug: 'Hive Warden', Rock: 'Stone Warden', Ghost: 'Grave Warden', Dragon: 'Wyrm Warden', Dark: 'Night Warden', Steel: 'Iron Warden', Fairy: 'Wisp Warden' };
+const AB_WARD_STAT = { Normal: 'meleeDef', Fire: 'magicDef', Water: 'rangedDef', Electric: 'spe', Grass: 'rangedDef', Ice: 'meleeDef', Fighting: 'meleeDef', Poison: 'magicDef', Ground: 'meleeDef', Flying: 'spe', Psychic: 'magicDef', Bug: 'rangedDef', Rock: 'meleeDef', Ghost: 'magicDef', Dragon: 'magicDef', Dark: 'rangedDef', Steel: 'meleeDef', Fairy: 'magicDef' };
+for (const t of AB_TYPES) defA(`${t.toLowerCase()}_warden`, AB_WARDEN[t], [{ k: 'typeResist', type: t, m: 0.7 }, { k: 'hitByTypeStat', type: t, stats: { [AB_WARD_STAT[t]]: 1 } }]);
+
+// a zealot of one type, and thin-skinned against the type that answers it
+const AB_ZEAL = { Normal: 'Plain Zeal', Fire: 'Flame Zeal', Water: 'Wave Zeal', Electric: 'Spark Zeal', Grass: 'Leaf Zeal', Ice: 'Frost Zeal', Fighting: 'Fist Zeal', Poison: 'Fume Zeal', Ground: 'Loam Zeal', Flying: 'Gale Zeal', Psychic: 'Mind Zeal', Bug: 'Hive Zeal', Rock: 'Stone Zeal', Ghost: 'Grave Zeal', Dragon: 'Wyrm Zeal', Dark: 'Night Zeal', Steel: 'Iron Zeal', Fairy: 'Wisp Zeal' };
+const AB_ANSWER = { Normal: 'Fighting', Fire: 'Water', Water: 'Electric', Electric: 'Ground', Grass: 'Fire', Ice: 'Fire', Fighting: 'Psychic', Poison: 'Ground', Ground: 'Water', Flying: 'Electric', Psychic: 'Dark', Bug: 'Flying', Rock: 'Water', Ghost: 'Dark', Dragon: 'Fairy', Dark: 'Fighting', Steel: 'Fire', Fairy: 'Poison' };
+for (const t of AB_TYPES) defA(`${t.toLowerCase()}_zeal`, AB_ZEAL[t], [{ k: 'typeBoost', type: t, m: 1.25 }, { k: 'typeWeak', type: AB_ANSWER[t], m: 1.2 }]);
+
+// a bane hunts one type and pays for the obsession
+const AB_BANE = { Normal: 'Beast Bane', Electric: 'Storm Bane', Grass: 'Bramble Bane', Ice: 'Rime Bane', Fighting: 'Brawler Bane', Poison: 'Venom Bane', Ground: 'Burrow Bane', Flying: 'Sky Bane', Psychic: 'Psion Bane', Rock: 'Boulder Bane' };
+for (const t of Object.keys(AB_BANE)) defA(`${t.toLowerCase()}_bane`, AB_BANE[t], [{ k: 'foeTypeBoost', type: t, m: 1.3 }, { k: 'typeWeak', type: t, m: 1.2 }]);
+defA('twin_fang', 'Twin Fang', [{ k: 'foeTypeBoost', type: 'Dragon', m: 1.15 }, { k: 'foeTypeBoost', type: 'Dark', m: 1.15 }]);
+defA('elder_hunter', 'Elder Hunter', [{ k: 'foeTypeBoost', type: 'Ghost', m: 1.15 }, { k: 'foeTypeBoost', type: 'Psychic', m: 1.15 }]);
+
+defA('terraform', 'Terraform', { k: 'moveTypeChange', from: 'Normal', to: 'Ground', m: 1.2 });
+defA('miasmaform', 'Miasmaform', { k: 'moveTypeChange', from: 'Normal', to: 'Poison', m: 1.2 });
+defA('nightform', 'Nightform', { k: 'moveTypeChange', from: 'Normal', to: 'Dark', m: 1.2 });
+defA('swarmform', 'Swarmform', { k: 'moveTypeChange', from: 'Normal', to: 'Bug', m: 1.2 });
+defA('psychform', 'Psychform', { k: 'moveTypeChange', from: 'Normal', to: 'Psychic', m: 1.2 });
+defA('wyrmform', 'Wyrmform', { k: 'moveTypeChange', from: 'Normal', to: 'Dragon', m: 1.2 });
+defA('brawlform', 'Brawlform', { k: 'moveTypeChange', from: 'Normal', to: 'Fighting', m: 1.2 });
+defA('stoneform', 'Stoneform', { k: 'moveTypeChange', from: 'Normal', to: 'Rock', m: 1.2 });
+defA('drakeflame', 'Drakeflame', { k: 'moveTypeChange', from: 'Fire', to: 'Dragon', m: 1.1 });
+defA('freezeflow', 'Freezeflow', { k: 'moveTypeChange', from: 'Water', to: 'Ice', m: 1.1 });
+defA('railgun', 'Railgun', { k: 'moveTypeChange', from: 'Electric', to: 'Steel', m: 1.1 });
+defA('fae_bloom', 'Fae Bloom', { k: 'moveTypeChange', from: 'Grass', to: 'Fairy', m: 1.1 });
+
+// ---- batch thirteen: marks of the kinds, and the plain leans a builder reaches for -------------------
+defA('beast_mark', 'Beast Mark', [{ k: 'statMul', stat: 'melee', m: 1.1 }, { k: 'koStat', stats: { melee: 1 } }, { k: 'contactHurt', r: 1 / 16 }]);
+defA('scale_mark', 'Scale Mark', [{ k: 'defMul', stat: 'meleeDef', m: 1.12 }, { k: 'statusImmune', s: 'psn' }, { k: 'thawFast' }]);
+defA('fin_mark', 'Fin Mark', [{ k: 'typeBoost', type: 'Water', m: 1.15 }, { k: 'drainMul', m: 1.2 }, { k: 'switchHeal', r: 1 / 8 }]);
+defA('wing_mark', 'Wing Mark', [{ k: 'statMul', stat: 'spe', m: 1.1 }, { k: 'prioType', type: 'Flying' }, { k: 'evasion', m: 0.95 }]);
+defA('chitin_mark', 'Chitin Mark', [{ k: 'flagResist', flag: 'contact', m: 0.8 }, { k: 'contactStat', stats: { spe: -1 }, p: 20 }, { k: 'powderImmune' }]);
+defA('tentacle_mark', 'Tentacle Mark', [{ k: 'catThorns', cat: 'melee', r: 0.2 }, { k: 'drainImmune' }, { k: 'defMul', stat: 'rangedDef', m: 1.1 }]);
+defA('spawn_mark', 'Spawn Mark', [{ k: 'turnHeal', r: 1 / 16 }, { k: 'statusImmune', s: 'brn' }, { k: 'benchHeal', r: 1 / 16 }]);
+defA('root_mark', 'Root Mark', [{ k: 'turnHeal', r: 1 / 16 }, { k: 'typeResist', type: 'Grass', m: 0.7 }, { k: 'noStatDrop', stat: 'meleeDef' }]);
+defA('ooze_mark', 'Ooze Mark', [{ k: 'allResist', m: 0.9 }, { k: 'contactStatus', s: 'psn', p: 20 }, { k: 'damageCap', r: 1 / 2 }]);
+defA('spore_mark', 'Spore Mark', [{ k: 'powderImmune' }, { k: 'contactStatus', s: 'slp', p: 15 }, { k: 'benchCure', p: 20 }]);
+defA('coil_mark', 'Coil Mark', [{ k: 'flagBoost', flag: 'bite', m: 1.2 }, { k: 'statusStat', stat: 'melee', m: 1.2 }, { k: 'thawFast' }]);
+defA('draconic_mark', 'Draconic Mark', [{ k: 'typeBoost', type: 'Dragon', m: 1.15 }, { k: 'bandResist', min: 100, m: 0.9 }, { k: 'stab', m: 0.3 }]);
+defA('bone_mark', 'Bone Mark', [{ k: 'statusImmune', s: 'psn' }, { k: 'critShield', m: 0.6 }, { k: 'faintStat', stats: { melee: -1 } }]);
+defA('crystal_mark', 'Crystal Mark', [{ k: 'filter', m: 0.75 }, { k: 'critImmune' }, { k: 'statMul', stat: 'magic', m: 1.05 }]);
+defA('nightwing_mark', 'Nightwing Mark', [{ k: 'flagBoost', flag: 'sound', m: 1.2 }, { k: 'soundImmune' }, { k: 'prioBoost', m: 1.1 }]);
+defA('myriapod_mark', 'Myriapod Mark', [{ k: 'multiExtra' }, { k: 'fxBoost', fx: 'multi', m: 1.15 }, { k: 'statMul', stat: 'spe', m: 1.05 }]);
+defA('fiend_mark', 'Fiend Mark', [{ k: 'typeBoost', type: 'Dark', m: 1.15 }, { k: 'drainMul', m: 1.2 }, { k: 'contactHurt', r: 1 / 16 }]);
+defA('spirit_mark', 'Spirit Mark', [{ k: 'evasion', m: 0.9 }, { k: 'magicGuard' }, { k: 'defMul', stat: 'magicDef', m: 1.05 }]);
+defA('rust_mark', 'Rust Mark', [{ k: 'typeBoost', type: 'Steel', m: 1.15 }, { k: 'contactStat', stats: { meleeDef: -1 }, p: 25 }, { k: 'typeWeak', type: 'Water', m: 1.2 }]);
+defA('blood_mark', 'Blood Mark', [{ k: 'drainMul', m: 1.3 }, { k: 'lowHpBoost', m: 1.2 }, { k: 'hpCostBoost', m: 1.1, r: 1 / 16 }]);
+defA('void_mark', 'Void Mark', [{ k: 'typeBoost', type: 'Ghost', m: 1.15 }, { k: 'statusMoveImmune' }, { k: 'damageCap', r: 1 / 3 }]);
+defA('moon_mark', 'Moon Mark', [{ k: 'statMul', stat: 'magic', m: 1.1 }, { k: 'turnHeal', r: 1 / 16 }, { k: 'prioStatus' }]);
+defA('prism_mark', 'Prism Mark', [{ k: 'tintedLens', m: 1.3 }, { k: 'filter', m: 0.8 }, { k: 'accBoost', m: 1.05 }]);
+defA('mist_mark', 'Mist Mark', [{ k: 'evasion', m: 0.85 }, { k: 'ignoreEvasion' }, { k: 'statMul', stat: 'spe', m: 1.05 }]);
+
+defA('sinew', 'Sinew', { k: 'statMul', stat: 'melee', m: 1.2 });
+defA('steady_hand', 'Steady Hand', { k: 'statMul', stat: 'ranged', m: 1.2 });
+defA('deep_focus', 'Deep Focus', { k: 'statMul', stat: 'magic', m: 1.2 });
+defA('bracer', 'Bracer', { k: 'defMul', stat: 'meleeDef', m: 1.2 });
+defA('buckler', 'Buckler', { k: 'defMul', stat: 'rangedDef', m: 1.2 });
+defA('aegis', 'Aegis', { k: 'defMul', stat: 'magicDef', m: 1.2 });
+defA('fleet_foot', 'Fleet Foot', { k: 'statMul', stat: 'spe', m: 1.2 });
+
+defA('berserker_build', 'Berserker Build', [{ k: 'statMul', stat: 'melee', m: 1.3 }, { k: 'defMul', stat: 'meleeDef', m: 0.85 }]);
+defA('sniper_build', 'Sniper Build', [{ k: 'statMul', stat: 'ranged', m: 1.3 }, { k: 'defMul', stat: 'rangedDef', m: 0.85 }]);
+defA('mage_build', 'Mage Build', [{ k: 'statMul', stat: 'magic', m: 1.3 }, { k: 'defMul', stat: 'magicDef', m: 0.85 }]);
+defA('turtle_build', 'Turtle Build', [{ k: 'defMul', stat: 'meleeDef', m: 1.3 }, { k: 'statMul', stat: 'spe', m: 0.85 }]);
+defA('bastion_build', 'Bastion Build', [{ k: 'defMul', stat: 'magicDef', m: 1.3 }, { k: 'statMul', stat: 'melee', m: 0.85 }]);
+defA('runner_build', 'Runner Build', [{ k: 'statMul', stat: 'spe', m: 1.3 }, { k: 'defMul', stat: 'meleeDef', m: 0.85 }]);
+defA('tank_build', 'Tank Build', [{ k: 'defMul', stat: 'rangedDef', m: 1.3 }, { k: 'statMul', stat: 'ranged', m: 0.85 }]);
+
+defA('sick_speed', 'Sick Speed', [{ k: 'statusStat', stat: 'spe', m: 1.5 }, { k: 'turnCure', p: 10 }]);
+defA('sick_guard', 'Sick Guard', { k: 'statusDef', stat: 'rangedDef', m: 1.4 });
+defA('sick_mind', 'Sick Mind', [{ k: 'statusStat', stat: 'magic', m: 1.5 }, { k: 'statusDef', stat: 'magicDef', m: 1.1 }]);
+defA('plague_bulk', 'Plague Bulk', [{ k: 'statusDef', stat: 'meleeDef', m: 1.4 }, { k: 'poisonHeal' }]);
+defA('burning_rage', 'Burning Rage', [{ k: 'statusStat', stat: 'melee', m: 1.3 }, { k: 'statusImmune', s: 'brn' }]);
+defA('frozen_focus', 'Frozen Focus', [{ k: 'statusStat', stat: 'magic', m: 1.3 }, { k: 'statusImmune', s: 'frz' }]);
+
+defA('marksman', 'Marksman', { k: 'accBoost', m: 1.15 });
+defA('deadshot', 'Deadshot', { k: 'catAcc', cat: 'ranged', m: 1.3 });
+defA('cleaver', 'Cleaver', { k: 'critRate', m: 2 });
+defA('butcher', 'Butcher', { k: 'critBoost', m: 1.8 });
+defA('slippery', 'Slippery', [{ k: 'evasion', m: 0.8 }, { k: 'statMul', stat: 'spe', m: 1.05 }]);
+defA('blur', 'Blur', [{ k: 'evasion', m: 0.9 }, { k: 'statMul', stat: 'spe', m: 1.1 }]);
+defA('precision_drill', 'Precision Drill', [{ k: 'accBoost', m: 1.1 }, { k: 'critRate', m: 1.25 }]);
+defA('killer_instinct', 'Killer Instinct', [{ k: 'critRate', m: 1.5 }, { k: 'critBoost', m: 1.6 }]);
+
+defA('iron_grip', 'Iron Grip', { k: 'flagBoost', flag: 'punch', m: 1.3 });
+defA('jaws', 'Jaws', { k: 'flagBoost', flag: 'bite', m: 1.3 });
+defA('loudmouth', 'Loudmouth', { k: 'flagBoost', flag: 'sound', m: 1.25 });
+defA('duster', 'Duster', { k: 'flagBoost', flag: 'powder', m: 1.3 });
+defA('grappler', 'Grappler', [{ k: 'flagBoost', flag: 'contact', m: 1.15 }, { k: 'statMul', stat: 'melee', m: 1.05 }]);
+defA('heavy_artillery', 'Heavy Artillery', [{ k: 'powerBand', min: 120, m: 1.3 }, { k: 'accBoost', m: 0.95 }]);
+defA('peashooter', 'Peashooter', { k: 'powerBand', max: 40, m: 1.4 });
+defA('balanced_form', 'Balanced Form', [{ k: 'powerBand', min: 60, m: 1.1 }, { k: 'powerBand', max: 90, m: 1.1 }]);
+
+// ---- batch fourteen: double-edged builds, sovereigns, the journey, and the last of the classics -----
+defA('all_in', 'All In', [{ k: 'statMul', stat: 'melee', m: 1.4 }, { k: 'defMul', stat: 'meleeDef', m: 0.7 }, { k: 'defMul', stat: 'rangedDef', m: 0.7 }]);
+defA('fragile_genius', 'Fragile Genius', [{ k: 'statMul', stat: 'magic', m: 1.4 }, { k: 'allResist', m: 1.15 }]);
+defA('reckless_aim', 'Reckless Aim', [{ k: 'accBoost', m: 1.3 }, { k: 'allResist', m: 1.1 }]);
+defA('blood_price', 'Blood Price', { k: 'hpCostBoost', m: 1.4, r: 1 / 6 });
+defA('short_fuse', 'Short Fuse', [{ k: 'earlyBoost', m: 1.6, until: 2 }, { k: 'defeatist', m: 0.6, at: 0.5 }]);
+defA('overclock', 'Overclock', [{ k: 'statMul', stat: 'spe', m: 1.35 }, { k: 'lowHpResist', m: 1.2 }]);
+defA('brittle_bones', 'Brittle Bones', [{ k: 'critBoost', m: 2 }, { k: 'critShield', m: 1.5 }]);
+defA('loud_and_proud', 'Loud and Proud', [{ k: 'flagBoost', flag: 'sound', m: 1.4 }, { k: 'typeWeak', type: 'Fighting', m: 1.25 }]);
+defA('toxic_gambit', 'Toxic Gambit', [{ k: 'statusStat', stat: 'melee', m: 1.6 }, { k: 'statusDef', stat: 'meleeDef', m: 0.8 }]);
+defA('iron_price', 'Iron Price', [{ k: 'defMul', stat: 'meleeDef', m: 1.4 }, { k: 'defMul', stat: 'magicDef', m: 1.4 }, { k: 'statMul', stat: 'spe', m: 0.7 }]);
+defA('wild_swing', 'Wild Swing', [{ k: 'critRate', m: 3 }, { k: 'accBoost', m: 0.85 }]);
+defA('berserk_rush', 'Berserk Rush', [{ k: 'lowHpBoost', m: 1.6 }, { k: 'lowHpResist', m: 1.2 }]);
+
+defA('worldbreaker', 'Worldbreaker', [{ k: 'moldBreaker' }, { k: 'powerBand', min: 100, m: 1.15 }, { k: 'statMul', stat: 'spe', m: 0.9 }]);
+defA('kingmaker', 'Kingmaker', [{ k: 'entryStat', who: 'foe', stats: { melee: -1, magic: -1 } }, { k: 'statMul', stat: 'spe', m: 0.95 }]);
+defA('eternal_watch', 'Eternal Watch', [{ k: 'turnHeal', r: 1 / 8 }, { k: 'damageCap', r: 1 / 3 }, { k: 'statMul', stat: 'spe', m: 0.85 }]);
+defA('storm_herald', 'Storm Herald', [{ k: 'typeBoost', type: 'Electric', m: 1.2 }, { k: 'addStatus', s: 'par', p: 20 }, { k: 'statusImmune', s: 'par' }]);
+defA('frost_sovereign', 'Frost Sovereign', [{ k: 'typeBoost', type: 'Ice', m: 1.2 }, { k: 'critStatus', s: 'frz', p: 30 }, { k: 'statusImmune', s: 'frz' }]);
+defA('ash_sovereign', 'Ash Sovereign', [{ k: 'typeBoost', type: 'Fire', m: 1.25 }, { k: 'contactStatus', s: 'brn', p: 25 }, { k: 'typeWeak', type: 'Water', m: 1.3 }]);
+defA('deep_sovereign', 'Deep Sovereign', [{ k: 'typeBoost', type: 'Water', m: 1.25 }, { k: 'drainMul', m: 1.3 }, { k: 'typeWeak', type: 'Electric', m: 1.3 }]);
+defA('verdant_sovereign', 'Verdant Sovereign', [{ k: 'typeBoost', type: 'Grass', m: 1.25 }, { k: 'turnHeal', r: 1 / 8 }, { k: 'typeWeak', type: 'Fire', m: 1.3 }]);
+defA('grave_sovereign', 'Grave Sovereign', [{ k: 'typeBoost', type: 'Ghost', m: 1.25 }, { k: 'faintStatus', s: 'own' }, { k: 'evasion', m: 0.9 }]);
+defA('iron_sovereign', 'Iron Sovereign', [{ k: 'typeBoost', type: 'Steel', m: 1.25 }, { k: 'critImmune' }, { k: 'statMul', stat: 'spe', m: 0.85 }]);
+defA('fae_sovereign', 'Fae Sovereign', [{ k: 'typeBoost', type: 'Fairy', m: 1.25 }, { k: 'magicBounce' }, { k: 'typeWeak', type: 'Poison', m: 1.3 }]);
+defA('wyrm_sovereign', 'Wyrm Sovereign', [{ k: 'typeBoost', type: 'Dragon', m: 1.25 }, { k: 'stab', m: 0.4 }, { k: 'typeWeak', type: 'Fairy', m: 1.3 }]);
+
+defA('treasure_hunter', 'Treasure Hunter', [{ k: 'worldGold', m: 1.5 }, { k: 'worldCatch', m: 1.2 }]);
+defA('scholars_heir', "Scholar's Heir", [{ k: 'worldXp', m: 1.6 }, { k: 'statMul', stat: 'spe', m: 0.9 }]);
+defA('merchant', 'Merchant', [{ k: 'worldGold', m: 1.6 }, { k: 'statMul', stat: 'melee', m: 0.95 }]);
+defA('ranger', 'Ranger', [{ k: 'worldCatch', m: 1.6 }, { k: 'statMul', stat: 'spe', m: 0.95 }]);
+defA('naturalist', 'Naturalist', [{ k: 'worldCatch', m: 1.3 }, { k: 'worldXp', m: 1.3 }]);
+defA('prospectors_luck', "Prospector's Luck", [{ k: 'worldGold', m: 1.35 }, { k: 'critRate', m: 1.25 }]);
+defA('tracker', 'Tracker', [{ k: 'worldCatch', m: 1.3 }, { k: 'accBoost', m: 1.1 }]);
+defA('apprentice', 'Apprentice', [{ k: 'worldXp', m: 1.4 }, { k: 'defMul', stat: 'meleeDef', m: 0.95 }]);
+defA('guide', 'Guide', [{ k: 'worldXp', m: 1.25 }, { k: 'benchHeal', r: 1 / 16 }]);
+defA('fence', 'Fence', [{ k: 'worldGold', m: 1.45 }, { k: 'evasion', m: 0.95 }]);
+defA('beast_caller', 'Beast Caller', [{ k: 'worldCatch', m: 1.45 }, { k: 'entryStat', who: 'foe', stats: { spe: -1 } }]);
+defA('curator', 'Curator', [{ k: 'worldGold', m: 1.25 }, { k: 'worldXp', m: 1.25 }, { k: 'worldCatch', m: 1.25 }]);
+
+defA('anticipation', 'Anticipation', [{ k: 'entryStat', who: 'self', stats: { eva: 1 } }, { k: 'firstHitResist', m: 0.7 }]);
+defA('forewarn', 'Forewarn', [{ k: 'entryStat', who: 'self', stats: { acc: 1 } }, { k: 'ignoreEvasion' }]);
+defA('frisk', 'Frisk', [{ k: 'entryStat', who: 'foe', stats: { eva: -1 } }, { k: 'accBoost', m: 1.05 }]);
+defA('rivalry', 'Rivalry', [{ k: 'foeCatBoost', cat: 'melee', m: 1.15 }, { k: 'foeCatBoost', cat: 'ranged', m: 1.15 }]);
+defA('justified', 'Justified', { k: 'hitByTypeStat', type: 'Dark', stats: { melee: 2 } });
+defA('water_veil', 'Water Veil', [{ k: 'statusImmune', s: 'brn' }, { k: 'typeResist', type: 'Fire', m: 0.7 }]);
+defA('leaf_guard', 'Leaf Guard', [{ k: 'statusImmune', s: 'slp' }, { k: 'typeResist', type: 'Grass', m: 0.7 }]);
+defA('vital_spirit', 'Vital Spirit', [{ k: 'statusImmune', s: 'slp' }, { k: 'addFlinch', p: 15 }]);
+defA('own_tempo', 'Own Tempo', [{ k: 'noStatDrop', stat: 'spe' }, { k: 'flinchImmune' }]);
+defA('inner_focus', 'Inner Focus', [{ k: 'flinchImmune' }, { k: 'prioImmune' }]);
+defA('sturdy_jaw', 'Sturdy Jaw', [{ k: 'flagBoost', flag: 'bite', m: 1.2 }, { k: 'critRate', m: 1.25 }]);
+defA('iron_fist', 'Iron Fist', [{ k: 'flagBoost', flag: 'punch', m: 1.2 }, { k: 'critBoost', m: 1.6 }]);
+defA('mega_launcher', 'Mega Launcher', [{ k: 'catBoost', cat: 'ranged', m: 1.25 }, { k: 'powerBand', min: 90, m: 1.1 }]);
+defA('crushing_bite', 'Crushing Bite', [{ k: 'flagBoost', flag: 'bite', m: 1.25 }, { k: 'addFlinch', p: 10 }]);
+defA('sap_sipper', 'Sap Sipper', { k: 'typeAbsorb', type: 'Grass', stats: { melee: 2 } });
+defA('motor_drive', 'Motor Drive', { k: 'typeAbsorb', type: 'Electric', stats: { spe: 2 } });
+defA('flash_fire', 'Flash Fire', { k: 'typeAbsorb', type: 'Fire', stats: { magic: 1 } });
+defA('storm_drain', 'Storm Drain', { k: 'typeAbsorb', type: 'Water', stats: { magic: 1 } });
+defA('well_baked', 'Well Baked', { k: 'typeAbsorb', type: 'Fire', stats: { meleeDef: 2 } });
+defA('earth_eater', 'Earth Eater', { k: 'typeAbsorb', type: 'Ground', stats: { meleeDef: 1 } });
+defA('wind_rider', 'Wind Rider', { k: 'typeAbsorb', type: 'Flying', stats: { melee: 1 } });
+defA('purifying_flame', 'Purifying Flame', { k: 'typeAbsorb', type: 'Fire', heal: 1 / 3 });
+defA('poison_feast', 'Poison Feast', { k: 'typeAbsorb', type: 'Poison', stats: { melee: 1 } });
+defA('ghost_feast', 'Ghost Feast', { k: 'typeAbsorb', type: 'Ghost', heal: 1 / 3 });
+defA('last_word', 'Last Word', [{ k: 'lastOneBoost', m: 1.3 }, { k: 'lastStrike', m: 1.2 }]);
+defA('sky_sovereign', 'Sky Sovereign', [{ k: 'typeBoost', type: 'Flying', m: 1.25 }, { k: 'typeImmune', type: 'Ground' }, { k: 'typeWeak', type: 'Electric', m: 1.3 }]);
+defA('loam_sovereign', 'Loam Sovereign', [{ k: 'typeBoost', type: 'Ground', m: 1.25 }, { k: 'typeImmune', type: 'Electric' }, { k: 'typeWeak', type: 'Water', m: 1.3 }]);
 
 export const ABILITY_IDS = Object.keys(ABILITIES);
 export function getAbility(id) { return ABILITIES[id] || null; }

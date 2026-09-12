@@ -17,9 +17,9 @@ const play = (st, ma = 0, mb = 0) => step(st, [{ type: 'move', index: ma }, { ty
 const near = (a, b, m) => Math.abs(a - b * m) <= Math.ceil(b * 0.03) + 1;
 const dmg = (u, t, id, eff = 1) => calcDamage(u, t, getMove(id), eff, 1, false);
 
-test('six hundred passives, every one distinct in name and in what it does', () => {
-  assert.equal(ABILITY_IDS.length, 600);
-  assert.ok(DATA_ABILITY_IDS.length >= 544, `${DATA_ABILITY_IDS.length} data rows`);
+test('nine hundred passives, every one distinct in name and in what it does', () => {
+  assert.equal(ABILITY_IDS.length, 900);
+  assert.ok(DATA_ABILITY_IDS.length >= 844, `${DATA_ABILITY_IDS.length} data rows`);
   const names = new Map(), signatures = new Map();
   for (const id of ABILITY_IDS) {
     const a = ABILITIES[id];
@@ -38,13 +38,14 @@ test('six hundred passives, every one distinct in name and in what it does', () 
   }
 });
 
-test('the pool sits two to six deep on the roster, cores stay Elemental', () => {
+test('the pool sits one to four deep on the roster, cores stay Elemental', () => {
   const use = {};
   for (const s of SPECIES) for (const ab of s.abilities) use[ab] = (use[ab] || 0) + 1;
   const ordinary = ABILITY_IDS.filter((id) => !isCoreAbility(id));
+  // 886 ordinary passives over 1,790 slots is barely two deep, so the floor is one home each
   for (const id of ordinary) {
-    assert.ok(use[id] >= 2, `${id} is carried by ${use[id] || 0} species`);
-    assert.ok(use[id] <= 6, `${id} is carried by ${use[id]} species`);
+    assert.ok(use[id] >= 1, `${id} is carried by ${use[id] || 0} species`);
+    assert.ok(use[id] <= 4, `${id} is carried by ${use[id]} species`);
   }
   for (const id of ABILITY_IDS.filter(isCoreAbility)) assert.ok(!use[id], `${id} is an Elemental core and should not be on a species`);
   for (const s of SPECIES) {

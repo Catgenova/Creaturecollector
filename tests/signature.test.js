@@ -60,7 +60,8 @@ test('the new effect kinds read as short words and price like the other strong e
   assert.deepEqual(moveEffects(getMove('gone_before_seen')), ['priority +1']);
 });
 
-const mk = (id, level = 50, opts = {}) => makeBattler(speciesGenome(SPECIES_BY_ID[id], makeRng(`sig-${id}`)), level, opts);
+// pinned to a passive that changes no damage, so a species' own passive cannot skew a move's arithmetic
+const mk = (id, level = 50, opts = {}) => makeBattler(speciesGenome(SPECIES_BY_ID[id], makeRng(`sig-${id}`)), level, { ability: 'lucky_streak', ...opts });
 const fight = (a, b, seed = 'sigfight') => createBattle({ sides: [{ name: 'A', party: [a] }, { name: 'B', party: [b] }], seed }).state;
 const play = (state, moveA, moveB) => step(state, [{ type: 'move', index: moveA }, { type: 'move', index: moveB }]);
 
