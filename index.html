@@ -410,6 +410,10 @@ button, .btn { touch-action: manipulation; }
 
 /* the notice board */
 .shop-row.notice .stack .btn { min-width: 84px; }
+
+/* the level modifier on the capture button */
+.btn.capture .cap-mod { margin-left: 6px; font-size: 11px; font-weight: 800; }
+.btn.capture .cap-mod.good { color: #7fe38a; } .btn.capture .cap-mod.bad { color: #ff9b7a; }
 </style>
 </head>
 <body>
@@ -22444,17 +22448,27 @@ function makeBattler(genome, level, opts = {}) {
 function activeOf(state, side) { const s = state.sides[side]; return s.party[s.active]; }
 function aliveCount(side) { return side.party.filter((b) => !b.fainted).length; }
 
+/** Catch odds follow your strongest party member: 5% up or down per level between it and the target, from a fifth to double. */
+const CAPTURE_LEVEL = { perLevel: 0.05, min: 0.2, max: 2 };
+function levelCaptureMul(partyLevel, targetLevel) {
+  if (!Number.isFinite(partyLevel) || !Number.isFinite(targetLevel)) return 1;
+  return clamp(1 + CAPTURE_LEVEL.perLevel * (partyLevel - targetLevel), CAPTURE_LEVEL.min, CAPTURE_LEVEL.max);
+}
+/** The highest level on your side, fainted or not: the party that faces the wild creature. */
+function partyTopLevel(state) { return Math.max(...state.sides[0].party.map((p) => p.level)); }
+
 /**
  * Chance (0..1) that a capture attempt on this battler succeeds right now.
- * Low HP and status help; rarer species and fusions resist more.
+ * Low HP and status help; rarer species and fusions resist more; a party whose strongest member
+ * is below the target's level finds it harder (5% per level), one above it easier.
  */
-function captureChance(b) {
+function captureChance(b, partyLevel) {
   const sp = b.genome && b.genome.species ? SPECIES_BY_ID[b.genome.species] : null;
   let base = sp ? (sp.tier === 'rare' ? 0.45 : sp.tier === 'uncommon' ? 0.7 : 1) : 0.7;
   if (b.genome && b.genome.gen > 0) base *= 0.7;
   const hpFactor = 1 - (2 / 3) * (b.hp / b.maxHp);
   const statusMul = b.status === 'slp' || b.status === 'frz' ? 2 : b.status ? 1.5 : 1;
-  return clamp(0.08 + 0.72 * hpFactor * base * statusMul, 0.03, 0.95);
+  return clamp((0.08 + 0.72 * hpFactor * base * statusMul) * levelCaptureMul(partyLevel, b.level), 0.03, 0.95);
 }
 
 /**
@@ -22594,7 +22608,7 @@ function step(input, actions) {
 
 function attemptCapture(state, events, rng) {
   const target = activeOf(state, 1);
-  const perShake = Math.cbrt(captureChance(target));
+  const perShake = Math.cbrt(captureChance(target, partyTopLevel(state)));
   let shakes = 0;
   for (let k = 0; k < 3; k++) { if (rng.chance(perShake)) shakes++; else break; }
   if (shakes === 3) {
@@ -23575,8 +23589,11 @@ function renderFightControls(f) {
   const stock = itemStock(st);
   if (stock > 0) row.append(h('button', { class: 'btn', type: 'button', onclick: () => openFightItems(f) }, `Items (${stock})`));
   if (legal.some((a) => a.type === 'capture')) {
-    const pct = Math.round(captureChance(foe) * 100);
-    row.prepend(h('button', { class: 'btn capture', type: 'button', onclick: () => doFightStep(f, { type: 'capture' }) }, `Capture · ${pct}%`));
+    const top = partyTopLevel(st), mul = levelCaptureMul(top, foe.level);
+    const pct = Math.round(captureChance(foe, top) * 100);
+    const diff = Math.round((mul - 1) * 100);
+    const why = diff === 0 ? 'Your strongest matches its level.' : `Your strongest is Lv ${top} against its Lv ${foe.level}: catch odds ${diff > 0 ? '+' : ''}${diff}%.`;
+    row.prepend(h('button', { class: 'btn capture', type: 'button', title: why, onclick: () => doFightStep(f, { type: 'capture' }) }, `Capture · ${pct}%`, diff ? h('span', { class: `cap-mod ${diff > 0 ? 'good' : 'bad'}` }, `${diff > 0 ? '+' : ''}${diff}%`) : null));
   }
   el.append(grid, row, util);
 }
@@ -26125,7 +26142,9 @@ function owEncounterView(root, j) {
     creatureEl(f.genome, { size: enc.foes.length > 4 ? 70 : enc.foes.length > 2 ? 78 : 120, facing: 'left', animate: enc.foes.length <= 2, level: f.level }),
     h('span', {}, `${f.genome.name} · Lv ${f.level}`, stageBadge(f.level)))));
   const back = enc.kind === 'wild' ? 'Run' : enc.kind === 'council' ? 'Retreat (forfeits the run)' : enc.kind === 'tower' ? 'Back down' : 'Back out';
-  const intro = enc.kind === 'wild' ? (enc.alpha ? 'An alpha, well above the local level. Worth more, and harder to catch.' : `A wild creature from the ${enc.type ? `${enc.type} ` : ''}patch. Weaken it to capture it.`)
+  const top = Math.max(...j.party.map((m) => m.level)), capMod = enc.kind === 'wild' ? Math.round((levelCaptureMul(top, enc.foes[0].level) - 1) * 100) : 0;
+  const capNote = capMod === 0 ? '' : ` Your strongest is Lv ${top} to its Lv ${enc.foes[0].level}: catch odds ${capMod > 0 ? '+' : ''}${capMod}%.`;
+  const intro = enc.kind === 'wild' ? (enc.alpha ? `An alpha, well above the local level. Worth more, and harder to catch.${capNote}` : `A wild creature from the ${enc.type ? `${enc.type} ` : ''}patch. Weaken it to capture it.${capNote}`)
     : enc.kind === 'council' ? `${enc.line} Fight ${enc.stage + 1} of ${JOURNEY.councilFights}.` : enc.kind === 'boss' ? `Win for the ${enc.badge}.`
     : enc.kind === 'tower' ? `${enc.line} Six on six at level ${enc.level}. A win pays experience and gold${towerRecord(j, enc.floor, enc.level) ? ', a quarter of the gold now this floor is beaten at this level' : ''}.` : 'A friendly match. No captures.';
   root.append(

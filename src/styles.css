@@ -394,3 +394,7 @@ button, .btn { touch-action: manipulation; }
 
 /* the notice board */
 .shop-row.notice .stack .btn { min-width: 84px; }
+
+/* the level modifier on the capture button */
+.btn.capture .cap-mod { margin-left: 6px; font-size: 11px; font-weight: 800; }
+.btn.capture .cap-mod.good { color: #7fe38a; } .btn.capture .cap-mod.bad { color: #ff9b7a; }

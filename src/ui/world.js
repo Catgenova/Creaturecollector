@@ -7,7 +7,7 @@ import { creatureEl, typeChips, section, stageBadge, moveInfoEl } from './common
 import { freshSeed, makeRng } from '../core/rng.js';
 import { openSheet } from './sheet.js';
 import { mountFight, xpRow } from './fight.js';
-import { STATUS_INFO } from '../battle/engine.js';
+import { STATUS_INFO, levelCaptureMul } from '../battle/engine.js';
 import { stageOf, stageName } from '../data/evolution.js';
 import { loadSave, persistSave, exportSave, importSave, recordCollection, retireJourney } from '../game/save.js';
 import { memberMaxHp, xpProgress, learnMove, moveMember, setLead, canFight, releaseMember, renameMember, setLocked } from '../game/party.js';
@@ -383,7 +383,9 @@ function owEncounterView(root, j) {
     creatureEl(f.genome, { size: enc.foes.length > 4 ? 70 : enc.foes.length > 2 ? 78 : 120, facing: 'left', animate: enc.foes.length <= 2, level: f.level }),
     h('span', {}, `${f.genome.name} · Lv ${f.level}`, stageBadge(f.level)))));
   const back = enc.kind === 'wild' ? 'Run' : enc.kind === 'council' ? 'Retreat (forfeits the run)' : enc.kind === 'tower' ? 'Back down' : 'Back out';
-  const intro = enc.kind === 'wild' ? (enc.alpha ? 'An alpha, well above the local level. Worth more, and harder to catch.' : `A wild creature from the ${enc.type ? `${enc.type} ` : ''}patch. Weaken it to capture it.`)
+  const top = Math.max(...j.party.map((m) => m.level)), capMod = enc.kind === 'wild' ? Math.round((levelCaptureMul(top, enc.foes[0].level) - 1) * 100) : 0;
+  const capNote = capMod === 0 ? '' : ` Your strongest is Lv ${top} to its Lv ${enc.foes[0].level}: catch odds ${capMod > 0 ? '+' : ''}${capMod}%.`;
+  const intro = enc.kind === 'wild' ? (enc.alpha ? `An alpha, well above the local level. Worth more, and harder to catch.${capNote}` : `A wild creature from the ${enc.type ? `${enc.type} ` : ''}patch. Weaken it to capture it.${capNote}`)
     : enc.kind === 'council' ? `${enc.line} Fight ${enc.stage + 1} of ${JOURNEY.councilFights}.` : enc.kind === 'boss' ? `Win for the ${enc.badge}.`
     : enc.kind === 'tower' ? `${enc.line} Six on six at level ${enc.level}. A win pays experience and gold${towerRecord(j, enc.floor, enc.level) ? ', a quarter of the gold now this floor is beaten at this level' : ''}.` : 'A friendly match. No captures.';
   root.append(

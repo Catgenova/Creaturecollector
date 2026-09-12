@@ -65,17 +65,27 @@ export function makeBattler(genome, level, opts = {}) {
 export function activeOf(state, side) { const s = state.sides[side]; return s.party[s.active]; }
 export function aliveCount(side) { return side.party.filter((b) => !b.fainted).length; }
 
+/** Catch odds follow your strongest party member: 5% up or down per level between it and the target, from a fifth to double. */
+export const CAPTURE_LEVEL = { perLevel: 0.05, min: 0.2, max: 2 };
+export function levelCaptureMul(partyLevel, targetLevel) {
+  if (!Number.isFinite(partyLevel) || !Number.isFinite(targetLevel)) return 1;
+  return clamp(1 + CAPTURE_LEVEL.perLevel * (partyLevel - targetLevel), CAPTURE_LEVEL.min, CAPTURE_LEVEL.max);
+}
+/** The highest level on your side, fainted or not: the party that faces the wild creature. */
+export function partyTopLevel(state) { return Math.max(...state.sides[0].party.map((p) => p.level)); }
+
 /**
  * Chance (0..1) that a capture attempt on this battler succeeds right now.
- * Low HP and status help; rarer species and fusions resist more.
+ * Low HP and status help; rarer species and fusions resist more; a party whose strongest member
+ * is below the target's level finds it harder (5% per level), one above it easier.
  */
-export function captureChance(b) {
+export function captureChance(b, partyLevel) {
   const sp = b.genome && b.genome.species ? SPECIES_BY_ID[b.genome.species] : null;
   let base = sp ? (sp.tier === 'rare' ? 0.45 : sp.tier === 'uncommon' ? 0.7 : 1) : 0.7;
   if (b.genome && b.genome.gen > 0) base *= 0.7;
   const hpFactor = 1 - (2 / 3) * (b.hp / b.maxHp);
   const statusMul = b.status === 'slp' || b.status === 'frz' ? 2 : b.status ? 1.5 : 1;
-  return clamp(0.08 + 0.72 * hpFactor * base * statusMul, 0.03, 0.95);
+  return clamp((0.08 + 0.72 * hpFactor * base * statusMul) * levelCaptureMul(partyLevel, b.level), 0.03, 0.95);
 }
 
 /**
@@ -215,7 +225,7 @@ export function step(input, actions) {
 
 function attemptCapture(state, events, rng) {
   const target = activeOf(state, 1);
-  const perShake = Math.cbrt(captureChance(target));
+  const perShake = Math.cbrt(captureChance(target, partyTopLevel(state)));
   let shakes = 0;
   for (let k = 0; k < 3; k++) { if (rng.chance(perShake)) shakes++; else break; }
   if (shakes === 3) {

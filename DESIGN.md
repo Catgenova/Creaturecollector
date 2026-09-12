@@ -310,8 +310,13 @@ through `src/game/party.js` and `src/game/save.js`.
   Odds shown on the button: `0.08 + 0.72 × hpFactor × tier × status`, where
   hpFactor runs from 1/3 at full HP to 1 at none, tier is 1 / 0.7 / 0.45 for
   common / uncommon / rare (fusions × 0.7), status × 1.5 (sleep, freeze × 2),
-  capped at 95%. Three shake checks at the cube root of the odds. A capture
-  costs the turn; success ends the battle as a win.
+  then × a level factor: 1 + 0.05 per level your strongest party member
+  (fainted or not) stands above the target, or below it, clamped between 0.2
+  and 2, so a Lv 30 best against a Lv 32 wild is × 0.9 and against a Lv 25 is
+  × 1.25. Capped at 95% and floored at 3%. Three shake checks at the cube root
+  of the odds. A capture costs the turn; success ends the battle as a win. The
+  button shows the odds with the level factor beside them, and the encounter
+  card says it in words.
 - **XP and levels.** Pokémon Red's pace. `xpForLevel(L) = L³` (the
   medium-fast group). A defeated or caught foe yields `bst × 0.15 × stage × L
   / 7` (`XP` in `party.js`; stage 1 / 1.6 / 2.4 for its evolution stage, so a

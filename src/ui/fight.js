@@ -4,7 +4,7 @@
 import { h, clear, toast, appendChildren } from './dom.js';
 import { typeChips, creatureEl, styleChip, stageBadge } from './common.js';
 import { makeRng } from '../core/rng.js';
-import { step, legalActions, activeOf, describeEvent, moveEffectiveness, aliveCount, captureChance, STATUS_INFO } from '../battle/engine.js';
+import { step, legalActions, activeOf, describeEvent, moveEffectiveness, aliveCount, captureChance, levelCaptureMul, partyTopLevel, STATUS_INFO } from '../battle/engine.js';
 import { chooseAction } from '../battle/ai.js';
 import { getMove, accuracyText, moveEffects } from '../data/moves.js';
 import { ITEM_IDS, getItem } from '../data/items.js';
@@ -332,8 +332,11 @@ function renderFightControls(f) {
   const stock = itemStock(st);
   if (stock > 0) row.append(h('button', { class: 'btn', type: 'button', onclick: () => openFightItems(f) }, `Items (${stock})`));
   if (legal.some((a) => a.type === 'capture')) {
-    const pct = Math.round(captureChance(foe) * 100);
-    row.prepend(h('button', { class: 'btn capture', type: 'button', onclick: () => doFightStep(f, { type: 'capture' }) }, `Capture · ${pct}%`));
+    const top = partyTopLevel(st), mul = levelCaptureMul(top, foe.level);
+    const pct = Math.round(captureChance(foe, top) * 100);
+    const diff = Math.round((mul - 1) * 100);
+    const why = diff === 0 ? 'Your strongest matches its level.' : `Your strongest is Lv ${top} against its Lv ${foe.level}: catch odds ${diff > 0 ? '+' : ''}${diff}%.`;
+    row.prepend(h('button', { class: 'btn capture', type: 'button', title: why, onclick: () => doFightStep(f, { type: 'capture' }) }, `Capture · ${pct}%`, diff ? h('span', { class: `cap-mod ${diff > 0 ? 'good' : 'bad'}` }, `${diff > 0 ? '+' : ''}${diff}%`) : null));
   }
   el.append(grid, row, util);
 }

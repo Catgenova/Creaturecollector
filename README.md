@@ -114,7 +114,8 @@ pass as the fallback for anything new.
 Overworld: the main mode is now a large seeded map with eighteen biomes around
 a hub town, one per class in rising difficulty. Habitat patches spawn the
 class's species by element type, with stronger and rarer creatures turning up
-less often; trainers on the roads fight when asked; each biome's Warden holds
+less often; catch odds follow your strongest party member, 5% up or down per
+level between it and the wild creature; trainers on the roads fight when asked; each biome's Warden holds
 a badge; camps heal and set the respawn point; a shrine fuses; trainers pay
 gold that the Market turns into potions, charms and single-use move scrolls for your
 Bag (potions work in battle too, and take the turn; a creature learns
