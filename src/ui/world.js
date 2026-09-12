@@ -3,7 +3,7 @@
 // Wardens in their lairs, the Council Spire, camps that heal and a shrine that fuses.
 // Fights hand off to the shared fight view and come back to the same spot.
 import { h, clear, toast, copyText, appendChildren } from './dom.js';
-import { creatureEl, typeChips, section, stageBadge, moveInfoEl } from './common.js';
+import { creatureEl, typeChips, section, stageBadge, moveInfoEl, dexMark } from './common.js';
 import { freshSeed, makeRng } from '../core/rng.js';
 import { openSheet } from './sheet.js';
 import { mountFight, xpRow } from './fight.js';
@@ -384,10 +384,11 @@ function owEncounterView(root, j) {
   const elem = enc.kind === 'wild' ? elementalOf(enc.foes[0].genome) : null;
   const foes = h('div', { class: `foes${enc.foes.length <= 2 ? ' few' : ''}` }, enc.foes.map((f) => h('div', { class: 'foe-card' },
     creatureEl(f.genome, { size: enc.foes.length > 4 ? 70 : enc.foes.length > 2 ? 78 : 120, facing: 'left', animate: enc.foes.length <= 2, level: f.level }),
-    h('span', {}, `${f.genome.name} · Lv ${f.level}`, stageBadge(f.level)))));
+    h('span', {}, enc.kind === 'wild' && f.genome.species ? dexMark(dexStatus(ow.save, f.genome.species)) : null, `${f.genome.name} · Lv ${f.level}`, stageBadge(f.level)))));
+  const caughtBefore = enc.kind === 'wild' && enc.foes[0].genome.species && dexStatus(ow.save, enc.foes[0].genome.species) === 'caught';
   const back = enc.kind === 'wild' ? 'Run' : enc.kind === 'council' ? 'Retreat (forfeits the run)' : enc.kind === 'tower' ? 'Back down' : 'Back out';
   const top = Math.max(...j.party.map((m) => m.level)), capMod = enc.kind === 'wild' ? Math.round((levelCaptureMul(top, enc.foes[0].level) - 1) * 100) : 0;
-  const capNote = capMod === 0 ? '' : ` Your strongest is Lv ${top} to its Lv ${enc.foes[0].level}: catch odds ${capMod > 0 ? '+' : ''}${capMod}%.`;
+  const capNote = (capMod === 0 ? '' : ` Your strongest is Lv ${top} to its Lv ${enc.foes[0].level}: catch odds ${capMod > 0 ? '+' : ''}${capMod}%.`) + (enc.kind === 'wild' ? (caughtBefore ? ' You have caught this species before.' : ' A species you have not caught yet.') : '');
   const intro = enc.kind === 'wild' ? (enc.alpha ? `An alpha, well above the local level. Worth more, and harder to catch.${capNote}` : `A wild creature from the ${enc.type ? `${enc.type} ` : ''}patch. Weaken it to capture it.${capNote}`)
     : enc.kind === 'council' ? `${enc.line} Fight ${enc.stage + 1} of ${JOURNEY.councilFights}.` : enc.kind === 'boss' ? `Win for the ${enc.badge}.`
     : enc.kind === 'tower' ? `${enc.line} Six on six at level ${enc.level}. A win pays experience and gold${towerRecord(j, enc.floor, enc.level) ? ', a quarter of the gold now this floor is beaten at this level' : ''}.` : 'A friendly match. No captures.';
@@ -416,6 +417,7 @@ function owStartFight() {
   ow.root.append(h('div', { class: 'floor-head compact' }, h('b', {}, `${enc.name}${enc.kind === 'council' ? ` · fight ${enc.stage + 1} of ${JOURNEY.councilFights}` : ''}`)), host);
   ow.fight = mountFight(host, {
     state: built.state, events: built.events, names: ['You', enc.name], wild: enc.capturable, fast: ow.save.settings.fast,
+    dexStatus: (g) => (g && g.species ? dexStatus(ow.save, g.species) : null),
     onQuit: enc.kind === 'wild' ? (state) => { fleeEncounter(j, state); owSave(); renderWorldScreen(ow.root); } : null,
     onEnd: (state) => {
       const { report } = applyJourneyBattle(j, state);

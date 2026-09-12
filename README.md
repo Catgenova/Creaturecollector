@@ -88,7 +88,9 @@ Fusiondex: a dex of all 895 species, per class, with everything you have
 faced marked seen and everything you have chosen, caught or fused marked
 caught, silhouettes for the seen, numbered blanks for the rest, a habitat hint
 on every card, a gallery of your fusions, and milestone rewards (gold and
-charms) that pay out once per save. Colour morphs join the hunt: one wild
+charms) that pay out once per save. Wild creatures wear a dex mark on the
+encounter card and in the fight: a filled ring if you have caught the species
+before, a hollow one if not. Colour morphs join the hunt: one wild
 creature in 256 is albino, melanistic or pastel, announced by name, kept
 through fusion and tracked on the dex card.
 

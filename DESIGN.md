@@ -1096,7 +1096,10 @@ the collection and the journey so older saves fill in on load.
   numbered blanks that give away only the tier. Cards carry a habitat hint
   (the class's region and the species' types) and morph dots. Tapping a known
   card opens the ordinary creature sheet, cycling through the class's known
-  species. The Fusions tab is the collection's fused creatures; the Rewards
+  species. A wild encounter carries the dex mark beside the creature's name,
+  on its card and in the fight's foe panel: a filled gold ring for a species
+  caught before, a hollow one for a species not yet caught, and the card says
+  which in words. The Fusions tab is the collection's fused creatures; the Rewards
   tab lists eight milestones (10, 25, 50, 100, 200, 400, 700 and all 895
   species caught) paying gold or a charm into the current journey, once per
   save.

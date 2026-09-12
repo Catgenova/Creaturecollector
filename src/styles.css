@@ -407,3 +407,9 @@ button, .btn { touch-action: manipulation; }
 
 /* the Bounty Office */
 .shop-row.bounty .shop-info b { display: flex; align-items: center; gap: 4px; flex-wrap: wrap; }
+
+/* dex mark beside a wild creature's name: filled when its species is caught, hollow when not yet */
+.dex-mark { display: inline-block; margin-right: 4px; font-size: 13px; line-height: 1; vertical-align: middle; }
+.dex-mark.caught { color: var(--acc); text-shadow: 0 0 6px rgba(245, 197, 24, .6); }
+.dex-mark.new { color: var(--fg2); opacity: .8; }
+.foe-card .dex-mark { margin-right: 3px; }

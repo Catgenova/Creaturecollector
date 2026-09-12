@@ -41,6 +41,12 @@ export function creatureEl(genome, opts) {
   return svgEl(renderCreatureSvg(genome, opts));
 }
 
+/** A dex mark for a wild creature: a filled ring when its species has been caught before, a hollow one when not yet. */
+export function dexMark(status) {
+  if (status === 'caught') return h('span', { class: 'dex-mark caught', title: 'Caught before: this species is in your dex', 'aria-label': 'Caught before' }, '◉');
+  return h('span', { class: 'dex-mark new', title: 'Not yet caught', 'aria-label': 'Not yet caught' }, '◌');
+}
+
 export function section(title, ...children) {
   return [h('h3', { class: 'sec' }, title), ...children];
 }

@@ -2,7 +2,7 @@
 // events, takes the player's choices, asks the AI for the foe's, and reports
 // the final state. Used by the sandbox Battle tab and by the Arena.
 import { h, clear, toast, appendChildren } from './dom.js';
-import { typeChips, creatureEl, styleChip, stageBadge } from './common.js';
+import { typeChips, creatureEl, styleChip, stageBadge, dexMark } from './common.js';
 import { makeRng } from '../core/rng.js';
 import { step, legalActions, activeOf, describeEvent, moveEffectiveness, aliveCount, captureChance, levelCaptureMul, partyTopLevel, STATUS_INFO } from '../battle/engine.js';
 import { chooseAction } from '../battle/ai.js';
@@ -28,6 +28,7 @@ export function mountFight(root, cfg) {
     root, state: cfg.state, names: cfg.names || ['You', 'Foe'], wild: Boolean(cfg.wild), auto: Boolean(cfg.auto), fast: Boolean(cfg.fast),
     busy: true, log: [], els: null, token: 1, alive: true, sheetClose: null,
     onEnd: cfg.onEnd || (() => {}), onQuit: cfg.onQuit || null, resultButtons: cfg.resultButtons || null, ended: false,
+    dexStatus: cfg.dexStatus || null, // (genome) -> 'caught' | 'seen' | 'unseen' | null, for the mark beside a wild foe's name
   };
   buildFight(f);
   playFightEvents(f, cfg.events || []).then((ok) => { if (ok) afterFightStep(f); });
@@ -78,7 +79,7 @@ function renderPanel(f, i) {
   el.onclick = open;
   el.onkeydown = (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); open(); } };
   appendChildren(clear(el), [
-    h('div', { class: 'panel-head' }, h('b', {}, b.name), h('span', { class: 'lvl' }, `Lv ${b.level}`), stageBadge(b.level), styleChip(null, b.style),
+    h('div', { class: 'panel-head' }, i === 1 && f.wild && f.dexStatus && f.dexStatus(b.genome) ? dexMark(f.dexStatus(b.genome)) : null, h('b', {}, b.name), h('span', { class: 'lvl' }, `Lv ${b.level}`), stageBadge(b.level), styleChip(null, b.style),
       b.status ? h('span', { class: `status st-${b.status}` }, STATUS_INFO[b.status].short) : null,
       h('span', { class: 'panel-info', 'aria-hidden': 'true' }, 'i')),
     typeChips(b.types),
