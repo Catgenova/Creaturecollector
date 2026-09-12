@@ -1206,6 +1206,18 @@ Batches so far:
   Ranged and Magic times 1.15, contact times 1.25, sound times 1.3, moves of
   100 power or more, multi-hit and draining moves).
 
+- **Batch 2 (61).** Twelve entry effects (a stat of your own up, or one of
+  the foe's down, on entry), nine end-of-turn effects (Overgrowth, Second
+  Skin, the chance-a-turn risers, Venom Feeder, Rot Aura and Dread Aura),
+  three knockout rewards, eight contact punishments (Barbed, Frost Fur,
+  Sleep Spores, Spore Cloud, Gooey and the stat-sapping hides), twelve
+  reactions to being hit (Stoked, Stamina, Weak Armor, Righteous, Rattled,
+  Water Compaction, Steam Engine, Thermal Exchange, Cotton Down, Sapping
+  Hide, Anger Point), Ricochet and Backlash, Natural Cure and Rest Easy,
+  Berserk, Anger Shell, Last Stand and Multiscale, Compound Eyes, Sand Veil,
+  Tangled Feet and No Guard, and Sniper, Super Luck, Shell Armor, Merciless
+  and Steady Nerves.
+
 Distribution: a script hands each new passive to about six species by
 affinity (its type first, then its style, then anywhere), preferring species
 not yet touched, replacing the second ability and then the first, and every
