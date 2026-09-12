@@ -1446,6 +1446,32 @@ on 498, the median move is learned by six species rather than eleven, and 525
 of the 531 moves appear in some learnset. A test now also refuses a learnset
 that repeats a move, which caught one that already did.
 
+## The Rookery (implemented)
+
+A creature's passive was rolled once, at capture, from the two its species
+carries, and could never change. With nine hundred passives in the game that
+was a lot of depth the player could not touch, so the Crossroads gained a
+fourth building on its south side, next to the notice board.
+
+- **A swap** turns a creature over to another passive its own bloodline
+  carries: the other one of its species' pair, or, for a fusion, any passive
+  from either parent species. It costs 900 gold plus 20 a level, so turning
+  over a level-70 fusion is a real decision rather than pocket change, and it
+  can always be swapped back.
+- **A wild draw** is dearer (3,500 plus 40 a level) and cannot be chosen. It
+  takes one at random from the passives that suit the creature: any whose
+  entries name one of its types, or whose category or stat matches its
+  fighting style. A level-40 Fire creature has around sixty of those. The
+  draw is deterministic per creature and draw count, and it asks for a second
+  tap before it spends the gold.
+- **An Elemental keeps its core.** The core passive is what makes it an
+  Elemental, so the Rookery refuses, and says so.
+
+The hut is a 3 x 2 block with its door facing the square, and stepping into
+the doorway opens it like the Market, the Storage, the Tower and the Bounty
+Office. The map changed, so the world version moves to 12 and saved journeys
+regenerate their map.
+
 ## Mobile view (implemented)
 
 The game was drawn for a phone from the start (portrait layout, 44px targets,

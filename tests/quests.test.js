@@ -146,5 +146,5 @@ test('the notice board stands in the town square, is faced rather than walked on
   assert.ok(!back.quests.open.some((q) => q.kind === 'steal_moon'));
   assert.ok(back.quests.issued >= 3);
   assert.equal(normalizeBoard(null).open.length, 0);
-  assert.equal(WORLD.version, 11, 'the map changed, so saved positions reset');
+  assert.equal(WORLD.version, 12, 'the map changed, so saved positions reset');
 });

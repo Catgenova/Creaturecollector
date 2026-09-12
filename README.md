@@ -70,6 +70,13 @@ more Melee Atk and less Ranged Atk, Timid more Speed and less Melee Atk);
 seven are even. HP is never touched. A fusion takes a parent's nature, and
 the creature sheet marks the lean on the stat bars.
 
+The Rookery: a hut beside the notice board where a creature's passive can be
+turned over. A swap moves it to another passive its own bloodline carries (the
+other of its species' pair, or any parent's for a fusion) for 900 gold plus 20
+a level, and can be swapped back. A wild draw costs 3,500 plus 40 a level,
+cannot be chosen, and takes one at random from the passives that suit the
+creature's types or its fighting style. An Elemental keeps its core.
+
 Bounty Office: a small house on the square with five standing bounties, each
 wanting a fusion of a given type. Hand over any shrine-born creature carrying
 that type, from the party or storage, for the listed gold times a level bonus

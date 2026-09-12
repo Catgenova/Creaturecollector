@@ -98,5 +98,5 @@ test('the Bounty Office stands on the square with its door walkable, and steppin
   let ev = null;
   for (const p of path) { const dir = p.x > j.player.x ? 'right' : p.x < j.player.x ? 'left' : p.y > j.player.y ? 'down' : 'up'; const r = tryMove(j, dir); if (r.event) ev = r.event; }
   assert.ok(ev && ev.kind === 'bounty', JSON.stringify(ev));
-  assert.equal(WORLD.version, 11);
+  assert.equal(WORLD.version, 12);
 });

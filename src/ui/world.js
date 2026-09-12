@@ -23,6 +23,7 @@ import { MORPHS } from '../creature/palette.js';
 import { CLADE_IDS } from '../data/clades.js';
 import { openQuests, questReady, rewardText, claimQuest, abandonQuest } from '../game/quests.js';
 import { openBounties, bountyCandidates, bountyPayout, bountyLevelMul, turnInBounty } from '../game/bounties.js';
+import { swapChoices, wildPool, swapPrice, drawPrice, rookeryBlock, swapPassive, wildDraw } from '../game/rookery.js';
 import { TOWER, TOWER_TRAINERS, challengeTower, towerRecord } from '../game/tower.js';
 import { abilityName } from '../data/abilities.js';
 import { getMove } from '../data/moves.js';
@@ -284,6 +285,7 @@ function owAfterStep(event) {
   if (event.kind === 'camp') { owSave(); sfx.heal(); toast(event.place.id === 'hub' ? 'Rested at the Crossroads. Party healed.' : event.quests && event.quests.length ? 'Camp reached. Party healed. A notice is done: claim it at the board.' : 'Camp reached. Party healed.'); owRefreshHud(); return; }
   if (event.kind === 'board') { owBoardSheet(j); return; }
   if (event.kind === 'bounty') { owBountySheet(j); return; }
+  if (event.kind === 'rookery') { owRookerySheet(j); return; }
   if (event.kind === 'lair') { owLairDialog(event); return; }
   if (event.kind === 'spire') { owSpireDialog(event); return; }
   if (event.kind === 'shrine') { owShrineSheet(j); return; }
@@ -313,6 +315,7 @@ function owInteract() {
   if (here === TILE.storageDoor) { owStorageSheet(j); return; }
   if (here === TILE.towerDoor) { owTowerSheet(j); return; }
   if (here === TILE.bountyDoor) { owBountySheet(j); return; }
+  if (here === TILE.rookeryDoor) { owRookerySheet(j); return; }
   if (here === TILE.camp) { toast('The fire is warm. Your party is rested.'); return; }
   if (tileAt(world, f.x, f.y) === TILE.board) { owBoardSheet(j); return; }
   const ht = habitatTypeAt(world, f.x, f.y);
@@ -585,7 +588,7 @@ function owMapSheet(j) {
   const ctx = c.getContext('2d');
   for (let y = 0; y < world.h; y++) for (let x = 0; x < world.w; x++) {
     const t = world.tiles[y * world.w + x], r = REGIONS[world.biomes[world.bio[y * world.w + x]].clade];
-    ctx.fillStyle = t === TILE.water ? r.water : t === TILE.wall ? r.wallColor : t === TILE.path || t === TILE.door ? r.path : t === TILE.hub || t === TILE.shrine || t === TILE.spireDoor ? HUB.paving : t === TILE.habitat ? r.habitat : t === TILE.lair || t === TILE.spire || t === TILE.tower || t === TILE.bounty ? '#1a1a22' : r.ground;
+    ctx.fillStyle = t === TILE.water ? r.water : t === TILE.wall ? r.wallColor : t === TILE.path || t === TILE.door ? r.path : t === TILE.hub || t === TILE.shrine || t === TILE.spireDoor ? HUB.paving : t === TILE.habitat ? r.habitat : t === TILE.lair || t === TILE.spire || t === TILE.tower || t === TILE.bounty || t === TILE.rookery ? '#1a1a22' : r.ground;
     ctx.fillRect(x * S, y * S, S, S);
   }
   const dot = (p, color, rad) => { ctx.fillStyle = color; ctx.beginPath(); ctx.arc(p.x * S + S / 2, p.y * S + S / 2, rad, 0, Math.PI * 2); ctx.fill(); };
@@ -933,6 +936,62 @@ function owBountySheet(j) {
   owSheet('Bounty Office', body, () => owRefreshHud());
 }
 
+// ---- the Rookery ------------------------------------------------------------------
+
+/** Turn a creature's passive over: to another its bloodline carries, or to one drawn from the wild. */
+function owRookerySheet(j) {
+  const body = h('div');
+  const draw = () => {
+    clear(body);
+    const list = h('div', { class: 'party-list' });
+    const roster = [...(j.party || []), ...(j.box || [])];
+    for (const m of roster) {
+      const swapBlock = rookeryBlock(m, 'swap'), drawBlock = rookeryBlock(m, 'draw');
+      const options = swapChoices(m.genome);
+      const swapTo = options[0];
+      const swapGold = swapPrice(m), drawGold = drawPrice(m);
+      const line = swapTo
+        ? h('span', { class: 'hint', style: { margin: 0 } }, 'Would become ', h('b', {}, abilityName(swapTo)))
+        : h('span', { class: 'hint', style: { margin: 0 } }, swapBlock || '');
+      list.append(owMemberRow(j, m, [
+        line,
+        h('button', {
+          class: `btn small${!swapBlock && j.gold >= swapGold ? ' primary' : ''}`, type: 'button',
+          disabled: Boolean(swapBlock) || j.gold < swapGold, title: swapBlock || `${swapGold.toLocaleString()} gold`,
+          onclick: () => {
+            const r = swapPassive(j, m.uid);
+            if (!r.ok) { toast(r.reason); return; }
+            owSave(); sfx.levelUp(); toast(`${r.member.genome.name}: ${abilityName(r.from)} → ${abilityName(r.to)} for ${r.paid.toLocaleString()} gold.`);
+            render(); owRefreshHud();
+          },
+        }, `Swap ◆ ${swapGold.toLocaleString()}`),
+        h('button', {
+          class: 'btn small', type: 'button',
+          disabled: Boolean(drawBlock) || j.gold < drawGold, title: drawBlock || `A passive suited to its types or style, ${drawGold.toLocaleString()} gold`,
+          onclick: () => {
+            if (ow.confirmDraw !== m.uid) { ow.confirmDraw = m.uid; toast('Tap again: a wild draw cannot be chosen or undone'); setTimeout(() => { if (ow.confirmDraw === m.uid) ow.confirmDraw = null; }, 4000); return; }
+            ow.confirmDraw = null;
+            const r = wildDraw(j, m.uid);
+            if (!r.ok) { toast(r.reason); return; }
+            owSave(); sfx.win(); toast(`${r.member.genome.name} drew ${abilityName(r.to)} for ${r.paid.toLocaleString()} gold.`);
+            render(); owRefreshHud();
+          },
+        }, `Wild ◆ ${drawGold.toLocaleString()}`),
+      ]));
+    }
+    const sample = roster.length ? wildPool(roster[0].genome).length : 0;
+    appendChildren(body, [
+      h('p', { class: 'hint' }, 'A swap turns a creature over to another passive its own bloodline carries, for gold that rises with its level. '
+        + `A wild draw is dearer and cannot be chosen: it takes one at random from the passives that suit its types or its fighting style${sample ? ` (${sample} of them for the first on this list)` : ''}. `
+        + 'An Elemental keeps its core.'),
+      list,
+    ]);
+  };
+  const render = () => owKeepScroll(body, draw);
+  render();
+  owSheet('The Rookery', body, () => owRefreshHud());
+}
+
 // ---- the notice board -------------------------------------------------------------
 
 /** The board's three notices: what to do, how far along, what it pays; Claim when done, or tear one down for another. */
@@ -1201,7 +1260,7 @@ function owDraw(ts) {
       else if (t === TILE.path || t === TILE.door) ground = region.path;
       else if (t === TILE.water) ground = region.water;
       else if (t === TILE.habitat) ground = region.habitat;
-      else if (t === TILE.lair || t === TILE.spire || t === TILE.market || t === TILE.storage || t === TILE.tower || t === TILE.bounty) ground = '#2a2731';
+      else if (t === TILE.lair || t === TILE.spire || t === TILE.market || t === TILE.storage || t === TILE.tower || t === TILE.bounty || t === TILE.rookery) ground = '#2a2731';
       ctx.fillStyle = ground; ctx.fillRect(px, py, T + 0.5, T + 0.5);
       if (t === TILE.grass && hsh > 0.6) { ctx.strokeStyle = 'rgba(0,0,0,.12)'; ctx.lineWidth = 1.5 * s; ctx.beginPath(); ctx.moveTo(px + T * 0.3, py + T * 0.7); ctx.lineTo(px + T * 0.35, py + T * 0.5); ctx.moveTo(px + T * 0.62, py + T * 0.6); ctx.lineTo(px + T * 0.66, py + T * 0.42); ctx.stroke(); }
       else if (t === TILE.habitat) {
@@ -1221,7 +1280,7 @@ function owDraw(ts) {
       } else if (t === TILE.shrine) {
         ctx.fillStyle = '#f5c518'; ctx.beginPath(); ctx.moveTo(px + T / 2, py + T * 0.12); ctx.lineTo(px + T * 0.78, py + T / 2); ctx.lineTo(px + T / 2, py + T * 0.88); ctx.lineTo(px + T * 0.22, py + T / 2); ctx.closePath(); ctx.fill();
         ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(px + T / 2, py + T / 2, T * 0.1, 0, Math.PI * 2); ctx.fill();
-      } else if (t === TILE.door || t === TILE.spireDoor || t === TILE.marketDoor || t === TILE.storageDoor || t === TILE.towerDoor || t === TILE.bountyDoor) { ctx.fillStyle = 'rgba(0,0,0,.25)'; ctx.fillRect(px + T * 0.2, py + T * 0.3, T * 0.6, T * 0.4); }
+      } else if (t === TILE.door || t === TILE.spireDoor || t === TILE.marketDoor || t === TILE.storageDoor || t === TILE.towerDoor || t === TILE.bountyDoor || t === TILE.rookeryDoor) { ctx.fillStyle = 'rgba(0,0,0,.25)'; ctx.fillRect(px + T * 0.2, py + T * 0.3, T * 0.6, T * 0.4); }
       else if (t === TILE.board) {
         // the notice board: two posts, a straw-coloured panel and three pinned slips
         ctx.fillStyle = 'rgba(0,0,0,.22)'; ctx.fillRect(px + T * 0.15, py + T * 0.82, T * 0.7, 3 * s);

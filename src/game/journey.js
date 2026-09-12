@@ -103,6 +103,7 @@ export function tryMove(j, dir) {
   if (tile === TILE.storageDoor) return { moved: true, event: { kind: 'storage' } };
   if (tile === TILE.towerDoor) return { moved: true, event: { kind: 'tower' } };
   if (tile === TILE.bountyDoor) return { moved: true, event: { kind: 'bounty' } };
+  if (tile === TILE.rookeryDoor) return { moved: true, event: { kind: 'rookery' } };
   if (tileAt(world, nx + DIRS[dir][0], ny + DIRS[dir][1]) === TILE.board) return { moved: true, event: { kind: 'board' } };
   if (tile === TILE.habitat && j.cooldown <= 0) {
     const rng = makeRng(`${j.seed}:step:${j.stats.steps}`);

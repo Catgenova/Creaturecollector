@@ -25876,11 +25876,11 @@ function challengeTower(j, k, level) {
 
 
 /** Map size and ring geometry. `version` bumps whenever the layout changes, so saved positions from an older map reset to the Crossroads. */
-const WORLD = { version: 11, w: 224, h: 192, hubR: 6, ringR: 58, lairR: 84, trainersPerBiome: 6, encounterChance: 0.12, encounterCooldown: 4, homeSpawnShare: 0.72 };
+const WORLD = { version: 12, w: 224, h: 192, hubR: 6, ringR: 58, lairR: 84, trainersPerBiome: 6, encounterChance: 0.12, encounterCooldown: 4, homeSpawnShare: 0.72 };
 
 /** Tile kinds. */
-const TILE = { grass: 0, habitat: 1, path: 2, wall: 3, water: 4, hub: 5, lair: 6, door: 7, camp: 8, spire: 9, spireDoor: 10, shrine: 11, market: 12, marketDoor: 13, storage: 14, storageDoor: 15, tower: 16, towerDoor: 17, board: 18, bounty: 19, bountyDoor: 20 };
-const WALKABLE_TILES = new Set([TILE.grass, TILE.habitat, TILE.path, TILE.hub, TILE.door, TILE.camp, TILE.spireDoor, TILE.shrine, TILE.marketDoor, TILE.storageDoor, TILE.towerDoor, TILE.bountyDoor]);
+const TILE = { grass: 0, habitat: 1, path: 2, wall: 3, water: 4, hub: 5, lair: 6, door: 7, camp: 8, spire: 9, spireDoor: 10, shrine: 11, market: 12, marketDoor: 13, storage: 14, storageDoor: 15, tower: 16, towerDoor: 17, board: 18, bounty: 19, bountyDoor: 20, rookery: 21, rookeryDoor: 22 };
+const WALKABLE_TILES = new Set([TILE.grass, TILE.habitat, TILE.path, TILE.hub, TILE.door, TILE.camp, TILE.spireDoor, TILE.shrine, TILE.marketDoor, TILE.storageDoor, TILE.towerDoor, TILE.bountyDoor, TILE.rookeryDoor]);
 
 /** Biomes in difficulty order, clockwise from the south of the hub. Levels climb 5 to the fifties; the gaps in the ladder are for classes still to come. */
 const BIOME_ORDER = ['mammal', 'amphibian', 'flora', 'insect', 'nightwing', 'fungus', 'bird', 'crystalline', 'ooze', 'fish', 'myriapod', 'wyrm', 'invertebrate', 'skeletal', 'reptile', 'fiend', 'draconic', 'spirit'];
@@ -26226,7 +26226,7 @@ function generateWorld(seed) {
       }
     }
   }
-  const world = { seed: String(seed), w, h, tiles, bio, hab, hub, biomes, trainers: [], trainerAt: new Map(), wardens: {}, council: [], start: { x: hub.x, y: hub.y + 1 }, spireDoor: { x: hub.x, y: hub.y - 5 }, shrine: { x: hub.x + 3, y: hub.y }, hubCamp: { x: hub.x - 3, y: hub.y }, market: { x: hub.x + 4, y: hub.y - 4 }, marketDoor: { x: hub.x + 4, y: hub.y - 2 }, storage: { x: hub.x - 4, y: hub.y - 4 }, storageDoor: { x: hub.x - 4, y: hub.y - 2 }, tower: { x: hub.x - 4, y: hub.y + 3 }, towerDoor: { x: hub.x - 4, y: hub.y + 2 }, board: { x: hub.x + 1, y: hub.y + 4 }, bounty: { x: hub.x + 4, y: hub.y + 3 }, bountyDoor: { x: hub.x + 4, y: hub.y + 2 } };
+  const world = { seed: String(seed), w, h, tiles, bio, hab, hub, biomes, trainers: [], trainerAt: new Map(), wardens: {}, council: [], start: { x: hub.x, y: hub.y + 1 }, spireDoor: { x: hub.x, y: hub.y - 5 }, shrine: { x: hub.x + 3, y: hub.y }, hubCamp: { x: hub.x - 3, y: hub.y }, market: { x: hub.x + 4, y: hub.y - 4 }, marketDoor: { x: hub.x + 4, y: hub.y - 2 }, storage: { x: hub.x - 4, y: hub.y - 4 }, storageDoor: { x: hub.x - 4, y: hub.y - 2 }, tower: { x: hub.x - 4, y: hub.y + 3 }, towerDoor: { x: hub.x - 4, y: hub.y + 2 }, board: { x: hub.x + 1, y: hub.y + 4 }, bounty: { x: hub.x + 4, y: hub.y + 3 }, bountyDoor: { x: hub.x + 4, y: hub.y + 2 }, rookery: { x: hub.x - 1, y: hub.y + 4 }, rookeryDoor: { x: hub.x - 1, y: hub.y + 3 } };
 
   // the hub disc, its spire, shrine and camp
   for (let y = hub.y - WORLD.hubR; y <= hub.y + WORLD.hubR; y++) for (let x = hub.x - WORLD.hubR; x <= hub.x + WORLD.hubR; x++) if (isHubTile(world, x, y)) tiles[idx(x, y)] = TILE.hub;
@@ -26238,6 +26238,9 @@ function generateWorld(seed) {
   // the Bounty Office: a 3 x 2 house on the hub's south-east edge, door facing the square, where fusions are handed in for gold
   for (let y = world.bounty.y; y <= world.bounty.y + 1; y++) for (let x = world.bounty.x - 1; x <= world.bounty.x + 1; x++) tiles[idx(x, y)] = TILE.bounty;
   tiles[idx(world.bountyDoor.x, world.bountyDoor.y)] = TILE.bountyDoor;
+  // the Rookery: a 3 x 2 hut on the hub's south side where a creature's passive is turned over
+  for (let y = world.rookery.y; y <= world.rookery.y + 1; y++) for (let x = world.rookery.x - 1; x <= world.rookery.x + 1; x++) tiles[idx(x, y)] = TILE.rookery;
+  tiles[idx(world.rookeryDoor.x, world.rookeryDoor.y)] = TILE.rookeryDoor;
   // the Market: a 3 x 2 shop on the hub's north-east edge, door facing the square
   for (let y = world.market.y; y <= world.market.y + 1; y++) for (let x = world.market.x - 1; x <= world.market.x + 1; x++) tiles[idx(x, y)] = TILE.market;
   tiles[idx(world.marketDoor.x, world.marketDoor.y)] = TILE.marketDoor;
@@ -26300,7 +26303,7 @@ function generateWorld(seed) {
   world.council = councilFor(rng.fork('council'));
 
   // guarantee: every camp, lair front, the spire door and the shrine are reachable from the start
-  const targets = [world.spireDoor, world.shrine, world.hubCamp, world.marketDoor, world.storageDoor, world.towerDoor, world.bountyDoor, { x: world.board.x, y: world.board.y + 1 }, ...biomes.map((b) => b.camp), ...biomes.map((b) => b.lair.front)];
+  const targets = [world.spireDoor, world.shrine, world.hubCamp, world.marketDoor, world.storageDoor, world.towerDoor, world.bountyDoor, world.rookeryDoor, { x: world.board.x, y: world.board.y + 1 }, ...biomes.map((b) => b.camp), ...biomes.map((b) => b.lair.front)];
   for (let round = 0; round < 3; round++) {
     const reach = reachableFrom(world, world.start);
     const missing = targets.filter((t) => !reach.has(idx(t.x, t.y)));
@@ -27254,6 +27257,7 @@ function tryMove(j, dir) {
   if (tile === TILE.storageDoor) return { moved: true, event: { kind: 'storage' } };
   if (tile === TILE.towerDoor) return { moved: true, event: { kind: 'tower' } };
   if (tile === TILE.bountyDoor) return { moved: true, event: { kind: 'bounty' } };
+  if (tile === TILE.rookeryDoor) return { moved: true, event: { kind: 'rookery' } };
   if (tileAt(world, nx + DIRS[dir][0], ny + DIRS[dir][1]) === TILE.board) return { moved: true, event: { kind: 'board' } };
   if (tile === TILE.habitat && j.cooldown <= 0) {
     const rng = makeRng(`${j.seed}:step:${j.stats.steps}`);
@@ -27505,11 +27509,105 @@ function partyHealth(j) {
   return max ? hp / max : 0;
 }
 
+// ---- src/game/rookery.js ----
+// The Rookery: a hut on the Crossroads where a creature's passive can be turned over.
+// A swap moves it to another passive its own bloodline carries; a wild draw takes one from the
+// pool that suits its types or its fighting style, for a good deal more gold. An Elemental's core
+// passive is what makes it an Elemental, so the Rookery will not touch it.
+
+
+
+
+
+
+const ROOKERY = { swapBase: 900, swapPerLevel: 20, drawBase: 3500, drawPerLevel: 40 };
+
+/** The passives this creature's bloodline carries: its species' pair, or every parent's pair for a fusion. */
+function bloodlinePassives(genome) {
+  if (!genome) return [];
+  const ids = new Set();
+  const add = (sid) => { const sp = SPECIES_BY_ID[sid]; if (sp) for (const ab of sp.abilities || []) ids.add(ab); };
+  if (genome.species) add(genome.species);
+  for (const sid of genome.lineage || []) add(sid);
+  return [...ids].filter((id) => ABILITIES[id] && !isCoreAbility(id));
+}
+
+/** What a swap would offer: the bloodline passives it is not already carrying. */
+function swapChoices(genome) {
+  return bloodlinePassives(genome).filter((id) => id !== (genome && genome.ability));
+}
+
+/** Passives the wild draw may hand out: those keyed to one of its types, or to its own style. */
+function wildPool(genome) {
+  if (!genome) return [];
+  const types = (genome.types || []).filter(Boolean);
+  const style = combatStyle(genome.stats || {});
+  const carried = new Set([genome.ability, ...bloodlinePassives(genome)]);
+  return ABILITY_IDS.filter((id) => {
+    if (isCoreAbility(id) || carried.has(id)) return false;
+    const fx = ABILITIES[id].fx;
+    if (!fx) return false;
+    return fx.some((f) => (f.type && types.includes(f.type)) || (f.cat && f.cat === style) || (f.stat && f.stat === style));
+  });
+}
+
+function swapPrice(member) { return ROOKERY.swapBase + ROOKERY.swapPerLevel * (member ? member.level : 1); }
+function drawPrice(member) { return ROOKERY.drawBase + ROOKERY.drawPerLevel * (member ? member.level : 1); }
+
+/** Why the Rookery would turn this creature away, or null when it can help. */
+function rookeryBlock(member, kind = 'swap') {
+  if (!member || !member.genome) return 'No creature.';
+  if (isCoreAbility(member.genome.ability)) return `An Elemental keeps its core: ${abilityName(member.genome.ability)} is what it is.`;
+  if (kind === 'swap' && !swapChoices(member.genome).length) return 'Its bloodline knows no other passive. A wild draw still can.';
+  if (kind === 'draw' && !wildPool(member.genome).length) return 'Nothing in the wild suits it.';
+  return null;
+}
+
+function rookeryMember(j, uid) {
+  return (j.party || []).find((m) => m.uid === uid) || (j.box || []).find((m) => m.uid === uid) || null;
+}
+
+/** Turn a creature over to the other passive of its bloodline. Charges gold; returns what changed. */
+function swapPassive(j, uid, choice = null) {
+  const m = rookeryMember(j, uid);
+  if (!m) return { ok: false, reason: 'That creature is not with you.' };
+  const block = rookeryBlock(m, 'swap');
+  if (block) return { ok: false, reason: block };
+  const price = swapPrice(m);
+  if (j.gold < price) return { ok: false, reason: `The Rookery asks ${price.toLocaleString()} gold.` };
+  const options = swapChoices(m.genome);
+  const to = choice && options.includes(choice) ? choice : options[0];
+  const from = m.genome.ability;
+  j.gold -= price;
+  m.genome.ability = to;
+  return { ok: true, member: m, from, to, paid: price };
+}
+
+/** Draw a passive from the wild pool that suits its types or style. Deterministic per creature and draw count. */
+function wildDraw(j, uid) {
+  const m = rookeryMember(j, uid);
+  if (!m) return { ok: false, reason: 'That creature is not with you.' };
+  const block = rookeryBlock(m, 'draw');
+  if (block) return { ok: false, reason: block };
+  const price = drawPrice(m);
+  if (j.gold < price) return { ok: false, reason: `A wild draw costs ${price.toLocaleString()} gold.` };
+  j.stats = j.stats || {};
+  j.stats.draws = (j.stats.draws || 0) + 1;
+  const pool = wildPool(m.genome);
+  const rng = makeRng(`${j.seed}:rookery:${uid}:${j.stats.draws}`);
+  const to = pool[Math.floor(rng.next() * pool.length)];
+  const from = m.genome.ability;
+  j.gold -= price;
+  m.genome.ability = to;
+  return { ok: true, member: m, from, to, paid: price };
+}
+
 // ---- src/ui/world.js ----
 // Overworld screen: a canvas map you walk across with the keyboard, an on-screen pad or a
 // tap on the ground; wild encounters on habitat tiles, trainers who fight when asked,
 // Wardens in their lairs, the Council Spire, camps that heal and a shrine that fuses.
 // Fights hand off to the shared fight view and come back to the same spot.
+
 
 
 
@@ -27792,6 +27890,7 @@ function owAfterStep(event) {
   if (event.kind === 'camp') { owSave(); sfx.heal(); toast(event.place.id === 'hub' ? 'Rested at the Crossroads. Party healed.' : event.quests && event.quests.length ? 'Camp reached. Party healed. A notice is done: claim it at the board.' : 'Camp reached. Party healed.'); owRefreshHud(); return; }
   if (event.kind === 'board') { owBoardSheet(j); return; }
   if (event.kind === 'bounty') { owBountySheet(j); return; }
+  if (event.kind === 'rookery') { owRookerySheet(j); return; }
   if (event.kind === 'lair') { owLairDialog(event); return; }
   if (event.kind === 'spire') { owSpireDialog(event); return; }
   if (event.kind === 'shrine') { owShrineSheet(j); return; }
@@ -27821,6 +27920,7 @@ function owInteract() {
   if (here === TILE.storageDoor) { owStorageSheet(j); return; }
   if (here === TILE.towerDoor) { owTowerSheet(j); return; }
   if (here === TILE.bountyDoor) { owBountySheet(j); return; }
+  if (here === TILE.rookeryDoor) { owRookerySheet(j); return; }
   if (here === TILE.camp) { toast('The fire is warm. Your party is rested.'); return; }
   if (tileAt(world, f.x, f.y) === TILE.board) { owBoardSheet(j); return; }
   const ht = habitatTypeAt(world, f.x, f.y);
@@ -28093,7 +28193,7 @@ function owMapSheet(j) {
   const ctx = c.getContext('2d');
   for (let y = 0; y < world.h; y++) for (let x = 0; x < world.w; x++) {
     const t = world.tiles[y * world.w + x], r = REGIONS[world.biomes[world.bio[y * world.w + x]].clade];
-    ctx.fillStyle = t === TILE.water ? r.water : t === TILE.wall ? r.wallColor : t === TILE.path || t === TILE.door ? r.path : t === TILE.hub || t === TILE.shrine || t === TILE.spireDoor ? HUB.paving : t === TILE.habitat ? r.habitat : t === TILE.lair || t === TILE.spire || t === TILE.tower || t === TILE.bounty ? '#1a1a22' : r.ground;
+    ctx.fillStyle = t === TILE.water ? r.water : t === TILE.wall ? r.wallColor : t === TILE.path || t === TILE.door ? r.path : t === TILE.hub || t === TILE.shrine || t === TILE.spireDoor ? HUB.paving : t === TILE.habitat ? r.habitat : t === TILE.lair || t === TILE.spire || t === TILE.tower || t === TILE.bounty || t === TILE.rookery ? '#1a1a22' : r.ground;
     ctx.fillRect(x * S, y * S, S, S);
   }
   const dot = (p, color, rad) => { ctx.fillStyle = color; ctx.beginPath(); ctx.arc(p.x * S + S / 2, p.y * S + S / 2, rad, 0, Math.PI * 2); ctx.fill(); };
@@ -28441,6 +28541,62 @@ function owBountySheet(j) {
   owSheet('Bounty Office', body, () => owRefreshHud());
 }
 
+// ---- the Rookery ------------------------------------------------------------------
+
+/** Turn a creature's passive over: to another its bloodline carries, or to one drawn from the wild. */
+function owRookerySheet(j) {
+  const body = h('div');
+  const draw = () => {
+    clear(body);
+    const list = h('div', { class: 'party-list' });
+    const roster = [...(j.party || []), ...(j.box || [])];
+    for (const m of roster) {
+      const swapBlock = rookeryBlock(m, 'swap'), drawBlock = rookeryBlock(m, 'draw');
+      const options = swapChoices(m.genome);
+      const swapTo = options[0];
+      const swapGold = swapPrice(m), drawGold = drawPrice(m);
+      const line = swapTo
+        ? h('span', { class: 'hint', style: { margin: 0 } }, 'Would become ', h('b', {}, abilityName(swapTo)))
+        : h('span', { class: 'hint', style: { margin: 0 } }, swapBlock || '');
+      list.append(owMemberRow(j, m, [
+        line,
+        h('button', {
+          class: `btn small${!swapBlock && j.gold >= swapGold ? ' primary' : ''}`, type: 'button',
+          disabled: Boolean(swapBlock) || j.gold < swapGold, title: swapBlock || `${swapGold.toLocaleString()} gold`,
+          onclick: () => {
+            const r = swapPassive(j, m.uid);
+            if (!r.ok) { toast(r.reason); return; }
+            owSave(); sfx.levelUp(); toast(`${r.member.genome.name}: ${abilityName(r.from)} → ${abilityName(r.to)} for ${r.paid.toLocaleString()} gold.`);
+            render(); owRefreshHud();
+          },
+        }, `Swap ◆ ${swapGold.toLocaleString()}`),
+        h('button', {
+          class: 'btn small', type: 'button',
+          disabled: Boolean(drawBlock) || j.gold < drawGold, title: drawBlock || `A passive suited to its types or style, ${drawGold.toLocaleString()} gold`,
+          onclick: () => {
+            if (ow.confirmDraw !== m.uid) { ow.confirmDraw = m.uid; toast('Tap again: a wild draw cannot be chosen or undone'); setTimeout(() => { if (ow.confirmDraw === m.uid) ow.confirmDraw = null; }, 4000); return; }
+            ow.confirmDraw = null;
+            const r = wildDraw(j, m.uid);
+            if (!r.ok) { toast(r.reason); return; }
+            owSave(); sfx.win(); toast(`${r.member.genome.name} drew ${abilityName(r.to)} for ${r.paid.toLocaleString()} gold.`);
+            render(); owRefreshHud();
+          },
+        }, `Wild ◆ ${drawGold.toLocaleString()}`),
+      ]));
+    }
+    const sample = roster.length ? wildPool(roster[0].genome).length : 0;
+    appendChildren(body, [
+      h('p', { class: 'hint' }, 'A swap turns a creature over to another passive its own bloodline carries, for gold that rises with its level. '
+        + `A wild draw is dearer and cannot be chosen: it takes one at random from the passives that suit its types or its fighting style${sample ? ` (${sample} of them for the first on this list)` : ''}. `
+        + 'An Elemental keeps its core.'),
+      list,
+    ]);
+  };
+  const render = () => owKeepScroll(body, draw);
+  render();
+  owSheet('The Rookery', body, () => owRefreshHud());
+}
+
 // ---- the notice board -------------------------------------------------------------
 
 /** The board's three notices: what to do, how far along, what it pays; Claim when done, or tear one down for another. */
@@ -28709,7 +28865,7 @@ function owDraw(ts) {
       else if (t === TILE.path || t === TILE.door) ground = region.path;
       else if (t === TILE.water) ground = region.water;
       else if (t === TILE.habitat) ground = region.habitat;
-      else if (t === TILE.lair || t === TILE.spire || t === TILE.market || t === TILE.storage || t === TILE.tower || t === TILE.bounty) ground = '#2a2731';
+      else if (t === TILE.lair || t === TILE.spire || t === TILE.market || t === TILE.storage || t === TILE.tower || t === TILE.bounty || t === TILE.rookery) ground = '#2a2731';
       ctx.fillStyle = ground; ctx.fillRect(px, py, T + 0.5, T + 0.5);
       if (t === TILE.grass && hsh > 0.6) { ctx.strokeStyle = 'rgba(0,0,0,.12)'; ctx.lineWidth = 1.5 * s; ctx.beginPath(); ctx.moveTo(px + T * 0.3, py + T * 0.7); ctx.lineTo(px + T * 0.35, py + T * 0.5); ctx.moveTo(px + T * 0.62, py + T * 0.6); ctx.lineTo(px + T * 0.66, py + T * 0.42); ctx.stroke(); }
       else if (t === TILE.habitat) {
@@ -28729,7 +28885,7 @@ function owDraw(ts) {
       } else if (t === TILE.shrine) {
         ctx.fillStyle = '#f5c518'; ctx.beginPath(); ctx.moveTo(px + T / 2, py + T * 0.12); ctx.lineTo(px + T * 0.78, py + T / 2); ctx.lineTo(px + T / 2, py + T * 0.88); ctx.lineTo(px + T * 0.22, py + T / 2); ctx.closePath(); ctx.fill();
         ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(px + T / 2, py + T / 2, T * 0.1, 0, Math.PI * 2); ctx.fill();
-      } else if (t === TILE.door || t === TILE.spireDoor || t === TILE.marketDoor || t === TILE.storageDoor || t === TILE.towerDoor || t === TILE.bountyDoor) { ctx.fillStyle = 'rgba(0,0,0,.25)'; ctx.fillRect(px + T * 0.2, py + T * 0.3, T * 0.6, T * 0.4); }
+      } else if (t === TILE.door || t === TILE.spireDoor || t === TILE.marketDoor || t === TILE.storageDoor || t === TILE.towerDoor || t === TILE.bountyDoor || t === TILE.rookeryDoor) { ctx.fillStyle = 'rgba(0,0,0,.25)'; ctx.fillRect(px + T * 0.2, py + T * 0.3, T * 0.6, T * 0.4); }
       else if (t === TILE.board) {
         // the notice board: two posts, a straw-coloured panel and three pinned slips
         ctx.fillStyle = 'rgba(0,0,0,.22)'; ctx.fillRect(px + T * 0.15, py + T * 0.82, T * 0.7, 3 * s);
