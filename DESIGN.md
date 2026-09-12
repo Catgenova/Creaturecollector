@@ -1182,11 +1182,11 @@ lists the five with the best candidate's payout, then the candidates with
 their multipliers; a second tap confirms. The save keeps the list and drops
 junk types, prices and duplicates.
 
-## Passives at scale (in progress)
+## Passives at scale
 
 The first forty-two passives and the fourteen Elemental cores are implemented
-by id in the engine. To grow the pool toward three hundred without three
-hundred hand-written hooks, every later passive is a data row: `A(id, name,
+by id in the engine. To grow the pool to three hundred without three
+hundred hand-written hooks, every later passive is a data row: `defA(id, name,
 fx)` in `src/data/abilities.js`, where `fx` is a list of typed entries the
 engine interprets at its hooks (`abFx` in `src/battle/engine.js`, kinds listed
 in `PASSIVE_KINDS`). Descriptions are written from the entries in the game's
@@ -1231,11 +1231,43 @@ Batches so far:
   Stance, Focused Mind, Vampiric, Opportunist, Bully, Technician and Grand
   Slam.
 
-Distribution: a script hands each new passive to about six species by
-affinity (its type first, then its style, then anywhere), preferring species
-not yet touched, replacing the second ability and then the first, and every
-data passive must be carried by at least one species (a test checks). A final
-even redistribution follows the last batch, then the tuner.
+- **Batch 4 (61).** Passives that combine two or three entries, which is where
+  the data rows pay off. Ten pairings for two-type creatures (Amphibious,
+  Cold Forge, Grounded, Sky Scales, Lucid, Gravel Gut, Bramble Skin, Twilight
+  Veil, Brawler's Hide, Slick Scales: a boost or resist for one type with a
+  weakness or immunity for another), eighteen classics rebuilt from entries
+  (Dry Skin, Fluffy, Water Bubble, Punk Rock, Purifying Salt, Steelworker,
+  Dragon's Maw, Transistor, Rocky Payload, Shell Home, Hollow Bones, Deep
+  Roots, Cold Blood, Cinder Skin, Iron Stomach, Storm Skin, Grave Chill, Night
+  Eyes), the glass builds that trade a defence for an attack (Bruiser,
+  Pinpoint, Glass Cannon, Glass Wand, Long Shot), the knockout risers
+  (Chilling Neigh, Grim Neigh, Trophy Hunter), Regenerating Shell, Simmer and
+  Limber Up, five entry combinations (Intimidating Bulk, Battle Cry, Eerie
+  Calm, Sweet Scent, Bright Flash), four contact combinations (Static Spines,
+  Molten Hide, Toxic Slime, Charged Hide), and the flavoured hides and maws
+  that pair a resist or thorns with a lean (Sun Drinker, Stone Setter, Wind
+  Reader, Grudge, Mirror Nerve, Thick Skin, Frost Scales, Bramble Coat,
+  Slipstream Hide, Venom Veins, Sparking Fists, Razor Maw, Spore Bearer).
+
+That makes three hundred passives: fifty-six implemented by id (forty-two
+originals and fourteen Elemental cores) and two hundred and forty-four data
+rows. A test walks every data row through `describeFx` to check the text uses
+the game's stat words, and every kind in a row is one the engine interprets.
+
+Distribution. While the batches landed, a script handed each new passive to
+about six species by affinity (its type first, then its style, then
+anywhere), preferring species not yet touched. After the last batch a final
+pass redistributed the whole pool: each species picks two passives from the
+two hundred and eighty-six ordinary ones (the Elemental cores stay
+Elemental-only), scored by affinity with a bonus for what it already carried,
+under a global cap so no passive gathers more than seven homes, and a second
+pass lifts anything under three. The result: every ordinary passive sits on
+five to seven of the 895 species (the pool cannot be flatter than that with
+1,790 slots), 603 species kept at least one of the passives they had before,
+no species carries the same passive twice, and 94% of the typed passives
+(a type's affinity, resist, absorb or immunity) sit on a species of that type.
+Tests hold the floor at three and the ceiling at twelve so later hand edits
+cannot orphan a passive.
 
 ## Mobile view (implemented)
 
