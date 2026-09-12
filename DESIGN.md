@@ -1394,6 +1394,27 @@ and 91% of the typed passives sit on a species of that type. Because the pool
 is now larger than the roster, a species' pair is closer to a fingerprint than
 a build: two creatures rarely share both.
 
+**A collision worth recording.** Seven rows in these batches reused an id from
+the first six hundred. Nothing errors when that happens: the second row simply
+replaces the first, so seven older passives quietly changed behaviour, and the
+duplicate check missed it because it compared names and entries rather than
+ids. The newer designs were renamed (Dust Veil, Blood Rush, Deep Well, Stone
+Stomach, Shell Set, True Line, Updraft), the older ones restored, seven of the
+thinnest new rows dropped to keep the count at nine hundred, and the pool test
+now reads the table and fails on a repeated id.
+
+**Balance.** Three tuner passes of `2 40000 100 40000`. The first read 39-70%
+with sixteen species outside the band, and five of the worst carried a passive
+that caps a single hit at a quarter or a third of max HP: in a seven-turn
+fight that blunts almost every blow rather than only the biggest, so every cap
+moved up a step (a quarter to 45%, a third to half, half to 60%). Two species
+then sat on the 360 floor above the band with nothing left for the tuner to
+take, and each traded its strongest passive with a mid-band species, which
+leaves every passive with the same number of homes. The last verification over
+40,000 games reads 38-60% with three species outside, a mean of 50.0%, and
+nothing pinned at a clamp outside the band; totals span 360 to 520 with 17
+species on the floor and 9 on the cap.
+
 ## Mobile view (implemented)
 
 The game was drawn for a phone from the start (portrait layout, 44px targets,

@@ -31,7 +31,7 @@ export const SPECIES = [
     desc: 'Its tail flame burns hotter the more it wants to impress. Kicks up sparks when it runs.',
   },
   {
-    id: 'finnip', name: 'Finnip', nameParts: ['Fin', 'nip'], clade: 'fish', rig: 'fish', types: ['Water'], tier: 'common', bst: 412,
+    id: 'finnip', name: 'Finnip', nameParts: ['Fin', 'nip'], clade: 'fish', rig: 'fish', types: ['Water'], tier: 'common', bst: 413,
     stats: { hp: 0.16, melee: 0.066, ranged: 0.165, magic: 0.099, meleeDef: 0.113, rangedDef: 0.117, magicDef: 0.12, spe: 0.16 },
     recipe: { body: 'f.body.round', eyes: 'f.eyes.round', mouth: 'f.mouth.pout', dorsal: 'f.dorsal.fan', pectoral: 'f.pectoral.fan', tail: 'f.tail.forked', belly: 'f.belly.pelvic', gills: 'f.gills.plate', crest: 'f.crest.none', barbels: 'f.barbels.none', spines: 'f.spines.none', pattern: 'f.pattern.stripes' },
     palette: { c1: [205, 80, 54], c2: [190, 70, 78], c3: [28, 90, 62], eye: [42, 90, 50] }, vary: { h: 10, s: 6, l: 6 },
@@ -41,7 +41,7 @@ export const SPECIES = [
     desc: 'Swims through air as easily as water by beating its fins very fast. Curious about shiny things.',
   },
   {
-    id: 'sprigget', name: 'Sprigget', nameParts: ['Sprig', 'get'], clade: 'amphibian', rig: 'amphibian', types: ['Grass'], tier: 'common', bst: 478,
+    id: 'sprigget', name: 'Sprigget', nameParts: ['Sprig', 'get'], clade: 'amphibian', rig: 'amphibian', types: ['Grass'], tier: 'common', bst: 474,
     stats: { hp: 0.189, melee: 0.066, ranged: 0.165, magic: 0.099, meleeDef: 0.107, rangedDef: 0.117, magicDef: 0.127, spe: 0.13 },
     recipe: { body: 'a.body.frog', head: 'a.head.frog', eyes: 'a.eyes.big', mouth: 'a.mouth.smile', gills: 'a.gills.none', legsFront: 'a.legsFront.frog', legsBack: 'a.legsBack.frog', tail: ['a.tail.leaf', 'a.tail.none'], throat: ['a.throat.none', 'a.throat.sac'], crest: 'a.crest.sprout', back: ['a.back.none', 'a.back.moss'], pattern: 'a.pattern.spots' },
     palette: { c1: [110, 45, 48], c2: [95, 55, 70], c3: [75, 60, 38], eye: [22, 60, 30] }, vary: { h: 12, s: 8, l: 6 },
@@ -51,7 +51,7 @@ export const SPECIES = [
     desc: 'The sprout on its head leans toward sunlight. It naps in flowerbeds and wakes covered in pollen.',
   },
   {
-    id: 'voltmite', name: 'Voltmite', nameParts: ['Volt', 'mite'], clade: 'mammal', rig: 'mammal', types: ['Electric'], tier: 'common', bst: 416,
+    id: 'voltmite', name: 'Voltmite', nameParts: ['Volt', 'mite'], clade: 'mammal', rig: 'mammal', types: ['Electric'], tier: 'common', bst: 420,
     stats: { hp: 0.13, melee: 0.111, ranged: 0.074, magic: 0.185, meleeDef: 0.08, rangedDef: 0.087, magicDef: 0.093, spe: 0.24 },
     recipe: { body: 'm.body.mouse', head: 'm.head.mouse', ears: 'm.ears.mouse', eyes: 'm.eyes.bead', muzzle: 'm.muzzle.mouse', legsFront: 'm.legsFront.mouse', legsBack: 'm.legsBack.mouse', tail: ['m.tail.mouse', 'm.tail.cat'], mane: 'm.mane.none', horns: 'm.horns.none', back: ['m.back.quills', 'm.back.none'], markings: 'm.markings.stripes' },
     palette: { c1: [50, 95, 58], c2: [48, 80, 86], c3: [212, 80, 50], eye: [222, 40, 22] }, vary: { h: 6, s: 5, l: 6 },
@@ -62,7 +62,7 @@ export const SPECIES = [
     desc: 'Static crackles in its fur. It clings to power lines and hums along with them.',
   },
   {
-    id: 'glacub', name: 'Glacub', nameParts: ['Gla', 'cub'], clade: 'mammal', rig: 'mammal', types: ['Ice'], tier: 'uncommon', bst: 446,
+    id: 'glacub', name: 'Glacub', nameParts: ['Gla', 'cub'], clade: 'mammal', rig: 'mammal', types: ['Ice'], tier: 'uncommon', bst: 445,
     stats: { hp: 0.221, melee: 0.155, ranged: 0.093, magic: 0.062, meleeDef: 0.113, rangedDef: 0.113, magicDef: 0.113, spe: 0.13 },
     recipe: { body: 'm.body.bear', head: 'm.head.bear', ears: 'm.ears.bear', eyes: 'm.eyes.sleepy', muzzle: 'm.muzzle.bear', legsFront: 'm.legsFront.bear', legsBack: 'm.legsBack.bear', tail: 'm.tail.bear', mane: ['m.mane.none', 'm.mane.bear'], horns: 'm.horns.none', back: ['m.back.crystals', 'm.back.none'], markings: 'm.markings.belly' },
     palette: { c1: [196, 55, 80], c2: [200, 30, 95], c3: [210, 60, 62], eye: [222, 50, 35] }, vary: { h: 8, s: 8, l: 5 },
@@ -73,7 +73,7 @@ export const SPECIES = [
     desc: 'Sleeps through blizzards. Its breath leaves frost on anything it sniffs.',
   },
   {
-    id: 'bruxor', name: 'Bruxor', nameParts: ['Brux', 'or'], clade: 'mammal', rig: 'mammal', types: ['Fighting'], tier: 'uncommon', bst: 386,
+    id: 'bruxor', name: 'Bruxor', nameParts: ['Brux', 'or'], clade: 'mammal', rig: 'mammal', types: ['Fighting'], tier: 'uncommon', bst: 387,
     stats: { hp: 0.17, melee: 0.165, ranged: 0.099, magic: 0.066, meleeDef: 0.12, rangedDef: 0.107, magicDef: 0.093, spe: 0.18 },
     recipe: { body: 'm.body.bear', head: 'm.head.bear', ears: ['m.ears.bear', 'm.ears.cat'], eyes: 'm.eyes.fierce', muzzle: 'm.muzzle.bear', legsFront: 'm.legsFront.bear', legsBack: 'm.legsBack.bear', tail: 'm.tail.bear', mane: 'm.mane.wolf', horns: 'm.horns.bull', back: 'm.back.none', markings: 'm.markings.star' },
     palette: { c1: [15, 55, 46], c2: [30, 45, 70], c3: [40, 30, 88], eye: [10, 80, 40] }, vary: { h: 8, s: 8, l: 6 },
@@ -94,7 +94,7 @@ export const SPECIES = [
     desc: 'Leaves a faintly glowing trail. Gardeners both dread and admire it.',
   },
   {
-    id: 'dustoat', name: 'Dustoat', nameParts: ['Dust', 'oat'], clade: 'mammal', rig: 'mammal', types: ['Ground'], tier: 'common', bst: 416,
+    id: 'dustoat', name: 'Dustoat', nameParts: ['Dust', 'oat'], clade: 'mammal', rig: 'mammal', types: ['Ground'], tier: 'common', bst: 419,
     stats: { hp: 0.18, melee: 0.15, ranged: 0.09, magic: 0.06, meleeDef: 0.133, rangedDef: 0.12, magicDef: 0.107, spe: 0.16 },
     recipe: { body: 'm.body.deer', head: 'm.head.deer', ears: 'm.ears.deer', eyes: 'm.eyes.sleepy', muzzle: 'm.muzzle.deer', legsFront: 'm.legsFront.deer', legsBack: 'm.legsBack.deer', tail: 'm.tail.deer', mane: ['m.mane.deer', 'm.mane.none'], horns: 'm.horns.goat', back: 'm.back.none', markings: 'm.markings.saddle' },
     palette: { c1: [35, 45, 58], c2: [38, 30, 86], c3: [14, 70, 48], eye: [30, 60, 30] }, vary: { h: 8, s: 6, l: 6 },
@@ -105,7 +105,7 @@ export const SPECIES = [
     desc: 'Digs shallow burrows and forgets where they are. Its hooves never seem to get dirty.',
   },
   {
-    id: 'zephyrn', name: 'Zephyrn', nameParts: ['Zeph', 'yrn'], clade: 'bird', rig: 'bird', types: ['Flying'], tier: 'common', bst: 437,
+    id: 'zephyrn', name: 'Zephyrn', nameParts: ['Zeph', 'yrn'], clade: 'bird', rig: 'bird', types: ['Flying'], tier: 'common', bst: 436,
     stats: { hp: 0.15, melee: 0.096, ranged: 0.16, magic: 0.064, meleeDef: 0.08, rangedDef: 0.083, magicDef: 0.087, spe: 0.28 },
     recipe: { body: 'b.body.songbird', head: 'b.head.round', eyes: 'b.eyes.bead', beak: 'b.beak.short', crest: ['b.crest.none', 'b.crest.tuft'], face: 'b.face.cheeks', wings: 'b.wings.pointed', tail: 'b.tail.forked', legs: 'b.legs.thin', chest: 'b.chest.none', back: 'b.back.none', pattern: 'b.pattern.belly' },
     palette: { c1: [210, 70, 68], c2: [200, 20, 96], c3: [40, 90, 58], eye: [222, 60, 25] }, vary: { h: 12, s: 8, l: 6 },
@@ -116,7 +116,7 @@ export const SPECIES = [
     desc: 'Rides thermals for hours without a single flap. Whistles at travellers to show them the way.',
   },
   {
-    id: 'mystril', name: 'Mystril', nameParts: ['Mys', 'tril'], clade: 'invertebrate', rig: 'invertebrate', types: ['Psychic'], tier: 'uncommon', bst: 405,
+    id: 'mystril', name: 'Mystril', nameParts: ['Mys', 'tril'], clade: 'invertebrate', rig: 'invertebrate', types: ['Psychic'], tier: 'uncommon', bst: 402,
     stats: { hp: 0.14, melee: 0.102, ranged: 0.068, magic: 0.17, meleeDef: 0.087, rangedDef: 0.113, magicDef: 0.14, spe: 0.18 },
     recipe: { body: 'v.body.jelly', eyes: 'v.eyes.big', mouth: 'v.mouth.smile', arms: ['v.arms.none', 'v.arms.wisps'], legs: 'v.legs.none', shell: 'v.shell.none', tail: 'v.tail.none', crown: ['v.crown.bubble', 'v.crown.none'], feelers: 'v.feelers.none', pattern: 'v.pattern.dots', glow: 'v.glow.motes', skirt: 'v.skirt.tentacles' },
     palette: { c1: [320, 60, 68], c2: [270, 50, 62], c3: [48, 90, 62], eye: [200, 70, 50] }, vary: { h: 14, s: 8, l: 6 },
@@ -137,7 +137,7 @@ export const SPECIES = [
     desc: 'Chatters constantly by rubbing its plates together. Swarms are loud enough to hear from the next valley.',
   },
   {
-    id: 'craggon', name: 'Craggon', nameParts: ['Crag', 'gon'], clade: 'reptile', rig: 'reptile', types: ['Rock'], tier: 'uncommon', bst: 481,
+    id: 'craggon', name: 'Craggon', nameParts: ['Crag', 'gon'], clade: 'reptile', rig: 'reptile', types: ['Rock'], tier: 'uncommon', bst: 482,
     stats: { hp: 0.17, melee: 0.087, ranged: 0.145, magic: 0.058, meleeDef: 0.18, rangedDef: 0.14, magicDef: 0.1, spe: 0.12 },
     recipe: { body: 'r.body.dragon', head: 'r.head.turtle', eyes: 'r.eyes.bead', jaw: 'r.jaw.grin', crest: 'r.crest.spikes', legsFront: 'r.legsFront.dragon', legsBack: 'r.legsBack.dragon', tail: 'r.tail.croc', back: ['r.back.crystals', 'r.back.plates'], wings: 'r.wings.none', throat: 'r.throat.plates', scales: 'r.scales.scutes' },
     palette: { c1: [30, 15, 50], c2: [30, 12, 36], c3: [32, 22, 68], eye: [45, 80, 50] }, vary: { h: 10, s: 6, l: 6 },
@@ -159,7 +159,7 @@ export const SPECIES = [
     desc: 'Drifts through walls when it forgets they are there. Giggles in empty rooms.',
   },
   {
-    id: 'drakelet', name: 'Drakelet', nameParts: ['Drake', 'let'], clade: 'reptile', rig: 'reptile', types: ['Dragon'], tier: 'rare', bst: 433,
+    id: 'drakelet', name: 'Drakelet', nameParts: ['Drake', 'let'], clade: 'reptile', rig: 'reptile', types: ['Dragon'], tier: 'rare', bst: 441,
     stats: { hp: 0.17, melee: 0.195, ranged: 0.117, magic: 0.078, meleeDef: 0.107, rangedDef: 0.1, magicDef: 0.093, spe: 0.14 },
     recipe: { body: 'r.body.dragon', head: 'r.head.dragon', eyes: 'r.eyes.slit', jaw: 'r.jaw.fangs', crest: 'r.crest.horns', legsFront: 'r.legsFront.dragon', legsBack: 'r.legsBack.dragon', tail: ['r.tail.dragon', 'r.tail.lizard'], back: 'r.back.spines', wings: 'r.wings.dragon', throat: 'r.throat.none', scales: 'r.scales.belly' },
     palette: { c1: [175, 55, 40], c2: [45, 70, 76], c3: [25, 80, 58], eye: [40, 90, 50] }, vary: { h: 12, s: 8, l: 6 },
@@ -180,7 +180,7 @@ export const SPECIES = [
     desc: 'Only ever seen out of the corner of the eye. Steals one sock, never the pair.',
   },
   {
-    id: 'boltmaw', name: 'Boltmaw', nameParts: ['Bolt', 'maw'], clade: 'reptile', rig: 'reptile', types: ['Steel'], tier: 'rare', bst: 396,
+    id: 'boltmaw', name: 'Boltmaw', nameParts: ['Bolt', 'maw'], clade: 'reptile', rig: 'reptile', types: ['Steel'], tier: 'rare', bst: 389,
     stats: { hp: 0.17, melee: 0.16, ranged: 0.096, magic: 0.064, meleeDef: 0.16, rangedDef: 0.13, magicDef: 0.1, spe: 0.12 },
     recipe: { body: 'r.body.raptor', head: 'r.head.croc', eyes: 'r.eyes.gem', jaw: 'r.jaw.underbite', crest: 'r.crest.spikes', legsFront: ['r.legsFront.raptor', 'r.legsFront.dragon'], legsBack: 'r.legsBack.raptor', tail: 'r.tail.croc', back: 'r.back.plates', wings: 'r.wings.none', throat: 'r.throat.plates', scales: 'r.scales.bands' },
     palette: { c1: [220, 12, 62], c2: [220, 15, 40], c3: [200, 60, 55], eye: [0, 90, 52] }, vary: { h: 8, s: 5, l: 6 },
@@ -191,7 +191,7 @@ export const SPECIES = [
     desc: 'Nobody knows whether it was built or born. It sharpens its teeth on rusty nails.',
   },
   {
-    id: 'twinklet', name: 'Twinklet', nameParts: ['Twink', 'let'], clade: 'mammal', rig: 'mammal', types: ['Fairy'], tier: 'common', bst: 383,
+    id: 'twinklet', name: 'Twinklet', nameParts: ['Twink', 'let'], clade: 'mammal', rig: 'mammal', types: ['Fairy'], tier: 'common', bst: 391,
     stats: { hp: 0.17, melee: 0.096, ranged: 0.064, magic: 0.16, meleeDef: 0.1, rangedDef: 0.12, magicDef: 0.14, spe: 0.15 },
     recipe: { body: 'm.body.mouse', head: 'm.head.rabbit', ears: 'm.ears.rabbit', eyes: 'm.eyes.round', muzzle: 'm.muzzle.rabbit', legsFront: 'm.legsFront.mouse', legsBack: 'm.legsBack.mouse', tail: ['m.tail.fox', 'm.tail.rabbit'], mane: 'm.mane.cat', horns: 'm.horns.none', back: ['m.back.wings', 'm.back.none'], markings: 'm.markings.spots' },
     palette: { c1: [320, 45, 80], c2: [45, 60, 94], c3: [280, 50, 70], eye: [200, 60, 45] }, vary: { h: 12, s: 8, l: 5 },
@@ -203,7 +203,7 @@ export const SPECIES = [
   },
   // Dual-typed species
   {
-    id: 'moltrix', name: 'Moltrix', nameParts: ['Mol', 'trix'], clade: 'bird', rig: 'bird', types: ['Fire', 'Flying'], tier: 'uncommon', bst: 430,
+    id: 'moltrix', name: 'Moltrix', nameParts: ['Mol', 'trix'], clade: 'bird', rig: 'bird', types: ['Fire', 'Flying'], tier: 'uncommon', bst: 438,
     stats: { hp: 0.14, melee: 0.12, ranged: 0.08, magic: 0.2, meleeDef: 0.08, rangedDef: 0.08, magicDef: 0.08, spe: 0.22 },
     recipe: { body: 'b.body.hawk', head: 'b.head.hawk', eyes: 'b.eyes.fierce', beak: 'b.beak.hooked', crest: ['b.crest.mohawk', 'b.crest.tuft'], face: 'b.face.none', wings: 'b.wings.pointed', tail: 'b.tail.forked', legs: 'b.legs.raptor', chest: ['b.chest.none', 'b.chest.ruff'], back: 'b.back.flame', pattern: 'b.pattern.gradient' },
     palette: { c1: [18, 85, 50], c2: [40, 95, 60], c3: [48, 95, 62], eye: [48, 95, 55] }, vary: { h: 8, s: 6, l: 6 },
@@ -214,7 +214,7 @@ export const SPECIES = [
     desc: 'Its wingbeats leave trails of embers. Nests on chimney tops in winter.',
   },
   {
-    id: 'tidalisk', name: 'Tidalisk', nameParts: ['Tida', 'lisk'], clade: 'reptile', rig: 'reptile', types: ['Water', 'Dragon'], tier: 'rare', bst: 404,
+    id: 'tidalisk', name: 'Tidalisk', nameParts: ['Tida', 'lisk'], clade: 'reptile', rig: 'reptile', types: ['Water', 'Dragon'], tier: 'rare', bst: 401,
     stats: { hp: 0.18, melee: 0.111, ranged: 0.074, magic: 0.185, meleeDef: 0.113, rangedDef: 0.107, magicDef: 0.1, spe: 0.13 },
     recipe: { body: 'r.body.serpent', head: 'r.head.dragon', eyes: 'r.eyes.slit', jaw: 'r.jaw.fangs', crest: 'r.crest.fin', legsFront: 'r.legsFront.lizard', legsBack: 'r.legsBack.lizard', tail: 'r.tail.finned', back: 'r.back.sail', wings: ['r.wings.fin', 'r.wings.none'], throat: 'r.throat.frill', scales: 'r.scales.belly' },
     palette: { c1: [200, 65, 42], c2: [185, 60, 68], c3: [165, 70, 60], eye: [45, 90, 55] }, vary: { h: 10, s: 6, l: 6 },
@@ -225,7 +225,7 @@ export const SPECIES = [
     desc: 'Coils around harbour posts during storms. Sailors leave it fish and it leaves them alone.',
   },
   {
-    id: 'mossbrute', name: 'Mossbrute', nameParts: ['Moss', 'brute'], clade: 'amphibian', rig: 'amphibian', types: ['Grass', 'Fighting'], tier: 'uncommon', bst: 460,
+    id: 'mossbrute', name: 'Mossbrute', nameParts: ['Moss', 'brute'], clade: 'amphibian', rig: 'amphibian', types: ['Grass', 'Fighting'], tier: 'uncommon', bst: 461,
     stats: { hp: 0.19, melee: 0.165, ranged: 0.099, magic: 0.066, meleeDef: 0.133, rangedDef: 0.12, magicDef: 0.107, spe: 0.12 },
     recipe: { body: 'a.body.toad', head: 'a.head.toad', eyes: 'a.eyes.sleepy', mouth: 'a.mouth.frown', gills: 'a.gills.none', legsFront: 'a.legsFront.toad', legsBack: 'a.legsBack.toad', tail: 'a.tail.stub', throat: 'a.throat.none', crest: ['a.crest.moss', 'a.crest.sprout'], back: ['a.back.moss', 'a.back.boulder'], pattern: 'a.pattern.blotches' },
     palette: { c1: [100, 35, 40], c2: [80, 45, 58], c3: [95, 55, 52], eye: [40, 80, 50] }, vary: { h: 10, s: 8, l: 6 },
@@ -235,7 +235,7 @@ export const SPECIES = [
     desc: 'Moss grows thick on its shoulders. It uproots trees to practise its throws, then replants them.',
   },
   {
-    id: 'gloamoth', name: 'Gloamoth', nameParts: ['Gloa', 'moth'], clade: 'insect', rig: 'insect', types: ['Bug', 'Ghost'], tier: 'uncommon', bst: 382,
+    id: 'gloamoth', name: 'Gloamoth', nameParts: ['Gloa', 'moth'], clade: 'insect', rig: 'insect', types: ['Bug', 'Ghost'], tier: 'uncommon', bst: 383,
     stats: { hp: 0.149, melee: 0.099, ranged: 0.066, magic: 0.165, meleeDef: 0.087, rangedDef: 0.107, magicDef: 0.127, spe: 0.2 },
     recipe: { body: 'i.body.moth', head: 'i.head.moth', eyes: 'i.eyes.glow', mandibles: 'i.mandibles.proboscis', antennae: 'i.antennae.feathered', wings: 'i.wings.moth', legsFront: 'i.legsFront.hairy', legsMid: 'i.legsMid.hairy', legsBack: 'i.legsBack.hairy', tail: 'i.tail.none', shell: ['i.shell.fuzz', 'i.shell.none'], pattern: 'i.pattern.eyespots' },
     palette: { c1: [250, 30, 38], c2: [260, 25, 62], c3: [170, 60, 68], eye: [170, 80, 65] }, vary: { h: 12, s: 8, l: 6 },
@@ -247,7 +247,7 @@ export const SPECIES = [
   },
   // Batch two
   {
-    id: 'bramblit', name: 'Bramblit', nameParts: ['Bram', 'blit'], clade: 'mammal', rig: 'mammal', types: ['Grass', 'Bug'], tier: 'common', bst: 406,
+    id: 'bramblit', name: 'Bramblit', nameParts: ['Bram', 'blit'], clade: 'mammal', rig: 'mammal', types: ['Grass', 'Bug'], tier: 'common', bst: 405,
     stats: { hp: 0.16, melee: 0.099, ranged: 0.165, magic: 0.066, meleeDef: 0.1, rangedDef: 0.103, magicDef: 0.107, spe: 0.2 },
     recipe: { body: 'm.body.rabbit', head: 'm.head.rabbit', ears: 'm.ears.rabbit', eyes: 'm.eyes.doe', muzzle: 'm.muzzle.rabbit', legsFront: 'm.legsFront.rabbit', legsBack: 'm.legsBack.rabbit', tail: 'm.tail.rabbit', mane: 'm.mane.none', horns: ['m.horns.nubs', 'm.horns.none'], back: ['m.back.ridge', 'm.back.quills'], markings: 'm.markings.spots' },
     palette: { c1: [100, 40, 45], c2: [92, 45, 72], c3: [335, 65, 52], eye: [22, 60, 30] }, vary: { h: 12, s: 8, l: 6 },
@@ -258,7 +258,7 @@ export const SPECIES = [
     desc: 'Wears a leaf as a hat and takes it very seriously. Chews through fences to reach berry bushes.',
   },
   {
-    id: 'cinderhoof', name: 'Cinderhoof', nameParts: ['Cinder', 'hoof'], clade: 'mammal', rig: 'mammal', types: ['Fire', 'Ground'], tier: 'uncommon', bst: 378,
+    id: 'cinderhoof', name: 'Cinderhoof', nameParts: ['Cinder', 'hoof'], clade: 'mammal', rig: 'mammal', types: ['Fire', 'Ground'], tier: 'uncommon', bst: 374,
     stats: { hp: 0.17, melee: 0.18, ranged: 0.108, magic: 0.072, meleeDef: 0.1, rangedDef: 0.093, magicDef: 0.087, spe: 0.19 },
     recipe: { body: 'm.body.deer', head: 'm.head.deer', ears: 'm.ears.deer', eyes: 'm.eyes.fierce', muzzle: 'm.muzzle.deer', legsFront: 'm.legsFront.deer', legsBack: 'm.legsBack.deer', tail: ['m.tail.deer', 'm.tail.fox'], mane: 'm.mane.none', horns: ['m.horns.antlers', 'm.horns.crest'], back: 'm.back.flame', markings: ['m.markings.saddle', 'm.markings.none'] },
     palette: { c1: [18, 60, 36], c2: [42, 92, 62], c3: [8, 85, 50], eye: [48, 95, 55] }, vary: { h: 6, s: 6, l: 6 },
@@ -280,7 +280,7 @@ export const SPECIES = [
     desc: 'The gem on its brow stores moonlight. Fishers who see one are said to have a lucky season.',
   },
   {
-    id: 'voltcrab', name: 'Voltcrab', nameParts: ['Volt', 'crab'], clade: 'invertebrate', rig: 'invertebrate', types: ['Electric', 'Steel'], tier: 'uncommon', bst: 403,
+    id: 'voltcrab', name: 'Voltcrab', nameParts: ['Volt', 'crab'], clade: 'invertebrate', rig: 'invertebrate', types: ['Electric', 'Steel'], tier: 'uncommon', bst: 404,
     stats: { hp: 0.16, melee: 0.17, ranged: 0.102, magic: 0.068, meleeDef: 0.16, rangedDef: 0.13, magicDef: 0.1, spe: 0.11 },
     recipe: { body: 'v.body.crab', eyes: 'v.eyes.stalked', mouth: 'v.mouth.grin', arms: 'v.arms.claws', legs: 'v.legs.crab', shell: 'v.shell.plates', tail: 'v.tail.none', crown: ['v.crown.spikes', 'v.crown.none'], feelers: ['v.feelers.antennae', 'v.feelers.none'], pattern: 'v.pattern.gradient', glow: ['v.glow.static', 'v.glow.none'], skirt: 'v.skirt.none' },
     palette: { c1: [210, 15, 55], c2: [50, 95, 55], c3: [200, 60, 60], eye: [50, 95, 60] }, vary: { h: 8, s: 6, l: 6 },
@@ -301,7 +301,7 @@ export const SPECIES = [
     desc: 'Hunts by moonless nights. The glow of its stinger is the last thing many beetles see.',
   },
   {
-    id: 'halowl', name: 'Halowl', nameParts: ['Hal', 'owl'], clade: 'bird', rig: 'bird', types: ['Psychic', 'Flying'], tier: 'rare', bst: 486,
+    id: 'halowl', name: 'Halowl', nameParts: ['Hal', 'owl'], clade: 'bird', rig: 'bird', types: ['Psychic', 'Flying'], tier: 'rare', bst: 479,
     stats: { hp: 0.151, melee: 0.102, ranged: 0.068, magic: 0.17, meleeDef: 0.093, rangedDef: 0.103, magicDef: 0.113, spe: 0.2 },
     recipe: { body: 'b.body.owl', head: 'b.head.owl', eyes: 'b.eyes.big', beak: 'b.beak.hooked', crest: ['b.crest.halo', 'b.crest.eartufts'], face: 'b.face.disc', wings: 'b.wings.rounded', tail: 'b.tail.fan', legs: 'b.legs.feathered', chest: ['b.chest.bib', 'b.chest.none'], back: ['b.back.starcloak', 'b.back.none'], pattern: 'b.pattern.bars' },
     palette: { c1: [45, 30, 86], c2: [260, 40, 62], c3: [48, 90, 60], eye: [48, 100, 65] }, vary: { h: 10, s: 6, l: 5 },
@@ -312,7 +312,7 @@ export const SPECIES = [
     desc: 'Seen only at dusk, circling old towers. It answers questions nobody asked aloud.',
   },
   {
-    id: 'howlune', name: 'Howlune', nameParts: ['Howl', 'une'], clade: 'mammal', rig: 'mammal', types: ['Psychic'], tier: 'uncommon', bst: 424,
+    id: 'howlune', name: 'Howlune', nameParts: ['Howl', 'une'], clade: 'mammal', rig: 'mammal', types: ['Psychic'], tier: 'uncommon', bst: 429,
     stats: { hp: 0.15, melee: 0.117, ranged: 0.078, magic: 0.195, meleeDef: 0.087, rangedDef: 0.093, magicDef: 0.1, spe: 0.18 },
     recipe: { body: 'm.body.wolf', head: 'm.head.wolf', ears: 'm.ears.wolf', eyes: ['m.eyes.fierce', 'm.eyes.almond'], muzzle: 'm.muzzle.wolf', legsFront: 'm.legsFront.wolf', legsBack: 'm.legsBack.wolf', tail: 'm.tail.wolf', mane: 'm.mane.wolf', horns: ['m.horns.none', 'm.horns.crest'], back: 'm.back.none', markings: ['m.markings.star', 'm.markings.belly'] },
     palette: { c1: [228, 28, 42], c2: [228, 20, 86], c3: [275, 55, 66], eye: [52, 90, 58] }, vary: { h: 10, s: 6, l: 6 },
@@ -322,7 +322,7 @@ export const SPECIES = [
     desc: 'Howls at the moon until the air itself hums. Packs of them share one dream.',
   },
   {
-    id: 'solmane', name: 'Solmane', nameParts: ['Sol', 'mane'], clade: 'mammal', rig: 'mammal', types: ['Fire', 'Normal'], tier: 'rare', bst: 416,
+    id: 'solmane', name: 'Solmane', nameParts: ['Sol', 'mane'], clade: 'mammal', rig: 'mammal', types: ['Fire', 'Normal'], tier: 'rare', bst: 413,
     stats: { hp: 0.17, melee: 0.19, ranged: 0.114, magic: 0.076, meleeDef: 0.1, rangedDef: 0.093, magicDef: 0.087, spe: 0.17 },
     recipe: { body: 'm.body.wolf', head: 'm.head.cat', ears: 'm.ears.cat', eyes: 'm.eyes.fierce', muzzle: 'm.muzzle.cat', legsFront: 'm.legsFront.wolf', legsBack: 'm.legsBack.wolf', tail: 'm.tail.cat', mane: 'm.mane.lion', horns: 'm.horns.none', back: ['m.back.flame', 'm.back.none'], markings: ['m.markings.none', 'm.markings.belly'] },
     palette: { c1: [40, 75, 58], c2: [44, 60, 86], c3: [20, 82, 42], eye: [45, 90, 50] }, vary: { h: 6, s: 6, l: 6 },
@@ -333,7 +333,7 @@ export const SPECIES = [
     desc: 'Its mane glows brighter at noon. Young ones practise roaring at their own shadows.',
   },
   {
-    id: 'skinkit', name: 'Skinkit', nameParts: ['Skink', 'it'], clade: 'reptile', rig: 'reptile', types: ['Normal'], tier: 'common', bst: 485,
+    id: 'skinkit', name: 'Skinkit', nameParts: ['Skink', 'it'], clade: 'reptile', rig: 'reptile', types: ['Normal'], tier: 'common', bst: 482,
     stats: { hp: 0.161, melee: 0.15, ranged: 0.09, magic: 0.06, meleeDef: 0.093, rangedDef: 0.093, magicDef: 0.093, spe: 0.26 },
     recipe: { body: 'r.body.lizard', head: 'r.head.lizard', eyes: 'r.eyes.round', jaw: 'r.jaw.grin', crest: 'r.crest.none', legsFront: ['r.legsFront.lizard', 'r.legsFront.gecko'], legsBack: ['r.legsBack.lizard', 'r.legsBack.gecko'], tail: 'r.tail.lizard', back: 'r.back.none', wings: 'r.wings.none', throat: ['r.throat.none', 'r.throat.dewlap'], scales: 'r.scales.bands' },
     palette: { c1: [42, 55, 58], c2: [48, 50, 84], c3: [200, 55, 50], eye: [40, 90, 45] }, vary: { h: 10, s: 8, l: 6 },
@@ -344,7 +344,7 @@ export const SPECIES = [
     desc: 'Drops its bright tail to escape and grows a brighter one. Basks on warm rocks in a row with its friends.',
   },
   {
-    id: 'tortoak', name: 'Tortoak', nameParts: ['Tort', 'oak'], clade: 'reptile', rig: 'reptile', types: ['Grass', 'Ground'], tier: 'common', bst: 502,
+    id: 'tortoak', name: 'Tortoak', nameParts: ['Tort', 'oak'], clade: 'reptile', rig: 'reptile', types: ['Grass', 'Ground'], tier: 'common', bst: 504,
     stats: { hp: 0.22, melee: 0.078, ranged: 0.052, magic: 0.13, meleeDef: 0.173, rangedDef: 0.147, magicDef: 0.12, spe: 0.08 },
     recipe: { body: 'r.body.turtle', head: 'r.head.turtle', eyes: 'r.eyes.bead', jaw: 'r.jaw.beak', crest: 'r.crest.none', legsFront: 'r.legsFront.turtle', legsBack: 'r.legsBack.turtle', tail: 'r.tail.turtle', back: ['r.back.none', 'r.back.plates'], wings: ['r.wings.none', 'r.wings.leaf'], throat: 'r.throat.none', scales: 'r.scales.hex' },
     palette: { c1: [110, 35, 38], c2: [60, 40, 66], c3: [78, 70, 55], eye: [30, 60, 30] }, vary: { h: 10, s: 6, l: 6 },
@@ -354,7 +354,7 @@ export const SPECIES = [
     desc: 'A sapling grows from a crack in its shell. It plants itself in the sun and refuses to move until dusk.',
   },
   {
-    id: 'chamelune', name: 'Chamelune', nameParts: ['Chame', 'lune'], clade: 'reptile', rig: 'reptile', types: ['Psychic'], tier: 'common', bst: 428,
+    id: 'chamelune', name: 'Chamelune', nameParts: ['Chame', 'lune'], clade: 'reptile', rig: 'reptile', types: ['Psychic'], tier: 'common', bst: 429,
     stats: { hp: 0.151, melee: 0.108, ranged: 0.072, magic: 0.18, meleeDef: 0.093, rangedDef: 0.113, magicDef: 0.133, spe: 0.15 },
     recipe: { body: 'r.body.chameleon', head: 'r.head.chameleon', eyes: 'r.eyes.turret', jaw: 'r.jaw.smirk', crest: ['r.crest.none', 'r.crest.fin'], legsFront: 'r.legsFront.chameleon', legsBack: 'r.legsBack.chameleon', tail: 'r.tail.curl', back: 'r.back.none', wings: 'r.wings.none', throat: ['r.throat.pouch', 'r.throat.none'], scales: 'r.scales.spots' },
     palette: { c1: [150, 45, 42], c2: [80, 55, 70], c3: [280, 50, 62], eye: [40, 90, 55] }, vary: { h: 16, s: 8, l: 6 },
@@ -375,7 +375,7 @@ export const SPECIES = [
     desc: 'Spreads its hood to look twice its size. The rattle is a courtesy; the bite is not.',
   },
   {
-    id: 'raptrix', name: 'Raptrix', nameParts: ['Rap', 'trix'], clade: 'reptile', rig: 'reptile', types: ['Dark'], tier: 'uncommon', bst: 392,
+    id: 'raptrix', name: 'Raptrix', nameParts: ['Rap', 'trix'], clade: 'reptile', rig: 'reptile', types: ['Dark'], tier: 'uncommon', bst: 394,
     stats: { hp: 0.149, melee: 0.17, ranged: 0.102, magic: 0.068, meleeDef: 0.087, rangedDef: 0.087, magicDef: 0.087, spe: 0.25 },
     recipe: { body: 'r.body.raptor', head: 'r.head.raptor', eyes: 'r.eyes.fierce', jaw: 'r.jaw.grin', crest: 'r.crest.plume', legsFront: 'r.legsFront.raptor', legsBack: 'r.legsBack.raptor', tail: 'r.tail.raptor', back: ['r.back.feathers', 'r.back.none'], wings: 'r.wings.none', throat: ['r.throat.none', 'r.throat.ruff'], scales: 'r.scales.saddle' },
     palette: { c1: [192, 30, 34], c2: [40, 60, 72], c3: [20, 80, 55], eye: [50, 90, 55] }, vary: { h: 10, s: 8, l: 6 },
@@ -396,7 +396,7 @@ export const SPECIES = [
     desc: 'Circles anything shiny. It grins because it has never once been told not to.',
   },
   {
-    id: 'lurelight', name: 'Lurelight', nameParts: ['Lure', 'light'], clade: 'fish', rig: 'fish', types: ['Water', 'Ghost'], tier: 'uncommon', bst: 386,
+    id: 'lurelight', name: 'Lurelight', nameParts: ['Lure', 'light'], clade: 'fish', rig: 'fish', types: ['Water', 'Ghost'], tier: 'uncommon', bst: 384,
     stats: { hp: 0.169, melee: 0.108, ranged: 0.072, magic: 0.18, meleeDef: 0.107, rangedDef: 0.117, magicDef: 0.127, spe: 0.12 },
     recipe: { body: 'f.body.angler', eyes: 'f.eyes.deadeye', mouth: 'f.mouth.fangs', dorsal: 'f.dorsal.spiky', pectoral: 'f.pectoral.tiny', tail: 'f.tail.fan', belly: 'f.belly.tiny', gills: ['f.gills.none', 'f.gills.glow'], crest: 'f.crest.lure', barbels: 'f.barbels.none', spines: 'f.spines.none', pattern: 'f.pattern.glow' },
     palette: { c1: [265, 35, 30], c2: [190, 70, 60], c3: [170, 90, 62], eye: [180, 90, 70] }, vary: { h: 10, s: 6, l: 5 },
@@ -407,7 +407,7 @@ export const SPECIES = [
     desc: 'Lives so deep that its light is the only one it has ever seen. It is very proud of it.',
   },
   {
-    id: 'puffugu', name: 'Puffugu', nameParts: ['Puff', 'ugu'], clade: 'fish', rig: 'fish', types: ['Water', 'Poison'], tier: 'common', bst: 485,
+    id: 'puffugu', name: 'Puffugu', nameParts: ['Puff', 'ugu'], clade: 'fish', rig: 'fish', types: ['Water', 'Poison'], tier: 'common', bst: 487,
     stats: { hp: 0.2, melee: 0.064, ranged: 0.16, magic: 0.096, meleeDef: 0.133, rangedDef: 0.127, magicDef: 0.12, spe: 0.1 },
     recipe: { body: 'f.body.puffer', eyes: 'f.eyes.wide', mouth: 'f.mouth.pout', dorsal: 'f.dorsal.crest', pectoral: 'f.pectoral.tiny', tail: 'f.tail.fan', belly: 'f.belly.tiny', gills: 'f.gills.none', crest: 'f.crest.none', barbels: 'f.barbels.none', spines: ['f.spines.puffer', 'f.spines.bumps'], pattern: 'f.pattern.spots' },
     palette: { c1: [50, 60, 60], c2: [48, 50, 88], c3: [30, 40, 30], eye: [200, 60, 40] }, vary: { h: 10, s: 8, l: 6 },
@@ -417,7 +417,7 @@ export const SPECIES = [
     desc: 'Inflates when startled, which is often. Nothing that has bitten one has ever done it twice.',
   },
   {
-    id: 'hippodrake', name: 'Hippodrake', nameParts: ['Hippo', 'drake'], clade: 'fish', rig: 'fish', types: ['Water', 'Dragon'], tier: 'rare', bst: 441,
+    id: 'hippodrake', name: 'Hippodrake', nameParts: ['Hippo', 'drake'], clade: 'fish', rig: 'fish', types: ['Water', 'Dragon'], tier: 'rare', bst: 437,
     stats: { hp: 0.16, melee: 0.108, ranged: 0.072, magic: 0.18, meleeDef: 0.12, rangedDef: 0.12, magicDef: 0.12, spe: 0.12 },
     recipe: { body: 'f.body.seahorse', eyes: 'f.eyes.round', mouth: 'f.mouth.pout', dorsal: 'f.dorsal.crest', pectoral: 'f.pectoral.tiny', tail: 'f.tail.curl', belly: 'f.belly.none', gills: 'f.gills.plate', crest: 'f.crest.coronet', barbels: 'f.barbels.none', spines: ['f.spines.none', 'f.spines.armour'], pattern: 'f.pattern.scales' },
     palette: { c1: [30, 85, 58], c2: [45, 80, 82], c3: [15, 70, 40], eye: [200, 60, 40] }, vary: { h: 10, s: 6, l: 6 },
@@ -428,7 +428,7 @@ export const SPECIES = [
     desc: 'The fathers carry the eggs and the mothers carry the grudges. Curls its tail around coral to nap.',
   },
   {
-    id: 'zapeel', name: 'Zapeel', nameParts: ['Zap', 'eel'], clade: 'fish', rig: 'fish', types: ['Electric', 'Water'], tier: 'common', bst: 376,
+    id: 'zapeel', name: 'Zapeel', nameParts: ['Zap', 'eel'], clade: 'fish', rig: 'fish', types: ['Electric', 'Water'], tier: 'common', bst: 377,
     stats: { hp: 0.15, melee: 0.114, ranged: 0.076, magic: 0.19, meleeDef: 0.08, rangedDef: 0.087, magicDef: 0.093, spe: 0.21 },
     recipe: { body: 'f.body.eel', eyes: 'f.eyes.bead', mouth: 'f.mouth.grin', dorsal: 'f.dorsal.ribbon', pectoral: 'f.pectoral.tiny', tail: 'f.tail.eel', belly: 'f.belly.ribbon', gills: 'f.gills.slits', crest: 'f.crest.none', barbels: ['f.barbels.none', 'f.barbels.tiny'], spines: 'f.spines.none', pattern: 'f.pattern.stripes' },
     palette: { c1: [55, 85, 55], c2: [50, 70, 85], c3: [230, 40, 25], eye: [220, 30, 15] }, vary: { h: 8, s: 6, l: 6 },
@@ -438,7 +438,7 @@ export const SPECIES = [
     desc: 'Hums when content. Fishers feel it in their teeth long before they see it.',
   },
   {
-    id: 'koiwish', name: 'Koiwish', nameParts: ['Koi', 'wish'], clade: 'fish', rig: 'fish', types: ['Water', 'Psychic'], tier: 'common', bst: 468,
+    id: 'koiwish', name: 'Koiwish', nameParts: ['Koi', 'wish'], clade: 'fish', rig: 'fish', types: ['Water', 'Psychic'], tier: 'common', bst: 471,
     stats: { hp: 0.199, melee: 0.09, ranged: 0.06, magic: 0.15, meleeDef: 0.107, rangedDef: 0.127, magicDef: 0.147, spe: 0.12 },
     recipe: { body: 'f.body.round', eyes: 'f.eyes.sleepy', mouth: 'f.mouth.sucker', dorsal: 'f.dorsal.fan', pectoral: 'f.pectoral.paddle', tail: ['f.tail.lyre', 'f.tail.fan'], belly: 'f.belly.paddle', gills: 'f.gills.plate', crest: 'f.crest.none', barbels: 'f.barbels.koi', spines: 'f.spines.none', pattern: 'f.pattern.koi' },
     palette: { c1: [40, 30, 92], c2: [40, 40, 96], c3: [18, 90, 56], eye: [220, 40, 30] }, vary: { h: 6, s: 6, l: 3 },
@@ -449,7 +449,7 @@ export const SPECIES = [
     desc: 'Grants a small wish to anyone who guesses its age. Nobody has guessed correctly.',
   },
   {
-    id: 'pengloo', name: 'Pengloo', nameParts: ['Peng', 'loo'], clade: 'bird', rig: 'bird', types: ['Ice', 'Water'], tier: 'common', bst: 504,
+    id: 'pengloo', name: 'Pengloo', nameParts: ['Peng', 'loo'], clade: 'bird', rig: 'bird', types: ['Ice', 'Water'], tier: 'common', bst: 507,
     stats: { hp: 0.2, melee: 0.06, ranged: 0.15, magic: 0.09, meleeDef: 0.133, rangedDef: 0.127, magicDef: 0.12, spe: 0.12 },
     recipe: { body: 'b.body.penguin', head: 'b.head.penguin', eyes: 'b.eyes.bead', beak: 'b.beak.short', crest: ['b.crest.none', 'b.crest.tuft'], face: 'b.face.none', wings: 'b.wings.flipper', tail: 'b.tail.stubby', legs: 'b.legs.penguin', chest: 'b.chest.tuxedo', back: ['b.back.none', 'b.back.icicles'], pattern: 'b.pattern.none' },
     palette: { c1: [215, 25, 24], c2: [210, 15, 96], c3: [35, 90, 60], eye: [220, 20, 15] }, vary: { h: 10, s: 6, l: 5 },
@@ -460,7 +460,7 @@ export const SPECIES = [
     desc: 'Slides on its belly wherever it goes, ice or not. Huddles with strangers without asking.',
   },
   {
-    id: 'corvex', name: 'Corvex', nameParts: ['Cor', 'vex'], clade: 'bird', rig: 'bird', types: ['Dark', 'Flying'], tier: 'uncommon', bst: 386,
+    id: 'corvex', name: 'Corvex', nameParts: ['Cor', 'vex'], clade: 'bird', rig: 'bird', types: ['Dark', 'Flying'], tier: 'uncommon', bst: 389,
     stats: { hp: 0.15, melee: 0.18, ranged: 0.108, magic: 0.072, meleeDef: 0.08, rangedDef: 0.083, magicDef: 0.087, spe: 0.24 },
     recipe: { body: 'b.body.hawk', head: 'b.head.hawk', eyes: 'b.eyes.fierce', beak: 'b.beak.stout', crest: ['b.crest.none', 'b.crest.mohawk'], face: ['b.face.none', 'b.face.mask'], wings: 'b.wings.long', tail: 'b.tail.wedge', legs: 'b.legs.thin', chest: ['b.chest.none', 'b.chest.ruff'], back: ['b.back.mantle', 'b.back.starcloak'], pattern: 'b.pattern.gradient' },
     palette: { c1: [250, 18, 26], c2: [250, 12, 44], c3: [270, 50, 56], eye: [45, 20, 88] }, vary: { h: 12, s: 6, l: 5 },
@@ -471,7 +471,7 @@ export const SPECIES = [
     desc: 'Collects keys, coins and grudges. It remembers every face that ever shooed it.',
   },
   {
-    id: 'squawkeet', name: 'Squawkeet', nameParts: ['Squaw', 'keet'], clade: 'bird', rig: 'bird', types: ['Grass', 'Flying'], tier: 'common', bst: 433,
+    id: 'squawkeet', name: 'Squawkeet', nameParts: ['Squaw', 'keet'], clade: 'bird', rig: 'bird', types: ['Grass', 'Flying'], tier: 'common', bst: 434,
     stats: { hp: 0.159, melee: 0.07, ranged: 0.175, magic: 0.105, meleeDef: 0.087, rangedDef: 0.097, magicDef: 0.107, spe: 0.2 },
     recipe: { body: 'b.body.parrot', head: 'b.head.parrot', eyes: 'b.eyes.ring', beak: 'b.beak.parrot', crest: ['b.crest.tuft', 'b.crest.cockatoo'], face: 'b.face.cheeks', wings: 'b.wings.long', tail: 'b.tail.long', legs: 'b.legs.zygo', chest: 'b.chest.none', back: ['b.back.none', 'b.back.leaves'], pattern: 'b.pattern.patches' },
     palette: { c1: [120, 55, 40], c2: [55, 80, 62], c3: [10, 70, 55], eye: [40, 60, 40] }, vary: { h: 14, s: 8, l: 6 },
@@ -482,7 +482,7 @@ export const SPECIES = [
     desc: 'Repeats the last thing it heard, louder. Grows a leaf for every word it learns.',
   },
   {
-    id: 'plumaura', name: 'Plumaura', nameParts: ['Plum', 'aura'], clade: 'bird', rig: 'bird', types: ['Fairy', 'Flying'], tier: 'rare', bst: 411,
+    id: 'plumaura', name: 'Plumaura', nameParts: ['Plum', 'aura'], clade: 'bird', rig: 'bird', types: ['Fairy', 'Flying'], tier: 'rare', bst: 415,
     stats: { hp: 0.16, melee: 0.102, ranged: 0.068, magic: 0.17, meleeDef: 0.1, rangedDef: 0.12, magicDef: 0.14, spe: 0.14 },
     recipe: { body: 'b.body.peacock', head: 'b.head.peacock', eyes: 'b.eyes.sparkle', beak: 'b.beak.short', crest: 'b.crest.plume', face: ['b.face.none', 'b.face.spectacles'], wings: 'b.wings.lacy', tail: 'b.tail.fantail', legs: 'b.legs.stilts', chest: ['b.chest.scales', 'b.chest.medallion'], back: ['b.back.none', 'b.back.coverts'], pattern: 'b.pattern.none' },
     palette: { c1: [200, 70, 42], c2: [160, 60, 50], c3: [45, 90, 60], eye: [200, 60, 30] }, vary: { h: 12, s: 6, l: 5 },
@@ -493,7 +493,7 @@ export const SPECIES = [
     desc: 'Every eye on its tail is said to be watching a different admirer. It has never been short of them.',
   },
   {
-    id: 'quackle', name: 'Quackle', nameParts: ['Quack', 'le'], clade: 'bird', rig: 'bird', types: ['Water', 'Flying'], tier: 'common', bst: 406,
+    id: 'quackle', name: 'Quackle', nameParts: ['Quack', 'le'], clade: 'bird', rig: 'bird', types: ['Water', 'Flying'], tier: 'common', bst: 405,
     stats: { hp: 0.18, melee: 0.064, ranged: 0.16, magic: 0.096, meleeDef: 0.1, rangedDef: 0.107, magicDef: 0.113, spe: 0.18 },
     recipe: { body: 'b.body.duck', head: 'b.head.duck', eyes: 'b.eyes.round', beak: 'b.beak.flat', crest: ['b.crest.none', 'b.crest.tuft'], face: 'b.face.none', wings: 'b.wings.pointed', tail: 'b.tail.pintail', legs: 'b.legs.webbed', chest: 'b.chest.bib', back: ['b.back.none', 'b.back.coverts'], pattern: ['b.pattern.none', 'b.pattern.speckles'] },
     palette: { c1: [140, 40, 30], c2: [45, 30, 88], c3: [40, 85, 55], eye: [30, 50, 20] }, vary: { h: 12, s: 8, l: 6 },
@@ -504,7 +504,7 @@ export const SPECIES = [
     desc: 'Paddles in circles when thinking. It has opinions about bread.',
   },
   {
-    id: 'scarabolt', name: 'Scarabolt', nameParts: ['Scara', 'bolt'], clade: 'insect', rig: 'insect', types: ['Bug', 'Steel'], tier: 'uncommon', bst: 406,
+    id: 'scarabolt', name: 'Scarabolt', nameParts: ['Scara', 'bolt'], clade: 'insect', rig: 'insect', types: ['Bug', 'Steel'], tier: 'uncommon', bst: 408,
     stats: { hp: 0.169, melee: 0.15, ranged: 0.09, magic: 0.06, meleeDef: 0.167, rangedDef: 0.137, magicDef: 0.107, spe: 0.12 },
     recipe: { body: 'i.body.beetle', head: 'i.head.beetle', eyes: 'i.eyes.dot', mandibles: 'i.mandibles.pincers', antennae: ['i.antennae.horn', 'i.antennae.clubbed'], wings: 'i.wings.none', legsFront: 'i.legsFront.sturdy', legsMid: 'i.legsMid.sturdy', legsBack: 'i.legsBack.sturdy', tail: 'i.tail.none', shell: 'i.shell.armour', pattern: 'i.pattern.gradient' },
     palette: { c1: [215, 18, 42], c2: [210, 15, 70], c3: [45, 70, 55], eye: [45, 90, 55] }, vary: { h: 10, s: 6, l: 6 },
@@ -515,7 +515,7 @@ export const SPECIES = [
     desc: 'Its horn can flip a cart. It polishes its shell on rocks until it can see itself.',
   },
   {
-    id: 'stingbuzz', name: 'Stingbuzz', nameParts: ['Sting', 'buzz'], clade: 'insect', rig: 'insect', types: ['Bug', 'Poison'], tier: 'common', bst: 432,
+    id: 'stingbuzz', name: 'Stingbuzz', nameParts: ['Sting', 'buzz'], clade: 'insect', rig: 'insect', types: ['Bug', 'Poison'], tier: 'common', bst: 431,
     stats: { hp: 0.14, melee: 0.18, ranged: 0.108, magic: 0.072, meleeDef: 0.08, rangedDef: 0.087, magicDef: 0.093, spe: 0.24 },
     recipe: { body: 'i.body.bee', head: 'i.head.bee', eyes: 'i.eyes.compound', mandibles: 'i.mandibles.tiny', antennae: 'i.antennae.straight', wings: 'i.wings.clear', legsFront: 'i.legsFront.hairy', legsMid: 'i.legsMid.hairy', legsBack: 'i.legsBack.hairy', tail: 'i.tail.stinger', shell: ['i.shell.fuzz', 'i.shell.none'], pattern: 'i.pattern.stripes' },
     palette: { c1: [45, 95, 56], c2: [45, 80, 82], c3: [220, 15, 14], eye: [220, 15, 14] }, vary: { h: 6, s: 6, l: 6 },
@@ -525,7 +525,7 @@ export const SPECIES = [
     desc: 'Dances to tell the hive where the flowers are. Dances differently to tell it where you are.',
   },
   {
-    id: 'mantislash', name: 'Mantislash', nameParts: ['Mantis', 'lash'], clade: 'insect', rig: 'insect', types: ['Bug', 'Fighting'], tier: 'uncommon', bst: 382,
+    id: 'mantislash', name: 'Mantislash', nameParts: ['Mantis', 'lash'], clade: 'insect', rig: 'insect', types: ['Bug', 'Fighting'], tier: 'uncommon', bst: 381,
     stats: { hp: 0.139, melee: 0.18, ranged: 0.108, magic: 0.072, meleeDef: 0.087, rangedDef: 0.087, magicDef: 0.087, spe: 0.24 },
     recipe: { body: 'i.body.mantis', head: 'i.head.mantis', eyes: 'i.eyes.compound', mandibles: 'i.mandibles.fangs', antennae: 'i.antennae.straight', wings: ['i.wings.lacewing', 'i.wings.none'], legsFront: 'i.legsFront.raptorial', legsMid: 'i.legsMid.long', legsBack: 'i.legsBack.long', tail: 'i.tail.none', shell: ['i.shell.leaf', 'i.shell.none'], pattern: 'i.pattern.none' },
     palette: { c1: [100, 50, 44], c2: [70, 60, 74], c3: [40, 70, 55], eye: [50, 90, 55] }, vary: { h: 12, s: 8, l: 6 },
@@ -545,7 +545,7 @@ export const SPECIES = [
     desc: 'Can fly backwards and does so to admire where it has been. Eats gnats by the thousand.',
   },
   {
-    id: 'antlas', name: 'Antlas', nameParts: ['Ant', 'las'], clade: 'insect', rig: 'insect', types: ['Bug', 'Ground'], tier: 'common', bst: 395,
+    id: 'antlas', name: 'Antlas', nameParts: ['Ant', 'las'], clade: 'insect', rig: 'insect', types: ['Bug', 'Ground'], tier: 'common', bst: 397,
     stats: { hp: 0.181, melee: 0.16, ranged: 0.096, magic: 0.064, meleeDef: 0.133, rangedDef: 0.113, magicDef: 0.093, spe: 0.16 },
     recipe: { body: 'i.body.ant', head: 'i.head.ant', eyes: 'i.eyes.dot', mandibles: 'i.mandibles.pincers', antennae: 'i.antennae.elbowed', wings: 'i.wings.none', legsFront: 'i.legsFront.sturdy', legsMid: 'i.legsMid.sturdy', legsBack: 'i.legsBack.sturdy', tail: 'i.tail.none', shell: 'i.shell.none', pattern: ['i.pattern.bands', 'i.pattern.none'] },
     palette: { c1: [18, 60, 40], c2: [30, 50, 62], c3: [42, 95, 58], eye: [0, 0, 12] }, vary: { h: 10, s: 8, l: 6 },
@@ -566,7 +566,7 @@ export const SPECIES = [
     desc: 'Blinks in patterns only other Glimbugs understand. Travellers follow them at their own risk.',
   },
   {
-    id: 'dottalie', name: 'Dottalie', nameParts: ['Dot', 'talie'], clade: 'insect', rig: 'insect', types: ['Bug', 'Fairy'], tier: 'common', bst: 393,
+    id: 'dottalie', name: 'Dottalie', nameParts: ['Dot', 'talie'], clade: 'insect', rig: 'insect', types: ['Bug', 'Fairy'], tier: 'common', bst: 387,
     stats: { hp: 0.18, melee: 0.096, ranged: 0.064, magic: 0.16, meleeDef: 0.107, rangedDef: 0.113, magicDef: 0.12, spe: 0.16 },
     recipe: { body: 'i.body.ladybug', head: 'i.head.ladybug', eyes: 'i.eyes.round', mandibles: 'i.mandibles.smile', antennae: 'i.antennae.clubbed', wings: ['i.wings.none', 'i.wings.beetle'], legsFront: 'i.legsFront.sturdy', legsMid: 'i.legsMid.stubby', legsBack: 'i.legsBack.sturdy', tail: 'i.tail.none', shell: 'i.shell.dome', pattern: 'i.pattern.spots' },
     palette: { c1: [5, 80, 52], c2: [40, 30, 92], c3: [220, 15, 14], eye: [220, 15, 14] }, vary: { h: 10, s: 6, l: 6 },
@@ -576,7 +576,7 @@ export const SPECIES = [
     desc: 'Counting its spots is said to bring luck. It will not hold still long enough to check.',
   },
   {
-    id: 'inkurl', name: 'Inkurl', nameParts: ['Ink', 'url'], clade: 'invertebrate', rig: 'invertebrate', types: ['Water'], tier: 'common', bst: 414,
+    id: 'inkurl', name: 'Inkurl', nameParts: ['Ink', 'url'], clade: 'invertebrate', rig: 'invertebrate', types: ['Water'], tier: 'common', bst: 415,
     stats: { hp: 0.17, melee: 0.07, ranged: 0.175, magic: 0.105, meleeDef: 0.1, rangedDef: 0.107, magicDef: 0.113, spe: 0.16 },
     recipe: { body: 'v.body.octopus', eyes: 'v.eyes.big', mouth: 'v.mouth.beak', arms: 'v.arms.tentacles', legs: 'v.legs.none', shell: 'v.shell.none', tail: ['v.tail.none', 'v.tail.tentacle'], crown: ['v.crown.none', 'v.crown.tuft'], feelers: 'v.feelers.none', pattern: 'v.pattern.rings', glow: ['v.glow.none', 'v.glow.bubbles'], skirt: 'v.skirt.tentacles' },
     palette: { c1: [345, 55, 52], c2: [20, 60, 82], c3: [345, 40, 30], eye: [50, 90, 55] }, vary: { h: 14, s: 8, l: 6 },
@@ -586,7 +586,7 @@ export const SPECIES = [
     desc: 'Squeezes through any gap wider than its beak. Squirts ink first and asks questions never.',
   },
   {
-    id: 'silkspin', name: 'Silkspin', nameParts: ['Silk', 'spin'], clade: 'invertebrate', rig: 'invertebrate', types: ['Dark'], tier: 'common', bst: 466,
+    id: 'silkspin', name: 'Silkspin', nameParts: ['Silk', 'spin'], clade: 'invertebrate', rig: 'invertebrate', types: ['Dark'], tier: 'common', bst: 465,
     stats: { hp: 0.141, melee: 0.102, ranged: 0.17, magic: 0.068, meleeDef: 0.093, rangedDef: 0.093, magicDef: 0.093, spe: 0.24 },
     recipe: { body: 'v.body.spider', eyes: 'v.eyes.cluster', mouth: 'v.mouth.fangs', arms: 'v.arms.feelers', legs: 'v.legs.spider', shell: 'v.shell.none', tail: ['v.tail.sting', 'v.tail.none'], crown: 'v.crown.none', feelers: ['v.feelers.hairs', 'v.feelers.none'], pattern: ['v.pattern.swirl', 'v.pattern.none'], glow: 'v.glow.none', skirt: 'v.skirt.none' },
     palette: { c1: [230, 20, 28], c2: [230, 15, 46], c3: [0, 80, 50], eye: [0, 80, 50] }, vary: { h: 10, s: 8, l: 5 },
@@ -596,7 +596,7 @@ export const SPECIES = [
     desc: 'Spins a new web every dusk and signs it. Nobody has worked out the signature.',
   },
   {
-    id: 'shellwick', name: 'Shellwick', nameParts: ['Shell', 'wick'], clade: 'invertebrate', rig: 'invertebrate', types: ['Rock', 'Water'], tier: 'common', bst: 484,
+    id: 'shellwick', name: 'Shellwick', nameParts: ['Shell', 'wick'], clade: 'invertebrate', rig: 'invertebrate', types: ['Rock', 'Water'], tier: 'common', bst: 486,
     stats: { hp: 0.18, melee: 0.06, ranged: 0.15, magic: 0.09, meleeDef: 0.173, rangedDef: 0.147, magicDef: 0.12, spe: 0.08 },
     recipe: { body: 'v.body.slug', eyes: 'v.eyes.stalks', mouth: 'v.mouth.smile', arms: 'v.arms.none', legs: 'v.legs.none', shell: 'v.shell.spiral', tail: 'v.tail.slugtip', crown: ['v.crown.none', 'v.crown.coral'], feelers: 'v.feelers.slug', pattern: ['v.pattern.none', 'v.pattern.stripes'], glow: 'v.glow.none', skirt: 'v.skirt.fringe' },
     palette: { c1: [30, 45, 62], c2: [40, 40, 82], c3: [22, 55, 40], eye: [30, 50, 25] }, vary: { h: 10, s: 8, l: 6 },
@@ -607,7 +607,7 @@ export const SPECIES = [
     desc: 'Carries its house and never complains about the rent. Seals the door with slime when it rains.',
   },
   {
-    id: 'axolune', name: 'Axolune', nameParts: ['Axo', 'lune'], clade: 'amphibian', rig: 'amphibian', types: ['Water', 'Fairy'], tier: 'uncommon', bst: 375,
+    id: 'axolune', name: 'Axolune', nameParts: ['Axo', 'lune'], clade: 'amphibian', rig: 'amphibian', types: ['Water', 'Fairy'], tier: 'uncommon', bst: 377,
     stats: { hp: 0.2, melee: 0.09, ranged: 0.06, magic: 0.15, meleeDef: 0.1, rangedDef: 0.117, magicDef: 0.133, spe: 0.15 },
     recipe: { body: 'a.body.axolotl', head: 'a.head.axolotl', eyes: 'a.eyes.bead', mouth: 'a.mouth.smile', gills: 'a.gills.frills', legsFront: 'a.legsFront.axolotl', legsBack: 'a.legsBack.axolotl', tail: 'a.tail.fin', throat: 'a.throat.none', crest: ['a.crest.none', 'a.crest.fin'], back: 'a.back.none', pattern: ['a.pattern.speckles', 'a.pattern.none'] },
     palette: { c1: [340, 45, 80], c2: [350, 40, 92], c3: [335, 70, 62], eye: [220, 25, 25] }, vary: { h: 14, s: 8, l: 5 },
@@ -627,7 +627,7 @@ export const SPECIES = [
     desc: 'Its tail burns underwater. Old stories say lanterns were lit from a newtorch that wandered into a village.',
   },
   {
-    id: 'toadstool', name: 'Toadstool', nameParts: ['Toad', 'stool'], clade: 'amphibian', rig: 'amphibian', types: ['Poison'], tier: 'common', bst: 474,
+    id: 'toadstool', name: 'Toadstool', nameParts: ['Toad', 'stool'], clade: 'amphibian', rig: 'amphibian', types: ['Poison'], tier: 'common', bst: 476,
     stats: { hp: 0.201, melee: 0.06, ranged: 0.15, magic: 0.09, meleeDef: 0.133, rangedDef: 0.133, magicDef: 0.133, spe: 0.1 },
     recipe: { body: 'a.body.toad', head: 'a.head.toad', eyes: 'a.eyes.sleepy', mouth: 'a.mouth.frown', gills: 'a.gills.none', legsFront: 'a.legsFront.toad', legsBack: 'a.legsBack.toad', tail: 'a.tail.none', throat: ['a.throat.sac', 'a.throat.striped'], crest: 'a.crest.mushroom', back: 'a.back.mushrooms', pattern: ['a.pattern.blotches', 'a.pattern.rings'] },
     palette: { c1: [285, 22, 42], c2: [40, 35, 74], c3: [355, 72, 56], eye: [50, 80, 50] }, vary: { h: 12, s: 8, l: 6 },
@@ -647,7 +647,7 @@ export const SPECIES = [
     desc: 'Happiest buried to the eyes in riverbank mud. It surfaces only for rain and for snacks.',
   },
   {
-    id: 'wigglet', name: 'Wigglet', nameParts: ['Wig', 'glet'], clade: 'amphibian', rig: 'amphibian', types: ['Water'], tier: 'common', bst: 403,
+    id: 'wigglet', name: 'Wigglet', nameParts: ['Wig', 'glet'], clade: 'amphibian', rig: 'amphibian', types: ['Water'], tier: 'common', bst: 396,
     stats: { hp: 0.199, melee: 0.16, ranged: 0.096, magic: 0.064, meleeDef: 0.087, rangedDef: 0.087, magicDef: 0.087, spe: 0.22 },
     recipe: { body: 'a.body.polliwog', head: 'a.head.polliwog', eyes: 'a.eyes.wide', mouth: 'a.mouth.pout', gills: 'a.gills.none', legsFront: 'a.legsFront.polliwog', legsBack: 'a.legsBack.polliwog', tail: 'a.tail.polliwog', throat: ['a.throat.none', 'a.throat.bubble'], crest: 'a.crest.none', back: 'a.back.none', pattern: 'a.pattern.speckles' },
     palette: { c1: [200, 55, 50], c2: [195, 40, 82], c3: [30, 80, 60], eye: [220, 40, 25] }, vary: { h: 12, s: 8, l: 6 },
@@ -657,7 +657,7 @@ export const SPECIES = [
     desc: 'Mostly tail and enthusiasm. Its legs sprouted last week and it still forgets to use them.',
   },
   {
-    id: 'leapfern', name: 'Leapfern', nameParts: ['Leap', 'fern'], clade: 'amphibian', rig: 'amphibian', types: ['Grass', 'Water'], tier: 'uncommon', bst: 428,
+    id: 'leapfern', name: 'Leapfern', nameParts: ['Leap', 'fern'], clade: 'amphibian', rig: 'amphibian', types: ['Grass', 'Water'], tier: 'uncommon', bst: 430,
     stats: { hp: 0.15, melee: 0.108, ranged: 0.18, magic: 0.072, meleeDef: 0.087, rangedDef: 0.09, magicDef: 0.093, spe: 0.22 },
     recipe: { body: 'a.body.treefrog', head: 'a.head.treefrog', eyes: 'a.eyes.big', mouth: 'a.mouth.grin', gills: ['a.gills.none', 'a.gills.leafy'], legsFront: 'a.legsFront.treefrog', legsBack: 'a.legsBack.treefrog', tail: ['a.tail.none', 'a.tail.leaf'], throat: 'a.throat.bubble', crest: 'a.crest.leaves', back: 'a.back.none', pattern: 'a.pattern.stripes' },
     palette: { c1: [95, 60, 45], c2: [60, 70, 72], c3: [20, 90, 55], eye: [0, 80, 50] }, vary: { h: 10, s: 8, l: 6 },
@@ -669,7 +669,7 @@ export const SPECIES = [
 
   // ---- Roster expansion: mammals ----
   {
-    id: 'tidewhisker', name: 'Tidewhisker', nameParts: ['Tide', 'whisker'], clade: 'mammal', rig: 'mammal', types: ['Water'], tier: 'common', bst: 406,
+    id: 'tidewhisker', name: 'Tidewhisker', nameParts: ['Tide', 'whisker'], clade: 'mammal', rig: 'mammal', types: ['Water'], tier: 'common', bst: 403,
     stats: { hp: 0.15, melee: 0.09, ranged: 0.18, magic: 0.07, meleeDef: 0.1, rangedDef: 0.12, magicDef: 0.11, spe: 0.18 },
     recipe: { body: 'm.body.cat', head: 'm.head.cat', ears: ['m.ears.mouse', 'm.ears.cat'], eyes: 'm.eyes.sleepy', muzzle: 'm.muzzle.cat', legsFront: 'm.legsFront.cat', legsBack: 'm.legsBack.cat', tail: ['m.tail.mouse', 'm.tail.cat'], mane: 'm.mane.none', horns: 'm.horns.none', back: ['m.back.ridge', 'm.back.none'], markings: 'm.markings.belly' },
     palette: { c1: [28, 40, 38], c2: [200, 45, 78], c3: [195, 70, 50], eye: [200, 60, 28] }, vary: { h: 8, s: 6, l: 6 },
@@ -680,7 +680,7 @@ export const SPECIES = [
     desc: 'Slips between river stones with its whiskers held high to read the current. Sleeps floating, paws folded.',
   },
   {
-    id: 'bouldram', name: 'Bouldram', nameParts: ['Bould', 'ram'], clade: 'mammal', rig: 'mammal', types: ['Rock'], tier: 'uncommon', bst: 444,
+    id: 'bouldram', name: 'Bouldram', nameParts: ['Bould', 'ram'], clade: 'mammal', rig: 'mammal', types: ['Rock'], tier: 'uncommon', bst: 441,
     stats: { hp: 0.18, melee: 0.16, ranged: 0.08, magic: 0.05, meleeDef: 0.17, rangedDef: 0.15, magicDef: 0.12, spe: 0.09 },
     recipe: { body: 'm.body.bear', head: 'm.head.deer', ears: 'm.ears.deer', eyes: 'm.eyes.fierce', muzzle: 'm.muzzle.deer', legsFront: 'm.legsFront.bear', legsBack: 'm.legsBack.bear', tail: 'm.tail.deer', mane: ['m.mane.bear', 'm.mane.none'], horns: 'm.horns.ram', back: ['m.back.crystals', 'm.back.ridge'], markings: 'm.markings.patches' },
     palette: { c1: [30, 18, 48], c2: [35, 25, 72], c3: [15, 55, 45], eye: [40, 70, 50] }, vary: { h: 8, s: 5, l: 6 },
@@ -691,7 +691,7 @@ export const SPECIES = [
     desc: 'Butts heads with cliffs to see which gives first. So far the score is even.',
   },
   {
-    id: 'ferrohorn', name: 'Ferrohorn', nameParts: ['Ferro', 'horn'], clade: 'mammal', rig: 'mammal', types: ['Steel'], tier: 'uncommon', bst: 413,
+    id: 'ferrohorn', name: 'Ferrohorn', nameParts: ['Ferro', 'horn'], clade: 'mammal', rig: 'mammal', types: ['Steel'], tier: 'uncommon', bst: 415,
     stats: { hp: 0.16, melee: 0.17, ranged: 0.08, magic: 0.05, meleeDef: 0.17, rangedDef: 0.16, magicDef: 0.11, spe: 0.1 },
     recipe: { body: 'm.body.deer', head: 'm.head.deer', ears: 'm.ears.deer', eyes: 'm.eyes.fierce', muzzle: 'm.muzzle.deer', legsFront: 'm.legsFront.deer', legsBack: 'm.legsBack.deer', tail: 'm.tail.deer', mane: 'm.mane.none', horns: ['m.horns.bull', 'm.horns.antlers'], back: ['m.back.ridge', 'm.back.saddle'], markings: 'm.markings.rings' },
     palette: { c1: [215, 12, 58], c2: [215, 10, 80], c3: [40, 85, 55], eye: [200, 70, 45] }, vary: { h: 6, s: 5, l: 6 },
@@ -702,7 +702,7 @@ export const SPECIES = [
     desc: 'Its horns ring like bells when they meet. Herds stand in the rain and shake the rust off together.',
   },
   {
-    id: 'wispaw', name: 'Wispaw', nameParts: ['Wis', 'paw'], clade: 'mammal', rig: 'mammal', types: ['Ghost'], tier: 'uncommon', bst: 402,
+    id: 'wispaw', name: 'Wispaw', nameParts: ['Wis', 'paw'], clade: 'mammal', rig: 'mammal', types: ['Ghost'], tier: 'uncommon', bst: 405,
     stats: { hp: 0.15, melee: 0.07, ranged: 0.09, magic: 0.19, meleeDef: 0.1, rangedDef: 0.11, magicDef: 0.14, spe: 0.15 },
     recipe: { body: 'm.body.cat', head: 'm.head.cat', ears: 'm.ears.cat', eyes: 'm.eyes.slit', muzzle: 'm.muzzle.cat', legsFront: 'm.legsFront.cat', legsBack: 'm.legsBack.cat', tail: ['m.tail.cat', 'm.tail.fox'], mane: 'm.mane.none', horns: 'm.horns.none', back: ['m.back.flame', 'm.back.none'], markings: ['m.markings.star', 'm.markings.none'] },
     palette: { c1: [255, 25, 30], c2: [250, 20, 55], c3: [170, 85, 62], eye: [170, 90, 65] }, vary: { h: 10, s: 6, l: 5 },
@@ -713,7 +713,7 @@ export const SPECIES = [
     desc: 'Only ever seen from the corner of an eye. Leaves cold pawprints on warm windowsills.',
   },
   {
-    id: 'duskflit', name: 'Duskflit', nameParts: ['Dusk', 'flit'], clade: 'mammal', rig: 'mammal', types: ['Flying'], tier: 'common', bst: 408,
+    id: 'duskflit', name: 'Duskflit', nameParts: ['Dusk', 'flit'], clade: 'mammal', rig: 'mammal', types: ['Flying'], tier: 'common', bst: 407,
     stats: { hp: 0.13, melee: 0.08, ranged: 0.19, magic: 0.08, meleeDef: 0.09, rangedDef: 0.11, magicDef: 0.1, spe: 0.22 },
     recipe: { body: 'm.body.mouse', head: 'm.head.mouse', ears: ['m.ears.rabbit', 'm.ears.mouse'], eyes: 'm.eyes.bead', muzzle: 'm.muzzle.mouse', legsFront: 'm.legsFront.mouse', legsBack: 'm.legsBack.mouse', tail: 'm.tail.mouse', mane: 'm.mane.none', horns: 'm.horns.none', back: 'm.back.batwings', markings: ['m.markings.none', 'm.markings.belly'] },
     palette: { c1: [270, 25, 32], c2: [280, 20, 60], c3: [40, 90, 65], eye: [40, 95, 60] }, vary: { h: 10, s: 6, l: 6 },
@@ -724,7 +724,7 @@ export const SPECIES = [
     desc: 'Hangs from eaves by day and flits after moths at dusk. Its squeak is pitched too high for most ears.',
   },
   {
-    id: 'reekit', name: 'Reekit', nameParts: ['Ree', 'kit'], clade: 'mammal', rig: 'mammal', types: ['Poison'], tier: 'common', bst: 431,
+    id: 'reekit', name: 'Reekit', nameParts: ['Ree', 'kit'], clade: 'mammal', rig: 'mammal', types: ['Poison'], tier: 'common', bst: 437,
     stats: { hp: 0.15, melee: 0.09, ranged: 0.18, magic: 0.07, meleeDef: 0.1, rangedDef: 0.12, magicDef: 0.11, spe: 0.18 },
     recipe: { body: 'm.body.fox', head: 'm.head.fox', ears: 'm.ears.cat', eyes: 'm.eyes.almond', muzzle: 'm.muzzle.fox', legsFront: 'm.legsFront.fox', legsBack: 'm.legsBack.fox', tail: ['m.tail.fox', 'm.tail.wolf'], mane: 'm.mane.none', horns: 'm.horns.none', back: 'm.back.none', markings: ['m.markings.stripes', 'm.markings.saddle'] },
     palette: { c1: [240, 10, 18], c2: [45, 15, 92], c3: [95, 75, 50], eye: [95, 80, 55] }, vary: { h: 8, s: 5, l: 5 },
@@ -735,7 +735,7 @@ export const SPECIES = [
     desc: 'Raises its tail as a warning and means it. The smell lingers for days and nothing tries to eat it twice.',
   },
   {
-    id: 'kirinth', name: 'Kirinth', nameParts: ['Kir', 'inth'], clade: 'mammal', rig: 'mammal', types: ['Dragon'], tier: 'rare', bst: 452,
+    id: 'kirinth', name: 'Kirinth', nameParts: ['Kir', 'inth'], clade: 'mammal', rig: 'mammal', types: ['Dragon'], tier: 'rare', bst: 446,
     stats: { hp: 0.17, melee: 0.07, ranged: 0.08, magic: 0.18, meleeDef: 0.12, rangedDef: 0.11, magicDef: 0.15, spe: 0.12 },
     recipe: { body: 'm.body.deer', head: 'm.head.deer', ears: 'm.ears.deer', eyes: 'm.eyes.doe', muzzle: 'm.muzzle.deer', legsFront: 'm.legsFront.deer', legsBack: 'm.legsBack.deer', tail: ['m.tail.wolf', 'm.tail.deer'], mane: 'm.mane.lion', horns: 'm.horns.unicorn', back: ['m.back.flame', 'm.back.none'], markings: 'm.markings.star' },
     palette: { c1: [175, 40, 40], c2: [45, 70, 85], c3: [45, 95, 60], eye: [200, 70, 45] }, vary: { h: 8, s: 6, l: 5 },
@@ -759,7 +759,7 @@ export const SPECIES = [
     desc: 'Basks on sun-baked walls until its spots glow. Sheds sparks along with its skin.',
   },
   {
-    id: 'gulpodile', name: 'Gulpodile', nameParts: ['Gulp', 'odile'], clade: 'reptile', rig: 'reptile', types: ['Water'], tier: 'uncommon', bst: 428,
+    id: 'gulpodile', name: 'Gulpodile', nameParts: ['Gulp', 'odile'], clade: 'reptile', rig: 'reptile', types: ['Water'], tier: 'uncommon', bst: 431,
     stats: { hp: 0.17, melee: 0.18, ranged: 0.09, magic: 0.06, meleeDef: 0.14, rangedDef: 0.12, magicDef: 0.1, spe: 0.14 },
     recipe: { body: 'r.body.croc', head: 'r.head.croc', eyes: 'r.eyes.hooded', jaw: 'r.jaw.fangs', crest: 'r.crest.none', legsFront: 'r.legsFront.croc', legsBack: 'r.legsBack.croc', tail: 'r.tail.croc', back: 'r.back.ridge', wings: 'r.wings.none', throat: ['r.throat.pouch', 'r.throat.none'], scales: 'r.scales.scutes' },
     palette: { c1: [150, 30, 32], c2: [70, 30, 70], c3: [195, 60, 55], eye: [50, 80, 55] }, vary: { h: 10, s: 6, l: 6 },
@@ -770,7 +770,7 @@ export const SPECIES = [
     desc: 'Lies still as a log until lunch swims past. Its throat pouch holds a surprising amount of river.',
   },
   {
-    id: 'sparkwyrm', name: 'Sparkwyrm', nameParts: ['Spark', 'wyrm'], clade: 'reptile', rig: 'reptile', types: ['Electric'], tier: 'common', bst: 404,
+    id: 'sparkwyrm', name: 'Sparkwyrm', nameParts: ['Spark', 'wyrm'], clade: 'reptile', rig: 'reptile', types: ['Electric'], tier: 'common', bst: 412,
     stats: { hp: 0.15, melee: 0.07, ranged: 0.09, magic: 0.19, meleeDef: 0.1, rangedDef: 0.11, magicDef: 0.14, spe: 0.15 },
     recipe: { body: 'r.body.serpent', head: 'r.head.cobra', eyes: 'r.eyes.gem', jaw: 'r.jaw.fangs', crest: ['r.crest.fin', 'r.crest.none'], legsFront: 'r.legsFront.lizard', legsBack: 'r.legsBack.lizard', tail: 'r.tail.rattle', back: 'r.back.fin', wings: 'r.wings.none', throat: 'r.throat.ruff', scales: 'r.scales.bands' },
     palette: { c1: [225, 35, 35], c2: [52, 95, 62], c3: [200, 90, 60], eye: [52, 95, 60] }, vary: { h: 8, s: 5, l: 6 },
@@ -781,7 +781,7 @@ export const SPECIES = [
     desc: 'Coils around lightning rods in a storm and hums for hours afterwards. Its rattle crackles.',
   },
   {
-    id: 'glaciguana', name: 'Glaciguana', nameParts: ['Glaci', 'guana'], clade: 'reptile', rig: 'reptile', types: ['Ice'], tier: 'uncommon', bst: 464,
+    id: 'glaciguana', name: 'Glaciguana', nameParts: ['Glaci', 'guana'], clade: 'reptile', rig: 'reptile', types: ['Ice'], tier: 'uncommon', bst: 462,
     stats: { hp: 0.17, melee: 0.18, ranged: 0.09, magic: 0.06, meleeDef: 0.14, rangedDef: 0.12, magicDef: 0.1, spe: 0.14 },
     recipe: { body: 'r.body.lizard', head: 'r.head.lizard', eyes: 'r.eyes.bead', jaw: 'r.jaw.smirk', crest: 'r.crest.spikes', legsFront: 'r.legsFront.lizard', legsBack: 'r.legsBack.lizard', tail: 'r.tail.finned', back: ['r.back.crystals', 'r.back.spines'], wings: 'r.wings.none', throat: 'r.throat.beard', scales: 'r.scales.diamonds' },
     palette: { c1: [195, 35, 62], c2: [200, 30, 88], c3: [260, 45, 70], eye: [210, 70, 40] }, vary: { h: 8, s: 6, l: 5 },
@@ -792,7 +792,7 @@ export const SPECIES = [
     desc: 'Cold-blooded and proud of it. Sits on glaciers until frost grows along its spines like fur.',
   },
   {
-    id: 'talonfist', name: 'Talonfist', nameParts: ['Talon', 'fist'], clade: 'reptile', rig: 'reptile', types: ['Fighting'], tier: 'uncommon', bst: 453,
+    id: 'talonfist', name: 'Talonfist', nameParts: ['Talon', 'fist'], clade: 'reptile', rig: 'reptile', types: ['Fighting'], tier: 'uncommon', bst: 452,
     stats: { hp: 0.16, melee: 0.19, ranged: 0.09, magic: 0.05, meleeDef: 0.13, rangedDef: 0.12, magicDef: 0.1, spe: 0.16 },
     recipe: { body: 'r.body.raptor', head: 'r.head.raptor', eyes: 'r.eyes.fierce', jaw: 'r.jaw.grin', crest: ['r.crest.plume', 'r.crest.none'], legsFront: 'r.legsFront.raptor', legsBack: 'r.legsBack.raptor', tail: 'r.tail.raptor', back: 'r.back.none', wings: 'r.wings.none', throat: 'r.throat.collar', scales: 'r.scales.saddle' },
     palette: { c1: [15, 45, 42], c2: [35, 45, 75], c3: [0, 75, 55], eye: [45, 85, 55] }, vary: { h: 8, s: 6, l: 6 },
@@ -814,7 +814,7 @@ export const SPECIES = [
     desc: 'Rides thermals all day without a single wingbeat. Nests on the highest ledge it can find, then complains about the wind.',
   },
   {
-    id: 'shadeshell', name: 'Shadeshell', nameParts: ['Shade', 'shell'], clade: 'reptile', rig: 'reptile', types: ['Ghost', 'Rock'], tier: 'uncommon', bst: 413,
+    id: 'shadeshell', name: 'Shadeshell', nameParts: ['Shade', 'shell'], clade: 'reptile', rig: 'reptile', types: ['Ghost', 'Rock'], tier: 'uncommon', bst: 409,
     stats: { hp: 0.17, melee: 0.07, ranged: 0.08, magic: 0.18, meleeDef: 0.12, rangedDef: 0.11, magicDef: 0.15, spe: 0.12 },
     recipe: { body: 'r.body.turtle', head: 'r.head.turtle', eyes: 'r.eyes.hooded', jaw: 'r.jaw.underbite', crest: 'r.crest.none', legsFront: 'r.legsFront.turtle', legsBack: 'r.legsBack.turtle', tail: 'r.tail.curl', back: 'r.back.crystals', wings: ['r.wings.tattered', 'r.wings.none'], throat: 'r.throat.none', scales: 'r.scales.hex' },
     palette: { c1: [250, 15, 28], c2: [30, 15, 55], c3: [150, 70, 60], eye: [150, 90, 65] }, vary: { h: 10, s: 5, l: 5 },
@@ -827,7 +827,7 @@ export const SPECIES = [
 
   // ---- Roster expansion: fish ----
   {
-    id: 'icefin', name: 'Icefin', nameParts: ['Ice', 'fin'], clade: 'fish', rig: 'fish', types: ['Ice', 'Water'], tier: 'common', bst: 382,
+    id: 'icefin', name: 'Icefin', nameParts: ['Ice', 'fin'], clade: 'fish', rig: 'fish', types: ['Ice', 'Water'], tier: 'common', bst: 379,
     stats: { hp: 0.15, melee: 0.09, ranged: 0.18, magic: 0.07, meleeDef: 0.1, rangedDef: 0.12, magicDef: 0.11, spe: 0.18 },
     recipe: { body: 'f.body.round', eyes: 'f.eyes.wide', mouth: 'f.mouth.pout', dorsal: 'f.dorsal.spiky', pectoral: 'f.pectoral.pointed', tail: 'f.tail.forked', belly: 'f.belly.pelvic', gills: 'f.gills.slits', crest: ['f.crest.horn', 'f.crest.none'], barbels: 'f.barbels.none', spines: ['f.spines.ridge', 'f.spines.none'], pattern: 'f.pattern.gradient' },
     palette: { c1: [200, 55, 60], c2: [195, 40, 88], c3: [265, 50, 68], eye: [215, 70, 40] }, vary: { h: 8, s: 6, l: 5 },
@@ -838,7 +838,7 @@ export const SPECIES = [
     desc: 'Swims under the ice all winter, tapping the underside to find thin spots. Its fins leave frost trails.',
   },
   {
-    id: 'ferrofin', name: 'Ferrofin', nameParts: ['Ferro', 'fin'], clade: 'fish', rig: 'fish', types: ['Steel', 'Water'], tier: 'uncommon', bst: 381,
+    id: 'ferrofin', name: 'Ferrofin', nameParts: ['Ferro', 'fin'], clade: 'fish', rig: 'fish', types: ['Steel', 'Water'], tier: 'uncommon', bst: 388,
     stats: { hp: 0.18, melee: 0.16, ranged: 0.08, magic: 0.05, meleeDef: 0.17, rangedDef: 0.15, magicDef: 0.12, spe: 0.09 },
     recipe: { body: 'f.body.shark', eyes: 'f.eyes.fierce', mouth: 'f.mouth.grin', dorsal: 'f.dorsal.shark', pectoral: 'f.pectoral.pointed', tail: 'f.tail.shark', belly: 'f.belly.anal', gills: 'f.gills.armour', crest: 'f.crest.none', barbels: 'f.barbels.none', spines: ['f.spines.armour', 'f.spines.ridge'], pattern: 'f.pattern.scales' },
     palette: { c1: [210, 12, 52], c2: [210, 8, 78], c3: [200, 55, 60], eye: [0, 80, 55] }, vary: { h: 6, s: 5, l: 6 },
@@ -849,7 +849,7 @@ export const SPECIES = [
     desc: 'Its fins are honed on shipwreck hulls. Rams anything that rings when struck, out of curiosity.',
   },
   {
-    id: 'cindercarp', name: 'Cindercarp', nameParts: ['Cinder', 'carp'], clade: 'fish', rig: 'fish', types: ['Fire', 'Water'], tier: 'uncommon', bst: 432,
+    id: 'cindercarp', name: 'Cindercarp', nameParts: ['Cinder', 'carp'], clade: 'fish', rig: 'fish', types: ['Fire', 'Water'], tier: 'uncommon', bst: 431,
     stats: { hp: 0.15, melee: 0.07, ranged: 0.09, magic: 0.19, meleeDef: 0.1, rangedDef: 0.11, magicDef: 0.14, spe: 0.15 },
     recipe: { body: 'f.body.betta', eyes: 'f.eyes.glow', mouth: 'f.mouth.smile', dorsal: 'f.dorsal.flowing', pectoral: 'f.pectoral.flowing', tail: 'f.tail.flowing', belly: 'f.belly.flowing', gills: ['f.gills.glow', 'f.gills.plate'], crest: 'f.crest.none', barbels: 'f.barbels.koi', spines: 'f.spines.none', pattern: 'f.pattern.koi' },
     palette: { c1: [12, 85, 52], c2: [40, 40, 90], c3: [48, 100, 58], eye: [48, 100, 60] }, vary: { h: 8, s: 5, l: 5 },
@@ -860,7 +860,7 @@ export const SPECIES = [
     desc: 'Lives in hot springs and glows brighter the hotter the water. Steams gently when lifted out.',
   },
   {
-    id: 'kelpling', name: 'Kelpling', nameParts: ['Kelp', 'ling'], clade: 'fish', rig: 'fish', types: ['Grass', 'Water'], tier: 'common', bst: 476,
+    id: 'kelpling', name: 'Kelpling', nameParts: ['Kelp', 'ling'], clade: 'fish', rig: 'fish', types: ['Grass', 'Water'], tier: 'common', bst: 477,
     stats: { hp: 0.17, melee: 0.07, ranged: 0.08, magic: 0.18, meleeDef: 0.12, rangedDef: 0.11, magicDef: 0.15, spe: 0.12 },
     recipe: { body: 'f.body.seahorse', eyes: 'f.eyes.round', mouth: 'f.mouth.pout', dorsal: 'f.dorsal.ribbon', pectoral: 'f.pectoral.tiny', tail: 'f.tail.curl', belly: 'f.belly.ribbon', gills: 'f.gills.plumes', crest: ['f.crest.plume', 'f.crest.feathery'], barbels: ['f.barbels.tentacles', 'f.barbels.none'], spines: ['f.spines.none', 'f.spines.frills'], pattern: 'f.pattern.spots' },
     palette: { c1: [95, 45, 42], c2: [60, 50, 68], c3: [20, 70, 55], eye: [30, 60, 30] }, vary: { h: 12, s: 8, l: 6 },
@@ -871,7 +871,7 @@ export const SPECIES = [
     desc: 'Anchors its tail to a kelp stem and sways with the forest. Grows a new frond every full moon.',
   },
   {
-    id: 'reefjaw', name: 'Reefjaw', nameParts: ['Reef', 'jaw'], clade: 'fish', rig: 'fish', types: ['Rock', 'Water'], tier: 'uncommon', bst: 438,
+    id: 'reefjaw', name: 'Reefjaw', nameParts: ['Reef', 'jaw'], clade: 'fish', rig: 'fish', types: ['Rock', 'Water'], tier: 'uncommon', bst: 445,
     stats: { hp: 0.17, melee: 0.08, ranged: 0.18, magic: 0.06, meleeDef: 0.15, rangedDef: 0.14, magicDef: 0.12, spe: 0.1 },
     recipe: { body: 'f.body.puffer', eyes: 'f.eyes.deadeye', mouth: 'f.mouth.frown', dorsal: 'f.dorsal.crest', pectoral: 'f.pectoral.paddle', tail: 'f.tail.fan', belly: 'f.belly.spiky', gills: 'f.gills.ridge', crest: ['f.crest.coronet', 'f.crest.none'], barbels: 'f.barbels.beard', spines: 'f.spines.thorns', pattern: 'f.pattern.belly' },
     palette: { c1: [25, 35, 45], c2: [35, 40, 72], c3: [350, 60, 62], eye: [45, 80, 55] }, vary: { h: 8, s: 6, l: 6 },
@@ -928,7 +928,7 @@ export const SPECIES = [
     desc: 'Sharpens its beak on cliff iron until it gleams. Can open a tin in one peck and often does.',
   },
   {
-    id: 'dodolith', name: 'Dodolith', nameParts: ['Dodo', 'lith'], clade: 'bird', rig: 'bird', types: ['Rock'], tier: 'uncommon', bst: 480,
+    id: 'dodolith', name: 'Dodolith', nameParts: ['Dodo', 'lith'], clade: 'bird', rig: 'bird', types: ['Rock'], tier: 'uncommon', bst: 484,
     stats: { hp: 0.18, melee: 0.16, ranged: 0.08, magic: 0.05, meleeDef: 0.17, rangedDef: 0.15, magicDef: 0.12, spe: 0.09 },
     recipe: { body: 'b.body.penguin', head: 'b.head.duck', eyes: 'b.eyes.sleepy', beak: 'b.beak.stout', crest: ['b.crest.tuft', 'b.crest.none'], face: 'b.face.none', wings: 'b.wings.stubby', tail: 'b.tail.stubby', legs: 'b.legs.feathered', chest: 'b.chest.speckled', back: ['b.back.saddle', 'b.back.none'], pattern: 'b.pattern.patches' },
     palette: { c1: [30, 20, 45], c2: [35, 25, 70], c3: [20, 60, 50], eye: [40, 70, 45] }, vary: { h: 8, s: 5, l: 6 },
@@ -939,7 +939,7 @@ export const SPECIES = [
     desc: 'Forgot how to fly generations ago and never missed it. Naps standing up and is often mistaken for a boulder.',
   },
   {
-    id: 'duneowl', name: 'Duneowl', nameParts: ['Dune', 'owl'], clade: 'bird', rig: 'bird', types: ['Ground', 'Flying'], tier: 'common', bst: 371,
+    id: 'duneowl', name: 'Duneowl', nameParts: ['Dune', 'owl'], clade: 'bird', rig: 'bird', types: ['Ground', 'Flying'], tier: 'common', bst: 381,
     stats: { hp: 0.15, melee: 0.09, ranged: 0.18, magic: 0.07, meleeDef: 0.1, rangedDef: 0.12, magicDef: 0.11, spe: 0.18 },
     recipe: { body: 'b.body.owl', head: 'b.head.owl', eyes: 'b.eyes.big', beak: 'b.beak.short', crest: 'b.crest.eartufts', face: 'b.face.disc', wings: 'b.wings.rounded', tail: 'b.tail.fan', legs: 'b.legs.feathered', chest: 'b.chest.speckled', back: 'b.back.none', pattern: 'b.pattern.bars' },
     palette: { c1: [35, 45, 55], c2: [40, 40, 82], c3: [25, 70, 40], eye: [45, 95, 55] }, vary: { h: 8, s: 6, l: 6 },
@@ -950,7 +950,7 @@ export const SPECIES = [
     desc: 'Nests in a burrow and hunts by moonlight. Kicks sand at anything that gets too close to the door.',
   },
   {
-    id: 'gloomraven', name: 'Gloomraven', nameParts: ['Gloom', 'raven'], clade: 'bird', rig: 'bird', types: ['Ghost', 'Flying'], tier: 'uncommon', bst: 365,
+    id: 'gloomraven', name: 'Gloomraven', nameParts: ['Gloom', 'raven'], clade: 'bird', rig: 'bird', types: ['Ghost', 'Flying'], tier: 'uncommon', bst: 367,
     stats: { hp: 0.15, melee: 0.07, ranged: 0.09, magic: 0.19, meleeDef: 0.1, rangedDef: 0.11, magicDef: 0.14, spe: 0.15 },
     recipe: { body: 'b.body.hawk', head: 'b.head.hawk', eyes: 'b.eyes.ring', beak: 'b.beak.long', crest: 'b.crest.none', face: ['b.face.beard', 'b.face.none'], wings: 'b.wings.long', tail: 'b.tail.long', legs: 'b.legs.thin', chest: 'b.chest.ruff', back: ['b.back.starcloak', 'b.back.none'], pattern: 'b.pattern.none' },
     palette: { c1: [250, 20, 20], c2: [255, 15, 45], c3: [170, 80, 60], eye: [170, 90, 65] }, vary: { h: 10, s: 5, l: 5 },
@@ -972,7 +972,7 @@ export const SPECIES = [
     desc: 'Sings before dawn whether anyone asked or not. Its cheeks puff up on the high notes.',
   },
   {
-    id: 'aurodrake', name: 'Aurodrake', nameParts: ['Auro', 'drake'], clade: 'bird', rig: 'bird', types: ['Dragon', 'Flying'], tier: 'rare', bst: 409,
+    id: 'aurodrake', name: 'Aurodrake', nameParts: ['Auro', 'drake'], clade: 'bird', rig: 'bird', types: ['Dragon', 'Flying'], tier: 'rare', bst: 408,
     stats: { hp: 0.15, melee: 0.07, ranged: 0.09, magic: 0.19, meleeDef: 0.1, rangedDef: 0.11, magicDef: 0.14, spe: 0.15 },
     recipe: { body: 'b.body.peacock', head: 'b.head.hawk', eyes: 'b.eyes.fierce', beak: 'b.beak.hooked', crest: 'b.crest.halo', face: ['b.face.brows', 'b.face.none'], wings: 'b.wings.long', tail: 'b.tail.fantail', legs: 'b.legs.raptor', chest: 'b.chest.medallion', back: 'b.back.flame', pattern: 'b.pattern.gradient' },
     palette: { c1: [40, 85, 55], c2: [15, 85, 50], c3: [200, 70, 55], eye: [200, 80, 50] }, vary: { h: 6, s: 5, l: 5 },
@@ -985,7 +985,7 @@ export const SPECIES = [
 
   // ---- Roster expansion: insects ----
   {
-    id: 'cinderwasp', name: 'Cinderwasp', nameParts: ['Cinder', 'wasp'], clade: 'insect', rig: 'insect', types: ['Bug', 'Fire'], tier: 'uncommon', bst: 410,
+    id: 'cinderwasp', name: 'Cinderwasp', nameParts: ['Cinder', 'wasp'], clade: 'insect', rig: 'insect', types: ['Bug', 'Fire'], tier: 'uncommon', bst: 401,
     stats: { hp: 0.15, melee: 0.09, ranged: 0.18, magic: 0.07, meleeDef: 0.1, rangedDef: 0.12, magicDef: 0.11, spe: 0.18 },
     recipe: { body: 'i.body.bee', head: 'i.head.bee', eyes: 'i.eyes.compound', mandibles: 'i.mandibles.tiny', antennae: 'i.antennae.elbowed', wings: 'i.wings.clear', legsFront: 'i.legsFront.thin', legsMid: 'i.legsMid.thin', legsBack: 'i.legsBack.thin', tail: 'i.tail.stinger', shell: 'i.shell.none', pattern: 'i.pattern.bands' },
     palette: { c1: [15, 85, 48], c2: [45, 100, 60], c3: [230, 12, 20], eye: [40, 90, 55] }, vary: { h: 6, s: 5, l: 5 },
@@ -1018,7 +1018,7 @@ export const SPECIES = [
     desc: 'Indistinguishable from a leaf until the leaf blinks. Waits all afternoon for the right moment, then misses it.',
   },
   {
-    id: 'rimemoth', name: 'Rimemoth', nameParts: ['Rime', 'moth'], clade: 'insect', rig: 'insect', types: ['Bug', 'Ice'], tier: 'uncommon', bst: 424,
+    id: 'rimemoth', name: 'Rimemoth', nameParts: ['Rime', 'moth'], clade: 'insect', rig: 'insect', types: ['Bug', 'Ice'], tier: 'uncommon', bst: 432,
     stats: { hp: 0.15, melee: 0.07, ranged: 0.09, magic: 0.19, meleeDef: 0.1, rangedDef: 0.11, magicDef: 0.14, spe: 0.15 },
     recipe: { body: 'i.body.moth', head: 'i.head.moth', eyes: 'i.eyes.ocelli', mandibles: 'i.mandibles.proboscis', antennae: 'i.antennae.feathered', wings: 'i.wings.moth', legsFront: 'i.legsFront.hairy', legsMid: 'i.legsMid.hairy', legsBack: 'i.legsBack.hairy', tail: ['i.tail.plume', 'i.tail.none'], shell: 'i.shell.fuzz', pattern: 'i.pattern.eyespots' },
     palette: { c1: [205, 30, 72], c2: [210, 20, 92], c3: [265, 55, 65], eye: [215, 70, 45] }, vary: { h: 8, s: 5, l: 4 },
@@ -1029,7 +1029,7 @@ export const SPECIES = [
     desc: 'Its wing dust is frost. Drawn to lanterns on winter nights, where it fogs the glass with every landing.',
   },
   {
-    id: 'gravelgrub', name: 'Gravelgrub', nameParts: ['Gravel', 'grub'], clade: 'insect', rig: 'insect', types: ['Bug', 'Rock'], tier: 'uncommon', bst: 466,
+    id: 'gravelgrub', name: 'Gravelgrub', nameParts: ['Gravel', 'grub'], clade: 'insect', rig: 'insect', types: ['Bug', 'Rock'], tier: 'uncommon', bst: 467,
     stats: { hp: 0.18, melee: 0.16, ranged: 0.08, magic: 0.05, meleeDef: 0.17, rangedDef: 0.15, magicDef: 0.12, spe: 0.09 },
     recipe: { body: 'i.body.beetle', head: 'i.head.beetle', eyes: 'i.eyes.dot', mandibles: 'i.mandibles.pincers', antennae: 'i.antennae.clubbed', wings: 'i.wings.none', legsFront: 'i.legsFront.sturdy', legsMid: 'i.legsMid.sturdy', legsBack: 'i.legsBack.sturdy', tail: 'i.tail.none', shell: ['i.shell.crystal', 'i.shell.armour'], pattern: 'i.pattern.none' },
     palette: { c1: [28, 22, 40], c2: [35, 25, 62], c3: [40, 75, 58], eye: [40, 80, 55] }, vary: { h: 8, s: 5, l: 6 },
@@ -1051,7 +1051,7 @@ export const SPECIES = [
     desc: 'Marches in silence under the floorboards. A colony can strip a pantry between dusk and dawn.',
   },
   {
-    id: 'oraclebug', name: 'Oraclebug', nameParts: ['Oracle', 'bug'], clade: 'insect', rig: 'insect', types: ['Bug', 'Psychic'], tier: 'rare', bst: 430,
+    id: 'oraclebug', name: 'Oraclebug', nameParts: ['Oracle', 'bug'], clade: 'insect', rig: 'insect', types: ['Bug', 'Psychic'], tier: 'rare', bst: 431,
     stats: { hp: 0.15, melee: 0.07, ranged: 0.09, magic: 0.19, meleeDef: 0.1, rangedDef: 0.11, magicDef: 0.14, spe: 0.15 },
     recipe: { body: 'i.body.ladybug', head: 'i.head.ladybug', eyes: 'i.eyes.glow', mandibles: 'i.mandibles.smile', antennae: 'i.antennae.curly', wings: ['i.wings.fairy', 'i.wings.beetle'], legsFront: 'i.legsFront.thin', legsMid: 'i.legsMid.thin', legsBack: 'i.legsBack.thin', tail: ['i.tail.lantern', 'i.tail.none'], shell: 'i.shell.dome', pattern: 'i.pattern.spots' },
     palette: { c1: [320, 55, 45], c2: [45, 60, 88], c3: [190, 85, 60], eye: [190, 90, 65] }, vary: { h: 8, s: 6, l: 5 },
@@ -1064,7 +1064,7 @@ export const SPECIES = [
 
   // ---- Roster expansion: invertebrates ----
   {
-    id: 'kindlewisp', name: 'Kindlewisp', nameParts: ['Kindle', 'wisp'], clade: 'invertebrate', rig: 'invertebrate', types: ['Fire', 'Ghost'], tier: 'uncommon', bst: 390,
+    id: 'kindlewisp', name: 'Kindlewisp', nameParts: ['Kindle', 'wisp'], clade: 'invertebrate', rig: 'invertebrate', types: ['Fire', 'Ghost'], tier: 'uncommon', bst: 394,
     stats: { hp: 0.15, melee: 0.07, ranged: 0.09, magic: 0.19, meleeDef: 0.1, rangedDef: 0.11, magicDef: 0.14, spe: 0.15 },
     recipe: { body: 'v.body.wisp', eyes: 'v.eyes.hollow', mouth: 'v.mouth.wavy', arms: 'v.arms.wisps', legs: 'v.legs.none', shell: 'v.shell.none', tail: 'v.tail.wisp', crown: 'v.crown.flame', feelers: 'v.feelers.none', pattern: 'v.pattern.none', glow: 'v.glow.embers', skirt: ['v.skirt.tassels', 'v.skirt.hem'] },
     palette: { c1: [20, 85, 50], c2: [40, 95, 65], c3: [280, 40, 30], eye: [45, 100, 70] }, vary: { h: 8, s: 5, l: 5 },
@@ -1075,7 +1075,7 @@ export const SPECIES = [
     desc: 'A candle flame that wandered off. Leads travellers astray and looks sorry about it afterwards.',
   },
   {
-    id: 'chillcoil', name: 'Chillcoil', nameParts: ['Chill', 'coil'], clade: 'invertebrate', rig: 'invertebrate', types: ['Ice', 'Water'], tier: 'common', bst: 440,
+    id: 'chillcoil', name: 'Chillcoil', nameParts: ['Chill', 'coil'], clade: 'invertebrate', rig: 'invertebrate', types: ['Ice', 'Water'], tier: 'common', bst: 443,
     stats: { hp: 0.17, melee: 0.07, ranged: 0.08, magic: 0.18, meleeDef: 0.12, rangedDef: 0.11, magicDef: 0.15, spe: 0.12 },
     recipe: { body: 'v.body.slug', eyes: 'v.eyes.stalks', mouth: 'v.mouth.o', arms: 'v.arms.tentacles', legs: 'v.legs.none', shell: 'v.shell.spiral', tail: 'v.tail.coil', crown: 'v.crown.none', feelers: ['v.feelers.antennae', 'v.feelers.none'], pattern: 'v.pattern.rings', glow: 'v.glow.none', skirt: 'v.skirt.frills' },
     palette: { c1: [205, 45, 60], c2: [200, 30, 88], c3: [265, 45, 65], eye: [215, 70, 40] }, vary: { h: 8, s: 6, l: 5 },
@@ -1086,7 +1086,7 @@ export const SPECIES = [
     desc: 'Grows a new chamber in its shell every winter. The old ones still hold the sea from a hundred years ago.',
   },
   {
-    id: 'sporeslug', name: 'Sporeslug', nameParts: ['Spore', 'slug'], clade: 'invertebrate', rig: 'invertebrate', types: ['Grass', 'Poison'], tier: 'common', bst: 383,
+    id: 'sporeslug', name: 'Sporeslug', nameParts: ['Spore', 'slug'], clade: 'invertebrate', rig: 'invertebrate', types: ['Grass', 'Poison'], tier: 'common', bst: 381,
     stats: { hp: 0.15, melee: 0.09, ranged: 0.18, magic: 0.07, meleeDef: 0.1, rangedDef: 0.12, magicDef: 0.11, spe: 0.18 },
     recipe: { body: 'v.body.slug', eyes: 'v.eyes.bead', mouth: 'v.mouth.smile', arms: 'v.arms.none', legs: 'v.legs.none', shell: 'v.shell.none', tail: 'v.tail.slugtip', crown: ['v.crown.tuft', 'v.crown.coral'], feelers: 'v.feelers.slug', pattern: 'v.pattern.mottled', glow: ['v.glow.motes', 'v.glow.none'], skirt: 'v.skirt.roots' },
     palette: { c1: [95, 40, 40], c2: [75, 35, 62], c3: [290, 45, 60], eye: [45, 60, 40] }, vary: { h: 10, s: 6, l: 6 },
@@ -1097,7 +1097,7 @@ export const SPECIES = [
     desc: 'A slug that took root. Wherever it rests overnight, mushrooms come up in a ring by morning.',
   },
   {
-    id: 'pixiefloat', name: 'Pixiefloat', nameParts: ['Pixie', 'float'], clade: 'invertebrate', rig: 'invertebrate', types: ['Fairy'], tier: 'uncommon', bst: 406,
+    id: 'pixiefloat', name: 'Pixiefloat', nameParts: ['Pixie', 'float'], clade: 'invertebrate', rig: 'invertebrate', types: ['Fairy'], tier: 'uncommon', bst: 396,
     stats: { hp: 0.15, melee: 0.07, ranged: 0.09, magic: 0.19, meleeDef: 0.1, rangedDef: 0.11, magicDef: 0.14, spe: 0.15 },
     recipe: { body: 'v.body.jelly', eyes: 'v.eyes.big', mouth: 'v.mouth.smile', arms: ['v.arms.feelers', 'v.arms.none'], legs: 'v.legs.none', shell: 'v.shell.none', tail: 'v.tail.streamer', crown: 'v.crown.bubble', feelers: 'v.feelers.frills', pattern: 'v.pattern.dots', glow: 'v.glow.sparkles', skirt: 'v.skirt.ribbons' },
     palette: { c1: [330, 60, 72], c2: [45, 70, 90], c3: [190, 80, 65], eye: [200, 70, 45] }, vary: { h: 10, s: 6, l: 5 },
@@ -1108,7 +1108,7 @@ export const SPECIES = [
     desc: 'Drifts on the breeze trailing ribbons. Children make wishes on it; it grants the small ones.',
   },
   {
-    id: 'sandscuttle', name: 'Sandscuttle', nameParts: ['Sand', 'scuttle'], clade: 'invertebrate', rig: 'invertebrate', types: ['Ground'], tier: 'uncommon', bst: 461,
+    id: 'sandscuttle', name: 'Sandscuttle', nameParts: ['Sand', 'scuttle'], clade: 'invertebrate', rig: 'invertebrate', types: ['Ground'], tier: 'uncommon', bst: 464,
     stats: { hp: 0.17, melee: 0.17, ranged: 0.08, magic: 0.05, meleeDef: 0.17, rangedDef: 0.15, magicDef: 0.11, spe: 0.1 },
     recipe: { body: 'v.body.crab', eyes: 'v.eyes.stalked', mouth: 'v.mouth.grin', arms: 'v.arms.claws', legs: 'v.legs.crab', shell: ['v.shell.hermit', 'v.shell.none'], tail: 'v.tail.none', crown: 'v.crown.none', feelers: 'v.feelers.antennae', pattern: 'v.pattern.gradient', glow: 'v.glow.none', skirt: 'v.skirt.none' },
     palette: { c1: [35, 45, 58], c2: [30, 35, 78], c3: [15, 65, 48], eye: [200, 50, 30] }, vary: { h: 8, s: 6, l: 6 },
@@ -1119,7 +1119,7 @@ export const SPECIES = [
     desc: 'Digs itself in up to the eyestalks and waits for a tide that never comes this far inland.',
   },
   {
-    id: 'smashrimp', name: 'Smashrimp', nameParts: ['Smash', 'rimp'], clade: 'invertebrate', rig: 'invertebrate', types: ['Fighting', 'Water'], tier: 'rare', bst: 402,
+    id: 'smashrimp', name: 'Smashrimp', nameParts: ['Smash', 'rimp'], clade: 'invertebrate', rig: 'invertebrate', types: ['Fighting', 'Water'], tier: 'rare', bst: 409,
     stats: { hp: 0.16, melee: 0.19, ranged: 0.09, magic: 0.05, meleeDef: 0.13, rangedDef: 0.12, magicDef: 0.1, spe: 0.16 },
     recipe: { body: 'v.body.crab', eyes: 'v.eyes.stalked', mouth: 'v.mouth.smile', arms: 'v.arms.claws', legs: 'v.legs.jointed', shell: 'v.shell.plates', tail: 'v.tail.streamer', crown: ['v.crown.spikes', 'v.crown.none'], feelers: 'v.feelers.antennae', pattern: 'v.pattern.stripes', glow: 'v.glow.none', skirt: 'v.skirt.hem' },
     palette: { c1: [160, 55, 42], c2: [20, 90, 58], c3: [300, 60, 60], eye: [190, 80, 55] }, vary: { h: 8, s: 6, l: 5 },
@@ -1130,7 +1130,7 @@ export const SPECIES = [
     desc: 'Its punch boils the water. Aquarium glass is no match for a Smashrimp in a bad mood.',
   },
   {
-    id: 'drakopus', name: 'Drakopus', nameParts: ['Drak', 'opus'], clade: 'invertebrate', rig: 'invertebrate', types: ['Dragon', 'Water'], tier: 'uncommon', bst: 457,
+    id: 'drakopus', name: 'Drakopus', nameParts: ['Drak', 'opus'], clade: 'invertebrate', rig: 'invertebrate', types: ['Dragon', 'Water'], tier: 'uncommon', bst: 442,
     stats: { hp: 0.17, melee: 0.07, ranged: 0.08, magic: 0.18, meleeDef: 0.12, rangedDef: 0.11, magicDef: 0.15, spe: 0.12 },
     recipe: { body: 'v.body.octopus', eyes: 'v.eyes.glow', mouth: 'v.mouth.beak', arms: 'v.arms.tentacles', legs: 'v.legs.tubefeet', shell: 'v.shell.none', tail: 'v.tail.tentacle', crown: 'v.crown.horns', feelers: 'v.feelers.none', pattern: 'v.pattern.swirl', glow: ['v.glow.aura', 'v.glow.none'], skirt: 'v.skirt.tentacles' },
     palette: { c1: [230, 50, 40], c2: [200, 45, 62], c3: [45, 90, 60], eye: [45, 95, 60] }, vary: { h: 8, s: 6, l: 5 },
@@ -1143,7 +1143,7 @@ export const SPECIES = [
 
   // ---- Roster expansion: amphibians ----
   {
-    id: 'sparkspawn', name: 'Sparkspawn', nameParts: ['Spark', 'spawn'], clade: 'amphibian', rig: 'amphibian', types: ['Electric', 'Water'], tier: 'common', bst: 405,
+    id: 'sparkspawn', name: 'Sparkspawn', nameParts: ['Spark', 'spawn'], clade: 'amphibian', rig: 'amphibian', types: ['Electric', 'Water'], tier: 'common', bst: 404,
     stats: { hp: 0.15, melee: 0.07, ranged: 0.09, magic: 0.19, meleeDef: 0.1, rangedDef: 0.11, magicDef: 0.14, spe: 0.15 },
     recipe: { body: 'a.body.polliwog', head: 'a.head.polliwog', eyes: 'a.eyes.glow', mouth: 'a.mouth.pout', gills: 'a.gills.fan', legsFront: 'a.legsFront.polliwog', legsBack: 'a.legsBack.polliwog', tail: 'a.tail.polliwog', throat: 'a.throat.glowsac', crest: 'a.crest.none', back: 'a.back.none', pattern: 'a.pattern.speckles' },
     palette: { c1: [205, 45, 40], c2: [52, 95, 65], c3: [190, 85, 60], eye: [52, 95, 60] }, vary: { h: 8, s: 5, l: 6 },
@@ -1154,7 +1154,7 @@ export const SPECIES = [
     desc: 'A tadpole that never quite grew up and never quite stopped sparking. Ponds glow where a shoal gathers.',
   },
   {
-    id: 'frostnewt', name: 'Frostnewt', nameParts: ['Frost', 'newt'], clade: 'amphibian', rig: 'amphibian', types: ['Ice', 'Water'], tier: 'uncommon', bst: 388,
+    id: 'frostnewt', name: 'Frostnewt', nameParts: ['Frost', 'newt'], clade: 'amphibian', rig: 'amphibian', types: ['Ice', 'Water'], tier: 'uncommon', bst: 387,
     stats: { hp: 0.15, melee: 0.09, ranged: 0.18, magic: 0.07, meleeDef: 0.1, rangedDef: 0.12, magicDef: 0.11, spe: 0.18 },
     recipe: { body: 'a.body.newt', head: 'a.head.newt', eyes: 'a.eyes.sleepy', mouth: 'a.mouth.smile', gills: 'a.gills.feathery', legsFront: 'a.legsFront.newt', legsBack: 'a.legsBack.newt', tail: 'a.tail.fin', throat: 'a.throat.none', crest: ['a.crest.fin', 'a.crest.none'], back: 'a.back.ridge', pattern: 'a.pattern.gradient' },
     palette: { c1: [200, 45, 62], c2: [195, 30, 88], c3: [265, 50, 68], eye: [215, 70, 40] }, vary: { h: 8, s: 6, l: 5 },
@@ -1176,7 +1176,7 @@ export const SPECIES = [
     desc: 'Its croak puts listeners to sleep and its bubbles show them their dreams. Sits on lily pads humming.',
   },
   {
-    id: 'boghaunt', name: 'Boghaunt', nameParts: ['Bog', 'haunt'], clade: 'amphibian', rig: 'amphibian', types: ['Ghost', 'Poison'], tier: 'uncommon', bst: 412,
+    id: 'boghaunt', name: 'Boghaunt', nameParts: ['Bog', 'haunt'], clade: 'amphibian', rig: 'amphibian', types: ['Ghost', 'Poison'], tier: 'uncommon', bst: 400,
     stats: { hp: 0.17, melee: 0.07, ranged: 0.08, magic: 0.18, meleeDef: 0.12, rangedDef: 0.11, magicDef: 0.15, spe: 0.12 },
     recipe: { body: 'a.body.toad', head: 'a.head.toad', eyes: 'a.eyes.glow', mouth: 'a.mouth.frown', gills: 'a.gills.stubs', legsFront: 'a.legsFront.toad', legsBack: 'a.legsBack.toad', tail: 'a.tail.none', throat: 'a.throat.double', crest: 'a.crest.mushroom', back: 'a.back.mushrooms', pattern: 'a.pattern.blotches' },
     palette: { c1: [255, 18, 24], c2: [90, 25, 40], c3: [150, 70, 60], eye: [150, 90, 65] }, vary: { h: 10, s: 5, l: 5 },
@@ -1187,7 +1187,7 @@ export const SPECIES = [
     desc: 'Sits in the marsh where the lights are. The mushrooms on its back glow when someone tells a lie nearby.',
   },
   {
-    id: 'duskender', name: 'Duskender', nameParts: ['Dusk', 'ender'], clade: 'amphibian', rig: 'amphibian', types: ['Dark', 'Water'], tier: 'common', bst: 366,
+    id: 'duskender', name: 'Duskender', nameParts: ['Dusk', 'ender'], clade: 'amphibian', rig: 'amphibian', types: ['Dark', 'Water'], tier: 'common', bst: 370,
     stats: { hp: 0.14, melee: 0.18, ranged: 0.09, magic: 0.06, meleeDef: 0.11, rangedDef: 0.11, magicDef: 0.09, spe: 0.22 },
     recipe: { body: 'a.body.salamander', head: 'a.head.salamander', eyes: 'a.eyes.bead', mouth: 'a.mouth.grin', gills: 'a.gills.none', legsFront: 'a.legsFront.salamander', legsBack: 'a.legsBack.salamander', tail: 'a.tail.salamander', throat: 'a.throat.striped', crest: ['a.crest.spikes', 'a.crest.none'], back: 'a.back.spikes', pattern: 'a.pattern.stripes' },
     palette: { c1: [240, 20, 22], c2: [215, 35, 45], c3: [20, 90, 58], eye: [20, 95, 60] }, vary: { h: 8, s: 5, l: 5 },
@@ -1198,7 +1198,7 @@ export const SPECIES = [
     desc: 'Comes out when the last light leaves the water. Its stripes are the only warning you get.',
   },
   {
-    id: 'cragtoad', name: 'Cragtoad', nameParts: ['Crag', 'toad'], clade: 'amphibian', rig: 'amphibian', types: ['Rock', 'Ground'], tier: 'uncommon', bst: 447,
+    id: 'cragtoad', name: 'Cragtoad', nameParts: ['Crag', 'toad'], clade: 'amphibian', rig: 'amphibian', types: ['Rock', 'Ground'], tier: 'uncommon', bst: 459,
     stats: { hp: 0.18, melee: 0.16, ranged: 0.08, magic: 0.05, meleeDef: 0.17, rangedDef: 0.15, magicDef: 0.12, spe: 0.09 },
     recipe: { body: 'a.body.toad', head: 'a.head.toad', eyes: 'a.eyes.bulge', mouth: 'a.mouth.gape', gills: 'a.gills.none', legsFront: 'a.legsFront.toad', legsBack: 'a.legsBack.toad', tail: 'a.tail.stub', throat: 'a.throat.none', crest: 'a.crest.none', back: 'a.back.boulder', pattern: 'a.pattern.speckles' },
     palette: { c1: [30, 25, 42], c2: [35, 30, 65], c3: [20, 55, 48], eye: [45, 80, 50] }, vary: { h: 8, s: 5, l: 6 },
@@ -1209,7 +1209,7 @@ export const SPECIES = [
     desc: 'Carries a boulder on its back and does not seem to notice. Landslides start when it sneezes.',
   },
   {
-    id: 'wyrmlotl', name: 'Wyrmlotl', nameParts: ['Wyrm', 'lotl'], clade: 'amphibian', rig: 'amphibian', types: ['Dragon', 'Water'], tier: 'rare', bst: 360,
+    id: 'wyrmlotl', name: 'Wyrmlotl', nameParts: ['Wyrm', 'lotl'], clade: 'amphibian', rig: 'amphibian', types: ['Dragon', 'Water'], tier: 'rare', bst: 364,
     stats: { hp: 0.15, melee: 0.09, ranged: 0.18, magic: 0.07, meleeDef: 0.1, rangedDef: 0.12, magicDef: 0.11, spe: 0.18 },
     recipe: { body: 'a.body.axolotl', head: 'a.head.axolotl', eyes: 'a.eyes.wide', mouth: 'a.mouth.smile', gills: 'a.gills.plumes', legsFront: 'a.legsFront.axolotl', legsBack: 'a.legsBack.axolotl', tail: 'a.tail.fin', throat: 'a.throat.frilled', crest: 'a.crest.horns', back: ['a.back.ridge', 'a.back.none'], pattern: 'a.pattern.gradient' },
     palette: { c1: [340, 45, 72], c2: [45, 60, 90], c3: [200, 75, 55], eye: [200, 80, 50] }, vary: { h: 8, s: 6, l: 5 },
@@ -1221,7 +1221,7 @@ export const SPECIES = [
   },
   // ---- Roster expansion: flora ----
   {
-    id: 'budlet', name: 'Budlet', nameParts: ['Bud', 'let'], clade: 'flora', rig: 'flora', types: ['Grass'], tier: 'common', bst: 424,
+    id: 'budlet', name: 'Budlet', nameParts: ['Bud', 'let'], clade: 'flora', rig: 'flora', types: ['Grass'], tier: 'common', bst: 426,
     stats: { hp: 0.16, melee: 0.07, ranged: 0.19, magic: 0.09, meleeDef: 0.11, rangedDef: 0.12, magicDef: 0.11, spe: 0.15 },
     recipe: { body: 'p.body.sprout', head: 'p.head.daisy', eyes: 'p.eyes.dew', mouth: 'p.mouth.smile', leaves: 'p.leaves.broad', roots: 'p.roots.taproot', vines: 'p.vines.none', pods: ['p.pods.buds', 'p.pods.none'], thorns: 'p.thorns.none', canopy: 'p.canopy.none', bark: 'p.bark.none', fruit: ['p.fruit.none', 'p.fruit.berry'] },
     palette: { c1: [105, 50, 48], c2: [52, 55, 90], c3: [46, 92, 60], eye: [28, 55, 25] }, vary: { h: 10, s: 8, l: 6 },
@@ -1232,7 +1232,7 @@ export const SPECIES = [
     desc: 'A seedling that pulled its roots up to follow the sun. Its daisy nods when it agrees with you.',
   },
   {
-    id: 'thornwick', name: 'Thornwick', nameParts: ['Thorn', 'wick'], clade: 'flora', rig: 'flora', types: ['Grass', 'Poison'], tier: 'uncommon', bst: 390,
+    id: 'thornwick', name: 'Thornwick', nameParts: ['Thorn', 'wick'], clade: 'flora', rig: 'flora', types: ['Grass', 'Poison'], tier: 'uncommon', bst: 393,
     stats: { hp: 0.14, melee: 0.2, ranged: 0.08, magic: 0.07, meleeDef: 0.12, rangedDef: 0.11, magicDef: 0.1, spe: 0.18 },
     recipe: { body: 'p.body.vine', head: 'p.head.rose', eyes: 'p.eyes.sharp', mouth: 'p.mouth.grin', leaves: 'p.leaves.blade', roots: 'p.roots.tangle', vines: 'p.vines.thorny', pods: 'p.pods.none', thorns: ['p.thorns.crown', 'p.thorns.none'], canopy: 'p.canopy.none', bark: 'p.bark.none', fruit: 'p.fruit.none' },
     palette: { c1: [132, 40, 32], c2: [112, 35, 55], c3: [350, 75, 50], eye: [55, 90, 60] }, vary: { h: 8, s: 6, l: 5 },
@@ -1254,7 +1254,7 @@ export const SPECIES = [
     desc: 'An orchid that hums to itself in the dark. Moths gather round it and forget where they were going.',
   },
   {
-    id: 'rootgnarl', name: 'Rootgnarl', nameParts: ['Root', 'gnarl'], clade: 'flora', rig: 'flora', types: ['Grass', 'Ground'], tier: 'uncommon', bst: 448,
+    id: 'rootgnarl', name: 'Rootgnarl', nameParts: ['Root', 'gnarl'], clade: 'flora', rig: 'flora', types: ['Grass', 'Ground'], tier: 'uncommon', bst: 451,
     stats: { hp: 0.19, melee: 0.17, ranged: 0.06, magic: 0.06, meleeDef: 0.17, rangedDef: 0.14, magicDef: 0.12, spe: 0.09 },
     recipe: { body: 'p.body.treant', head: 'p.head.bell', eyes: 'p.eyes.sleepy', mouth: 'p.mouth.frown', leaves: 'p.leaves.broad', roots: 'p.roots.stump', vines: 'p.vines.none', pods: ['p.pods.acorn', 'p.pods.none'], thorns: 'p.thorns.none', canopy: ['p.canopy.branches', 'p.canopy.none'], bark: 'p.bark.knots', fruit: 'p.fruit.none' },
     palette: { c1: [28, 40, 35], c2: [95, 40, 45], c3: [40, 55, 65], eye: [45, 80, 55] }, vary: { h: 8, s: 5, l: 6 },
@@ -1265,7 +1265,7 @@ export const SPECIES = [
     desc: 'A stump that got up one spring and kept going. Moves an inch a day unless something needs flattening.',
   },
   {
-    id: 'emberpetal', name: 'Emberpetal', nameParts: ['Ember', 'petal'], clade: 'flora', rig: 'flora', types: ['Grass', 'Fire'], tier: 'uncommon', bst: 392,
+    id: 'emberpetal', name: 'Emberpetal', nameParts: ['Ember', 'petal'], clade: 'flora', rig: 'flora', types: ['Grass', 'Fire'], tier: 'uncommon', bst: 394,
     stats: { hp: 0.14, melee: 0.08, ranged: 0.2, magic: 0.1, meleeDef: 0.1, rangedDef: 0.11, magicDef: 0.11, spe: 0.16 },
     recipe: { body: 'p.body.bulb', head: 'p.head.sunflower', eyes: 'p.eyes.glow', mouth: 'p.mouth.pout', leaves: 'p.leaves.maple', roots: 'p.roots.hairy', vines: 'p.vines.none', pods: ['p.pods.lantern', 'p.pods.none'], thorns: ['p.thorns.sepals', 'p.thorns.none'], canopy: 'p.canopy.none', bark: 'p.bark.none', fruit: ['p.fruit.pepper', 'p.fruit.none'] },
     palette: { c1: [95, 45, 40], c2: [20, 85, 60], c3: [45, 95, 58], eye: [15, 95, 55] }, vary: { h: 8, s: 6, l: 5 },
@@ -1276,7 +1276,7 @@ export const SPECIES = [
     desc: 'A sunflower that faces the sun so hard it caught. Its petals smoulder and its seeds pop like sparks.',
   },
   {
-    id: 'lilypaddle', name: 'Lilypaddle', nameParts: ['Lily', 'paddle'], clade: 'flora', rig: 'flora', types: ['Grass', 'Water'], tier: 'common', bst: 420,
+    id: 'lilypaddle', name: 'Lilypaddle', nameParts: ['Lily', 'paddle'], clade: 'flora', rig: 'flora', types: ['Grass', 'Water'], tier: 'common', bst: 419,
     stats: { hp: 0.16, melee: 0.06, ranged: 0.08, magic: 0.19, meleeDef: 0.11, rangedDef: 0.12, magicDef: 0.14, spe: 0.14 },
     recipe: { body: 'p.body.pad', head: 'p.head.bell', eyes: 'p.eyes.wide', mouth: 'p.mouth.smile', leaves: 'p.leaves.succulent', roots: 'p.roots.threads', vines: ['p.vines.hanging', 'p.vines.none'], pods: ['p.pods.buds', 'p.pods.none'], thorns: 'p.thorns.none', canopy: 'p.canopy.none', bark: 'p.bark.none', fruit: 'p.fruit.none' },
     palette: { c1: [150, 45, 42], c2: [330, 60, 82], c3: [195, 60, 60], eye: [200, 70, 40] }, vary: { h: 10, s: 6, l: 6 },
@@ -1287,7 +1287,7 @@ export const SPECIES = [
     desc: 'Drifts across ponds on its own pad and paddles with its leaves. Frogs ride it and it does not mind.',
   },
   {
-    id: 'aphidleaf', name: 'Aphidleaf', nameParts: ['Aphid', 'leaf'], clade: 'flora', rig: 'flora', types: ['Grass', 'Bug'], tier: 'common', bst: 362,
+    id: 'aphidleaf', name: 'Aphidleaf', nameParts: ['Aphid', 'leaf'], clade: 'flora', rig: 'flora', types: ['Grass', 'Bug'], tier: 'common', bst: 363,
     stats: { hp: 0.13, melee: 0.08, ranged: 0.2, magic: 0.08, meleeDef: 0.1, rangedDef: 0.11, magicDef: 0.1, spe: 0.2 },
     recipe: { body: 'p.body.bulb', head: 'p.head.thistle', eyes: 'p.eyes.seed', mouth: 'p.mouth.whistle', leaves: 'p.leaves.needle', roots: 'p.roots.hairy', vines: ['p.vines.tendril', 'p.vines.none'], pods: ['p.pods.seedpods', 'p.pods.none'], thorns: ['p.thorns.tuft', 'p.thorns.none'], canopy: 'p.canopy.none', bark: 'p.bark.none', fruit: 'p.fruit.none' },
     palette: { c1: [80, 55, 50], c2: [280, 45, 65], c3: [60, 70, 75], eye: [0, 0, 15] }, vary: { h: 10, s: 6, l: 6 },
@@ -1298,7 +1298,7 @@ export const SPECIES = [
     desc: 'Half thistle, half the insects that lived on it. Whistles through its mouth when it is nervous.',
   },
   {
-    id: 'nightshade', name: 'Nightshade', nameParts: ['Night', 'shade'], clade: 'flora', rig: 'flora', types: ['Grass', 'Dark'], tier: 'uncommon', bst: 390,
+    id: 'nightshade', name: 'Nightshade', nameParts: ['Night', 'shade'], clade: 'flora', rig: 'flora', types: ['Grass', 'Dark'], tier: 'uncommon', bst: 393,
     stats: { hp: 0.14, melee: 0.08, ranged: 0.07, magic: 0.21, meleeDef: 0.1, rangedDef: 0.11, magicDef: 0.13, spe: 0.16 },
     recipe: { body: 'p.body.vine', head: 'p.head.tulip', eyes: 'p.eyes.glow', mouth: 'p.mouth.frown', leaves: 'p.leaves.blade', roots: 'p.roots.tangle', vines: ['p.vines.creeper', 'p.vines.none'], pods: ['p.pods.berries', 'p.pods.none'], thorns: ['p.thorns.sepals', 'p.thorns.none'], canopy: 'p.canopy.none', bark: 'p.bark.none', fruit: 'p.fruit.none' },
     palette: { c1: [150, 28, 26], c2: [265, 30, 38], c3: [285, 60, 55], eye: [55, 95, 60] }, vary: { h: 8, s: 5, l: 5 },
@@ -1309,7 +1309,7 @@ export const SPECIES = [
     desc: 'Blooms only after dark and closes if anyone says its name. The berries are not for eating.',
   },
   {
-    id: 'dreamlotus', name: 'Dreamlotus', nameParts: ['Dream', 'lotus'], clade: 'flora', rig: 'flora', types: ['Grass', 'Psychic'], tier: 'rare', bst: 422,
+    id: 'dreamlotus', name: 'Dreamlotus', nameParts: ['Dream', 'lotus'], clade: 'flora', rig: 'flora', types: ['Grass', 'Psychic'], tier: 'rare', bst: 421,
     stats: { hp: 0.15, melee: 0.05, ranged: 0.08, magic: 0.22, meleeDef: 0.1, rangedDef: 0.11, magicDef: 0.15, spe: 0.14 },
     recipe: { body: 'p.body.pad', head: 'p.head.orchid', eyes: 'p.eyes.sleepy', mouth: 'p.mouth.smile', leaves: 'p.leaves.broad', roots: 'p.roots.threads', vines: 'p.vines.none', pods: ['p.pods.lantern', 'p.pods.none'], thorns: ['p.thorns.halo', 'p.thorns.none'], canopy: ['p.canopy.flowerbed', 'p.canopy.none'], bark: 'p.bark.none', fruit: 'p.fruit.none' },
     palette: { c1: [165, 40, 45], c2: [330, 55, 80], c3: [50, 80, 80], eye: [290, 70, 55] }, vary: { h: 8, s: 6, l: 5 },
@@ -1320,7 +1320,7 @@ export const SPECIES = [
     desc: 'Floats with its eyes half shut, dreaming for the whole pond. Sleep near one and you will dream its dreams.',
   },
   {
-    id: 'frostfern', name: 'Frostfern', nameParts: ['Frost', 'fern'], clade: 'flora', rig: 'flora', types: ['Grass', 'Ice'], tier: 'uncommon', bst: 418,
+    id: 'frostfern', name: 'Frostfern', nameParts: ['Frost', 'fern'], clade: 'flora', rig: 'flora', types: ['Grass', 'Ice'], tier: 'uncommon', bst: 408,
     stats: { hp: 0.15, melee: 0.07, ranged: 0.2, magic: 0.09, meleeDef: 0.1, rangedDef: 0.12, magicDef: 0.12, spe: 0.15 },
     recipe: { body: 'p.body.sprout', head: 'p.head.daisy', eyes: 'p.eyes.dew', mouth: 'p.mouth.pout', leaves: 'p.leaves.fern', roots: 'p.roots.knot', vines: 'p.vines.none', pods: ['p.pods.pinecone', 'p.pods.none'], thorns: 'p.thorns.none', canopy: ['p.canopy.fronds', 'p.canopy.none'], bark: ['p.bark.rings', 'p.bark.none'], fruit: 'p.fruit.none' },
     palette: { c1: [175, 35, 60], c2: [200, 30, 92], c3: [210, 60, 70], eye: [210, 70, 40] }, vary: { h: 8, s: 6, l: 5 },
@@ -1342,7 +1342,7 @@ export const SPECIES = [
     desc: 'Grew in a crack in the rock and took some of the rock with it. Flowers once a year, briefly.',
   },
   {
-    id: 'oakfist', name: 'Oakfist', nameParts: ['Oak', 'fist'], clade: 'flora', rig: 'flora', types: ['Grass', 'Fighting'], tier: 'uncommon', bst: 418,
+    id: 'oakfist', name: 'Oakfist', nameParts: ['Oak', 'fist'], clade: 'flora', rig: 'flora', types: ['Grass', 'Fighting'], tier: 'uncommon', bst: 419,
     stats: { hp: 0.16, melee: 0.21, ranged: 0.07, magic: 0.05, meleeDef: 0.14, rangedDef: 0.12, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'p.body.treant', head: 'p.head.bell', eyes: 'p.eyes.sharp', mouth: 'p.mouth.grin', leaves: 'p.leaves.maple', roots: 'p.roots.knot', vines: ['p.vines.coil', 'p.vines.none'], pods: 'p.pods.none', thorns: 'p.thorns.none', canopy: ['p.canopy.bush', 'p.canopy.none'], bark: 'p.bark.grain', fruit: ['p.fruit.nut', 'p.fruit.none'] },
     palette: { c1: [30, 45, 38], c2: [100, 50, 42], c3: [40, 70, 60], eye: [45, 80, 50] }, vary: { h: 8, s: 6, l: 6 },
@@ -1353,7 +1353,7 @@ export const SPECIES = [
     desc: 'An oak sapling with something to prove. Punches with knotted branches and grows a ring per bout.',
   },
   {
-    id: 'dandewisp', name: 'Dandewisp', nameParts: ['Dande', 'wisp'], clade: 'flora', rig: 'flora', types: ['Grass', 'Flying'], tier: 'common', bst: 366,
+    id: 'dandewisp', name: 'Dandewisp', nameParts: ['Dande', 'wisp'], clade: 'flora', rig: 'flora', types: ['Grass', 'Flying'], tier: 'common', bst: 368,
     stats: { hp: 0.13, melee: 0.06, ranged: 0.2, magic: 0.09, meleeDef: 0.09, rangedDef: 0.11, magicDef: 0.1, spe: 0.22 },
     recipe: { body: 'p.body.bulb', head: 'p.head.thistle', eyes: 'p.eyes.wide', mouth: 'p.mouth.smile', leaves: 'p.leaves.frond', roots: 'p.roots.threads', vines: 'p.vines.none', pods: ['p.pods.seedpods', 'p.pods.none'], thorns: ['p.thorns.tuft', 'p.thorns.none'], canopy: ['p.canopy.pollen', 'p.canopy.none'], bark: 'p.bark.none', fruit: ['p.fruit.none', 'p.fruit.seed'] },
     palette: { c1: [95, 45, 55], c2: [55, 30, 94], c3: [50, 90, 65], eye: [200, 40, 30] }, vary: { h: 8, s: 6, l: 5 },
@@ -1364,7 +1364,7 @@ export const SPECIES = [
     desc: 'Lighter than the wind that carries it. Make a wish and it scatters; it comes back as several.',
   },
   {
-    id: 'wyrmwood', name: 'Wyrmwood', nameParts: ['Wyrm', 'wood'], clade: 'flora', rig: 'flora', types: ['Grass', 'Dragon'], tier: 'rare', bst: 499,
+    id: 'wyrmwood', name: 'Wyrmwood', nameParts: ['Wyrm', 'wood'], clade: 'flora', rig: 'flora', types: ['Grass', 'Dragon'], tier: 'rare', bst: 502,
     stats: { hp: 0.16, melee: 0.09, ranged: 0.07, magic: 0.21, meleeDef: 0.12, rangedDef: 0.11, magicDef: 0.13, spe: 0.11 },
     recipe: { body: 'p.body.treant', head: 'p.head.tulip', eyes: 'p.eyes.gem', mouth: 'p.mouth.maw', leaves: 'p.leaves.blade', roots: 'p.roots.knot', vines: ['p.vines.whip', 'p.vines.none'], pods: 'p.pods.none', thorns: ['p.thorns.antlers', 'p.thorns.none'], canopy: ['p.canopy.brambles', 'p.canopy.branches'], bark: 'p.bark.veins', fruit: 'p.fruit.none' },
     palette: { c1: [28, 35, 30], c2: [140, 45, 40], c3: [0, 70, 55], eye: [50, 95, 60] }, vary: { h: 8, s: 6, l: 5 },
@@ -1376,7 +1376,7 @@ export const SPECIES = [
   },
   // ---- Roster expansion: oozes ----
   {
-    id: 'gloopling', name: 'Gloopling', nameParts: ['Gloop', 'ling'], clade: 'ooze', rig: 'ooze', types: ['Poison'], tier: 'common', bst: 475,
+    id: 'gloopling', name: 'Gloopling', nameParts: ['Gloop', 'ling'], clade: 'ooze', rig: 'ooze', types: ['Poison'], tier: 'common', bst: 480,
     stats: { hp: 0.17, melee: 0.07, ranged: 0.08, magic: 0.19, meleeDef: 0.11, rangedDef: 0.12, magicDef: 0.12, spe: 0.14 },
     recipe: { body: 'o.body.blob', core: 'o.core.nucleus', eyes: 'o.eyes.round', mouth: 'o.mouth.smile', pseudopods: 'o.pseudopods.stubs', drips: ['o.drips.drip', 'o.drips.none'], crown: 'o.crown.none', tendrils: 'o.tendrils.none', base: 'o.base.puddle', inclusions: ['o.inclusions.none', 'o.inclusions.bubbles'], sheen: 'o.sheen.gloss', bumps: 'o.bumps.none' },
     palette: { c1: [120, 60, 50], c2: [110, 50, 70], c3: [60, 90, 60], eye: [0, 0, 15] }, vary: { h: 12, s: 8, l: 6 },
@@ -1386,7 +1386,7 @@ export const SPECIES = [
     desc: 'The first thing to crawl out of the sump. It eats whatever it rolls over and is sorry about none of it.',
   },
   {
-    id: 'brackooze', name: 'Brackooze', nameParts: ['Brack', 'ooze'], clade: 'ooze', rig: 'ooze', types: ['Poison', 'Water'], tier: 'common', bst: 414,
+    id: 'brackooze', name: 'Brackooze', nameParts: ['Brack', 'ooze'], clade: 'ooze', rig: 'ooze', types: ['Poison', 'Water'], tier: 'common', bst: 406,
     stats: { hp: 0.16, melee: 0.06, ranged: 0.09, magic: 0.19, meleeDef: 0.11, rangedDef: 0.12, magicDef: 0.13, spe: 0.14 },
     recipe: { body: 'o.body.drop', core: 'o.core.bubble', eyes: 'o.eyes.wide', mouth: 'o.mouth.gape', pseudopods: 'o.pseudopods.paddle', drips: ['o.drips.trio', 'o.drips.none'], crown: 'o.crown.none', tendrils: 'o.tendrils.none', base: 'o.base.bubbles', inclusions: ['o.inclusions.bubbles', 'o.inclusions.none'], sheen: ['o.sheen.wave', 'o.sheen.none'], bumps: 'o.bumps.none' },
     palette: { c1: [195, 55, 48], c2: [200, 45, 70], c3: [150, 70, 65], eye: [210, 60, 30] }, vary: { h: 10, s: 6, l: 6 },
@@ -1397,7 +1397,7 @@ export const SPECIES = [
     desc: 'Brackish water that decided to keep going after the tide went out. Leaves a wet ring on everything.',
   },
   {
-    id: 'emberjelly', name: 'Emberjelly', nameParts: ['Ember', 'jelly'], clade: 'ooze', rig: 'ooze', types: ['Poison', 'Fire'], tier: 'uncommon', bst: 420,
+    id: 'emberjelly', name: 'Emberjelly', nameParts: ['Ember', 'jelly'], clade: 'ooze', rig: 'ooze', types: ['Poison', 'Fire'], tier: 'uncommon', bst: 421,
     stats: { hp: 0.14, melee: 0.08, ranged: 0.2, magic: 0.1, meleeDef: 0.1, rangedDef: 0.11, magicDef: 0.11, spe: 0.16 },
     recipe: { body: 'o.body.whirl', core: 'o.core.ember', eyes: 'o.eyes.ring', mouth: 'o.mouth.fangs', pseudopods: 'o.pseudopods.reach', drips: ['o.drips.spray', 'o.drips.none'], crown: ['o.crown.wisp', 'o.crown.none'], tendrils: 'o.tendrils.none', base: 'o.base.drops', inclusions: 'o.inclusions.none', sheen: ['o.sheen.crackle', 'o.sheen.none'], bumps: ['o.bumps.nubs', 'o.bumps.none'] },
     palette: { c1: [18, 85, 50], c2: [30, 90, 65], c3: [50, 100, 60], eye: [45, 100, 60] }, vary: { h: 8, s: 5, l: 5 },
@@ -1430,7 +1430,7 @@ export const SPECIES = [
     desc: 'A block of gelatin left out in the cold. It is very slow and does not care who knows it.',
   },
   {
-    id: 'ectoplop', name: 'Ectoplop', nameParts: ['Ecto', 'plop'], clade: 'ooze', rig: 'ooze', types: ['Poison', 'Ghost'], tier: 'uncommon', bst: 382,
+    id: 'ectoplop', name: 'Ectoplop', nameParts: ['Ecto', 'plop'], clade: 'ooze', rig: 'ooze', types: ['Poison', 'Ghost'], tier: 'uncommon', bst: 383,
     stats: { hp: 0.15, melee: 0.06, ranged: 0.08, magic: 0.21, meleeDef: 0.1, rangedDef: 0.11, magicDef: 0.15, spe: 0.14 },
     recipe: { body: 'o.body.drop', core: 'o.core.skull', eyes: 'o.eyes.void', mouth: 'o.mouth.wavy', pseudopods: 'o.pseudopods.curl', drips: ['o.drips.string', 'o.drips.none'], crown: ['o.crown.wisp', 'o.crown.none'], tendrils: ['o.tendrils.streamers', 'o.tendrils.none'], base: 'o.base.trail', inclusions: ['o.inclusions.bones', 'o.inclusions.none'], sheen: ['o.sheen.dapple', 'o.sheen.none'], bumps: 'o.bumps.none' },
     palette: { c1: [160, 35, 58], c2: [170, 30, 80], c3: [280, 40, 60], eye: [100, 90, 60] }, vary: { h: 10, s: 6, l: 5 },
@@ -1441,7 +1441,7 @@ export const SPECIES = [
     desc: 'What is left of a ghost after it gives up haunting and settles for seeping. Cold to the touch and clingy.',
   },
   {
-    id: 'mindmuck', name: 'Mindmuck', nameParts: ['Mind', 'muck'], clade: 'ooze', rig: 'ooze', types: ['Poison', 'Psychic'], tier: 'rare', bst: 422,
+    id: 'mindmuck', name: 'Mindmuck', nameParts: ['Mind', 'muck'], clade: 'ooze', rig: 'ooze', types: ['Poison', 'Psychic'], tier: 'rare', bst: 428,
     stats: { hp: 0.15, melee: 0.05, ranged: 0.08, magic: 0.22, meleeDef: 0.1, rangedDef: 0.11, magicDef: 0.15, spe: 0.14 },
     recipe: { body: 'o.body.whirl', core: 'o.core.cluster', eyes: 'o.eyes.ring', mouth: 'o.mouth.smile', pseudopods: 'o.pseudopods.curl', drips: 'o.drips.none', crown: ['o.crown.halo', 'o.crown.none'], tendrils: ['o.tendrils.loop', 'o.tendrils.none'], base: 'o.base.ring', inclusions: ['o.inclusions.shards', 'o.inclusions.none'], sheen: ['o.sheen.sparkle', 'o.sheen.none'], bumps: 'o.bumps.none' },
     palette: { c1: [285, 50, 55], c2: [300, 45, 75], c3: [50, 90, 70], eye: [320, 80, 60] }, vary: { h: 8, s: 6, l: 5 },
@@ -1452,7 +1452,7 @@ export const SPECIES = [
     desc: 'It thinks in ripples. Stare into it long enough and it starts thinking your thoughts back at you, slowly.',
   },
   {
-    id: 'quickslick', name: 'Quickslick', nameParts: ['Quick', 'slick'], clade: 'ooze', rig: 'ooze', types: ['Poison', 'Steel'], tier: 'uncommon', bst: 377,
+    id: 'quickslick', name: 'Quickslick', nameParts: ['Quick', 'slick'], clade: 'ooze', rig: 'ooze', types: ['Poison', 'Steel'], tier: 'uncommon', bst: 371,
     stats: { hp: 0.13, melee: 0.21, ranged: 0.07, magic: 0.06, meleeDef: 0.13, rangedDef: 0.12, magicDef: 0.1, spe: 0.18 },
     recipe: { body: 'o.body.split', core: 'o.core.bubble', eyes: 'o.eyes.bead', mouth: 'o.mouth.grin', pseudopods: 'o.pseudopods.fist', drips: ['o.drips.beads', 'o.drips.none'], crown: 'o.crown.none', tendrils: ['o.tendrils.whip', 'o.tendrils.none'], base: 'o.base.drops', inclusions: 'o.inclusions.none', sheen: 'o.sheen.gloss', bumps: 'o.bumps.none' },
     palette: { c1: [210, 10, 70], c2: [200, 8, 85], c3: [0, 0, 25], eye: [0, 0, 10] }, vary: { h: 10, s: 4, l: 6 },
@@ -1462,7 +1462,7 @@ export const SPECIES = [
     desc: 'Liquid metal with a grudge. It flows between the cracks in a guard and comes out the other side as a fist.',
   },
   {
-    id: 'tarrow', name: 'Tarrow', nameParts: ['Tar', 'row'], clade: 'ooze', rig: 'ooze', types: ['Poison', 'Dark'], tier: 'uncommon', bst: 421,
+    id: 'tarrow', name: 'Tarrow', nameParts: ['Tar', 'row'], clade: 'ooze', rig: 'ooze', types: ['Poison', 'Dark'], tier: 'uncommon', bst: 425,
     stats: { hp: 0.18, melee: 0.18, ranged: 0.06, magic: 0.06, meleeDef: 0.16, rangedDef: 0.13, magicDef: 0.12, spe: 0.11 },
     recipe: { body: 'o.body.wide', core: 'o.core.skull', eyes: 'o.eyes.void', mouth: 'o.mouth.fangs', pseudopods: 'o.pseudopods.club', drips: ['o.drips.goop', 'o.drips.none'], crown: 'o.crown.none', tendrils: ['o.tendrils.tail', 'o.tendrils.none'], base: 'o.base.splat', inclusions: ['o.inclusions.bones', 'o.inclusions.none'], sheen: 'o.sheen.none', bumps: ['o.bumps.lobes', 'o.bumps.none'] },
     palette: { c1: [270, 18, 28], c2: [280, 16, 44], c3: [40, 80, 55], eye: [40, 95, 60] }, vary: { h: 10, s: 4, l: 5 },
@@ -1472,7 +1472,7 @@ export const SPECIES = [
     desc: 'A tar pit that got up and followed the last thing it swallowed. There are still bones in it. Not all of them are old.',
   },
   {
-    id: 'sugarslime', name: 'Sugarslime', nameParts: ['Sugar', 'slime'], clade: 'ooze', rig: 'ooze', types: ['Poison', 'Fairy'], tier: 'common', bst: 409,
+    id: 'sugarslime', name: 'Sugarslime', nameParts: ['Sugar', 'slime'], clade: 'ooze', rig: 'ooze', types: ['Poison', 'Fairy'], tier: 'common', bst: 403,
     stats: { hp: 0.16, melee: 0.05, ranged: 0.08, magic: 0.19, meleeDef: 0.11, rangedDef: 0.12, magicDef: 0.15, spe: 0.14 },
     recipe: { body: 'o.body.blob', core: 'o.core.star', eyes: 'o.eyes.wide', mouth: 'o.mouth.smile', pseudopods: 'o.pseudopods.stubs', drips: ['o.drips.trio', 'o.drips.none'], crown: ['o.crown.bubbles', 'o.crown.none'], tendrils: 'o.tendrils.none', base: 'o.base.puddle', inclusions: 'o.inclusions.none', sheen: ['o.sheen.sparkle', 'o.sheen.none'], bumps: ['o.bumps.blisters', 'o.bumps.none'] },
     palette: { c1: [330, 70, 72], c2: [340, 60, 88], c3: [180, 60, 70], eye: [330, 60, 40] }, vary: { h: 10, s: 6, l: 5 },
@@ -1483,7 +1483,7 @@ export const SPECIES = [
     desc: 'Sweet, sticky and technically poisonous. Children keep trying to lick it and it keeps letting them.',
   },
   {
-    id: 'mudglob', name: 'Mudglob', nameParts: ['Mud', 'glob'], clade: 'ooze', rig: 'ooze', types: ['Poison', 'Ground'], tier: 'common', bst: 446,
+    id: 'mudglob', name: 'Mudglob', nameParts: ['Mud', 'glob'], clade: 'ooze', rig: 'ooze', types: ['Poison', 'Ground'], tier: 'common', bst: 438,
     stats: { hp: 0.19, melee: 0.17, ranged: 0.07, magic: 0.05, meleeDef: 0.16, rangedDef: 0.14, magicDef: 0.11, spe: 0.11 },
     recipe: { body: 'o.body.wide', core: 'o.core.nucleus', eyes: 'o.eyes.sleepy', mouth: 'o.mouth.frown', pseudopods: 'o.pseudopods.club', drips: ['o.drips.goop', 'o.drips.none'], crown: 'o.crown.none', tendrils: 'o.tendrils.none', base: 'o.base.splat', inclusions: ['o.inclusions.pebbles', 'o.inclusions.none'], sheen: 'o.sheen.none', bumps: ['o.bumps.warts', 'o.bumps.none'] },
     palette: { c1: [30, 35, 35], c2: [35, 30, 50], c3: [90, 40, 45], eye: [45, 60, 60] }, vary: { h: 8, s: 5, l: 6 },
@@ -1493,7 +1493,7 @@ export const SPECIES = [
     desc: 'A wallow that learned to wallow toward things. Warm in summer and a hazard in every season.',
   },
   {
-    id: 'algaeble', name: 'Algaeble', nameParts: ['Algae', 'ble'], clade: 'ooze', rig: 'ooze', types: ['Poison', 'Grass'], tier: 'common', bst: 430,
+    id: 'algaeble', name: 'Algaeble', nameParts: ['Algae', 'ble'], clade: 'ooze', rig: 'ooze', types: ['Poison', 'Grass'], tier: 'common', bst: 429,
     stats: { hp: 0.15, melee: 0.07, ranged: 0.2, magic: 0.09, meleeDef: 0.1, rangedDef: 0.12, magicDef: 0.12, spe: 0.15 },
     recipe: { body: 'o.body.tall', core: 'o.core.cluster', eyes: 'o.eyes.round', mouth: 'o.mouth.smile', pseudopods: 'o.pseudopods.paddle', drips: ['o.drips.string', 'o.drips.none'], crown: ['o.crown.fin', 'o.crown.none'], tendrils: ['o.tendrils.fronds', 'o.tendrils.none'], base: 'o.base.bubbles', inclusions: ['o.inclusions.leaves', 'o.inclusions.none'], sheen: ['o.sheen.wave', 'o.sheen.none'], bumps: 'o.bumps.none' },
     palette: { c1: [95, 50, 42], c2: [80, 45, 60], c3: [160, 60, 55], eye: [0, 0, 15] }, vary: { h: 10, s: 6, l: 6 },
@@ -1504,7 +1504,7 @@ export const SPECIES = [
     desc: 'A pond bloom that pooled itself into a shape and wandered off. Fish still try to live in it.',
   },
   {
-    id: 'gelacube', name: 'Gelacube', nameParts: ['Gela', 'cube'], clade: 'ooze', rig: 'ooze', types: ['Normal', 'Poison'], tier: 'uncommon', bst: 490,
+    id: 'gelacube', name: 'Gelacube', nameParts: ['Gela', 'cube'], clade: 'ooze', rig: 'ooze', types: ['Normal', 'Poison'], tier: 'uncommon', bst: 489,
     stats: { hp: 0.2, melee: 0.17, ranged: 0.06, magic: 0.05, meleeDef: 0.16, rangedDef: 0.14, magicDef: 0.13, spe: 0.09 },
     recipe: { body: 'o.body.cube', core: 'o.core.skull', eyes: 'o.eyes.sleepy', mouth: 'o.mouth.gape', pseudopods: 'o.pseudopods.fist', drips: ['o.drips.curtain', 'o.drips.none'], crown: 'o.crown.none', tendrils: 'o.tendrils.none', base: 'o.base.ring', inclusions: ['o.inclusions.bones', 'o.inclusions.coins'], sheen: ['o.sheen.bands', 'o.sheen.none'], bumps: 'o.bumps.none' },
     palette: { c1: [150, 20, 68], c2: [150, 15, 85], c3: [55, 70, 70], eye: [0, 0, 12] }, vary: { h: 10, s: 5, l: 5 },
@@ -1514,7 +1514,7 @@ export const SPECIES = [
     desc: 'Exactly ten feet on a side, give or take. It fills corridors slowly and digests whatever forgot to leave.',
   },
   {
-    id: 'dragoop', name: 'Dragoop', nameParts: ['Dra', 'goop'], clade: 'ooze', rig: 'ooze', types: ['Poison', 'Dragon'], tier: 'rare', bst: 442,
+    id: 'dragoop', name: 'Dragoop', nameParts: ['Dra', 'goop'], clade: 'ooze', rig: 'ooze', types: ['Poison', 'Dragon'], tier: 'rare', bst: 436,
     stats: { hp: 0.16, melee: 0.09, ranged: 0.07, magic: 0.21, meleeDef: 0.12, rangedDef: 0.11, magicDef: 0.13, spe: 0.11 },
     recipe: { body: 'o.body.whirl', core: 'o.core.gem', eyes: 'o.eyes.ring', mouth: 'o.mouth.fangs', pseudopods: 'o.pseudopods.curl', drips: ['o.drips.spray', 'o.drips.none'], crown: ['o.crown.horns', 'o.crown.none'], tendrils: ['o.tendrils.whip', 'o.tendrils.none'], base: 'o.base.trail', inclusions: ['o.inclusions.shards', 'o.inclusions.none'], sheen: ['o.sheen.crackle', 'o.sheen.none'], bumps: ['o.bumps.crystals', 'o.bumps.none'] },
     palette: { c1: [265, 55, 45], c2: [275, 45, 62], c3: [140, 80, 55], eye: [140, 95, 60] }, vary: { h: 8, s: 6, l: 5 },
@@ -1526,7 +1526,7 @@ export const SPECIES = [
   },
   // ---- Roster expansion: fungi ----
   {
-    id: 'capling', name: 'Capling', nameParts: ['Cap', 'ling'], clade: 'fungus', rig: 'fungus', types: ['Grass'], tier: 'common', bst: 407,
+    id: 'capling', name: 'Capling', nameParts: ['Cap', 'ling'], clade: 'fungus', rig: 'fungus', types: ['Grass'], tier: 'common', bst: 403,
     stats: { hp: 0.16, melee: 0.07, ranged: 0.08, magic: 0.19, meleeDef: 0.11, rangedDef: 0.12, magicDef: 0.12, spe: 0.15 },
     recipe: { body: 'g.body.button', head: 'g.head.stout', eyes: 'g.eyes.round', mouth: 'g.mouth.smile', gills: 'g.gills.fine', spores: ['g.spores.motes', 'g.spores.none'], roots: 'g.roots.mycelium', ring: 'g.ring.none', shelves: 'g.shelves.none', veil: 'g.veil.none', glow: 'g.glow.none', pattern: ['g.pattern.spots', 'g.pattern.none'] },
     palette: { c1: [10, 70, 52], c2: [40, 40, 88], c3: [45, 80, 70], eye: [0, 0, 15] }, vary: { h: 10, s: 8, l: 6 },
@@ -1537,7 +1537,7 @@ export const SPECIES = [
     desc: 'Pops up overnight wherever the ground is damp and the company is good. Its cap is a hat and it knows it.',
   },
   {
-    id: 'banecap', name: 'Banecap', nameParts: ['Bane', 'cap'], clade: 'fungus', rig: 'fungus', types: ['Grass', 'Poison'], tier: 'common', bst: 396,
+    id: 'banecap', name: 'Banecap', nameParts: ['Bane', 'cap'], clade: 'fungus', rig: 'fungus', types: ['Grass', 'Poison'], tier: 'common', bst: 387,
     stats: { hp: 0.16, melee: 0.06, ranged: 0.08, magic: 0.2, meleeDef: 0.11, rangedDef: 0.12, magicDef: 0.13, spe: 0.14 },
     recipe: { body: 'g.body.parasol', head: 'g.head.slender', eyes: 'g.eyes.sleepy', mouth: 'g.mouth.frown', gills: 'g.gills.broad', spores: ['g.spores.drift', 'g.spores.none'], roots: 'g.roots.toes', ring: ['g.ring.skirt', 'g.ring.none'], shelves: 'g.shelves.none', veil: 'g.veil.none', glow: 'g.glow.none', pattern: ['g.pattern.dots', 'g.pattern.none'] },
     palette: { c1: [280, 35, 45], c2: [50, 25, 85], c3: [90, 60, 55], eye: [55, 90, 60] }, vary: { h: 10, s: 6, l: 5 },
@@ -1548,7 +1548,7 @@ export const SPECIES = [
     desc: 'Pretty, purple and not to be eaten under any circumstances. It sulks when nobody tries.',
   },
   {
-    id: 'morelord', name: 'Morelord', nameParts: ['More', 'lord'], clade: 'fungus', rig: 'fungus', types: ['Grass', 'Ground'], tier: 'uncommon', bst: 446,
+    id: 'morelord', name: 'Morelord', nameParts: ['More', 'lord'], clade: 'fungus', rig: 'fungus', types: ['Grass', 'Ground'], tier: 'uncommon', bst: 449,
     stats: { hp: 0.19, melee: 0.17, ranged: 0.06, magic: 0.06, meleeDef: 0.17, rangedDef: 0.14, magicDef: 0.12, spe: 0.09 },
     recipe: { body: 'g.body.morel', head: 'g.head.woody', eyes: 'g.eyes.bead', mouth: 'g.mouth.grin', gills: 'g.gills.pores', spores: 'g.spores.none', roots: 'g.roots.stump', ring: ['g.ring.band', 'g.ring.none'], shelves: ['g.shelves.stack', 'g.shelves.none'], veil: 'g.veil.none', glow: 'g.glow.none', pattern: 'g.pattern.none' },
     palette: { c1: [35, 45, 40], c2: [40, 30, 70], c3: [90, 35, 45], eye: [40, 60, 55] }, vary: { h: 8, s: 5, l: 6 },
@@ -1559,7 +1559,7 @@ export const SPECIES = [
     desc: 'Old, wrinkled and immovable. Foragers who find one bow first and ask permission second.',
   },
   {
-    id: 'glowcap', name: 'Glowcap', nameParts: ['Glow', 'cap'], clade: 'fungus', rig: 'fungus', types: ['Grass', 'Fairy'], tier: 'uncommon', bst: 397,
+    id: 'glowcap', name: 'Glowcap', nameParts: ['Glow', 'cap'], clade: 'fungus', rig: 'fungus', types: ['Grass', 'Fairy'], tier: 'uncommon', bst: 399,
     stats: { hp: 0.14, melee: 0.06, ranged: 0.09, magic: 0.21, meleeDef: 0.1, rangedDef: 0.11, magicDef: 0.14, spe: 0.15 },
     recipe: { body: 'g.body.bell', head: 'g.head.slender', eyes: 'g.eyes.glow', mouth: 'g.mouth.smile', gills: 'g.gills.fine', spores: ['g.spores.sparkle', 'g.spores.none'], roots: 'g.roots.mycelium', ring: 'g.ring.none', shelves: 'g.shelves.none', veil: ['g.veil.lace', 'g.veil.none'], glow: ['g.glow.halo', 'g.glow.none'], pattern: ['g.pattern.freckles', 'g.pattern.none'] },
     palette: { c1: [170, 55, 60], c2: [175, 35, 80], c3: [55, 90, 70], eye: [55, 95, 60] }, vary: { h: 8, s: 6, l: 5 },
@@ -1580,7 +1580,7 @@ export const SPECIES = [
     desc: 'Poke it and it sneezes a cloud you will be coughing up for a week. It thinks this is hilarious.',
   },
   {
-    id: 'wispcap', name: 'Wispcap', nameParts: ['Wisp', 'cap'], clade: 'fungus', rig: 'fungus', types: ['Ghost', 'Grass'], tier: 'uncommon', bst: 376,
+    id: 'wispcap', name: 'Wispcap', nameParts: ['Wisp', 'cap'], clade: 'fungus', rig: 'fungus', types: ['Ghost', 'Grass'], tier: 'uncommon', bst: 369,
     stats: { hp: 0.14, melee: 0.06, ranged: 0.08, magic: 0.21, meleeDef: 0.1, rangedDef: 0.11, magicDef: 0.15, spe: 0.15 },
     recipe: { body: 'g.body.cone', head: 'g.head.bent', eyes: 'g.eyes.glow', mouth: 'g.mouth.gape', gills: 'g.gills.dark', spores: ['g.spores.drift', 'g.spores.none'], roots: 'g.roots.mycelium', ring: 'g.ring.none', shelves: 'g.shelves.none', veil: ['g.veil.cobweb', 'g.veil.none'], glow: ['g.glow.aura', 'g.glow.none'], pattern: ['g.pattern.rings', 'g.pattern.none'] },
     palette: { c1: [200, 25, 40], c2: [190, 20, 72], c3: [150, 80, 60], eye: [150, 95, 60] }, vary: { h: 10, s: 5, l: 5 },
@@ -1602,7 +1602,7 @@ export const SPECIES = [
     desc: 'Bruises blue when you touch it and bruises you back harder. Picks fights with boulders and sometimes wins.',
   },
   {
-    id: 'frostcap', name: 'Frostcap', nameParts: ['Frost', 'cap'], clade: 'fungus', rig: 'fungus', types: ['Ice', 'Grass'], tier: 'uncommon', bst: 406,
+    id: 'frostcap', name: 'Frostcap', nameParts: ['Frost', 'cap'], clade: 'fungus', rig: 'fungus', types: ['Ice', 'Grass'], tier: 'uncommon', bst: 405,
     stats: { hp: 0.15, melee: 0.07, ranged: 0.2, magic: 0.09, meleeDef: 0.1, rangedDef: 0.12, magicDef: 0.12, spe: 0.15 },
     recipe: { body: 'g.body.parasol', head: 'g.head.stout', eyes: 'g.eyes.sleepy', mouth: 'g.mouth.frown', gills: 'g.gills.teeth', spores: ['g.spores.fall', 'g.spores.none'], roots: 'g.roots.knot', ring: 'g.ring.none', shelves: 'g.shelves.none', veil: ['g.veil.fringe', 'g.veil.none'], glow: 'g.glow.none', pattern: ['g.pattern.crackle', 'g.pattern.none'] },
     palette: { c1: [205, 40, 70], c2: [200, 20, 90], c3: [190, 60, 60], eye: [210, 70, 45] }, vary: { h: 8, s: 6, l: 5 },
@@ -1613,7 +1613,7 @@ export const SPECIES = [
     desc: 'Grows through the snow with icicles for gills. Shakes them loose at anything that comes too close.',
   },
   {
-    id: 'emberspore', name: 'Emberspore', nameParts: ['Ember', 'spore'], clade: 'fungus', rig: 'fungus', types: ['Fire', 'Poison'], tier: 'uncommon', bst: 431,
+    id: 'emberspore', name: 'Emberspore', nameParts: ['Ember', 'spore'], clade: 'fungus', rig: 'fungus', types: ['Fire', 'Poison'], tier: 'uncommon', bst: 427,
     stats: { hp: 0.14, melee: 0.08, ranged: 0.2, magic: 0.1, meleeDef: 0.1, rangedDef: 0.11, magicDef: 0.11, spe: 0.16 },
     recipe: { body: 'g.body.cone', head: 'g.head.ribbed', eyes: 'g.eyes.bead', mouth: 'g.mouth.grin', gills: 'g.gills.dark', spores: ['g.spores.swirl', 'g.spores.none'], roots: 'g.roots.toes', ring: 'g.ring.none', shelves: 'g.shelves.none', veil: 'g.veil.none', glow: ['g.glow.rays', 'g.glow.none'], pattern: ['g.pattern.stripes', 'g.pattern.none'] },
     palette: { c1: [15, 80, 48], c2: [30, 40, 35], c3: [45, 100, 60], eye: [45, 100, 60] }, vary: { h: 8, s: 5, l: 5 },
@@ -1635,7 +1635,7 @@ export const SPECIES = [
     desc: 'Its spores show you colours that do not exist. It finds your reaction fascinating every single time.',
   },
   {
-    id: 'nightgill', name: 'Nightgill', nameParts: ['Night', 'gill'], clade: 'fungus', rig: 'fungus', types: ['Dark', 'Grass'], tier: 'uncommon', bst: 368,
+    id: 'nightgill', name: 'Nightgill', nameParts: ['Night', 'gill'], clade: 'fungus', rig: 'fungus', types: ['Dark', 'Grass'], tier: 'uncommon', bst: 366,
     stats: { hp: 0.14, melee: 0.2, ranged: 0.08, magic: 0.06, meleeDef: 0.11, rangedDef: 0.11, magicDef: 0.09, spe: 0.21 },
     recipe: { body: 'g.body.funnel', head: 'g.head.bent', eyes: 'g.eyes.squint', mouth: 'g.mouth.grin', gills: 'g.gills.dark', spores: 'g.spores.none', roots: 'g.roots.stilts', ring: ['g.ring.torn', 'g.ring.none'], shelves: 'g.shelves.none', veil: ['g.veil.tatters', 'g.veil.none'], glow: 'g.glow.none', pattern: 'g.pattern.none' },
     palette: { c1: [230, 22, 32], c2: [220, 15, 54], c3: [30, 70, 55], eye: [40, 95, 60] }, vary: { h: 10, s: 4, l: 5 },
@@ -1646,7 +1646,7 @@ export const SPECIES = [
     desc: 'Hides among the ordinary mushrooms and waits for a basket. The forager is rarely seen again.',
   },
   {
-    id: 'cordycrawl', name: 'Cordycrawl', nameParts: ['Cordy', 'crawl'], clade: 'fungus', rig: 'fungus', types: ['Bug', 'Poison'], tier: 'uncommon', bst: 410,
+    id: 'cordycrawl', name: 'Cordycrawl', nameParts: ['Cordy', 'crawl'], clade: 'fungus', rig: 'fungus', types: ['Bug', 'Poison'], tier: 'uncommon', bst: 402,
     stats: { hp: 0.14, melee: 0.21, ranged: 0.07, magic: 0.06, meleeDef: 0.12, rangedDef: 0.12, magicDef: 0.1, spe: 0.18 },
     recipe: { body: 'g.body.morel', head: 'g.head.ribbed', eyes: 'g.eyes.bead', mouth: 'g.mouth.gape', gills: 'g.gills.pores', spores: ['g.spores.motes', 'g.spores.none'], roots: 'g.roots.toes', ring: ['g.ring.double', 'g.ring.none'], shelves: ['g.shelves.coral', 'g.shelves.none'], veil: 'g.veil.none', glow: 'g.glow.none', pattern: 'g.pattern.none' },
     palette: { c1: [25, 55, 50], c2: [30, 35, 30], c3: [50, 80, 60], eye: [50, 20, 85] }, vary: { h: 8, s: 6, l: 5 },
@@ -1657,7 +1657,7 @@ export const SPECIES = [
     desc: 'There was an insect in there once. The fungus wears it now, and it has kept the legs working.',
   },
   {
-    id: 'dewcap', name: 'Dewcap', nameParts: ['Dew', 'cap'], clade: 'fungus', rig: 'fungus', types: ['Water', 'Grass'], tier: 'common', bst: 416,
+    id: 'dewcap', name: 'Dewcap', nameParts: ['Dew', 'cap'], clade: 'fungus', rig: 'fungus', types: ['Water', 'Grass'], tier: 'common', bst: 415,
     stats: { hp: 0.16, melee: 0.06, ranged: 0.08, magic: 0.19, meleeDef: 0.11, rangedDef: 0.12, magicDef: 0.14, spe: 0.14 },
     recipe: { body: 'g.body.button', head: 'g.head.bulb', eyes: 'g.eyes.round', mouth: 'g.mouth.smile', gills: 'g.gills.fine', spores: ['g.spores.fall', 'g.spores.none'], roots: 'g.roots.pad', ring: 'g.ring.none', shelves: 'g.shelves.none', veil: ['g.veil.beads', 'g.veil.none'], glow: 'g.glow.none', pattern: ['g.pattern.dots', 'g.pattern.none'] },
     palette: { c1: [200, 50, 55], c2: [190, 30, 85], c3: [140, 55, 60], eye: [210, 70, 40] }, vary: { h: 10, s: 6, l: 6 },
@@ -1668,7 +1668,7 @@ export const SPECIES = [
     desc: 'Wakes with the morning dew and wears it all day like jewellery. Dries out and grumbles by noon.',
   },
   {
-    id: 'drakecap', name: 'Drakecap', nameParts: ['Drake', 'cap'], clade: 'fungus', rig: 'fungus', types: ['Dragon', 'Grass'], tier: 'rare', bst: 474,
+    id: 'drakecap', name: 'Drakecap', nameParts: ['Drake', 'cap'], clade: 'fungus', rig: 'fungus', types: ['Dragon', 'Grass'], tier: 'rare', bst: 468,
     stats: { hp: 0.16, melee: 0.09, ranged: 0.07, magic: 0.21, meleeDef: 0.12, rangedDef: 0.11, magicDef: 0.13, spe: 0.11 },
     recipe: { body: 'g.body.cone', head: 'g.head.woody', eyes: 'g.eyes.glow', mouth: 'g.mouth.gape', gills: 'g.gills.teeth', spores: ['g.spores.swirl', 'g.spores.none'], roots: 'g.roots.knot', ring: ['g.ring.collar', 'g.ring.none'], shelves: ['g.shelves.ears', 'g.shelves.none'], veil: 'g.veil.none', glow: ['g.glow.crescent', 'g.glow.none'], pattern: ['g.pattern.scales', 'g.pattern.none'] },
     palette: { c1: [140, 50, 35], c2: [30, 40, 45], c3: [0, 75, 55], eye: [50, 95, 60] }, vary: { h: 8, s: 6, l: 5 },
@@ -1680,7 +1680,7 @@ export const SPECIES = [
   },
   // ---- Roster expansion: wyrms ----
   {
-    id: 'wyrmling', name: 'Wyrmling', nameParts: ['Wyrm', 'ling'], clade: 'wyrm', rig: 'wyrm', types: ['Dragon'], tier: 'common', bst: 422,
+    id: 'wyrmling', name: 'Wyrmling', nameParts: ['Wyrm', 'ling'], clade: 'wyrm', rig: 'wyrm', types: ['Dragon'], tier: 'common', bst: 419,
     stats: { hp: 0.15, melee: 0.2, ranged: 0.08, magic: 0.08, meleeDef: 0.12, rangedDef: 0.11, magicDef: 0.1, spe: 0.16 },
     recipe: { body: 'w.body.serpent', head: 'w.head.sleek', eyes: 'w.eyes.round', maw: 'w.maw.grin', whiskers: ['w.whiskers.short', 'w.whiskers.none'], legs: 'w.legs.claw', tail: 'w.tail.taper', mane: ['w.mane.ridge', 'w.mane.none'], plates: 'w.plates.none', horns: ['w.horns.nubs', 'w.horns.none'], glow: 'w.glow.none', bands: ['w.bands.belly', 'w.bands.none'] },
     palette: { c1: [150, 45, 42], c2: [50, 50, 75], c3: [40, 85, 60], eye: [45, 90, 55] }, vary: { h: 10, s: 8, l: 6 },
@@ -1690,7 +1690,7 @@ export const SPECIES = [
     desc: 'A hatchling wyrm, all coil and confidence. It has not learned to fly yet and does not believe you when you say it cannot.',
   },
   {
-    id: 'stormcoil', name: 'Stormcoil', nameParts: ['Storm', 'coil'], clade: 'wyrm', rig: 'wyrm', types: ['Electric', 'Dragon'], tier: 'uncommon', bst: 380,
+    id: 'stormcoil', name: 'Stormcoil', nameParts: ['Storm', 'coil'], clade: 'wyrm', rig: 'wyrm', types: ['Electric', 'Dragon'], tier: 'uncommon', bst: 382,
     stats: { hp: 0.13, melee: 0.07, ranged: 0.09, magic: 0.21, meleeDef: 0.1, rangedDef: 0.11, magicDef: 0.11, spe: 0.18 },
     recipe: { body: 'w.body.hover', head: 'w.head.serpent', eyes: 'w.eyes.glow', maw: 'w.maw.snarl', whiskers: ['w.whiskers.long', 'w.whiskers.none'], legs: 'w.legs.stub', tail: 'w.tail.fin', mane: ['w.mane.spines', 'w.mane.none'], plates: 'w.plates.none', horns: ['w.horns.straight', 'w.horns.none'], glow: ['w.glow.stormcloud', 'w.glow.none'], bands: ['w.bands.stripes', 'w.bands.none'] },
     palette: { c1: [220, 55, 50], c2: [50, 90, 70], c3: [55, 100, 60], eye: [55, 100, 60] }, vary: { h: 8, s: 6, l: 5 },
@@ -1701,7 +1701,7 @@ export const SPECIES = [
     desc: 'Rides the front of every thunderstorm and takes credit for the lightning. Sometimes it deserves it.',
   },
   {
-    id: 'tidewyrm', name: 'Tidewyrm', nameParts: ['Tide', 'wyrm'], clade: 'wyrm', rig: 'wyrm', types: ['Water', 'Dragon'], tier: 'uncommon', bst: 411,
+    id: 'tidewyrm', name: 'Tidewyrm', nameParts: ['Tide', 'wyrm'], clade: 'wyrm', rig: 'wyrm', types: ['Water', 'Dragon'], tier: 'uncommon', bst: 414,
     stats: { hp: 0.15, melee: 0.07, ranged: 0.08, magic: 0.2, meleeDef: 0.11, rangedDef: 0.12, magicDef: 0.13, spe: 0.14 },
     recipe: { body: 'w.body.coil', head: 'w.head.wide', eyes: 'w.eyes.round', maw: 'w.maw.beard', whiskers: ['w.whiskers.droop', 'w.whiskers.none'], legs: 'w.legs.fin', tail: 'w.tail.fin', mane: ['w.mane.fins', 'w.mane.none'], plates: ['w.plates.scales', 'w.plates.none'], horns: ['w.horns.curved', 'w.horns.none'], glow: 'w.glow.none', bands: ['w.bands.scales', 'w.bands.none'] },
     palette: { c1: [200, 60, 45], c2: [185, 45, 70], c3: [40, 60, 80], eye: [200, 80, 45] }, vary: { h: 8, s: 6, l: 5 },
@@ -1712,7 +1712,7 @@ export const SPECIES = [
     desc: 'Pulls the tide in with its coils and lets it out again when it is bored. Fishermen set their clocks by it.',
   },
   {
-    id: 'sandwyrm', name: 'Sandwyrm', nameParts: ['Sand', 'wyrm'], clade: 'wyrm', rig: 'wyrm', types: ['Ground', 'Dragon'], tier: 'uncommon', bst: 448,
+    id: 'sandwyrm', name: 'Sandwyrm', nameParts: ['Sand', 'wyrm'], clade: 'wyrm', rig: 'wyrm', types: ['Ground', 'Dragon'], tier: 'uncommon', bst: 446,
     stats: { hp: 0.18, melee: 0.18, ranged: 0.06, magic: 0.05, meleeDef: 0.17, rangedDef: 0.14, magicDef: 0.12, spe: 0.1 },
     recipe: { body: 'w.body.stout', head: 'w.head.blunt', eyes: 'w.eyes.sleepy', maw: 'w.maw.fangs', whiskers: 'w.whiskers.none', legs: 'w.legs.paw', tail: 'w.tail.spiked', mane: 'w.mane.none', plates: ['w.plates.scutes', 'w.plates.none'], horns: ['w.horns.ram', 'w.horns.none'], glow: 'w.glow.none', bands: ['w.bands.rings', 'w.bands.none'] },
     palette: { c1: [35, 45, 55], c2: [30, 35, 75], c3: [20, 70, 45], eye: [40, 80, 50] }, vary: { h: 8, s: 5, l: 6 },
@@ -1722,7 +1722,7 @@ export const SPECIES = [
     desc: 'Swims through dunes the way others swim through water. Surfaces under caravans, mostly by accident.',
   },
   {
-    id: 'frostwyrm', name: 'Frostwyrm', nameParts: ['Frost', 'wyrm'], clade: 'wyrm', rig: 'wyrm', types: ['Ice', 'Dragon'], tier: 'uncommon', bst: 433,
+    id: 'frostwyrm', name: 'Frostwyrm', nameParts: ['Frost', 'wyrm'], clade: 'wyrm', rig: 'wyrm', types: ['Ice', 'Dragon'], tier: 'uncommon', bst: 432,
     stats: { hp: 0.14, melee: 0.08, ranged: 0.2, magic: 0.1, meleeDef: 0.1, rangedDef: 0.12, magicDef: 0.11, spe: 0.15 },
     recipe: { body: 'w.body.arch', head: 'w.head.sleek', eyes: 'w.eyes.gem', maw: 'w.maw.snarl', whiskers: ['w.whiskers.forked', 'w.whiskers.none'], legs: 'w.legs.talon', tail: 'w.tail.spade', mane: ['w.mane.frill', 'w.mane.none'], plates: ['w.plates.ridges', 'w.plates.none'], horns: ['w.horns.antler', 'w.horns.none'], glow: ['w.glow.mist', 'w.glow.none'], bands: ['w.bands.diamonds', 'w.bands.none'] },
     palette: { c1: [200, 35, 68], c2: [210, 25, 90], c3: [260, 50, 72], eye: [215, 70, 45] }, vary: { h: 8, s: 6, l: 5 },
@@ -1733,7 +1733,7 @@ export const SPECIES = [
     desc: 'Its breath is the first frost of the year. Where it sleeps the lakes stay frozen into summer.',
   },
   {
-    id: 'emberwyrm', name: 'Emberwyrm', nameParts: ['Ember', 'wyrm'], clade: 'wyrm', rig: 'wyrm', types: ['Fire', 'Dragon'], tier: 'common', bst: 386,
+    id: 'emberwyrm', name: 'Emberwyrm', nameParts: ['Ember', 'wyrm'], clade: 'wyrm', rig: 'wyrm', types: ['Fire', 'Dragon'], tier: 'common', bst: 391,
     stats: { hp: 0.14, melee: 0.08, ranged: 0.2, magic: 0.1, meleeDef: 0.1, rangedDef: 0.11, magicDef: 0.11, spe: 0.16 },
     recipe: { body: 'w.body.serpent', head: 'w.head.beaked', eyes: 'w.eyes.fierce', maw: 'w.maw.roar', whiskers: ['w.whiskers.wavy', 'w.whiskers.none'], legs: 'w.legs.claw', tail: 'w.tail.flame', mane: ['w.mane.flames', 'w.mane.none'], plates: 'w.plates.none', horns: ['w.horns.straight', 'w.horns.none'], glow: ['w.glow.embers', 'w.glow.none'], bands: ['w.bands.dorsal', 'w.bands.none'] },
     palette: { c1: [12, 80, 48], c2: [35, 90, 65], c3: [50, 100, 58], eye: [50, 100, 60] }, vary: { h: 8, s: 5, l: 5 },
@@ -1755,7 +1755,7 @@ export const SPECIES = [
     desc: 'Made of morning fog and moving faster than it. By the time you have seen it, it has been through your pockets.',
   },
   {
-    id: 'jadewyrm', name: 'Jadewyrm', nameParts: ['Jade', 'wyrm'], clade: 'wyrm', rig: 'wyrm', types: ['Grass', 'Dragon'], tier: 'uncommon', bst: 435,
+    id: 'jadewyrm', name: 'Jadewyrm', nameParts: ['Jade', 'wyrm'], clade: 'wyrm', rig: 'wyrm', types: ['Grass', 'Dragon'], tier: 'uncommon', bst: 431,
     stats: { hp: 0.15, melee: 0.08, ranged: 0.07, magic: 0.21, meleeDef: 0.12, rangedDef: 0.11, magicDef: 0.13, spe: 0.13 },
     recipe: { body: 'w.body.rearing', head: 'w.head.lion', eyes: 'w.eyes.sleepy', maw: 'w.maw.beard', whiskers: ['w.whiskers.long', 'w.whiskers.none'], legs: 'w.legs.paw', tail: 'w.tail.tuft', mane: ['w.mane.feathers', 'w.mane.none'], plates: ['w.plates.gems', 'w.plates.none'], horns: ['w.horns.antler', 'w.horns.none'], glow: 'w.glow.none', bands: ['w.bands.belly', 'w.bands.none'] },
     palette: { c1: [150, 50, 40], c2: [45, 50, 80], c3: [40, 85, 60], eye: [40, 90, 55] }, vary: { h: 8, s: 6, l: 5 },
@@ -1766,7 +1766,7 @@ export const SPECIES = [
     desc: 'Coils around old temples and lets the vines grow over it. Asks riddles, and is patient about the answers.',
   },
   {
-    id: 'ironwyrm', name: 'Ironwyrm', nameParts: ['Iron', 'wyrm'], clade: 'wyrm', rig: 'wyrm', types: ['Steel', 'Dragon'], tier: 'uncommon', bst: 389,
+    id: 'ironwyrm', name: 'Ironwyrm', nameParts: ['Iron', 'wyrm'], clade: 'wyrm', rig: 'wyrm', types: ['Steel', 'Dragon'], tier: 'uncommon', bst: 395,
     stats: { hp: 0.16, melee: 0.19, ranged: 0.06, magic: 0.05, meleeDef: 0.18, rangedDef: 0.15, magicDef: 0.11, spe: 0.1 },
     recipe: { body: 'w.body.stout', head: 'w.head.blunt', eyes: 'w.eyes.bead', maw: 'w.maw.fangs', whiskers: 'w.whiskers.none', legs: 'w.legs.hook', tail: 'w.tail.spade', mane: 'w.mane.none', plates: ['w.plates.shell', 'w.plates.none'], horns: ['w.horns.crown', 'w.horns.none'], glow: 'w.glow.none', bands: ['w.bands.rings', 'w.bands.none'] },
     palette: { c1: [210, 12, 55], c2: [200, 10, 75], c3: [30, 80, 55], eye: [30, 90, 55] }, vary: { h: 10, s: 4, l: 6 },
@@ -1788,7 +1788,7 @@ export const SPECIES = [
     desc: 'Lives in the shadow of things and moves when they do. You will hear the coils a moment before you see the eyes.',
   },
   {
-    id: 'gloomwyrm', name: 'Gloomwyrm', nameParts: ['Gloom', 'wyrm'], clade: 'wyrm', rig: 'wyrm', types: ['Ghost', 'Dragon'], tier: 'rare', bst: 385,
+    id: 'gloomwyrm', name: 'Gloomwyrm', nameParts: ['Gloom', 'wyrm'], clade: 'wyrm', rig: 'wyrm', types: ['Ghost', 'Dragon'], tier: 'rare', bst: 390,
     stats: { hp: 0.14, melee: 0.06, ranged: 0.08, magic: 0.22, meleeDef: 0.1, rangedDef: 0.11, magicDef: 0.15, spe: 0.14 },
     recipe: { body: 'w.body.hover', head: 'w.head.frilled', eyes: 'w.eyes.glow', maw: 'w.maw.roar', whiskers: ['w.whiskers.droop', 'w.whiskers.none'], legs: 'w.legs.stub', tail: 'w.tail.flame', mane: ['w.mane.flames', 'w.mane.none'], plates: 'w.plates.none', horns: ['w.horns.crest', 'w.horns.none'], glow: ['w.glow.aura', 'w.glow.none'], bands: ['w.bands.dorsal', 'w.bands.none'] },
     palette: { c1: [180, 25, 45], c2: [170, 20, 70], c3: [120, 70, 60], eye: [120, 95, 60] }, vary: { h: 10, s: 5, l: 5 },
@@ -1799,7 +1799,7 @@ export const SPECIES = [
     desc: 'The ghost of a wyrm that never got its hoard. It guards an empty cave with great ceremony.',
   },
   {
-    id: 'pearlwyrm', name: 'Pearlwyrm', nameParts: ['Pearl', 'wyrm'], clade: 'wyrm', rig: 'wyrm', types: ['Fairy', 'Dragon'], tier: 'rare', bst: 388,
+    id: 'pearlwyrm', name: 'Pearlwyrm', nameParts: ['Pearl', 'wyrm'], clade: 'wyrm', rig: 'wyrm', types: ['Fairy', 'Dragon'], tier: 'rare', bst: 385,
     stats: { hp: 0.16, melee: 0.05, ranged: 0.08, magic: 0.2, meleeDef: 0.11, rangedDef: 0.12, magicDef: 0.15, spe: 0.13 },
     recipe: { body: 'w.body.arch', head: 'w.head.lion', eyes: 'w.eyes.gem', maw: 'w.maw.smile', whiskers: ['w.whiskers.curled', 'w.whiskers.none'], legs: 'w.legs.paw', tail: 'w.tail.tuft', mane: ['w.mane.fur', 'w.mane.none'], plates: ['w.plates.gems', 'w.plates.none'], horns: ['w.horns.antler', 'w.horns.none'], glow: ['w.glow.sparkles', 'w.glow.none'], bands: ['w.bands.spots', 'w.bands.none'] },
     palette: { c1: [340, 35, 82], c2: [45, 40, 92], c3: [190, 60, 70], eye: [200, 70, 50] }, vary: { h: 8, s: 6, l: 4 },
@@ -1810,7 +1810,7 @@ export const SPECIES = [
     desc: 'Carries a pearl it will not show anyone. Brings luck to the humble and headaches to the greedy.',
   },
   {
-    id: 'cavewyrm', name: 'Cavewyrm', nameParts: ['Cave', 'wyrm'], clade: 'wyrm', rig: 'wyrm', types: ['Rock', 'Dragon'], tier: 'common', bst: 462,
+    id: 'cavewyrm', name: 'Cavewyrm', nameParts: ['Cave', 'wyrm'], clade: 'wyrm', rig: 'wyrm', types: ['Rock', 'Dragon'], tier: 'common', bst: 453,
     stats: { hp: 0.17, melee: 0.18, ranged: 0.06, magic: 0.05, meleeDef: 0.17, rangedDef: 0.15, magicDef: 0.11, spe: 0.11 },
     recipe: { body: 'w.body.knot', head: 'w.head.wide', eyes: 'w.eyes.bead', maw: 'w.maw.grin', whiskers: 'w.whiskers.none', legs: 'w.legs.claw', tail: 'w.tail.spiked', mane: ['w.mane.ridge', 'w.mane.none'], plates: ['w.plates.scutes', 'w.plates.none'], horns: ['w.horns.nubs', 'w.horns.none'], glow: 'w.glow.none', bands: ['w.bands.spots', 'w.bands.none'] },
     palette: { c1: [30, 25, 45], c2: [35, 20, 62], c3: [190, 50, 60], eye: [190, 80, 55] }, vary: { h: 8, s: 5, l: 6 },
@@ -1821,7 +1821,7 @@ export const SPECIES = [
     desc: 'Ties itself in knots in the dark and untangles when something edible walks in. The crystals are not for sale.',
   },
   {
-    id: 'sagecoil', name: 'Sagecoil', nameParts: ['Sage', 'coil'], clade: 'wyrm', rig: 'wyrm', types: ['Psychic', 'Dragon'], tier: 'rare', bst: 446,
+    id: 'sagecoil', name: 'Sagecoil', nameParts: ['Sage', 'coil'], clade: 'wyrm', rig: 'wyrm', types: ['Psychic', 'Dragon'], tier: 'rare', bst: 435,
     stats: { hp: 0.15, melee: 0.05, ranged: 0.08, magic: 0.23, meleeDef: 0.1, rangedDef: 0.11, magicDef: 0.15, spe: 0.13 },
     recipe: { body: 'w.body.coil', head: 'w.head.frilled', eyes: 'w.eyes.glow', maw: 'w.maw.beard', whiskers: ['w.whiskers.wavy', 'w.whiskers.none'], legs: 'w.legs.stub', tail: 'w.tail.curl', mane: ['w.mane.frill', 'w.mane.none'], plates: ['w.plates.gems', 'w.plates.none'], horns: ['w.horns.crown', 'w.horns.none'], glow: ['w.glow.halo', 'w.glow.none'], bands: ['w.bands.diamonds', 'w.bands.none'] },
     palette: { c1: [45, 60, 60], c2: [40, 50, 85], c3: [280, 60, 60], eye: [280, 80, 55] }, vary: { h: 8, s: 6, l: 5 },
@@ -1833,7 +1833,7 @@ export const SPECIES = [
   },
   // ---- Roster expansion: draconic ----
   {
-    id: 'hatchdrake', name: 'Hatchdrake', nameParts: ['Hatch', 'drake'], clade: 'draconic', rig: 'draconic', types: ['Dragon'], tier: 'common', bst: 427,
+    id: 'hatchdrake', name: 'Hatchdrake', nameParts: ['Hatch', 'drake'], clade: 'draconic', rig: 'draconic', types: ['Dragon'], tier: 'common', bst: 428,
     stats: { hp: 0.15, melee: 0.2, ranged: 0.08, magic: 0.08, meleeDef: 0.12, rangedDef: 0.11, magicDef: 0.1, spe: 0.16 },
     recipe: { body: 'd.body.drake', head: 'd.head.round', eyes: 'd.eyes.round', jaw: 'd.jaw.grin', horns: ['d.horns.nubs', 'd.horns.none'], wings: 'd.wings.small', legsFront: 'd.legsFront.claw', legsBack: 'd.legsBack.haunch', tail: 'd.tail.spade', spines: ['d.spines.ridge', 'd.spines.none'], chest: ['d.chest.plates', 'd.chest.none'], breath: 'd.breath.none' },
     palette: { c1: [10, 65, 50], c2: [35, 55, 78], c3: [45, 85, 60], eye: [45, 90, 55] }, vary: { h: 10, s: 8, l: 6 },
@@ -1876,7 +1876,7 @@ export const SPECIES = [
     desc: 'Nests on the highest peak and argues with the storms. The storms usually leave first.',
   },
   {
-    id: 'tidedrake', name: 'Tidedrake', nameParts: ['Tide', 'drake'], clade: 'draconic', rig: 'draconic', types: ['Water', 'Dragon'], tier: 'uncommon', bst: 405,
+    id: 'tidedrake', name: 'Tidedrake', nameParts: ['Tide', 'drake'], clade: 'draconic', rig: 'draconic', types: ['Water', 'Dragon'], tier: 'uncommon', bst: 407,
     stats: { hp: 0.16, melee: 0.07, ranged: 0.08, magic: 0.2, meleeDef: 0.11, rangedDef: 0.12, magicDef: 0.13, spe: 0.13 },
     recipe: { body: 'd.body.sleek', head: 'd.head.croc', eyes: 'd.eyes.round', jaw: 'd.jaw.underbite', horns: ['d.horns.curved', 'd.horns.none'], wings: 'd.wings.fin', legsFront: 'd.legsFront.paw', legsBack: 'd.legsBack.paw', tail: 'd.tail.fin', spines: ['d.spines.sail', 'd.spines.none'], chest: ['d.chest.plates', 'd.chest.none'], breath: ['d.breath.bubbles', 'd.breath.none'] },
     palette: { c1: [200, 60, 45], c2: [185, 45, 72], c3: [40, 60, 80], eye: [200, 80, 45] }, vary: { h: 8, s: 6, l: 5 },
@@ -1887,7 +1887,7 @@ export const SPECIES = [
     desc: 'Swims better than it flies and knows it. Sailors leave it fish and it leaves their ships alone.',
   },
   {
-    id: 'verdrake', name: 'Verdrake', nameParts: ['Ver', 'drake'], clade: 'draconic', rig: 'draconic', types: ['Grass', 'Dragon'], tier: 'uncommon', bst: 464,
+    id: 'verdrake', name: 'Verdrake', nameParts: ['Ver', 'drake'], clade: 'draconic', rig: 'draconic', types: ['Grass', 'Dragon'], tier: 'uncommon', bst: 471,
     stats: { hp: 0.17, melee: 0.18, ranged: 0.06, magic: 0.07, meleeDef: 0.15, rangedDef: 0.13, magicDef: 0.12, spe: 0.12 },
     recipe: { body: 'd.body.brute', head: 'd.head.blunt', eyes: 'd.eyes.sleepy', jaw: 'd.jaw.tusks', horns: ['d.horns.antler', 'd.horns.none'], wings: 'd.wings.feathered', legsFront: 'd.legsFront.stout', legsBack: 'd.legsBack.stout', tail: 'd.tail.tuft', spines: ['d.spines.fur', 'd.spines.none'], chest: ['d.chest.spots', 'd.chest.none'], breath: 'd.breath.none' },
     palette: { c1: [140, 45, 38], c2: [95, 40, 60], c3: [40, 70, 60], eye: [45, 85, 55] }, vary: { h: 10, s: 6, l: 5 },
@@ -1898,7 +1898,7 @@ export const SPECIES = [
     desc: 'Moss grows on it because it never moves fast enough to stop it. Charges exactly once a day, hard.',
   },
   {
-    id: 'stonedrake', name: 'Stonedrake', nameParts: ['Stone', 'drake'], clade: 'draconic', rig: 'draconic', types: ['Rock', 'Dragon'], tier: 'common', bst: 455,
+    id: 'stonedrake', name: 'Stonedrake', nameParts: ['Stone', 'drake'], clade: 'draconic', rig: 'draconic', types: ['Rock', 'Dragon'], tier: 'common', bst: 453,
     stats: { hp: 0.17, melee: 0.18, ranged: 0.06, magic: 0.05, meleeDef: 0.17, rangedDef: 0.15, magicDef: 0.11, spe: 0.11 },
     recipe: { body: 'd.body.armour', head: 'd.head.blunt', eyes: 'd.eyes.narrow', jaw: 'd.jaw.underbite', horns: ['d.horns.nubs', 'd.horns.none'], wings: 'd.wings.small', legsFront: 'd.legsFront.stout', legsBack: 'd.legsBack.stout', tail: 'd.tail.club', spines: ['d.spines.plates', 'd.spines.none'], chest: ['d.chest.scales', 'd.chest.none'], breath: 'd.breath.none' },
     palette: { c1: [30, 22, 45], c2: [35, 18, 62], c3: [190, 50, 60], eye: [190, 80, 55] }, vary: { h: 8, s: 5, l: 6 },
@@ -1920,7 +1920,7 @@ export const SPECIES = [
     desc: 'Rides the thermals all day and lands only to complain about the ground. Its wings never stop growing.',
   },
   {
-    id: 'duskdrake', name: 'Duskdrake', nameParts: ['Dusk', 'drake'], clade: 'draconic', rig: 'draconic', types: ['Dark', 'Dragon'], tier: 'uncommon', bst: 360,
+    id: 'duskdrake', name: 'Duskdrake', nameParts: ['Dusk', 'drake'], clade: 'draconic', rig: 'draconic', types: ['Dark', 'Dragon'], tier: 'uncommon', bst: 362,
     stats: { hp: 0.13, melee: 0.21, ranged: 0.08, magic: 0.06, meleeDef: 0.11, rangedDef: 0.11, magicDef: 0.1, spe: 0.2 },
     recipe: { body: 'd.body.sleek', head: 'd.head.classic', eyes: 'd.eyes.slit', jaw: 'd.jaw.fangs', horns: ['d.horns.curved', 'd.horns.none'], wings: 'd.wings.tattered', legsFront: 'd.legsFront.talon', legsBack: 'd.legsBack.spring', tail: 'd.tail.spiked', spines: ['d.spines.ridge', 'd.spines.none'], chest: ['d.chest.dorsal', 'd.chest.none'], breath: ['d.breath.smoke', 'd.breath.none'] },
     palette: { c1: [265, 25, 30], c2: [280, 20, 48], c3: [345, 75, 55], eye: [345, 90, 60] }, vary: { h: 10, s: 4, l: 5 },
@@ -1942,7 +1942,7 @@ export const SPECIES = [
     desc: 'Glows softly in the dark and hums in its sleep. Children who find one are never lost again.',
   },
   {
-    id: 'wraithdrake', name: 'Wraithdrake', nameParts: ['Wraith', 'drake'], clade: 'draconic', rig: 'draconic', types: ['Ghost', 'Dragon'], tier: 'rare', bst: 394,
+    id: 'wraithdrake', name: 'Wraithdrake', nameParts: ['Wraith', 'drake'], clade: 'draconic', rig: 'draconic', types: ['Ghost', 'Dragon'], tier: 'rare', bst: 389,
     stats: { hp: 0.14, melee: 0.06, ranged: 0.08, magic: 0.22, meleeDef: 0.1, rangedDef: 0.11, magicDef: 0.15, spe: 0.14 },
     recipe: { body: 'd.body.long', head: 'd.head.frilled', eyes: 'd.eyes.glow', jaw: 'd.jaw.roar', horns: ['d.horns.crown', 'd.horns.none'], wings: 'd.wings.tattered', legsFront: 'd.legsFront.slim', legsBack: 'd.legsBack.slim', tail: 'd.tail.flame', spines: ['d.spines.flames', 'd.spines.none'], chest: ['d.chest.dorsal', 'd.chest.none'], breath: ['d.breath.void', 'd.breath.none'] },
     palette: { c1: [180, 25, 45], c2: [170, 20, 70], c3: [120, 70, 60], eye: [120, 95, 60] }, vary: { h: 10, s: 5, l: 5 },
@@ -1953,7 +1953,7 @@ export const SPECIES = [
     desc: 'A dragon that refused to stay slain. It still guards its hoard and will still not tell you where it is.',
   },
   {
-    id: 'steeldrake', name: 'Steeldrake', nameParts: ['Steel', 'drake'], clade: 'draconic', rig: 'draconic', types: ['Steel', 'Dragon'], tier: 'uncommon', bst: 386,
+    id: 'steeldrake', name: 'Steeldrake', nameParts: ['Steel', 'drake'], clade: 'draconic', rig: 'draconic', types: ['Steel', 'Dragon'], tier: 'uncommon', bst: 387,
     stats: { hp: 0.16, melee: 0.19, ranged: 0.06, magic: 0.05, meleeDef: 0.18, rangedDef: 0.15, magicDef: 0.11, spe: 0.1 },
     recipe: { body: 'd.body.armour', head: 'd.head.classic', eyes: 'd.eyes.narrow', jaw: 'd.jaw.underbite', horns: ['d.horns.crown', 'd.horns.none'], wings: 'd.wings.crystal', legsFront: 'd.legsFront.armoured', legsBack: 'd.legsBack.armoured', tail: 'd.tail.club', spines: ['d.spines.plates', 'd.spines.none'], chest: ['d.chest.plates', 'd.chest.none'], breath: 'd.breath.none' },
     palette: { c1: [210, 12, 55], c2: [200, 10, 75], c3: [30, 80, 55], eye: [30, 90, 55] }, vary: { h: 10, s: 4, l: 6 },
@@ -1975,7 +1975,7 @@ export const SPECIES = [
     desc: 'Everything it touches wilts, including its own mood. Spits from a distance because it prefers it that way.',
   },
   {
-    id: 'eldrake', name: 'Eldrake', nameParts: ['El', 'drake'], clade: 'draconic', rig: 'draconic', types: ['Dragon', 'Psychic'], tier: 'rare', bst: 491,
+    id: 'eldrake', name: 'Eldrake', nameParts: ['El', 'drake'], clade: 'draconic', rig: 'draconic', types: ['Dragon', 'Psychic'], tier: 'rare', bst: 488,
     stats: { hp: 0.16, melee: 0.07, ranged: 0.08, magic: 0.22, meleeDef: 0.11, rangedDef: 0.11, magicDef: 0.14, spe: 0.11 },
     recipe: { body: 'd.body.brute', head: 'd.head.crested', eyes: 'd.eyes.glow', jaw: 'd.jaw.tusks', horns: ['d.horns.ram', 'd.horns.none'], wings: 'd.wings.bat', legsFront: 'd.legsFront.armoured', legsBack: 'd.legsBack.haunch', tail: 'd.tail.spade', spines: ['d.spines.sail', 'd.spines.none'], chest: ['d.chest.gem', 'd.chest.none'], breath: ['d.breath.void', 'd.breath.none'] },
     palette: { c1: [45, 55, 55], c2: [40, 45, 80], c3: [280, 60, 60], eye: [280, 80, 55] }, vary: { h: 8, s: 6, l: 5 },
@@ -1987,7 +1987,7 @@ export const SPECIES = [
   },
   // ---- Roster expansion: skeletals ----
   {
-    id: 'bonepup', name: 'Bonepup', nameParts: ['Bone', 'pup'], clade: 'skeletal', rig: 'skeletal', types: ['Ghost'], tier: 'common', bst: 419,
+    id: 'bonepup', name: 'Bonepup', nameParts: ['Bone', 'pup'], clade: 'skeletal', rig: 'skeletal', types: ['Ghost'], tier: 'common', bst: 417,
     stats: { hp: 0.14, melee: 0.21, ranged: 0.08, magic: 0.08, meleeDef: 0.12, rangedDef: 0.1, magicDef: 0.1, spe: 0.17 },
     recipe: { body: 'k.body.ribcage', head: 'k.head.canine', eyes: 'k.eyes.ember', jaw: 'k.jaw.fangs', legsFront: 'k.legsFront.hound', legsBack: 'k.legsBack.hound', tail: 'k.tail.spine', horns: ['k.horns.nubs', 'k.horns.none'], wings: 'k.wings.none', light: ['k.light.ember', 'k.light.none'], shroud: 'k.shroud.none', cracks: ['k.cracks.cracks', 'k.cracks.none'] },
     palette: { c1: [42, 25, 84], c2: [40, 20, 62], c3: [140, 70, 60], eye: [140, 85, 62] }, vary: { h: 6, s: 6, l: 5 },
@@ -2007,7 +2007,7 @@ export const SPECIES = [
     desc: 'Runs the barrow paths at night and never tires, because there is nothing left in it to tire.',
   },
   {
-    id: 'cragskull', name: 'Cragskull', nameParts: ['Crag', 'skull'], clade: 'skeletal', rig: 'skeletal', types: ['Ghost', 'Rock'], tier: 'uncommon', bst: 496,
+    id: 'cragskull', name: 'Cragskull', nameParts: ['Crag', 'skull'], clade: 'skeletal', rig: 'skeletal', types: ['Ghost', 'Rock'], tier: 'uncommon', bst: 495,
     stats: { hp: 0.16, melee: 0.2, ranged: 0.07, magic: 0.06, meleeDef: 0.17, rangedDef: 0.13, magicDef: 0.12, spe: 0.09 },
     recipe: { body: 'k.body.barrel', head: 'k.head.ram', eyes: 'k.eyes.hollow', jaw: 'k.jaw.tusked', legsFront: 'k.legsFront.heavy', legsBack: 'k.legsBack.heavy', tail: 'k.tail.club', horns: ['k.horns.ram', 'k.horns.none'], wings: 'k.wings.none', light: 'k.light.none', shroud: ['k.shroud.moss', 'k.shroud.none'], cracks: ['k.cracks.bands', 'k.cracks.none'] },
     palette: { c1: [38, 18, 72], c2: [35, 12, 50], c3: [95, 30, 55], eye: [50, 30, 85] }, vary: { h: 6, s: 5, l: 5 },
@@ -2027,7 +2027,7 @@ export const SPECIES = [
     desc: 'Flies on wings with no skin left between the fingers. Whatever is holding it up, it is not the air.',
   },
   {
-    id: 'rattleworm', name: 'Rattleworm', nameParts: ['Rattle', 'worm'], clade: 'skeletal', rig: 'skeletal', types: ['Ghost', 'Poison'], tier: 'common', bst: 395,
+    id: 'rattleworm', name: 'Rattleworm', nameParts: ['Rattle', 'worm'], clade: 'skeletal', rig: 'skeletal', types: ['Ghost', 'Poison'], tier: 'common', bst: 392,
     stats: { hp: 0.14, melee: 0.08, ranged: 0.21, magic: 0.08, meleeDef: 0.11, rangedDef: 0.12, magicDef: 0.11, spe: 0.15 },
     recipe: { body: 'k.body.coil', head: 'k.head.serpent', eyes: 'k.eyes.twin', jaw: 'k.jaw.needle', legsFront: 'k.legsFront.stubby', legsBack: 'k.legsBack.stubby', tail: 'k.tail.rattle', horns: 'k.horns.none', wings: 'k.wings.none', light: 'k.light.none', shroud: ['k.shroud.cobwebs', 'k.shroud.none'], cracks: ['k.cracks.runes', 'k.cracks.none'] },
     palette: { c1: [50, 25, 80], c2: [80, 25, 55], c3: [90, 80, 55], eye: [90, 90, 60] }, vary: { h: 8, s: 6, l: 5 },
@@ -2037,7 +2037,7 @@ export const SPECIES = [
     desc: 'A spine that kept going after the rest gave up. The rattle at the end is a warning it never bothers to give in time.',
   },
   {
-    id: 'frostbones', name: 'Frostbones', nameParts: ['Frost', 'bones'], clade: 'skeletal', rig: 'skeletal', types: ['Ghost', 'Ice'], tier: 'uncommon', bst: 431,
+    id: 'frostbones', name: 'Frostbones', nameParts: ['Frost', 'bones'], clade: 'skeletal', rig: 'skeletal', types: ['Ghost', 'Ice'], tier: 'uncommon', bst: 423,
     stats: { hp: 0.15, melee: 0.07, ranged: 0.08, magic: 0.22, meleeDef: 0.12, rangedDef: 0.11, magicDef: 0.14, spe: 0.11 },
     recipe: { body: 'k.body.ribcage', head: 'k.head.feline', eyes: 'k.eyes.gem', jaw: 'k.jaw.fangs', legsFront: 'k.legsFront.long', legsBack: 'k.legsBack.spring', tail: 'k.tail.spine', horns: ['k.horns.antler', 'k.horns.none'], wings: 'k.wings.none', light: ['k.light.star', 'k.light.none'], shroud: ['k.shroud.mist', 'k.shroud.none'], cracks: ['k.cracks.frost', 'k.cracks.none'] },
     palette: { c1: [200, 20, 88], c2: [205, 25, 65], c3: [195, 85, 72], eye: [200, 90, 72] }, vary: { h: 6, s: 6, l: 4 },
@@ -2047,7 +2047,7 @@ export const SPECIES = [
     desc: 'Found under the snowline with frost still growing on it. The cold did not kill it. The cold is what it is.',
   },
   {
-    id: 'pyreskull', name: 'Pyreskull', nameParts: ['Pyre', 'skull'], clade: 'skeletal', rig: 'skeletal', types: ['Ghost', 'Fire'], tier: 'uncommon', bst: 387,
+    id: 'pyreskull', name: 'Pyreskull', nameParts: ['Pyre', 'skull'], clade: 'skeletal', rig: 'skeletal', types: ['Ghost', 'Fire'], tier: 'uncommon', bst: 388,
     stats: { hp: 0.13, melee: 0.08, ranged: 0.09, magic: 0.23, meleeDef: 0.1, rangedDef: 0.1, magicDef: 0.12, spe: 0.15 },
     recipe: { body: 'k.body.barrel', head: 'k.head.brute', eyes: 'k.eyes.blaze', jaw: 'k.jaw.split', legsFront: 'k.legsFront.claw', legsBack: 'k.legsBack.hound', tail: 'k.tail.whip', horns: ['k.horns.curved', 'k.horns.none'], wings: 'k.wings.none', light: ['k.light.flame', 'k.light.none'], shroud: 'k.shroud.none', cracks: ['k.cracks.scorch', 'k.cracks.none'] },
     palette: { c1: [35, 20, 70], c2: [20, 25, 40], c3: [30, 100, 58], eye: [30, 100, 60] }, vary: { h: 6, s: 5, l: 5 },
@@ -2057,7 +2057,7 @@ export const SPECIES = [
     desc: 'Walked out of its own funeral pyre still burning and has not been put out since. Smells of old smoke.',
   },
   {
-    id: 'fossilfin', name: 'Fossilfin', nameParts: ['Fossil', 'fin'], clade: 'skeletal', rig: 'skeletal', types: ['Ghost', 'Water'], tier: 'common', bst: 404,
+    id: 'fossilfin', name: 'Fossilfin', nameParts: ['Fossil', 'fin'], clade: 'skeletal', rig: 'skeletal', types: ['Ghost', 'Water'], tier: 'common', bst: 403,
     stats: { hp: 0.14, melee: 0.08, ranged: 0.21, magic: 0.09, meleeDef: 0.12, rangedDef: 0.13, magicDef: 0.1, spe: 0.13 },
     recipe: { body: 'k.body.fishbone', head: 'k.head.fish', eyes: 'k.eyes.hollow', jaw: 'k.jaw.needle', legsFront: 'k.legsFront.stubby', legsBack: 'k.legsBack.stubby', tail: 'k.tail.fishtail', horns: 'k.horns.none', wings: ['k.wings.fan', 'k.wings.none'], light: ['k.light.orb', 'k.light.none'], shroud: 'k.shroud.none', cracks: ['k.cracks.bands', 'k.cracks.none'] },
     palette: { c1: [45, 25, 78], c2: [30, 25, 55], c3: [180, 60, 60], eye: [180, 70, 65] }, vary: { h: 8, s: 6, l: 5 },
@@ -2067,7 +2067,7 @@ export const SPECIES = [
     desc: 'A fish skeleton that swims through dry ground as if it were still the seabed it remembers. It is, geologically.',
   },
   {
-    id: 'ironrib', name: 'Ironrib', nameParts: ['Iron', 'rib'], clade: 'skeletal', rig: 'skeletal', types: ['Ghost', 'Steel'], tier: 'uncommon', bst: 393,
+    id: 'ironrib', name: 'Ironrib', nameParts: ['Iron', 'rib'], clade: 'skeletal', rig: 'skeletal', types: ['Ghost', 'Steel'], tier: 'uncommon', bst: 394,
     stats: { hp: 0.15, melee: 0.2, ranged: 0.07, magic: 0.06, meleeDef: 0.18, rangedDef: 0.14, magicDef: 0.11, spe: 0.09 },
     recipe: { body: 'k.body.barrel', head: 'k.head.brute', eyes: 'k.eyes.pinprick', jaw: 'k.jaw.slack', legsFront: 'k.legsFront.heavy', legsBack: 'k.legsBack.heavy', tail: 'k.tail.club', horns: ['k.horns.straight', 'k.horns.none'], wings: 'k.wings.none', light: ['k.light.gem', 'k.light.none'], shroud: ['k.shroud.bandages', 'k.shroud.none'], cracks: ['k.cracks.gilt', 'k.cracks.none'] },
     palette: { c1: [40, 12, 78], c2: [210, 8, 55], c3: [45, 80, 62], eye: [45, 90, 65] }, vary: { h: 5, s: 5, l: 5 },
@@ -2077,7 +2077,7 @@ export const SPECIES = [
     desc: 'Somebody riveted plates over the worst of the breaks. It does not remember who, but it keeps the bolts polished.',
   },
   {
-    id: 'gravemaw', name: 'Gravemaw', nameParts: ['Grave', 'maw'], clade: 'skeletal', rig: 'skeletal', types: ['Ghost', 'Ground'], tier: 'common', bst: 425,
+    id: 'gravemaw', name: 'Gravemaw', nameParts: ['Grave', 'maw'], clade: 'skeletal', rig: 'skeletal', types: ['Ghost', 'Ground'], tier: 'common', bst: 427,
     stats: { hp: 0.17, melee: 0.21, ranged: 0.07, magic: 0.07, meleeDef: 0.14, rangedDef: 0.12, magicDef: 0.1, spe: 0.12 },
     recipe: { body: 'k.body.giant', head: 'k.head.brute', eyes: 'k.eyes.ember', jaw: 'k.jaw.tusked', legsFront: 'k.legsFront.claw', legsBack: 'k.legsBack.heavy', tail: 'k.tail.stub', horns: ['k.horns.single', 'k.horns.none'], wings: 'k.wings.none', light: 'k.light.none', shroud: ['k.shroud.roots', 'k.shroud.none'], cracks: ['k.cracks.moss', 'k.cracks.none'] },
     palette: { c1: [40, 20, 74], c2: [30, 25, 40], c3: [110, 55, 50], eye: [20, 90, 55] }, vary: { h: 6, s: 6, l: 5 },
@@ -2097,7 +2097,7 @@ export const SPECIES = [
     desc: 'The bones are only half there and the rest is a thought it keeps having. Reads yours before you finish them.',
   },
   {
-    id: 'mosstomb', name: 'Mosstomb', nameParts: ['Moss', 'tomb'], clade: 'skeletal', rig: 'skeletal', types: ['Ghost', 'Grass'], tier: 'common', bst: 420,
+    id: 'mosstomb', name: 'Mosstomb', nameParts: ['Moss', 'tomb'], clade: 'skeletal', rig: 'skeletal', types: ['Ghost', 'Grass'], tier: 'common', bst: 410,
     stats: { hp: 0.17, melee: 0.08, ranged: 0.08, magic: 0.2, meleeDef: 0.13, rangedDef: 0.12, magicDef: 0.13, spe: 0.09 },
     recipe: { body: 'k.body.wrapped', head: 'k.head.ram', eyes: 'k.eyes.hollow', jaw: 'k.jaw.slack', legsFront: 'k.legsFront.hoof', legsBack: 'k.legsBack.hoof', tail: 'k.tail.stub', horns: ['k.horns.antler', 'k.horns.none'], wings: 'k.wings.none', light: ['k.light.orb', 'k.light.none'], shroud: ['k.shroud.roots', 'k.shroud.none'], cracks: ['k.cracks.moss', 'k.cracks.none'] },
     palette: { c1: [55, 25, 78], c2: [100, 30, 42], c3: [130, 60, 55], eye: [140, 70, 60] }, vary: { h: 8, s: 6, l: 5 },
@@ -2117,7 +2117,7 @@ export const SPECIES = [
     desc: 'Struck by lightning after it was already dead, which seems unfair. The charge never left the bones.',
   },
   {
-    id: 'dreadrake', name: 'Dreadrake', nameParts: ['Dread', 'rake'], clade: 'skeletal', rig: 'skeletal', types: ['Ghost', 'Dragon'], tier: 'rare', bst: 439,
+    id: 'dreadrake', name: 'Dreadrake', nameParts: ['Dread', 'rake'], clade: 'skeletal', rig: 'skeletal', types: ['Ghost', 'Dragon'], tier: 'rare', bst: 443,
     stats: { hp: 0.15, melee: 0.09, ranged: 0.08, magic: 0.22, meleeDef: 0.12, rangedDef: 0.11, magicDef: 0.12, spe: 0.11 },
     recipe: { body: 'k.body.giant', head: 'k.head.serpent', eyes: 'k.eyes.blaze', jaw: 'k.jaw.fangs', legsFront: 'k.legsFront.claw', legsBack: 'k.legsBack.hound', tail: 'k.tail.arrow', horns: ['k.horns.curved', 'k.horns.none'], wings: ['k.wings.wide', 'k.wings.none'], light: ['k.light.flame', 'k.light.none'], shroud: ['k.shroud.cape', 'k.shroud.none'], cracks: ['k.cracks.gilt', 'k.cracks.none'] },
     palette: { c1: [30, 15, 66], c2: [280, 20, 35], c3: [275, 85, 60], eye: [275, 95, 65] }, vary: { h: 6, s: 6, l: 5 },
@@ -2128,7 +2128,7 @@ export const SPECIES = [
   },
   // ---- Roster expansion: nightwings ----
   {
-    id: 'duskit', name: 'Duskit', nameParts: ['Dusk', 'it'], clade: 'nightwing', rig: 'nightwing', types: ['Dark'], tier: 'common', bst: 377,
+    id: 'duskit', name: 'Duskit', nameParts: ['Dusk', 'it'], clade: 'nightwing', rig: 'nightwing', types: ['Dark'], tier: 'common', bst: 381,
     stats: { hp: 0.13, melee: 0.21, ranged: 0.08, magic: 0.08, meleeDef: 0.11, rangedDef: 0.1, magicDef: 0.1, spe: 0.19 },
     recipe: { body: 'n.body.tiny', head: 'n.head.snub', ears: 'n.ears.round', eyes: 'n.eyes.big', muzzle: 'n.muzzle.snub', wings: 'n.wings.short', legs: 'n.legs.tucked', tail: 'n.tail.stub', crest: ['n.crest.tuft', 'n.crest.none'], ruff: 'n.ruff.none', thumbs: ['n.thumbs.hook', 'n.thumbs.none'], markings: ['n.markings.belly', 'n.markings.none'] },
     palette: { c1: [265, 14, 44], c2: [275, 18, 32], c3: [35, 70, 72], eye: [45, 90, 60] }, vary: { h: 8, s: 6, l: 5 },
@@ -2148,7 +2148,7 @@ export const SPECIES = [
     desc: 'Drinks from anything warm and asleep. Fast enough that you only find out in the morning.',
   },
   {
-    id: 'echomaw', name: 'Echomaw', nameParts: ['Echo', 'maw'], clade: 'nightwing', rig: 'nightwing', types: ['Dark', 'Psychic'], tier: 'uncommon', bst: 415,
+    id: 'echomaw', name: 'Echomaw', nameParts: ['Echo', 'maw'], clade: 'nightwing', rig: 'nightwing', types: ['Dark', 'Psychic'], tier: 'uncommon', bst: 422,
     stats: { hp: 0.13, melee: 0.07, ranged: 0.08, magic: 0.23, meleeDef: 0.1, rangedDef: 0.11, magicDef: 0.13, spe: 0.15 },
     recipe: { body: 'n.body.round', head: 'n.head.leaf', ears: 'n.ears.huge', eyes: 'n.eyes.wide', muzzle: 'n.muzzle.leaf', wings: 'n.wings.broad', legs: 'n.legs.hook', tail: 'n.tail.tuck', crest: 'n.crest.none', ruff: ['n.ruff.collar', 'n.ruff.none'], thumbs: ['n.thumbs.rings', 'n.thumbs.none'], markings: ['n.markings.spots', 'n.markings.none'] },
     palette: { c1: [230, 12, 55], c2: [240, 25, 42], c3: [190, 80, 68], eye: [190, 90, 65] }, vary: { h: 8, s: 6, l: 5 },
@@ -2168,7 +2168,7 @@ export const SPECIES = [
     desc: 'Eats the orchard and spits the stones back at the farmer. Every tree in the chasm was planted by one.',
   },
   {
-    id: 'emberbat', name: 'Emberbat', nameParts: ['Ember', 'bat'], clade: 'nightwing', rig: 'nightwing', types: ['Dark', 'Fire'], tier: 'uncommon', bst: 372,
+    id: 'emberbat', name: 'Emberbat', nameParts: ['Ember', 'bat'], clade: 'nightwing', rig: 'nightwing', types: ['Dark', 'Fire'], tier: 'uncommon', bst: 369,
     stats: { hp: 0.12, melee: 0.08, ranged: 0.09, magic: 0.23, meleeDef: 0.1, rangedDef: 0.1, magicDef: 0.11, spe: 0.17 },
     recipe: { body: 'n.body.slim', head: 'n.head.pointed', ears: 'n.ears.tall', eyes: 'n.eyes.glow', muzzle: 'n.muzzle.fanged', wings: 'n.wings.hooked', legs: 'n.legs.long', tail: 'n.tail.whip', crest: ['n.crest.spikes', 'n.crest.none'], ruff: 'n.ruff.none', thumbs: ['n.thumbs.glowing', 'n.thumbs.none'], markings: ['n.markings.stripes', 'n.markings.none'] },
     palette: { c1: [15, 30, 32], c2: [20, 80, 45], c3: [40, 100, 60], eye: [40, 100, 60] }, vary: { h: 6, s: 5, l: 5 },
@@ -2178,7 +2178,7 @@ export const SPECIES = [
     desc: 'Roosts in chimneys and comes out glowing. The membranes of its wings are the colour of a banked fire.',
   },
   {
-    id: 'frostflit', name: 'Frostflit', nameParts: ['Frost', 'flit'], clade: 'nightwing', rig: 'nightwing', types: ['Dark', 'Ice'], tier: 'common', bst: 430,
+    id: 'frostflit', name: 'Frostflit', nameParts: ['Frost', 'flit'], clade: 'nightwing', rig: 'nightwing', types: ['Dark', 'Ice'], tier: 'common', bst: 429,
     stats: { hp: 0.14, melee: 0.07, ranged: 0.22, magic: 0.09, meleeDef: 0.11, rangedDef: 0.12, magicDef: 0.11, spe: 0.14 },
     recipe: { body: 'n.body.fluffy', head: 'n.head.round', ears: 'n.ears.tufted', eyes: 'n.eyes.sleepy', muzzle: 'n.muzzle.tube', wings: 'n.wings.scalloped', legs: 'n.legs.furred', tail: 'n.tail.tufted', crest: ['n.crest.tuft', 'n.crest.none'], ruff: ['n.ruff.fluff', 'n.ruff.none'], thumbs: 'n.thumbs.none', markings: ['n.markings.mottled', 'n.markings.none'] },
     palette: { c1: [205, 20, 80], c2: [210, 30, 60], c3: [190, 70, 70], eye: [210, 80, 45] }, vary: { h: 6, s: 6, l: 4 },
@@ -2198,7 +2198,7 @@ export const SPECIES = [
     desc: 'Hangs from the lightning rod on purpose. Its bite leaves a numb patch and a smell of hot copper.',
   },
   {
-    id: 'gloomfang', name: 'Gloomfang', nameParts: ['Gloom', 'fang'], clade: 'nightwing', rig: 'nightwing', types: ['Dark', 'Poison'], tier: 'common', bst: 393,
+    id: 'gloomfang', name: 'Gloomfang', nameParts: ['Gloom', 'fang'], clade: 'nightwing', rig: 'nightwing', types: ['Dark', 'Poison'], tier: 'common', bst: 402,
     stats: { hp: 0.14, melee: 0.21, ranged: 0.08, magic: 0.08, meleeDef: 0.12, rangedDef: 0.11, magicDef: 0.1, spe: 0.16 },
     recipe: { body: 'n.body.long', head: 'n.head.wide', ears: 'n.ears.leaf', eyes: 'n.eyes.red', muzzle: 'n.muzzle.fanged', wings: 'n.wings.ragged', legs: 'n.legs.clawed', tail: 'n.tail.long', crest: 'n.crest.none', ruff: ['n.ruff.spiky', 'n.ruff.none'], thumbs: ['n.thumbs.bony', 'n.thumbs.none'], markings: ['n.markings.saddle', 'n.markings.none'] },
     palette: { c1: [120, 15, 36], c2: [90, 40, 40], c3: [95, 90, 55], eye: [95, 90, 60] }, vary: { h: 8, s: 6, l: 5 },
@@ -2228,7 +2228,7 @@ export const SPECIES = [
     desc: 'Half bat, half moth, all dust. Flutters at the window and leaves a powdery print shaped like itself.',
   },
   {
-    id: 'ironflit', name: 'Ironflit', nameParts: ['Iron', 'flit'], clade: 'nightwing', rig: 'nightwing', types: ['Dark', 'Steel'], tier: 'uncommon', bst: 361,
+    id: 'ironflit', name: 'Ironflit', nameParts: ['Iron', 'flit'], clade: 'nightwing', rig: 'nightwing', types: ['Dark', 'Steel'], tier: 'uncommon', bst: 360,
     stats: { hp: 0.15, melee: 0.2, ranged: 0.07, magic: 0.06, meleeDef: 0.18, rangedDef: 0.14, magicDef: 0.1, spe: 0.1 },
     recipe: { body: 'n.body.broad', head: 'n.head.wide', ears: 'n.ears.notched', eyes: 'n.eyes.slit', muzzle: 'n.muzzle.snub', wings: 'n.wings.hooked', legs: 'n.legs.stubby', tail: 'n.tail.stub', crest: ['n.crest.horns', 'n.crest.none'], ruff: ['n.ruff.beads', 'n.ruff.none'], thumbs: ['n.thumbs.blunt', 'n.thumbs.none'], markings: ['n.markings.saddle', 'n.markings.none'] },
     palette: { c1: [210, 8, 48], c2: [215, 10, 35], c3: [45, 80, 60], eye: [45, 90, 60] }, vary: { h: 5, s: 5, l: 5 },
@@ -2238,7 +2238,7 @@ export const SPECIES = [
     desc: 'Roosts in the old mine works and has taken on their colour. Flies like a thrown anvil, and lands like one.',
   },
   {
-    id: 'boulderbat', name: 'Boulderbat', nameParts: ['Boulder', 'bat'], clade: 'nightwing', rig: 'nightwing', types: ['Dark', 'Rock'], tier: 'uncommon', bst: 478,
+    id: 'boulderbat', name: 'Boulderbat', nameParts: ['Boulder', 'bat'], clade: 'nightwing', rig: 'nightwing', types: ['Dark', 'Rock'], tier: 'uncommon', bst: 477,
     stats: { hp: 0.16, melee: 0.2, ranged: 0.07, magic: 0.06, meleeDef: 0.17, rangedDef: 0.14, magicDef: 0.1, spe: 0.1 },
     recipe: { body: 'n.body.broad', head: 'n.head.round', ears: 'n.ears.round', eyes: 'n.eyes.sleepy', muzzle: 'n.muzzle.snub', wings: 'n.wings.short', legs: 'n.legs.stubby', tail: 'n.tail.stub', crest: ['n.crest.spikes', 'n.crest.none'], ruff: 'n.ruff.none', thumbs: ['n.thumbs.bony', 'n.thumbs.none'], markings: ['n.markings.mottled', 'n.markings.none'] },
     palette: { c1: [30, 15, 50], c2: [25, 15, 35], c3: [90, 30, 55], eye: [40, 60, 60] }, vary: { h: 6, s: 5, l: 5 },
@@ -2248,7 +2248,7 @@ export const SPECIES = [
     desc: 'Hangs from the cave roof so still that it grows lichen. When it drops, the floor remembers.',
   },
   {
-    id: 'nectarwing', name: 'Nectarwing', nameParts: ['Nectar', 'wing'], clade: 'nightwing', rig: 'nightwing', types: ['Dark', 'Fairy'], tier: 'uncommon', bst: 370,
+    id: 'nectarwing', name: 'Nectarwing', nameParts: ['Nectar', 'wing'], clade: 'nightwing', rig: 'nightwing', types: ['Dark', 'Fairy'], tier: 'uncommon', bst: 369,
     stats: { hp: 0.13, melee: 0.06, ranged: 0.08, magic: 0.22, meleeDef: 0.1, rangedDef: 0.11, magicDef: 0.14, spe: 0.16 },
     recipe: { body: 'n.body.tiny', head: 'n.head.long', ears: 'n.ears.leaf', eyes: 'n.eyes.big', muzzle: 'n.muzzle.whiskered', wings: 'n.wings.broad', legs: 'n.legs.splayed', tail: 'n.tail.fan', crest: ['n.crest.leaf', 'n.crest.none'], ruff: ['n.ruff.petals', 'n.ruff.none'], thumbs: ['n.thumbs.rings', 'n.thumbs.none'], markings: ['n.markings.belly', 'n.markings.none'] },
     palette: { c1: [320, 35, 68], c2: [300, 30, 50], c3: [50, 90, 70], eye: [320, 80, 55] }, vary: { h: 8, s: 6, l: 5 },
@@ -2258,7 +2258,7 @@ export const SPECIES = [
     desc: 'Drinks from the night flowers and pollinates the whole chasm by accident. Sneezes glitter.',
   },
   {
-    id: 'nightmaw', name: 'Nightmaw', nameParts: ['Night', 'maw'], clade: 'nightwing', rig: 'nightwing', types: ['Dark', 'Dragon'], tier: 'rare', bst: 443,
+    id: 'nightmaw', name: 'Nightmaw', nameParts: ['Night', 'maw'], clade: 'nightwing', rig: 'nightwing', types: ['Dark', 'Dragon'], tier: 'rare', bst: 444,
     stats: { hp: 0.15, melee: 0.22, ranged: 0.08, magic: 0.08, meleeDef: 0.13, rangedDef: 0.11, magicDef: 0.1, spe: 0.13 },
     recipe: { body: 'n.body.broad', head: 'n.head.long', ears: 'n.ears.curled', eyes: 'n.eyes.red', muzzle: 'n.muzzle.grin', wings: 'n.wings.huge', legs: 'n.legs.splayed', tail: 'n.tail.forked', crest: ['n.crest.horns', 'n.crest.none'], ruff: ['n.ruff.mane', 'n.ruff.none'], thumbs: ['n.thumbs.long', 'n.thumbs.none'], markings: ['n.markings.stripes', 'n.markings.none'] },
     palette: { c1: [250, 15, 38], c2: [255, 25, 30], c3: [280, 90, 60], eye: [275, 95, 65] }, vary: { h: 6, s: 6, l: 5 },
@@ -2269,7 +2269,7 @@ export const SPECIES = [
   },
   // ---- Roster expansion: crystallines ----
   {
-    id: 'pebblet', name: 'Pebblet', nameParts: ['Pebb', 'let'], clade: 'crystalline', rig: 'crystalline', types: ['Rock'], tier: 'common', bst: 483,
+    id: 'pebblet', name: 'Pebblet', nameParts: ['Pebb', 'let'], clade: 'crystalline', rig: 'crystalline', types: ['Rock'], tier: 'common', bst: 480,
     stats: { hp: 0.15, melee: 0.2, ranged: 0.07, magic: 0.07, meleeDef: 0.16, rangedDef: 0.13, magicDef: 0.1, spe: 0.12 },
     recipe: { body: 'c.body.pebble', head: 'c.head.dome', eyes: 'c.eyes.dot', mouth: 'c.mouth.small', legsFront: 'c.legsFront.stubby', legsBack: 'c.legsBack.stubby', tail: 'c.tail.stub', spines: ['c.spines.low', 'c.spines.none'], crown: 'c.crown.none', seam: ['c.seam.cracks', 'c.seam.none'], facets: ['c.facets.panes', 'c.facets.none'], aura: 'c.aura.none' },
     palette: { c1: [30, 15, 58], c2: [35, 12, 42], c3: [190, 70, 65], eye: [190, 80, 60] }, vary: { h: 8, s: 6, l: 5 },
@@ -2299,7 +2299,7 @@ export const SPECIES = [
     desc: 'Crack it open and it is all lightning inside. It throws pebbles that arrive with a spark.',
   },
   {
-    id: 'mindshard', name: 'Mindshard', nameParts: ['Mind', 'shard'], clade: 'crystalline', rig: 'crystalline', types: ['Rock', 'Psychic'], tier: 'rare', bst: 489,
+    id: 'mindshard', name: 'Mindshard', nameParts: ['Mind', 'shard'], clade: 'crystalline', rig: 'crystalline', types: ['Rock', 'Psychic'], tier: 'rare', bst: 488,
     stats: { hp: 0.13, melee: 0.06, ranged: 0.08, magic: 0.24, meleeDef: 0.12, rangedDef: 0.11, magicDef: 0.14, spe: 0.12 },
     recipe: { body: 'c.body.shard', head: 'c.head.spike', eyes: 'c.eyes.glow', mouth: 'c.mouth.flat', legsFront: 'c.legsFront.tall', legsBack: 'c.legsBack.tall', tail: 'c.tail.shard', spines: ['c.spines.single', 'c.spines.none'], crown: ['c.crown.spire', 'c.crown.none'], seam: ['c.seam.rings', 'c.seam.none'], facets: ['c.facets.triangles', 'c.facets.none'], aura: ['c.aura.halo', 'c.aura.none'] },
     palette: { c1: [265, 35, 60], c2: [270, 40, 42], c3: [285, 80, 72], eye: [285, 90, 70] }, vary: { h: 8, s: 6, l: 5 },
@@ -2309,7 +2309,7 @@ export const SPECIES = [
     desc: 'An amethyst that thinks. Hum near it and it hums back the thing you were about to say.',
   },
   {
-    id: 'frostgem', name: 'Frostgem', nameParts: ['Frost', 'gem'], clade: 'crystalline', rig: 'crystalline', types: ['Rock', 'Ice'], tier: 'uncommon', bst: 450,
+    id: 'frostgem', name: 'Frostgem', nameParts: ['Frost', 'gem'], clade: 'crystalline', rig: 'crystalline', types: ['Rock', 'Ice'], tier: 'uncommon', bst: 453,
     stats: { hp: 0.15, melee: 0.06, ranged: 0.08, magic: 0.22, meleeDef: 0.13, rangedDef: 0.12, magicDef: 0.14, spe: 0.1 },
     recipe: { body: 'c.body.cluster', head: 'c.head.gem', eyes: 'c.eyes.gem', mouth: 'c.mouth.point', legsFront: 'c.legsFront.shard', legsBack: 'c.legsBack.shard', tail: 'c.tail.fan', spines: ['c.spines.fan', 'c.spines.none'], crown: ['c.crown.halo', 'c.crown.none'], seam: ['c.seam.lattice', 'c.seam.none'], facets: ['c.facets.hexes', 'c.facets.none'], aura: ['c.aura.haze', 'c.aura.none'] },
     palette: { c1: [200, 35, 80], c2: [205, 40, 60], c3: [190, 90, 72], eye: [205, 90, 50] }, vary: { h: 6, s: 6, l: 4 },
@@ -2319,7 +2319,7 @@ export const SPECIES = [
     desc: 'Grows where the cavern drips freeze. Every facet is a snowflake that decided to stay.',
   },
   {
-    id: 'magmarite', name: 'Magmarite', nameParts: ['Magma', 'rite'], clade: 'crystalline', rig: 'crystalline', types: ['Rock', 'Fire'], tier: 'uncommon', bst: 458,
+    id: 'magmarite', name: 'Magmarite', nameParts: ['Magma', 'rite'], clade: 'crystalline', rig: 'crystalline', types: ['Rock', 'Fire'], tier: 'uncommon', bst: 468,
     stats: { hp: 0.15, melee: 0.22, ranged: 0.07, magic: 0.08, meleeDef: 0.15, rangedDef: 0.12, magicDef: 0.1, spe: 0.11 },
     recipe: { body: 'c.body.boulder', head: 'c.head.cube', eyes: 'c.eyes.glow', mouth: 'c.mouth.grin', legsFront: 'c.legsFront.block', legsBack: 'c.legsBack.block', tail: 'c.tail.club', spines: ['c.spines.cluster', 'c.spines.none'], crown: ['c.crown.twin', 'c.crown.none'], seam: ['c.seam.cracks', 'c.seam.none'], facets: ['c.facets.stripes', 'c.facets.none'], aura: ['c.aura.glow', 'c.aura.none'] },
     palette: { c1: [15, 25, 36], c2: [10, 35, 30], c3: [25, 100, 58], eye: [30, 100, 60] }, vary: { h: 6, s: 5, l: 5 },
@@ -2329,7 +2329,7 @@ export const SPECIES = [
     desc: 'Cooled on the outside, not on the inside. The cracks glow brighter the angrier it gets.',
   },
   {
-    id: 'tidestone', name: 'Tidestone', nameParts: ['Tide', 'stone'], clade: 'crystalline', rig: 'crystalline', types: ['Rock', 'Water'], tier: 'common', bst: 426,
+    id: 'tidestone', name: 'Tidestone', nameParts: ['Tide', 'stone'], clade: 'crystalline', rig: 'crystalline', types: ['Rock', 'Water'], tier: 'common', bst: 430,
     stats: { hp: 0.15, melee: 0.07, ranged: 0.21, magic: 0.08, meleeDef: 0.13, rangedDef: 0.13, magicDef: 0.11, spe: 0.12 },
     recipe: { body: 'c.body.slab', head: 'c.head.dome', eyes: 'c.eyes.dot', mouth: 'c.mouth.wide', legsFront: 'c.legsFront.stubby', legsBack: 'c.legsBack.stubby', tail: 'c.tail.fan', spines: ['c.spines.low', 'c.spines.none'], crown: 'c.crown.none', seam: ['c.seam.bands', 'c.seam.none'], facets: ['c.facets.panes', 'c.facets.none'], aura: ['c.aura.ring', 'c.aura.none'] },
     palette: { c1: [195, 30, 55], c2: [200, 35, 40], c3: [175, 80, 65], eye: [175, 85, 60] }, vary: { h: 8, s: 6, l: 5 },
@@ -2339,7 +2339,7 @@ export const SPECIES = [
     desc: 'Worn smooth by an underground river and still soaking. Spits the river back at you in pieces.',
   },
   {
-    id: 'ferrocrys', name: 'Ferrocrys', nameParts: ['Ferro', 'crys'], clade: 'crystalline', rig: 'crystalline', types: ['Rock', 'Steel'], tier: 'uncommon', bst: 397,
+    id: 'ferrocrys', name: 'Ferrocrys', nameParts: ['Ferro', 'crys'], clade: 'crystalline', rig: 'crystalline', types: ['Rock', 'Steel'], tier: 'uncommon', bst: 390,
     stats: { hp: 0.15, melee: 0.2, ranged: 0.06, magic: 0.06, meleeDef: 0.2, rangedDef: 0.15, magicDef: 0.1, spe: 0.08 },
     recipe: { body: 'c.body.boulder', head: 'c.head.cube', eyes: 'c.eyes.slit', mouth: 'c.mouth.flat', legsFront: 'c.legsFront.column', legsBack: 'c.legsBack.column', tail: 'c.tail.club', spines: ['c.spines.ridge', 'c.spines.none'], crown: ['c.crown.points', 'c.crown.none'], seam: ['c.seam.dots', 'c.seam.none'], facets: ['c.facets.mosaic', 'c.facets.none'], aura: 'c.aura.none' },
     palette: { c1: [210, 10, 60], c2: [215, 12, 42], c3: [45, 80, 62], eye: [45, 85, 60] }, vary: { h: 5, s: 5, l: 5 },
@@ -2349,7 +2349,7 @@ export const SPECIES = [
     desc: 'Iron ore that woke up. Magnets stick to it and so, eventually, does everything else in the cavern.',
   },
   {
-    id: 'gravequartz', name: 'Gravequartz', nameParts: ['Grave', 'quartz'], clade: 'crystalline', rig: 'crystalline', types: ['Rock', 'Ghost'], tier: 'uncommon', bst: 433,
+    id: 'gravequartz', name: 'Gravequartz', nameParts: ['Grave', 'quartz'], clade: 'crystalline', rig: 'crystalline', types: ['Rock', 'Ghost'], tier: 'uncommon', bst: 432,
     stats: { hp: 0.14, melee: 0.06, ranged: 0.08, magic: 0.22, meleeDef: 0.12, rangedDef: 0.12, magicDef: 0.14, spe: 0.12 },
     recipe: { body: 'c.body.prism', head: 'c.head.spike', eyes: 'c.eyes.hollow', mouth: 'c.mouth.crack', legsFront: 'c.legsFront.shard', legsBack: 'c.legsBack.shard', tail: 'c.tail.shard', spines: ['c.spines.single', 'c.spines.none'], crown: ['c.crown.spire', 'c.crown.none'], seam: ['c.seam.veins', 'c.seam.none'], facets: ['c.facets.triangles', 'c.facets.none'], aura: ['c.aura.haze', 'c.aura.none'] },
     palette: { c1: [230, 10, 66], c2: [235, 15, 48], c3: [140, 70, 62], eye: [140, 80, 62] }, vary: { h: 8, s: 6, l: 5 },
@@ -2369,7 +2369,7 @@ export const SPECIES = [
     desc: 'Black glass on four legs. You see your own face in its flank right before it bites.',
   },
   {
-    id: 'mossgeode', name: 'Mossgeode', nameParts: ['Moss', 'geode'], clade: 'crystalline', rig: 'crystalline', types: ['Rock', 'Grass'], tier: 'common', bst: 442,
+    id: 'mossgeode', name: 'Mossgeode', nameParts: ['Moss', 'geode'], clade: 'crystalline', rig: 'crystalline', types: ['Rock', 'Grass'], tier: 'common', bst: 447,
     stats: { hp: 0.16, melee: 0.07, ranged: 0.2, magic: 0.08, meleeDef: 0.14, rangedDef: 0.13, magicDef: 0.12, spe: 0.1 },
     recipe: { body: 'c.body.geode', head: 'c.head.dome', eyes: 'c.eyes.dot', mouth: 'c.mouth.small', legsFront: 'c.legsFront.block', legsBack: 'c.legsBack.block', tail: 'c.tail.stub', spines: ['c.spines.cluster', 'c.spines.none'], crown: ['c.crown.antler', 'c.crown.none'], seam: ['c.seam.cracks', 'c.seam.none'], facets: ['c.facets.mosaic', 'c.facets.none'], aura: ['c.aura.motes', 'c.aura.none'] },
     palette: { c1: [40, 20, 55], c2: [95, 35, 40], c3: [130, 70, 55], eye: [130, 80, 58] }, vary: { h: 8, s: 6, l: 5 },
@@ -2379,7 +2379,7 @@ export const SPECIES = [
     desc: 'A geode that a forest moved into. The crystals inside are green now and nobody asked them.',
   },
   {
-    id: 'toxicite', name: 'Toxicite', nameParts: ['Toxic', 'ite'], clade: 'crystalline', rig: 'crystalline', types: ['Rock', 'Poison'], tier: 'common', bst: 445,
+    id: 'toxicite', name: 'Toxicite', nameParts: ['Toxic', 'ite'], clade: 'crystalline', rig: 'crystalline', types: ['Rock', 'Poison'], tier: 'common', bst: 450,
     stats: { hp: 0.14, melee: 0.07, ranged: 0.21, magic: 0.09, meleeDef: 0.13, rangedDef: 0.13, magicDef: 0.11, spe: 0.12 },
     recipe: { body: 'c.body.cluster', head: 'c.head.cluster', eyes: 'c.eyes.twin', mouth: 'c.mouth.grin', legsFront: 'c.legsFront.split', legsBack: 'c.legsBack.split', tail: 'c.tail.beads', spines: ['c.spines.tall', 'c.spines.none'], crown: ['c.crown.cluster', 'c.crown.none'], seam: ['c.seam.dots', 'c.seam.none'], facets: ['c.facets.hexes', 'c.facets.none'], aura: ['c.aura.glow', 'c.aura.none'] },
     palette: { c1: [80, 20, 50], c2: [85, 30, 36], c3: [90, 95, 55], eye: [90, 100, 60] }, vary: { h: 8, s: 6, l: 5 },
@@ -2389,7 +2389,7 @@ export const SPECIES = [
     desc: 'Pretty from a distance. Up close the crystals sweat and the miners keep a wide berth.',
   },
   {
-    id: 'terrashard', name: 'Terrashard', nameParts: ['Terra', 'shard'], clade: 'crystalline', rig: 'crystalline', types: ['Rock', 'Ground'], tier: 'common', bst: 446,
+    id: 'terrashard', name: 'Terrashard', nameParts: ['Terra', 'shard'], clade: 'crystalline', rig: 'crystalline', types: ['Rock', 'Ground'], tier: 'common', bst: 454,
     stats: { hp: 0.16, melee: 0.21, ranged: 0.07, magic: 0.06, meleeDef: 0.16, rangedDef: 0.13, magicDef: 0.1, spe: 0.11 },
     recipe: { body: 'c.body.slab', head: 'c.head.prism', eyes: 'c.eyes.hollow', mouth: 'c.mouth.wide', legsFront: 'c.legsFront.crystal', legsBack: 'c.legsBack.crystal', tail: 'c.tail.cluster', spines: ['c.spines.fan', 'c.spines.none'], crown: ['c.crown.points', 'c.crown.none'], seam: ['c.seam.bands', 'c.seam.none'], facets: ['c.facets.stripes', 'c.facets.none'], aura: 'c.aura.none' },
     palette: { c1: [28, 30, 52], c2: [25, 35, 38], c3: [35, 85, 62], eye: [35, 90, 60] }, vary: { h: 6, s: 6, l: 5 },
@@ -2399,7 +2399,7 @@ export const SPECIES = [
     desc: 'Sandstone layered like a cake and about as patient. It shoulders through cave walls rather than go round.',
   },
   {
-    id: 'drakonyx', name: 'Drakonyx', nameParts: ['Drak', 'onyx'], clade: 'crystalline', rig: 'crystalline', types: ['Rock', 'Dragon'], tier: 'rare', bst: 463,
+    id: 'drakonyx', name: 'Drakonyx', nameParts: ['Drak', 'onyx'], clade: 'crystalline', rig: 'crystalline', types: ['Rock', 'Dragon'], tier: 'rare', bst: 471,
     stats: { hp: 0.15, melee: 0.22, ranged: 0.08, magic: 0.08, meleeDef: 0.14, rangedDef: 0.12, magicDef: 0.1, spe: 0.11 },
     recipe: { body: 'c.body.cluster', head: 'c.head.spike', eyes: 'c.eyes.star', mouth: 'c.mouth.fanged', legsFront: 'c.legsFront.crystal', legsBack: 'c.legsBack.crystal', tail: 'c.tail.cluster', spines: ['c.spines.tall', 'c.spines.none'], crown: ['c.crown.antler', 'c.crown.none'], seam: ['c.seam.lattice', 'c.seam.none'], facets: ['c.facets.diamonds', 'c.facets.none'], aura: ['c.aura.shards', 'c.aura.none'] },
     palette: { c1: [345, 20, 42], c2: [350, 30, 30], c3: [350, 90, 62], eye: [350, 95, 65] }, vary: { h: 6, s: 6, l: 5 },
@@ -2410,7 +2410,7 @@ export const SPECIES = [
   },
   // ---- Roster expansion: myriapods ----
   {
-    id: 'inchling', name: 'Inchling', nameParts: ['Inch', 'ling'], clade: 'myriapod', rig: 'myriapod', types: ['Bug'], tier: 'common', bst: 456,
+    id: 'inchling', name: 'Inchling', nameParts: ['Inch', 'ling'], clade: 'myriapod', rig: 'myriapod', types: ['Bug'], tier: 'common', bst: 465,
     stats: { hp: 0.14, melee: 0.21, ranged: 0.08, magic: 0.07, meleeDef: 0.13, rangedDef: 0.12, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'y.body.segmented', head: 'y.head.capsule', eyes: 'y.eyes.bead', mandibles: 'y.mandibles.small', antennae: 'y.antennae.short', legs: 'y.legs.thin', tail: 'y.tail.blunt', plates: 'y.plates.none', bristles: ['y.bristles.fine', 'y.bristles.none'], glow: 'y.glow.none', bands: ['y.bands.segments', 'y.bands.none'], venom: 'y.venom.none' },
     palette: { c1: [30, 45, 55], c2: [30, 40, 38], c3: [50, 80, 60], eye: [50, 60, 30] }, vary: { h: 8, s: 6, l: 5 },
@@ -2420,7 +2420,7 @@ export const SPECIES = [
     desc: 'An inch of legs and appetite. It measures the garden one body length at a time and eats as it goes.',
   },
   {
-    id: 'forcipede', name: 'Forcipede', nameParts: ['Forci', 'pede'], clade: 'myriapod', rig: 'myriapod', types: ['Bug', 'Poison'], tier: 'uncommon', bst: 393,
+    id: 'forcipede', name: 'Forcipede', nameParts: ['Forci', 'pede'], clade: 'myriapod', rig: 'myriapod', types: ['Bug', 'Poison'], tier: 'uncommon', bst: 403,
     stats: { hp: 0.13, melee: 0.22, ranged: 0.08, magic: 0.07, meleeDef: 0.12, rangedDef: 0.11, magicDef: 0.09, spe: 0.18 },
     recipe: { body: 'y.body.segmented', head: 'y.head.pincer', eyes: 'y.eyes.slit', mandibles: 'y.mandibles.pincers', antennae: 'y.antennae.long', legs: 'y.legs.hooked', tail: 'y.tail.forks', plates: ['y.plates.ridge', 'y.plates.none'], bristles: 'y.bristles.none', glow: 'y.glow.none', bands: ['y.bands.stripes', 'y.bands.none'], venom: ['y.venom.drips', 'y.venom.none'] },
     palette: { c1: [15, 60, 45], c2: [20, 50, 30], c3: [85, 90, 55], eye: [85, 90, 55] }, vary: { h: 6, s: 6, l: 5 },
@@ -2440,7 +2440,7 @@ export const SPECIES = [
     desc: 'Every leg leaves a scorch mark. It lives in the compost heap because the compost heap is warm, and now it is warmer.',
   },
   {
-    id: 'mossmillie', name: 'Mossmillie', nameParts: ['Moss', 'millie'], clade: 'myriapod', rig: 'myriapod', types: ['Bug', 'Grass'], tier: 'common', bst: 505,
+    id: 'mossmillie', name: 'Mossmillie', nameParts: ['Moss', 'millie'], clade: 'myriapod', rig: 'myriapod', types: ['Bug', 'Grass'], tier: 'common', bst: 503,
     stats: { hp: 0.16, melee: 0.07, ranged: 0.2, magic: 0.08, meleeDef: 0.14, rangedDef: 0.13, magicDef: 0.12, spe: 0.1 },
     recipe: { body: 'y.body.armored', head: 'y.head.bulb', eyes: 'y.eyes.dot', mandibles: 'y.mandibles.small', antennae: 'y.antennae.clubbed', legs: 'y.legs.thick', tail: 'y.tail.blunt', plates: ['y.plates.dome', 'y.plates.none'], bristles: ['y.bristles.dense', 'y.bristles.none'], glow: 'y.glow.none', bands: ['y.bands.rings', 'y.bands.none'], venom: 'y.venom.none' },
     palette: { c1: [95, 30, 45], c2: [100, 30, 32], c3: [130, 60, 55], eye: [45, 70, 55] }, vary: { h: 8, s: 6, l: 5 },
@@ -2460,7 +2460,7 @@ export const SPECIES = [
     desc: 'Armoured in the stone it tunnels through. When it rolls up, the warren mistakes it for a boulder and goes round.',
   },
   {
-    id: 'lumipede', name: 'Lumipede', nameParts: ['Lumi', 'pede'], clade: 'myriapod', rig: 'myriapod', types: ['Bug', 'Electric'], tier: 'uncommon', bst: 406,
+    id: 'lumipede', name: 'Lumipede', nameParts: ['Lumi', 'pede'], clade: 'myriapod', rig: 'myriapod', types: ['Bug', 'Electric'], tier: 'uncommon', bst: 405,
     stats: { hp: 0.13, melee: 0.07, ranged: 0.09, magic: 0.22, meleeDef: 0.11, rangedDef: 0.11, magicDef: 0.12, spe: 0.15 },
     recipe: { body: 'y.body.flat', head: 'y.head.capsule', eyes: 'y.eyes.glow', mandibles: 'y.mandibles.small', antennae: 'y.antennae.feathered', legs: 'y.legs.thin', tail: 'y.tail.plume', plates: 'y.plates.none', bristles: ['y.bristles.feathered', 'y.bristles.none'], glow: ['y.glow.dots', 'y.glow.none'], bands: ['y.bands.dots', 'y.bands.none'], venom: ['y.venom.glow', 'y.venom.none'] },
     palette: { c1: [230, 20, 45], c2: [235, 25, 32], c3: [55, 100, 65], eye: [55, 100, 65] }, vary: { h: 6, s: 5, l: 5 },
@@ -2470,7 +2470,7 @@ export const SPECIES = [
     desc: 'Lights up one segment at a time, front to back, like a thought travelling. Touch it and the thought is yours.',
   },
   {
-    id: 'rimecrawl', name: 'Rimecrawl', nameParts: ['Rime', 'crawl'], clade: 'myriapod', rig: 'myriapod', types: ['Bug', 'Ice'], tier: 'common', bst: 478,
+    id: 'rimecrawl', name: 'Rimecrawl', nameParts: ['Rime', 'crawl'], clade: 'myriapod', rig: 'myriapod', types: ['Bug', 'Ice'], tier: 'common', bst: 476,
     stats: { hp: 0.15, melee: 0.07, ranged: 0.08, magic: 0.21, meleeDef: 0.13, rangedDef: 0.12, magicDef: 0.13, spe: 0.11 },
     recipe: { body: 'y.body.bulbous', head: 'y.head.bulb', eyes: 'y.eyes.big', mandibles: 'y.mandibles.small', antennae: 'y.antennae.curled', legs: 'y.legs.thick', tail: 'y.tail.fan', plates: ['y.plates.crest', 'y.plates.none'], bristles: ['y.bristles.long', 'y.bristles.none'], glow: ['y.glow.soft', 'y.glow.none'], bands: ['y.bands.saddle', 'y.bands.none'], venom: ['y.venom.mist', 'y.venom.none'] },
     palette: { c1: [200, 25, 80], c2: [205, 30, 58], c3: [190, 80, 70], eye: [210, 80, 45] }, vary: { h: 6, s: 6, l: 4 },
@@ -2480,7 +2480,7 @@ export const SPECIES = [
     desc: 'Furred with frost and slow as a winter. It breathes out a fog that leaves the roots glittering.',
   },
   {
-    id: 'brinelegs', name: 'Brinelegs', nameParts: ['Brine', 'legs'], clade: 'myriapod', rig: 'myriapod', types: ['Bug', 'Water'], tier: 'common', bst: 437,
+    id: 'brinelegs', name: 'Brinelegs', nameParts: ['Brine', 'legs'], clade: 'myriapod', rig: 'myriapod', types: ['Bug', 'Water'], tier: 'common', bst: 439,
     stats: { hp: 0.14, melee: 0.08, ranged: 0.21, magic: 0.08, meleeDef: 0.12, rangedDef: 0.13, magicDef: 0.11, spe: 0.13 },
     recipe: { body: 'y.body.flat', head: 'y.head.shield', eyes: 'y.eyes.ring', mandibles: 'y.mandibles.wide', antennae: 'y.antennae.twin', legs: 'y.legs.paddle', tail: 'y.tail.fan', plates: 'y.plates.none', bristles: ['y.bristles.fine', 'y.bristles.none'], glow: ['y.glow.pulse', 'y.glow.none'], bands: ['y.bands.stripes', 'y.bands.none'], venom: ['y.venom.bubbles', 'y.venom.none'] },
     palette: { c1: [190, 35, 50], c2: [195, 40, 36], c3: [175, 80, 65], eye: [45, 80, 60] }, vary: { h: 8, s: 6, l: 5 },
@@ -2490,7 +2490,7 @@ export const SPECIES = [
     desc: 'Swims the flooded tunnels with a hundred paddles. Surfaces to spit, then is gone again in a line of bubbles.',
   },
   {
-    id: 'ironcoil', name: 'Ironcoil', nameParts: ['Iron', 'coil'], clade: 'myriapod', rig: 'myriapod', types: ['Bug', 'Steel'], tier: 'uncommon', bst: 416,
+    id: 'ironcoil', name: 'Ironcoil', nameParts: ['Iron', 'coil'], clade: 'myriapod', rig: 'myriapod', types: ['Bug', 'Steel'], tier: 'uncommon', bst: 418,
     stats: { hp: 0.15, melee: 0.2, ranged: 0.06, magic: 0.06, meleeDef: 0.2, rangedDef: 0.15, magicDef: 0.1, spe: 0.08 },
     recipe: { body: 'y.body.coiled', head: 'y.head.helm', eyes: 'y.eyes.slit', mandibles: 'y.mandibles.crushers', antennae: 'y.antennae.short', legs: 'y.legs.thick', tail: 'y.tail.pincer', plates: ['y.plates.keel', 'y.plates.none'], bristles: 'y.bristles.none', glow: 'y.glow.none', bands: ['y.bands.rings', 'y.bands.none'], venom: 'y.venom.none' },
     palette: { c1: [210, 10, 58], c2: [215, 12, 40], c3: [45, 80, 62], eye: [45, 85, 60] }, vary: { h: 5, s: 5, l: 5 },
@@ -2500,7 +2500,7 @@ export const SPECIES = [
     desc: 'A spring made of segments. It winds itself tight under the roots and unwinds through anything in the way.',
   },
   {
-    id: 'shadepede', name: 'Shadepede', nameParts: ['Shade', 'pede'], clade: 'myriapod', rig: 'myriapod', types: ['Bug', 'Dark'], tier: 'uncommon', bst: 374,
+    id: 'shadepede', name: 'Shadepede', nameParts: ['Shade', 'pede'], clade: 'myriapod', rig: 'myriapod', types: ['Bug', 'Dark'], tier: 'uncommon', bst: 373,
     stats: { hp: 0.12, melee: 0.22, ranged: 0.08, magic: 0.07, meleeDef: 0.11, rangedDef: 0.1, magicDef: 0.09, spe: 0.21 },
     recipe: { body: 'y.body.long', head: 'y.head.narrow', eyes: 'y.eyes.slit', mandibles: 'y.mandibles.hooks', antennae: 'y.antennae.long', legs: 'y.legs.stilt', tail: 'y.tail.stinger', plates: ['y.plates.spikes', 'y.plates.none'], bristles: ['y.bristles.short', 'y.bristles.none'], glow: 'y.glow.none', bands: ['y.bands.chevrons', 'y.bands.none'], venom: ['y.venom.fangs', 'y.venom.none'] },
     palette: { c1: [265, 15, 36], c2: [270, 20, 30], c3: [345, 85, 60], eye: [345, 90, 60] }, vary: { h: 6, s: 5, l: 5 },
@@ -2510,7 +2510,7 @@ export const SPECIES = [
     desc: 'You only ever see the last few legs leaving. Whatever it bit is already deciding to lie down.',
   },
   {
-    id: 'mindcoil', name: 'Mindcoil', nameParts: ['Mind', 'coil'], clade: 'myriapod', rig: 'myriapod', types: ['Bug', 'Psychic'], tier: 'rare', bst: 474,
+    id: 'mindcoil', name: 'Mindcoil', nameParts: ['Mind', 'coil'], clade: 'myriapod', rig: 'myriapod', types: ['Bug', 'Psychic'], tier: 'rare', bst: 475,
     stats: { hp: 0.13, melee: 0.06, ranged: 0.08, magic: 0.24, meleeDef: 0.11, rangedDef: 0.11, magicDef: 0.14, spe: 0.13 },
     recipe: { body: 'y.body.coiled', head: 'y.head.bulb', eyes: 'y.eyes.glow', mandibles: 'y.mandibles.small', antennae: 'y.antennae.feathered', legs: 'y.legs.thin', tail: 'y.tail.plume', plates: ['y.plates.crest', 'y.plates.none'], bristles: ['y.bristles.feathered', 'y.bristles.none'], glow: ['y.glow.halo', 'y.glow.none'], bands: ['y.bands.dots', 'y.bands.none'], venom: ['y.venom.glow', 'y.venom.none'] },
     palette: { c1: [270, 35, 66], c2: [275, 40, 48], c3: [285, 80, 72], eye: [285, 90, 70] }, vary: { h: 8, s: 6, l: 5 },
@@ -2520,7 +2520,7 @@ export const SPECIES = [
     desc: 'Coils in a spiral and thinks in one too. Count its legs and you will find yourself counting your own.',
   },
   {
-    id: 'tombcrawl', name: 'Tombcrawl', nameParts: ['Tomb', 'crawl'], clade: 'myriapod', rig: 'myriapod', types: ['Bug', 'Ghost'], tier: 'uncommon', bst: 427,
+    id: 'tombcrawl', name: 'Tombcrawl', nameParts: ['Tomb', 'crawl'], clade: 'myriapod', rig: 'myriapod', types: ['Bug', 'Ghost'], tier: 'uncommon', bst: 430,
     stats: { hp: 0.14, melee: 0.07, ranged: 0.08, magic: 0.22, meleeDef: 0.12, rangedDef: 0.12, magicDef: 0.13, spe: 0.12 },
     recipe: { body: 'y.body.bulbous', head: 'y.head.shield', eyes: 'y.eyes.cluster', mandibles: 'y.mandibles.saw', antennae: 'y.antennae.curled', legs: 'y.legs.long', tail: 'y.tail.fan', plates: 'y.plates.none', bristles: ['y.bristles.tufted', 'y.bristles.none'], glow: ['y.glow.lines', 'y.glow.none'], bands: ['y.bands.saddle', 'y.bands.none'], venom: ['y.venom.mist', 'y.venom.none'] },
     palette: { c1: [240, 10, 62], c2: [245, 12, 45], c3: [140, 70, 62], eye: [140, 80, 62] }, vary: { h: 8, s: 6, l: 5 },
@@ -2530,7 +2530,7 @@ export const SPECIES = [
     desc: 'Lives in the graves the roots have broken open. Pale, patient, and it knows everyone down there by name.',
   },
   {
-    id: 'dunemillie', name: 'Dunemillie', nameParts: ['Dune', 'millie'], clade: 'myriapod', rig: 'myriapod', types: ['Bug', 'Ground'], tier: 'common', bst: 458,
+    id: 'dunemillie', name: 'Dunemillie', nameParts: ['Dune', 'millie'], clade: 'myriapod', rig: 'myriapod', types: ['Bug', 'Ground'], tier: 'common', bst: 450,
     stats: { hp: 0.17, melee: 0.21, ranged: 0.07, magic: 0.06, meleeDef: 0.16, rangedDef: 0.13, magicDef: 0.1, spe: 0.1 },
     recipe: { body: 'y.body.armored', head: 'y.head.capsule', eyes: 'y.eyes.dot', mandibles: 'y.mandibles.wide', antennae: 'y.antennae.short', legs: 'y.legs.stilt', tail: 'y.tail.blunt', plates: ['y.plates.dome', 'y.plates.none'], bristles: ['y.bristles.spiky', 'y.bristles.none'], glow: 'y.glow.none', bands: ['y.bands.dashes', 'y.bands.none'], venom: 'y.venom.none' },
     palette: { c1: [38, 40, 62], c2: [32, 40, 44], c3: [20, 80, 55], eye: [30, 70, 45] }, vary: { h: 6, s: 6, l: 5 },
@@ -2540,7 +2540,7 @@ export const SPECIES = [
     desc: 'Ploughs through the dry soil above the warren and leaves ridges the farmers plant along. It does not mind.',
   },
   {
-    id: 'wyrmpede', name: 'Wyrmpede', nameParts: ['Wyrm', 'pede'], clade: 'myriapod', rig: 'myriapod', types: ['Bug', 'Dragon'], tier: 'rare', bst: 452,
+    id: 'wyrmpede', name: 'Wyrmpede', nameParts: ['Wyrm', 'pede'], clade: 'myriapod', rig: 'myriapod', types: ['Bug', 'Dragon'], tier: 'rare', bst: 456,
     stats: { hp: 0.15, melee: 0.22, ranged: 0.08, magic: 0.08, meleeDef: 0.14, rangedDef: 0.12, magicDef: 0.1, spe: 0.11 },
     recipe: { body: 'y.body.spiky', head: 'y.head.horned', eyes: 'y.eyes.big', mandibles: 'y.mandibles.pincers', antennae: 'y.antennae.bent', legs: 'y.legs.spiny', tail: 'y.tail.spike', plates: ['y.plates.horns', 'y.plates.none'], bristles: ['y.bristles.tufted', 'y.bristles.none'], glow: ['y.glow.stripes', 'y.glow.none'], bands: ['y.bands.chevrons', 'y.bands.none'], venom: ['y.venom.sacs', 'y.venom.none'] },
     palette: { c1: [350, 25, 42], c2: [355, 35, 30], c3: [45, 90, 62], eye: [45, 95, 60] }, vary: { h: 6, s: 6, l: 5 },
@@ -2551,7 +2551,7 @@ export const SPECIES = [
   },
   // ---- Roster expansion: fiends ----
   {
-    id: 'impling', name: 'Impling', nameParts: ['Imp', 'ling'], clade: 'fiend', rig: 'fiend', types: ['Fire'], tier: 'common', bst: 376,
+    id: 'impling', name: 'Impling', nameParts: ['Imp', 'ling'], clade: 'fiend', rig: 'fiend', types: ['Fire'], tier: 'common', bst: 380,
     stats: { hp: 0.12, melee: 0.07, ranged: 0.09, magic: 0.23, meleeDef: 0.1, rangedDef: 0.1, magicDef: 0.11, spe: 0.18 },
     recipe: { body: 'e.body.imp', head: 'e.head.imp', eyes: 'e.eyes.ember', mouth: 'e.mouth.grin', horns: ['e.horns.stub', 'e.horns.none'], arms: 'e.arms.stubby', legs: 'e.legs.digitigrade', tail: ['e.tail.spade', 'e.tail.none'], wings: ['e.wings.small', 'e.wings.none'], hand: ['e.hand.fireball', 'e.hand.none'], marks: 'e.marks.none', aura: ['e.aura.embers', 'e.aura.none'] },
     palette: { c1: [0, 60, 50], c2: [355, 50, 35], c3: [40, 100, 60], eye: [50, 100, 60] }, vary: { h: 8, s: 6, l: 5 },
@@ -2571,7 +2571,7 @@ export const SPECIES = [
     desc: 'Goat-headed, hoofed and impatient. The horns are for arguments it does not intend to have.',
   },
   {
-    id: 'cinderjack', name: 'Cinderjack', nameParts: ['Cinder', 'jack'], clade: 'fiend', rig: 'fiend', types: ['Fire', 'Fighting'], tier: 'uncommon', bst: 427,
+    id: 'cinderjack', name: 'Cinderjack', nameParts: ['Cinder', 'jack'], clade: 'fiend', rig: 'fiend', types: ['Fire', 'Fighting'], tier: 'uncommon', bst: 423,
     stats: { hp: 0.14, melee: 0.23, ranged: 0.07, magic: 0.07, meleeDef: 0.14, rangedDef: 0.11, magicDef: 0.09, spe: 0.15 },
     recipe: { body: 'e.body.brute', head: 'e.head.brute', eyes: 'e.eyes.narrow', mouth: 'e.mouth.tusks', horns: ['e.horns.stub', 'e.horns.none'], arms: 'e.arms.brawny', legs: 'e.legs.brawny', tail: ['e.tail.stub', 'e.tail.none'], wings: 'e.wings.none', hand: ['e.hand.claws', 'e.hand.none'], marks: ['e.marks.scars', 'e.marks.none'], aura: ['e.aura.sparks', 'e.aura.none'] },
     palette: { c1: [15, 55, 45], c2: [10, 45, 32], c3: [40, 100, 62], eye: [45, 100, 60] }, vary: { h: 6, s: 6, l: 5 },
@@ -2581,7 +2581,7 @@ export const SPECIES = [
     desc: 'Fights with its fists and wins with its forehead. Every scar has a story and it will tell you all of them.',
   },
   {
-    id: 'sootling', name: 'Sootling', nameParts: ['Soot', 'ling'], clade: 'fiend', rig: 'fiend', types: ['Fire', 'Poison'], tier: 'common', bst: 388,
+    id: 'sootling', name: 'Sootling', nameParts: ['Soot', 'ling'], clade: 'fiend', rig: 'fiend', types: ['Fire', 'Poison'], tier: 'common', bst: 389,
     stats: { hp: 0.13, melee: 0.07, ranged: 0.22, magic: 0.09, meleeDef: 0.11, rangedDef: 0.12, magicDef: 0.1, spe: 0.16 },
     recipe: { body: 'e.body.hunched', head: 'e.head.sly', eyes: 'e.eyes.wide', mouth: 'e.mouth.needle', horns: ['e.horns.twin', 'e.horns.none'], arms: 'e.arms.long', legs: 'e.legs.thin', tail: ['e.tail.whip', 'e.tail.none'], wings: 'e.wings.none', hand: ['e.hand.orb', 'e.hand.none'], marks: ['e.marks.spots', 'e.marks.none'], aura: ['e.aura.smoke', 'e.aura.none'] },
     palette: { c1: [280, 12, 38], c2: [285, 15, 30], c3: [90, 90, 55], eye: [90, 90, 60] }, vary: { h: 8, s: 6, l: 5 },
@@ -2591,7 +2591,7 @@ export const SPECIES = [
     desc: 'Lives in the chimney flues and coughs up something that eats through brick. Polite about it, mostly.',
   },
   {
-    id: 'pactling', name: 'Pactling', nameParts: ['Pact', 'ling'], clade: 'fiend', rig: 'fiend', types: ['Fire', 'Psychic'], tier: 'rare', bst: 480,
+    id: 'pactling', name: 'Pactling', nameParts: ['Pact', 'ling'], clade: 'fiend', rig: 'fiend', types: ['Fire', 'Psychic'], tier: 'rare', bst: 479,
     stats: { hp: 0.13, melee: 0.06, ranged: 0.08, magic: 0.24, meleeDef: 0.11, rangedDef: 0.11, magicDef: 0.14, spe: 0.13 },
     recipe: { body: 'e.body.lanky', head: 'e.head.gaunt', eyes: 'e.eyes.three', mouth: 'e.mouth.smirk', horns: ['e.horns.crown', 'e.horns.none'], arms: 'e.arms.long', legs: 'e.legs.thin', tail: ['e.tail.forked', 'e.tail.none'], wings: ['e.wings.bat', 'e.wings.none'], hand: ['e.hand.orb', 'e.hand.none'], marks: ['e.marks.runes', 'e.marks.none'], aura: ['e.aura.halo', 'e.aura.none'] },
     palette: { c1: [265, 35, 50], c2: [270, 40, 35], c3: [45, 100, 65], eye: [45, 100, 65] }, vary: { h: 8, s: 6, l: 5 },
@@ -2601,7 +2601,7 @@ export const SPECIES = [
     desc: 'Has your signature already and is only waiting for you to notice. The third eye reads the small print.',
   },
   {
-    id: 'gloomhoof', name: 'Gloomhoof', nameParts: ['Gloom', 'hoof'], clade: 'fiend', rig: 'fiend', types: ['Fire', 'Ghost'], tier: 'uncommon', bst: 404,
+    id: 'gloomhoof', name: 'Gloomhoof', nameParts: ['Gloom', 'hoof'], clade: 'fiend', rig: 'fiend', types: ['Fire', 'Ghost'], tier: 'uncommon', bst: 406,
     stats: { hp: 0.13, melee: 0.07, ranged: 0.08, magic: 0.22, meleeDef: 0.11, rangedDef: 0.12, magicDef: 0.13, spe: 0.14 },
     recipe: { body: 'e.body.lanky', head: 'e.head.goat', eyes: 'e.eyes.hollow', mouth: 'e.mouth.frown', horns: ['e.horns.antler', 'e.horns.none'], arms: 'e.arms.thin', legs: 'e.legs.hoofed', tail: ['e.tail.tuft', 'e.tail.none'], wings: ['e.wings.ragged', 'e.wings.none'], hand: ['e.hand.torch', 'e.hand.none'], marks: ['e.marks.sigil', 'e.marks.none'], aura: ['e.aura.haze', 'e.aura.none'] },
     palette: { c1: [230, 15, 40], c2: [235, 20, 30], c3: [140, 70, 62], eye: [140, 80, 62] }, vary: { h: 8, s: 6, l: 5 },
@@ -2611,7 +2611,7 @@ export const SPECIES = [
     desc: 'Carries a torch that gives no light, only a colder kind of shadow. Its hooves do not quite touch the floor.',
   },
   {
-    id: 'brasslord', name: 'Brasslord', nameParts: ['Brass', 'lord'], clade: 'fiend', rig: 'fiend', types: ['Fire', 'Steel'], tier: 'uncommon', bst: 394,
+    id: 'brasslord', name: 'Brasslord', nameParts: ['Brass', 'lord'], clade: 'fiend', rig: 'fiend', types: ['Fire', 'Steel'], tier: 'uncommon', bst: 390,
     stats: { hp: 0.15, melee: 0.2, ranged: 0.06, magic: 0.07, meleeDef: 0.19, rangedDef: 0.14, magicDef: 0.1, spe: 0.09 },
     recipe: { body: 'e.body.armoured', head: 'e.head.brute', eyes: 'e.eyes.narrow', mouth: 'e.mouth.frown', horns: ['e.horns.crown', 'e.horns.none'], arms: 'e.arms.gauntlet', legs: 'e.legs.armoured', tail: ['e.tail.thick', 'e.tail.none'], wings: 'e.wings.none', hand: ['e.hand.chain', 'e.hand.none'], marks: ['e.marks.glow', 'e.marks.none'], aura: ['e.aura.ring', 'e.aura.none'] },
     palette: { c1: [40, 55, 50], c2: [35, 45, 36], c3: [20, 100, 58], eye: [25, 100, 60] }, vary: { h: 5, s: 5, l: 5 },
@@ -2631,7 +2631,7 @@ export const SPECIES = [
     desc: 'Steals the dagger, then the sheath, then the belt. It will sell all three back to you at dusk.',
   },
   {
-    id: 'ashwing', name: 'Ashwing', nameParts: ['Ash', 'wing'], clade: 'fiend', rig: 'fiend', types: ['Fire', 'Flying'], tier: 'uncommon', bst: 372,
+    id: 'ashwing', name: 'Ashwing', nameParts: ['Ash', 'wing'], clade: 'fiend', rig: 'fiend', types: ['Fire', 'Flying'], tier: 'uncommon', bst: 373,
     stats: { hp: 0.12, melee: 0.08, ranged: 0.22, magic: 0.09, meleeDef: 0.1, rangedDef: 0.11, magicDef: 0.1, spe: 0.18 },
     recipe: { body: 'e.body.lanky', head: 'e.head.hound', eyes: 'e.eyes.ember', mouth: 'e.mouth.fangs', horns: ['e.horns.straight', 'e.horns.none'], arms: 'e.arms.talon', legs: 'e.legs.clawed', tail: ['e.tail.whip', 'e.tail.none'], wings: ['e.wings.wide', 'e.wings.none'], hand: 'e.hand.none', marks: ['e.marks.cracks', 'e.marks.none'], aura: ['e.aura.smoke', 'e.aura.none'] },
     palette: { c1: [20, 12, 45], c2: [20, 15, 32], c3: [25, 100, 58], eye: [30, 100, 60] }, vary: { h: 6, s: 5, l: 5 },
@@ -2651,7 +2651,7 @@ export const SPECIES = [
     desc: 'Cooled slag that never quite set. It shoulders through the furnace walls and leaves them glowing.',
   },
   {
-    id: 'hexling', name: 'Hexling', nameParts: ['Hex', 'ling'], clade: 'fiend', rig: 'fiend', types: ['Dark', 'Fairy'], tier: 'uncommon', bst: 360,
+    id: 'hexling', name: 'Hexling', nameParts: ['Hex', 'ling'], clade: 'fiend', rig: 'fiend', types: ['Dark', 'Fairy'], tier: 'uncommon', bst: 361,
     stats: { hp: 0.12, melee: 0.06, ranged: 0.08, magic: 0.22, meleeDef: 0.1, rangedDef: 0.11, magicDef: 0.14, spe: 0.17 },
     recipe: { body: 'e.body.imp', head: 'e.head.imp', eyes: 'e.eyes.wide', mouth: 'e.mouth.smirk', horns: ['e.horns.curled', 'e.horns.none'], arms: 'e.arms.thin', legs: 'e.legs.thin', tail: ['e.tail.tuft', 'e.tail.none'], wings: ['e.wings.feathered', 'e.wings.none'], hand: ['e.hand.orb', 'e.hand.none'], marks: ['e.marks.runes', 'e.marks.none'], aura: ['e.aura.sparks', 'e.aura.none'] },
     palette: { c1: [300, 40, 60], c2: [290, 40, 42], c3: [50, 90, 70], eye: [50, 90, 65] }, vary: { h: 10, s: 6, l: 5 },
@@ -2661,7 +2661,7 @@ export const SPECIES = [
     desc: 'Curses with a giggle and a wink. Nothing it does is serious and all of it sticks.',
   },
   {
-    id: 'frostfiend', name: 'Frostfiend', nameParts: ['Frost', 'fiend'], clade: 'fiend', rig: 'fiend', types: ['Dark', 'Ice'], tier: 'uncommon', bst: 442,
+    id: 'frostfiend', name: 'Frostfiend', nameParts: ['Frost', 'fiend'], clade: 'fiend', rig: 'fiend', types: ['Dark', 'Ice'], tier: 'uncommon', bst: 443,
     stats: { hp: 0.14, melee: 0.07, ranged: 0.08, magic: 0.22, meleeDef: 0.12, rangedDef: 0.12, magicDef: 0.13, spe: 0.12 },
     recipe: { body: 'e.body.regal', head: 'e.head.gaunt', eyes: 'e.eyes.blank', mouth: 'e.mouth.frown', horns: ['e.horns.antler', 'e.horns.none'], arms: 'e.arms.long', legs: 'e.legs.hoofed', tail: ['e.tail.forked', 'e.tail.none'], wings: ['e.wings.bone', 'e.wings.none'], hand: ['e.hand.orb', 'e.hand.none'], marks: ['e.marks.sigil', 'e.marks.none'], aura: ['e.aura.haze', 'e.aura.none'] },
     palette: { c1: [210, 25, 62], c2: [215, 30, 42], c3: [190, 85, 72], eye: [195, 90, 70] }, vary: { h: 6, s: 6, l: 4 },
@@ -2681,7 +2681,7 @@ export const SPECIES = [
     desc: 'Grew in the thorn hedge at the edge of the sinks and took the pitchfork off a farmer who came too close.',
   },
   {
-    id: 'archfiend', name: 'Archfiend', nameParts: ['Arch', 'fiend'], clade: 'fiend', rig: 'fiend', types: ['Fire', 'Dragon'], tier: 'rare', bst: 475,
+    id: 'archfiend', name: 'Archfiend', nameParts: ['Arch', 'fiend'], clade: 'fiend', rig: 'fiend', types: ['Fire', 'Dragon'], tier: 'rare', bst: 473,
     stats: { hp: 0.15, melee: 0.09, ranged: 0.08, magic: 0.22, meleeDef: 0.12, rangedDef: 0.11, magicDef: 0.12, spe: 0.11 },
     recipe: { body: 'e.body.regal', head: 'e.head.ridged', eyes: 'e.eyes.ember', mouth: 'e.mouth.maw', horns: ['e.horns.ram', 'e.horns.none'], arms: 'e.arms.gauntlet', legs: 'e.legs.hoofed', tail: ['e.tail.spade', 'e.tail.none'], wings: ['e.wings.ember', 'e.wings.none'], hand: ['e.hand.pitchfork', 'e.hand.none'], marks: ['e.marks.glow', 'e.marks.none'], aura: ['e.aura.flames', 'e.aura.none'] },
     palette: { c1: [350, 55, 42], c2: [345, 50, 30], c3: [45, 100, 62], eye: [45, 100, 60] }, vary: { h: 6, s: 6, l: 5 },
@@ -2692,7 +2692,7 @@ export const SPECIES = [
   },
   // ---- Roster expansion: spirits ----
   {
-    id: 'wispling', name: 'Wispling', nameParts: ['Wisp', 'ling'], clade: 'spirit', rig: 'spirit', types: ['Ghost'], tier: 'common', bst: 370,
+    id: 'wispling', name: 'Wispling', nameParts: ['Wisp', 'ling'], clade: 'spirit', rig: 'spirit', types: ['Ghost'], tier: 'common', bst: 371,
     stats: { hp: 0.12, melee: 0.06, ranged: 0.09, magic: 0.23, meleeDef: 0.1, rangedDef: 0.11, magicDef: 0.13, spe: 0.16 },
     recipe: { body: 's.body.wisp', eyes: 's.eyes.glow', mouth: 's.mouth.o', arms: 's.arms.wisps', tail: 's.tail.wisp', hood: 's.hood.none', chains: 's.chains.none', lantern: 's.lantern.none', aura: ['s.aura.glow', 's.aura.none'], tatters: 's.tatters.none', mask: 's.mask.none', veil: ['s.veil.swirl', 's.veil.none'] },
     palette: { c1: [200, 25, 82], c2: [210, 30, 62], c3: [190, 80, 72], eye: [190, 90, 60] }, vary: { h: 8, s: 6, l: 4 },
@@ -2722,7 +2722,7 @@ export const SPECIES = [
     desc: 'Froze waiting for someone who never came back. The marsh ices over wherever it stops to look.',
   },
   {
-    id: 'marshwisp', name: 'Marshwisp', nameParts: ['Marsh', 'wisp'], clade: 'spirit', rig: 'spirit', types: ['Ghost', 'Water'], tier: 'common', bst: 393,
+    id: 'marshwisp', name: 'Marshwisp', nameParts: ['Marsh', 'wisp'], clade: 'spirit', rig: 'spirit', types: ['Ghost', 'Water'], tier: 'common', bst: 391,
     stats: { hp: 0.14, melee: 0.07, ranged: 0.21, magic: 0.09, meleeDef: 0.12, rangedDef: 0.13, magicDef: 0.11, spe: 0.13 },
     recipe: { body: 's.body.blob', eyes: 's.eyes.dot', mouth: 's.mouth.o', arms: 's.arms.stubs', tail: 's.tail.drips', hood: 's.hood.none', chains: 's.chains.none', lantern: 's.lantern.none', aura: ['s.aura.mist', 's.aura.none'], tatters: ['s.tatters.short', 's.tatters.none'], mask: 's.mask.none', veil: ['s.veil.ripples', 's.veil.none'] },
     palette: { c1: [170, 30, 66], c2: [175, 35, 46], c3: [160, 80, 62], eye: [165, 85, 55] }, vary: { h: 8, s: 6, l: 5 },
@@ -2732,7 +2732,7 @@ export const SPECIES = [
     desc: 'Rises off the marsh water at dusk and drips its way back into it by dawn. Spits, mostly out of habit.',
   },
   {
-    id: 'dreamveil', name: 'Dreamveil', nameParts: ['Dream', 'veil'], clade: 'spirit', rig: 'spirit', types: ['Ghost', 'Psychic'], tier: 'rare', bst: 388,
+    id: 'dreamveil', name: 'Dreamveil', nameParts: ['Dream', 'veil'], clade: 'spirit', rig: 'spirit', types: ['Ghost', 'Psychic'], tier: 'rare', bst: 380,
     stats: { hp: 0.12, melee: 0.06, ranged: 0.08, magic: 0.24, meleeDef: 0.11, rangedDef: 0.11, magicDef: 0.15, spe: 0.13 },
     recipe: { body: 's.body.sheet', eyes: 's.eyes.wide', mouth: 's.mouth.smile', arms: 's.arms.mist', tail: 's.tail.smoke', hood: ['s.hood.halo', 's.hood.none'], chains: 's.chains.none', lantern: ['s.lantern.key', 's.lantern.none'], aura: ['s.aura.motes', 's.aura.none'], tatters: ['s.tatters.ribbons', 's.tatters.none'], mask: ['s.mask.theatre', 's.mask.none'], veil: ['s.veil.stars', 's.veil.none'] },
     palette: { c1: [270, 30, 76], c2: [275, 35, 56], c3: [290, 80, 74], eye: [290, 90, 65] }, vary: { h: 8, s: 6, l: 4 },
@@ -2742,7 +2742,7 @@ export const SPECIES = [
     desc: 'Carries the key to a door that only exists while you are asleep. It is very fond of you, apparently.',
   },
   {
-    id: 'gloomshade', name: 'Gloomshade', nameParts: ['Gloom', 'shade'], clade: 'spirit', rig: 'spirit', types: ['Ghost', 'Dark'], tier: 'uncommon', bst: 374,
+    id: 'gloomshade', name: 'Gloomshade', nameParts: ['Gloom', 'shade'], clade: 'spirit', rig: 'spirit', types: ['Ghost', 'Dark'], tier: 'uncommon', bst: 364,
     stats: { hp: 0.12, melee: 0.22, ranged: 0.08, magic: 0.08, meleeDef: 0.11, rangedDef: 0.1, magicDef: 0.1, spe: 0.19 },
     recipe: { body: 's.body.shade', eyes: 's.eyes.slit', mouth: 's.mouth.fangs', arms: 's.arms.claws', tail: 's.tail.split', hood: ['s.hood.cowl', 's.hood.none'], chains: ['s.chains.barbed', 's.chains.none'], lantern: 's.lantern.none', aura: 's.aura.none', tatters: ['s.tatters.rags', 's.tatters.none'], mask: ['s.mask.cracked', 's.mask.none'], veil: ['s.veil.stripes', 's.veil.none'] },
     palette: { c1: [250, 15, 42], c2: [255, 20, 30], c3: [345, 80, 60], eye: [345, 90, 60] }, vary: { h: 6, s: 6, l: 5 },
@@ -2752,7 +2752,7 @@ export const SPECIES = [
     desc: 'The shadow the marsh lamps cannot move. Its claws are the only part of it that is quite real.',
   },
   {
-    id: 'sparkwisp', name: 'Sparkwisp', nameParts: ['Spark', 'wisp'], clade: 'spirit', rig: 'spirit', types: ['Ghost', 'Electric'], tier: 'uncommon', bst: 385,
+    id: 'sparkwisp', name: 'Sparkwisp', nameParts: ['Spark', 'wisp'], clade: 'spirit', rig: 'spirit', types: ['Ghost', 'Electric'], tier: 'uncommon', bst: 383,
     stats: { hp: 0.13, melee: 0.07, ranged: 0.22, magic: 0.09, meleeDef: 0.11, rangedDef: 0.11, magicDef: 0.12, spe: 0.15 },
     recipe: { body: 's.body.orb', eyes: 's.eyes.wide', mouth: 's.mouth.jagged', arms: 's.arms.wisps', tail: 's.tail.split', hood: 's.hood.none', chains: 's.chains.none', lantern: 's.lantern.none', aura: ['s.aura.sparks', 's.aura.none'], tatters: 's.tatters.none', mask: 's.mask.none', veil: ['s.veil.runes', 's.veil.none'] },
     palette: { c1: [55, 30, 78], c2: [50, 30, 56], c3: [55, 100, 62], eye: [55, 100, 60] }, vary: { h: 6, s: 6, l: 5 },
@@ -2762,7 +2762,7 @@ export const SPECIES = [
     desc: 'Ball lightning with opinions. It rolls along the marsh boardwalks and the nails all stand up to watch.',
   },
   {
-    id: 'fenwraith', name: 'Fenwraith', nameParts: ['Fen', 'wraith'], clade: 'spirit', rig: 'spirit', types: ['Ghost', 'Grass'], tier: 'common', bst: 444,
+    id: 'fenwraith', name: 'Fenwraith', nameParts: ['Fen', 'wraith'], clade: 'spirit', rig: 'spirit', types: ['Ghost', 'Grass'], tier: 'common', bst: 436,
     stats: { hp: 0.16, melee: 0.07, ranged: 0.2, magic: 0.09, meleeDef: 0.13, rangedDef: 0.13, magicDef: 0.12, spe: 0.1 },
     recipe: { body: 's.body.wraith', eyes: 's.eyes.hollow', mouth: 's.mouth.frown', arms: 's.arms.sleeves', tail: 's.tail.wisp', hood: ['s.hood.bonnet', 's.hood.none'], chains: 's.chains.none', lantern: ['s.lantern.candle', 's.lantern.none'], aura: ['s.aura.mist', 's.aura.none'], tatters: ['s.tatters.long', 's.tatters.none'], mask: 's.mask.none', veil: ['s.veil.spots', 's.veil.none'] },
     palette: { c1: [110, 25, 58], c2: [105, 30, 40], c3: [130, 70, 60], eye: [130, 80, 60] }, vary: { h: 8, s: 6, l: 5 },
@@ -2772,7 +2772,7 @@ export const SPECIES = [
     desc: 'Moss grows on it and it grows on the moss. Wanders the fen with a candle nobody remembers lighting.',
   },
   {
-    id: 'mireveil', name: 'Mireveil', nameParts: ['Mire', 'veil'], clade: 'spirit', rig: 'spirit', types: ['Ghost', 'Poison'], tier: 'common', bst: 423,
+    id: 'mireveil', name: 'Mireveil', nameParts: ['Mire', 'veil'], clade: 'spirit', rig: 'spirit', types: ['Ghost', 'Poison'], tier: 'common', bst: 425,
     stats: { hp: 0.14, melee: 0.07, ranged: 0.21, magic: 0.09, meleeDef: 0.12, rangedDef: 0.13, magicDef: 0.11, spe: 0.13 },
     recipe: { body: 's.body.blob', eyes: 's.eyes.hollow', mouth: 's.mouth.wail', arms: 's.arms.stubs', tail: 's.tail.drips', hood: 's.hood.none', chains: ['s.chains.rope', 's.chains.none'], lantern: 's.lantern.none', aura: ['s.aura.mist', 's.aura.none'], tatters: ['s.tatters.rags', 's.tatters.none'], mask: ['s.mask.bandage', 's.mask.none'], veil: ['s.veil.drips', 's.veil.none'] },
     palette: { c1: [90, 20, 52], c2: [85, 25, 36], c3: [90, 95, 55], eye: [90, 100, 60] }, vary: { h: 8, s: 6, l: 5 },
@@ -2782,7 +2782,7 @@ export const SPECIES = [
     desc: 'Rose out of the bog with the bog still on it. Wails at night, which is fair, given the smell.',
   },
   {
-    id: 'chainwraith', name: 'Chainwraith', nameParts: ['Chain', 'wraith'], clade: 'spirit', rig: 'spirit', types: ['Ghost', 'Steel'], tier: 'uncommon', bst: 388,
+    id: 'chainwraith', name: 'Chainwraith', nameParts: ['Chain', 'wraith'], clade: 'spirit', rig: 'spirit', types: ['Ghost', 'Steel'], tier: 'uncommon', bst: 394,
     stats: { hp: 0.15, melee: 0.2, ranged: 0.06, magic: 0.07, meleeDef: 0.19, rangedDef: 0.14, magicDef: 0.11, spe: 0.08 },
     recipe: { body: 's.body.wraith', eyes: 's.eyes.slit', mouth: 's.mouth.line', arms: 's.arms.bony', tail: 's.tail.stub', hood: ['s.hood.cowl', 's.hood.none'], chains: ['s.chains.heavy', 's.chains.none'], lantern: ['s.lantern.bell', 's.lantern.none'], aura: 's.aura.none', tatters: ['s.tatters.strips', 's.tatters.none'], mask: ['s.mask.skull', 's.mask.none'], veil: ['s.veil.stripes', 's.veil.none'] },
     palette: { c1: [215, 10, 62], c2: [215, 12, 44], c3: [45, 80, 62], eye: [45, 85, 60] }, vary: { h: 5, s: 5, l: 5 },
@@ -2792,7 +2792,7 @@ export const SPECIES = [
     desc: 'Dragged its chains out of the prison marsh and never put them down. Rings the bell so you hear it coming.',
   },
   {
-    id: 'galeshade', name: 'Galeshade', nameParts: ['Gale', 'shade'], clade: 'spirit', rig: 'spirit', types: ['Ghost', 'Flying'], tier: 'uncommon', bst: 360,
+    id: 'galeshade', name: 'Galeshade', nameParts: ['Gale', 'shade'], clade: 'spirit', rig: 'spirit', types: ['Ghost', 'Flying'], tier: 'uncommon', bst: 363,
     stats: { hp: 0.12, melee: 0.08, ranged: 0.22, magic: 0.09, meleeDef: 0.09, rangedDef: 0.11, magicDef: 0.1, spe: 0.19 },
     recipe: { body: 's.body.flame', eyes: 's.eyes.dot', mouth: 's.mouth.smile', arms: 's.arms.long', tail: 's.tail.long', hood: ['s.hood.hat', 's.hood.none'], chains: 's.chains.none', lantern: 's.lantern.none', aura: ['s.aura.ring', 's.aura.none'], tatters: ['s.tatters.ribbons', 's.tatters.none'], mask: ['s.mask.fox', 's.mask.none'], veil: ['s.veil.swirl', 's.veil.none'] },
     palette: { c1: [195, 20, 78], c2: [200, 20, 58], c3: [50, 80, 70], eye: [50, 80, 60] }, vary: { h: 8, s: 6, l: 5 },
@@ -2812,7 +2812,7 @@ export const SPECIES = [
     desc: 'Still keeping the watch it was set a hundred years ago. The scythe is ceremonial. It says.',
   },
   {
-    id: 'solacewisp', name: 'Solacewisp', nameParts: ['Solace', 'wisp'], clade: 'spirit', rig: 'spirit', types: ['Ghost', 'Fairy'], tier: 'uncommon', bst: 360,
+    id: 'solacewisp', name: 'Solacewisp', nameParts: ['Solace', 'wisp'], clade: 'spirit', rig: 'spirit', types: ['Ghost', 'Fairy'], tier: 'uncommon', bst: 361,
     stats: { hp: 0.13, melee: 0.06, ranged: 0.08, magic: 0.22, meleeDef: 0.1, rangedDef: 0.11, magicDef: 0.15, spe: 0.15 },
     recipe: { body: 's.body.orb', eyes: 's.eyes.wide', mouth: 's.mouth.smile', arms: 's.arms.wisps', tail: 's.tail.spiral', hood: ['s.hood.halo', 's.hood.none'], chains: ['s.chains.beads', 's.chains.none'], lantern: ['s.lantern.candle', 's.lantern.none'], aura: ['s.aura.halo', 's.aura.none'], tatters: ['s.tatters.web', 's.tatters.none'], mask: ['s.mask.gilded', 's.mask.none'], veil: ['s.veil.stars', 's.veil.none'] },
     palette: { c1: [320, 30, 82], c2: [310, 30, 62], c3: [50, 90, 74], eye: [320, 80, 60] }, vary: { h: 8, s: 6, l: 4 },
@@ -2822,7 +2822,7 @@ export const SPECIES = [
     desc: 'Sits with whoever is grieving in the marsh until they are done. Then it takes the candle and goes.',
   },
   {
-    id: 'eldershade', name: 'Eldershade', nameParts: ['Elder', 'shade'], clade: 'spirit', rig: 'spirit', types: ['Ghost', 'Dragon'], tier: 'rare', bst: 438,
+    id: 'eldershade', name: 'Eldershade', nameParts: ['Elder', 'shade'], clade: 'spirit', rig: 'spirit', types: ['Ghost', 'Dragon'], tier: 'rare', bst: 435,
     stats: { hp: 0.15, melee: 0.08, ranged: 0.08, magic: 0.23, meleeDef: 0.12, rangedDef: 0.11, magicDef: 0.12, spe: 0.11 },
     recipe: { body: 's.body.flame', eyes: 's.eyes.spiral', mouth: 's.mouth.wail', arms: 's.arms.claws', tail: 's.tail.smoke', hood: ['s.hood.horns', 's.hood.none'], chains: ['s.chains.double', 's.chains.none'], lantern: ['s.lantern.skull', 's.lantern.none'], aura: ['s.aura.halo', 's.aura.none'], tatters: ['s.tatters.long', 's.tatters.none'], mask: ['s.mask.gilded', 's.mask.none'], veil: ['s.veil.runes', 's.veil.none'] },
     palette: { c1: [260, 25, 48], c2: [265, 30, 34], c3: [280, 85, 66], eye: [280, 95, 66] }, vary: { h: 6, s: 6, l: 5 },
@@ -2833,7 +2833,7 @@ export const SPECIES = [
   },
   // ---- Roster expansion: element pass, mammal ----
   {
-    id: 'rustfang', name: 'Rustfang', nameParts: ['Rust', 'fang'], clade: 'mammal', rig: 'mammal', types: ['Steel', 'Poison'], tier: 'common', bst: 468,
+    id: 'rustfang', name: 'Rustfang', nameParts: ['Rust', 'fang'], clade: 'mammal', rig: 'mammal', types: ['Steel', 'Poison'], tier: 'common', bst: 467,
     stats: { hp: 0.14, melee: 0.22, ranged: 0.08, magic: 0.07, meleeDef: 0.13, rangedDef: 0.11, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'm.body.mouse', head: 'm.head.rabbit', ears: 'm.ears.cat', eyes: 'm.eyes.sleepy', muzzle: 'm.muzzle.fox', legsFront: 'm.legsFront.bear', legsBack: 'm.legsBack.bear', tail: 'm.tail.bear', mane: ['m.mane.bear', 'm.mane.none'], horns: ['m.horns.antlers', 'm.horns.none'], back: 'm.back.none', markings: 'm.markings.none' },
     palette: { c1: [4, 52, 43], c2: [11, 45, 32], c3: [23, 83, 53], eye: [26, 83, 54] }, vary: { h: 8, s: 6, l: 5 },
@@ -2853,7 +2853,7 @@ export const SPECIES = [
     desc: 'Burrows through scrapyards and comes up wearing them. Sneezes filings.',
   },
   {
-    id: 'gorehound', name: 'Gorehound', nameParts: ['Gore', 'hound'], clade: 'mammal', rig: 'mammal', types: ['Dark', 'Fighting'], tier: 'uncommon', bst: 427,
+    id: 'gorehound', name: 'Gorehound', nameParts: ['Gore', 'hound'], clade: 'mammal', rig: 'mammal', types: ['Dark', 'Fighting'], tier: 'uncommon', bst: 428,
     stats: { hp: 0.14, melee: 0.22, ranged: 0.08, magic: 0.07, meleeDef: 0.13, rangedDef: 0.11, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'm.body.bear', head: 'm.head.fox', ears: 'm.ears.fox', eyes: 'm.eyes.fierce', muzzle: 'm.muzzle.cat', legsFront: 'm.legsFront.bear', legsBack: 'm.legsBack.fox', tail: 'm.tail.bear', mane: 'm.mane.cat', horns: ['m.horns.crest', 'm.horns.none'], back: ['m.back.quills', 'm.back.none'], markings: ['m.markings.stripes', 'm.markings.none'] },
     palette: { c1: [341, 55, 41], c2: [335, 52, 30], c3: [345, 92, 54], eye: [348, 94, 50] }, vary: { h: 8, s: 6, l: 5 },
@@ -2863,7 +2863,7 @@ export const SPECIES = [
     desc: 'Fights like it is owed something. Its ribs show and it does not care.',
   },
   {
-    id: 'brawlbrock', name: 'Brawlbrock', nameParts: ['Brawl', 'brock'], clade: 'mammal', rig: 'mammal', types: ['Normal', 'Fighting'], tier: 'common', bst: 495,
+    id: 'brawlbrock', name: 'Brawlbrock', nameParts: ['Brawl', 'brock'], clade: 'mammal', rig: 'mammal', types: ['Normal', 'Fighting'], tier: 'common', bst: 498,
     stats: { hp: 0.14, melee: 0.22, ranged: 0.08, magic: 0.07, meleeDef: 0.13, rangedDef: 0.11, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'm.body.cat', head: 'm.head.wolf', ears: 'm.ears.wolf', eyes: 'm.eyes.fierce', muzzle: 'm.muzzle.mouse', legsFront: 'm.legsFront.bear', legsBack: 'm.legsBack.bear', tail: 'm.tail.wolf', mane: ['m.mane.rabbit', 'm.mane.none'], horns: ['m.horns.goat', 'm.horns.none'], back: ['m.back.wings', 'm.back.none'], markings: ['m.markings.stripes', 'm.markings.none'] },
     palette: { c1: [1, 54, 40], c2: [355, 50, 24], c3: [4, 92, 52], eye: [6, 89, 52] }, vary: { h: 8, s: 6, l: 5 },
@@ -2873,7 +2873,7 @@ export const SPECIES = [
     desc: 'A badger that boxes. It has never once lost an argument in the sett.',
   },
   {
-    id: 'voidlynx', name: 'Voidlynx', nameParts: ['Void', 'lynx'], clade: 'mammal', rig: 'mammal', types: ['Ghost', 'Psychic'], tier: 'rare', bst: 382,
+    id: 'voidlynx', name: 'Voidlynx', nameParts: ['Void', 'lynx'], clade: 'mammal', rig: 'mammal', types: ['Ghost', 'Psychic'], tier: 'rare', bst: 379,
     stats: { hp: 0.13, melee: 0.06, ranged: 0.08, magic: 0.23, meleeDef: 0.11, rangedDef: 0.11, magicDef: 0.13, spe: 0.15 },
     recipe: { body: 'm.body.rabbit', head: 'm.head.mouse', ears: 'm.ears.rabbit', eyes: 'm.eyes.slit', muzzle: 'm.muzzle.wolf', legsFront: 'm.legsFront.fox', legsBack: 'm.legsBack.deer', tail: 'm.tail.wolf', mane: ['m.mane.lion', 'm.mane.none'], horns: 'm.horns.none', back: 'm.back.batwings', markings: ['m.markings.star', 'm.markings.none'] },
     palette: { c1: [247, 29, 44], c2: [254, 31, 30], c3: [269, 88, 68], eye: [267, 92, 70] }, vary: { h: 8, s: 6, l: 5 },
@@ -2883,7 +2883,7 @@ export const SPECIES = [
     desc: 'A cat-shaped gap in the room. It watches you from wherever you were not looking.',
   },
   {
-    id: 'mindmarten', name: 'Mindmarten', nameParts: ['Mind', 'marten'], clade: 'mammal', rig: 'mammal', types: ['Normal', 'Psychic'], tier: 'uncommon', bst: 412,
+    id: 'mindmarten', name: 'Mindmarten', nameParts: ['Mind', 'marten'], clade: 'mammal', rig: 'mammal', types: ['Normal', 'Psychic'], tier: 'uncommon', bst: 408,
     stats: { hp: 0.13, melee: 0.06, ranged: 0.08, magic: 0.23, meleeDef: 0.11, rangedDef: 0.11, magicDef: 0.13, spe: 0.15 },
     recipe: { body: 'm.body.deer', head: 'm.head.rabbit', ears: 'm.ears.cat', eyes: 'm.eyes.slit', muzzle: 'm.muzzle.fox', legsFront: 'm.legsFront.mouse', legsBack: 'm.legsBack.fox', tail: 'm.tail.wolf', mane: 'm.mane.none', horns: 'm.horns.none', back: 'm.back.none', markings: ['m.markings.star', 'm.markings.none'] },
     palette: { c1: [270, 28, 43], c2: [271, 31, 29], c3: [288, 86, 73], eye: [288, 86, 73] }, vary: { h: 8, s: 6, l: 5 },
@@ -2893,7 +2893,7 @@ export const SPECIES = [
     desc: 'Slips into the larder and into your head, in that order.',
   },
   {
-    id: 'moonhare', name: 'Moonhare', nameParts: ['Moon', 'hare'], clade: 'mammal', rig: 'mammal', types: ['Dark', 'Fairy'], tier: 'uncommon', bst: 397,
+    id: 'moonhare', name: 'Moonhare', nameParts: ['Moon', 'hare'], clade: 'mammal', rig: 'mammal', types: ['Dark', 'Fairy'], tier: 'uncommon', bst: 401,
     stats: { hp: 0.13, melee: 0.06, ranged: 0.08, magic: 0.23, meleeDef: 0.11, rangedDef: 0.11, magicDef: 0.13, spe: 0.15 },
     recipe: { body: 'm.body.mouse', head: 'm.head.wolf', ears: 'm.ears.bear', eyes: 'm.eyes.round', muzzle: 'm.muzzle.deer', legsFront: 'm.legsFront.deer', legsBack: 'm.legsBack.mouse', tail: 'm.tail.cat', mane: 'm.mane.mouse', horns: 'm.horns.none', back: 'm.back.none', markings: ['m.markings.star', 'm.markings.none'] },
     palette: { c1: [214, 25, 82], c2: [221, 25, 61], c3: [36, 64, 86], eye: [36, 68, 70] }, vary: { h: 8, s: 6, l: 5 },
@@ -2903,7 +2903,7 @@ export const SPECIES = [
     desc: 'Only seen by moonlight and only ever facing away. Leaves silver footprints that do not last.',
   },
   {
-    id: 'gloamdoe', name: 'Gloamdoe', nameParts: ['Gloam', 'doe'], clade: 'mammal', rig: 'mammal', types: ['Normal', 'Fairy'], tier: 'common', bst: 428,
+    id: 'gloamdoe', name: 'Gloamdoe', nameParts: ['Gloam', 'doe'], clade: 'mammal', rig: 'mammal', types: ['Normal', 'Fairy'], tier: 'common', bst: 429,
     stats: { hp: 0.13, melee: 0.08, ranged: 0.22, magic: 0.09, meleeDef: 0.11, rangedDef: 0.12, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'm.body.mouse', head: 'm.head.bear', ears: 'm.ears.mouse', eyes: 'm.eyes.round', muzzle: 'm.muzzle.deer', legsFront: 'm.legsFront.bear', legsBack: 'm.legsBack.cat', tail: 'm.tail.cat', mane: 'm.mane.none', horns: ['m.horns.crest', 'm.horns.none'], back: 'm.back.batwings', markings: 'm.markings.none' },
     palette: { c1: [231, 24, 80], c2: [235, 24, 55], c3: [54, 64, 82], eye: [51, 72, 72] }, vary: { h: 8, s: 6, l: 5 },
@@ -2913,7 +2913,7 @@ export const SPECIES = [
     desc: 'Grazes at dusk on the edge of the downs and vanishes when the lamps come on.',
   },
   {
-    id: 'geodegoat', name: 'Geodegoat', nameParts: ['Geode', 'goat'], clade: 'mammal', rig: 'mammal', types: ['Rock', 'Psychic'], tier: 'uncommon', bst: 432,
+    id: 'geodegoat', name: 'Geodegoat', nameParts: ['Geode', 'goat'], clade: 'mammal', rig: 'mammal', types: ['Rock', 'Psychic'], tier: 'uncommon', bst: 435,
     stats: { hp: 0.13, melee: 0.08, ranged: 0.22, magic: 0.09, meleeDef: 0.11, rangedDef: 0.12, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'm.body.wolf', head: 'm.head.cat', ears: 'm.ears.cat', eyes: 'm.eyes.round', muzzle: 'm.muzzle.wolf', legsFront: 'm.legsFront.deer', legsBack: 'm.legsBack.mouse', tail: 'm.tail.mouse', mane: ['m.mane.wolf', 'm.mane.none'], horns: ['m.horns.nubs', 'm.horns.none'], back: ['m.back.quills', 'm.back.none'], markings: ['m.markings.star', 'm.markings.none'] },
     palette: { c1: [177, 48, 68], c2: [175, 40, 51], c3: [266, 68, 75], eye: [266, 82, 66] }, vary: { h: 8, s: 6, l: 5 },
@@ -2923,7 +2923,7 @@ export const SPECIES = [
     desc: 'Its horns are amethyst and it knows exactly what you think of them.',
   },
   {
-    id: 'quartzox', name: 'Quartzox', nameParts: ['Quartz', 'ox'], clade: 'mammal', rig: 'mammal', types: ['Normal', 'Rock'], tier: 'common', bst: 519,
+    id: 'quartzox', name: 'Quartzox', nameParts: ['Quartz', 'ox'], clade: 'mammal', rig: 'mammal', types: ['Normal', 'Rock'], tier: 'common', bst: 520,
     stats: { hp: 0.16, melee: 0.2, ranged: 0.08, magic: 0.07, meleeDef: 0.17, rangedDef: 0.13, magicDef: 0.1, spe: 0.09 },
     recipe: { body: 'm.body.bear', head: 'm.head.rabbit', ears: 'm.ears.bear', eyes: 'm.eyes.sleepy', muzzle: 'm.muzzle.deer', legsFront: 'm.legsFront.bear', legsBack: 'm.legsBack.cat', tail: 'm.tail.cat', mane: 'm.mane.fox', horns: ['m.horns.nubs', 'm.horns.none'], back: ['m.back.quills', 'm.back.none'], markings: 'm.markings.star' },
     palette: { c1: [196, 42, 66], c2: [196, 41, 50], c3: [290, 69, 71], eye: [287, 82, 63] }, vary: { h: 8, s: 6, l: 5 },
@@ -2933,7 +2933,7 @@ export const SPECIES = [
     desc: 'Ploughs the crystal fields with a skull too heavy to lift quickly. Patient about it.',
   },
   {
-    id: 'fogfox', name: 'Fogfox', nameParts: ['Fog', 'fox'], clade: 'mammal', rig: 'mammal', types: ['Water', 'Ghost'], tier: 'uncommon', bst: 397,
+    id: 'fogfox', name: 'Fogfox', nameParts: ['Fog', 'fox'], clade: 'mammal', rig: 'mammal', types: ['Water', 'Ghost'], tier: 'uncommon', bst: 399,
     stats: { hp: 0.13, melee: 0.08, ranged: 0.22, magic: 0.09, meleeDef: 0.11, rangedDef: 0.12, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'm.body.deer', head: 'm.head.bear', ears: 'm.ears.wolf', eyes: 'm.eyes.fierce', muzzle: 'm.muzzle.deer', legsFront: 'm.legsFront.deer', legsBack: 'm.legsBack.wolf', tail: 'm.tail.rabbit', mane: 'm.mane.none', horns: ['m.horns.goat', 'm.horns.none'], back: ['m.back.wings', 'm.back.none'], markings: 'm.markings.belly' },
     palette: { c1: [185, 28, 79], c2: [184, 28, 59], c3: [162, 61, 73], eye: [167, 68, 63] }, vary: { h: 8, s: 6, l: 5 },
@@ -2943,7 +2943,7 @@ export const SPECIES = [
     desc: 'Comes down off the river with the mist and goes back up with it. The chickens are counted after.',
   },
   {
-    id: 'dewotter', name: 'Dewotter', nameParts: ['Dew', 'otter'], clade: 'mammal', rig: 'mammal', types: ['Normal', 'Water'], tier: 'common', bst: 424,
+    id: 'dewotter', name: 'Dewotter', nameParts: ['Dew', 'otter'], clade: 'mammal', rig: 'mammal', types: ['Normal', 'Water'], tier: 'common', bst: 423,
     stats: { hp: 0.13, melee: 0.08, ranged: 0.22, magic: 0.09, meleeDef: 0.11, rangedDef: 0.12, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'm.body.rabbit', head: 'm.head.wolf', ears: 'm.ears.wolf', eyes: 'm.eyes.almond', muzzle: 'm.muzzle.deer', legsFront: 'm.legsFront.fox', legsBack: 'm.legsBack.mouse', tail: 'm.tail.rabbit', mane: ['m.mane.deer', 'm.mane.none'], horns: ['m.horns.bull', 'm.horns.none'], back: 'm.back.wings', markings: 'm.markings.belly' },
     palette: { c1: [201, 24, 79], c2: [204, 28, 60], c3: [183, 60, 72], eye: [185, 71, 58] }, vary: { h: 8, s: 6, l: 5 },
@@ -2953,7 +2953,7 @@ export const SPECIES = [
     desc: 'Slides through wet grass leaving a trail of dew that is somehow going uphill.',
   },
   {
-    id: 'bloodmane', name: 'Bloodmane', nameParts: ['Blood', 'mane'], clade: 'mammal', rig: 'mammal', types: ['Dark', 'Fighting'], tier: 'rare', bst: 426,
+    id: 'bloodmane', name: 'Bloodmane', nameParts: ['Blood', 'mane'], clade: 'mammal', rig: 'mammal', types: ['Dark', 'Fighting'], tier: 'rare', bst: 428,
     stats: { hp: 0.14, melee: 0.22, ranged: 0.08, magic: 0.07, meleeDef: 0.13, rangedDef: 0.11, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'm.body.fox', head: 'm.head.bear', ears: 'm.ears.wolf', eyes: 'm.eyes.fierce', muzzle: 'm.muzzle.rabbit', legsFront: 'm.legsFront.bear', legsBack: 'm.legsBack.mouse', tail: 'm.tail.rabbit', mane: ['m.mane.cat', 'm.mane.none'], horns: ['m.horns.unicorn', 'm.horns.none'], back: ['m.back.batwings', 'm.back.none'], markings: ['m.markings.stripes', 'm.markings.none'] },
     palette: { c1: [17, 57, 41], c2: [12, 50, 26], c3: [23, 92, 56], eye: [24, 87, 53] }, vary: { h: 8, s: 6, l: 5 },
@@ -2963,7 +2963,7 @@ export const SPECIES = [
     desc: 'The lion the other lions do not mention. Its mane is the colour it is for a reason.',
   },
   {
-    id: 'moonstag', name: 'Moonstag', nameParts: ['Moon', 'stag'], clade: 'mammal', rig: 'mammal', types: ['Dark', 'Fairy'], tier: 'uncommon', bst: 400,
+    id: 'moonstag', name: 'Moonstag', nameParts: ['Moon', 'stag'], clade: 'mammal', rig: 'mammal', types: ['Dark', 'Fairy'], tier: 'uncommon', bst: 403,
     stats: { hp: 0.13, melee: 0.06, ranged: 0.08, magic: 0.23, meleeDef: 0.11, rangedDef: 0.11, magicDef: 0.13, spe: 0.15 },
     recipe: { body: 'm.body.mouse', head: 'm.head.deer', ears: 'm.ears.mouse', eyes: 'm.eyes.round', muzzle: 'm.muzzle.deer', legsFront: 'm.legsFront.mouse', legsBack: 'm.legsBack.rabbit', tail: 'm.tail.cat', mane: ['m.mane.mouse', 'm.mane.none'], horns: 'm.horns.none', back: ['m.back.crystals', 'm.back.none'], markings: ['m.markings.star', 'm.markings.none'] },
     palette: { c1: [253, 27, 80], c2: [254, 30, 62], c3: [70, 62, 82], eye: [77, 72, 74] }, vary: { h: 8, s: 6, l: 5 },
@@ -2974,7 +2974,7 @@ export const SPECIES = [
   },
   // ---- Roster expansion: element pass, reptile ----
   {
-    id: 'rustcroc', name: 'Rustcroc', nameParts: ['Rust', 'croc'], clade: 'reptile', rig: 'reptile', types: ['Steel', 'Poison'], tier: 'uncommon', bst: 514,
+    id: 'rustcroc', name: 'Rustcroc', nameParts: ['Rust', 'croc'], clade: 'reptile', rig: 'reptile', types: ['Steel', 'Poison'], tier: 'uncommon', bst: 516,
     stats: { hp: 0.16, melee: 0.2, ranged: 0.08, magic: 0.07, meleeDef: 0.17, rangedDef: 0.13, magicDef: 0.1, spe: 0.09 },
     recipe: { body: 'r.body.turtle', head: 'r.head.dragon', eyes: 'r.eyes.slit', jaw: 'r.jaw.underbite', crest: 'r.crest.spikes', legsFront: 'r.legsFront.raptor', legsBack: 'r.legsBack.turtle', tail: 'r.tail.croc', back: 'r.back.none', wings: ['r.wings.fin', 'r.wings.none'], throat: 'r.throat.none', scales: ['r.scales.scutes', 'r.scales.none'] },
     palette: { c1: [18, 55, 45], c2: [29, 43, 27], c3: [36, 87, 50], eye: [44, 83, 53] }, vary: { h: 8, s: 6, l: 5 },
@@ -2984,7 +2984,7 @@ export const SPECIES = [
     desc: 'Sank in a flooded foundry and came out plated. The plating is what is rusting.',
   },
   {
-    id: 'scrapgecko', name: 'Scrapgecko', nameParts: ['Scrap', 'gecko'], clade: 'reptile', rig: 'reptile', types: ['Rock', 'Steel'], tier: 'common', bst: 413,
+    id: 'scrapgecko', name: 'Scrapgecko', nameParts: ['Scrap', 'gecko'], clade: 'reptile', rig: 'reptile', types: ['Rock', 'Steel'], tier: 'common', bst: 412,
     stats: { hp: 0.13, melee: 0.08, ranged: 0.22, magic: 0.09, meleeDef: 0.11, rangedDef: 0.12, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'r.body.croc', head: 'r.head.lizard', eyes: 'r.eyes.hooded', jaw: 'r.jaw.grin', crest: ['r.crest.spikes', 'r.crest.none'], legsFront: 'r.legsFront.raptor', legsBack: 'r.legsBack.chameleon', tail: 'r.tail.croc', back: ['r.back.plates', 'r.back.none'], wings: 'r.wings.none', throat: ['r.throat.plates', 'r.throat.none'], scales: ['r.scales.bands', 'r.scales.none'] },
     palette: { c1: [41, 56, 48], c2: [49, 46, 31], c3: [57, 85, 57], eye: [63, 79, 55] }, vary: { h: 8, s: 6, l: 5 },
@@ -2994,7 +2994,7 @@ export const SPECIES = [
     desc: 'Nests in old cans and spits the tabs. Small, loud, and very proud of its tin.',
   },
   {
-    id: 'gorescale', name: 'Gorescale', nameParts: ['Gore', 'scale'], clade: 'reptile', rig: 'reptile', types: ['Dark', 'Fighting'], tier: 'uncommon', bst: 439,
+    id: 'gorescale', name: 'Gorescale', nameParts: ['Gore', 'scale'], clade: 'reptile', rig: 'reptile', types: ['Dark', 'Fighting'], tier: 'uncommon', bst: 432,
     stats: { hp: 0.14, melee: 0.22, ranged: 0.08, magic: 0.07, meleeDef: 0.13, rangedDef: 0.11, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'r.body.serpent', head: 'r.head.dragon', eyes: 'r.eyes.fierce', jaw: 'r.jaw.tusks', crest: ['r.crest.spikes', 'r.crest.none'], legsFront: 'r.legsFront.gecko', legsBack: 'r.legsBack.croc', tail: 'r.tail.croc', back: ['r.back.crystals', 'r.back.none'], wings: 'r.wings.flame', throat: 'r.throat.plates', scales: ['r.scales.spots', 'r.scales.none'] },
     palette: { c1: [350, 52, 41], c2: [348, 47, 25], c3: [358, 89, 54], eye: [359, 87, 52] }, vary: { h: 8, s: 6, l: 5 },
@@ -3004,7 +3004,7 @@ export const SPECIES = [
     desc: 'A monitor lizard that fights with its whole body and a grudge that predates you.',
   },
   {
-    id: 'slabfist', name: 'Slabfist', nameParts: ['Slab', 'fist'], clade: 'reptile', rig: 'reptile', types: ['Rock', 'Fighting'], tier: 'common', bst: 506,
+    id: 'slabfist', name: 'Slabfist', nameParts: ['Slab', 'fist'], clade: 'reptile', rig: 'reptile', types: ['Rock', 'Fighting'], tier: 'common', bst: 498,
     stats: { hp: 0.14, melee: 0.22, ranged: 0.08, magic: 0.07, meleeDef: 0.13, rangedDef: 0.11, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'r.body.raptor', head: 'r.head.chameleon', eyes: 'r.eyes.fierce', jaw: 'r.jaw.tusks', crest: ['r.crest.horns', 'r.crest.none'], legsFront: 'r.legsFront.raptor', legsBack: 'r.legsBack.chameleon', tail: 'r.tail.croc', back: ['r.back.feathers', 'r.back.none'], wings: 'r.wings.dragon', throat: ['r.throat.plates', 'r.throat.none'], scales: ['r.scales.saddle', 'r.scales.none'] },
     palette: { c1: [9, 53, 41], c2: [7, 50, 26], c3: [15, 88, 55], eye: [18, 93, 50] }, vary: { h: 8, s: 6, l: 5 },
@@ -3014,7 +3014,7 @@ export const SPECIES = [
     desc: 'Punches boulders in half to see what is inside. Nothing is ever inside.',
   },
   {
-    id: 'voidviper', name: 'Voidviper', nameParts: ['Void', 'viper'], clade: 'reptile', rig: 'reptile', types: ['Ghost', 'Psychic'], tier: 'rare', bst: 391,
+    id: 'voidviper', name: 'Voidviper', nameParts: ['Void', 'viper'], clade: 'reptile', rig: 'reptile', types: ['Ghost', 'Psychic'], tier: 'rare', bst: 384,
     stats: { hp: 0.13, melee: 0.06, ranged: 0.08, magic: 0.23, meleeDef: 0.11, rangedDef: 0.11, magicDef: 0.13, spe: 0.15 },
     recipe: { body: 'r.body.raptor', head: 'r.head.turtle', eyes: 'r.eyes.slit', jaw: 'r.jaw.smirk', crest: 'r.crest.horns', legsFront: 'r.legsFront.croc', legsBack: 'r.legsBack.gecko', tail: 'r.tail.lizard', back: ['r.back.plates', 'r.back.none'], wings: 'r.wings.crystal', throat: ['r.throat.dewlap', 'r.throat.none'], scales: ['r.scales.spots', 'r.scales.none'] },
     palette: { c1: [262, 28, 45], c2: [267, 29, 31], c3: [276, 87, 73], eye: [279, 88, 74] }, vary: { h: 8, s: 6, l: 5 },
@@ -3024,7 +3024,7 @@ export const SPECIES = [
     desc: 'A snake you can only see the shadow of. The shadow is enough.',
   },
   {
-    id: 'hushturtle', name: 'Hushturtle', nameParts: ['Hush', 'turtle'], clade: 'reptile', rig: 'reptile', types: ['Rock', 'Psychic'], tier: 'common', bst: 432,
+    id: 'hushturtle', name: 'Hushturtle', nameParts: ['Hush', 'turtle'], clade: 'reptile', rig: 'reptile', types: ['Rock', 'Psychic'], tier: 'common', bst: 435,
     stats: { hp: 0.13, melee: 0.06, ranged: 0.08, magic: 0.23, meleeDef: 0.11, rangedDef: 0.11, magicDef: 0.13, spe: 0.15 },
     recipe: { body: 'r.body.croc', head: 'r.head.raptor', eyes: 'r.eyes.slit', jaw: 'r.jaw.grin', crest: 'r.crest.none', legsFront: 'r.legsFront.raptor', legsBack: 'r.legsBack.chameleon', tail: 'r.tail.lizard', back: ['r.back.plates', 'r.back.none'], wings: ['r.wings.leaf', 'r.wings.none'], throat: ['r.throat.collar', 'r.throat.none'], scales: 'r.scales.spots' },
     palette: { c1: [281, 27, 40], c2: [290, 33, 30], c3: [298, 83, 71], eye: [303, 93, 72] }, vary: { h: 8, s: 6, l: 5 },
@@ -3034,7 +3034,7 @@ export const SPECIES = [
     desc: 'Withdraws into its shell and into your memory. You forget it was ever there, then it bites.',
   },
   {
-    id: 'moonskink', name: 'Moonskink', nameParts: ['Moon', 'skink'], clade: 'reptile', rig: 'reptile', types: ['Dark', 'Fairy'], tier: 'uncommon', bst: 405,
+    id: 'moonskink', name: 'Moonskink', nameParts: ['Moon', 'skink'], clade: 'reptile', rig: 'reptile', types: ['Dark', 'Fairy'], tier: 'uncommon', bst: 407,
     stats: { hp: 0.13, melee: 0.06, ranged: 0.08, magic: 0.23, meleeDef: 0.11, rangedDef: 0.11, magicDef: 0.13, spe: 0.15 },
     recipe: { body: 'r.body.dragon', head: 'r.head.dragon', eyes: 'r.eyes.round', jaw: 'r.jaw.underbite', crest: ['r.crest.plume', 'r.crest.none'], legsFront: 'r.legsFront.dragon', legsBack: 'r.legsBack.dragon', tail: 'r.tail.rattle', back: ['r.back.feathers', 'r.back.none'], wings: ['r.wings.flame', 'r.wings.none'], throat: ['r.throat.ruff', 'r.throat.none'], scales: 'r.scales.belly' },
     palette: { c1: [226, 22, 80], c2: [231, 27, 64], c3: [45, 66, 83], eye: [50, 71, 72] }, vary: { h: 8, s: 6, l: 5 },
@@ -3044,7 +3044,7 @@ export const SPECIES = [
     desc: 'Basks on rocks at night as if the moon were warm. For it, apparently, it is.',
   },
   {
-    id: 'dusklizard', name: 'Dusklizard', nameParts: ['Dusk', 'lizard'], clade: 'reptile', rig: 'reptile', types: ['Rock', 'Fairy'], tier: 'common', bst: 436,
+    id: 'dusklizard', name: 'Dusklizard', nameParts: ['Dusk', 'lizard'], clade: 'reptile', rig: 'reptile', types: ['Rock', 'Fairy'], tier: 'common', bst: 439,
     stats: { hp: 0.13, melee: 0.08, ranged: 0.22, magic: 0.09, meleeDef: 0.11, rangedDef: 0.12, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'r.body.chameleon', head: 'r.head.chameleon', eyes: 'r.eyes.round', jaw: 'r.jaw.grin', crest: ['r.crest.plume', 'r.crest.none'], legsFront: 'r.legsFront.lizard', legsBack: 'r.legsBack.chameleon', tail: 'r.tail.raptor', back: ['r.back.feathers', 'r.back.none'], wings: 'r.wings.flame', throat: ['r.throat.ruff', 'r.throat.none'], scales: 'r.scales.belly' },
     palette: { c1: [247, 21, 79], c2: [250, 25, 55], c3: [65, 66, 82], eye: [65, 70, 67] }, vary: { h: 8, s: 6, l: 5 },
@@ -3054,7 +3054,7 @@ export const SPECIES = [
     desc: 'Its scales catch the last light and hold it until morning. Sells for a lot; runs faster than that.',
   },
   {
-    id: 'gemback', name: 'Gemback', nameParts: ['Gem', 'back'], clade: 'reptile', rig: 'reptile', types: ['Rock', 'Psychic'], tier: 'uncommon', bst: 424,
+    id: 'gemback', name: 'Gemback', nameParts: ['Gem', 'back'], clade: 'reptile', rig: 'reptile', types: ['Rock', 'Psychic'], tier: 'uncommon', bst: 428,
     stats: { hp: 0.13, melee: 0.08, ranged: 0.22, magic: 0.09, meleeDef: 0.11, rangedDef: 0.12, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'r.body.serpent', head: 'r.head.raptor', eyes: 'r.eyes.gem', jaw: 'r.jaw.fangs', crest: ['r.crest.spikes', 'r.crest.none'], legsFront: 'r.legsFront.raptor', legsBack: 'r.legsBack.turtle', tail: 'r.tail.turtle', back: ['r.back.spines', 'r.back.none'], wings: 'r.wings.none', throat: 'r.throat.none', scales: ['r.scales.diamonds', 'r.scales.none'] },
     palette: { c1: [188, 44, 67], c2: [195, 39, 49], c3: [278, 67, 70], eye: [278, 80, 65] }, vary: { h: 8, s: 6, l: 5 },
@@ -3074,7 +3074,7 @@ export const SPECIES = [
     desc: 'Whips a tail of broken quartz. Every hit leaves a glittering splinter behind.',
   },
   {
-    id: 'mistcroc', name: 'Mistcroc', nameParts: ['Mist', 'croc'], clade: 'reptile', rig: 'reptile', types: ['Water', 'Ghost'], tier: 'uncommon', bst: 392,
+    id: 'mistcroc', name: 'Mistcroc', nameParts: ['Mist', 'croc'], clade: 'reptile', rig: 'reptile', types: ['Water', 'Ghost'], tier: 'uncommon', bst: 387,
     stats: { hp: 0.13, melee: 0.08, ranged: 0.22, magic: 0.09, meleeDef: 0.11, rangedDef: 0.12, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'r.body.lizard', head: 'r.head.raptor', eyes: 'r.eyes.slit', jaw: 'r.jaw.smirk', crest: 'r.crest.fin', legsFront: 'r.legsFront.chameleon', legsBack: 'r.legsBack.turtle', tail: 'r.tail.curl', back: ['r.back.fin', 'r.back.none'], wings: ['r.wings.fin', 'r.wings.none'], throat: ['r.throat.plates', 'r.throat.none'], scales: ['r.scales.belly', 'r.scales.none'] },
     palette: { c1: [191, 27, 82], c2: [201, 28, 63], c3: [171, 59, 74], eye: [177, 68, 61] }, vary: { h: 8, s: 6, l: 5 },
@@ -3084,7 +3084,7 @@ export const SPECIES = [
     desc: 'Floats in the fog with only its eyes showing, and the eyes are not always there.',
   },
   {
-    id: 'drizzleskink', name: 'Drizzleskink', nameParts: ['Drizzle', 'skink'], clade: 'reptile', rig: 'reptile', types: ['Rock', 'Water'], tier: 'common', bst: 418,
+    id: 'drizzleskink', name: 'Drizzleskink', nameParts: ['Drizzle', 'skink'], clade: 'reptile', rig: 'reptile', types: ['Rock', 'Water'], tier: 'common', bst: 415,
     stats: { hp: 0.13, melee: 0.08, ranged: 0.22, magic: 0.09, meleeDef: 0.11, rangedDef: 0.12, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'r.body.turtle', head: 'r.head.turtle', eyes: 'r.eyes.gem', jaw: 'r.jaw.beak', crest: 'r.crest.none', legsFront: 'r.legsFront.lizard', legsBack: 'r.legsBack.gecko', tail: 'r.tail.turtle', back: 'r.back.fin', wings: 'r.wings.fin', throat: 'r.throat.frill', scales: 'r.scales.belly' },
     palette: { c1: [216, 26, 82], c2: [215, 26, 63], c3: [190, 58, 70], eye: [198, 73, 62] }, vary: { h: 8, s: 6, l: 5 },
@@ -3094,7 +3094,7 @@ export const SPECIES = [
     desc: 'Lives under the drip line of the caverns and has never once been dry.',
   },
   {
-    id: 'bloodrake', name: 'Bloodrake', nameParts: ['Blood', 'rake'], clade: 'reptile', rig: 'reptile', types: ['Dark', 'Fighting'], tier: 'rare', bst: 373,
+    id: 'bloodrake', name: 'Bloodrake', nameParts: ['Blood', 'rake'], clade: 'reptile', rig: 'reptile', types: ['Dark', 'Fighting'], tier: 'rare', bst: 372,
     stats: { hp: 0.12, melee: 0.22, ranged: 0.08, magic: 0.07, meleeDef: 0.11, rangedDef: 0.11, magicDef: 0.09, spe: 0.2 },
     recipe: { body: 'r.body.lizard', head: 'r.head.cobra', eyes: 'r.eyes.fierce', jaw: 'r.jaw.fangs', crest: 'r.crest.horns', legsFront: 'r.legsFront.lizard', legsBack: 'r.legsBack.gecko', tail: 'r.tail.croc', back: ['r.back.feathers', 'r.back.none'], wings: 'r.wings.none', throat: 'r.throat.pouch', scales: 'r.scales.belly' },
     palette: { c1: [32, 56, 39], c2: [28, 50, 29], c3: [38, 89, 57], eye: [35, 91, 51] }, vary: { h: 8, s: 6, l: 5 },
@@ -3104,7 +3104,7 @@ export const SPECIES = [
     desc: 'A raptor that hunts in the dark by heat. Fast enough that you are the last to know.',
   },
   {
-    id: 'prismguana', name: 'Prismguana', nameParts: ['Prism', 'guana'], clade: 'reptile', rig: 'reptile', types: ['Rock', 'Psychic'], tier: 'uncommon', bst: 439,
+    id: 'prismguana', name: 'Prismguana', nameParts: ['Prism', 'guana'], clade: 'reptile', rig: 'reptile', types: ['Rock', 'Psychic'], tier: 'uncommon', bst: 440,
     stats: { hp: 0.13, melee: 0.06, ranged: 0.08, magic: 0.23, meleeDef: 0.11, rangedDef: 0.11, magicDef: 0.13, spe: 0.15 },
     recipe: { body: 'r.body.chameleon', head: 'r.head.croc', eyes: 'r.eyes.gem', jaw: 'r.jaw.tusks', crest: ['r.crest.spikes', 'r.crest.none'], legsFront: 'r.legsFront.dragon', legsBack: 'r.legsBack.lizard', tail: 'r.tail.lizard', back: ['r.back.spines', 'r.back.none'], wings: ['r.wings.crystal', 'r.wings.none'], throat: 'r.throat.beard', scales: ['r.scales.diamonds', 'r.scales.none'] },
     palette: { c1: [222, 42, 72], c2: [230, 42, 56], c3: [320, 68, 75], eye: [321, 78, 69] }, vary: { h: 8, s: 6, l: 5 },
@@ -3115,7 +3115,7 @@ export const SPECIES = [
   },
   // ---- Roster expansion: element pass, fish ----
   {
-    id: 'rustfin', name: 'Rustfin', nameParts: ['Rust', 'fin'], clade: 'fish', rig: 'fish', types: ['Steel', 'Poison'], tier: 'common', bst: 462,
+    id: 'rustfin', name: 'Rustfin', nameParts: ['Rust', 'fin'], clade: 'fish', rig: 'fish', types: ['Steel', 'Poison'], tier: 'common', bst: 469,
     stats: { hp: 0.14, melee: 0.22, ranged: 0.08, magic: 0.07, meleeDef: 0.13, rangedDef: 0.11, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'f.body.betta', eyes: 'f.eyes.glow', mouth: 'f.mouth.pout', dorsal: 'f.dorsal.spiky', pectoral: 'f.pectoral.flowing', tail: 'f.tail.eel', belly: ['f.belly.anal', 'f.belly.none'], gills: 'f.gills.none', crest: ['f.crest.lure', 'f.crest.none'], barbels: ['f.barbels.spiky', 'f.barbels.none'], spines: 'f.spines.armour', pattern: 'f.pattern.none' },
     palette: { c1: [31, 53, 46], c2: [40, 41, 28], c3: [52, 88, 53], eye: [56, 82, 54] }, vary: { h: 8, s: 6, l: 5 },
@@ -3125,7 +3125,7 @@ export const SPECIES = [
     desc: 'A fish made of wreck. The hooks in its lip are its own.',
   },
   {
-    id: 'tinnow', name: 'Tinnow', nameParts: ['Tin', 'now'], clade: 'fish', rig: 'fish', types: ['Water', 'Steel'], tier: 'common', bst: 376,
+    id: 'tinnow', name: 'Tinnow', nameParts: ['Tin', 'now'], clade: 'fish', rig: 'fish', types: ['Water', 'Steel'], tier: 'common', bst: 377,
     stats: { hp: 0.13, melee: 0.08, ranged: 0.22, magic: 0.09, meleeDef: 0.11, rangedDef: 0.12, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'f.body.seahorse', eyes: 'f.eyes.fierce', mouth: 'f.mouth.grin', dorsal: 'f.dorsal.fan', pectoral: 'f.pectoral.fan', tail: 'f.tail.forked', belly: 'f.belly.none', gills: ['f.gills.armour', 'f.gills.none'], crest: ['f.crest.unicorn', 'f.crest.none'], barbels: ['f.barbels.spiky', 'f.barbels.none'], spines: ['f.spines.armour', 'f.spines.none'], pattern: ['f.pattern.stripes', 'f.pattern.none'] },
     palette: { c1: [56, 57, 44], c2: [57, 45, 30], c3: [67, 87, 53], eye: [75, 78, 55] }, vary: { h: 8, s: 6, l: 5 },
@@ -3145,7 +3145,7 @@ export const SPECIES = [
     desc: 'The lagoon has its own shark and it does its own dirty work. Bites first, then circles.',
   },
   {
-    id: 'brawlcarp', name: 'Brawlcarp', nameParts: ['Brawl', 'carp'], clade: 'fish', rig: 'fish', types: ['Water', 'Fighting'], tier: 'common', bst: 508,
+    id: 'brawlcarp', name: 'Brawlcarp', nameParts: ['Brawl', 'carp'], clade: 'fish', rig: 'fish', types: ['Water', 'Fighting'], tier: 'common', bst: 511,
     stats: { hp: 0.14, melee: 0.22, ranged: 0.08, magic: 0.07, meleeDef: 0.13, rangedDef: 0.11, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'f.body.seahorse', eyes: 'f.eyes.fierce', mouth: 'f.mouth.fangs', dorsal: 'f.dorsal.sail', pectoral: 'f.pectoral.tiny', tail: 'f.tail.fan', belly: ['f.belly.ribbon', 'f.belly.none'], gills: ['f.gills.plumes', 'f.gills.none'], crest: 'f.crest.horn', barbels: ['f.barbels.spiky', 'f.barbels.none'], spines: ['f.spines.side', 'f.spines.none'], pattern: ['f.pattern.stripes', 'f.pattern.none'] },
     palette: { c1: [29, 54, 37], c2: [22, 47, 29], c3: [29, 91, 52], eye: [28, 88, 54] }, vary: { h: 8, s: 6, l: 5 },
@@ -3155,7 +3155,7 @@ export const SPECIES = [
     desc: 'Leaps out of the water to headbutt herons. Wins about half the time.',
   },
   {
-    id: 'voidangler', name: 'Voidangler', nameParts: ['Void', 'angler'], clade: 'fish', rig: 'fish', types: ['Ghost', 'Psychic'], tier: 'rare', bst: 428,
+    id: 'voidangler', name: 'Voidangler', nameParts: ['Void', 'angler'], clade: 'fish', rig: 'fish', types: ['Ghost', 'Psychic'], tier: 'rare', bst: 431,
     stats: { hp: 0.13, melee: 0.06, ranged: 0.08, magic: 0.23, meleeDef: 0.11, rangedDef: 0.11, magicDef: 0.13, spe: 0.15 },
     recipe: { body: 'f.body.round', eyes: 'f.eyes.glow', mouth: 'f.mouth.smile', dorsal: 'f.dorsal.flowing', pectoral: 'f.pectoral.paddle', tail: 'f.tail.forked', belly: 'f.belly.pelvic', gills: ['f.gills.glow', 'f.gills.none'], crest: 'f.crest.none', barbels: ['f.barbels.koi', 'f.barbels.none'], spines: ['f.spines.bumps', 'f.spines.none'], pattern: ['f.pattern.glow', 'f.pattern.none'] },
     palette: { c1: [274, 28, 45], c2: [282, 29, 33], c3: [290, 84, 73], eye: [296, 88, 74] }, vary: { h: 8, s: 6, l: 5 },
@@ -3165,7 +3165,7 @@ export const SPECIES = [
     desc: 'Its lure is a thought you almost had. Follow it and you are already down there.',
   },
   {
-    id: 'hushray', name: 'Hushray', nameParts: ['Hush', 'ray'], clade: 'fish', rig: 'fish', types: ['Water', 'Psychic'], tier: 'uncommon', bst: 432,
+    id: 'hushray', name: 'Hushray', nameParts: ['Hush', 'ray'], clade: 'fish', rig: 'fish', types: ['Water', 'Psychic'], tier: 'uncommon', bst: 435,
     stats: { hp: 0.13, melee: 0.06, ranged: 0.08, magic: 0.23, meleeDef: 0.11, rangedDef: 0.11, magicDef: 0.13, spe: 0.15 },
     recipe: { body: 'f.body.puffer', eyes: 'f.eyes.glow', mouth: 'f.mouth.fangs', dorsal: 'f.dorsal.fan', pectoral: 'f.pectoral.pointed', tail: 'f.tail.fan', belly: ['f.belly.pelvic', 'f.belly.none'], gills: 'f.gills.glow', crest: ['f.crest.lure', 'f.crest.none'], barbels: 'f.barbels.none', spines: ['f.spines.armour', 'f.spines.none'], pattern: ['f.pattern.glow', 'f.pattern.none'] },
     palette: { c1: [292, 30, 40], c2: [297, 35, 29], c3: [309, 85, 70], eye: [315, 92, 73] }, vary: { h: 8, s: 6, l: 5 },
@@ -3175,7 +3175,7 @@ export const SPECIES = [
     desc: 'Glides under the boats and quiets every mind above. Fishermen doze and drift.',
   },
   {
-    id: 'moonkoi', name: 'Moonkoi', nameParts: ['Moon', 'koi'], clade: 'fish', rig: 'fish', types: ['Dark', 'Fairy'], tier: 'uncommon', bst: 393,
+    id: 'moonkoi', name: 'Moonkoi', nameParts: ['Moon', 'koi'], clade: 'fish', rig: 'fish', types: ['Dark', 'Fairy'], tier: 'uncommon', bst: 392,
     stats: { hp: 0.13, melee: 0.06, ranged: 0.08, magic: 0.23, meleeDef: 0.11, rangedDef: 0.11, magicDef: 0.13, spe: 0.15 },
     recipe: { body: 'f.body.round', eyes: 'f.eyes.round', mouth: 'f.mouth.gape', dorsal: 'f.dorsal.fan', pectoral: 'f.pectoral.fan', tail: 'f.tail.fan', belly: 'f.belly.anal', gills: ['f.gills.glow', 'f.gills.none'], crest: 'f.crest.plume', barbels: 'f.barbels.none', spines: ['f.spines.side', 'f.spines.none'], pattern: 'f.pattern.none' },
     palette: { c1: [238, 23, 80], c2: [240, 28, 62], c3: [62, 66, 85], eye: [59, 68, 76] }, vary: { h: 8, s: 6, l: 5 },
@@ -3195,7 +3195,7 @@ export const SPECIES = [
     desc: 'Silver in the shallows at night. The tide comes in a little further to look.',
   },
   {
-    id: 'geodefish', name: 'Geodefish', nameParts: ['Geode', 'fish'], clade: 'fish', rig: 'fish', types: ['Rock', 'Psychic'], tier: 'uncommon', bst: 405,
+    id: 'geodefish', name: 'Geodefish', nameParts: ['Geode', 'fish'], clade: 'fish', rig: 'fish', types: ['Rock', 'Psychic'], tier: 'uncommon', bst: 407,
     stats: { hp: 0.13, melee: 0.08, ranged: 0.22, magic: 0.09, meleeDef: 0.11, rangedDef: 0.12, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'f.body.betta', eyes: 'f.eyes.deadeye', mouth: 'f.mouth.frown', dorsal: 'f.dorsal.spiky', pectoral: 'f.pectoral.spiky', tail: 'f.tail.curl', belly: ['f.belly.spiky', 'f.belly.none'], gills: ['f.gills.plumes', 'f.gills.none'], crest: ['f.crest.feathery', 'f.crest.none'], barbels: 'f.barbels.spiky', spines: 'f.spines.armour', pattern: ['f.pattern.gradient', 'f.pattern.none'] },
     palette: { c1: [195, 43, 69], c2: [206, 43, 47], c3: [295, 66, 75], eye: [294, 84, 71] }, vary: { h: 8, s: 6, l: 5 },
@@ -3205,7 +3205,7 @@ export const SPECIES = [
     desc: 'A fish grown inside a geode that cracked open in the flood. Still faceted, still surprised.',
   },
   {
-    id: 'shalefin', name: 'Shalefin', nameParts: ['Shale', 'fin'], clade: 'fish', rig: 'fish', types: ['Water', 'Rock'], tier: 'common', bst: 515,
+    id: 'shalefin', name: 'Shalefin', nameParts: ['Shale', 'fin'], clade: 'fish', rig: 'fish', types: ['Water', 'Rock'], tier: 'common', bst: 516,
     stats: { hp: 0.16, melee: 0.2, ranged: 0.08, magic: 0.07, meleeDef: 0.17, rangedDef: 0.13, magicDef: 0.1, spe: 0.09 },
     recipe: { body: 'f.body.seahorse', eyes: 'f.eyes.fierce', mouth: 'f.mouth.grin', dorsal: 'f.dorsal.spiky', pectoral: 'f.pectoral.spiky', tail: 'f.tail.forked', belly: 'f.belly.none', gills: ['f.gills.flap', 'f.gills.none'], crest: 'f.crest.none', barbels: 'f.barbels.spiky', spines: ['f.spines.bumps', 'f.spines.none'], pattern: 'f.pattern.none' },
     palette: { c1: [220, 46, 65], c2: [223, 46, 45], c3: [311, 71, 66], eye: [312, 78, 63] }, vary: { h: 8, s: 6, l: 5 },
@@ -3215,7 +3215,7 @@ export const SPECIES = [
     desc: 'Armoured in slate and slow as a landslide, which is also how it fights.',
   },
   {
-    id: 'fogeel', name: 'Fogeel', nameParts: ['Fog', 'eel'], clade: 'fish', rig: 'fish', types: ['Water', 'Ghost'], tier: 'uncommon', bst: 389,
+    id: 'fogeel', name: 'Fogeel', nameParts: ['Fog', 'eel'], clade: 'fish', rig: 'fish', types: ['Water', 'Ghost'], tier: 'uncommon', bst: 392,
     stats: { hp: 0.13, melee: 0.08, ranged: 0.22, magic: 0.09, meleeDef: 0.11, rangedDef: 0.12, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'f.body.round', eyes: 'f.eyes.fierce', mouth: 'f.mouth.grin', dorsal: 'f.dorsal.ribbon', pectoral: 'f.pectoral.paddle', tail: 'f.tail.curl', belly: 'f.belly.paddle', gills: 'f.gills.plate', crest: ['f.crest.crown', 'f.crest.none'], barbels: 'f.barbels.none', spines: ['f.spines.puffer', 'f.spines.none'], pattern: ['f.pattern.belly', 'f.pattern.none'] },
     palette: { c1: [203, 23, 78], c2: [211, 30, 61], c3: [186, 63, 72], eye: [190, 68, 57] }, vary: { h: 8, s: 6, l: 5 },
@@ -3225,7 +3225,7 @@ export const SPECIES = [
     desc: 'Swims through the mist above the lagoon as easily as under it. Wet either way.',
   },
   {
-    id: 'dewpuff', name: 'Dewpuff', nameParts: ['Dew', 'puff'], clade: 'fish', rig: 'fish', types: ['Water', 'Ghost'], tier: 'common', bst: 388,
+    id: 'dewpuff', name: 'Dewpuff', nameParts: ['Dew', 'puff'], clade: 'fish', rig: 'fish', types: ['Water', 'Ghost'], tier: 'common', bst: 391,
     stats: { hp: 0.13, melee: 0.06, ranged: 0.08, magic: 0.23, meleeDef: 0.11, rangedDef: 0.11, magicDef: 0.13, spe: 0.15 },
     recipe: { body: 'f.body.eel', eyes: 'f.eyes.glow', mouth: 'f.mouth.pout', dorsal: 'f.dorsal.shark', pectoral: 'f.pectoral.paddle', tail: 'f.tail.shark', belly: ['f.belly.paddle', 'f.belly.none'], gills: ['f.gills.armour', 'f.gills.none'], crest: 'f.crest.none', barbels: 'f.barbels.spiky', spines: ['f.spines.ridge', 'f.spines.none'], pattern: 'f.pattern.belly' },
     palette: { c1: [224, 24, 80], c2: [233, 27, 64], c3: [203, 62, 76], eye: [206, 70, 63] }, vary: { h: 8, s: 6, l: 5 },
@@ -3245,7 +3245,7 @@ export const SPECIES = [
     desc: 'Red water follows it. The lagoon folk fish elsewhere for a week after a sighting.',
   },
   {
-    id: 'prismscale', name: 'Prismscale', nameParts: ['Prism', 'scale'], clade: 'fish', rig: 'fish', types: ['Rock', 'Psychic'], tier: 'uncommon', bst: 453,
+    id: 'prismscale', name: 'Prismscale', nameParts: ['Prism', 'scale'], clade: 'fish', rig: 'fish', types: ['Rock', 'Psychic'], tier: 'uncommon', bst: 456,
     stats: { hp: 0.13, melee: 0.06, ranged: 0.08, magic: 0.23, meleeDef: 0.11, rangedDef: 0.11, magicDef: 0.13, spe: 0.15 },
     recipe: { body: 'f.body.eel', eyes: 'f.eyes.round', mouth: 'f.mouth.fangs', dorsal: 'f.dorsal.spiky', pectoral: 'f.pectoral.spiky', tail: 'f.tail.lyre', belly: ['f.belly.spiky', 'f.belly.none'], gills: 'f.gills.none', crest: 'f.crest.none', barbels: ['f.barbels.spiky', 'f.barbels.none'], spines: ['f.spines.thorns', 'f.spines.none'], pattern: ['f.pattern.gradient', 'f.pattern.none'] },
     palette: { c1: [236, 45, 69], c2: [246, 44, 52], c3: [330, 74, 77], eye: [332, 78, 71] }, vary: { h: 8, s: 6, l: 5 },
@@ -3256,7 +3256,7 @@ export const SPECIES = [
   },
   // ---- Roster expansion: element pass, bird ----
   {
-    id: 'rustcrow', name: 'Rustcrow', nameParts: ['Rust', 'crow'], clade: 'bird', rig: 'bird', types: ['Steel', 'Poison'], tier: 'common', bst: 406,
+    id: 'rustcrow', name: 'Rustcrow', nameParts: ['Rust', 'crow'], clade: 'bird', rig: 'bird', types: ['Steel', 'Poison'], tier: 'common', bst: 405,
     stats: { hp: 0.13, melee: 0.08, ranged: 0.22, magic: 0.09, meleeDef: 0.11, rangedDef: 0.12, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'b.body.penguin', head: 'b.head.peacock', eyes: 'b.eyes.ring', beak: 'b.beak.needle', crest: ['b.crest.plume', 'b.crest.none'], face: 'b.face.brows', wings: 'b.wings.flipper', tail: 'b.tail.wedge', legs: 'b.legs.raptor', chest: ['b.chest.ruff', 'b.chest.none'], back: ['b.back.mantle', 'b.back.none'], pattern: 'b.pattern.speckles' },
     palette: { c1: [15, 59, 44], c2: [22, 47, 30], c3: [28, 84, 55], eye: [41, 81, 53] }, vary: { h: 8, s: 6, l: 5 },
@@ -3266,7 +3266,7 @@ export const SPECIES = [
     desc: 'Roosts on rusted gutters and drops what it finds there. Its droppings etch stone.',
   },
   {
-    id: 'tinwren', name: 'Tinwren', nameParts: ['Tin', 'wren'], clade: 'bird', rig: 'bird', types: ['Flying', 'Steel'], tier: 'common', bst: 400,
+    id: 'tinwren', name: 'Tinwren', nameParts: ['Tin', 'wren'], clade: 'bird', rig: 'bird', types: ['Flying', 'Steel'], tier: 'common', bst: 397,
     stats: { hp: 0.13, melee: 0.08, ranged: 0.22, magic: 0.09, meleeDef: 0.11, rangedDef: 0.12, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'b.body.songbird', head: 'b.head.hawk', eyes: 'b.eyes.bead', beak: 'b.beak.hooked', crest: 'b.crest.tuft', face: ['b.face.beard', 'b.face.none'], wings: 'b.wings.long', tail: 'b.tail.fantail', legs: 'b.legs.stilts', chest: ['b.chest.medallion', 'b.chest.none'], back: ['b.back.starcloak', 'b.back.none'], pattern: 'b.pattern.speckles' },
     palette: { c1: [35, 56, 44], c2: [40, 44, 32], c3: [52, 84, 58], eye: [62, 76, 53] }, vary: { h: 8, s: 6, l: 5 },
@@ -3276,7 +3276,7 @@ export const SPECIES = [
     desc: 'A wren of pressed tin. Sings like a kettle and nests in one.',
   },
   {
-    id: 'gorehawk', name: 'Gorehawk', nameParts: ['Gore', 'hawk'], clade: 'bird', rig: 'bird', types: ['Dark', 'Fighting'], tier: 'uncommon', bst: 426,
+    id: 'gorehawk', name: 'Gorehawk', nameParts: ['Gore', 'hawk'], clade: 'bird', rig: 'bird', types: ['Dark', 'Fighting'], tier: 'uncommon', bst: 425,
     stats: { hp: 0.14, melee: 0.22, ranged: 0.08, magic: 0.07, meleeDef: 0.13, rangedDef: 0.11, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'b.body.parrot', head: 'b.head.hawk', eyes: 'b.eyes.fierce', beak: 'b.beak.needle', crest: 'b.crest.fluff', face: 'b.face.none', wings: 'b.wings.broad', tail: 'b.tail.fan', legs: 'b.legs.thin', chest: ['b.chest.bib', 'b.chest.none'], back: 'b.back.none', pattern: 'b.pattern.gradient' },
     palette: { c1: [348, 55, 41], c2: [342, 51, 26], c3: [352, 89, 58], eye: [350, 87, 55] }, vary: { h: 8, s: 6, l: 5 },
@@ -3286,7 +3286,7 @@ export const SPECIES = [
     desc: 'Stoops with its talons closed, like a fist. It opens them later.',
   },
   {
-    id: 'brawlgull', name: 'Brawlgull', nameParts: ['Brawl', 'gull'], clade: 'bird', rig: 'bird', types: ['Flying', 'Fighting'], tier: 'common', bst: 518,
+    id: 'brawlgull', name: 'Brawlgull', nameParts: ['Brawl', 'gull'], clade: 'bird', rig: 'bird', types: ['Flying', 'Fighting'], tier: 'common', bst: 520,
     stats: { hp: 0.14, melee: 0.22, ranged: 0.08, magic: 0.07, meleeDef: 0.13, rangedDef: 0.11, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'b.body.hawk', head: 'b.head.round', eyes: 'b.eyes.fierce', beak: 'b.beak.needle', crest: ['b.crest.halo', 'b.crest.none'], face: 'b.face.brows', wings: 'b.wings.flipper', tail: 'b.tail.fan', legs: 'b.legs.zygo', chest: ['b.chest.bib', 'b.chest.none'], back: 'b.back.coverts', pattern: ['b.pattern.patches', 'b.pattern.none'] },
     palette: { c1: [8, 53, 39], c2: [5, 52, 30], c3: [13, 92, 56], eye: [14, 87, 51] }, vary: { h: 8, s: 6, l: 5 },
@@ -3296,7 +3296,7 @@ export const SPECIES = [
     desc: 'Steals lunches by force and then eats them in front of you.',
   },
   {
-    id: 'voidowl', name: 'Voidowl', nameParts: ['Void', 'owl'], clade: 'bird', rig: 'bird', types: ['Ghost', 'Psychic'], tier: 'rare', bst: 389,
+    id: 'voidowl', name: 'Voidowl', nameParts: ['Void', 'owl'], clade: 'bird', rig: 'bird', types: ['Ghost', 'Psychic'], tier: 'rare', bst: 388,
     stats: { hp: 0.13, melee: 0.06, ranged: 0.08, magic: 0.23, meleeDef: 0.11, rangedDef: 0.11, magicDef: 0.13, spe: 0.15 },
     recipe: { body: 'b.body.hawk', head: 'b.head.penguin', eyes: 'b.eyes.ring', beak: 'b.beak.parrot', crest: 'b.crest.none', face: ['b.face.disc', 'b.face.none'], wings: 'b.wings.rounded', tail: 'b.tail.fantail', legs: 'b.legs.zygo', chest: 'b.chest.ruff', back: 'b.back.starcloak', pattern: ['b.pattern.belly', 'b.pattern.none'] },
     palette: { c1: [255, 28, 43], c2: [258, 29, 32], c3: [275, 83, 72], eye: [278, 90, 76] }, vary: { h: 8, s: 6, l: 5 },
@@ -3306,7 +3306,7 @@ export const SPECIES = [
     desc: 'It does not hoot. The silence where a hoot would be is how you know.',
   },
   {
-    id: 'hushdove', name: 'Hushdove', nameParts: ['Hush', 'dove'], clade: 'bird', rig: 'bird', types: ['Flying', 'Psychic'], tier: 'uncommon', bst: 451,
+    id: 'hushdove', name: 'Hushdove', nameParts: ['Hush', 'dove'], clade: 'bird', rig: 'bird', types: ['Flying', 'Psychic'], tier: 'uncommon', bst: 439,
     stats: { hp: 0.13, melee: 0.06, ranged: 0.08, magic: 0.23, meleeDef: 0.11, rangedDef: 0.11, magicDef: 0.13, spe: 0.15 },
     recipe: { body: 'b.body.parrot', head: 'b.head.peacock', eyes: 'b.eyes.ring', beak: 'b.beak.needle', crest: 'b.crest.halo', face: 'b.face.disc', wings: 'b.wings.stubby', tail: 'b.tail.fan', legs: 'b.legs.feathered', chest: ['b.chest.speckled', 'b.chest.none'], back: ['b.back.starcloak', 'b.back.none'], pattern: 'b.pattern.none' },
     palette: { c1: [275, 30, 43], c2: [283, 31, 33], c3: [294, 83, 73], eye: [298, 93, 73] }, vary: { h: 8, s: 6, l: 5 },
@@ -3316,7 +3316,7 @@ export const SPECIES = [
     desc: 'Its cooing puts whole towers to sleep. Belfries have stopped keeping them.',
   },
   {
-    id: 'moonheron', name: 'Moonheron', nameParts: ['Moon', 'heron'], clade: 'bird', rig: 'bird', types: ['Dark', 'Fairy'], tier: 'uncommon', bst: 399,
+    id: 'moonheron', name: 'Moonheron', nameParts: ['Moon', 'heron'], clade: 'bird', rig: 'bird', types: ['Dark', 'Fairy'], tier: 'uncommon', bst: 389,
     stats: { hp: 0.13, melee: 0.06, ranged: 0.08, magic: 0.23, meleeDef: 0.11, rangedDef: 0.11, magicDef: 0.13, spe: 0.15 },
     recipe: { body: 'b.body.penguin', head: 'b.head.round', eyes: 'b.eyes.round', beak: 'b.beak.short', crest: 'b.crest.halo', face: ['b.face.beard', 'b.face.none'], wings: 'b.wings.lacy', tail: 'b.tail.fan', legs: 'b.legs.zygo', chest: ['b.chest.fluffy', 'b.chest.none'], back: ['b.back.starcloak', 'b.back.none'], pattern: ['b.pattern.belly', 'b.pattern.none'] },
     palette: { c1: [215, 28, 80], c2: [225, 26, 61], c3: [40, 61, 82], eye: [41, 68, 71] }, vary: { h: 8, s: 6, l: 5 },
@@ -3326,7 +3326,7 @@ export const SPECIES = [
     desc: 'Stands one-legged in the moonlit shallows waiting for a fish that only exists at night.',
   },
   {
-    id: 'gloamfinch', name: 'Gloamfinch', nameParts: ['Gloam', 'finch'], clade: 'bird', rig: 'bird', types: ['Flying', 'Fairy'], tier: 'common', bst: 441,
+    id: 'gloamfinch', name: 'Gloamfinch', nameParts: ['Gloam', 'finch'], clade: 'bird', rig: 'bird', types: ['Flying', 'Fairy'], tier: 'common', bst: 444,
     stats: { hp: 0.13, melee: 0.08, ranged: 0.22, magic: 0.09, meleeDef: 0.11, rangedDef: 0.12, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'b.body.peacock', head: 'b.head.penguin', eyes: 'b.eyes.ring', beak: 'b.beak.stout', crest: ['b.crest.tuft', 'b.crest.none'], face: ['b.face.wattle', 'b.face.none'], wings: 'b.wings.lacy', tail: 'b.tail.fan', legs: 'b.legs.stilts', chest: ['b.chest.scales', 'b.chest.none'], back: 'b.back.starcloak', pattern: 'b.pattern.belly' },
     palette: { c1: [238, 20, 79], c2: [246, 29, 56], c3: [61, 69, 81], eye: [63, 70, 68] }, vary: { h: 8, s: 6, l: 5 },
@@ -3336,7 +3336,7 @@ export const SPECIES = [
     desc: 'Sings the sun down every evening and takes full credit for the result.',
   },
   {
-    id: 'geodecrane', name: 'Geodecrane', nameParts: ['Geode', 'crane'], clade: 'bird', rig: 'bird', types: ['Rock', 'Psychic'], tier: 'uncommon', bst: 433,
+    id: 'geodecrane', name: 'Geodecrane', nameParts: ['Geode', 'crane'], clade: 'bird', rig: 'bird', types: ['Rock', 'Psychic'], tier: 'uncommon', bst: 432,
     stats: { hp: 0.13, melee: 0.08, ranged: 0.22, magic: 0.09, meleeDef: 0.11, rangedDef: 0.12, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'b.body.songbird', head: 'b.head.round', eyes: 'b.eyes.ring', beak: 'b.beak.long', crest: ['b.crest.eartufts', 'b.crest.none'], face: 'b.face.wattle', wings: 'b.wings.broad', tail: 'b.tail.pintail', legs: 'b.legs.webbed', chest: ['b.chest.bib', 'b.chest.none'], back: ['b.back.starcloak', 'b.back.none'], pattern: 'b.pattern.gradient' },
     palette: { c1: [178, 41, 70], c2: [185, 41, 52], c3: [277, 70, 73], eye: [271, 83, 66] }, vary: { h: 8, s: 6, l: 5 },
@@ -3346,7 +3346,7 @@ export const SPECIES = [
     desc: 'Its long legs are quartz and it stands so still the caverns forget it is a bird.',
   },
   {
-    id: 'flintjay', name: 'Flintjay', nameParts: ['Flint', 'jay'], clade: 'bird', rig: 'bird', types: ['Flying', 'Rock'], tier: 'common', bst: 432,
+    id: 'flintjay', name: 'Flintjay', nameParts: ['Flint', 'jay'], clade: 'bird', rig: 'bird', types: ['Flying', 'Rock'], tier: 'common', bst: 429,
     stats: { hp: 0.13, melee: 0.08, ranged: 0.22, magic: 0.09, meleeDef: 0.11, rangedDef: 0.12, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'b.body.peacock', head: 'b.head.penguin', eyes: 'b.eyes.sparkle', beak: 'b.beak.parrot', crest: ['b.crest.halo', 'b.crest.none'], face: 'b.face.spectacles', wings: 'b.wings.pointed', tail: 'b.tail.long', legs: 'b.legs.webbed', chest: ['b.chest.fluffy', 'b.chest.none'], back: 'b.back.starcloak', pattern: 'b.pattern.none' },
     palette: { c1: [201, 48, 69], c2: [210, 43, 48], c3: [296, 69, 72], eye: [292, 82, 66] }, vary: { h: 8, s: 6, l: 5 },
@@ -3356,7 +3356,7 @@ export const SPECIES = [
     desc: 'Throws pebbles from a height and follows them down to laugh.',
   },
   {
-    id: 'fogswan', name: 'Fogswan', nameParts: ['Fog', 'swan'], clade: 'bird', rig: 'bird', types: ['Water', 'Ghost'], tier: 'uncommon', bst: 366,
+    id: 'fogswan', name: 'Fogswan', nameParts: ['Fog', 'swan'], clade: 'bird', rig: 'bird', types: ['Water', 'Ghost'], tier: 'uncommon', bst: 365,
     stats: { hp: 0.13, melee: 0.06, ranged: 0.08, magic: 0.23, meleeDef: 0.11, rangedDef: 0.11, magicDef: 0.13, spe: 0.15 },
     recipe: { body: 'b.body.parrot', head: 'b.head.owl', eyes: 'b.eyes.fierce', beak: 'b.beak.needle', crest: 'b.crest.none', face: ['b.face.beard', 'b.face.none'], wings: 'b.wings.broad', tail: 'b.tail.fan', legs: 'b.legs.zygo', chest: ['b.chest.bib', 'b.chest.none'], back: ['b.back.coverts', 'b.back.none'], pattern: ['b.pattern.belly', 'b.pattern.none'] },
     palette: { c1: [191, 26, 83], c2: [190, 29, 66], c3: [167, 59, 75], eye: [168, 69, 62] }, vary: { h: 8, s: 6, l: 5 },
@@ -3366,7 +3366,7 @@ export const SPECIES = [
     desc: 'Drifts on the marsh mist with no water under it at all. Serene about the gap.',
   },
   {
-    id: 'drizzleduck', name: 'Drizzleduck', nameParts: ['Drizzle', 'duck'], clade: 'bird', rig: 'bird', types: ['Flying', 'Water'], tier: 'common', bst: 425,
+    id: 'drizzleduck', name: 'Drizzleduck', nameParts: ['Drizzle', 'duck'], clade: 'bird', rig: 'bird', types: ['Flying', 'Water'], tier: 'common', bst: 426,
     stats: { hp: 0.13, melee: 0.08, ranged: 0.22, magic: 0.09, meleeDef: 0.11, rangedDef: 0.12, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'b.body.owl', head: 'b.head.parrot', eyes: 'b.eyes.round', beak: 'b.beak.flat', crest: 'b.crest.eartufts', face: ['b.face.brows', 'b.face.none'], wings: 'b.wings.flipper', tail: 'b.tail.wedge', legs: 'b.legs.raptor', chest: 'b.chest.none', back: ['b.back.leaves', 'b.back.none'], pattern: ['b.pattern.belly', 'b.pattern.none'] },
     palette: { c1: [210, 25, 78], c2: [209, 29, 60], c3: [187, 58, 75], eye: [189, 70, 59] }, vary: { h: 8, s: 6, l: 5 },
@@ -3376,7 +3376,7 @@ export const SPECIES = [
     desc: 'Brings the rain with it, or possibly leaks. Nobody has checked.',
   },
   {
-    id: 'bloodkite', name: 'Bloodkite', nameParts: ['Blood', 'kite'], clade: 'bird', rig: 'bird', types: ['Dark', 'Fighting'], tier: 'rare', bst: 360,
+    id: 'bloodkite', name: 'Bloodkite', nameParts: ['Blood', 'kite'], clade: 'bird', rig: 'bird', types: ['Dark', 'Fighting'], tier: 'rare', bst: 362,
     stats: { hp: 0.12, melee: 0.22, ranged: 0.08, magic: 0.07, meleeDef: 0.11, rangedDef: 0.11, magicDef: 0.09, spe: 0.2 },
     recipe: { body: 'b.body.penguin', head: 'b.head.owl', eyes: 'b.eyes.fierce', beak: 'b.beak.needle', crest: ['b.crest.plume', 'b.crest.none'], face: ['b.face.disc', 'b.face.none'], wings: 'b.wings.flipper', tail: 'b.tail.fan', legs: 'b.legs.thin', chest: ['b.chest.medallion', 'b.chest.none'], back: 'b.back.none', pattern: 'b.pattern.spots' },
     palette: { c1: [25, 58, 40], c2: [20, 53, 26], c3: [37, 92, 55], eye: [29, 93, 54] }, vary: { h: 8, s: 6, l: 5 },
@@ -3397,7 +3397,7 @@ export const SPECIES = [
   },
   // ---- Roster expansion: element pass, insect ----
   {
-    id: 'rustbeetle', name: 'Rustbeetle', nameParts: ['Rust', 'beetle'], clade: 'insect', rig: 'insect', types: ['Steel', 'Poison'], tier: 'common', bst: 501,
+    id: 'rustbeetle', name: 'Rustbeetle', nameParts: ['Rust', 'beetle'], clade: 'insect', rig: 'insect', types: ['Steel', 'Poison'], tier: 'common', bst: 497,
     stats: { hp: 0.16, melee: 0.2, ranged: 0.08, magic: 0.07, meleeDef: 0.17, rangedDef: 0.13, magicDef: 0.1, spe: 0.09 },
     recipe: { body: 'i.body.ladybug', head: 'i.head.moth', eyes: 'i.eyes.ocelli', mandibles: 'i.mandibles.fangs', antennae: 'i.antennae.curly', wings: 'i.wings.none', legsFront: 'i.legsFront.hooked', legsMid: 'i.legsMid.sturdy', legsBack: 'i.legsBack.sturdy', tail: ['i.tail.club', 'i.tail.none'], shell: 'i.shell.none', pattern: 'i.pattern.bands' },
     palette: { c1: [26, 51, 45], c2: [32, 49, 31], c3: [42, 84, 53], eye: [52, 77, 50] }, vary: { h: 8, s: 6, l: 5 },
@@ -3417,7 +3417,7 @@ export const SPECIES = [
     desc: 'Flutters around lamps and dents them. Its wings ring when they meet.',
   },
   {
-    id: 'gorewasp', name: 'Gorewasp', nameParts: ['Gore', 'wasp'], clade: 'insect', rig: 'insect', types: ['Dark', 'Fighting'], tier: 'uncommon', bst: 387,
+    id: 'gorewasp', name: 'Gorewasp', nameParts: ['Gore', 'wasp'], clade: 'insect', rig: 'insect', types: ['Dark', 'Fighting'], tier: 'uncommon', bst: 388,
     stats: { hp: 0.12, melee: 0.22, ranged: 0.08, magic: 0.07, meleeDef: 0.11, rangedDef: 0.11, magicDef: 0.09, spe: 0.2 },
     recipe: { body: 'i.body.bee', head: 'i.head.mantis', eyes: 'i.eyes.fierce', mandibles: 'i.mandibles.fangs', antennae: 'i.antennae.horn', wings: ['i.wings.beetle', 'i.wings.none'], legsFront: 'i.legsFront.sturdy', legsMid: 'i.legsMid.hooked', legsBack: 'i.legsBack.spiny', tail: 'i.tail.club', shell: ['i.shell.crystal', 'i.shell.none'], pattern: 'i.pattern.none' },
     palette: { c1: [359, 51, 37], c2: [358, 53, 28], c3: [4, 87, 57], eye: [6, 88, 50] }, vary: { h: 8, s: 6, l: 5 },
@@ -3427,7 +3427,7 @@ export const SPECIES = [
     desc: 'A wasp that punches before it stings. The sting is an afterthought.',
   },
   {
-    id: 'bruisemantis', name: 'Bruisemantis', nameParts: ['Bruise', 'mantis'], clade: 'insect', rig: 'insect', types: ['Bug', 'Fighting'], tier: 'common', bst: 470,
+    id: 'bruisemantis', name: 'Bruisemantis', nameParts: ['Bruise', 'mantis'], clade: 'insect', rig: 'insect', types: ['Bug', 'Fighting'], tier: 'common', bst: 471,
     stats: { hp: 0.14, melee: 0.22, ranged: 0.08, magic: 0.07, meleeDef: 0.13, rangedDef: 0.11, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'i.body.beetle', head: 'i.head.ant', eyes: 'i.eyes.fierce', mandibles: 'i.mandibles.fangs', antennae: 'i.antennae.horn', wings: 'i.wings.none', legsFront: 'i.legsFront.hairy', legsMid: 'i.legsMid.stubby', legsBack: 'i.legsBack.sturdy', tail: ['i.tail.club', 'i.tail.none'], shell: 'i.shell.none', pattern: ['i.pattern.gradient', 'i.pattern.none'] },
     palette: { c1: [21, 59, 37], c2: [17, 50, 26], c3: [27, 89, 57], eye: [23, 89, 52] }, vary: { h: 8, s: 6, l: 5 },
@@ -3447,7 +3447,7 @@ export const SPECIES = [
     desc: 'Its wings are windows onto nothing. Look too long and you forget the lamp.',
   },
   {
-    id: 'hushcicada', name: 'Hushcicada', nameParts: ['Hush', 'cicada'], clade: 'insect', rig: 'insect', types: ['Bug', 'Psychic'], tier: 'uncommon', bst: 444,
+    id: 'hushcicada', name: 'Hushcicada', nameParts: ['Hush', 'cicada'], clade: 'insect', rig: 'insect', types: ['Bug', 'Psychic'], tier: 'uncommon', bst: 441,
     stats: { hp: 0.13, melee: 0.06, ranged: 0.08, magic: 0.23, meleeDef: 0.11, rangedDef: 0.11, magicDef: 0.13, spe: 0.15 },
     recipe: { body: 'i.body.ant', head: 'i.head.mantis', eyes: 'i.eyes.glow', mandibles: 'i.mandibles.fangs', antennae: 'i.antennae.straight', wings: 'i.wings.none', legsFront: 'i.legsFront.sturdy', legsMid: 'i.legsMid.thin', legsBack: 'i.legsBack.long', tail: ['i.tail.lantern', 'i.tail.none'], shell: 'i.shell.fuzz', pattern: 'i.pattern.none' },
     palette: { c1: [288, 26, 43], c2: [297, 36, 30], c3: [303, 84, 74], eye: [309, 91, 71] }, vary: { h: 8, s: 6, l: 5 },
@@ -3457,7 +3457,7 @@ export const SPECIES = [
     desc: 'Sings a note below hearing that empties the meadow of thought.',
   },
   {
-    id: 'moonbeetle', name: 'Moonbeetle', nameParts: ['Moon', 'beetle'], clade: 'insect', rig: 'insect', types: ['Dark', 'Fairy'], tier: 'uncommon', bst: 395,
+    id: 'moonbeetle', name: 'Moonbeetle', nameParts: ['Moon', 'beetle'], clade: 'insect', rig: 'insect', types: ['Dark', 'Fairy'], tier: 'uncommon', bst: 393,
     stats: { hp: 0.13, melee: 0.06, ranged: 0.08, magic: 0.23, meleeDef: 0.11, rangedDef: 0.11, magicDef: 0.13, spe: 0.15 },
     recipe: { body: 'i.body.ladybug', head: 'i.head.dragonfly', eyes: 'i.eyes.glow', mandibles: 'i.mandibles.smile', antennae: 'i.antennae.short', wings: ['i.wings.fairy', 'i.wings.none'], legsFront: 'i.legsFront.raptorial', legsMid: 'i.legsMid.stubby', legsBack: 'i.legsBack.jumping', tail: ['i.tail.plume', 'i.tail.none'], shell: 'i.shell.dome', pattern: 'i.pattern.chevrons' },
     palette: { c1: [233, 20, 79], c2: [238, 27, 61], c3: [56, 68, 84], eye: [57, 73, 71] }, vary: { h: 8, s: 6, l: 5 },
@@ -3467,7 +3467,7 @@ export const SPECIES = [
     desc: 'A silver shell that only opens at night. Inside is more night.',
   },
   {
-    id: 'gloamfly', name: 'Gloamfly', nameParts: ['Gloam', 'fly'], clade: 'insect', rig: 'insect', types: ['Bug', 'Fairy'], tier: 'common', bst: 456,
+    id: 'gloamfly', name: 'Gloamfly', nameParts: ['Gloam', 'fly'], clade: 'insect', rig: 'insect', types: ['Bug', 'Fairy'], tier: 'common', bst: 452,
     stats: { hp: 0.13, melee: 0.08, ranged: 0.22, magic: 0.09, meleeDef: 0.11, rangedDef: 0.12, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'i.body.mantis', head: 'i.head.bee', eyes: 'i.eyes.round', mandibles: 'i.mandibles.proboscis', antennae: 'i.antennae.curly', wings: 'i.wings.fairy', legsFront: 'i.legsFront.spiny', legsMid: 'i.legsMid.stubby', legsBack: 'i.legsBack.thin', tail: 'i.tail.plume', shell: ['i.shell.elytra', 'i.shell.none'], pattern: ['i.pattern.speckles', 'i.pattern.none'] },
     palette: { c1: [248, 25, 79], c2: [259, 31, 58], c3: [76, 68, 80], eye: [76, 69, 67] }, vary: { h: 8, s: 6, l: 5 },
@@ -3497,7 +3497,7 @@ export const SPECIES = [
     desc: 'Carries pebbles a hundred times its weight and drops them on your foot.',
   },
   {
-    id: 'fogfly', name: 'Fogfly', nameParts: ['Fog', 'fly'], clade: 'insect', rig: 'insect', types: ['Water', 'Ghost'], tier: 'uncommon', bst: 389,
+    id: 'fogfly', name: 'Fogfly', nameParts: ['Fog', 'fly'], clade: 'insect', rig: 'insect', types: ['Water', 'Ghost'], tier: 'uncommon', bst: 390,
     stats: { hp: 0.13, melee: 0.08, ranged: 0.22, magic: 0.09, meleeDef: 0.11, rangedDef: 0.12, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'i.body.ladybug', head: 'i.head.mantis', eyes: 'i.eyes.round', mandibles: 'i.mandibles.grin', antennae: 'i.antennae.elbowed', wings: ['i.wings.butterfly', 'i.wings.none'], legsFront: 'i.legsFront.hooked', legsMid: 'i.legsMid.hooked', legsBack: 'i.legsBack.hooked', tail: ['i.tail.silk', 'i.tail.none'], shell: 'i.shell.none', pattern: 'i.pattern.none' },
     palette: { c1: [198, 28, 77], c2: [205, 26, 62], c3: [182, 58, 70], eye: [185, 72, 59] }, vary: { h: 8, s: 6, l: 5 },
@@ -3507,7 +3507,7 @@ export const SPECIES = [
     desc: 'A dragonfly that hunts inside the fog it makes. Whole ponds vanish in it.',
   },
   {
-    id: 'dewmite', name: 'Dewmite', nameParts: ['Dew', 'mite'], clade: 'insect', rig: 'insect', types: ['Bug', 'Water'], tier: 'common', bst: 469,
+    id: 'dewmite', name: 'Dewmite', nameParts: ['Dew', 'mite'], clade: 'insect', rig: 'insect', types: ['Bug', 'Water'], tier: 'common', bst: 468,
     stats: { hp: 0.13, melee: 0.06, ranged: 0.08, magic: 0.23, meleeDef: 0.11, rangedDef: 0.11, magicDef: 0.13, spe: 0.15 },
     recipe: { body: 'i.body.mantis', head: 'i.head.moth', eyes: 'i.eyes.wide', mandibles: 'i.mandibles.pincers', antennae: 'i.antennae.straight', wings: ['i.wings.clear', 'i.wings.none'], legsFront: 'i.legsFront.spiny', legsMid: 'i.legsMid.hooked', legsBack: 'i.legsBack.hooked', tail: 'i.tail.pincers', shell: 'i.shell.spiky', pattern: ['i.pattern.eyespots', 'i.pattern.none'] },
     palette: { c1: [218, 21, 83], c2: [223, 23, 61], c3: [200, 60, 75], eye: [202, 71, 64] }, vary: { h: 8, s: 6, l: 5 },
@@ -3517,7 +3517,7 @@ export const SPECIES = [
     desc: 'Rides the dew drops down the grass each morning and up again each night.',
   },
   {
-    id: 'bloodhornet', name: 'Bloodhornet', nameParts: ['Blood', 'hornet'], clade: 'insect', rig: 'insect', types: ['Dark', 'Fighting'], tier: 'rare', bst: 419,
+    id: 'bloodhornet', name: 'Bloodhornet', nameParts: ['Blood', 'hornet'], clade: 'insect', rig: 'insect', types: ['Dark', 'Fighting'], tier: 'rare', bst: 417,
     stats: { hp: 0.14, melee: 0.22, ranged: 0.08, magic: 0.07, meleeDef: 0.13, rangedDef: 0.11, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'i.body.ant', head: 'i.head.bee', eyes: 'i.eyes.fierce', mandibles: 'i.mandibles.fangs', antennae: 'i.antennae.horn', wings: 'i.wings.butterfly', legsFront: 'i.legsFront.raptorial', legsMid: 'i.legsMid.hairy', legsBack: 'i.legsBack.hooked', tail: 'i.tail.club', shell: ['i.shell.leaf', 'i.shell.none'], pattern: 'i.pattern.none' },
     palette: { c1: [40, 52, 39], c2: [38, 53, 29], c3: [43, 88, 54], eye: [49, 87, 49] }, vary: { h: 8, s: 6, l: 5 },
@@ -3527,7 +3527,7 @@ export const SPECIES = [
     desc: 'The enforcer of the hive. Everything it stings stays stung.',
   },
   {
-    id: 'prismwing', name: 'Prismwing', nameParts: ['Prism', 'wing'], clade: 'insect', rig: 'insect', types: ['Rock', 'Psychic'], tier: 'uncommon', bst: 440,
+    id: 'prismwing', name: 'Prismwing', nameParts: ['Prism', 'wing'], clade: 'insect', rig: 'insect', types: ['Rock', 'Psychic'], tier: 'uncommon', bst: 441,
     stats: { hp: 0.13, melee: 0.06, ranged: 0.08, magic: 0.23, meleeDef: 0.11, rangedDef: 0.11, magicDef: 0.13, spe: 0.15 },
     recipe: { body: 'i.body.mantis', head: 'i.head.dragonfly', eyes: 'i.eyes.glow', mandibles: 'i.mandibles.grin', antennae: 'i.antennae.straight', wings: 'i.wings.long', legsFront: 'i.legsFront.hairy', legsMid: 'i.legsMid.hairy', legsBack: 'i.legsBack.thin', tail: 'i.tail.stinger', shell: ['i.shell.crystal', 'i.shell.none'], pattern: ['i.pattern.bands', 'i.pattern.none'] },
     palette: { c1: [230, 45, 70], c2: [243, 38, 52], c3: [324, 73, 74], eye: [327, 83, 70] }, vary: { h: 8, s: 6, l: 5 },
@@ -3538,7 +3538,7 @@ export const SPECIES = [
   },
   // ---- Roster expansion: element pass, invertebrate ----
   {
-    id: 'rustcrab', name: 'Rustcrab', nameParts: ['Rust', 'crab'], clade: 'invertebrate', rig: 'invertebrate', types: ['Steel', 'Poison'], tier: 'common', bst: 505,
+    id: 'rustcrab', name: 'Rustcrab', nameParts: ['Rust', 'crab'], clade: 'invertebrate', rig: 'invertebrate', types: ['Steel', 'Poison'], tier: 'common', bst: 501,
     stats: { hp: 0.16, melee: 0.2, ranged: 0.08, magic: 0.07, meleeDef: 0.17, rangedDef: 0.13, magicDef: 0.1, spe: 0.09 },
     recipe: { body: 'v.body.scorpion', eyes: 'v.eyes.bead', mouth: 'v.mouth.fangs', arms: 'v.arms.tentacles', legs: ['v.legs.jointed', 'v.legs.none'], shell: ['v.shell.plates', 'v.shell.none'], tail: 'v.tail.none', crown: 'v.crown.none', feelers: ['v.feelers.slug', 'v.feelers.none'], pattern: 'v.pattern.none', glow: ['v.glow.motes', 'v.glow.none'], skirt: 'v.skirt.hem' },
     palette: { c1: [12, 57, 40], c2: [17, 44, 31], c3: [30, 86, 52], eye: [31, 82, 52] }, vary: { h: 8, s: 6, l: 5 },
@@ -3548,7 +3548,7 @@ export const SPECIES = [
     desc: 'Wears a tin as a shell and rusts in the tide. The claws still work.',
   },
   {
-    id: 'tinsnail', name: 'Tinsnail', nameParts: ['Tin', 'snail'], clade: 'invertebrate', rig: 'invertebrate', types: ['Water', 'Steel'], tier: 'common', bst: 385,
+    id: 'tinsnail', name: 'Tinsnail', nameParts: ['Tin', 'snail'], clade: 'invertebrate', rig: 'invertebrate', types: ['Water', 'Steel'], tier: 'common', bst: 389,
     stats: { hp: 0.13, melee: 0.08, ranged: 0.22, magic: 0.09, meleeDef: 0.11, rangedDef: 0.12, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'v.body.wisp', eyes: 'v.eyes.cluster', mouth: ['v.mouth.smile', 'v.mouth.none'], arms: ['v.arms.tentacles', 'v.arms.none'], legs: ['v.legs.spindly', 'v.legs.none'], shell: ['v.shell.plates', 'v.shell.none'], tail: ['v.tail.stinger', 'v.tail.none'], crown: 'v.crown.none', feelers: ['v.feelers.antennae', 'v.feelers.none'], pattern: 'v.pattern.gradient', glow: 'v.glow.none', skirt: 'v.skirt.none' },
     palette: { c1: [34, 54, 49], c2: [39, 47, 32], c3: [45, 84, 54], eye: [50, 81, 53] }, vary: { h: 8, s: 6, l: 5 },
@@ -3558,7 +3558,7 @@ export const SPECIES = [
     desc: 'A snail in a bottle cap. Slow, shiny and impossible to open.',
   },
   {
-    id: 'goresquid', name: 'Goresquid', nameParts: ['Gore', 'squid'], clade: 'invertebrate', rig: 'invertebrate', types: ['Dark', 'Fighting'], tier: 'uncommon', bst: 424,
+    id: 'goresquid', name: 'Goresquid', nameParts: ['Gore', 'squid'], clade: 'invertebrate', rig: 'invertebrate', types: ['Dark', 'Fighting'], tier: 'uncommon', bst: 426,
     stats: { hp: 0.14, melee: 0.22, ranged: 0.08, magic: 0.07, meleeDef: 0.13, rangedDef: 0.11, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'v.body.octopus', eyes: 'v.eyes.bead', mouth: 'v.mouth.none', arms: 'v.arms.tentacles', legs: ['v.legs.tubefeet', 'v.legs.none'], shell: ['v.shell.spiral', 'v.shell.none'], tail: ['v.tail.tentacle', 'v.tail.none'], crown: ['v.crown.spikes', 'v.crown.none'], feelers: 'v.feelers.none', pattern: 'v.pattern.none', glow: ['v.glow.static', 'v.glow.none'], skirt: ['v.skirt.tentacles', 'v.skirt.none'] },
     palette: { c1: [344, 57, 37], c2: [338, 50, 26], c3: [346, 93, 53], eye: [349, 89, 54] }, vary: { h: 8, s: 6, l: 5 },
@@ -3568,7 +3568,7 @@ export const SPECIES = [
     desc: 'Ten arms and every one of them a fist. Ink like a bruise.',
   },
   {
-    id: 'bruiseprawn', name: 'Bruiseprawn', nameParts: ['Bruise', 'prawn'], clade: 'invertebrate', rig: 'invertebrate', types: ['Water', 'Fighting'], tier: 'common', bst: 516,
+    id: 'bruiseprawn', name: 'Bruiseprawn', nameParts: ['Bruise', 'prawn'], clade: 'invertebrate', rig: 'invertebrate', types: ['Water', 'Fighting'], tier: 'common', bst: 515,
     stats: { hp: 0.12, melee: 0.22, ranged: 0.08, magic: 0.07, meleeDef: 0.11, rangedDef: 0.11, magicDef: 0.09, spe: 0.2 },
     recipe: { body: 'v.body.spider', eyes: 'v.eyes.cluster', mouth: ['v.mouth.fangs', 'v.mouth.none'], arms: ['v.arms.claws', 'v.arms.none'], legs: 'v.legs.none', shell: 'v.shell.hermit', tail: ['v.tail.coil', 'v.tail.none'], crown: ['v.crown.horns', 'v.crown.none'], feelers: 'v.feelers.antennae', pattern: ['v.pattern.stripes', 'v.pattern.none'], glow: ['v.glow.motes', 'v.glow.none'], skirt: 'v.skirt.tassels' },
     palette: { c1: [7, 56, 41], c2: [359, 50, 27], c3: [7, 87, 53], eye: [4, 90, 54] }, vary: { h: 8, s: 6, l: 5 },
@@ -3578,7 +3578,7 @@ export const SPECIES = [
     desc: 'A mantis shrimp with a punch that boils the water. Aims for the knees.',
   },
   {
-    id: 'voidjelly', name: 'Voidjelly', nameParts: ['Void', 'jelly'], clade: 'invertebrate', rig: 'invertebrate', types: ['Ghost', 'Psychic'], tier: 'rare', bst: 371,
+    id: 'voidjelly', name: 'Voidjelly', nameParts: ['Void', 'jelly'], clade: 'invertebrate', rig: 'invertebrate', types: ['Ghost', 'Psychic'], tier: 'rare', bst: 373,
     stats: { hp: 0.13, melee: 0.06, ranged: 0.08, magic: 0.23, meleeDef: 0.11, rangedDef: 0.11, magicDef: 0.13, spe: 0.15 },
     recipe: { body: 'v.body.wisp', eyes: 'v.eyes.glow', mouth: 'v.mouth.grin', arms: ['v.arms.wisps', 'v.arms.none'], legs: 'v.legs.spindly', shell: ['v.shell.spiral', 'v.shell.none'], tail: 'v.tail.none', crown: ['v.crown.flame', 'v.crown.none'], feelers: 'v.feelers.frills', pattern: ['v.pattern.gradient', 'v.pattern.none'], glow: ['v.glow.mist', 'v.glow.none'], skirt: ['v.skirt.tentacles', 'v.skirt.none'] },
     palette: { c1: [248, 27, 44], c2: [253, 29, 29], c3: [269, 88, 72], eye: [276, 87, 72] }, vary: { h: 8, s: 6, l: 5 },
@@ -3588,7 +3588,7 @@ export const SPECIES = [
     desc: 'A jellyfish full of dark. Its bell is the last thing you see and the first thing you forget.',
   },
   {
-    id: 'hushslug', name: 'Hushslug', nameParts: ['Hush', 'slug'], clade: 'invertebrate', rig: 'invertebrate', types: ['Water', 'Psychic'], tier: 'uncommon', bst: 438,
+    id: 'hushslug', name: 'Hushslug', nameParts: ['Hush', 'slug'], clade: 'invertebrate', rig: 'invertebrate', types: ['Water', 'Psychic'], tier: 'uncommon', bst: 431,
     stats: { hp: 0.13, melee: 0.06, ranged: 0.08, magic: 0.23, meleeDef: 0.11, rangedDef: 0.11, magicDef: 0.13, spe: 0.15 },
     recipe: { body: 'v.body.wisp', eyes: 'v.eyes.hollow', mouth: ['v.mouth.smile', 'v.mouth.none'], arms: ['v.arms.wisps', 'v.arms.none'], legs: ['v.legs.scorpion', 'v.legs.none'], shell: 'v.shell.none', tail: ['v.tail.wisp', 'v.tail.none'], crown: ['v.crown.tuft', 'v.crown.none'], feelers: 'v.feelers.none', pattern: ['v.pattern.dots', 'v.pattern.none'], glow: 'v.glow.none', skirt: ['v.skirt.fringe', 'v.skirt.none'] },
     palette: { c1: [266, 31, 42], c2: [273, 34, 33], c3: [285, 82, 68], eye: [297, 91, 73] }, vary: { h: 8, s: 6, l: 5 },
@@ -3598,7 +3598,7 @@ export const SPECIES = [
     desc: 'Leaves a trail of quiet. Whole caves go silent behind it.',
   },
   {
-    id: 'moonurchin', name: 'Moonurchin', nameParts: ['Moon', 'urchin'], clade: 'invertebrate', rig: 'invertebrate', types: ['Dark', 'Fairy'], tier: 'uncommon', bst: 397,
+    id: 'moonurchin', name: 'Moonurchin', nameParts: ['Moon', 'urchin'], clade: 'invertebrate', rig: 'invertebrate', types: ['Dark', 'Fairy'], tier: 'uncommon', bst: 402,
     stats: { hp: 0.13, melee: 0.06, ranged: 0.08, magic: 0.23, meleeDef: 0.11, rangedDef: 0.11, magicDef: 0.13, spe: 0.15 },
     recipe: { body: 'v.body.octopus', eyes: 'v.eyes.glow', mouth: 'v.mouth.none', arms: ['v.arms.wisps', 'v.arms.none'], legs: ['v.legs.crab', 'v.legs.none'], shell: ['v.shell.spiral', 'v.shell.none'], tail: ['v.tail.tentacle', 'v.tail.none'], crown: 'v.crown.tuft', feelers: 'v.feelers.none', pattern: ['v.pattern.gradient', 'v.pattern.none'], glow: 'v.glow.aura', skirt: ['v.skirt.tentacles', 'v.skirt.none'] },
     palette: { c1: [215, 27, 80], c2: [220, 26, 58], c3: [39, 62, 86], eye: [38, 66, 74] }, vary: { h: 8, s: 6, l: 5 },
@@ -3608,7 +3608,7 @@ export const SPECIES = [
     desc: 'Spines of silver that open like a flower at night. Closes on fingers.',
   },
   {
-    id: 'gloamslug', name: 'Gloamslug', nameParts: ['Gloam', 'slug'], clade: 'invertebrate', rig: 'invertebrate', types: ['Water', 'Fairy'], tier: 'common', bst: 440,
+    id: 'gloamslug', name: 'Gloamslug', nameParts: ['Gloam', 'slug'], clade: 'invertebrate', rig: 'invertebrate', types: ['Water', 'Fairy'], tier: 'common', bst: 444,
     stats: { hp: 0.13, melee: 0.08, ranged: 0.22, magic: 0.09, meleeDef: 0.11, rangedDef: 0.12, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'v.body.slug', eyes: 'v.eyes.glow', mouth: ['v.mouth.grin', 'v.mouth.none'], arms: ['v.arms.stubs', 'v.arms.none'], legs: 'v.legs.none', shell: ['v.shell.plates', 'v.shell.none'], tail: ['v.tail.streamer', 'v.tail.none'], crown: 'v.crown.tuft', feelers: ['v.feelers.threads', 'v.feelers.none'], pattern: ['v.pattern.gradient', 'v.pattern.none'], glow: ['v.glow.aura', 'v.glow.none'], skirt: ['v.skirt.hem', 'v.skirt.none'] },
     palette: { c1: [234, 24, 78], c2: [244, 32, 60], c3: [55, 68, 84], eye: [56, 72, 71] }, vary: { h: 8, s: 6, l: 5 },
@@ -3618,7 +3618,7 @@ export const SPECIES = [
     desc: 'Glows faintly at dusk and slightly more when complimented.',
   },
   {
-    id: 'geodecrab', name: 'Geodecrab', nameParts: ['Geode', 'crab'], clade: 'invertebrate', rig: 'invertebrate', types: ['Rock', 'Psychic'], tier: 'uncommon', bst: 432,
+    id: 'geodecrab', name: 'Geodecrab', nameParts: ['Geode', 'crab'], clade: 'invertebrate', rig: 'invertebrate', types: ['Rock', 'Psychic'], tier: 'uncommon', bst: 428,
     stats: { hp: 0.13, melee: 0.08, ranged: 0.22, magic: 0.09, meleeDef: 0.11, rangedDef: 0.12, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'v.body.spider', eyes: 'v.eyes.cluster', mouth: ['v.mouth.frown', 'v.mouth.none'], arms: 'v.arms.none', legs: ['v.legs.crab', 'v.legs.none'], shell: ['v.shell.geode', 'v.shell.none'], tail: ['v.tail.stinger', 'v.tail.none'], crown: 'v.crown.none', feelers: 'v.feelers.none', pattern: 'v.pattern.gradient', glow: ['v.glow.mist', 'v.glow.none'], skirt: 'v.skirt.none' },
     palette: { c1: [173, 48, 66], c2: [182, 41, 52], c3: [268, 74, 73], eye: [269, 77, 65] }, vary: { h: 8, s: 6, l: 5 },
@@ -3628,7 +3628,7 @@ export const SPECIES = [
     desc: 'Moved into a geode instead of a shell. The view inside is better.',
   },
   {
-    id: 'flintclaw', name: 'Flintclaw', nameParts: ['Flint', 'claw'], clade: 'invertebrate', rig: 'invertebrate', types: ['Water', 'Rock'], tier: 'common', bst: 471,
+    id: 'flintclaw', name: 'Flintclaw', nameParts: ['Flint', 'claw'], clade: 'invertebrate', rig: 'invertebrate', types: ['Water', 'Rock'], tier: 'common', bst: 479,
     stats: { hp: 0.14, melee: 0.22, ranged: 0.08, magic: 0.07, meleeDef: 0.13, rangedDef: 0.11, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'v.body.scorpion', eyes: 'v.eyes.cluster', mouth: 'v.mouth.none', arms: ['v.arms.claws', 'v.arms.none'], legs: ['v.legs.stubby', 'v.legs.none'], shell: ['v.shell.geode', 'v.shell.none'], tail: ['v.tail.wisp', 'v.tail.none'], crown: ['v.crown.crystal', 'v.crown.none'], feelers: ['v.feelers.antennae', 'v.feelers.none'], pattern: 'v.pattern.swirl', glow: ['v.glow.bubbles', 'v.glow.none'], skirt: ['v.skirt.frills', 'v.skirt.none'] },
     palette: { c1: [197, 44, 63], c2: [206, 41, 47], c3: [292, 71, 70], eye: [292, 77, 67] }, vary: { h: 8, s: 6, l: 5 },
@@ -3638,7 +3638,7 @@ export const SPECIES = [
     desc: 'Claws of flint that strike sparks underwater, which should not be possible.',
   },
   {
-    id: 'fogtopus', name: 'Fogtopus', nameParts: ['Fog', 'topus'], clade: 'invertebrate', rig: 'invertebrate', types: ['Water', 'Ghost'], tier: 'uncommon', bst: 396,
+    id: 'fogtopus', name: 'Fogtopus', nameParts: ['Fog', 'topus'], clade: 'invertebrate', rig: 'invertebrate', types: ['Water', 'Ghost'], tier: 'uncommon', bst: 387,
     stats: { hp: 0.13, melee: 0.08, ranged: 0.22, magic: 0.09, meleeDef: 0.11, rangedDef: 0.12, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'v.body.wisp', eyes: 'v.eyes.hollow', mouth: 'v.mouth.grin', arms: ['v.arms.wisps', 'v.arms.none'], legs: ['v.legs.crab', 'v.legs.none'], shell: ['v.shell.plates', 'v.shell.none'], tail: ['v.tail.wisp', 'v.tail.none'], crown: ['v.crown.bubble', 'v.crown.none'], feelers: 'v.feelers.flaps', pattern: ['v.pattern.swirl', 'v.pattern.none'], glow: 'v.glow.none', skirt: 'v.skirt.none' },
     palette: { c1: [185, 25, 82], c2: [185, 24, 60], c3: [160, 61, 75], eye: [164, 71, 61] }, vary: { h: 8, s: 6, l: 5 },
@@ -3658,7 +3658,7 @@ export const SPECIES = [
     desc: 'Spins webs of dew across the marsh paths. Walks through them itself.',
   },
   {
-    id: 'bloodleech', name: 'Bloodleech', nameParts: ['Blood', 'leech'], clade: 'invertebrate', rig: 'invertebrate', types: ['Dark', 'Fighting'], tier: 'rare', bst: 411,
+    id: 'bloodleech', name: 'Bloodleech', nameParts: ['Blood', 'leech'], clade: 'invertebrate', rig: 'invertebrate', types: ['Dark', 'Fighting'], tier: 'rare', bst: 414,
     stats: { hp: 0.14, melee: 0.22, ranged: 0.08, magic: 0.07, meleeDef: 0.13, rangedDef: 0.11, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'v.body.jelly', eyes: 'v.eyes.stalked', mouth: ['v.mouth.fangs', 'v.mouth.none'], arms: ['v.arms.claws', 'v.arms.none'], legs: ['v.legs.stubby', 'v.legs.none'], shell: 'v.shell.none', tail: ['v.tail.tentacle', 'v.tail.none'], crown: 'v.crown.horns', feelers: 'v.feelers.antennae', pattern: ['v.pattern.rings', 'v.pattern.none'], glow: ['v.glow.motes', 'v.glow.none'], skirt: 'v.skirt.roots' },
     palette: { c1: [25, 58, 38], c2: [19, 53, 27], c3: [24, 93, 52], eye: [28, 91, 50] }, vary: { h: 8, s: 6, l: 5 },
@@ -3668,7 +3668,7 @@ export const SPECIES = [
     desc: 'Wrestles what it drinks. Nothing down there has beaten it yet.',
   },
   {
-    id: 'prismshell', name: 'Prismshell', nameParts: ['Prism', 'shell'], clade: 'invertebrate', rig: 'invertebrate', types: ['Rock', 'Psychic'], tier: 'uncommon', bst: 454,
+    id: 'prismshell', name: 'Prismshell', nameParts: ['Prism', 'shell'], clade: 'invertebrate', rig: 'invertebrate', types: ['Rock', 'Psychic'], tier: 'uncommon', bst: 457,
     stats: { hp: 0.13, melee: 0.06, ranged: 0.08, magic: 0.23, meleeDef: 0.11, rangedDef: 0.11, magicDef: 0.13, spe: 0.15 },
     recipe: { body: 'v.body.jelly', eyes: 'v.eyes.cluster', mouth: 'v.mouth.frown', arms: ['v.arms.stubs', 'v.arms.none'], legs: ['v.legs.crab', 'v.legs.none'], shell: 'v.shell.geode', tail: 'v.tail.none', crown: 'v.crown.crystal', feelers: 'v.feelers.none', pattern: ['v.pattern.dots', 'v.pattern.none'], glow: 'v.glow.aura', skirt: ['v.skirt.tassels', 'v.skirt.none'] },
     palette: { c1: [218, 42, 68], c2: [222, 46, 54], c3: [311, 67, 76], eye: [304, 79, 73] }, vary: { h: 8, s: 6, l: 5 },
@@ -3679,7 +3679,7 @@ export const SPECIES = [
   },
   // ---- Roster expansion: element pass, amphibian ----
   {
-    id: 'rusttoad', name: 'Rusttoad', nameParts: ['Rust', 'toad'], clade: 'amphibian', rig: 'amphibian', types: ['Steel', 'Poison'], tier: 'common', bst: 499,
+    id: 'rusttoad', name: 'Rusttoad', nameParts: ['Rust', 'toad'], clade: 'amphibian', rig: 'amphibian', types: ['Steel', 'Poison'], tier: 'common', bst: 488,
     stats: { hp: 0.16, melee: 0.2, ranged: 0.08, magic: 0.07, meleeDef: 0.17, rangedDef: 0.13, magicDef: 0.1, spe: 0.09 },
     recipe: { body: 'a.body.toad', head: 'a.head.salamander', eyes: 'a.eyes.sleepy', mouth: 'a.mouth.gape', gills: ['a.gills.feathery', 'a.gills.none'], legsFront: 'a.legsFront.treefrog', legsBack: 'a.legsBack.toad', tail: ['a.tail.salamander', 'a.tail.none'], throat: ['a.throat.double', 'a.throat.none'], crest: ['a.crest.spikes', 'a.crest.none'], back: ['a.back.spikes', 'a.back.none'], pattern: ['a.pattern.stripes', 'a.pattern.none'] },
     palette: { c1: [19, 57, 45], c2: [31, 42, 27], c3: [40, 85, 51], eye: [46, 77, 51] }, vary: { h: 8, s: 6, l: 5 },
@@ -3689,7 +3689,7 @@ export const SPECIES = [
     desc: 'A toad the colour of an old hinge. Its warts are rivets and its spit is worse.',
   },
   {
-    id: 'tinnewt', name: 'Tinnewt', nameParts: ['Tin', 'newt'], clade: 'amphibian', rig: 'amphibian', types: ['Water', 'Steel'], tier: 'common', bst: 384,
+    id: 'tinnewt', name: 'Tinnewt', nameParts: ['Tin', 'newt'], clade: 'amphibian', rig: 'amphibian', types: ['Water', 'Steel'], tier: 'common', bst: 382,
     stats: { hp: 0.13, melee: 0.08, ranged: 0.22, magic: 0.09, meleeDef: 0.11, rangedDef: 0.12, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'a.body.frog', head: 'a.head.toad', eyes: 'a.eyes.sleepy', mouth: 'a.mouth.smirk', gills: ['a.gills.frills', 'a.gills.none'], legsFront: 'a.legsFront.salamander', legsBack: 'a.legsBack.toad', tail: ['a.tail.salamander', 'a.tail.none'], throat: 'a.throat.none', crest: 'a.crest.spikes', back: ['a.back.spikes', 'a.back.none'], pattern: ['a.pattern.stripes', 'a.pattern.none'] },
     palette: { c1: [46, 52, 48], c2: [50, 48, 35], c3: [59, 84, 55], eye: [64, 80, 57] }, vary: { h: 8, s: 6, l: 5 },
@@ -3709,7 +3709,7 @@ export const SPECIES = [
     desc: 'Kicks like a mule and croaks like a threat. The pond is its ring.',
   },
   {
-    id: 'brawltoad', name: 'Brawltoad', nameParts: ['Brawl', 'toad'], clade: 'amphibian', rig: 'amphibian', types: ['Water', 'Fighting'], tier: 'common', bst: 506,
+    id: 'brawltoad', name: 'Brawltoad', nameParts: ['Brawl', 'toad'], clade: 'amphibian', rig: 'amphibian', types: ['Water', 'Fighting'], tier: 'common', bst: 510,
     stats: { hp: 0.14, melee: 0.22, ranged: 0.08, magic: 0.07, meleeDef: 0.13, rangedDef: 0.11, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'a.body.polliwog', head: 'a.head.treefrog', eyes: 'a.eyes.glow', mouth: 'a.mouth.smile', gills: 'a.gills.spiky', legsFront: 'a.legsFront.toad', legsBack: 'a.legsBack.toad', tail: 'a.tail.salamander', throat: ['a.throat.glowsac', 'a.throat.none'], crest: 'a.crest.none', back: 'a.back.spikes', pattern: ['a.pattern.stripes', 'a.pattern.none'] },
     palette: { c1: [19, 54, 37], c2: [9, 46, 29], c3: [25, 92, 55], eye: [23, 88, 52] }, vary: { h: 8, s: 6, l: 5 },
@@ -3729,7 +3729,7 @@ export const SPECIES = [
     desc: 'An axolotl that regrew itself out of nothing. It smiles about it.',
   },
   {
-    id: 'hushfrog', name: 'Hushfrog', nameParts: ['Hush', 'frog'], clade: 'amphibian', rig: 'amphibian', types: ['Water', 'Psychic'], tier: 'uncommon', bst: 433,
+    id: 'hushfrog', name: 'Hushfrog', nameParts: ['Hush', 'frog'], clade: 'amphibian', rig: 'amphibian', types: ['Water', 'Psychic'], tier: 'uncommon', bst: 435,
     stats: { hp: 0.13, melee: 0.06, ranged: 0.08, magic: 0.23, meleeDef: 0.11, rangedDef: 0.11, magicDef: 0.13, spe: 0.15 },
     recipe: { body: 'a.body.newt', head: 'a.head.salamander', eyes: 'a.eyes.glow', mouth: 'a.mouth.smile', gills: ['a.gills.frills', 'a.gills.none'], legsFront: 'a.legsFront.newt', legsBack: 'a.legsBack.treefrog', tail: 'a.tail.none', throat: ['a.throat.glowsac', 'a.throat.none'], crest: ['a.crest.leaves', 'a.crest.none'], back: ['a.back.mushrooms', 'a.back.none'], pattern: 'a.pattern.gradient' },
     palette: { c1: [286, 28, 41], c2: [292, 30, 29], c3: [297, 84, 73], eye: [308, 86, 70] }, vary: { h: 8, s: 6, l: 5 },
@@ -3739,7 +3739,7 @@ export const SPECIES = [
     desc: 'Its croak is silence. Whole choruses stop when it clears its throat.',
   },
   {
-    id: 'moonlotl', name: 'Moonlotl', nameParts: ['Moon', 'lotl'], clade: 'amphibian', rig: 'amphibian', types: ['Dark', 'Fairy'], tier: 'uncommon', bst: 408,
+    id: 'moonlotl', name: 'Moonlotl', nameParts: ['Moon', 'lotl'], clade: 'amphibian', rig: 'amphibian', types: ['Dark', 'Fairy'], tier: 'uncommon', bst: 407,
     stats: { hp: 0.13, melee: 0.06, ranged: 0.08, magic: 0.23, meleeDef: 0.11, rangedDef: 0.11, magicDef: 0.13, spe: 0.15 },
     recipe: { body: 'a.body.polliwog', head: 'a.head.axolotl', eyes: 'a.eyes.glow', mouth: 'a.mouth.pout', gills: ['a.gills.fan', 'a.gills.none'], legsFront: 'a.legsFront.axolotl', legsBack: 'a.legsBack.salamander', tail: ['a.tail.leaf', 'a.tail.none'], throat: ['a.throat.glowsac', 'a.throat.none'], crest: 'a.crest.none', back: 'a.back.flames', pattern: ['a.pattern.belly', 'a.pattern.none'] },
     palette: { c1: [230, 26, 82], c2: [234, 31, 61], c3: [46, 64, 86], eye: [50, 74, 71] }, vary: { h: 8, s: 6, l: 5 },
@@ -3749,7 +3749,7 @@ export const SPECIES = [
     desc: 'Pale gills like moonbeams. Floats belly-up on purpose to watch the sky.',
   },
   {
-    id: 'gloampeep', name: 'Gloampeep', nameParts: ['Gloam', 'peep'], clade: 'amphibian', rig: 'amphibian', types: ['Water', 'Fairy'], tier: 'common', bst: 432,
+    id: 'gloampeep', name: 'Gloampeep', nameParts: ['Gloam', 'peep'], clade: 'amphibian', rig: 'amphibian', types: ['Water', 'Fairy'], tier: 'common', bst: 433,
     stats: { hp: 0.13, melee: 0.08, ranged: 0.22, magic: 0.09, meleeDef: 0.11, rangedDef: 0.12, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'a.body.axolotl', head: 'a.head.polliwog', eyes: 'a.eyes.glow', mouth: 'a.mouth.grin', gills: ['a.gills.fan', 'a.gills.none'], legsFront: 'a.legsFront.axolotl', legsBack: 'a.legsBack.polliwog', tail: 'a.tail.stub', throat: ['a.throat.glowsac', 'a.throat.none'], crest: ['a.crest.moss', 'a.crest.none'], back: 'a.back.none', pattern: 'a.pattern.belly' },
     palette: { c1: [249, 21, 77], c2: [251, 32, 56], c3: [73, 69, 80], eye: [74, 67, 70] }, vary: { h: 8, s: 6, l: 5 },
@@ -3759,7 +3759,7 @@ export const SPECIES = [
     desc: 'A peeper that starts at dusk and sparkles when it hits the high note.',
   },
   {
-    id: 'geodetoad', name: 'Geodetoad', nameParts: ['Geode', 'toad'], clade: 'amphibian', rig: 'amphibian', types: ['Rock', 'Psychic'], tier: 'uncommon', bst: 424,
+    id: 'geodetoad', name: 'Geodetoad', nameParts: ['Geode', 'toad'], clade: 'amphibian', rig: 'amphibian', types: ['Rock', 'Psychic'], tier: 'uncommon', bst: 423,
     stats: { hp: 0.13, melee: 0.08, ranged: 0.22, magic: 0.09, meleeDef: 0.11, rangedDef: 0.12, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'a.body.frog', head: 'a.head.axolotl', eyes: 'a.eyes.bulge', mouth: 'a.mouth.smile', gills: 'a.gills.spiky', legsFront: 'a.legsFront.newt', legsBack: 'a.legsBack.frog', tail: ['a.tail.newt', 'a.tail.none'], throat: ['a.throat.frilled', 'a.throat.none'], crest: ['a.crest.spikes', 'a.crest.none'], back: ['a.back.spikes', 'a.back.none'], pattern: ['a.pattern.rings', 'a.pattern.none'] },
     palette: { c1: [188, 43, 69], c2: [199, 39, 49], c3: [286, 66, 74], eye: [284, 77, 69] }, vary: { h: 8, s: 6, l: 5 },
@@ -3769,7 +3769,7 @@ export const SPECIES = [
     desc: 'Sat under a dripping cave so long it grew crystals. Now it sits for a living.',
   },
   {
-    id: 'flintfrog', name: 'Flintfrog', nameParts: ['Flint', 'frog'], clade: 'amphibian', rig: 'amphibian', types: ['Water', 'Rock'], tier: 'common', bst: 472,
+    id: 'flintfrog', name: 'Flintfrog', nameParts: ['Flint', 'frog'], clade: 'amphibian', rig: 'amphibian', types: ['Water', 'Rock'], tier: 'common', bst: 476,
     stats: { hp: 0.14, melee: 0.22, ranged: 0.08, magic: 0.07, meleeDef: 0.13, rangedDef: 0.11, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'a.body.newt', head: 'a.head.polliwog', eyes: 'a.eyes.big', mouth: 'a.mouth.smile', gills: ['a.gills.spiky', 'a.gills.none'], legsFront: 'a.legsFront.treefrog', legsBack: 'a.legsBack.axolotl', tail: ['a.tail.polliwog', 'a.tail.none'], throat: ['a.throat.sac', 'a.throat.none'], crest: 'a.crest.spikes', back: ['a.back.spikes', 'a.back.none'], pattern: 'a.pattern.stripes' },
     palette: { c1: [211, 48, 67], c2: [219, 40, 48], c3: [304, 71, 71], eye: [302, 83, 64] }, vary: { h: 8, s: 6, l: 5 },
@@ -3779,7 +3779,7 @@ export const SPECIES = [
     desc: 'Skips itself across the pond like a stone. Lands on things.',
   },
   {
-    id: 'fognewt', name: 'Fognewt', nameParts: ['Fog', 'newt'], clade: 'amphibian', rig: 'amphibian', types: ['Water', 'Ghost'], tier: 'uncommon', bst: 400,
+    id: 'fognewt', name: 'Fognewt', nameParts: ['Fog', 'newt'], clade: 'amphibian', rig: 'amphibian', types: ['Water', 'Ghost'], tier: 'uncommon', bst: 401,
     stats: { hp: 0.13, melee: 0.08, ranged: 0.22, magic: 0.09, meleeDef: 0.11, rangedDef: 0.12, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'a.body.axolotl', head: 'a.head.polliwog', eyes: 'a.eyes.sleepy', mouth: 'a.mouth.gape', gills: 'a.gills.feathery', legsFront: 'a.legsFront.salamander', legsBack: 'a.legsBack.newt', tail: ['a.tail.fin', 'a.tail.none'], throat: ['a.throat.bubble', 'a.throat.none'], crest: 'a.crest.fin', back: ['a.back.ridge', 'a.back.none'], pattern: ['a.pattern.belly', 'a.pattern.none'] },
     palette: { c1: [200, 25, 78], c2: [198, 25, 62], c3: [177, 62, 74], eye: [183, 73, 61] }, vary: { h: 8, s: 6, l: 5 },
@@ -3789,7 +3789,7 @@ export const SPECIES = [
     desc: 'Half newt, half the fog it lives in. Dries out to nothing at noon and returns by dusk.',
   },
   {
-    id: 'dewfrog', name: 'Dewfrog', nameParts: ['Dew', 'frog'], clade: 'amphibian', rig: 'amphibian', types: ['Water', 'Ghost'], tier: 'common', bst: 394,
+    id: 'dewfrog', name: 'Dewfrog', nameParts: ['Dew', 'frog'], clade: 'amphibian', rig: 'amphibian', types: ['Water', 'Ghost'], tier: 'common', bst: 399,
     stats: { hp: 0.13, melee: 0.06, ranged: 0.08, magic: 0.23, meleeDef: 0.11, rangedDef: 0.11, magicDef: 0.13, spe: 0.15 },
     recipe: { body: 'a.body.newt', head: 'a.head.treefrog', eyes: 'a.eyes.glow', mouth: 'a.mouth.smirk', gills: 'a.gills.none', legsFront: 'a.legsFront.frog', legsBack: 'a.legsBack.frog', tail: ['a.tail.fin', 'a.tail.none'], throat: ['a.throat.bubble', 'a.throat.none'], crest: 'a.crest.fin', back: ['a.back.ridge', 'a.back.none'], pattern: 'a.pattern.stripes' },
     palette: { c1: [215, 25, 84], c2: [218, 24, 66], c3: [196, 60, 74], eye: [199, 70, 66] }, vary: { h: 8, s: 6, l: 5 },
@@ -3799,7 +3799,7 @@ export const SPECIES = [
     desc: 'A frog you can see through when it is damp, which is always.',
   },
   {
-    id: 'bloodnewt', name: 'Bloodnewt', nameParts: ['Blood', 'newt'], clade: 'amphibian', rig: 'amphibian', types: ['Dark', 'Fighting'], tier: 'rare', bst: 415,
+    id: 'bloodnewt', name: 'Bloodnewt', nameParts: ['Blood', 'newt'], clade: 'amphibian', rig: 'amphibian', types: ['Dark', 'Fighting'], tier: 'rare', bst: 413,
     stats: { hp: 0.14, melee: 0.22, ranged: 0.08, magic: 0.07, meleeDef: 0.13, rangedDef: 0.11, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'a.body.toad', head: 'a.head.axolotl', eyes: 'a.eyes.sleepy', mouth: 'a.mouth.tongue', gills: ['a.gills.spiky', 'a.gills.none'], legsFront: 'a.legsFront.salamander', legsBack: 'a.legsBack.toad', tail: ['a.tail.salamander', 'a.tail.none'], throat: ['a.throat.glowsac', 'a.throat.none'], crest: 'a.crest.spikes', back: ['a.back.spikes', 'a.back.none'], pattern: 'a.pattern.speckles' },
     palette: { c1: [38, 53, 41], c2: [30, 49, 30], c3: [43, 93, 52], eye: [38, 91, 49] }, vary: { h: 8, s: 6, l: 5 },
@@ -3820,7 +3820,7 @@ export const SPECIES = [
   },
   // ---- Roster expansion: element pass, flora ----
   {
-    id: 'rustbriar', name: 'Rustbriar', nameParts: ['Rust', 'briar'], clade: 'flora', rig: 'flora', types: ['Steel', 'Poison'], tier: 'common', bst: 463,
+    id: 'rustbriar', name: 'Rustbriar', nameParts: ['Rust', 'briar'], clade: 'flora', rig: 'flora', types: ['Steel', 'Poison'], tier: 'common', bst: 464,
     stats: { hp: 0.14, melee: 0.22, ranged: 0.08, magic: 0.07, meleeDef: 0.13, rangedDef: 0.11, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'p.body.treant', head: 'p.head.orchid', eyes: 'p.eyes.sleepy', mouth: 'p.mouth.maw', leaves: 'p.leaves.succulent', roots: 'p.roots.stump', vines: ['p.vines.tendril', 'p.vines.none'], pods: 'p.pods.lantern', thorns: ['p.thorns.spikes', 'p.thorns.none'], canopy: ['p.canopy.branches', 'p.canopy.none'], bark: 'p.bark.cracks', fruit: 'p.fruit.berry' },
     palette: { c1: [37, 58, 42], c2: [43, 44, 30], c3: [53, 88, 52], eye: [58, 79, 54] }, vary: { h: 8, s: 6, l: 5 },
@@ -3830,7 +3830,7 @@ export const SPECIES = [
     desc: 'A bramble grown through a scrap heap. The thorns are nails now.',
   },
   {
-    id: 'tinsprout', name: 'Tinsprout', nameParts: ['Tin', 'sprout'], clade: 'flora', rig: 'flora', types: ['Grass', 'Steel'], tier: 'common', bst: 397,
+    id: 'tinsprout', name: 'Tinsprout', nameParts: ['Tin', 'sprout'], clade: 'flora', rig: 'flora', types: ['Grass', 'Steel'], tier: 'common', bst: 390,
     stats: { hp: 0.13, melee: 0.08, ranged: 0.22, magic: 0.09, meleeDef: 0.11, rangedDef: 0.12, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'p.body.pad', head: 'p.head.bell', eyes: 'p.eyes.sharp', mouth: 'p.mouth.frown', leaves: 'p.leaves.maple', roots: 'p.roots.threads', vines: 'p.vines.coil', pods: 'p.pods.none', thorns: ['p.thorns.spikes', 'p.thorns.none'], canopy: ['p.canopy.brambles', 'p.canopy.none'], bark: ['p.bark.cracks', 'p.bark.none'], fruit: ['p.fruit.apple', 'p.fruit.none'] },
     palette: { c1: [56, 53, 45], c2: [65, 46, 30], c3: [74, 82, 54], eye: [82, 78, 55] }, vary: { h: 8, s: 6, l: 5 },
@@ -3840,7 +3840,7 @@ export const SPECIES = [
     desc: 'A seedling that came up through a tin roof and took some with it.',
   },
   {
-    id: 'gorevine', name: 'Gorevine', nameParts: ['Gore', 'vine'], clade: 'flora', rig: 'flora', types: ['Dark', 'Fighting'], tier: 'uncommon', bst: 411,
+    id: 'gorevine', name: 'Gorevine', nameParts: ['Gore', 'vine'], clade: 'flora', rig: 'flora', types: ['Dark', 'Fighting'], tier: 'uncommon', bst: 409,
     stats: { hp: 0.14, melee: 0.22, ranged: 0.08, magic: 0.07, meleeDef: 0.13, rangedDef: 0.11, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'p.body.gourd', head: 'p.head.daisy', eyes: 'p.eyes.sharp', mouth: 'p.mouth.maw', leaves: 'p.leaves.needle', roots: 'p.roots.stilts', vines: ['p.vines.tendril', 'p.vines.none'], pods: ['p.pods.bulbs', 'p.pods.none'], thorns: 'p.thorns.none', canopy: ['p.canopy.willow', 'p.canopy.none'], bark: 'p.bark.cracks', fruit: 'p.fruit.berry' },
     palette: { c1: [10, 53, 38], c2: [7, 51, 25], c3: [17, 88, 55], eye: [12, 91, 51] }, vary: { h: 8, s: 6, l: 5 },
@@ -3850,7 +3850,7 @@ export const SPECIES = [
     desc: 'Strangles first and photosynthesises later. Its flowers are the colour of a warning.',
   },
   {
-    id: 'brawlroot', name: 'Brawlroot', nameParts: ['Brawl', 'root'], clade: 'flora', rig: 'flora', types: ['Grass', 'Fighting'], tier: 'common', bst: 476,
+    id: 'brawlroot', name: 'Brawlroot', nameParts: ['Brawl', 'root'], clade: 'flora', rig: 'flora', types: ['Grass', 'Fighting'], tier: 'common', bst: 474,
     stats: { hp: 0.14, melee: 0.22, ranged: 0.08, magic: 0.07, meleeDef: 0.13, rangedDef: 0.11, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'p.body.sprout', head: 'p.head.bell', eyes: 'p.eyes.sharp', mouth: 'p.mouth.maw', leaves: 'p.leaves.needle', roots: 'p.roots.stilts', vines: ['p.vines.flowering', 'p.vines.none'], pods: 'p.pods.berries', thorns: ['p.thorns.spikes', 'p.thorns.none'], canopy: ['p.canopy.fronds', 'p.canopy.none'], bark: ['p.bark.rings', 'p.bark.none'], fruit: ['p.fruit.nut', 'p.fruit.none'] },
     palette: { c1: [25, 55, 38], c2: [24, 46, 28], c3: [35, 91, 53], eye: [31, 90, 50] }, vary: { h: 8, s: 6, l: 5 },
@@ -3870,7 +3870,7 @@ export const SPECIES = [
     desc: 'A flower that blooms inward. Bees go in and forget the way out.',
   },
   {
-    id: 'hushfern', name: 'Hushfern', nameParts: ['Hush', 'fern'], clade: 'flora', rig: 'flora', types: ['Grass', 'Psychic'], tier: 'uncommon', bst: 439,
+    id: 'hushfern', name: 'Hushfern', nameParts: ['Hush', 'fern'], clade: 'flora', rig: 'flora', types: ['Grass', 'Psychic'], tier: 'uncommon', bst: 442,
     stats: { hp: 0.13, melee: 0.06, ranged: 0.08, magic: 0.23, meleeDef: 0.11, rangedDef: 0.11, magicDef: 0.13, spe: 0.15 },
     recipe: { body: 'p.body.treant', head: 'p.head.bell', eyes: 'p.eyes.glow', mouth: 'p.mouth.nectar', leaves: 'p.leaves.needle', roots: 'p.roots.stump', vines: ['p.vines.coil', 'p.vines.none'], pods: ['p.pods.seedpods', 'p.pods.none'], thorns: 'p.thorns.halo', canopy: ['p.canopy.pollen', 'p.canopy.none'], bark: ['p.bark.cracks', 'p.bark.none'], fruit: 'p.fruit.none' },
     palette: { c1: [295, 31, 40], c2: [300, 29, 34], c3: [310, 82, 70], eye: [316, 88, 71] }, vary: { h: 8, s: 6, l: 5 },
@@ -3880,7 +3880,7 @@ export const SPECIES = [
     desc: 'Its fronds fold when thought about. It prefers not to be.',
   },
   {
-    id: 'moonpetal', name: 'Moonpetal', nameParts: ['Moon', 'petal'], clade: 'flora', rig: 'flora', types: ['Dark', 'Fairy'], tier: 'uncommon', bst: 407,
+    id: 'moonpetal', name: 'Moonpetal', nameParts: ['Moon', 'petal'], clade: 'flora', rig: 'flora', types: ['Dark', 'Fairy'], tier: 'uncommon', bst: 403,
     stats: { hp: 0.13, melee: 0.06, ranged: 0.08, magic: 0.23, meleeDef: 0.11, rangedDef: 0.11, magicDef: 0.13, spe: 0.15 },
     recipe: { body: 'p.body.bulb', head: 'p.head.bell', eyes: 'p.eyes.glow', mouth: 'p.mouth.whistle', leaves: 'p.leaves.succulent', roots: 'p.roots.threads', vines: ['p.vines.thorny', 'p.vines.none'], pods: 'p.pods.none', thorns: ['p.thorns.halo', 'p.thorns.none'], canopy: 'p.canopy.none', bark: 'p.bark.rings', fruit: ['p.fruit.apple', 'p.fruit.none'] },
     palette: { c1: [241, 24, 80], c2: [245, 27, 61], c3: [65, 65, 85], eye: [65, 68, 75] }, vary: { h: 8, s: 6, l: 5 },
@@ -3890,7 +3890,7 @@ export const SPECIES = [
     desc: 'Opens only for the moon and shuts its petals on anyone who stares.',
   },
   {
-    id: 'gloambud', name: 'Gloambud', nameParts: ['Gloam', 'bud'], clade: 'flora', rig: 'flora', types: ['Grass', 'Fairy'], tier: 'common', bst: 450,
+    id: 'gloambud', name: 'Gloambud', nameParts: ['Gloam', 'bud'], clade: 'flora', rig: 'flora', types: ['Grass', 'Fairy'], tier: 'common', bst: 452,
     stats: { hp: 0.13, melee: 0.08, ranged: 0.22, magic: 0.09, meleeDef: 0.11, rangedDef: 0.12, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'p.body.treant', head: 'p.head.sunflower', eyes: 'p.eyes.glow', mouth: 'p.mouth.whistle', leaves: 'p.leaves.maple', roots: 'p.roots.hairy', vines: 'p.vines.none', pods: ['p.pods.lantern', 'p.pods.none'], thorns: ['p.thorns.halo', 'p.thorns.none'], canopy: ['p.canopy.pollen', 'p.canopy.none'], bark: 'p.bark.rings', fruit: ['p.fruit.berry', 'p.fruit.none'] },
     palette: { c1: [259, 24, 78], c2: [263, 26, 60], c3: [83, 66, 85], eye: [87, 71, 71] }, vary: { h: 8, s: 6, l: 5 },
@@ -3910,7 +3910,7 @@ export const SPECIES = [
     desc: 'A seed that grew crystals instead of leaves and is fine with it.',
   },
   {
-    id: 'flintthorn', name: 'Flintthorn', nameParts: ['Flint', 'thorn'], clade: 'flora', rig: 'flora', types: ['Grass', 'Rock'], tier: 'common', bst: 505,
+    id: 'flintthorn', name: 'Flintthorn', nameParts: ['Flint', 'thorn'], clade: 'flora', rig: 'flora', types: ['Grass', 'Rock'], tier: 'common', bst: 506,
     stats: { hp: 0.16, melee: 0.2, ranged: 0.08, magic: 0.07, meleeDef: 0.17, rangedDef: 0.13, magicDef: 0.1, spe: 0.09 },
     recipe: { body: 'p.body.gourd', head: 'p.head.thistle', eyes: 'p.eyes.gem', mouth: 'p.mouth.maw', leaves: 'p.leaves.broad', roots: 'p.roots.tangle', vines: 'p.vines.none', pods: ['p.pods.berries', 'p.pods.none'], thorns: 'p.thorns.none', canopy: 'p.canopy.none', bark: 'p.bark.rings', fruit: ['p.fruit.pepper', 'p.fruit.none'] },
     palette: { c1: [223, 47, 66], c2: [226, 42, 49], c3: [313, 74, 69], eye: [316, 77, 62] }, vary: { h: 8, s: 6, l: 5 },
@@ -3920,7 +3920,7 @@ export const SPECIES = [
     desc: 'Bark like slate and thorns like flint. Sparks when the wind is up.',
   },
   {
-    id: 'fogmoss', name: 'Fogmoss', nameParts: ['Fog', 'moss'], clade: 'flora', rig: 'flora', types: ['Water', 'Ghost'], tier: 'uncommon', bst: 414,
+    id: 'fogmoss', name: 'Fogmoss', nameParts: ['Fog', 'moss'], clade: 'flora', rig: 'flora', types: ['Water', 'Ghost'], tier: 'uncommon', bst: 412,
     stats: { hp: 0.13, melee: 0.06, ranged: 0.08, magic: 0.23, meleeDef: 0.11, rangedDef: 0.11, magicDef: 0.13, spe: 0.15 },
     recipe: { body: 'p.body.cactus', head: 'p.head.tulip', eyes: 'p.eyes.wide', mouth: 'p.mouth.whistle', leaves: 'p.leaves.broad', roots: 'p.roots.hairy', vines: ['p.vines.hanging', 'p.vines.none'], pods: 'p.pods.none', thorns: ['p.thorns.antlers', 'p.thorns.none'], canopy: ['p.canopy.pollen', 'p.canopy.none'], bark: 'p.bark.none', fruit: ['p.fruit.nut', 'p.fruit.none'] },
     palette: { c1: [209, 26, 85], c2: [213, 29, 64], c3: [193, 59, 75], eye: [189, 67, 63] }, vary: { h: 8, s: 6, l: 5 },
@@ -3930,7 +3930,7 @@ export const SPECIES = [
     desc: 'Moss that grew on a grave and took something with it. Damp, soft, and watching.',
   },
   {
-    id: 'dewleaf', name: 'Dewleaf', nameParts: ['Dew', 'leaf'], clade: 'flora', rig: 'flora', types: ['Grass', 'Water'], tier: 'common', bst: 431,
+    id: 'dewleaf', name: 'Dewleaf', nameParts: ['Dew', 'leaf'], clade: 'flora', rig: 'flora', types: ['Grass', 'Water'], tier: 'common', bst: 424,
     stats: { hp: 0.13, melee: 0.08, ranged: 0.22, magic: 0.09, meleeDef: 0.11, rangedDef: 0.12, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'p.body.bulb', head: 'p.head.bell', eyes: 'p.eyes.sleepy', mouth: 'p.mouth.grin', leaves: 'p.leaves.succulent', roots: 'p.roots.stump', vines: ['p.vines.thorny', 'p.vines.none'], pods: 'p.pods.none', thorns: ['p.thorns.collar', 'p.thorns.none'], canopy: ['p.canopy.pollen', 'p.canopy.none'], bark: 'p.bark.moss', fruit: 'p.fruit.none' },
     palette: { c1: [228, 20, 77], c2: [234, 28, 59], c3: [209, 60, 73], eye: [212, 72, 62] }, vary: { h: 8, s: 6, l: 5 },
@@ -3940,7 +3940,7 @@ export const SPECIES = [
     desc: 'Collects the morning dew and throws it at anyone who is late.',
   },
   {
-    id: 'bloodrose', name: 'Bloodrose', nameParts: ['Blood', 'rose'], clade: 'flora', rig: 'flora', types: ['Dark', 'Fighting'], tier: 'rare', bst: 413,
+    id: 'bloodrose', name: 'Bloodrose', nameParts: ['Blood', 'rose'], clade: 'flora', rig: 'flora', types: ['Dark', 'Fighting'], tier: 'rare', bst: 408,
     stats: { hp: 0.14, melee: 0.22, ranged: 0.08, magic: 0.07, meleeDef: 0.13, rangedDef: 0.11, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'p.body.vine', head: 'p.head.orchid', eyes: 'p.eyes.sharp', mouth: 'p.mouth.maw', leaves: 'p.leaves.needle', roots: 'p.roots.knot', vines: 'p.vines.coil', pods: ['p.pods.berries', 'p.pods.none'], thorns: ['p.thorns.spikes', 'p.thorns.none'], canopy: ['p.canopy.willow', 'p.canopy.none'], bark: ['p.bark.knots', 'p.bark.none'], fruit: 'p.fruit.berry' },
     palette: { c1: [52, 58, 41], c2: [41, 50, 29], c3: [50, 86, 54], eye: [50, 92, 52] }, vary: { h: 8, s: 6, l: 5 },
@@ -3950,7 +3950,7 @@ export const SPECIES = [
     desc: 'The rose that grew where the duel was. Still settling it.',
   },
   {
-    id: 'prismlily', name: 'Prismlily', nameParts: ['Prism', 'lily'], clade: 'flora', rig: 'flora', types: ['Rock', 'Psychic'], tier: 'uncommon', bst: 432,
+    id: 'prismlily', name: 'Prismlily', nameParts: ['Prism', 'lily'], clade: 'flora', rig: 'flora', types: ['Rock', 'Psychic'], tier: 'uncommon', bst: 434,
     stats: { hp: 0.13, melee: 0.06, ranged: 0.08, magic: 0.23, meleeDef: 0.11, rangedDef: 0.11, magicDef: 0.13, spe: 0.15 },
     recipe: { body: 'p.body.cactus', head: 'p.head.rose', eyes: 'p.eyes.gem', mouth: 'p.mouth.nectar', leaves: 'p.leaves.frond', roots: 'p.roots.stump', vines: ['p.vines.coil', 'p.vines.none'], pods: 'p.pods.buds', thorns: 'p.thorns.crown', canopy: ['p.canopy.brambles', 'p.canopy.none'], bark: ['p.bark.rings', 'p.bark.none'], fruit: 'p.fruit.cherries' },
     palette: { c1: [246, 48, 68], c2: [246, 42, 54], c3: [339, 69, 74], eye: [336, 80, 69] }, vary: { h: 8, s: 6, l: 5 },
@@ -3961,7 +3961,7 @@ export const SPECIES = [
   },
   // ---- Roster expansion: element pass, ooze ----
   {
-    id: 'rustooze', name: 'Rustooze', nameParts: ['Rust', 'ooze'], clade: 'ooze', rig: 'ooze', types: ['Steel', 'Poison'], tier: 'common', bst: 520,
+    id: 'rustooze', name: 'Rustooze', nameParts: ['Rust', 'ooze'], clade: 'ooze', rig: 'ooze', types: ['Steel', 'Poison'], tier: 'common', bst: 518,
     stats: { hp: 0.16, melee: 0.2, ranged: 0.08, magic: 0.07, meleeDef: 0.17, rangedDef: 0.13, magicDef: 0.1, spe: 0.09 },
     recipe: { body: 'o.body.wide', core: 'o.core.ember', eyes: 'o.eyes.round', mouth: 'o.mouth.grin', pseudopods: 'o.pseudopods.club', drips: ['o.drips.goop', 'o.drips.none'], crown: ['o.crown.spikes', 'o.crown.none'], tendrils: ['o.tendrils.fronds', 'o.tendrils.none'], base: 'o.base.puddle', inclusions: ['o.inclusions.bones', 'o.inclusions.none'], sheen: ['o.sheen.bands', 'o.sheen.none'], bumps: ['o.bumps.barnacles', 'o.bumps.none'] },
     palette: { c1: [19, 54, 42], c2: [23, 43, 31], c3: [36, 84, 51], eye: [39, 80, 52] }, vary: { h: 8, s: 6, l: 5 },
@@ -3971,7 +3971,7 @@ export const SPECIES = [
     desc: 'Ate a bucket of nails and kept the shape. Orange, gritty, and slowly eating the bucket.',
   },
   {
-    id: 'tinslime', name: 'Tinslime', nameParts: ['Tin', 'slime'], clade: 'ooze', rig: 'ooze', types: ['Poison', 'Steel'], tier: 'common', bst: 408,
+    id: 'tinslime', name: 'Tinslime', nameParts: ['Tin', 'slime'], clade: 'ooze', rig: 'ooze', types: ['Poison', 'Steel'], tier: 'common', bst: 414,
     stats: { hp: 0.13, melee: 0.08, ranged: 0.22, magic: 0.09, meleeDef: 0.11, rangedDef: 0.12, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'o.body.drop', core: 'o.core.nucleus', eyes: 'o.eyes.wide', mouth: 'o.mouth.tongue', pseudopods: 'o.pseudopods.club', drips: 'o.drips.goop', crown: 'o.crown.spikes', tendrils: ['o.tendrils.fronds', 'o.tendrils.none'], base: 'o.base.feet', inclusions: ['o.inclusions.shards', 'o.inclusions.none'], sheen: 'o.sheen.bands', bumps: ['o.bumps.barnacles', 'o.bumps.none'] },
     palette: { c1: [34, 56, 48], c2: [41, 42, 33], c3: [56, 87, 53], eye: [63, 80, 57] }, vary: { h: 8, s: 6, l: 5 },
@@ -3981,7 +3981,7 @@ export const SPECIES = [
     desc: 'Spits ball bearings it made itself. Nobody knows from what.',
   },
   {
-    id: 'goregel', name: 'Goregel', nameParts: ['Gore', 'gel'], clade: 'ooze', rig: 'ooze', types: ['Dark', 'Fighting'], tier: 'uncommon', bst: 429,
+    id: 'goregel', name: 'Goregel', nameParts: ['Gore', 'gel'], clade: 'ooze', rig: 'ooze', types: ['Dark', 'Fighting'], tier: 'uncommon', bst: 437,
     stats: { hp: 0.14, melee: 0.22, ranged: 0.08, magic: 0.07, meleeDef: 0.13, rangedDef: 0.11, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'o.body.whirl', core: 'o.core.gem', eyes: 'o.eyes.wide', mouth: 'o.mouth.fangs', pseudopods: 'o.pseudopods.fist', drips: ['o.drips.goop', 'o.drips.none'], crown: ['o.crown.horns', 'o.crown.none'], tendrils: 'o.tendrils.none', base: 'o.base.bubbles', inclusions: ['o.inclusions.bones', 'o.inclusions.none'], sheen: ['o.sheen.wave', 'o.sheen.none'], bumps: ['o.bumps.eyespots', 'o.bumps.none'] },
     palette: { c1: [352, 54, 37], c2: [345, 51, 25], c3: [356, 89, 53], eye: [353, 91, 52] }, vary: { h: 8, s: 6, l: 5 },
@@ -4011,7 +4011,7 @@ export const SPECIES = [
     desc: 'A puddle of absence. Step in it and come out somewhere you have never been.',
   },
   {
-    id: 'hushgoo', name: 'Hushgoo', nameParts: ['Hush', 'goo'], clade: 'ooze', rig: 'ooze', types: ['Poison', 'Psychic'], tier: 'uncommon', bst: 480,
+    id: 'hushgoo', name: 'Hushgoo', nameParts: ['Hush', 'goo'], clade: 'ooze', rig: 'ooze', types: ['Poison', 'Psychic'], tier: 'uncommon', bst: 478,
     stats: { hp: 0.13, melee: 0.06, ranged: 0.08, magic: 0.23, meleeDef: 0.11, rangedDef: 0.11, magicDef: 0.13, spe: 0.15 },
     recipe: { body: 'o.body.tall', core: 'o.core.star', eyes: 'o.eyes.void', mouth: 'o.mouth.gape', pseudopods: 'o.pseudopods.curl', drips: ['o.drips.trio', 'o.drips.none'], crown: ['o.crown.halo', 'o.crown.none'], tendrils: ['o.tendrils.fronds', 'o.tendrils.none'], base: 'o.base.splat', inclusions: 'o.inclusions.none', sheen: ['o.sheen.bands', 'o.sheen.none'], bumps: ['o.bumps.eyespots', 'o.bumps.none'] },
     palette: { c1: [281, 31, 41], c2: [284, 33, 30], c3: [294, 85, 71], eye: [298, 87, 71] }, vary: { h: 8, s: 6, l: 5 },
@@ -4021,7 +4021,7 @@ export const SPECIES = [
     desc: 'Its surface shows what you are thinking, slightly wrong. Unsettling at parties.',
   },
   {
-    id: 'moongel', name: 'Moongel', nameParts: ['Moon', 'gel'], clade: 'ooze', rig: 'ooze', types: ['Dark', 'Fairy'], tier: 'uncommon', bst: 396,
+    id: 'moongel', name: 'Moongel', nameParts: ['Moon', 'gel'], clade: 'ooze', rig: 'ooze', types: ['Dark', 'Fairy'], tier: 'uncommon', bst: 403,
     stats: { hp: 0.13, melee: 0.06, ranged: 0.08, magic: 0.23, meleeDef: 0.11, rangedDef: 0.11, magicDef: 0.13, spe: 0.15 },
     recipe: { body: 'o.body.blob', core: 'o.core.star', eyes: 'o.eyes.round', mouth: 'o.mouth.smile', pseudopods: 'o.pseudopods.stubs', drips: ['o.drips.beads', 'o.drips.none'], crown: ['o.crown.halo', 'o.crown.none'], tendrils: 'o.tendrils.none', base: 'o.base.ring', inclusions: ['o.inclusions.shards', 'o.inclusions.none'], sheen: ['o.sheen.rings', 'o.sheen.none'], bumps: ['o.bumps.crystals', 'o.bumps.none'] },
     palette: { c1: [225, 27, 83], c2: [231, 31, 63], c3: [43, 66, 84], eye: [46, 69, 76] }, vary: { h: 8, s: 6, l: 5 },
@@ -4031,7 +4031,7 @@ export const SPECIES = [
     desc: 'Silver jelly that rises and falls with the moon. High tide is a nuisance.',
   },
   {
-    id: 'gloamooze', name: 'Gloamooze', nameParts: ['Gloam', 'ooze'], clade: 'ooze', rig: 'ooze', types: ['Poison', 'Fairy'], tier: 'common', bst: 454,
+    id: 'gloamooze', name: 'Gloamooze', nameParts: ['Gloam', 'ooze'], clade: 'ooze', rig: 'ooze', types: ['Poison', 'Fairy'], tier: 'common', bst: 457,
     stats: { hp: 0.13, melee: 0.08, ranged: 0.22, magic: 0.09, meleeDef: 0.11, rangedDef: 0.12, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'o.body.whirl', core: 'o.core.star', eyes: 'o.eyes.ring', mouth: 'o.mouth.wavy', pseudopods: 'o.pseudopods.reach', drips: ['o.drips.beads', 'o.drips.none'], crown: 'o.crown.none', tendrils: ['o.tendrils.loop', 'o.tendrils.none'], base: 'o.base.ring', inclusions: ['o.inclusions.coins', 'o.inclusions.none'], sheen: 'o.sheen.bands', bumps: ['o.bumps.warts', 'o.bumps.none'] },
     palette: { c1: [246, 22, 81], c2: [249, 31, 55], c3: [63, 64, 80], eye: [68, 69, 70] }, vary: { h: 8, s: 6, l: 5 },
@@ -4041,7 +4041,7 @@ export const SPECIES = [
     desc: 'Glows at dusk in a colour that does not have a name and is not getting one.',
   },
   {
-    id: 'geodegel', name: 'Geodegel', nameParts: ['Geode', 'gel'], clade: 'ooze', rig: 'ooze', types: ['Rock', 'Psychic'], tier: 'uncommon', bst: 436,
+    id: 'geodegel', name: 'Geodegel', nameParts: ['Geode', 'gel'], clade: 'ooze', rig: 'ooze', types: ['Rock', 'Psychic'], tier: 'uncommon', bst: 434,
     stats: { hp: 0.13, melee: 0.08, ranged: 0.22, magic: 0.09, meleeDef: 0.11, rangedDef: 0.12, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'o.body.drop', core: 'o.core.gem', eyes: 'o.eyes.ring', mouth: 'o.mouth.frown', pseudopods: 'o.pseudopods.fork', drips: 'o.drips.curtain', crown: 'o.crown.halo', tendrils: ['o.tendrils.loop', 'o.tendrils.none'], base: 'o.base.ring', inclusions: 'o.inclusions.shards', sheen: ['o.sheen.sparkle', 'o.sheen.none'], bumps: ['o.bumps.nubs', 'o.bumps.none'] },
     palette: { c1: [183, 49, 65], c2: [187, 43, 51], c3: [280, 71, 73], eye: [275, 77, 68] }, vary: { h: 8, s: 6, l: 5 },
@@ -4051,7 +4051,7 @@ export const SPECIES = [
     desc: 'A slime that swallowed a geode and now thinks in facets.',
   },
   {
-    id: 'gritgoo', name: 'Gritgoo', nameParts: ['Grit', 'goo'], clade: 'ooze', rig: 'ooze', types: ['Poison', 'Rock'], tier: 'common', bst: 475,
+    id: 'gritgoo', name: 'Gritgoo', nameParts: ['Grit', 'goo'], clade: 'ooze', rig: 'ooze', types: ['Poison', 'Rock'], tier: 'common', bst: 478,
     stats: { hp: 0.14, melee: 0.22, ranged: 0.08, magic: 0.07, meleeDef: 0.13, rangedDef: 0.11, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'o.body.cube', core: 'o.core.gem', eyes: 'o.eyes.ring', mouth: 'o.mouth.grin', pseudopods: 'o.pseudopods.curl', drips: ['o.drips.beads', 'o.drips.none'], crown: ['o.crown.spikes', 'o.crown.none'], tendrils: ['o.tendrils.loop', 'o.tendrils.none'], base: 'o.base.ring', inclusions: ['o.inclusions.shards', 'o.inclusions.none'], sheen: ['o.sheen.sparkle', 'o.sheen.none'], bumps: ['o.bumps.nubs', 'o.bumps.none'] },
     palette: { c1: [207, 45, 62], c2: [207, 41, 49], c3: [297, 67, 69], eye: [298, 77, 67] }, vary: { h: 8, s: 6, l: 5 },
@@ -4061,7 +4061,7 @@ export const SPECIES = [
     desc: 'Half slime, half gravel. Grinds through anything given a week.',
   },
   {
-    id: 'fogslime', name: 'Fogslime', nameParts: ['Fog', 'slime'], clade: 'ooze', rig: 'ooze', types: ['Water', 'Ghost'], tier: 'uncommon', bst: 399,
+    id: 'fogslime', name: 'Fogslime', nameParts: ['Fog', 'slime'], clade: 'ooze', rig: 'ooze', types: ['Water', 'Ghost'], tier: 'uncommon', bst: 395,
     stats: { hp: 0.13, melee: 0.08, ranged: 0.22, magic: 0.09, meleeDef: 0.11, rangedDef: 0.12, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'o.body.tall', core: 'o.core.bubble', eyes: 'o.eyes.sleepy', mouth: 'o.mouth.smile', pseudopods: 'o.pseudopods.paddle', drips: ['o.drips.drip', 'o.drips.none'], crown: ['o.crown.bubbles', 'o.crown.none'], tendrils: 'o.tendrils.none', base: 'o.base.trail', inclusions: 'o.inclusions.bubbles', sheen: 'o.sheen.none', bumps: 'o.bumps.blisters' },
     palette: { c1: [195, 20, 81], c2: [199, 22, 61], c3: [171, 60, 71], eye: [170, 69, 57] }, vary: { h: 8, s: 6, l: 5 },
@@ -4071,7 +4071,7 @@ export const SPECIES = [
     desc: 'Evaporates when frightened and rains back down somewhere less frightening.',
   },
   {
-    id: 'dewgel', name: 'Dewgel', nameParts: ['Dew', 'gel'], clade: 'ooze', rig: 'ooze', types: ['Poison', 'Water'], tier: 'common', bst: 440,
+    id: 'dewgel', name: 'Dewgel', nameParts: ['Dew', 'gel'], clade: 'ooze', rig: 'ooze', types: ['Poison', 'Water'], tier: 'common', bst: 434,
     stats: { hp: 0.13, melee: 0.06, ranged: 0.08, magic: 0.23, meleeDef: 0.11, rangedDef: 0.11, magicDef: 0.13, spe: 0.15 },
     recipe: { body: 'o.body.tall', core: 'o.core.bubble', eyes: 'o.eyes.ring', mouth: 'o.mouth.grin', pseudopods: 'o.pseudopods.paddle', drips: ['o.drips.drip', 'o.drips.none'], crown: ['o.crown.fin', 'o.crown.none'], tendrils: 'o.tendrils.none', base: 'o.base.trail', inclusions: ['o.inclusions.bubbles', 'o.inclusions.none'], sheen: ['o.sheen.wave', 'o.sheen.none'], bumps: ['o.bumps.blisters', 'o.bumps.none'] },
     palette: { c1: [210, 28, 82], c2: [215, 22, 62], c3: [192, 61, 75], eye: [191, 71, 66] }, vary: { h: 8, s: 6, l: 5 },
@@ -4081,7 +4081,7 @@ export const SPECIES = [
     desc: 'Condenses on the sump walls every morning and slides down them at noon.',
   },
   {
-    id: 'bloodooze', name: 'Bloodooze', nameParts: ['Blood', 'ooze'], clade: 'ooze', rig: 'ooze', types: ['Dark', 'Fighting'], tier: 'rare', bst: 381,
+    id: 'bloodooze', name: 'Bloodooze', nameParts: ['Blood', 'ooze'], clade: 'ooze', rig: 'ooze', types: ['Dark', 'Fighting'], tier: 'rare', bst: 382,
     stats: { hp: 0.12, melee: 0.22, ranged: 0.08, magic: 0.07, meleeDef: 0.11, rangedDef: 0.11, magicDef: 0.09, spe: 0.2 },
     recipe: { body: 'o.body.drop', core: 'o.core.cluster', eyes: 'o.eyes.sleepy', mouth: 'o.mouth.fangs', pseudopods: 'o.pseudopods.fist', drips: 'o.drips.none', crown: 'o.crown.horns', tendrils: ['o.tendrils.pair', 'o.tendrils.none'], base: 'o.base.bubbles', inclusions: ['o.inclusions.skull', 'o.inclusions.none'], sheen: 'o.sheen.none', bumps: 'o.bumps.none' },
     palette: { c1: [33, 55, 37], c2: [26, 52, 30], c3: [38, 92, 57], eye: [39, 93, 50] }, vary: { h: 8, s: 6, l: 5 },
@@ -4091,7 +4091,7 @@ export const SPECIES = [
     desc: 'Crimson, hungry, and faster than anything that shape should be.',
   },
   {
-    id: 'prismgel', name: 'Prismgel', nameParts: ['Prism', 'gel'], clade: 'ooze', rig: 'ooze', types: ['Rock', 'Psychic'], tier: 'uncommon', bst: 459,
+    id: 'prismgel', name: 'Prismgel', nameParts: ['Prism', 'gel'], clade: 'ooze', rig: 'ooze', types: ['Rock', 'Psychic'], tier: 'uncommon', bst: 456,
     stats: { hp: 0.13, melee: 0.06, ranged: 0.08, magic: 0.23, meleeDef: 0.11, rangedDef: 0.11, magicDef: 0.13, spe: 0.15 },
     recipe: { body: 'o.body.blob', core: 'o.core.gem', eyes: 'o.eyes.ring', mouth: 'o.mouth.wavy', pseudopods: 'o.pseudopods.curl', drips: 'o.drips.curtain', crown: ['o.crown.halo', 'o.crown.none'], tendrils: ['o.tendrils.loop', 'o.tendrils.none'], base: 'o.base.ring', inclusions: ['o.inclusions.shards', 'o.inclusions.none'], sheen: ['o.sheen.sparkle', 'o.sheen.none'], bumps: ['o.bumps.nubs', 'o.bumps.none'] },
     palette: { c1: [221, 49, 71], c2: [229, 39, 53], c3: [319, 72, 72], eye: [313, 77, 72] }, vary: { h: 8, s: 6, l: 5 },
@@ -4102,7 +4102,7 @@ export const SPECIES = [
   },
   // ---- Roster expansion: element pass, fungus ----
   {
-    id: 'rustcap', name: 'Rustcap', nameParts: ['Rust', 'cap'], clade: 'fungus', rig: 'fungus', types: ['Steel', 'Poison'], tier: 'common', bst: 517,
+    id: 'rustcap', name: 'Rustcap', nameParts: ['Rust', 'cap'], clade: 'fungus', rig: 'fungus', types: ['Steel', 'Poison'], tier: 'common', bst: 518,
     stats: { hp: 0.16, melee: 0.2, ranged: 0.08, magic: 0.07, meleeDef: 0.17, rangedDef: 0.13, magicDef: 0.1, spe: 0.09 },
     recipe: { body: 'g.body.button', head: 'g.head.woody', eyes: 'g.eyes.bead', mouth: 'g.mouth.wavy', gills: 'g.gills.lace', spores: 'g.spores.none', roots: 'g.roots.stump', ring: ['g.ring.cuff', 'g.ring.none'], shelves: ['g.shelves.cups', 'g.shelves.none'], veil: 'g.veil.tatters', glow: 'g.glow.none', pattern: ['g.pattern.crackle', 'g.pattern.none'] },
     palette: { c1: [32, 55, 46], c2: [33, 48, 31], c3: [48, 82, 52], eye: [57, 82, 55] }, vary: { h: 8, s: 6, l: 5 },
@@ -4112,7 +4112,7 @@ export const SPECIES = [
     desc: 'Grows on old iron and eats it. Its cap is flaking metal.',
   },
   {
-    id: 'tinstool', name: 'Tinstool', nameParts: ['Tin', 'stool'], clade: 'fungus', rig: 'fungus', types: ['Grass', 'Steel'], tier: 'common', bst: 402,
+    id: 'tinstool', name: 'Tinstool', nameParts: ['Tin', 'stool'], clade: 'fungus', rig: 'fungus', types: ['Grass', 'Steel'], tier: 'common', bst: 407,
     stats: { hp: 0.13, melee: 0.08, ranged: 0.22, magic: 0.09, meleeDef: 0.11, rangedDef: 0.12, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'g.body.funnel', head: 'g.head.woody', eyes: 'g.eyes.sleepy', mouth: 'g.mouth.gape', gills: 'g.gills.lace', spores: ['g.spores.motes', 'g.spores.none'], roots: 'g.roots.stump', ring: ['g.ring.cuff', 'g.ring.none'], shelves: ['g.shelves.cups', 'g.shelves.none'], veil: ['g.veil.tatters', 'g.veil.none'], glow: ['g.glow.motes', 'g.glow.none'], pattern: ['g.pattern.dots', 'g.pattern.none'] },
     palette: { c1: [52, 56, 47], c2: [54, 47, 33], c3: [64, 87, 59], eye: [77, 79, 54] }, vary: { h: 8, s: 6, l: 5 },
@@ -4122,7 +4122,7 @@ export const SPECIES = [
     desc: 'A toadstool that rings like a bell when kicked. Kicked often.',
   },
   {
-    id: 'gorecap', name: 'Gorecap', nameParts: ['Gore', 'cap'], clade: 'fungus', rig: 'fungus', types: ['Dark', 'Fighting'], tier: 'uncommon', bst: 421,
+    id: 'gorecap', name: 'Gorecap', nameParts: ['Gore', 'cap'], clade: 'fungus', rig: 'fungus', types: ['Dark', 'Fighting'], tier: 'uncommon', bst: 420,
     stats: { hp: 0.14, melee: 0.22, ranged: 0.08, magic: 0.07, meleeDef: 0.13, rangedDef: 0.11, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'g.body.parasol', head: 'g.head.woody', eyes: 'g.eyes.round', mouth: 'g.mouth.tooth', gills: 'g.gills.teeth', spores: ['g.spores.drift', 'g.spores.none'], roots: 'g.roots.stump', ring: ['g.ring.cuff', 'g.ring.none'], shelves: 'g.shelves.shelf', veil: ['g.veil.scallop', 'g.veil.none'], glow: 'g.glow.none', pattern: ['g.pattern.rings', 'g.pattern.none'] },
     palette: { c1: [4, 57, 40], c2: [0, 51, 26], c3: [7, 90, 58], eye: [11, 88, 53] }, vary: { h: 8, s: 6, l: 5 },
@@ -4142,7 +4142,7 @@ export const SPECIES = [
     desc: 'A puffball of muscle. Bounces off trees to build up speed.',
   },
   {
-    id: 'voidcap', name: 'Voidcap', nameParts: ['Void', 'cap'], clade: 'fungus', rig: 'fungus', types: ['Ghost', 'Psychic'], tier: 'rare', bst: 380,
+    id: 'voidcap', name: 'Voidcap', nameParts: ['Void', 'cap'], clade: 'fungus', rig: 'fungus', types: ['Ghost', 'Psychic'], tier: 'rare', bst: 381,
     stats: { hp: 0.13, melee: 0.06, ranged: 0.08, magic: 0.23, meleeDef: 0.11, rangedDef: 0.11, magicDef: 0.13, spe: 0.15 },
     recipe: { body: 'g.body.morel', head: 'g.head.bent', eyes: 'g.eyes.glow', mouth: 'g.mouth.smile', gills: 'g.gills.dark', spores: ['g.spores.sparkle', 'g.spores.none'], roots: 'g.roots.stump', ring: 'g.ring.none', shelves: ['g.shelves.stack', 'g.shelves.none'], veil: ['g.veil.lace', 'g.veil.none'], glow: ['g.glow.halo', 'g.glow.none'], pattern: 'g.pattern.none' },
     palette: { c1: [274, 24, 42], c2: [273, 30, 33], c3: [290, 89, 74], eye: [294, 89, 71] }, vary: { h: 8, s: 6, l: 5 },
@@ -4152,7 +4152,7 @@ export const SPECIES = [
     desc: 'Its spores are gaps in memory. The forest around it is very quiet about it.',
   },
   {
-    id: 'hushmorel', name: 'Hushmorel', nameParts: ['Hush', 'morel'], clade: 'fungus', rig: 'fungus', types: ['Grass', 'Psychic'], tier: 'uncommon', bst: 450,
+    id: 'hushmorel', name: 'Hushmorel', nameParts: ['Hush', 'morel'], clade: 'fungus', rig: 'fungus', types: ['Grass', 'Psychic'], tier: 'uncommon', bst: 449,
     stats: { hp: 0.13, melee: 0.06, ranged: 0.08, magic: 0.23, meleeDef: 0.11, rangedDef: 0.11, magicDef: 0.13, spe: 0.15 },
     recipe: { body: 'g.body.bell', head: 'g.head.stout', eyes: 'g.eyes.glow', mouth: 'g.mouth.frown', gills: 'g.gills.dark', spores: ['g.spores.swirl', 'g.spores.none'], roots: 'g.roots.knot', ring: ['g.ring.frill', 'g.ring.none'], shelves: ['g.shelves.coral', 'g.shelves.none'], veil: ['g.veil.beads', 'g.veil.none'], glow: ['g.glow.halo', 'g.glow.none'], pattern: 'g.pattern.none' },
     palette: { c1: [289, 28, 44], c2: [301, 33, 31], c3: [306, 84, 73], eye: [318, 87, 73] }, vary: { h: 8, s: 6, l: 5 },
@@ -4162,7 +4162,7 @@ export const SPECIES = [
     desc: 'Its honeycomb cap hums a thought you were about to have. Rude.',
   },
   {
-    id: 'mooncap', name: 'Mooncap', nameParts: ['Moon', 'cap'], clade: 'fungus', rig: 'fungus', types: ['Dark', 'Fairy'], tier: 'uncommon', bst: 398,
+    id: 'mooncap', name: 'Mooncap', nameParts: ['Moon', 'cap'], clade: 'fungus', rig: 'fungus', types: ['Dark', 'Fairy'], tier: 'uncommon', bst: 395,
     stats: { hp: 0.13, melee: 0.06, ranged: 0.08, magic: 0.23, meleeDef: 0.11, rangedDef: 0.11, magicDef: 0.13, spe: 0.15 },
     recipe: { body: 'g.body.puffball', head: 'g.head.bent', eyes: 'g.eyes.round', mouth: 'g.mouth.whistle', gills: 'g.gills.teeth', spores: ['g.spores.ring', 'g.spores.none'], roots: 'g.roots.bulb', ring: ['g.ring.double', 'g.ring.none'], shelves: ['g.shelves.buttons', 'g.shelves.none'], veil: ['g.veil.beads', 'g.veil.none'], glow: 'g.glow.halo', pattern: 'g.pattern.rings' },
     palette: { c1: [232, 21, 82], c2: [243, 27, 63], c3: [60, 68, 83], eye: [55, 73, 74] }, vary: { h: 8, s: 6, l: 5 },
@@ -4172,7 +4172,7 @@ export const SPECIES = [
     desc: 'A silver cap that opens at moonrise. Fairies shelter under it, or say they do.',
   },
   {
-    id: 'gloamspore', name: 'Gloamspore', nameParts: ['Gloam', 'spore'], clade: 'fungus', rig: 'fungus', types: ['Grass', 'Fairy'], tier: 'common', bst: 438,
+    id: 'gloamspore', name: 'Gloamspore', nameParts: ['Gloam', 'spore'], clade: 'fungus', rig: 'fungus', types: ['Grass', 'Fairy'], tier: 'common', bst: 436,
     stats: { hp: 0.13, melee: 0.08, ranged: 0.22, magic: 0.09, meleeDef: 0.11, rangedDef: 0.12, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'g.body.morel', head: 'g.head.bulb', eyes: 'g.eyes.round', mouth: 'g.mouth.whistle', gills: 'g.gills.pores', spores: ['g.spores.ring', 'g.spores.none'], roots: 'g.roots.bulb', ring: 'g.ring.none', shelves: ['g.shelves.shelf', 'g.shelves.none'], veil: 'g.veil.none', glow: 'g.glow.halo', pattern: ['g.pattern.rings', 'g.pattern.none'] },
     palette: { c1: [252, 25, 77], c2: [262, 28, 55], c3: [74, 65, 83], eye: [80, 71, 69] }, vary: { h: 8, s: 6, l: 5 },
@@ -4182,7 +4182,7 @@ export const SPECIES = [
     desc: 'Puffs glitter at dusk. Utterly harmless until you breathe in.',
   },
   {
-    id: 'geodecap', name: 'Geodecap', nameParts: ['Geode', 'cap'], clade: 'fungus', rig: 'fungus', types: ['Rock', 'Psychic'], tier: 'uncommon', bst: 432,
+    id: 'geodecap', name: 'Geodecap', nameParts: ['Geode', 'cap'], clade: 'fungus', rig: 'fungus', types: ['Rock', 'Psychic'], tier: 'uncommon', bst: 428,
     stats: { hp: 0.13, melee: 0.08, ranged: 0.22, magic: 0.09, meleeDef: 0.11, rangedDef: 0.12, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'g.body.button', head: 'g.head.woody', eyes: 'g.eyes.sleepy', mouth: 'g.mouth.tooth', gills: 'g.gills.teeth', spores: ['g.spores.ring', 'g.spores.none'], roots: 'g.roots.bulb', ring: 'g.ring.skirt', shelves: ['g.shelves.ears', 'g.shelves.none'], veil: 'g.veil.curtain', glow: ['g.glow.halo', 'g.glow.none'], pattern: 'g.pattern.rings' },
     palette: { c1: [199, 43, 65], c2: [205, 39, 53], c3: [290, 69, 70], eye: [292, 83, 71] }, vary: { h: 8, s: 6, l: 5 },
@@ -4192,7 +4192,7 @@ export const SPECIES = [
     desc: 'A mushroom whose cap set into quartz. Still growing, very slowly.',
   },
   {
-    id: 'flintshroom', name: 'Flintshroom', nameParts: ['Flint', 'shroom'], clade: 'fungus', rig: 'fungus', types: ['Grass', 'Rock'], tier: 'common', bst: 508,
+    id: 'flintshroom', name: 'Flintshroom', nameParts: ['Flint', 'shroom'], clade: 'fungus', rig: 'fungus', types: ['Grass', 'Rock'], tier: 'common', bst: 507,
     stats: { hp: 0.14, melee: 0.22, ranged: 0.08, magic: 0.07, meleeDef: 0.13, rangedDef: 0.11, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'g.body.funnel', head: 'g.head.bent', eyes: 'g.eyes.wide', mouth: 'g.mouth.whistle', gills: 'g.gills.teeth', spores: 'g.spores.ring', roots: 'g.roots.mycelium', ring: ['g.ring.skirt', 'g.ring.none'], shelves: ['g.shelves.buttons', 'g.shelves.none'], veil: 'g.veil.none', glow: ['g.glow.crescent', 'g.glow.none'], pattern: ['g.pattern.rings', 'g.pattern.none'] },
     palette: { c1: [220, 46, 67], c2: [222, 39, 46], c3: [312, 67, 71], eye: [306, 78, 68] }, vary: { h: 8, s: 6, l: 5 },
@@ -4202,7 +4202,7 @@ export const SPECIES = [
     desc: 'Hard as a stone and grows on one. Rolls downhill when it wants to travel.',
   },
   {
-    id: 'fogcap', name: 'Fogcap', nameParts: ['Fog', 'cap'], clade: 'fungus', rig: 'fungus', types: ['Water', 'Ghost'], tier: 'uncommon', bst: 364,
+    id: 'fogcap', name: 'Fogcap', nameParts: ['Fog', 'cap'], clade: 'fungus', rig: 'fungus', types: ['Water', 'Ghost'], tier: 'uncommon', bst: 365,
     stats: { hp: 0.13, melee: 0.06, ranged: 0.08, magic: 0.23, meleeDef: 0.11, rangedDef: 0.11, magicDef: 0.13, spe: 0.15 },
     recipe: { body: 'g.body.parasol', head: 'g.head.woody', eyes: 'g.eyes.squint', mouth: 'g.mouth.smile', gills: 'g.gills.dark', spores: 'g.spores.cloud', roots: 'g.roots.toes', ring: 'g.ring.cuff', shelves: 'g.shelves.stack', veil: ['g.veil.curtain', 'g.veil.none'], glow: ['g.glow.aura', 'g.glow.none'], pattern: ['g.pattern.dots', 'g.pattern.none'] },
     palette: { c1: [205, 25, 85], c2: [212, 29, 62], c3: [189, 64, 76], eye: [190, 68, 65] }, vary: { h: 8, s: 6, l: 5 },
@@ -4212,7 +4212,7 @@ export const SPECIES = [
     desc: 'Sheds mist instead of spores. Whole woods lose themselves in it.',
   },
   {
-    id: 'dewshroom', name: 'Dewshroom', nameParts: ['Dew', 'shroom'], clade: 'fungus', rig: 'fungus', types: ['Grass', 'Water'], tier: 'common', bst: 435,
+    id: 'dewshroom', name: 'Dewshroom', nameParts: ['Dew', 'shroom'], clade: 'fungus', rig: 'fungus', types: ['Grass', 'Water'], tier: 'common', bst: 431,
     stats: { hp: 0.13, melee: 0.08, ranged: 0.22, magic: 0.09, meleeDef: 0.11, rangedDef: 0.12, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'g.body.cone', head: 'g.head.ribbed', eyes: 'g.eyes.spore', mouth: 'g.mouth.grin', gills: 'g.gills.fine', spores: ['g.spores.cloud', 'g.spores.none'], roots: 'g.roots.bulb', ring: 'g.ring.cuff', shelves: 'g.shelves.coral', veil: ['g.veil.beads', 'g.veil.none'], glow: ['g.glow.halo', 'g.glow.none'], pattern: ['g.pattern.dots', 'g.pattern.none'] },
     palette: { c1: [222, 24, 80], c2: [226, 28, 59], c3: [208, 62, 69], eye: [208, 72, 59] }, vary: { h: 8, s: 6, l: 5 },
@@ -4222,7 +4222,7 @@ export const SPECIES = [
     desc: 'Drips constantly. Nobody has found where the water comes from.',
   },
   {
-    id: 'bloodmorel', name: 'Bloodmorel', nameParts: ['Blood', 'morel'], clade: 'fungus', rig: 'fungus', types: ['Dark', 'Fighting'], tier: 'rare', bst: 389,
+    id: 'bloodmorel', name: 'Bloodmorel', nameParts: ['Blood', 'morel'], clade: 'fungus', rig: 'fungus', types: ['Dark', 'Fighting'], tier: 'rare', bst: 387,
     stats: { hp: 0.14, melee: 0.22, ranged: 0.08, magic: 0.07, meleeDef: 0.13, rangedDef: 0.11, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'g.body.bell', head: 'g.head.woody', eyes: 'g.eyes.squint', mouth: 'g.mouth.grin', gills: 'g.gills.teeth', spores: ['g.spores.sparkle', 'g.spores.none'], roots: 'g.roots.stump', ring: 'g.ring.cuff', shelves: ['g.shelves.bracket', 'g.shelves.none'], veil: ['g.veil.curtain', 'g.veil.none'], glow: ['g.glow.motes', 'g.glow.none'], pattern: ['g.pattern.scales', 'g.pattern.none'] },
     palette: { c1: [42, 53, 36], c2: [37, 49, 26], c3: [50, 91, 56], eye: [52, 86, 50] }, vary: { h: 8, s: 6, l: 5 },
@@ -4243,7 +4243,7 @@ export const SPECIES = [
   },
   // ---- Roster expansion: element pass, wyrm ----
   {
-    id: 'rustwyrm', name: 'Rustwyrm', nameParts: ['Rust', 'wyrm'], clade: 'wyrm', rig: 'wyrm', types: ['Steel', 'Poison'], tier: 'uncommon', bst: 519,
+    id: 'rustwyrm', name: 'Rustwyrm', nameParts: ['Rust', 'wyrm'], clade: 'wyrm', rig: 'wyrm', types: ['Steel', 'Poison'], tier: 'uncommon', bst: 520,
     stats: { hp: 0.16, melee: 0.2, ranged: 0.08, magic: 0.07, meleeDef: 0.17, rangedDef: 0.13, magicDef: 0.1, spe: 0.09 },
     recipe: { body: 'w.body.stout', head: 'w.head.lion', eyes: 'w.eyes.sleepy', maw: 'w.maw.beard', whiskers: 'w.whiskers.none', legs: 'w.legs.hook', tail: 'w.tail.spiked', mane: 'w.mane.flames', plates: 'w.plates.shell', horns: ['w.horns.ram', 'w.horns.none'], glow: 'w.glow.mist', bands: ['w.bands.belly', 'w.bands.none'] },
     palette: { c1: [17, 54, 44], c2: [17, 44, 31], c3: [30, 88, 53], eye: [37, 76, 55] }, vary: { h: 8, s: 6, l: 5 },
@@ -4253,7 +4253,7 @@ export const SPECIES = [
     desc: 'A wyrm of chain and rust. Every coil scrapes, and every scrape is poison.',
   },
   {
-    id: 'tincoil', name: 'Tincoil', nameParts: ['Tin', 'coil'], clade: 'wyrm', rig: 'wyrm', types: ['Dragon', 'Steel'], tier: 'common', bst: 406,
+    id: 'tincoil', name: 'Tincoil', nameParts: ['Tin', 'coil'], clade: 'wyrm', rig: 'wyrm', types: ['Dragon', 'Steel'], tier: 'common', bst: 400,
     stats: { hp: 0.13, melee: 0.08, ranged: 0.22, magic: 0.09, meleeDef: 0.11, rangedDef: 0.12, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'w.body.arch', head: 'w.head.wide', eyes: 'w.eyes.gem', maw: 'w.maw.fangs', whiskers: 'w.whiskers.wavy', legs: 'w.legs.fin', tail: 'w.tail.fin', mane: ['w.mane.ridge', 'w.mane.none'], plates: ['w.plates.scutes', 'w.plates.none'], horns: ['w.horns.nubs', 'w.horns.none'], glow: ['w.glow.aura', 'w.glow.none'], bands: 'w.bands.none' },
     palette: { c1: [32, 58, 46], c2: [43, 42, 32], c3: [52, 82, 59], eye: [55, 83, 53] }, vary: { h: 8, s: 6, l: 5 },
@@ -4273,7 +4273,7 @@ export const SPECIES = [
     desc: 'Coils around its prey and squeezes with the patience of a grudge.',
   },
   {
-    id: 'brawlcoil', name: 'Brawlcoil', nameParts: ['Brawl', 'coil'], clade: 'wyrm', rig: 'wyrm', types: ['Dragon', 'Fighting'], tier: 'common', bst: 488,
+    id: 'brawlcoil', name: 'Brawlcoil', nameParts: ['Brawl', 'coil'], clade: 'wyrm', rig: 'wyrm', types: ['Dragon', 'Fighting'], tier: 'common', bst: 485,
     stats: { hp: 0.14, melee: 0.22, ranged: 0.08, magic: 0.07, meleeDef: 0.13, rangedDef: 0.11, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'w.body.rearing', head: 'w.head.wide', eyes: 'w.eyes.fierce', maw: 'w.maw.fangs', whiskers: 'w.whiskers.none', legs: 'w.legs.claw', tail: 'w.tail.curl', mane: ['w.mane.feathers', 'w.mane.none'], plates: 'w.plates.spikes', horns: ['w.horns.straight', 'w.horns.none'], glow: 'w.glow.stormcloud', bands: 'w.bands.rings' },
     palette: { c1: [7, 54, 36], c2: [5, 47, 24], c3: [9, 88, 53], eye: [14, 92, 51] }, vary: { h: 8, s: 6, l: 5 },
@@ -4283,7 +4283,7 @@ export const SPECIES = [
     desc: 'Headbutts cliffs to knock down the goats. It is a strategy.',
   },
   {
-    id: 'voidwyrm', name: 'Voidwyrm', nameParts: ['Void', 'wyrm'], clade: 'wyrm', rig: 'wyrm', types: ['Ghost', 'Psychic'], tier: 'rare', bst: 383,
+    id: 'voidwyrm', name: 'Voidwyrm', nameParts: ['Void', 'wyrm'], clade: 'wyrm', rig: 'wyrm', types: ['Ghost', 'Psychic'], tier: 'rare', bst: 385,
     stats: { hp: 0.13, melee: 0.06, ranged: 0.08, magic: 0.23, meleeDef: 0.11, rangedDef: 0.11, magicDef: 0.13, spe: 0.15 },
     recipe: { body: 'w.body.knot', head: 'w.head.frilled', eyes: 'w.eyes.slit', maw: 'w.maw.roar', whiskers: ['w.whiskers.curled', 'w.whiskers.none'], legs: 'w.legs.talon', tail: 'w.tail.curl', mane: ['w.mane.flames', 'w.mane.none'], plates: 'w.plates.none', horns: 'w.horns.none', glow: ['w.glow.halo', 'w.glow.none'], bands: 'w.bands.dorsal' },
     palette: { c1: [253, 32, 45], c2: [258, 35, 31], c3: [271, 89, 68], eye: [274, 92, 73] }, vary: { h: 8, s: 6, l: 5 },
@@ -4293,7 +4293,7 @@ export const SPECIES = [
     desc: 'A wyrm made of the gap between stars. It is very long and not entirely here.',
   },
   {
-    id: 'hushcoil', name: 'Hushcoil', nameParts: ['Hush', 'coil'], clade: 'wyrm', rig: 'wyrm', types: ['Dragon', 'Psychic'], tier: 'uncommon', bst: 428,
+    id: 'hushcoil', name: 'Hushcoil', nameParts: ['Hush', 'coil'], clade: 'wyrm', rig: 'wyrm', types: ['Dragon', 'Psychic'], tier: 'uncommon', bst: 436,
     stats: { hp: 0.13, melee: 0.06, ranged: 0.08, magic: 0.23, meleeDef: 0.11, rangedDef: 0.11, magicDef: 0.13, spe: 0.15 },
     recipe: { body: 'w.body.rearing', head: 'w.head.lion', eyes: 'w.eyes.glow', maw: 'w.maw.beard', whiskers: ['w.whiskers.curled', 'w.whiskers.none'], legs: 'w.legs.fin', tail: 'w.tail.curl', mane: 'w.mane.none', plates: 'w.plates.saddle', horns: ['w.horns.ram', 'w.horns.none'], glow: 'w.glow.none', bands: 'w.bands.none' },
     palette: { c1: [276, 25, 42], c2: [279, 28, 33], c3: [292, 82, 72], eye: [297, 92, 73] }, vary: { h: 8, s: 6, l: 5 },
@@ -4303,7 +4303,7 @@ export const SPECIES = [
     desc: 'Its hum stills the gorge winds. Kite flyers hate it.',
   },
   {
-    id: 'moonwyrm', name: 'Moonwyrm', nameParts: ['Moon', 'wyrm'], clade: 'wyrm', rig: 'wyrm', types: ['Dark', 'Fairy'], tier: 'uncommon', bst: 405,
+    id: 'moonwyrm', name: 'Moonwyrm', nameParts: ['Moon', 'wyrm'], clade: 'wyrm', rig: 'wyrm', types: ['Dark', 'Fairy'], tier: 'uncommon', bst: 406,
     stats: { hp: 0.13, melee: 0.06, ranged: 0.08, magic: 0.23, meleeDef: 0.11, rangedDef: 0.11, magicDef: 0.13, spe: 0.15 },
     recipe: { body: 'w.body.knot', head: 'w.head.blunt', eyes: 'w.eyes.round', maw: 'w.maw.roar', whiskers: ['w.whiskers.long', 'w.whiskers.none'], legs: 'w.legs.paw', tail: 'w.tail.tuft', mane: 'w.mane.feathers', plates: ['w.plates.gems', 'w.plates.none'], horns: ['w.horns.crest', 'w.horns.none'], glow: 'w.glow.halo', bands: 'w.bands.diamonds' },
     palette: { c1: [220, 26, 83], c2: [224, 32, 60], c3: [37, 63, 87], eye: [40, 71, 75] }, vary: { h: 8, s: 6, l: 5 },
@@ -4313,7 +4313,7 @@ export const SPECIES = [
     desc: 'Crosses the moon on clear nights, which is how the gorge tells the time.',
   },
   {
-    id: 'gloamcoil', name: 'Gloamcoil', nameParts: ['Gloam', 'coil'], clade: 'wyrm', rig: 'wyrm', types: ['Dragon', 'Fairy'], tier: 'common', bst: 438,
+    id: 'gloamcoil', name: 'Gloamcoil', nameParts: ['Gloam', 'coil'], clade: 'wyrm', rig: 'wyrm', types: ['Dragon', 'Fairy'], tier: 'common', bst: 435,
     stats: { hp: 0.13, melee: 0.08, ranged: 0.22, magic: 0.09, meleeDef: 0.11, rangedDef: 0.12, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'w.body.stout', head: 'w.head.serpent', eyes: 'w.eyes.round', maw: 'w.maw.smile', whiskers: 'w.whiskers.tufted', legs: 'w.legs.paw', tail: 'w.tail.tuft', mane: 'w.mane.feathers', plates: ['w.plates.saddle', 'w.plates.none'], horns: ['w.horns.crest', 'w.horns.none'], glow: ['w.glow.halo', 'w.glow.none'], bands: 'w.bands.none' },
     palette: { c1: [234, 24, 80], c2: [242, 26, 55], c3: [55, 66, 80], eye: [59, 67, 68] }, vary: { h: 8, s: 6, l: 5 },
@@ -4323,7 +4323,7 @@ export const SPECIES = [
     desc: 'Glitters at dusk and dives at the shine of any dropped coin.',
   },
   {
-    id: 'geodewyrm', name: 'Geodewyrm', nameParts: ['Geode', 'wyrm'], clade: 'wyrm', rig: 'wyrm', types: ['Rock', 'Psychic'], tier: 'uncommon', bst: 442,
+    id: 'geodewyrm', name: 'Geodewyrm', nameParts: ['Geode', 'wyrm'], clade: 'wyrm', rig: 'wyrm', types: ['Rock', 'Psychic'], tier: 'uncommon', bst: 440,
     stats: { hp: 0.13, melee: 0.08, ranged: 0.22, magic: 0.09, meleeDef: 0.11, rangedDef: 0.12, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'w.body.stout', head: 'w.head.serpent', eyes: 'w.eyes.gem', maw: 'w.maw.smile', whiskers: ['w.whiskers.wavy', 'w.whiskers.none'], legs: 'w.legs.talon', tail: 'w.tail.spiked', mane: 'w.mane.none', plates: 'w.plates.gems', horns: ['w.horns.curved', 'w.horns.none'], glow: 'w.glow.sparkles', bands: ['w.bands.diamonds', 'w.bands.none'] },
     palette: { c1: [179, 47, 70], c2: [186, 40, 50], c3: [271, 73, 73], eye: [267, 79, 69] }, vary: { h: 8, s: 6, l: 5 },
@@ -4333,7 +4333,7 @@ export const SPECIES = [
     desc: 'Its spine is a row of geodes. It sings through them when the caverns do.',
   },
   {
-    id: 'flintcoil', name: 'Flintcoil', nameParts: ['Flint', 'coil'], clade: 'wyrm', rig: 'wyrm', types: ['Dragon', 'Rock'], tier: 'common', bst: 480,
+    id: 'flintcoil', name: 'Flintcoil', nameParts: ['Flint', 'coil'], clade: 'wyrm', rig: 'wyrm', types: ['Dragon', 'Rock'], tier: 'common', bst: 476,
     stats: { hp: 0.14, melee: 0.22, ranged: 0.08, magic: 0.07, meleeDef: 0.13, rangedDef: 0.11, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'w.body.serpent', head: 'w.head.blunt', eyes: 'w.eyes.gem', maw: 'w.maw.beard', whiskers: ['w.whiskers.curled', 'w.whiskers.none'], legs: 'w.legs.paw', tail: 'w.tail.spiked', mane: ['w.mane.spines', 'w.mane.none'], plates: 'w.plates.gems', horns: ['w.horns.ram', 'w.horns.none'], glow: 'w.glow.rays', bands: 'w.bands.diamonds' },
     palette: { c1: [195, 42, 65], c2: [204, 46, 50], c3: [291, 72, 68], eye: [290, 82, 64] }, vary: { h: 8, s: 6, l: 5 },
@@ -4343,7 +4343,7 @@ export const SPECIES = [
     desc: 'Grinds along the gorge floor striking sparks. The gorge is used to it.',
   },
   {
-    id: 'fogwyrm', name: 'Fogwyrm', nameParts: ['Fog', 'wyrm'], clade: 'wyrm', rig: 'wyrm', types: ['Water', 'Ghost'], tier: 'uncommon', bst: 397,
+    id: 'fogwyrm', name: 'Fogwyrm', nameParts: ['Fog', 'wyrm'], clade: 'wyrm', rig: 'wyrm', types: ['Water', 'Ghost'], tier: 'uncommon', bst: 394,
     stats: { hp: 0.13, melee: 0.08, ranged: 0.22, magic: 0.09, meleeDef: 0.11, rangedDef: 0.12, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'w.body.hover', head: 'w.head.blunt', eyes: 'w.eyes.round', maw: 'w.maw.smile', whiskers: ['w.whiskers.curled', 'w.whiskers.none'], legs: 'w.legs.fin', tail: 'w.tail.fin', mane: 'w.mane.ridge', plates: 'w.plates.scutes', horns: ['w.horns.crest', 'w.horns.none'], glow: 'w.glow.mist', bands: ['w.bands.diamonds', 'w.bands.none'] },
     palette: { c1: [187, 21, 80], c2: [194, 23, 62], c3: [169, 57, 73], eye: [173, 66, 61] }, vary: { h: 8, s: 6, l: 5 },
@@ -4394,7 +4394,7 @@ export const SPECIES = [
     desc: 'A dragon that slept in the rain for a century. The armour held; the temper did not.',
   },
   {
-    id: 'tindrake', name: 'Tindrake', nameParts: ['Tin', 'drake'], clade: 'draconic', rig: 'draconic', types: ['Dragon', 'Steel'], tier: 'common', bst: 400,
+    id: 'tindrake', name: 'Tindrake', nameParts: ['Tin', 'drake'], clade: 'draconic', rig: 'draconic', types: ['Dragon', 'Steel'], tier: 'common', bst: 399,
     stats: { hp: 0.13, melee: 0.08, ranged: 0.22, magic: 0.09, meleeDef: 0.11, rangedDef: 0.12, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'd.body.armour', head: 'd.head.classic', eyes: 'd.eyes.glow', jaw: 'd.jaw.roar', horns: ['d.horns.antler', 'd.horns.none'], wings: 'd.wings.fin', legsFront: 'd.legsFront.armoured', legsBack: 'd.legsBack.armoured', tail: 'd.tail.club', spines: ['d.spines.plates', 'd.spines.none'], chest: ['d.chest.plates', 'd.chest.none'], breath: ['d.breath.lightning', 'd.breath.none'] },
     palette: { c1: [46, 53, 48], c2: [49, 43, 31], c3: [63, 86, 53], eye: [67, 77, 58] }, vary: { h: 8, s: 6, l: 5 },
@@ -4404,7 +4404,7 @@ export const SPECIES = [
     desc: 'A hatchling in scrap plate. Spits rivets and feels invincible.',
   },
   {
-    id: 'goredrake', name: 'Goredrake', nameParts: ['Gore', 'drake'], clade: 'draconic', rig: 'draconic', types: ['Dark', 'Fighting'], tier: 'uncommon', bst: 423,
+    id: 'goredrake', name: 'Goredrake', nameParts: ['Gore', 'drake'], clade: 'draconic', rig: 'draconic', types: ['Dark', 'Fighting'], tier: 'uncommon', bst: 420,
     stats: { hp: 0.14, melee: 0.22, ranged: 0.08, magic: 0.07, meleeDef: 0.13, rangedDef: 0.11, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'd.body.brute', head: 'd.head.narrow', eyes: 'd.eyes.fierce', jaw: 'd.jaw.fangs', horns: 'd.horns.single', wings: 'd.wings.crystal', legsFront: 'd.legsFront.claw', legsBack: 'd.legsBack.stout', tail: 'd.tail.club', spines: ['d.spines.plates', 'd.spines.none'], chest: 'd.chest.plates', breath: ['d.breath.void', 'd.breath.none'] },
     palette: { c1: [358, 58, 39], c2: [351, 49, 26], c3: [4, 87, 57], eye: [2, 88, 53] }, vary: { h: 8, s: 6, l: 5 },
@@ -4414,7 +4414,7 @@ export const SPECIES = [
     desc: 'Fights with claws, teeth, tail and spite, in that order.',
   },
   {
-    id: 'brawldrake', name: 'Brawldrake', nameParts: ['Brawl', 'drake'], clade: 'draconic', rig: 'draconic', types: ['Dragon', 'Fighting'], tier: 'common', bst: 507,
+    id: 'brawldrake', name: 'Brawldrake', nameParts: ['Brawl', 'drake'], clade: 'draconic', rig: 'draconic', types: ['Dragon', 'Fighting'], tier: 'common', bst: 514,
     stats: { hp: 0.14, melee: 0.22, ranged: 0.08, magic: 0.07, meleeDef: 0.13, rangedDef: 0.11, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'd.body.brute', head: 'd.head.crested', eyes: 'd.eyes.fierce', jaw: 'd.jaw.tusks', horns: 'd.horns.single', wings: 'd.wings.fairy', legsFront: 'd.legsFront.claw', legsBack: 'd.legsBack.stout', tail: 'd.tail.club', spines: ['d.spines.flames', 'd.spines.none'], chest: 'd.chest.plates', breath: ['d.breath.sparks', 'd.breath.none'] },
     palette: { c1: [15, 54, 40], c2: [14, 51, 29], c3: [24, 92, 53], eye: [26, 94, 49] }, vary: { h: 8, s: 6, l: 5 },
@@ -4434,7 +4434,7 @@ export const SPECIES = [
     desc: 'A dragon-shaped hole in the sky. Its breath takes the colour out of things.',
   },
   {
-    id: 'hushdrake', name: 'Hushdrake', nameParts: ['Hush', 'drake'], clade: 'draconic', rig: 'draconic', types: ['Dragon', 'Psychic'], tier: 'uncommon', bst: 458,
+    id: 'hushdrake', name: 'Hushdrake', nameParts: ['Hush', 'drake'], clade: 'draconic', rig: 'draconic', types: ['Dragon', 'Psychic'], tier: 'uncommon', bst: 460,
     stats: { hp: 0.13, melee: 0.06, ranged: 0.08, magic: 0.23, meleeDef: 0.11, rangedDef: 0.11, magicDef: 0.13, spe: 0.15 },
     recipe: { body: 'd.body.drake', head: 'd.head.round', eyes: 'd.eyes.slit', jaw: 'd.jaw.underbite', horns: ['d.horns.ram', 'd.horns.none'], wings: 'd.wings.fairy', legsFront: 'd.legsFront.armoured', legsBack: 'd.legsBack.haunch', tail: 'd.tail.flame', spines: ['d.spines.sail', 'd.spines.none'], chest: ['d.chest.cracks', 'd.chest.none'], breath: 'd.breath.none' },
     palette: { c1: [289, 26, 44], c2: [290, 35, 29], c3: [304, 87, 71], eye: [309, 93, 74] }, vary: { h: 8, s: 6, l: 5 },
@@ -4444,7 +4444,7 @@ export const SPECIES = [
     desc: 'Its roar is felt, not heard. Whole valleys sit down at once.',
   },
   {
-    id: 'moondrake', name: 'Moondrake', nameParts: ['Moon', 'drake'], clade: 'draconic', rig: 'draconic', types: ['Dark', 'Fairy'], tier: 'uncommon', bst: 398,
+    id: 'moondrake', name: 'Moondrake', nameParts: ['Moon', 'drake'], clade: 'draconic', rig: 'draconic', types: ['Dark', 'Fairy'], tier: 'uncommon', bst: 402,
     stats: { hp: 0.13, melee: 0.06, ranged: 0.08, magic: 0.23, meleeDef: 0.11, rangedDef: 0.11, magicDef: 0.13, spe: 0.15 },
     recipe: { body: 'd.body.pudgy', head: 'd.head.round', eyes: 'd.eyes.round', jaw: 'd.jaw.grin', horns: 'd.horns.none', wings: 'd.wings.fairy', legsFront: 'd.legsFront.paw', legsBack: 'd.legsBack.paw', tail: 'd.tail.tuft', spines: ['d.spines.plates', 'd.spines.none'], chest: ['d.chest.cracks', 'd.chest.none'], breath: 'd.breath.frost' },
     palette: { c1: [230, 25, 83], c2: [235, 31, 59], c3: [56, 68, 87], eye: [53, 70, 73] }, vary: { h: 8, s: 6, l: 5 },
@@ -4454,7 +4454,7 @@ export const SPECIES = [
     desc: 'Silver-scaled and seen only against the moon. The peaks keep a watch for it.',
   },
   {
-    id: 'gloamdrake', name: 'Gloamdrake', nameParts: ['Gloam', 'drake'], clade: 'draconic', rig: 'draconic', types: ['Dragon', 'Fairy'], tier: 'common', bst: 443,
+    id: 'gloamdrake', name: 'Gloamdrake', nameParts: ['Gloam', 'drake'], clade: 'draconic', rig: 'draconic', types: ['Dragon', 'Fairy'], tier: 'common', bst: 440,
     stats: { hp: 0.13, melee: 0.08, ranged: 0.22, magic: 0.09, meleeDef: 0.11, rangedDef: 0.12, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'd.body.pudgy', head: 'd.head.round', eyes: 'd.eyes.round', jaw: 'd.jaw.roar', horns: ['d.horns.nubs', 'd.horns.none'], wings: 'd.wings.fairy', legsFront: 'd.legsFront.paw', legsBack: 'd.legsBack.paw', tail: 'd.tail.tuft', spines: ['d.spines.ridge', 'd.spines.none'], chest: 'd.chest.cracks', breath: 'd.breath.frost' },
     palette: { c1: [252, 26, 75], c2: [255, 31, 58], c3: [71, 66, 84], eye: [76, 71, 70] }, vary: { h: 8, s: 6, l: 5 },
@@ -4464,7 +4464,7 @@ export const SPECIES = [
     desc: 'Hunts at dusk on wings that glitter. Subtlety was never the plan.',
   },
   {
-    id: 'geodedrake', name: 'Geodedrake', nameParts: ['Geode', 'drake'], clade: 'draconic', rig: 'draconic', types: ['Rock', 'Psychic'], tier: 'uncommon', bst: 451,
+    id: 'geodedrake', name: 'Geodedrake', nameParts: ['Geode', 'drake'], clade: 'draconic', rig: 'draconic', types: ['Rock', 'Psychic'], tier: 'uncommon', bst: 447,
     stats: { hp: 0.13, melee: 0.08, ranged: 0.22, magic: 0.09, meleeDef: 0.11, rangedDef: 0.12, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'd.body.long', head: 'd.head.narrow', eyes: 'd.eyes.gem', jaw: 'd.jaw.beak', horns: ['d.horns.crown', 'd.horns.none'], wings: 'd.wings.crystal', legsFront: 'd.legsFront.stout', legsBack: 'd.legsBack.armoured', tail: 'd.tail.spiked', spines: ['d.spines.crystals', 'd.spines.none'], chest: 'd.chest.gem', breath: ['d.breath.sparks', 'd.breath.none'] },
     palette: { c1: [190, 43, 66], c2: [196, 40, 51], c3: [286, 68, 72], eye: [282, 80, 67] }, vary: { h: 8, s: 6, l: 5 },
@@ -4474,7 +4474,7 @@ export const SPECIES = [
     desc: 'Hatched inside a geode and never quite left it. Its wings are the two halves.',
   },
   {
-    id: 'flintdrake', name: 'Flintdrake', nameParts: ['Flint', 'drake'], clade: 'draconic', rig: 'draconic', types: ['Dragon', 'Rock'], tier: 'common', bst: 490,
+    id: 'flintdrake', name: 'Flintdrake', nameParts: ['Flint', 'drake'], clade: 'draconic', rig: 'draconic', types: ['Dragon', 'Rock'], tier: 'common', bst: 493,
     stats: { hp: 0.14, melee: 0.22, ranged: 0.08, magic: 0.07, meleeDef: 0.13, rangedDef: 0.11, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'd.body.wyvern', head: 'd.head.crested', eyes: 'd.eyes.gem', jaw: 'd.jaw.beak', horns: ['d.horns.crown', 'd.horns.none'], wings: 'd.wings.crystal', legsFront: 'd.legsFront.stout', legsBack: 'd.legsBack.haunch', tail: 'd.tail.spiked', spines: ['d.spines.ridge', 'd.spines.none'], chest: 'd.chest.gem', breath: 'd.breath.lightning' },
     palette: { c1: [210, 43, 64], c2: [218, 39, 50], c3: [305, 71, 70], eye: [304, 83, 66] }, vary: { h: 8, s: 6, l: 5 },
@@ -4484,7 +4484,7 @@ export const SPECIES = [
     desc: 'Strikes sparks off its own claws to light its breath. Efficient.',
   },
   {
-    id: 'fogdrake', name: 'Fogdrake', nameParts: ['Fog', 'drake'], clade: 'draconic', rig: 'draconic', types: ['Water', 'Ghost'], tier: 'uncommon', bst: 393,
+    id: 'fogdrake', name: 'Fogdrake', nameParts: ['Fog', 'drake'], clade: 'draconic', rig: 'draconic', types: ['Water', 'Ghost'], tier: 'uncommon', bst: 398,
     stats: { hp: 0.13, melee: 0.08, ranged: 0.22, magic: 0.09, meleeDef: 0.11, rangedDef: 0.12, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'd.body.sleek', head: 'd.head.frilled', eyes: 'd.eyes.sleepy', jaw: 'd.jaw.fangs', horns: ['d.horns.crown', 'd.horns.none'], wings: 'd.wings.fin', legsFront: 'd.legsFront.paw', legsBack: 'd.legsBack.paw', tail: 'd.tail.fin', spines: 'd.spines.none', chest: ['d.chest.spots', 'd.chest.none'], breath: ['d.breath.bubbles', 'd.breath.none'] },
     palette: { c1: [202, 21, 81], c2: [204, 28, 59], c3: [177, 56, 74], eye: [185, 73, 61] }, vary: { h: 8, s: 6, l: 5 },
@@ -4494,7 +4494,7 @@ export const SPECIES = [
     desc: 'Flies inside the cloud it breathes. Airships give the peaks a wide berth.',
   },
   {
-    id: 'dewdrake', name: 'Dewdrake', nameParts: ['Dew', 'drake'], clade: 'draconic', rig: 'draconic', types: ['Dragon', 'Water'], tier: 'common', bst: 402,
+    id: 'dewdrake', name: 'Dewdrake', nameParts: ['Dew', 'drake'], clade: 'draconic', rig: 'draconic', types: ['Dragon', 'Water'], tier: 'common', bst: 398,
     stats: { hp: 0.13, melee: 0.06, ranged: 0.08, magic: 0.23, meleeDef: 0.11, rangedDef: 0.11, magicDef: 0.13, spe: 0.15 },
     recipe: { body: 'd.body.brute', head: 'd.head.narrow', eyes: 'd.eyes.slit', jaw: 'd.jaw.tusks', horns: 'd.horns.none', wings: 'd.wings.fin', legsFront: 'd.legsFront.paw', legsBack: 'd.legsBack.paw', tail: 'd.tail.fin', spines: 'd.spines.none', chest: ['d.chest.scales', 'd.chest.none'], breath: 'd.breath.bubbles' },
     palette: { c1: [218, 21, 85], c2: [227, 23, 61], c3: [203, 64, 77], eye: [201, 70, 65] }, vary: { h: 8, s: 6, l: 5 },
@@ -4504,7 +4504,7 @@ export const SPECIES = [
     desc: 'A small drake that wakes soaked every morning and blames the mountain.',
   },
   {
-    id: 'blooddrake', name: 'Blooddrake', nameParts: ['Blood', 'drake'], clade: 'draconic', rig: 'draconic', types: ['Dark', 'Fighting'], tier: 'rare', bst: 427,
+    id: 'blooddrake', name: 'Blooddrake', nameParts: ['Blood', 'drake'], clade: 'draconic', rig: 'draconic', types: ['Dark', 'Fighting'], tier: 'rare', bst: 428,
     stats: { hp: 0.14, melee: 0.22, ranged: 0.08, magic: 0.07, meleeDef: 0.13, rangedDef: 0.11, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'd.body.brute', head: 'd.head.blunt', eyes: 'd.eyes.fierce', jaw: 'd.jaw.tusks', horns: 'd.horns.single', wings: 'd.wings.tattered', legsFront: 'd.legsFront.claw', legsBack: 'd.legsBack.stout', tail: 'd.tail.club', spines: 'd.spines.frill', chest: ['d.chest.stripes', 'd.chest.none'], breath: ['d.breath.flame', 'd.breath.none'] },
     palette: { c1: [36, 53, 41], c2: [37, 53, 30], c3: [47, 89, 58], eye: [47, 88, 49] }, vary: { h: 8, s: 6, l: 5 },
@@ -4514,7 +4514,7 @@ export const SPECIES = [
     desc: 'The old executioner of the peaks. It has never needed a second try.',
   },
   {
-    id: 'prismdrake', name: 'Prismdrake', nameParts: ['Prism', 'drake'], clade: 'draconic', rig: 'draconic', types: ['Rock', 'Psychic'], tier: 'uncommon', bst: 439,
+    id: 'prismdrake', name: 'Prismdrake', nameParts: ['Prism', 'drake'], clade: 'draconic', rig: 'draconic', types: ['Rock', 'Psychic'], tier: 'uncommon', bst: 441,
     stats: { hp: 0.13, melee: 0.06, ranged: 0.08, magic: 0.23, meleeDef: 0.11, rangedDef: 0.11, magicDef: 0.13, spe: 0.15 },
     recipe: { body: 'd.body.armour', head: 'd.head.blunt', eyes: 'd.eyes.gem', jaw: 'd.jaw.beak', horns: 'd.horns.none', wings: 'd.wings.crystal', legsFront: 'd.legsFront.paw', legsBack: 'd.legsBack.paw', tail: 'd.tail.spiked', spines: ['d.spines.crystals', 'd.spines.none'], chest: 'd.chest.gem', breath: ['d.breath.bubbles', 'd.breath.none'] },
     palette: { c1: [230, 48, 69], c2: [235, 40, 50], c3: [329, 67, 73], eye: [325, 77, 69] }, vary: { h: 8, s: 6, l: 5 },
@@ -4525,7 +4525,7 @@ export const SPECIES = [
   },
   // ---- Roster expansion: element pass, skeletal ----
   {
-    id: 'rustbones', name: 'Rustbones', nameParts: ['Rust', 'bones'], clade: 'skeletal', rig: 'skeletal', types: ['Steel', 'Poison'], tier: 'common', bst: 512,
+    id: 'rustbones', name: 'Rustbones', nameParts: ['Rust', 'bones'], clade: 'skeletal', rig: 'skeletal', types: ['Steel', 'Poison'], tier: 'common', bst: 518,
     stats: { hp: 0.16, melee: 0.2, ranged: 0.08, magic: 0.07, meleeDef: 0.17, rangedDef: 0.13, magicDef: 0.1, spe: 0.09 },
     recipe: { body: 'k.body.barrel', head: 'k.head.brute', eyes: 'k.eyes.blaze', jaw: 'k.jaw.tusked', legsFront: 'k.legsFront.heavy', legsBack: 'k.legsBack.heavy', tail: 'k.tail.club', horns: 'k.horns.ram', wings: 'k.wings.fan', light: 'k.light.moth', shroud: ['k.shroud.roots', 'k.shroud.none'], cracks: 'k.cracks.none' },
     palette: { c1: [7, 58, 41], c2: [16, 48, 30], c3: [22, 82, 53], eye: [28, 84, 52] }, vary: { h: 8, s: 6, l: 5 },
@@ -4535,7 +4535,7 @@ export const SPECIES = [
     desc: 'Bones held together with rusted wire. The wire is doing most of the work.',
   },
   {
-    id: 'tinskull', name: 'Tinskull', nameParts: ['Tin', 'skull'], clade: 'skeletal', rig: 'skeletal', types: ['Ghost', 'Steel'], tier: 'common', bst: 381,
+    id: 'tinskull', name: 'Tinskull', nameParts: ['Tin', 'skull'], clade: 'skeletal', rig: 'skeletal', types: ['Ghost', 'Steel'], tier: 'common', bst: 378,
     stats: { hp: 0.13, melee: 0.08, ranged: 0.22, magic: 0.09, meleeDef: 0.11, rangedDef: 0.12, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'k.body.barrel', head: 'k.head.brute', eyes: 'k.eyes.pinprick', jaw: 'k.jaw.tusked', legsFront: 'k.legsFront.heavy', legsBack: 'k.legsBack.heavy', tail: 'k.tail.club', horns: 'k.horns.none', wings: ['k.wings.fan', 'k.wings.none'], light: ['k.light.star', 'k.light.none'], shroud: ['k.shroud.moss', 'k.shroud.none'], cracks: 'k.cracks.cracks' },
     palette: { c1: [27, 57, 48], c2: [37, 49, 32], c3: [40, 87, 58], eye: [54, 82, 54] }, vary: { h: 8, s: 6, l: 5 },
@@ -4545,7 +4545,7 @@ export const SPECIES = [
     desc: 'A skull with a tin plate riveted over the crack. Rattles when it laughs.',
   },
   {
-    id: 'gorebone', name: 'Gorebone', nameParts: ['Gore', 'bone'], clade: 'skeletal', rig: 'skeletal', types: ['Dark', 'Fighting'], tier: 'uncommon', bst: 422,
+    id: 'gorebone', name: 'Gorebone', nameParts: ['Gore', 'bone'], clade: 'skeletal', rig: 'skeletal', types: ['Dark', 'Fighting'], tier: 'uncommon', bst: 426,
     stats: { hp: 0.14, melee: 0.22, ranged: 0.08, magic: 0.07, meleeDef: 0.13, rangedDef: 0.11, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'k.body.barrel', head: 'k.head.brute', eyes: 'k.eyes.ember', jaw: 'k.jaw.needle', legsFront: 'k.legsFront.claw', legsBack: 'k.legsBack.heavy', tail: 'k.tail.club', horns: 'k.horns.straight', wings: 'k.wings.fan', light: 'k.light.none', shroud: 'k.shroud.roots', cracks: ['k.cracks.frost', 'k.cracks.none'] },
     palette: { c1: [342, 53, 40], c2: [335, 47, 25], c3: [346, 90, 55], eye: [342, 89, 52] }, vary: { h: 8, s: 6, l: 5 },
@@ -4555,7 +4555,7 @@ export const SPECIES = [
     desc: 'Still fighting the battle it died in. It is not clear it noticed the ending.',
   },
   {
-    id: 'brawlskull', name: 'Brawlskull', nameParts: ['Brawl', 'skull'], clade: 'skeletal', rig: 'skeletal', types: ['Ghost', 'Fighting'], tier: 'common', bst: 451,
+    id: 'brawlskull', name: 'Brawlskull', nameParts: ['Brawl', 'skull'], clade: 'skeletal', rig: 'skeletal', types: ['Ghost', 'Fighting'], tier: 'common', bst: 460,
     stats: { hp: 0.14, melee: 0.22, ranged: 0.08, magic: 0.07, meleeDef: 0.13, rangedDef: 0.11, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'k.body.barrel', head: 'k.head.brute', eyes: 'k.eyes.pinprick', jaw: 'k.jaw.needle', legsFront: 'k.legsFront.claw', legsBack: 'k.legsBack.heavy', tail: 'k.tail.club', horns: 'k.horns.straight', wings: 'k.wings.tattered', light: 'k.light.orb', shroud: ['k.shroud.cape', 'k.shroud.none'], cracks: 'k.cracks.none' },
     palette: { c1: [3, 56, 40], c2: [0, 49, 24], c3: [10, 89, 56], eye: [6, 91, 52] }, vary: { h: 8, s: 6, l: 5 },
@@ -4565,7 +4565,7 @@ export const SPECIES = [
     desc: 'Headbutts with a skull it does not need any more. Efficient.',
   },
   {
-    id: 'voidmarrow', name: 'Voidmarrow', nameParts: ['Void', 'marrow'], clade: 'skeletal', rig: 'skeletal', types: ['Ghost', 'Psychic'], tier: 'rare', bst: 387,
+    id: 'voidmarrow', name: 'Voidmarrow', nameParts: ['Void', 'marrow'], clade: 'skeletal', rig: 'skeletal', types: ['Ghost', 'Psychic'], tier: 'rare', bst: 385,
     stats: { hp: 0.13, melee: 0.06, ranged: 0.08, magic: 0.23, meleeDef: 0.11, rangedDef: 0.11, magicDef: 0.13, spe: 0.15 },
     recipe: { body: 'k.body.coil', head: 'k.head.serpent', eyes: 'k.eyes.hollow', jaw: 'k.jaw.fangs', legsFront: 'k.legsFront.heavy', legsBack: 'k.legsBack.heavy', tail: 'k.tail.rattle', horns: ['k.horns.ram', 'k.horns.none'], wings: ['k.wings.wide', 'k.wings.none'], light: ['k.light.star', 'k.light.none'], shroud: ['k.shroud.mist', 'k.shroud.none'], cracks: ['k.cracks.cracks', 'k.cracks.none'] },
     palette: { c1: [248, 27, 45], c2: [254, 35, 28], c3: [263, 82, 68], eye: [272, 93, 71] }, vary: { h: 8, s: 6, l: 5 },
@@ -4575,7 +4575,7 @@ export const SPECIES = [
     desc: 'The marrow went and something else moved in. It reads the dead of the barrow like a book.',
   },
   {
-    id: 'hushbone', name: 'Hushbone', nameParts: ['Hush', 'bone'], clade: 'skeletal', rig: 'skeletal', types: ['Ghost', 'Psychic'], tier: 'uncommon', bst: 417,
+    id: 'hushbone', name: 'Hushbone', nameParts: ['Hush', 'bone'], clade: 'skeletal', rig: 'skeletal', types: ['Ghost', 'Psychic'], tier: 'uncommon', bst: 419,
     stats: { hp: 0.13, melee: 0.06, ranged: 0.08, magic: 0.23, meleeDef: 0.11, rangedDef: 0.11, magicDef: 0.13, spe: 0.15 },
     recipe: { body: 'k.body.keel', head: 'k.head.fish', eyes: 'k.eyes.hollow', jaw: 'k.jaw.split', legsFront: 'k.legsFront.long', legsBack: 'k.legsBack.bird', tail: 'k.tail.fishtail', horns: ['k.horns.ram', 'k.horns.none'], wings: ['k.wings.tattered', 'k.wings.none'], light: ['k.light.star', 'k.light.none'], shroud: 'k.shroud.none', cracks: 'k.cracks.scorch' },
     palette: { c1: [266, 31, 40], c2: [274, 30, 29], c3: [289, 87, 71], eye: [292, 87, 76] }, vary: { h: 8, s: 6, l: 5 },
@@ -4585,7 +4585,7 @@ export const SPECIES = [
     desc: 'A hound skeleton that never barks. The silence follows you home.',
   },
   {
-    id: 'moonbone', name: 'Moonbone', nameParts: ['Moon', 'bone'], clade: 'skeletal', rig: 'skeletal', types: ['Dark', 'Fairy'], tier: 'uncommon', bst: 401,
+    id: 'moonbone', name: 'Moonbone', nameParts: ['Moon', 'bone'], clade: 'skeletal', rig: 'skeletal', types: ['Dark', 'Fairy'], tier: 'uncommon', bst: 402,
     stats: { hp: 0.13, melee: 0.06, ranged: 0.08, magic: 0.23, meleeDef: 0.11, rangedDef: 0.11, magicDef: 0.13, spe: 0.15 },
     recipe: { body: 'k.body.giant', head: 'k.head.feline', eyes: 'k.eyes.ghostlight', jaw: 'k.jaw.split', legsFront: 'k.legsFront.bird', legsBack: 'k.legsBack.bird', tail: 'k.tail.stub', horns: ['k.horns.curved', 'k.horns.none'], wings: 'k.wings.none', light: ['k.light.star', 'k.light.none'], shroud: ['k.shroud.mist', 'k.shroud.none'], cracks: ['k.cracks.cracks', 'k.cracks.none'] },
     palette: { c1: [208, 24, 79], c2: [214, 25, 63], c3: [36, 68, 87], eye: [33, 71, 72] }, vary: { h: 8, s: 6, l: 5 },
@@ -4595,7 +4595,7 @@ export const SPECIES = [
     desc: 'Bones bleached silver by a hundred moons. They glow faintly at the full.',
   },
   {
-    id: 'gloamskull', name: 'Gloamskull', nameParts: ['Gloam', 'skull'], clade: 'skeletal', rig: 'skeletal', types: ['Ghost', 'Fairy'], tier: 'common', bst: 390,
+    id: 'gloamskull', name: 'Gloamskull', nameParts: ['Gloam', 'skull'], clade: 'skeletal', rig: 'skeletal', types: ['Ghost', 'Fairy'], tier: 'common', bst: 383,
     stats: { hp: 0.13, melee: 0.08, ranged: 0.22, magic: 0.09, meleeDef: 0.11, rangedDef: 0.12, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'k.body.coil', head: 'k.head.feline', eyes: 'k.eyes.ember', jaw: 'k.jaw.beak', legsFront: 'k.legsFront.stubby', legsBack: 'k.legsBack.long', tail: 'k.tail.rattle', horns: ['k.horns.single', 'k.horns.none'], wings: ['k.wings.fan', 'k.wings.none'], light: ['k.light.star', 'k.light.none'], shroud: ['k.shroud.mist', 'k.shroud.none'], cracks: 'k.cracks.none' },
     palette: { c1: [230, 26, 79], c2: [235, 24, 60], c3: [55, 65, 79], eye: [52, 73, 71] }, vary: { h: 8, s: 6, l: 5 },
@@ -4605,7 +4605,7 @@ export const SPECIES = [
     desc: 'Its eye lights come on at dusk like lanterns. Children wave at it.',
   },
   {
-    id: 'geodebone', name: 'Geodebone', nameParts: ['Geode', 'bone'], clade: 'skeletal', rig: 'skeletal', types: ['Rock', 'Psychic'], tier: 'uncommon', bst: 432,
+    id: 'geodebone', name: 'Geodebone', nameParts: ['Geode', 'bone'], clade: 'skeletal', rig: 'skeletal', types: ['Rock', 'Psychic'], tier: 'uncommon', bst: 425,
     stats: { hp: 0.13, melee: 0.08, ranged: 0.22, magic: 0.09, meleeDef: 0.11, rangedDef: 0.12, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'k.body.wrapped', head: 'k.head.ram', eyes: 'k.eyes.gem', jaw: 'k.jaw.needle', legsFront: 'k.legsFront.stubby', legsBack: 'k.legsBack.heavy', tail: 'k.tail.whip', horns: ['k.horns.single', 'k.horns.none'], wings: ['k.wings.fan', 'k.wings.none'], light: 'k.light.star', shroud: 'k.shroud.none', cracks: 'k.cracks.bands' },
     palette: { c1: [176, 46, 66], c2: [179, 40, 48], c3: [267, 72, 75], eye: [270, 77, 66] }, vary: { h: 8, s: 6, l: 5 },
@@ -4615,7 +4615,7 @@ export const SPECIES = [
     desc: 'Crystals grew where the marrow was. It thinks in slow, clear facets.',
   },
   {
-    id: 'flintrib', name: 'Flintrib', nameParts: ['Flint', 'rib'], clade: 'skeletal', rig: 'skeletal', types: ['Ghost', 'Rock'], tier: 'common', bst: 501,
+    id: 'flintrib', name: 'Flintrib', nameParts: ['Flint', 'rib'], clade: 'skeletal', rig: 'skeletal', types: ['Ghost', 'Rock'], tier: 'common', bst: 500,
     stats: { hp: 0.14, melee: 0.22, ranged: 0.08, magic: 0.07, meleeDef: 0.13, rangedDef: 0.11, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'k.body.keel', head: 'k.head.feline', eyes: 'k.eyes.gem', jaw: 'k.jaw.needle', legsFront: 'k.legsFront.hoof', legsBack: 'k.legsBack.hoof', tail: 'k.tail.stub', horns: ['k.horns.straight', 'k.horns.none'], wings: ['k.wings.stub', 'k.wings.none'], light: ['k.light.star', 'k.light.none'], shroud: 'k.shroud.cobwebs', cracks: ['k.cracks.bands', 'k.cracks.none'] },
     palette: { c1: [191, 48, 65], c2: [201, 45, 49], c3: [286, 71, 69], eye: [287, 76, 67] }, vary: { h: 8, s: 6, l: 5 },
@@ -4625,7 +4625,7 @@ export const SPECIES = [
     desc: 'A ribcage of flint. Strikes sparks when it walks and sets the grass alight.',
   },
   {
-    id: 'fogbones', name: 'Fogbones', nameParts: ['Fog', 'bones'], clade: 'skeletal', rig: 'skeletal', types: ['Water', 'Ghost'], tier: 'uncommon', bst: 398,
+    id: 'fogbones', name: 'Fogbones', nameParts: ['Fog', 'bones'], clade: 'skeletal', rig: 'skeletal', types: ['Water', 'Ghost'], tier: 'uncommon', bst: 400,
     stats: { hp: 0.13, melee: 0.08, ranged: 0.22, magic: 0.09, meleeDef: 0.11, rangedDef: 0.12, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'k.body.keel', head: 'k.head.feline', eyes: 'k.eyes.pinprick', jaw: 'k.jaw.split', legsFront: 'k.legsFront.stubby', legsBack: 'k.legsBack.bird', tail: 'k.tail.fishtail', horns: ['k.horns.nubs', 'k.horns.none'], wings: 'k.wings.none', light: ['k.light.star', 'k.light.none'], shroud: ['k.shroud.mist', 'k.shroud.none'], cracks: 'k.cracks.runes' },
     palette: { c1: [183, 21, 82], c2: [183, 28, 63], c3: [159, 60, 70], eye: [165, 67, 58] }, vary: { h: 8, s: 6, l: 5 },
@@ -4635,7 +4635,7 @@ export const SPECIES = [
     desc: 'Drowned bones that came back damp. Trails marsh mist wherever it walks.',
   },
   {
-    id: 'dewskull', name: 'Dewskull', nameParts: ['Dew', 'skull'], clade: 'skeletal', rig: 'skeletal', types: ['Ghost', 'Water'], tier: 'common', bst: 406,
+    id: 'dewskull', name: 'Dewskull', nameParts: ['Dew', 'skull'], clade: 'skeletal', rig: 'skeletal', types: ['Ghost', 'Water'], tier: 'common', bst: 403,
     stats: { hp: 0.13, melee: 0.06, ranged: 0.08, magic: 0.23, meleeDef: 0.11, rangedDef: 0.11, magicDef: 0.13, spe: 0.15 },
     recipe: { body: 'k.body.fishbone', head: 'k.head.ram', eyes: 'k.eyes.ember', jaw: 'k.jaw.split', legsFront: 'k.legsFront.stubby', legsBack: 'k.legsBack.stubby', tail: 'k.tail.fishtail', horns: ['k.horns.crown', 'k.horns.none'], wings: ['k.wings.tattered', 'k.wings.none'], light: ['k.light.moth', 'k.light.none'], shroud: ['k.shroud.mist', 'k.shroud.none'], cracks: ['k.cracks.frost', 'k.cracks.none'] },
     palette: { c1: [198, 21, 84], c2: [205, 27, 61], c3: [181, 58, 73], eye: [183, 68, 63] }, vary: { h: 8, s: 6, l: 5 },
@@ -4645,7 +4645,7 @@ export const SPECIES = [
     desc: 'Dew collects in the eye sockets every morning and it weeps it out by noon.',
   },
   {
-    id: 'bloodmarrow', name: 'Bloodmarrow', nameParts: ['Blood', 'marrow'], clade: 'skeletal', rig: 'skeletal', types: ['Dark', 'Fighting'], tier: 'rare', bst: 422,
+    id: 'bloodmarrow', name: 'Bloodmarrow', nameParts: ['Blood', 'marrow'], clade: 'skeletal', rig: 'skeletal', types: ['Dark', 'Fighting'], tier: 'rare', bst: 420,
     stats: { hp: 0.14, melee: 0.22, ranged: 0.08, magic: 0.07, meleeDef: 0.13, rangedDef: 0.11, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'k.body.barrel', head: 'k.head.brute', eyes: 'k.eyes.twin', jaw: 'k.jaw.needle', legsFront: 'k.legsFront.heavy', legsBack: 'k.legsBack.heavy', tail: 'k.tail.club', horns: 'k.horns.none', wings: ['k.wings.ribbed', 'k.wings.none'], light: 'k.light.ember', shroud: ['k.shroud.tatters', 'k.shroud.none'], cracks: ['k.cracks.bands', 'k.cracks.none'] },
     palette: { c1: [20, 52, 40], c2: [15, 48, 29], c3: [30, 91, 53], eye: [27, 87, 52] }, vary: { h: 8, s: 6, l: 5 },
@@ -4655,7 +4655,7 @@ export const SPECIES = [
     desc: 'The bones are dry but something red still moves in them. It hits like a live thing.',
   },
   {
-    id: 'prismbone', name: 'Prismbone', nameParts: ['Prism', 'bone'], clade: 'skeletal', rig: 'skeletal', types: ['Rock', 'Psychic'], tier: 'uncommon', bst: 445,
+    id: 'prismbone', name: 'Prismbone', nameParts: ['Prism', 'bone'], clade: 'skeletal', rig: 'skeletal', types: ['Rock', 'Psychic'], tier: 'uncommon', bst: 444,
     stats: { hp: 0.13, melee: 0.06, ranged: 0.08, magic: 0.23, meleeDef: 0.11, rangedDef: 0.11, magicDef: 0.13, spe: 0.15 },
     recipe: { body: 'k.body.ribcage', head: 'k.head.brute', eyes: 'k.eyes.gem', jaw: 'k.jaw.needle', legsFront: 'k.legsFront.claw', legsBack: 'k.legsBack.heavy', tail: 'k.tail.stub', horns: ['k.horns.ram', 'k.horns.none'], wings: 'k.wings.tattered', light: ['k.light.gem', 'k.light.none'], shroud: ['k.shroud.roots', 'k.shroud.none'], cracks: ['k.cracks.bands', 'k.cracks.none'] },
     palette: { c1: [217, 45, 72], c2: [222, 39, 53], c3: [306, 71, 72], eye: [305, 84, 72] }, vary: { h: 8, s: 6, l: 5 },
@@ -4666,7 +4666,7 @@ export const SPECIES = [
   },
   // ---- Roster expansion: element pass, nightwing ----
   {
-    id: 'rustbat', name: 'Rustbat', nameParts: ['Rust', 'bat'], clade: 'nightwing', rig: 'nightwing', types: ['Steel', 'Poison'], tier: 'common', bst: 480,
+    id: 'rustbat', name: 'Rustbat', nameParts: ['Rust', 'bat'], clade: 'nightwing', rig: 'nightwing', types: ['Steel', 'Poison'], tier: 'common', bst: 482,
     stats: { hp: 0.14, melee: 0.22, ranged: 0.08, magic: 0.07, meleeDef: 0.13, rangedDef: 0.11, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'n.body.broad', head: 'n.head.wide', ears: 'n.ears.notched', eyes: 'n.eyes.bead', muzzle: 'n.muzzle.leaf', wings: 'n.wings.broad', legs: 'n.legs.splayed', tail: 'n.tail.long', crest: ['n.crest.spikes', 'n.crest.none'], ruff: ['n.ruff.beads', 'n.ruff.none'], thumbs: ['n.thumbs.bony', 'n.thumbs.none'], markings: 'n.markings.stripes' },
     palette: { c1: [23, 55, 41], c2: [27, 42, 30], c3: [39, 81, 56], eye: [45, 81, 50] }, vary: { h: 8, s: 6, l: 5 },
@@ -4676,7 +4676,7 @@ export const SPECIES = [
     desc: 'Roosts in the old mine cages and has taken on their colour. Its bite festers.',
   },
   {
-    id: 'tinflit', name: 'Tinflit', nameParts: ['Tin', 'flit'], clade: 'nightwing', rig: 'nightwing', types: ['Dark', 'Steel'], tier: 'common', bst: 392,
+    id: 'tinflit', name: 'Tinflit', nameParts: ['Tin', 'flit'], clade: 'nightwing', rig: 'nightwing', types: ['Dark', 'Steel'], tier: 'common', bst: 386,
     stats: { hp: 0.13, melee: 0.08, ranged: 0.22, magic: 0.09, meleeDef: 0.11, rangedDef: 0.12, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'n.body.pear', head: 'n.head.wide', ears: 'n.ears.leaf', eyes: 'n.eyes.red', muzzle: 'n.muzzle.leaf', wings: 'n.wings.huge', legs: 'n.legs.clawed', tail: 'n.tail.stub', crest: ['n.crest.spikes', 'n.crest.none'], ruff: ['n.ruff.mane', 'n.ruff.none'], thumbs: ['n.thumbs.double', 'n.thumbs.none'], markings: ['n.markings.stripes', 'n.markings.none'] },
     palette: { c1: [42, 52, 47], c2: [50, 41, 31], c3: [56, 81, 58], eye: [60, 76, 53] }, vary: { h: 8, s: 6, l: 5 },
@@ -4686,7 +4686,7 @@ export const SPECIES = [
     desc: 'Wings of hammered tin. Loud in flight, louder in argument.',
   },
   {
-    id: 'gorewing', name: 'Gorewing', nameParts: ['Gore', 'wing'], clade: 'nightwing', rig: 'nightwing', types: ['Dark', 'Fighting'], tier: 'uncommon', bst: 435,
+    id: 'gorewing', name: 'Gorewing', nameParts: ['Gore', 'wing'], clade: 'nightwing', rig: 'nightwing', types: ['Dark', 'Fighting'], tier: 'uncommon', bst: 436,
     stats: { hp: 0.14, melee: 0.22, ranged: 0.08, magic: 0.07, meleeDef: 0.13, rangedDef: 0.11, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'n.body.pear', head: 'n.head.pointed', ears: 'n.ears.curled', eyes: 'n.eyes.slit', muzzle: 'n.muzzle.grin', wings: 'n.wings.hooked', legs: 'n.legs.clawed', tail: 'n.tail.fan', crest: ['n.crest.horns', 'n.crest.none'], ruff: ['n.ruff.spiky', 'n.ruff.none'], thumbs: 'n.thumbs.none', markings: ['n.markings.collar', 'n.markings.none'] },
     palette: { c1: [352, 59, 38], c2: [348, 49, 26], c3: [358, 88, 56], eye: [1, 92, 54] }, vary: { h: 8, s: 6, l: 5 },
@@ -4696,7 +4696,7 @@ export const SPECIES = [
     desc: 'A bat that fights with its wings folded into fists. Drinks afterwards.',
   },
   {
-    id: 'brawlbat', name: 'Brawlbat', nameParts: ['Brawl', 'bat'], clade: 'nightwing', rig: 'nightwing', types: ['Dark', 'Fighting'], tier: 'common', bst: 427,
+    id: 'brawlbat', name: 'Brawlbat', nameParts: ['Brawl', 'bat'], clade: 'nightwing', rig: 'nightwing', types: ['Dark', 'Fighting'], tier: 'common', bst: 421,
     stats: { hp: 0.14, melee: 0.22, ranged: 0.08, magic: 0.07, meleeDef: 0.13, rangedDef: 0.11, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'n.body.broad', head: 'n.head.wide', ears: 'n.ears.notched', eyes: 'n.eyes.slit', muzzle: 'n.muzzle.grin', wings: 'n.wings.hooked', legs: 'n.legs.clawed', tail: 'n.tail.tufted', crest: ['n.crest.horns', 'n.crest.none'], ruff: 'n.ruff.spiky', thumbs: ['n.thumbs.double', 'n.thumbs.none'], markings: 'n.markings.belly' },
     palette: { c1: [18, 53, 41], c2: [12, 51, 24], c3: [20, 88, 55], eye: [15, 90, 53] }, vary: { h: 8, s: 6, l: 5 },
@@ -4706,7 +4706,7 @@ export const SPECIES = [
     desc: 'Headbutts the cave roof for practice. The cave roof is losing.',
   },
   {
-    id: 'voidbat', name: 'Voidbat', nameParts: ['Void', 'bat'], clade: 'nightwing', rig: 'nightwing', types: ['Ghost', 'Psychic'], tier: 'rare', bst: 426,
+    id: 'voidbat', name: 'Voidbat', nameParts: ['Void', 'bat'], clade: 'nightwing', rig: 'nightwing', types: ['Ghost', 'Psychic'], tier: 'rare', bst: 429,
     stats: { hp: 0.13, melee: 0.06, ranged: 0.08, magic: 0.23, meleeDef: 0.11, rangedDef: 0.11, magicDef: 0.13, spe: 0.15 },
     recipe: { body: 'n.body.broad', head: 'n.head.snub', ears: 'n.ears.leaf', eyes: 'n.eyes.glow', muzzle: 'n.muzzle.leaf', wings: 'n.wings.ragged', legs: 'n.legs.tucked', tail: 'n.tail.whip', crest: 'n.crest.leaf', ruff: 'n.ruff.petals', thumbs: 'n.thumbs.glowing', markings: 'n.markings.belly' },
     palette: { c1: [262, 28, 41], c2: [267, 34, 33], c3: [282, 89, 69], eye: [281, 91, 70] }, vary: { h: 8, s: 6, l: 5 },
@@ -4736,7 +4736,7 @@ export const SPECIES = [
     desc: 'Silver wings, moon eyes. It hangs from the moon itself, the chasm folk insist.',
   },
   {
-    id: 'gloamflit', name: 'Gloamflit', nameParts: ['Gloam', 'flit'], clade: 'nightwing', rig: 'nightwing', types: ['Dark', 'Fairy'], tier: 'common', bst: 429,
+    id: 'gloamflit', name: 'Gloamflit', nameParts: ['Gloam', 'flit'], clade: 'nightwing', rig: 'nightwing', types: ['Dark', 'Fairy'], tier: 'common', bst: 432,
     stats: { hp: 0.13, melee: 0.08, ranged: 0.22, magic: 0.09, meleeDef: 0.11, rangedDef: 0.12, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'n.body.round', head: 'n.head.round', ears: 'n.ears.round', eyes: 'n.eyes.glow', muzzle: 'n.muzzle.leaf', wings: 'n.wings.broad', legs: 'n.legs.stubby', tail: 'n.tail.fan', crest: ['n.crest.plume', 'n.crest.none'], ruff: ['n.ruff.petals', 'n.ruff.none'], thumbs: 'n.thumbs.glowing', markings: 'n.markings.belly' },
     palette: { c1: [246, 23, 79], c2: [253, 25, 55], c3: [65, 64, 80], eye: [72, 70, 67] }, vary: { h: 8, s: 6, l: 5 },
@@ -4746,7 +4746,7 @@ export const SPECIES = [
     desc: 'Comes out at dusk and glitters at moths until they give up.',
   },
   {
-    id: 'geodebat', name: 'Geodebat', nameParts: ['Geode', 'bat'], clade: 'nightwing', rig: 'nightwing', types: ['Rock', 'Psychic'], tier: 'uncommon', bst: 430,
+    id: 'geodebat', name: 'Geodebat', nameParts: ['Geode', 'bat'], clade: 'nightwing', rig: 'nightwing', types: ['Rock', 'Psychic'], tier: 'uncommon', bst: 431,
     stats: { hp: 0.13, melee: 0.08, ranged: 0.22, magic: 0.09, meleeDef: 0.11, rangedDef: 0.12, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'n.body.fluffy', head: 'n.head.pointed', ears: 'n.ears.leaf', eyes: 'n.eyes.wide', muzzle: 'n.muzzle.tube', wings: 'n.wings.hooked', legs: 'n.legs.stubby', tail: 'n.tail.forked', crest: ['n.crest.spikes', 'n.crest.none'], ruff: ['n.ruff.spiky', 'n.ruff.none'], thumbs: 'n.thumbs.rings', markings: ['n.markings.spots', 'n.markings.none'] },
     palette: { c1: [188, 43, 68], c2: [195, 40, 49], c3: [278, 70, 70], eye: [277, 79, 66] }, vary: { h: 8, s: 6, l: 5 },
@@ -4756,7 +4756,7 @@ export const SPECIES = [
     desc: 'Roosts in the crystal caverns and grew to match. Its echoes ring like glass.',
   },
   {
-    id: 'flintwing', name: 'Flintwing', nameParts: ['Flint', 'wing'], clade: 'nightwing', rig: 'nightwing', types: ['Dark', 'Rock'], tier: 'common', bst: 429,
+    id: 'flintwing', name: 'Flintwing', nameParts: ['Flint', 'wing'], clade: 'nightwing', rig: 'nightwing', types: ['Dark', 'Rock'], tier: 'common', bst: 428,
     stats: { hp: 0.14, melee: 0.22, ranged: 0.08, magic: 0.07, meleeDef: 0.13, rangedDef: 0.11, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'n.body.tiny', head: 'n.head.fox', ears: 'n.ears.curled', eyes: 'n.eyes.slit', muzzle: 'n.muzzle.long', wings: 'n.wings.hooked', legs: 'n.legs.splayed', tail: 'n.tail.stub', crest: ['n.crest.spikes', 'n.crest.none'], ruff: 'n.ruff.none', thumbs: ['n.thumbs.rings', 'n.thumbs.none'], markings: ['n.markings.collar', 'n.markings.none'] },
     palette: { c1: [211, 45, 66], c2: [215, 45, 50], c3: [300, 67, 70], eye: [296, 84, 63] }, vary: { h: 8, s: 6, l: 5 },
@@ -4766,7 +4766,7 @@ export const SPECIES = [
     desc: 'Wings edged with flint. Strikes sparks off the chasm walls as it corners.',
   },
   {
-    id: 'fogbat', name: 'Fogbat', nameParts: ['Fog', 'bat'], clade: 'nightwing', rig: 'nightwing', types: ['Water', 'Ghost'], tier: 'uncommon', bst: 394,
+    id: 'fogbat', name: 'Fogbat', nameParts: ['Fog', 'bat'], clade: 'nightwing', rig: 'nightwing', types: ['Water', 'Ghost'], tier: 'uncommon', bst: 395,
     stats: { hp: 0.13, melee: 0.08, ranged: 0.22, magic: 0.09, meleeDef: 0.11, rangedDef: 0.12, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'n.body.fluffy', head: 'n.head.snub', ears: 'n.ears.leaf', eyes: 'n.eyes.wide', muzzle: 'n.muzzle.fanged', wings: 'n.wings.narrow', legs: 'n.legs.furred', tail: 'n.tail.tuck', crest: ['n.crest.plume', 'n.crest.none'], ruff: ['n.ruff.fluff', 'n.ruff.none'], thumbs: 'n.thumbs.double', markings: ['n.markings.collar', 'n.markings.none'] },
     palette: { c1: [195, 21, 82], c2: [202, 25, 58], c3: [173, 61, 73], eye: [176, 73, 60] }, vary: { h: 8, s: 6, l: 5 },
@@ -4776,7 +4776,7 @@ export const SPECIES = [
     desc: 'A bat you can see through when the mist is thick, which it makes sure of.',
   },
   {
-    id: 'dewwing', name: 'Dewwing', nameParts: ['Dew', 'wing'], clade: 'nightwing', rig: 'nightwing', types: ['Dark', 'Water'], tier: 'common', bst: 416,
+    id: 'dewwing', name: 'Dewwing', nameParts: ['Dew', 'wing'], clade: 'nightwing', rig: 'nightwing', types: ['Dark', 'Water'], tier: 'common', bst: 409,
     stats: { hp: 0.13, melee: 0.06, ranged: 0.08, magic: 0.23, meleeDef: 0.11, rangedDef: 0.11, magicDef: 0.13, spe: 0.15 },
     recipe: { body: 'n.body.round', head: 'n.head.fox', ears: 'n.ears.curled', eyes: 'n.eyes.big', muzzle: 'n.muzzle.snub', wings: 'n.wings.narrow', legs: 'n.legs.hook', tail: 'n.tail.tuck', crest: ['n.crest.crown', 'n.crest.none'], ruff: 'n.ruff.fluff', thumbs: ['n.thumbs.long', 'n.thumbs.none'], markings: ['n.markings.stripes', 'n.markings.none'] },
     palette: { c1: [214, 23, 82], c2: [221, 27, 62], c3: [198, 61, 77], eye: [199, 71, 64] }, vary: { h: 8, s: 6, l: 5 },
@@ -4786,7 +4786,7 @@ export const SPECIES = [
     desc: 'Its wings are always wet and it does not know why. Drips on the sleeping.',
   },
   {
-    id: 'bloodwing', name: 'Bloodwing', nameParts: ['Blood', 'wing'], clade: 'nightwing', rig: 'nightwing', types: ['Dark', 'Fighting'], tier: 'rare', bst: 370,
+    id: 'bloodwing', name: 'Bloodwing', nameParts: ['Blood', 'wing'], clade: 'nightwing', rig: 'nightwing', types: ['Dark', 'Fighting'], tier: 'rare', bst: 369,
     stats: { hp: 0.12, melee: 0.22, ranged: 0.08, magic: 0.07, meleeDef: 0.11, rangedDef: 0.11, magicDef: 0.09, spe: 0.2 },
     recipe: { body: 'n.body.pear', head: 'n.head.wide', ears: 'n.ears.leaf', eyes: 'n.eyes.slit', muzzle: 'n.muzzle.grin', wings: 'n.wings.hooked', legs: 'n.legs.clawed', tail: 'n.tail.tufted', crest: 'n.crest.spikes', ruff: ['n.ruff.spiky', 'n.ruff.none'], thumbs: ['n.thumbs.double', 'n.thumbs.none'], markings: 'n.markings.collar' },
     palette: { c1: [37, 54, 36], c2: [28, 50, 26], c3: [37, 91, 57], eye: [42, 89, 54] }, vary: { h: 8, s: 6, l: 5 },
@@ -4796,7 +4796,7 @@ export const SPECIES = [
     desc: 'The one the other bats fly away from. Drinks from things that fight back.',
   },
   {
-    id: 'prismbat', name: 'Prismbat', nameParts: ['Prism', 'bat'], clade: 'nightwing', rig: 'nightwing', types: ['Rock', 'Psychic'], tier: 'uncommon', bst: 464,
+    id: 'prismbat', name: 'Prismbat', nameParts: ['Prism', 'bat'], clade: 'nightwing', rig: 'nightwing', types: ['Rock', 'Psychic'], tier: 'uncommon', bst: 465,
     stats: { hp: 0.13, melee: 0.06, ranged: 0.08, magic: 0.23, meleeDef: 0.11, rangedDef: 0.11, magicDef: 0.13, spe: 0.15 },
     recipe: { body: 'n.body.broad', head: 'n.head.pointed', ears: 'n.ears.leaf', eyes: 'n.eyes.slit', muzzle: 'n.muzzle.whiskered', wings: 'n.wings.hooked', legs: 'n.legs.clawed', tail: 'n.tail.long', crest: ['n.crest.spikes', 'n.crest.none'], ruff: ['n.ruff.spiky', 'n.ruff.none'], thumbs: 'n.thumbs.none', markings: ['n.markings.spots', 'n.markings.none'] },
     palette: { c1: [228, 46, 68], c2: [231, 45, 54], c3: [322, 72, 76], eye: [318, 79, 69] }, vary: { h: 8, s: 6, l: 5 },
@@ -4807,7 +4807,7 @@ export const SPECIES = [
   },
   // ---- Roster expansion: element pass, crystalline ----
   {
-    id: 'rustgeode', name: 'Rustgeode', nameParts: ['Rust', 'geode'], clade: 'crystalline', rig: 'crystalline', types: ['Steel', 'Poison'], tier: 'common', bst: 508,
+    id: 'rustgeode', name: 'Rustgeode', nameParts: ['Rust', 'geode'], clade: 'crystalline', rig: 'crystalline', types: ['Steel', 'Poison'], tier: 'common', bst: 507,
     stats: { hp: 0.16, melee: 0.2, ranged: 0.08, magic: 0.07, meleeDef: 0.17, rangedDef: 0.13, magicDef: 0.1, spe: 0.09 },
     recipe: { body: 'c.body.boulder', head: 'c.head.cube', eyes: 'c.eyes.star', mouth: 'c.mouth.wide', legsFront: 'c.legsFront.block', legsBack: 'c.legsBack.block', spines: ['c.spines.ridge', 'c.spines.none'], crown: ['c.crown.antler', 'c.crown.none'], tail: 'c.tail.beads', seam: ['c.seam.bands', 'c.seam.none'], facets: 'c.facets.none', aura: ['c.aura.sparkles', 'c.aura.none'] },
     palette: { c1: [36, 59, 44], c2: [38, 42, 30], c3: [51, 84, 54], eye: [55, 83, 55] }, vary: { h: 8, s: 6, l: 5 },
@@ -4817,7 +4817,7 @@ export const SPECIES = [
     desc: 'A geode of iron ore rusting from the inside. Leaks orange when it rains.',
   },
   {
-    id: 'tinshard', name: 'Tinshard', nameParts: ['Tin', 'shard'], clade: 'crystalline', rig: 'crystalline', types: ['Rock', 'Steel'], tier: 'common', bst: 403,
+    id: 'tinshard', name: 'Tinshard', nameParts: ['Tin', 'shard'], clade: 'crystalline', rig: 'crystalline', types: ['Rock', 'Steel'], tier: 'common', bst: 405,
     stats: { hp: 0.13, melee: 0.08, ranged: 0.22, magic: 0.09, meleeDef: 0.11, rangedDef: 0.12, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'c.body.prism', head: 'c.head.wedge', eyes: 'c.eyes.slit', mouth: 'c.mouth.grin', legsFront: 'c.legsFront.block', legsBack: 'c.legsBack.block', spines: 'c.spines.none', crown: 'c.crown.halo', tail: 'c.tail.beads', seam: 'c.seam.bands', facets: ['c.facets.stripes', 'c.facets.none'], aura: ['c.aura.halo', 'c.aura.none'] },
     palette: { c1: [56, 55, 49], c2: [62, 48, 32], c3: [72, 88, 54], eye: [79, 81, 53] }, vary: { h: 8, s: 6, l: 5 },
@@ -4827,7 +4827,7 @@ export const SPECIES = [
     desc: 'A splinter of ore that thinks it is a knife. Sharp enough to be right.',
   },
   {
-    id: 'goregem', name: 'Goregem', nameParts: ['Gore', 'gem'], clade: 'crystalline', rig: 'crystalline', types: ['Dark', 'Fighting'], tier: 'uncommon', bst: 440,
+    id: 'goregem', name: 'Goregem', nameParts: ['Gore', 'gem'], clade: 'crystalline', rig: 'crystalline', types: ['Dark', 'Fighting'], tier: 'uncommon', bst: 436,
     stats: { hp: 0.14, melee: 0.22, ranged: 0.08, magic: 0.07, meleeDef: 0.13, rangedDef: 0.11, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'c.body.slab', head: 'c.head.spike', eyes: 'c.eyes.slit', mouth: 'c.mouth.grin', legsFront: 'c.legsFront.shard', legsBack: 'c.legsBack.shard', spines: ['c.spines.twin', 'c.spines.none'], crown: ['c.crown.twin', 'c.crown.none'], tail: 'c.tail.spike', seam: ['c.seam.bands', 'c.seam.none'], facets: 'c.facets.shards', aura: ['c.aura.halo', 'c.aura.none'] },
     palette: { c1: [8, 52, 38], c2: [6, 52, 27], c3: [10, 88, 53], eye: [14, 93, 53] }, vary: { h: 8, s: 6, l: 5 },
@@ -4837,7 +4837,7 @@ export const SPECIES = [
     desc: 'A garnet with a grudge. Shatters what it hits and grows back the chips.',
   },
   {
-    id: 'brawlstone', name: 'Brawlstone', nameParts: ['Brawl', 'stone'], clade: 'crystalline', rig: 'crystalline', types: ['Rock', 'Fighting'], tier: 'common', bst: 492,
+    id: 'brawlstone', name: 'Brawlstone', nameParts: ['Brawl', 'stone'], clade: 'crystalline', rig: 'crystalline', types: ['Rock', 'Fighting'], tier: 'common', bst: 484,
     stats: { hp: 0.14, melee: 0.22, ranged: 0.08, magic: 0.07, meleeDef: 0.13, rangedDef: 0.11, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'c.body.geode', head: 'c.head.spike', eyes: 'c.eyes.slit', mouth: 'c.mouth.fanged', legsFront: 'c.legsFront.shard', legsBack: 'c.legsBack.shard', spines: 'c.spines.none', crown: ['c.crown.twin', 'c.crown.none'], tail: 'c.tail.spike', seam: ['c.seam.bands', 'c.seam.none'], facets: 'c.facets.shards', aura: 'c.aura.shards' },
     palette: { c1: [29, 56, 40], c2: [21, 51, 26], c3: [34, 86, 53], eye: [29, 89, 50] }, vary: { h: 8, s: 6, l: 5 },
@@ -4847,7 +4847,7 @@ export const SPECIES = [
     desc: 'A boulder with fists that fights other boulders. The caverns echo with it.',
   },
   {
-    id: 'voidcrystal', name: 'Voidcrystal', nameParts: ['Void', 'crystal'], clade: 'crystalline', rig: 'crystalline', types: ['Ghost', 'Psychic'], tier: 'rare', bst: 376,
+    id: 'voidcrystal', name: 'Voidcrystal', nameParts: ['Void', 'crystal'], clade: 'crystalline', rig: 'crystalline', types: ['Ghost', 'Psychic'], tier: 'rare', bst: 375,
     stats: { hp: 0.13, melee: 0.06, ranged: 0.08, magic: 0.23, meleeDef: 0.11, rangedDef: 0.11, magicDef: 0.13, spe: 0.15 },
     recipe: { body: 'c.body.geode', head: 'c.head.cluster', eyes: 'c.eyes.star', mouth: 'c.mouth.grin', legsFront: 'c.legsFront.shard', legsBack: 'c.legsBack.crystal', spines: ['c.spines.low', 'c.spines.none'], crown: ['c.crown.halo', 'c.crown.none'], tail: 'c.tail.stub', seam: 'c.seam.none', facets: 'c.facets.diamonds', aura: ['c.aura.glow', 'c.aura.none'] },
     palette: { c1: [272, 25, 42], c2: [282, 30, 34], c3: [294, 82, 73], eye: [300, 92, 70] }, vary: { h: 8, s: 6, l: 5 },
@@ -4857,7 +4857,7 @@ export const SPECIES = [
     desc: 'A crystal that is darker inside than out. Light goes in and does not report back.',
   },
   {
-    id: 'hushquartz', name: 'Hushquartz', nameParts: ['Hush', 'quartz'], clade: 'crystalline', rig: 'crystalline', types: ['Rock', 'Psychic'], tier: 'uncommon', bst: 439,
+    id: 'hushquartz', name: 'Hushquartz', nameParts: ['Hush', 'quartz'], clade: 'crystalline', rig: 'crystalline', types: ['Rock', 'Psychic'], tier: 'uncommon', bst: 442,
     stats: { hp: 0.13, melee: 0.06, ranged: 0.08, magic: 0.23, meleeDef: 0.11, rangedDef: 0.11, magicDef: 0.13, spe: 0.15 },
     recipe: { body: 'c.body.geode', head: 'c.head.dome', eyes: 'c.eyes.glow', mouth: 'c.mouth.wide', legsFront: 'c.legsFront.block', legsBack: 'c.legsBack.split', spines: 'c.spines.cluster', crown: 'c.crown.halo', tail: 'c.tail.stub', seam: ['c.seam.cracks', 'c.seam.none'], facets: 'c.facets.none', aura: ['c.aura.glow', 'c.aura.none'] },
     palette: { c1: [298, 30, 43], c2: [303, 32, 30], c3: [313, 84, 74], eye: [320, 94, 73] }, vary: { h: 8, s: 6, l: 5 },
@@ -4867,7 +4867,7 @@ export const SPECIES = [
     desc: 'Hums a note that stills the mind. The gem cutters work in silence near it.',
   },
   {
-    id: 'moonstone', name: 'Moonstone', nameParts: ['Moon', 'stone'], clade: 'crystalline', rig: 'crystalline', types: ['Dark', 'Fairy'], tier: 'uncommon', bst: 398,
+    id: 'moonstone', name: 'Moonstone', nameParts: ['Moon', 'stone'], clade: 'crystalline', rig: 'crystalline', types: ['Dark', 'Fairy'], tier: 'uncommon', bst: 405,
     stats: { hp: 0.13, melee: 0.06, ranged: 0.08, magic: 0.23, meleeDef: 0.11, rangedDef: 0.11, magicDef: 0.13, spe: 0.15 },
     recipe: { body: 'c.body.pebble', head: 'c.head.dome', eyes: 'c.eyes.star', mouth: 'c.mouth.flat', legsFront: 'c.legsFront.crystal', legsBack: 'c.legsBack.split', spines: ['c.spines.fan', 'c.spines.none'], crown: ['c.crown.halo', 'c.crown.none'], tail: 'c.tail.fan', seam: ['c.seam.rings', 'c.seam.none'], facets: 'c.facets.panes', aura: 'c.aura.ring' },
     palette: { c1: [237, 24, 83], c2: [247, 29, 59], c3: [59, 68, 87], eye: [60, 69, 72] }, vary: { h: 8, s: 6, l: 5 },
@@ -4877,7 +4877,7 @@ export const SPECIES = [
     desc: 'Glows with a light that is not its own. On cloudy nights it sulks.',
   },
   {
-    id: 'gloamgem', name: 'Gloamgem', nameParts: ['Gloam', 'gem'], clade: 'crystalline', rig: 'crystalline', types: ['Rock', 'Fairy'], tier: 'common', bst: 428,
+    id: 'gloamgem', name: 'Gloamgem', nameParts: ['Gloam', 'gem'], clade: 'crystalline', rig: 'crystalline', types: ['Rock', 'Fairy'], tier: 'common', bst: 424,
     stats: { hp: 0.13, melee: 0.08, ranged: 0.22, magic: 0.09, meleeDef: 0.11, rangedDef: 0.12, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'c.body.boulder', head: 'c.head.prism', eyes: 'c.eyes.glow', mouth: 'c.mouth.grin', legsFront: 'c.legsFront.tall', legsBack: 'c.legsBack.block', spines: ['c.spines.fan', 'c.spines.none'], crown: 'c.crown.halo', tail: 'c.tail.fan', seam: ['c.seam.rings', 'c.seam.none'], facets: ['c.facets.diamonds', 'c.facets.none'], aura: 'c.aura.ring' },
     palette: { c1: [259, 20, 75], c2: [261, 29, 57], c3: [82, 64, 80], eye: [79, 71, 71] }, vary: { h: 8, s: 6, l: 5 },
@@ -4887,7 +4887,7 @@ export const SPECIES = [
     desc: 'A gem that lights at dusk and fires sparks at the first star out.',
   },
   {
-    id: 'prismgeode', name: 'Prismgeode', nameParts: ['Prism', 'geode'], clade: 'crystalline', rig: 'crystalline', types: ['Rock', 'Psychic'], tier: 'rare', bst: 445,
+    id: 'prismgeode', name: 'Prismgeode', nameParts: ['Prism', 'geode'], clade: 'crystalline', rig: 'crystalline', types: ['Rock', 'Psychic'], tier: 'rare', bst: 448,
     stats: { hp: 0.13, melee: 0.06, ranged: 0.08, magic: 0.23, meleeDef: 0.11, rangedDef: 0.11, magicDef: 0.13, spe: 0.15 },
     recipe: { body: 'c.body.cluster', head: 'c.head.cluster', eyes: 'c.eyes.gem', mouth: 'c.mouth.flat', legsFront: 'c.legsFront.shard', legsBack: 'c.legsBack.crystal', spines: ['c.spines.cluster', 'c.spines.none'], crown: ['c.crown.cluster', 'c.crown.none'], tail: 'c.tail.cluster', seam: 'c.seam.rings', facets: 'c.facets.none', aura: 'c.aura.ring' },
     palette: { c1: [202, 44, 69], c2: [202, 40, 53], c3: [295, 67, 74], eye: [290, 79, 70] }, vary: { h: 8, s: 6, l: 5 },
@@ -4897,7 +4897,7 @@ export const SPECIES = [
     desc: 'The purest crystal in the caverns and it knows it. Reads you like a lamp reads a lens.',
   },
   {
-    id: 'shardhound', name: 'Shardhound', nameParts: ['Shard', 'hound'], clade: 'crystalline', rig: 'crystalline', types: ['Rock', 'Psychic'], tier: 'uncommon', bst: 431,
+    id: 'shardhound', name: 'Shardhound', nameParts: ['Shard', 'hound'], clade: 'crystalline', rig: 'crystalline', types: ['Rock', 'Psychic'], tier: 'uncommon', bst: 432,
     stats: { hp: 0.13, melee: 0.08, ranged: 0.22, magic: 0.09, meleeDef: 0.11, rangedDef: 0.12, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'c.body.cluster', head: 'c.head.gem', eyes: 'c.eyes.star', mouth: 'c.mouth.point', legsFront: 'c.legsFront.crystal', legsBack: 'c.legsBack.shard', spines: ['c.spines.cluster', 'c.spines.none'], crown: ['c.crown.cluster', 'c.crown.none'], tail: 'c.tail.cluster', seam: ['c.seam.rings', 'c.seam.none'], facets: 'c.facets.diamonds', aura: ['c.aura.ring', 'c.aura.none'] },
     palette: { c1: [222, 45, 69], c2: [225, 44, 52], c3: [314, 69, 70], eye: [312, 76, 69] }, vary: { h: 8, s: 6, l: 5 },
@@ -4907,7 +4907,7 @@ export const SPECIES = [
     desc: 'A hound of split crystal that hunts by resonance. Whistle and it finds you.',
   },
   {
-    id: 'foggeode', name: 'Foggeode', nameParts: ['Fog', 'geode'], clade: 'crystalline', rig: 'crystalline', types: ['Water', 'Ghost'], tier: 'uncommon', bst: 386,
+    id: 'foggeode', name: 'Foggeode', nameParts: ['Fog', 'geode'], clade: 'crystalline', rig: 'crystalline', types: ['Water', 'Ghost'], tier: 'uncommon', bst: 396,
     stats: { hp: 0.13, melee: 0.08, ranged: 0.22, magic: 0.09, meleeDef: 0.11, rangedDef: 0.12, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'c.body.slab', head: 'c.head.prism', eyes: 'c.eyes.twin', mouth: 'c.mouth.grin', legsFront: 'c.legsFront.split', legsBack: 'c.legsBack.crystal', spines: 'c.spines.twin', crown: 'c.crown.twin', tail: 'c.tail.beads', seam: ['c.seam.dots', 'c.seam.none'], facets: ['c.facets.hexes', 'c.facets.none'], aura: ['c.aura.haze', 'c.aura.none'] },
     palette: { c1: [204, 23, 77], c2: [214, 28, 57], c3: [190, 63, 72], eye: [192, 69, 61] }, vary: { h: 8, s: 6, l: 5 },
@@ -4927,7 +4927,7 @@ export const SPECIES = [
     desc: 'Sweats water in the dark. The cavern pools are its doing.',
   },
   {
-    id: 'bloodgarnet', name: 'Bloodgarnet', nameParts: ['Blood', 'garnet'], clade: 'crystalline', rig: 'crystalline', types: ['Dark', 'Fighting'], tier: 'rare', bst: 414,
+    id: 'bloodgarnet', name: 'Bloodgarnet', nameParts: ['Blood', 'garnet'], clade: 'crystalline', rig: 'crystalline', types: ['Dark', 'Fighting'], tier: 'rare', bst: 417,
     stats: { hp: 0.14, melee: 0.22, ranged: 0.08, magic: 0.07, meleeDef: 0.13, rangedDef: 0.11, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'c.body.shard', head: 'c.head.spike', eyes: 'c.eyes.slit', mouth: 'c.mouth.grin', legsFront: 'c.legsFront.shard', legsBack: 'c.legsBack.shard', spines: 'c.spines.ridge', crown: 'c.crown.twin', tail: 'c.tail.spike', seam: 'c.seam.rings', facets: ['c.facets.shards', 'c.facets.none'], aura: 'c.aura.ring' },
     palette: { c1: [46, 57, 38], c2: [43, 53, 27], c3: [53, 94, 57], eye: [54, 90, 51] }, vary: { h: 8, s: 6, l: 5 },
@@ -4937,7 +4937,7 @@ export const SPECIES = [
     desc: 'Red crystal that fights like a living thing. Cut it and it cuts back.',
   },
   {
-    id: 'starquartz', name: 'Starquartz', nameParts: ['Star', 'quartz'], clade: 'crystalline', rig: 'crystalline', types: ['Rock', 'Psychic'], tier: 'common', bst: 427,
+    id: 'starquartz', name: 'Starquartz', nameParts: ['Star', 'quartz'], clade: 'crystalline', rig: 'crystalline', types: ['Rock', 'Psychic'], tier: 'common', bst: 426,
     stats: { hp: 0.13, melee: 0.08, ranged: 0.22, magic: 0.09, meleeDef: 0.11, rangedDef: 0.12, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'c.body.cluster', head: 'c.head.gem', eyes: 'c.eyes.star', mouth: 'c.mouth.flat', legsFront: 'c.legsFront.shard', legsBack: 'c.legsBack.shard', spines: ['c.spines.cluster', 'c.spines.none'], crown: ['c.crown.cluster', 'c.crown.none'], tail: 'c.tail.cluster', seam: ['c.seam.rings', 'c.seam.none'], facets: ['c.facets.diamonds', 'c.facets.none'], aura: 'c.aura.ring' },
     palette: { c1: [243, 46, 66], c2: [250, 39, 51], c3: [333, 70, 70], eye: [329, 79, 67] }, vary: { h: 8, s: 6, l: 5 },
@@ -4948,7 +4948,7 @@ export const SPECIES = [
   },
   // ---- Roster expansion: element pass, myriapod ----
   {
-    id: 'rustpede', name: 'Rustpede', nameParts: ['Rust', 'pede'], clade: 'myriapod', rig: 'myriapod', types: ['Steel', 'Poison'], tier: 'common', bst: 500,
+    id: 'rustpede', name: 'Rustpede', nameParts: ['Rust', 'pede'], clade: 'myriapod', rig: 'myriapod', types: ['Steel', 'Poison'], tier: 'common', bst: 496,
     stats: { hp: 0.16, melee: 0.2, ranged: 0.08, magic: 0.07, meleeDef: 0.17, rangedDef: 0.13, magicDef: 0.1, spe: 0.09 },
     recipe: { body: 'y.body.armored', head: 'y.head.helm', eyes: 'y.eyes.cluster', mandibles: 'y.mandibles.crushers', antennae: 'y.antennae.feathered', legs: 'y.legs.thick', tail: 'y.tail.fan', plates: ['y.plates.scutes', 'y.plates.none'], bristles: 'y.bristles.spiky', glow: 'y.glow.none', bands: ['y.bands.saddle', 'y.bands.none'], venom: 'y.venom.drips' },
     palette: { c1: [15, 54, 41], c2: [21, 48, 28], c3: [33, 84, 56], eye: [43, 82, 51] }, vary: { h: 8, s: 6, l: 5 },
@@ -4958,7 +4958,7 @@ export const SPECIES = [
     desc: 'A centipede of rusted chain links. Each leg a nail, each bite a fever.',
   },
   {
-    id: 'tinlegs', name: 'Tinlegs', nameParts: ['Tin', 'legs'], clade: 'myriapod', rig: 'myriapod', types: ['Bug', 'Steel'], tier: 'common', bst: 403,
+    id: 'tinlegs', name: 'Tinlegs', nameParts: ['Tin', 'legs'], clade: 'myriapod', rig: 'myriapod', types: ['Bug', 'Steel'], tier: 'common', bst: 400,
     stats: { hp: 0.13, melee: 0.08, ranged: 0.22, magic: 0.09, meleeDef: 0.11, rangedDef: 0.12, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'y.body.bulbous', head: 'y.head.helm', eyes: 'y.eyes.ring', mandibles: 'y.mandibles.saw', antennae: 'y.antennae.curled', legs: 'y.legs.thick', tail: 'y.tail.plume', plates: 'y.plates.none', bristles: ['y.bristles.long', 'y.bristles.none'], glow: 'y.glow.halo', bands: ['y.bands.dashes', 'y.bands.none'], venom: ['y.venom.bubbles', 'y.venom.none'] },
     palette: { c1: [35, 59, 48], c2: [39, 45, 34], c3: [53, 89, 55], eye: [62, 76, 57] }, vary: { h: 8, s: 6, l: 5 },
@@ -4968,7 +4968,7 @@ export const SPECIES = [
     desc: 'A millipede in tin plate. Sounds like a drawer of cutlery falling downstairs.',
   },
   {
-    id: 'gorepede', name: 'Gorepede', nameParts: ['Gore', 'pede'], clade: 'myriapod', rig: 'myriapod', types: ['Dark', 'Fighting'], tier: 'uncommon', bst: 430,
+    id: 'gorepede', name: 'Gorepede', nameParts: ['Gore', 'pede'], clade: 'myriapod', rig: 'myriapod', types: ['Dark', 'Fighting'], tier: 'uncommon', bst: 427,
     stats: { hp: 0.14, melee: 0.22, ranged: 0.08, magic: 0.07, meleeDef: 0.13, rangedDef: 0.11, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'y.body.flat', head: 'y.head.horned', eyes: 'y.eyes.slit', mandibles: 'y.mandibles.hooks', antennae: 'y.antennae.clubbed', legs: 'y.legs.thick', tail: 'y.tail.spike', plates: 'y.plates.horns', bristles: 'y.bristles.none', glow: 'y.glow.none', bands: 'y.bands.segments', venom: 'y.venom.fangs' },
     palette: { c1: [351, 56, 40], c2: [348, 49, 29], c3: [354, 89, 56], eye: [353, 91, 54] }, vary: { h: 8, s: 6, l: 5 },
@@ -4978,7 +4978,7 @@ export const SPECIES = [
     desc: 'Wraps and squeezes with a hundred legs. Lets go when it feels like it.',
   },
   {
-    id: 'brawlmillie', name: 'Brawlmillie', nameParts: ['Brawl', 'millie'], clade: 'myriapod', rig: 'myriapod', types: ['Bug', 'Fighting'], tier: 'common', bst: 484,
+    id: 'brawlmillie', name: 'Brawlmillie', nameParts: ['Brawl', 'millie'], clade: 'myriapod', rig: 'myriapod', types: ['Bug', 'Fighting'], tier: 'common', bst: 485,
     stats: { hp: 0.14, melee: 0.22, ranged: 0.08, magic: 0.07, meleeDef: 0.13, rangedDef: 0.11, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'y.body.segmented', head: 'y.head.pincer', eyes: 'y.eyes.dot', mandibles: 'y.mandibles.hooks', antennae: 'y.antennae.curled', legs: 'y.legs.thick', tail: 'y.tail.spike', plates: 'y.plates.spikes', bristles: 'y.bristles.spiky', glow: 'y.glow.none', bands: ['y.bands.segments', 'y.bands.none'], venom: ['y.venom.fangs', 'y.venom.none'] },
     palette: { c1: [11, 54, 37], c2: [7, 53, 30], c3: [17, 89, 53], eye: [16, 86, 51] }, vary: { h: 8, s: 6, l: 5 },
@@ -4998,7 +4998,7 @@ export const SPECIES = [
     desc: 'Its segments fade in and out. Count the legs twice and get two answers.',
   },
   {
-    id: 'hushpede', name: 'Hushpede', nameParts: ['Hush', 'pede'], clade: 'myriapod', rig: 'myriapod', types: ['Bug', 'Psychic'], tier: 'uncommon', bst: 444,
+    id: 'hushpede', name: 'Hushpede', nameParts: ['Hush', 'pede'], clade: 'myriapod', rig: 'myriapod', types: ['Bug', 'Psychic'], tier: 'uncommon', bst: 438,
     stats: { hp: 0.13, melee: 0.06, ranged: 0.08, magic: 0.23, meleeDef: 0.11, rangedDef: 0.11, magicDef: 0.13, spe: 0.15 },
     recipe: { body: 'y.body.segmented', head: 'y.head.shield', eyes: 'y.eyes.glow', mandibles: 'y.mandibles.saw', antennae: 'y.antennae.curled', legs: 'y.legs.thick', tail: 'y.tail.pincer', plates: ['y.plates.scutes', 'y.plates.none'], bristles: ['y.bristles.tufted', 'y.bristles.none'], glow: ['y.glow.halo', 'y.glow.none'], bands: ['y.bands.segments', 'y.bands.none'], venom: ['y.venom.glow', 'y.venom.none'] },
     palette: { c1: [280, 31, 43], c2: [284, 34, 30], c3: [291, 84, 69], eye: [295, 87, 75] }, vary: { h: 8, s: 6, l: 5 },
@@ -5008,7 +5008,7 @@ export const SPECIES = [
     desc: 'Crawls through dreams as easily as tunnels. Leaves footprints in both.',
   },
   {
-    id: 'moonmillie', name: 'Moonmillie', nameParts: ['Moon', 'millie'], clade: 'myriapod', rig: 'myriapod', types: ['Dark', 'Fairy'], tier: 'uncommon', bst: 399,
+    id: 'moonmillie', name: 'Moonmillie', nameParts: ['Moon', 'millie'], clade: 'myriapod', rig: 'myriapod', types: ['Dark', 'Fairy'], tier: 'uncommon', bst: 400,
     stats: { hp: 0.13, melee: 0.06, ranged: 0.08, magic: 0.23, meleeDef: 0.11, rangedDef: 0.11, magicDef: 0.13, spe: 0.15 },
     recipe: { body: 'y.body.segmented', head: 'y.head.capsule', eyes: 'y.eyes.ring', mandibles: 'y.mandibles.crushers', antennae: 'y.antennae.feathered', legs: 'y.legs.stilt', tail: 'y.tail.fan', plates: 'y.plates.dome', bristles: 'y.bristles.feathered', glow: ['y.glow.soft', 'y.glow.none'], bands: ['y.bands.rings', 'y.bands.none'], venom: 'y.venom.glow' },
     palette: { c1: [218, 27, 83], c2: [225, 27, 63], c3: [41, 65, 83], eye: [44, 69, 72] }, vary: { h: 8, s: 6, l: 5 },
@@ -5018,7 +5018,7 @@ export const SPECIES = [
     desc: 'Silver segments that curl into a crescent when it sleeps. It sleeps by day.',
   },
   {
-    id: 'gloamcrawl', name: 'Gloamcrawl', nameParts: ['Gloam', 'crawl'], clade: 'myriapod', rig: 'myriapod', types: ['Bug', 'Fairy'], tier: 'common', bst: 453,
+    id: 'gloamcrawl', name: 'Gloamcrawl', nameParts: ['Gloam', 'crawl'], clade: 'myriapod', rig: 'myriapod', types: ['Bug', 'Fairy'], tier: 'common', bst: 454,
     stats: { hp: 0.13, melee: 0.08, ranged: 0.22, magic: 0.09, meleeDef: 0.11, rangedDef: 0.12, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'y.body.bulbous', head: 'y.head.bulb', eyes: 'y.eyes.glow', mandibles: 'y.mandibles.wide', antennae: 'y.antennae.feathered', legs: 'y.legs.spiny', tail: 'y.tail.fan', plates: 'y.plates.dome', bristles: ['y.bristles.tufted', 'y.bristles.none'], glow: 'y.glow.soft', bands: 'y.bands.none', venom: 'y.venom.glow' },
     palette: { c1: [242, 22, 77], c2: [244, 27, 55], c3: [61, 63, 82], eye: [64, 72, 70] }, vary: { h: 8, s: 6, l: 5 },
@@ -5028,7 +5028,7 @@ export const SPECIES = [
     desc: 'Lights up segment by segment at dusk, like a street coming on.',
   },
   {
-    id: 'geodepede', name: 'Geodepede', nameParts: ['Geode', 'pede'], clade: 'myriapod', rig: 'myriapod', types: ['Rock', 'Psychic'], tier: 'uncommon', bst: 432,
+    id: 'geodepede', name: 'Geodepede', nameParts: ['Geode', 'pede'], clade: 'myriapod', rig: 'myriapod', types: ['Rock', 'Psychic'], tier: 'uncommon', bst: 427,
     stats: { hp: 0.13, melee: 0.08, ranged: 0.22, magic: 0.09, meleeDef: 0.11, rangedDef: 0.12, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'y.body.spiky', head: 'y.head.helm', eyes: 'y.eyes.ring', mandibles: 'y.mandibles.hooks', antennae: 'y.antennae.long', legs: 'y.legs.paddle', tail: 'y.tail.plume', plates: ['y.plates.keel', 'y.plates.none'], bristles: ['y.bristles.spiky', 'y.bristles.none'], glow: 'y.glow.none', bands: 'y.bands.rings', venom: 'y.venom.bubbles' },
     palette: { c1: [180, 42, 68], c2: [192, 39, 52], c3: [275, 68, 71], eye: [272, 81, 71] }, vary: { h: 8, s: 6, l: 5 },
@@ -5038,7 +5038,7 @@ export const SPECIES = [
     desc: 'Every segment a geode. It thinks in a row, one crystal at a time.',
   },
   {
-    id: 'flintmillie', name: 'Flintmillie', nameParts: ['Flint', 'millie'], clade: 'myriapod', rig: 'myriapod', types: ['Bug', 'Rock'], tier: 'common', bst: 478,
+    id: 'flintmillie', name: 'Flintmillie', nameParts: ['Flint', 'millie'], clade: 'myriapod', rig: 'myriapod', types: ['Bug', 'Rock'], tier: 'common', bst: 483,
     stats: { hp: 0.14, melee: 0.22, ranged: 0.08, magic: 0.07, meleeDef: 0.13, rangedDef: 0.11, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'y.body.spiky', head: 'y.head.narrow', eyes: 'y.eyes.ring', mandibles: 'y.mandibles.hooks', antennae: 'y.antennae.bent', legs: 'y.legs.long', tail: 'y.tail.plume', plates: 'y.plates.spikes', bristles: ['y.bristles.spiky', 'y.bristles.none'], glow: ['y.glow.sparks', 'y.glow.none'], bands: 'y.bands.rings', venom: ['y.venom.fangs', 'y.venom.none'] },
     palette: { c1: [199, 43, 65], c2: [212, 41, 49], c3: [295, 67, 70], eye: [297, 80, 66] }, vary: { h: 8, s: 6, l: 5 },
@@ -5048,7 +5048,7 @@ export const SPECIES = [
     desc: 'Armoured in flint. Grinds through the root cellar walls and eats the roots.',
   },
   {
-    id: 'fogpede', name: 'Fogpede', nameParts: ['Fog', 'pede'], clade: 'myriapod', rig: 'myriapod', types: ['Water', 'Ghost'], tier: 'uncommon', bst: 390,
+    id: 'fogpede', name: 'Fogpede', nameParts: ['Fog', 'pede'], clade: 'myriapod', rig: 'myriapod', types: ['Water', 'Ghost'], tier: 'uncommon', bst: 386,
     stats: { hp: 0.13, melee: 0.08, ranged: 0.22, magic: 0.09, meleeDef: 0.11, rangedDef: 0.12, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'y.body.segmented', head: 'y.head.helm', eyes: 'y.eyes.cluster', mandibles: 'y.mandibles.hooks', antennae: 'y.antennae.curled', legs: 'y.legs.paddle', tail: 'y.tail.forks', plates: 'y.plates.crest', bristles: ['y.bristles.spiky', 'y.bristles.none'], glow: ['y.glow.soft', 'y.glow.none'], bands: ['y.bands.dashes', 'y.bands.none'], venom: 'y.venom.mist' },
     palette: { c1: [191, 21, 81], c2: [195, 29, 60], c3: [170, 59, 73], eye: [175, 73, 57] }, vary: { h: 8, s: 6, l: 5 },
@@ -5058,7 +5058,7 @@ export const SPECIES = [
     desc: 'Crawls through the warren fog with only its glow showing. The glow has too many legs.',
   },
   {
-    id: 'dewcrawl', name: 'Dewcrawl', nameParts: ['Dew', 'crawl'], clade: 'myriapod', rig: 'myriapod', types: ['Bug', 'Water'], tier: 'common', bst: 434,
+    id: 'dewcrawl', name: 'Dewcrawl', nameParts: ['Dew', 'crawl'], clade: 'myriapod', rig: 'myriapod', types: ['Bug', 'Water'], tier: 'common', bst: 442,
     stats: { hp: 0.13, melee: 0.06, ranged: 0.08, magic: 0.23, meleeDef: 0.11, rangedDef: 0.11, magicDef: 0.13, spe: 0.15 },
     recipe: { body: 'y.body.coiled', head: 'y.head.bulb', eyes: 'y.eyes.glow', mandibles: 'y.mandibles.needles', antennae: 'y.antennae.short', legs: 'y.legs.paddle', tail: 'y.tail.blunt', plates: ['y.plates.crest', 'y.plates.none'], bristles: 'y.bristles.none', glow: 'y.glow.soft', bands: 'y.bands.dots', venom: 'y.venom.none' },
     palette: { c1: [209, 27, 86], c2: [214, 22, 61], c3: [192, 62, 78], eye: [191, 70, 62] }, vary: { h: 8, s: 6, l: 5 },
@@ -5068,7 +5068,7 @@ export const SPECIES = [
     desc: 'Beads of dew for segments. Comes apart on hot days and pulls itself together by dusk.',
   },
   {
-    id: 'bloodcoil', name: 'Bloodcoil', nameParts: ['Blood', 'coil'], clade: 'myriapod', rig: 'myriapod', types: ['Dark', 'Fighting'], tier: 'rare', bst: 366,
+    id: 'bloodcoil', name: 'Bloodcoil', nameParts: ['Blood', 'coil'], clade: 'myriapod', rig: 'myriapod', types: ['Dark', 'Fighting'], tier: 'rare', bst: 362,
     stats: { hp: 0.12, melee: 0.22, ranged: 0.08, magic: 0.07, meleeDef: 0.11, rangedDef: 0.11, magicDef: 0.09, spe: 0.2 },
     recipe: { body: 'y.body.spiky', head: 'y.head.capsule', eyes: 'y.eyes.slit', mandibles: 'y.mandibles.hooks', antennae: 'y.antennae.twin', legs: 'y.legs.thick', tail: 'y.tail.spike', plates: 'y.plates.spikes', bristles: ['y.bristles.spiky', 'y.bristles.none'], glow: 'y.glow.none', bands: 'y.bands.chevrons', venom: 'y.venom.none' },
     palette: { c1: [26, 54, 38], c2: [22, 51, 28], c3: [36, 92, 52], eye: [33, 87, 52] }, vary: { h: 8, s: 6, l: 5 },
@@ -5078,7 +5078,7 @@ export const SPECIES = [
     desc: 'Red-banded and fast. Its coils tighten faster than anything can slip them.',
   },
   {
-    id: 'prismpede', name: 'Prismpede', nameParts: ['Prism', 'pede'], clade: 'myriapod', rig: 'myriapod', types: ['Rock', 'Psychic'], tier: 'uncommon', bst: 424,
+    id: 'prismpede', name: 'Prismpede', nameParts: ['Prism', 'pede'], clade: 'myriapod', rig: 'myriapod', types: ['Rock', 'Psychic'], tier: 'uncommon', bst: 427,
     stats: { hp: 0.13, melee: 0.06, ranged: 0.08, magic: 0.23, meleeDef: 0.11, rangedDef: 0.11, magicDef: 0.13, spe: 0.15 },
     recipe: { body: 'y.body.spiky', head: 'y.head.pincer', eyes: 'y.eyes.ring', mandibles: 'y.mandibles.hooks', antennae: 'y.antennae.twin', legs: 'y.legs.hooked', tail: 'y.tail.pincer', plates: ['y.plates.keel', 'y.plates.none'], bristles: ['y.bristles.spiky', 'y.bristles.none'], glow: 'y.glow.halo', bands: ['y.bands.rings', 'y.bands.none'], venom: ['y.venom.glow', 'y.venom.none'] },
     palette: { c1: [222, 44, 70], c2: [228, 38, 54], c3: [315, 69, 78], eye: [315, 79, 72] }, vary: { h: 8, s: 6, l: 5 },
@@ -5089,7 +5089,7 @@ export const SPECIES = [
   },
   // ---- Roster expansion: element pass, fiend ----
   {
-    id: 'rustimp', name: 'Rustimp', nameParts: ['Rust', 'imp'], clade: 'fiend', rig: 'fiend', types: ['Steel', 'Poison'], tier: 'common', bst: 464,
+    id: 'rustimp', name: 'Rustimp', nameParts: ['Rust', 'imp'], clade: 'fiend', rig: 'fiend', types: ['Steel', 'Poison'], tier: 'common', bst: 461,
     stats: { hp: 0.14, melee: 0.22, ranged: 0.08, magic: 0.07, meleeDef: 0.13, rangedDef: 0.11, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'e.body.armoured', head: 'e.head.brute', eyes: 'e.eyes.hollow', mouth: 'e.mouth.tusks', horns: ['e.horns.straight', 'e.horns.none'], arms: 'e.arms.gauntlet', legs: 'e.legs.armoured', tail: 'e.tail.thick', wings: 'e.wings.bat', hand: 'e.hand.chain', marks: ['e.marks.cracks', 'e.marks.none'], aura: 'e.aura.none' },
     palette: { c1: [29, 56, 46], c2: [33, 44, 27], c3: [42, 84, 54], eye: [55, 82, 55] }, vary: { h: 8, s: 6, l: 5 },
@@ -5109,7 +5109,7 @@ export const SPECIES = [
     desc: 'Forged badly and knows it. Throws rivets and insults in equal measure.',
   },
   {
-    id: 'gorefiend', name: 'Gorefiend', nameParts: ['Gore', 'fiend'], clade: 'fiend', rig: 'fiend', types: ['Dark', 'Fighting'], tier: 'uncommon', bst: 413,
+    id: 'gorefiend', name: 'Gorefiend', nameParts: ['Gore', 'fiend'], clade: 'fiend', rig: 'fiend', types: ['Dark', 'Fighting'], tier: 'uncommon', bst: 410,
     stats: { hp: 0.14, melee: 0.22, ranged: 0.08, magic: 0.07, meleeDef: 0.13, rangedDef: 0.11, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'e.body.brute', head: 'e.head.brute', eyes: 'e.eyes.slit', mouth: 'e.mouth.tusks', horns: ['e.horns.crown', 'e.horns.none'], arms: 'e.arms.brawny', legs: 'e.legs.brawny', tail: ['e.tail.thick', 'e.tail.none'], wings: 'e.wings.ember', hand: ['e.hand.claws', 'e.hand.none'], marks: ['e.marks.sigil', 'e.marks.none'], aura: 'e.aura.none' },
     palette: { c1: [3, 58, 38], c2: [355, 46, 27], c3: [6, 90, 55], eye: [10, 94, 53] }, vary: { h: 8, s: 6, l: 5 },
@@ -5119,7 +5119,7 @@ export const SPECIES = [
     desc: 'Fights bare-handed because weapons slow it down. Enjoys it too much.',
   },
   {
-    id: 'brawlimp', name: 'Brawlimp', nameParts: ['Brawl', 'imp'], clade: 'fiend', rig: 'fiend', types: ['Fire', 'Fighting'], tier: 'common', bst: 511,
+    id: 'brawlimp', name: 'Brawlimp', nameParts: ['Brawl', 'imp'], clade: 'fiend', rig: 'fiend', types: ['Fire', 'Fighting'], tier: 'common', bst: 517,
     stats: { hp: 0.14, melee: 0.22, ranged: 0.08, magic: 0.07, meleeDef: 0.13, rangedDef: 0.11, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'e.body.brute', head: 'e.head.brute', eyes: 'e.eyes.wide', mouth: 'e.mouth.needle', horns: 'e.horns.straight', arms: 'e.arms.brawny', legs: 'e.legs.brawny', tail: 'e.tail.barbed', wings: ['e.wings.feathered', 'e.wings.none'], hand: ['e.hand.claws', 'e.hand.none'], marks: ['e.marks.sigil', 'e.marks.none'], aura: 'e.aura.none' },
     palette: { c1: [19, 57, 40], c2: [20, 53, 30], c3: [26, 89, 53], eye: [24, 89, 52] }, vary: { h: 8, s: 6, l: 5 },
@@ -5129,7 +5129,7 @@ export const SPECIES = [
     desc: 'A tiny devil with a big right hook. Starts fights it cannot finish and finishes them anyway.',
   },
   {
-    id: 'voidfiend', name: 'Voidfiend', nameParts: ['Void', 'fiend'], clade: 'fiend', rig: 'fiend', types: ['Ghost', 'Psychic'], tier: 'rare', bst: 373,
+    id: 'voidfiend', name: 'Voidfiend', nameParts: ['Void', 'fiend'], clade: 'fiend', rig: 'fiend', types: ['Ghost', 'Psychic'], tier: 'rare', bst: 376,
     stats: { hp: 0.13, melee: 0.06, ranged: 0.08, magic: 0.23, meleeDef: 0.11, rangedDef: 0.11, magicDef: 0.13, spe: 0.15 },
     recipe: { body: 'e.body.lanky', head: 'e.head.brute', eyes: 'e.eyes.three', mouth: 'e.mouth.tusks', horns: ['e.horns.ram', 'e.horns.none'], arms: 'e.arms.long', legs: 'e.legs.thin', tail: 'e.tail.thick', wings: 'e.wings.feathered', hand: 'e.hand.chain', marks: 'e.marks.none', aura: 'e.aura.halo' },
     palette: { c1: [266, 30, 44], c2: [274, 33, 28], c3: [290, 84, 72], eye: [294, 89, 76] }, vary: { h: 8, s: 6, l: 5 },
@@ -5149,7 +5149,7 @@ export const SPECIES = [
     desc: 'Whispers deals into sleeping ears. You wake up owing.',
   },
   {
-    id: 'moonfiend', name: 'Moonfiend', nameParts: ['Moon', 'fiend'], clade: 'fiend', rig: 'fiend', types: ['Dark', 'Fairy'], tier: 'uncommon', bst: 408,
+    id: 'moonfiend', name: 'Moonfiend', nameParts: ['Moon', 'fiend'], clade: 'fiend', rig: 'fiend', types: ['Dark', 'Fairy'], tier: 'uncommon', bst: 403,
     stats: { hp: 0.13, melee: 0.06, ranged: 0.08, magic: 0.23, meleeDef: 0.11, rangedDef: 0.11, magicDef: 0.13, spe: 0.15 },
     recipe: { body: 'e.body.stout', head: 'e.head.imp', eyes: 'e.eyes.wide', mouth: 'e.mouth.needle', horns: 'e.horns.curled', arms: 'e.arms.talon', legs: 'e.legs.thin', tail: ['e.tail.tuft', 'e.tail.none'], wings: 'e.wings.bone', hand: 'e.hand.none', marks: ['e.marks.glow', 'e.marks.none'], aura: 'e.aura.halo' },
     palette: { c1: [235, 25, 81], c2: [238, 29, 62], c3: [58, 65, 87], eye: [60, 69, 73] }, vary: { h: 8, s: 6, l: 5 },
@@ -5159,7 +5159,7 @@ export const SPECIES = [
     desc: 'A devil that only works nights. Its horns are silver and its tricks are pretty.',
   },
   {
-    id: 'gloamimp', name: 'Gloamimp', nameParts: ['Gloam', 'imp'], clade: 'fiend', rig: 'fiend', types: ['Fire', 'Fairy'], tier: 'common', bst: 434,
+    id: 'gloamimp', name: 'Gloamimp', nameParts: ['Gloam', 'imp'], clade: 'fiend', rig: 'fiend', types: ['Fire', 'Fairy'], tier: 'common', bst: 433,
     stats: { hp: 0.13, melee: 0.08, ranged: 0.22, magic: 0.09, meleeDef: 0.11, rangedDef: 0.12, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'e.body.lanky', head: 'e.head.ridged', eyes: 'e.eyes.ember', mouth: 'e.mouth.maw', horns: 'e.horns.crown', arms: 'e.arms.thin', legs: 'e.legs.brawny', tail: ['e.tail.tuft', 'e.tail.none'], wings: ['e.wings.wide', 'e.wings.none'], hand: ['e.hand.fireball', 'e.hand.none'], marks: ['e.marks.glow', 'e.marks.none'], aura: 'e.aura.none' },
     palette: { c1: [252, 22, 80], c2: [259, 28, 61], c3: [73, 67, 84], eye: [76, 72, 68] }, vary: { h: 8, s: 6, l: 5 },
@@ -5169,7 +5169,7 @@ export const SPECIES = [
     desc: 'Glows at dusk and throws sparks that grant very small wishes badly.',
   },
   {
-    id: 'geodefiend', name: 'Geodefiend', nameParts: ['Geode', 'fiend'], clade: 'fiend', rig: 'fiend', types: ['Rock', 'Psychic'], tier: 'uncommon', bst: 419,
+    id: 'geodefiend', name: 'Geodefiend', nameParts: ['Geode', 'fiend'], clade: 'fiend', rig: 'fiend', types: ['Rock', 'Psychic'], tier: 'uncommon', bst: 426,
     stats: { hp: 0.13, melee: 0.08, ranged: 0.22, magic: 0.09, meleeDef: 0.11, rangedDef: 0.12, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'e.body.stout', head: 'e.head.brute', eyes: 'e.eyes.slit', mouth: 'e.mouth.fangs', horns: 'e.horns.none', arms: 'e.arms.stubby', legs: 'e.legs.hoofed', tail: 'e.tail.forked', wings: 'e.wings.feathered', hand: ['e.hand.pitchfork', 'e.hand.none'], marks: ['e.marks.sigil', 'e.marks.none'], aura: 'e.aura.ring' },
     palette: { c1: [198, 42, 69], c2: [203, 40, 49], c3: [291, 70, 74], eye: [283, 79, 69] }, vary: { h: 8, s: 6, l: 5 },
@@ -5179,7 +5179,7 @@ export const SPECIES = [
     desc: 'Hewn from the cavern wall with a mind of quartz. Bargains in facets.',
   },
   {
-    id: 'slagimp', name: 'Slagimp', nameParts: ['Slag', 'imp'], clade: 'fiend', rig: 'fiend', types: ['Fire', 'Rock'], tier: 'common', bst: 497,
+    id: 'slagimp', name: 'Slagimp', nameParts: ['Slag', 'imp'], clade: 'fiend', rig: 'fiend', types: ['Fire', 'Rock'], tier: 'common', bst: 495,
     stats: { hp: 0.16, melee: 0.2, ranged: 0.08, magic: 0.07, meleeDef: 0.17, rangedDef: 0.13, magicDef: 0.1, spe: 0.09 },
     recipe: { body: 'e.body.lanky', head: 'e.head.goat', eyes: 'e.eyes.slit', mouth: 'e.mouth.fangs', horns: 'e.horns.crown', arms: 'e.arms.thin', legs: 'e.legs.brawny', tail: 'e.tail.none', wings: 'e.wings.wide', hand: ['e.hand.chain', 'e.hand.none'], marks: ['e.marks.sigil', 'e.marks.none'], aura: ['e.aura.ring', 'e.aura.none'] },
     palette: { c1: [214, 44, 64], c2: [222, 44, 46], c3: [309, 71, 72], eye: [308, 80, 63] }, vary: { h: 8, s: 6, l: 5 },
@@ -5189,7 +5189,7 @@ export const SPECIES = [
     desc: 'A lump of slag with horns. Slow, heavy and hot to the touch.',
   },
   {
-    id: 'fogfiend', name: 'Fogfiend', nameParts: ['Fog', 'fiend'], clade: 'fiend', rig: 'fiend', types: ['Water', 'Ghost'], tier: 'uncommon', bst: 396,
+    id: 'fogfiend', name: 'Fogfiend', nameParts: ['Fog', 'fiend'], clade: 'fiend', rig: 'fiend', types: ['Water', 'Ghost'], tier: 'uncommon', bst: 401,
     stats: { hp: 0.13, melee: 0.08, ranged: 0.22, magic: 0.09, meleeDef: 0.11, rangedDef: 0.12, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'e.body.imp', head: 'e.head.gaunt', eyes: 'e.eyes.slit', mouth: 'e.mouth.tusks', horns: ['e.horns.antler', 'e.horns.none'], arms: 'e.arms.long', legs: 'e.legs.brawny', tail: ['e.tail.tuft', 'e.tail.none'], wings: 'e.wings.bat', hand: ['e.hand.orb', 'e.hand.none'], marks: ['e.marks.cracks', 'e.marks.none'], aura: ['e.aura.haze', 'e.aura.none'] },
     palette: { c1: [203, 27, 82], c2: [208, 24, 62], c3: [185, 57, 70], eye: [187, 67, 62] }, vary: { h: 8, s: 6, l: 5 },
@@ -5199,7 +5199,7 @@ export const SPECIES = [
     desc: 'Rises off the sinks as steam and comes down as something with a grin.',
   },
   {
-    id: 'dewimp', name: 'Dewimp', nameParts: ['Dew', 'imp'], clade: 'fiend', rig: 'fiend', types: ['Fire', 'Water'], tier: 'common', bst: 422,
+    id: 'dewimp', name: 'Dewimp', nameParts: ['Dew', 'imp'], clade: 'fiend', rig: 'fiend', types: ['Fire', 'Water'], tier: 'common', bst: 421,
     stats: { hp: 0.13, melee: 0.06, ranged: 0.08, magic: 0.23, meleeDef: 0.11, rangedDef: 0.11, magicDef: 0.13, spe: 0.15 },
     recipe: { body: 'e.body.brute', head: 'e.head.imp', eyes: 'e.eyes.blank', mouth: 'e.mouth.grin', horns: 'e.horns.crown', arms: 'e.arms.thin', legs: 'e.legs.brawny', tail: 'e.tail.tuft', wings: 'e.wings.none', hand: ['e.hand.pitchfork', 'e.hand.none'], marks: 'e.marks.sigil', aura: ['e.aura.smoke', 'e.aura.none'] },
     palette: { c1: [220, 22, 82], c2: [229, 24, 64], c3: [205, 57, 77], eye: [204, 68, 62] }, vary: { h: 8, s: 6, l: 5 },
@@ -5209,7 +5209,7 @@ export const SPECIES = [
     desc: 'An imp that hisses when it rains. It rains on it a lot, somehow.',
   },
   {
-    id: 'bloodfiend', name: 'Bloodfiend', nameParts: ['Blood', 'fiend'], clade: 'fiend', rig: 'fiend', types: ['Dark', 'Fighting'], tier: 'rare', bst: 421,
+    id: 'bloodfiend', name: 'Bloodfiend', nameParts: ['Blood', 'fiend'], clade: 'fiend', rig: 'fiend', types: ['Dark', 'Fighting'], tier: 'rare', bst: 426,
     stats: { hp: 0.14, melee: 0.22, ranged: 0.08, magic: 0.07, meleeDef: 0.13, rangedDef: 0.11, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'e.body.brute', head: 'e.head.brute', eyes: 'e.eyes.ember', mouth: 'e.mouth.fangs', horns: 'e.horns.none', arms: 'e.arms.clawed', legs: 'e.legs.brawny', tail: 'e.tail.none', wings: ['e.wings.small', 'e.wings.none'], hand: 'e.hand.claws', marks: 'e.marks.scars', aura: 'e.aura.none' },
     palette: { c1: [41, 58, 38], c2: [34, 47, 26], c3: [49, 88, 58], eye: [46, 94, 53] }, vary: { h: 8, s: 6, l: 5 },
@@ -5219,7 +5219,7 @@ export const SPECIES = [
     desc: 'The champion of the sinks. Every scar on it belongs to someone who tried.',
   },
   {
-    id: 'prismfiend', name: 'Prismfiend', nameParts: ['Prism', 'fiend'], clade: 'fiend', rig: 'fiend', types: ['Rock', 'Psychic'], tier: 'uncommon', bst: 451,
+    id: 'prismfiend', name: 'Prismfiend', nameParts: ['Prism', 'fiend'], clade: 'fiend', rig: 'fiend', types: ['Rock', 'Psychic'], tier: 'uncommon', bst: 455,
     stats: { hp: 0.13, melee: 0.06, ranged: 0.08, magic: 0.23, meleeDef: 0.11, rangedDef: 0.11, magicDef: 0.13, spe: 0.15 },
     recipe: { body: 'e.body.imp', head: 'e.head.hound', eyes: 'e.eyes.slit', mouth: 'e.mouth.fangs', horns: 'e.horns.crown', arms: 'e.arms.long', legs: 'e.legs.hoofed', tail: ['e.tail.spade', 'e.tail.none'], wings: ['e.wings.ragged', 'e.wings.none'], hand: ['e.hand.dagger', 'e.hand.none'], marks: ['e.marks.sigil', 'e.marks.none'], aura: 'e.aura.none' },
     palette: { c1: [237, 46, 73], c2: [244, 40, 50], c3: [332, 69, 76], eye: [327, 81, 71] }, vary: { h: 8, s: 6, l: 5 },
@@ -5230,7 +5230,7 @@ export const SPECIES = [
   },
   // ---- Roster expansion: element pass, spirit ----
   {
-    id: 'rustwraith', name: 'Rustwraith', nameParts: ['Rust', 'wraith'], clade: 'spirit', rig: 'spirit', types: ['Steel', 'Poison'], tier: 'uncommon', bst: 495,
+    id: 'rustwraith', name: 'Rustwraith', nameParts: ['Rust', 'wraith'], clade: 'spirit', rig: 'spirit', types: ['Steel', 'Poison'], tier: 'uncommon', bst: 494,
     stats: { hp: 0.16, melee: 0.2, ranged: 0.08, magic: 0.07, meleeDef: 0.17, rangedDef: 0.13, magicDef: 0.1, spe: 0.09 },
     recipe: { body: 's.body.blob', eyes: 's.eyes.spiral', mouth: 's.mouth.line', arms: 's.arms.bony', tail: 's.tail.stub', hood: ['s.hood.cowl', 's.hood.none'], chains: 's.chains.chain', lantern: 's.lantern.key', aura: ['s.aura.ring', 's.aura.none'], tatters: 's.tatters.ribbons', mask: ['s.mask.theatre', 's.mask.none'], veil: 's.veil.none' },
     palette: { c1: [14, 54, 44], c2: [15, 44, 30], c3: [30, 81, 53], eye: [31, 79, 54] }, vary: { h: 8, s: 6, l: 5 },
@@ -5240,7 +5240,7 @@ export const SPECIES = [
     desc: 'Haunts the old ironworks in a shroud of flaking rust. Drips something that eats the floor.',
   },
   {
-    id: 'tinwisp', name: 'Tinwisp', nameParts: ['Tin', 'wisp'], clade: 'spirit', rig: 'spirit', types: ['Ghost', 'Steel'], tier: 'common', bst: 383,
+    id: 'tinwisp', name: 'Tinwisp', nameParts: ['Tin', 'wisp'], clade: 'spirit', rig: 'spirit', types: ['Ghost', 'Steel'], tier: 'common', bst: 374,
     stats: { hp: 0.13, melee: 0.08, ranged: 0.22, magic: 0.09, meleeDef: 0.11, rangedDef: 0.12, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 's.body.flame', eyes: 's.eyes.dot', mouth: 's.mouth.fangs', arms: 's.arms.long', tail: 's.tail.smoke', hood: 's.hood.none', chains: 's.chains.heavy', lantern: ['s.lantern.key', 's.lantern.none'], aura: 's.aura.none', tatters: ['s.tatters.short', 's.tatters.none'], mask: 's.mask.none', veil: ['s.veil.stars', 's.veil.none'] },
     palette: { c1: [35, 57, 44], c2: [37, 42, 31], c3: [46, 82, 54], eye: [56, 80, 53] }, vary: { h: 8, s: 6, l: 5 },
@@ -5250,7 +5250,7 @@ export const SPECIES = [
     desc: 'A wisp in a tin lantern. Rattles down the marsh paths after dark.',
   },
   {
-    id: 'gorewraith', name: 'Gorewraith', nameParts: ['Gore', 'wraith'], clade: 'spirit', rig: 'spirit', types: ['Dark', 'Fighting'], tier: 'uncommon', bst: 436,
+    id: 'gorewraith', name: 'Gorewraith', nameParts: ['Gore', 'wraith'], clade: 'spirit', rig: 'spirit', types: ['Dark', 'Fighting'], tier: 'uncommon', bst: 442,
     stats: { hp: 0.14, melee: 0.22, ranged: 0.08, magic: 0.07, meleeDef: 0.13, rangedDef: 0.11, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 's.body.shade', eyes: 's.eyes.slit', mouth: 's.mouth.fangs', arms: 's.arms.claws', tail: 's.tail.wisp', hood: ['s.hood.horns', 's.hood.none'], chains: ['s.chains.heavy', 's.chains.none'], lantern: ['s.lantern.bell', 's.lantern.none'], aura: ['s.aura.cold', 's.aura.none'], tatters: 's.tatters.ribbons', mask: ['s.mask.porcelain', 's.mask.none'], veil: ['s.veil.stripes', 's.veil.none'] },
     palette: { c1: [341, 53, 38], c2: [339, 51, 25], c3: [349, 87, 52], eye: [352, 89, 50] }, vary: { h: 8, s: 6, l: 5 },
@@ -5260,7 +5260,7 @@ export const SPECIES = [
     desc: 'Died fighting and did not stop. Its fists still land.',
   },
   {
-    id: 'brawlwisp', name: 'Brawlwisp', nameParts: ['Brawl', 'wisp'], clade: 'spirit', rig: 'spirit', types: ['Ghost', 'Fighting'], tier: 'common', bst: 453,
+    id: 'brawlwisp', name: 'Brawlwisp', nameParts: ['Brawl', 'wisp'], clade: 'spirit', rig: 'spirit', types: ['Ghost', 'Fighting'], tier: 'common', bst: 452,
     stats: { hp: 0.14, melee: 0.22, ranged: 0.08, magic: 0.07, meleeDef: 0.13, rangedDef: 0.11, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 's.body.wisp', eyes: 's.eyes.slit', mouth: 's.mouth.fangs', arms: 's.arms.claws', tail: 's.tail.spiral', hood: 's.hood.horns', chains: ['s.chains.barbed', 's.chains.none'], lantern: 's.lantern.lantern', aura: ['s.aura.cold', 's.aura.none'], tatters: ['s.tatters.ribbons', 's.tatters.none'], mask: 's.mask.bandage', veil: 's.veil.ripples' },
     palette: { c1: [6, 58, 40], c2: [359, 51, 27], c3: [7, 87, 56], eye: [8, 87, 52] }, vary: { h: 8, s: 6, l: 5 },
@@ -5270,7 +5270,7 @@ export const SPECIES = [
     desc: 'A small ghost that picks fights with lanterns. Sometimes wins.',
   },
   {
-    id: 'voidwraith', name: 'Voidwraith', nameParts: ['Void', 'wraith'], clade: 'spirit', rig: 'spirit', types: ['Ghost', 'Psychic'], tier: 'rare', bst: 401,
+    id: 'voidwraith', name: 'Voidwraith', nameParts: ['Void', 'wraith'], clade: 'spirit', rig: 'spirit', types: ['Ghost', 'Psychic'], tier: 'rare', bst: 400,
     stats: { hp: 0.13, melee: 0.06, ranged: 0.08, magic: 0.23, meleeDef: 0.11, rangedDef: 0.11, magicDef: 0.13, spe: 0.15 },
     recipe: { body: 's.body.wisp', eyes: 's.eyes.hollow', mouth: 's.mouth.o', arms: 's.arms.mist', tail: 's.tail.spiral', hood: 's.hood.none', chains: ['s.chains.shackles', 's.chains.none'], lantern: ['s.lantern.candle', 's.lantern.none'], aura: ['s.aura.glow', 's.aura.none'], tatters: ['s.tatters.trail', 's.tatters.none'], mask: ['s.mask.porcelain', 's.mask.none'], veil: 's.veil.stars' },
     palette: { c1: [248, 25, 46], c2: [256, 36, 33], c3: [268, 84, 72], eye: [274, 86, 74] }, vary: { h: 8, s: 6, l: 5 },
@@ -5300,7 +5300,7 @@ export const SPECIES = [
     desc: 'A silver shroud seen only when the moon is up. It keeps a vigil of its own.',
   },
   {
-    id: 'gloamwisp', name: 'Gloamwisp', nameParts: ['Gloam', 'wisp'], clade: 'spirit', rig: 'spirit', types: ['Ghost', 'Fairy'], tier: 'common', bst: 405,
+    id: 'gloamwisp', name: 'Gloamwisp', nameParts: ['Gloam', 'wisp'], clade: 'spirit', rig: 'spirit', types: ['Ghost', 'Fairy'], tier: 'common', bst: 403,
     stats: { hp: 0.13, melee: 0.08, ranged: 0.22, magic: 0.09, meleeDef: 0.11, rangedDef: 0.12, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 's.body.orb', eyes: 's.eyes.glow', mouth: 's.mouth.o', arms: 's.arms.mist', tail: 's.tail.smoke', hood: ['s.hood.halo', 's.hood.none'], chains: ['s.chains.beads', 's.chains.none'], lantern: ['s.lantern.candle', 's.lantern.none'], aura: 's.aura.glow', tatters: 's.tatters.none', mask: ['s.mask.porcelain', 's.mask.none'], veil: 's.veil.none' },
     palette: { c1: [235, 20, 76], c2: [241, 31, 59], c3: [56, 66, 81], eye: [56, 68, 68] }, vary: { h: 8, s: 6, l: 5 },
@@ -5310,7 +5310,7 @@ export const SPECIES = [
     desc: 'Lights the marsh paths at dusk and leads walkers gently the wrong way.',
   },
   {
-    id: 'geodewraith', name: 'Geodewraith', nameParts: ['Geode', 'wraith'], clade: 'spirit', rig: 'spirit', types: ['Rock', 'Psychic'], tier: 'uncommon', bst: 435,
+    id: 'geodewraith', name: 'Geodewraith', nameParts: ['Geode', 'wraith'], clade: 'spirit', rig: 'spirit', types: ['Rock', 'Psychic'], tier: 'uncommon', bst: 437,
     stats: { hp: 0.13, melee: 0.08, ranged: 0.22, magic: 0.09, meleeDef: 0.11, rangedDef: 0.12, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 's.body.flame', eyes: 's.eyes.slit', mouth: 's.mouth.fangs', arms: 's.arms.claws', tail: 's.tail.smoke', hood: ['s.hood.bonnet', 's.hood.none'], chains: ['s.chains.double', 's.chains.none'], lantern: 's.lantern.none', aura: 's.aura.none', tatters: 's.tatters.rags', mask: ['s.mask.theatre', 's.mask.none'], veil: ['s.veil.stars', 's.veil.none'] },
     palette: { c1: [180, 45, 71], c2: [184, 39, 48], c3: [272, 70, 75], eye: [273, 76, 70] }, vary: { h: 8, s: 6, l: 5 },
@@ -5320,7 +5320,7 @@ export const SPECIES = [
     desc: 'Haunts the caverns in a shroud of crystal dust. Every mote a memory.',
   },
   {
-    id: 'flintwisp', name: 'Flintwisp', nameParts: ['Flint', 'wisp'], clade: 'spirit', rig: 'spirit', types: ['Ghost', 'Rock'], tier: 'common', bst: 477,
+    id: 'flintwisp', name: 'Flintwisp', nameParts: ['Flint', 'wisp'], clade: 'spirit', rig: 'spirit', types: ['Ghost', 'Rock'], tier: 'common', bst: 479,
     stats: { hp: 0.14, melee: 0.22, ranged: 0.08, magic: 0.07, meleeDef: 0.13, rangedDef: 0.11, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 's.body.wisp', eyes: 's.eyes.spiral', mouth: 's.mouth.fangs', arms: 's.arms.claws', tail: 's.tail.smoke', hood: 's.hood.horns', chains: 's.chains.heavy', lantern: ['s.lantern.orb', 's.lantern.none'], aura: 's.aura.ring', tatters: ['s.tatters.short', 's.tatters.none'], mask: ['s.mask.porcelain', 's.mask.none'], veil: ['s.veil.stars', 's.veil.none'] },
     palette: { c1: [198, 46, 67], c2: [203, 39, 49], c3: [293, 71, 71], eye: [285, 80, 64] }, vary: { h: 8, s: 6, l: 5 },
@@ -5330,7 +5330,7 @@ export const SPECIES = [
     desc: 'A wisp that struck stone and stayed. Sparks when it is angry.',
   },
   {
-    id: 'fogwraith', name: 'Fogwraith', nameParts: ['Fog', 'wraith'], clade: 'spirit', rig: 'spirit', types: ['Water', 'Ghost'], tier: 'uncommon', bst: 395,
+    id: 'fogwraith', name: 'Fogwraith', nameParts: ['Fog', 'wraith'], clade: 'spirit', rig: 'spirit', types: ['Water', 'Ghost'], tier: 'uncommon', bst: 394,
     stats: { hp: 0.13, melee: 0.08, ranged: 0.22, magic: 0.09, meleeDef: 0.11, rangedDef: 0.12, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 's.body.wisp', eyes: 's.eyes.dot', mouth: 's.mouth.fangs', arms: 's.arms.mist', tail: 's.tail.smoke', hood: ['s.hood.candle', 's.hood.none'], chains: ['s.chains.double', 's.chains.none'], lantern: ['s.lantern.orb', 's.lantern.none'], aura: 's.aura.mist', tatters: 's.tatters.trail', mask: ['s.mask.gilded', 's.mask.none'], veil: 's.veil.ripples' },
     palette: { c1: [188, 28, 77], c2: [187, 27, 60], c3: [166, 59, 72], eye: [163, 69, 59] }, vary: { h: 8, s: 6, l: 5 },
@@ -5350,7 +5350,7 @@ export const SPECIES = [
     desc: 'Condenses on gravestones at dawn and drifts off as the sun climbs.',
   },
   {
-    id: 'bloodwraith', name: 'Bloodwraith', nameParts: ['Blood', 'wraith'], clade: 'spirit', rig: 'spirit', types: ['Dark', 'Fighting'], tier: 'rare', bst: 419,
+    id: 'bloodwraith', name: 'Bloodwraith', nameParts: ['Blood', 'wraith'], clade: 'spirit', rig: 'spirit', types: ['Dark', 'Fighting'], tier: 'rare', bst: 429,
     stats: { hp: 0.14, melee: 0.22, ranged: 0.08, magic: 0.07, meleeDef: 0.13, rangedDef: 0.11, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 's.body.wraith', eyes: 's.eyes.slit', mouth: 's.mouth.fangs', arms: 's.arms.claws', tail: 's.tail.drips', hood: ['s.hood.horns', 's.hood.none'], chains: 's.chains.none', lantern: ['s.lantern.key', 's.lantern.none'], aura: ['s.aura.motes', 's.aura.none'], tatters: ['s.tatters.ribbons', 's.tatters.none'], mask: ['s.mask.porcelain', 's.mask.none'], veil: ['s.veil.spots', 's.veil.none'] },
     palette: { c1: [23, 58, 39], c2: [21, 49, 28], c3: [27, 90, 56], eye: [32, 93, 52] }, vary: { h: 8, s: 6, l: 5 },
@@ -5360,7 +5360,7 @@ export const SPECIES = [
     desc: 'Wears the red of the vigil it kept. Still keeps it, with its fists.',
   },
   {
-    id: 'prismwisp', name: 'Prismwisp', nameParts: ['Prism', 'wisp'], clade: 'spirit', rig: 'spirit', types: ['Rock', 'Psychic'], tier: 'uncommon', bst: 425,
+    id: 'prismwisp', name: 'Prismwisp', nameParts: ['Prism', 'wisp'], clade: 'spirit', rig: 'spirit', types: ['Rock', 'Psychic'], tier: 'uncommon', bst: 430,
     stats: { hp: 0.13, melee: 0.06, ranged: 0.08, magic: 0.23, meleeDef: 0.11, rangedDef: 0.11, magicDef: 0.13, spe: 0.15 },
     recipe: { body: 's.body.blob', eyes: 's.eyes.slit', mouth: 's.mouth.fangs', arms: 's.arms.claws', tail: 's.tail.wisp', hood: 's.hood.none', chains: 's.chains.barbed', lantern: ['s.lantern.skull', 's.lantern.none'], aura: ['s.aura.ring', 's.aura.none'], tatters: ['s.tatters.web', 's.tatters.none'], mask: ['s.mask.fox', 's.mask.none'], veil: 's.veil.stars' },
     palette: { c1: [216, 46, 72], c2: [220, 40, 56], c3: [309, 71, 74], eye: [305, 81, 73] }, vary: { h: 8, s: 6, l: 5 },
@@ -5371,7 +5371,7 @@ export const SPECIES = [
   },
   // ---- Roster expansion: type pass, mammal ----
   {
-    id: 'cinderpup', name: 'Cinderpup', nameParts: ['Cinder', 'pup'], clade: 'mammal', rig: 'mammal', types: ['Fire', 'Normal'], tier: 'common', bst: 424,
+    id: 'cinderpup', name: 'Cinderpup', nameParts: ['Cinder', 'pup'], clade: 'mammal', rig: 'mammal', types: ['Fire', 'Normal'], tier: 'common', bst: 421,
     stats: { hp: 0.13, melee: 0.06, ranged: 0.08, magic: 0.23, meleeDef: 0.11, rangedDef: 0.11, magicDef: 0.13, spe: 0.15 },
     recipe: { body: 'm.body.fox', head: 'm.head.fox', ears: 'm.ears.fox', eyes: 'm.eyes.round', muzzle: 'm.muzzle.fox', legsFront: 'm.legsFront.fox', legsBack: 'm.legsBack.fox', tail: 'm.tail.fox', mane: 'm.mane.none', horns: ['m.horns.nubs', 'm.horns.none'], back: ['m.back.flame', 'm.back.none'], markings: 'm.markings.belly' },
     palette: { c1: [0, 70, 54], c2: [349, 68, 43], c3: [31, 98, 64], eye: [33, 95, 55] }, vary: { h: 8, s: 6, l: 5 },
@@ -5381,7 +5381,7 @@ export const SPECIES = [
     desc: 'A pup that chews on coals and burps sparks. The rug has opinions.',
   },
   {
-    id: 'rillotter', name: 'Rillotter', nameParts: ['Rill', 'otter'], clade: 'mammal', rig: 'mammal', types: ['Normal', 'Water'], tier: 'uncommon', bst: 414,
+    id: 'rillotter', name: 'Rillotter', nameParts: ['Rill', 'otter'], clade: 'mammal', rig: 'mammal', types: ['Normal', 'Water'], tier: 'uncommon', bst: 410,
     stats: { hp: 0.13, melee: 0.08, ranged: 0.22, magic: 0.09, meleeDef: 0.11, rangedDef: 0.12, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'm.body.bear', head: 'm.head.wolf', ears: 'm.ears.rabbit', eyes: 'm.eyes.almond', muzzle: 'm.muzzle.bear', legsFront: 'm.legsFront.mouse', legsBack: 'm.legsBack.bear', tail: 'm.tail.mouse', mane: 'm.mane.none', horns: ['m.horns.bull', 'm.horns.none'], back: ['m.back.batwings', 'm.back.none'], markings: ['m.markings.stripes', 'm.markings.none'] },
     palette: { c1: [186, 64, 49], c2: [193, 60, 40], c3: [175, 75, 67], eye: [187, 85, 46] }, vary: { h: 8, s: 6, l: 5 },
@@ -5391,7 +5391,7 @@ export const SPECIES = [
     desc: 'Rides the millrace for fun and the miller\'s patience for sport.',
   },
   {
-    id: 'staticvole', name: 'Staticvole', nameParts: ['Static', 'vole'], clade: 'mammal', rig: 'mammal', types: ['Electric', 'Normal'], tier: 'common', bst: 392,
+    id: 'staticvole', name: 'Staticvole', nameParts: ['Static', 'vole'], clade: 'mammal', rig: 'mammal', types: ['Electric', 'Normal'], tier: 'common', bst: 394,
     stats: { hp: 0.11, melee: 0.08, ranged: 0.22, magic: 0.09, meleeDef: 0.09, rangedDef: 0.12, magicDef: 0.09, spe: 0.2 },
     recipe: { body: 'm.body.fox', head: 'm.head.fox', ears: 'm.ears.fox', eyes: 'm.eyes.round', muzzle: 'm.muzzle.fox', legsFront: 'm.legsFront.fox', legsBack: 'm.legsBack.fox', tail: 'm.tail.fox', mane: 'm.mane.none', horns: 'm.horns.none', back: ['m.back.quills', 'm.back.none'], markings: ['m.markings.belly', 'm.markings.none'] },
     palette: { c1: [40, 90, 59], c2: [25, 69, 39], c3: [46, 99, 73], eye: [35, 93, 47] }, vary: { h: 8, s: 6, l: 5 },
@@ -5401,7 +5401,7 @@ export const SPECIES = [
     desc: 'Every hair on end. Touch it and you are, briefly, a lamp.',
   },
   {
-    id: 'fernhare', name: 'Fernhare', nameParts: ['Fern', 'hare'], clade: 'mammal', rig: 'mammal', types: ['Normal', 'Grass'], tier: 'uncommon', bst: 461,
+    id: 'fernhare', name: 'Fernhare', nameParts: ['Fern', 'hare'], clade: 'mammal', rig: 'mammal', types: ['Normal', 'Grass'], tier: 'uncommon', bst: 458,
     stats: { hp: 0.13, melee: 0.08, ranged: 0.22, magic: 0.09, meleeDef: 0.11, rangedDef: 0.12, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'm.body.rabbit', head: 'm.head.bear', ears: 'm.ears.deer', eyes: 'm.eyes.bead', muzzle: 'm.muzzle.bear', legsFront: 'm.legsFront.bear', legsBack: 'm.legsBack.fox', tail: 'm.tail.deer', mane: 'm.mane.none', horns: ['m.horns.goat', 'm.horns.none'], back: 'm.back.saddle', markings: ['m.markings.star', 'm.markings.none'] },
     palette: { c1: [94, 42, 48], c2: [108, 45, 32], c3: [61, 85, 58], eye: [77, 70, 43] }, vary: { h: 8, s: 6, l: 5 },
@@ -5411,7 +5411,7 @@ export const SPECIES = [
     desc: 'Ears like fronds. It hides in bracken and the bracken hides back.',
   },
   {
-    id: 'rimestoat', name: 'Rimestoat', nameParts: ['Rime', 'stoat'], clade: 'mammal', rig: 'mammal', types: ['Ice', 'Normal'], tier: 'common', bst: 417,
+    id: 'rimestoat', name: 'Rimestoat', nameParts: ['Rime', 'stoat'], clade: 'mammal', rig: 'mammal', types: ['Ice', 'Normal'], tier: 'common', bst: 413,
     stats: { hp: 0.13, melee: 0.06, ranged: 0.08, magic: 0.23, meleeDef: 0.11, rangedDef: 0.11, magicDef: 0.13, spe: 0.15 },
     recipe: { body: 'm.body.fox', head: 'm.head.fox', ears: 'm.ears.fox', eyes: 'm.eyes.round', muzzle: 'm.muzzle.fox', legsFront: 'm.legsFront.fox', legsBack: 'm.legsBack.fox', tail: 'm.tail.fox', mane: 'm.mane.fox', horns: 'm.horns.nubs', back: ['m.back.crystals', 'm.back.none'], markings: ['m.markings.belly', 'm.markings.none'] },
     palette: { c1: [178, 42, 80], c2: [183, 44, 65], c3: [171, 93, 80], eye: [194, 87, 55] }, vary: { h: 8, s: 6, l: 5 },
@@ -5421,7 +5421,7 @@ export const SPECIES = [
     desc: 'White as the snow it sleeps in, with a tail tip like a blot of ink.',
   },
   {
-    id: 'knucklebadger', name: 'Knucklebadger', nameParts: ['Knuckle', 'badger'], clade: 'mammal', rig: 'mammal', types: ['Normal', 'Fighting'], tier: 'uncommon', bst: 474,
+    id: 'knucklebadger', name: 'Knucklebadger', nameParts: ['Knuckle', 'badger'], clade: 'mammal', rig: 'mammal', types: ['Normal', 'Fighting'], tier: 'uncommon', bst: 481,
     stats: { hp: 0.14, melee: 0.22, ranged: 0.08, magic: 0.07, meleeDef: 0.13, rangedDef: 0.11, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'm.body.deer', head: 'm.head.cat', ears: 'm.ears.fox', eyes: 'm.eyes.sleepy', muzzle: 'm.muzzle.mouse', legsFront: 'm.legsFront.bear', legsBack: 'm.legsBack.deer', tail: 'm.tail.bear', mane: ['m.mane.bear', 'm.mane.none'], horns: 'm.horns.crest', back: 'm.back.none', markings: ['m.markings.stripes', 'm.markings.none'] },
     palette: { c1: [5, 45, 48], c2: [0, 38, 34], c3: [343, 80, 51], eye: [17, 70, 38] }, vary: { h: 8, s: 6, l: 5 },
@@ -5431,7 +5431,7 @@ export const SPECIES = [
     desc: 'Boxes the fence post every morning. The fence post is losing.',
   },
   {
-    id: 'nettleshrew', name: 'Nettleshrew', nameParts: ['Nettle', 'shrew'], clade: 'mammal', rig: 'mammal', types: ['Poison', 'Normal'], tier: 'common', bst: 440,
+    id: 'nettleshrew', name: 'Nettleshrew', nameParts: ['Nettle', 'shrew'], clade: 'mammal', rig: 'mammal', types: ['Poison', 'Normal'], tier: 'common', bst: 434,
     stats: { hp: 0.13, melee: 0.08, ranged: 0.22, magic: 0.09, meleeDef: 0.11, rangedDef: 0.12, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'm.body.fox', head: 'm.head.fox', ears: 'm.ears.fox', eyes: 'm.eyes.bead', muzzle: 'm.muzzle.fox', legsFront: 'm.legsFront.fox', legsBack: 'm.legsBack.fox', tail: 'm.tail.fox', mane: ['m.mane.fox', 'm.mane.none'], horns: 'm.horns.nubs', back: ['m.back.batwings', 'm.back.none'], markings: 'm.markings.belly' },
     palette: { c1: [272, 41, 41], c2: [263, 42, 35], c3: [83, 88, 54], eye: [86, 93, 52] }, vary: { h: 8, s: 6, l: 5 },
@@ -5441,7 +5441,7 @@ export const SPECIES = [
     desc: 'Small, quick and venomous. Nothing on the downs will pick it up twice.',
   },
   {
-    id: 'loammole', name: 'Loammole', nameParts: ['Loam', 'mole'], clade: 'mammal', rig: 'mammal', types: ['Normal', 'Ground'], tier: 'uncommon', bst: 462,
+    id: 'loammole', name: 'Loammole', nameParts: ['Loam', 'mole'], clade: 'mammal', rig: 'mammal', types: ['Normal', 'Ground'], tier: 'uncommon', bst: 463,
     stats: { hp: 0.14, melee: 0.22, ranged: 0.08, magic: 0.07, meleeDef: 0.13, rangedDef: 0.11, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'm.body.mouse', head: 'm.head.deer', ears: 'm.ears.wolf', eyes: 'm.eyes.doe', muzzle: 'm.muzzle.rabbit', legsFront: 'm.legsFront.bear', legsBack: 'm.legsBack.bear', tail: 'm.tail.deer', mane: ['m.mane.deer', 'm.mane.none'], horns: 'm.horns.bull', back: ['m.back.saddle', 'm.back.none'], markings: ['m.markings.saddle', 'm.markings.none'] },
     palette: { c1: [18, 48, 54], c2: [14, 37, 35], c3: [36, 70, 63], eye: [18, 55, 36] }, vary: { h: 8, s: 6, l: 5 },
@@ -5451,7 +5451,7 @@ export const SPECIES = [
     desc: 'Turns the meadow over one molehill at a time. Considers this gardening.',
   },
   {
-    id: 'gustsquirrel', name: 'Gustsquirrel', nameParts: ['Gust', 'squirrel'], clade: 'mammal', rig: 'mammal', types: ['Flying', 'Normal'], tier: 'common', bst: 432,
+    id: 'gustsquirrel', name: 'Gustsquirrel', nameParts: ['Gust', 'squirrel'], clade: 'mammal', rig: 'mammal', types: ['Flying', 'Normal'], tier: 'common', bst: 429,
     stats: { hp: 0.13, melee: 0.08, ranged: 0.22, magic: 0.09, meleeDef: 0.11, rangedDef: 0.12, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'm.body.fox', head: 'm.head.mouse', ears: 'm.ears.fox', eyes: 'm.eyes.almond', muzzle: 'm.muzzle.fox', legsFront: 'm.legsFront.fox', legsBack: 'm.legsBack.fox', tail: 'm.tail.cat', mane: ['m.mane.fox', 'm.mane.none'], horns: ['m.horns.crest', 'm.horns.none'], back: ['m.back.batwings', 'm.back.none'], markings: ['m.markings.belly', 'm.markings.none'] },
     palette: { c1: [195, 39, 69], c2: [198, 26, 50], c3: [35, 61, 87], eye: [192, 74, 43] }, vary: { h: 8, s: 6, l: 5 },
@@ -5461,7 +5461,7 @@ export const SPECIES = [
     desc: 'Glides from oak to oak on a flap of loose skin and blind confidence.',
   },
   {
-    id: 'omencat', name: 'Omencat', nameParts: ['Omen', 'cat'], clade: 'mammal', rig: 'mammal', types: ['Normal', 'Psychic'], tier: 'uncommon', bst: 420,
+    id: 'omencat', name: 'Omencat', nameParts: ['Omen', 'cat'], clade: 'mammal', rig: 'mammal', types: ['Normal', 'Psychic'], tier: 'uncommon', bst: 415,
     stats: { hp: 0.13, melee: 0.06, ranged: 0.08, magic: 0.23, meleeDef: 0.11, rangedDef: 0.11, magicDef: 0.13, spe: 0.15 },
     recipe: { body: 'm.body.wolf', head: 'm.head.rabbit', ears: 'm.ears.rabbit', eyes: 'm.eyes.slit', muzzle: 'm.muzzle.deer', legsFront: 'm.legsFront.cat', legsBack: 'm.legsBack.mouse', tail: 'm.tail.mouse', mane: ['m.mane.mouse', 'm.mane.none'], horns: 'm.horns.none', back: 'm.back.wings', markings: ['m.markings.star', 'm.markings.none'] },
     palette: { c1: [285, 44, 68], c2: [280, 39, 44], c3: [37, 89, 76], eye: [284, 83, 62] }, vary: { h: 8, s: 6, l: 5 },
@@ -5471,7 +5471,7 @@ export const SPECIES = [
     desc: 'Stares at the corner of the room until you look too. There is never anything there.',
   },
   {
-    id: 'weevilhog', name: 'Weevilhog', nameParts: ['Weevil', 'hog'], clade: 'mammal', rig: 'mammal', types: ['Bug', 'Normal'], tier: 'common', bst: 481,
+    id: 'weevilhog', name: 'Weevilhog', nameParts: ['Weevil', 'hog'], clade: 'mammal', rig: 'mammal', types: ['Bug', 'Normal'], tier: 'common', bst: 480,
     stats: { hp: 0.13, melee: 0.08, ranged: 0.22, magic: 0.09, meleeDef: 0.11, rangedDef: 0.12, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'm.body.mouse', head: 'm.head.fox', ears: 'm.ears.fox', eyes: 'm.eyes.fierce', muzzle: 'm.muzzle.fox', legsFront: 'm.legsFront.fox', legsBack: 'm.legsBack.fox', tail: 'm.tail.fox', mane: ['m.mane.fox', 'm.mane.none'], horns: 'm.horns.nubs', back: ['m.back.flame', 'm.back.none'], markings: ['m.markings.belly', 'm.markings.none'] },
     palette: { c1: [59, 41, 51], c2: [71, 40, 32], c3: [32, 89, 58], eye: [44, 66, 40] }, vary: { h: 8, s: 6, l: 5 },
@@ -5481,7 +5481,7 @@ export const SPECIES = [
     desc: 'A hedgehog whose spines are beetles holding on. They seem happy.',
   },
   {
-    id: 'cobbleram', name: 'Cobbleram', nameParts: ['Cobble', 'ram'], clade: 'mammal', rig: 'mammal', types: ['Normal', 'Rock'], tier: 'uncommon', bst: 439,
+    id: 'cobbleram', name: 'Cobbleram', nameParts: ['Cobble', 'ram'], clade: 'mammal', rig: 'mammal', types: ['Normal', 'Rock'], tier: 'uncommon', bst: 442,
     stats: { hp: 0.16, melee: 0.2, ranged: 0.08, magic: 0.07, meleeDef: 0.17, rangedDef: 0.13, magicDef: 0.1, spe: 0.09 },
     recipe: { body: 'm.body.cat', head: 'm.head.wolf', ears: 'm.ears.rabbit', eyes: 'm.eyes.fierce', muzzle: 'm.muzzle.fox', legsFront: 'm.legsFront.fox', legsBack: 'm.legsBack.fox', tail: 'm.tail.fox', mane: 'm.mane.bear', horns: 'm.horns.crest', back: 'm.back.crystals', markings: ['m.markings.patches', 'm.markings.none'] },
     palette: { c1: [22, 16, 55], c2: [12, 16, 40], c3: [30, 58, 58], eye: [24, 56, 49] }, vary: { h: 8, s: 6, l: 5 },
@@ -5491,7 +5491,7 @@ export const SPECIES = [
     desc: 'Butts heads with boulders to keep in practice. The boulders are cracking.',
   },
   {
-    id: 'gloamwolf', name: 'Gloamwolf', nameParts: ['Gloam', 'wolf'], clade: 'mammal', rig: 'mammal', types: ['Ghost', 'Normal'], tier: 'common', bst: 387,
+    id: 'gloamwolf', name: 'Gloamwolf', nameParts: ['Gloam', 'wolf'], clade: 'mammal', rig: 'mammal', types: ['Ghost', 'Normal'], tier: 'common', bst: 381,
     stats: { hp: 0.13, melee: 0.06, ranged: 0.08, magic: 0.23, meleeDef: 0.11, rangedDef: 0.11, magicDef: 0.13, spe: 0.15 },
     recipe: { body: 'm.body.fox', head: 'm.head.mouse', ears: 'm.ears.fox', eyes: 'm.eyes.round', muzzle: 'm.muzzle.fox', legsFront: 'm.legsFront.fox', legsBack: 'm.legsBack.fox', tail: 'm.tail.fox', mane: 'm.mane.none', horns: ['m.horns.nubs', 'm.horns.none'], back: ['m.back.batwings', 'm.back.none'], markings: ['m.markings.belly', 'm.markings.none'] },
     palette: { c1: [246, 20, 73], c2: [247, 25, 51], c3: [133, 66, 68], eye: [134, 84, 61] }, vary: { h: 8, s: 6, l: 5 },
@@ -5511,7 +5511,7 @@ export const SPECIES = [
     desc: 'Antlers of horn, hide of scale, temper of both. The downs walk around it.',
   },
   {
-    id: 'sablefox', name: 'Sablefox', nameParts: ['Sable', 'fox'], clade: 'mammal', rig: 'mammal', types: ['Dark', 'Normal'], tier: 'common', bst: 371,
+    id: 'sablefox', name: 'Sablefox', nameParts: ['Sable', 'fox'], clade: 'mammal', rig: 'mammal', types: ['Dark', 'Normal'], tier: 'common', bst: 374,
     stats: { hp: 0.11, melee: 0.08, ranged: 0.22, magic: 0.09, meleeDef: 0.09, rangedDef: 0.12, magicDef: 0.09, spe: 0.2 },
     recipe: { body: 'm.body.mouse', head: 'm.head.cat', ears: 'm.ears.fox', eyes: 'm.eyes.slit', muzzle: 'm.muzzle.fox', legsFront: 'm.legsFront.fox', legsBack: 'm.legsBack.fox', tail: 'm.tail.fox', mane: ['m.mane.fox', 'm.mane.none'], horns: ['m.horns.nubs', 'm.horns.none'], back: ['m.back.ridge', 'm.back.none'], markings: ['m.markings.stripes', 'm.markings.none'] },
     palette: { c1: [239, 14, 40], c2: [236, 26, 28], c3: [313, 76, 61], eye: [318, 85, 58] }, vary: { h: 8, s: 6, l: 5 },
@@ -5521,7 +5521,7 @@ export const SPECIES = [
     desc: 'Black as a closed door. It steals eggs and, once, a whole lantern.',
   },
   {
-    id: 'rivetboar', name: 'Rivetboar', nameParts: ['Rivet', 'boar'], clade: 'mammal', rig: 'mammal', types: ['Normal', 'Steel'], tier: 'uncommon', bst: 385,
+    id: 'rivetboar', name: 'Rivetboar', nameParts: ['Rivet', 'boar'], clade: 'mammal', rig: 'mammal', types: ['Normal', 'Steel'], tier: 'uncommon', bst: 388,
     stats: { hp: 0.16, melee: 0.2, ranged: 0.08, magic: 0.07, meleeDef: 0.17, rangedDef: 0.13, magicDef: 0.1, spe: 0.09 },
     recipe: { body: 'm.body.deer', head: 'm.head.bear', ears: 'm.ears.rabbit', eyes: 'm.eyes.sleepy', muzzle: 'm.muzzle.bear', legsFront: 'm.legsFront.wolf', legsBack: 'm.legsBack.deer', tail: 'm.tail.rabbit', mane: 'm.mane.deer', horns: 'm.horns.antlers', back: 'm.back.none', markings: ['m.markings.rings', 'm.markings.none'] },
     palette: { c1: [198, 13, 59], c2: [206, 13, 42], c3: [28, 77, 56], eye: [30, 77, 54] }, vary: { h: 8, s: 6, l: 5 },
@@ -5531,7 +5531,7 @@ export const SPECIES = [
     desc: 'Its tusks are bolts and its hide is plate. Charges anything that clanks back.',
   },
   {
-    id: 'charmkit', name: 'Charmkit', nameParts: ['Charm', 'kit'], clade: 'mammal', rig: 'mammal', types: ['Fairy', 'Normal'], tier: 'common', bst: 403,
+    id: 'charmkit', name: 'Charmkit', nameParts: ['Charm', 'kit'], clade: 'mammal', rig: 'mammal', types: ['Fairy', 'Normal'], tier: 'common', bst: 406,
     stats: { hp: 0.13, melee: 0.06, ranged: 0.08, magic: 0.23, meleeDef: 0.11, rangedDef: 0.11, magicDef: 0.13, spe: 0.15 },
     recipe: { body: 'm.body.fox', head: 'm.head.deer', ears: 'm.ears.fox', eyes: 'm.eyes.round', muzzle: 'm.muzzle.fox', legsFront: 'm.legsFront.fox', legsBack: 'm.legsBack.fox', tail: 'm.tail.fox', mane: ['m.mane.fox', 'm.mane.none'], horns: 'm.horns.none', back: 'm.back.quills', markings: ['m.markings.star', 'm.markings.none'] },
     palette: { c1: [312, 47, 78], c2: [304, 45, 63], c3: [41, 88, 77], eye: [320, 84, 63] }, vary: { h: 8, s: 6, l: 5 },
@@ -5541,7 +5541,7 @@ export const SPECIES = [
     desc: 'A kitten with a halo of glitter. Everyone forgives it, which it counts on.',
   },
   {
-    id: 'meadowcub', name: 'Meadowcub', nameParts: ['Meadow', 'cub'], clade: 'mammal', rig: 'mammal', types: ['Normal'], tier: 'uncommon', bst: 446,
+    id: 'meadowcub', name: 'Meadowcub', nameParts: ['Meadow', 'cub'], clade: 'mammal', rig: 'mammal', types: ['Normal'], tier: 'uncommon', bst: 447,
     stats: { hp: 0.14, melee: 0.22, ranged: 0.08, magic: 0.07, meleeDef: 0.13, rangedDef: 0.11, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'm.body.mouse', head: 'm.head.fox', ears: 'm.ears.fox', eyes: 'm.eyes.almond', muzzle: 'm.muzzle.fox', legsFront: 'm.legsFront.fox', legsBack: 'm.legsBack.fox', tail: 'm.tail.fox', mane: ['m.mane.fox', 'm.mane.none'], horns: ['m.horns.nubs', 'm.horns.none'], back: ['m.back.crystals', 'm.back.none'], markings: 'm.markings.none' },
     palette: { c1: [28, 35, 67], c2: [15, 25, 49], c3: [10, 57, 54], eye: [14, 59, 29] }, vary: { h: 8, s: 6, l: 5 },
@@ -5551,7 +5551,7 @@ export const SPECIES = [
     desc: 'A bear cub that has not yet worked out what bears are for. Eats clover.',
   },
   {
-    id: 'emberclaw', name: 'Emberclaw', nameParts: ['Ember', 'claw'], clade: 'mammal', rig: 'mammal', types: ['Fire', 'Fighting'], tier: 'rare', bst: 422,
+    id: 'emberclaw', name: 'Emberclaw', nameParts: ['Ember', 'claw'], clade: 'mammal', rig: 'mammal', types: ['Fire', 'Fighting'], tier: 'rare', bst: 421,
     stats: { hp: 0.14, melee: 0.22, ranged: 0.08, magic: 0.07, meleeDef: 0.13, rangedDef: 0.11, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'm.body.rabbit', head: 'm.head.bear', ears: 'm.ears.bear', eyes: 'm.eyes.slit', muzzle: 'm.muzzle.wolf', legsFront: 'm.legsFront.bear', legsBack: 'm.legsBack.rabbit', tail: 'm.tail.fox', mane: ['m.mane.cat', 'm.mane.none'], horns: ['m.horns.antlers', 'm.horns.none'], back: ['m.back.flame', 'm.back.none'], markings: ['m.markings.stripes', 'm.markings.none'] },
     palette: { c1: [6, 76, 47], c2: [354, 69, 34], c3: [24, 100, 56], eye: [35, 98, 50] }, vary: { h: 8, s: 6, l: 5 },
@@ -5561,7 +5561,7 @@ export const SPECIES = [
     desc: 'A bear with paws that smoulder. The hive it robbed is still smoking.',
   },
   {
-    id: 'auroralynx', name: 'Auroralynx', nameParts: ['Aurora', 'lynx'], clade: 'mammal', rig: 'mammal', types: ['Ice', 'Fairy'], tier: 'rare', bst: 408,
+    id: 'auroralynx', name: 'Auroralynx', nameParts: ['Aurora', 'lynx'], clade: 'mammal', rig: 'mammal', types: ['Ice', 'Fairy'], tier: 'rare', bst: 401,
     stats: { hp: 0.13, melee: 0.06, ranged: 0.08, magic: 0.23, meleeDef: 0.11, rangedDef: 0.11, magicDef: 0.13, spe: 0.15 },
     recipe: { body: 'm.body.cat', head: 'm.head.rabbit', ears: 'm.ears.rabbit', eyes: 'm.eyes.bead', muzzle: 'm.muzzle.deer', legsFront: 'm.legsFront.fox', legsBack: 'm.legsBack.bear', tail: 'm.tail.rabbit', mane: ['m.mane.deer', 'm.mane.none'], horns: 'm.horns.nubs', back: 'm.back.none', markings: ['m.markings.star', 'm.markings.none'] },
     palette: { c1: [185, 47, 85], c2: [189, 44, 63], c3: [176, 90, 83], eye: [191, 81, 52] }, vary: { h: 8, s: 6, l: 5 },
@@ -5571,7 +5571,7 @@ export const SPECIES = [
     desc: 'A lynx wearing the northern lights. Seen once a winter, believed twice.',
   },
   {
-    id: 'ironboar', name: 'Ironboar', nameParts: ['Iron', 'boar'], clade: 'mammal', rig: 'mammal', types: ['Ground', 'Steel'], tier: 'rare', bst: 406,
+    id: 'ironboar', name: 'Ironboar', nameParts: ['Iron', 'boar'], clade: 'mammal', rig: 'mammal', types: ['Ground', 'Steel'], tier: 'rare', bst: 405,
     stats: { hp: 0.16, melee: 0.2, ranged: 0.08, magic: 0.07, meleeDef: 0.17, rangedDef: 0.13, magicDef: 0.1, spe: 0.09 },
     recipe: { body: 'm.body.bear', head: 'm.head.mouse', ears: 'm.ears.bear', eyes: 'm.eyes.sleepy', muzzle: 'm.muzzle.deer', legsFront: 'm.legsFront.mouse', legsBack: 'm.legsBack.cat', tail: 'm.tail.bear', mane: 'm.mane.none', horns: ['m.horns.ram', 'm.horns.none'], back: 'm.back.flame', markings: ['m.markings.rings', 'm.markings.none'] },
     palette: { c1: [14, 49, 55], c2: [9, 39, 37], c3: [29, 66, 63], eye: [23, 56, 40] }, vary: { h: 8, s: 6, l: 5 },
@@ -5582,7 +5582,7 @@ export const SPECIES = [
   },
   // ---- Roster expansion: type pass, reptile ----
   {
-    id: 'kindlegecko', name: 'Kindlegecko', nameParts: ['Kindle', 'gecko'], clade: 'reptile', rig: 'reptile', types: ['Fire', 'Rock'], tier: 'common', bst: 425,
+    id: 'kindlegecko', name: 'Kindlegecko', nameParts: ['Kindle', 'gecko'], clade: 'reptile', rig: 'reptile', types: ['Fire', 'Rock'], tier: 'common', bst: 423,
     stats: { hp: 0.13, melee: 0.06, ranged: 0.08, magic: 0.23, meleeDef: 0.11, rangedDef: 0.11, magicDef: 0.13, spe: 0.15 },
     recipe: { body: 'r.body.croc', head: 'r.head.dragon', eyes: 'r.eyes.bead', jaw: 'r.jaw.grin', crest: ['r.crest.plume', 'r.crest.none'], legsFront: 'r.legsFront.croc', legsBack: 'r.legsBack.gecko', tail: 'r.tail.dragon', back: ['r.back.plates', 'r.back.none'], wings: 'r.wings.flame', throat: ['r.throat.plates', 'r.throat.none'], scales: 'r.scales.none' },
     palette: { c1: [18, 72, 55], c2: [3, 62, 38], c3: [43, 98, 63], eye: [47, 99, 57] }, vary: { h: 8, s: 6, l: 5 },
@@ -5602,7 +5602,7 @@ export const SPECIES = [
     desc: 'A turtle that never left the tide pool. The tide pool is not sure it wants it.',
   },
   {
-    id: 'joltskink', name: 'Joltskink', nameParts: ['Jolt', 'skink'], clade: 'reptile', rig: 'reptile', types: ['Electric', 'Rock'], tier: 'common', bst: 453,
+    id: 'joltskink', name: 'Joltskink', nameParts: ['Jolt', 'skink'], clade: 'reptile', rig: 'reptile', types: ['Electric', 'Rock'], tier: 'common', bst: 454,
     stats: { hp: 0.11, melee: 0.08, ranged: 0.22, magic: 0.09, meleeDef: 0.09, rangedDef: 0.12, magicDef: 0.09, spe: 0.2 },
     recipe: { body: 'r.body.croc', head: 'r.head.chameleon', eyes: 'r.eyes.round', jaw: 'r.jaw.grin', crest: ['r.crest.horns', 'r.crest.none'], legsFront: 'r.legsFront.croc', legsBack: 'r.legsBack.dragon', tail: 'r.tail.rattle', back: 'r.back.none', wings: ['r.wings.crystal', 'r.wings.none'], throat: 'r.throat.none', scales: ['r.scales.scutes', 'r.scales.none'] },
     palette: { c1: [51, 88, 57], c2: [39, 73, 43], c3: [54, 95, 73], eye: [43, 92, 42] }, vary: { h: 8, s: 6, l: 5 },
@@ -5612,7 +5612,7 @@ export const SPECIES = [
     desc: 'Blue tongue, blue sparks. It licks the fence wire for the taste.',
   },
   {
-    id: 'ivychameleon', name: 'Ivychameleon', nameParts: ['Ivy', 'chameleon'], clade: 'reptile', rig: 'reptile', types: ['Rock', 'Grass'], tier: 'uncommon', bst: 457,
+    id: 'ivychameleon', name: 'Ivychameleon', nameParts: ['Ivy', 'chameleon'], clade: 'reptile', rig: 'reptile', types: ['Rock', 'Grass'], tier: 'uncommon', bst: 465,
     stats: { hp: 0.13, melee: 0.08, ranged: 0.22, magic: 0.09, meleeDef: 0.11, rangedDef: 0.12, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'r.body.dragon', head: 'r.head.croc', eyes: 'r.eyes.gem', jaw: 'r.jaw.underbite', crest: ['r.crest.spikes', 'r.crest.none'], legsFront: 'r.legsFront.chameleon', legsBack: 'r.legsBack.dragon', tail: 'r.tail.turtle', back: ['r.back.fin', 'r.back.none'], wings: ['r.wings.leaf', 'r.wings.none'], throat: ['r.throat.plates', 'r.throat.none'], scales: ['r.scales.diamonds', 'r.scales.none'] },
     palette: { c1: [106, 43, 49], c2: [119, 41, 33], c3: [72, 82, 58], eye: [93, 73, 44] }, vary: { h: 8, s: 6, l: 5 },
@@ -5622,7 +5622,7 @@ export const SPECIES = [
     desc: 'Turns leaf-green and stays that way. Has forgotten its other colours.',
   },
   {
-    id: 'floetortoise', name: 'Floetortoise', nameParts: ['Floe', 'tortoise'], clade: 'reptile', rig: 'reptile', types: ['Ice', 'Rock'], tier: 'common', bst: 406,
+    id: 'floetortoise', name: 'Floetortoise', nameParts: ['Floe', 'tortoise'], clade: 'reptile', rig: 'reptile', types: ['Ice', 'Rock'], tier: 'common', bst: 402,
     stats: { hp: 0.13, melee: 0.06, ranged: 0.08, magic: 0.23, meleeDef: 0.11, rangedDef: 0.11, magicDef: 0.13, spe: 0.15 },
     recipe: { body: 'r.body.raptor', head: 'r.head.cobra', eyes: 'r.eyes.gem', jaw: 'r.jaw.fangs', crest: ['r.crest.spikes', 'r.crest.none'], legsFront: 'r.legsFront.croc', legsBack: 'r.legsBack.gecko', tail: 'r.tail.dragon', back: 'r.back.none', wings: ['r.wings.crystal', 'r.wings.none'], throat: 'r.throat.plates', scales: ['r.scales.scutes', 'r.scales.none'] },
     palette: { c1: [196, 42, 82], c2: [197, 39, 64], c3: [191, 92, 81], eye: [203, 83, 54] }, vary: { h: 8, s: 6, l: 5 },
@@ -5632,7 +5632,7 @@ export const SPECIES = [
     desc: 'Carries a slab of ice on its back and complains about the heat.',
   },
   {
-    id: 'scrapmonitor', name: 'Scrapmonitor', nameParts: ['Scrap', 'monitor'], clade: 'reptile', rig: 'reptile', types: ['Rock', 'Fighting'], tier: 'uncommon', bst: 485,
+    id: 'scrapmonitor', name: 'Scrapmonitor', nameParts: ['Scrap', 'monitor'], clade: 'reptile', rig: 'reptile', types: ['Rock', 'Fighting'], tier: 'uncommon', bst: 488,
     stats: { hp: 0.14, melee: 0.22, ranged: 0.08, magic: 0.07, meleeDef: 0.13, rangedDef: 0.11, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'r.body.chameleon', head: 'r.head.turtle', eyes: 'r.eyes.hooded', jaw: 'r.jaw.tusks', crest: ['r.crest.horns', 'r.crest.none'], legsFront: 'r.legsFront.turtle', legsBack: 'r.legsBack.gecko', tail: 'r.tail.croc', back: ['r.back.plates', 'r.back.none'], wings: ['r.wings.crystal', 'r.wings.none'], throat: 'r.throat.frill', scales: ['r.scales.belly', 'r.scales.none'] },
     palette: { c1: [21, 48, 49], c2: [7, 39, 35], c3: [2, 79, 53], eye: [27, 74, 40] }, vary: { h: 8, s: 6, l: 5 },
@@ -5642,7 +5642,7 @@ export const SPECIES = [
     desc: 'A lizard that wrestles for territory and then for the fun of it.',
   },
   {
-    id: 'baneadder', name: 'Baneadder', nameParts: ['Bane', 'adder'], clade: 'reptile', rig: 'reptile', types: ['Poison', 'Rock'], tier: 'common', bst: 465,
+    id: 'baneadder', name: 'Baneadder', nameParts: ['Bane', 'adder'], clade: 'reptile', rig: 'reptile', types: ['Poison', 'Rock'], tier: 'common', bst: 468,
     stats: { hp: 0.13, melee: 0.08, ranged: 0.22, magic: 0.09, meleeDef: 0.11, rangedDef: 0.12, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'r.body.serpent', head: 'r.head.lizard', eyes: 'r.eyes.slit', jaw: 'r.jaw.fangs', crest: ['r.crest.horns', 'r.crest.none'], legsFront: 'r.legsFront.croc', legsBack: 'r.legsBack.turtle', tail: 'r.tail.lizard', back: ['r.back.plates', 'r.back.none'], wings: ['r.wings.crystal', 'r.wings.none'], throat: 'r.throat.plates', scales: ['r.scales.scutes', 'r.scales.none'] },
     palette: { c1: [285, 39, 48], c2: [277, 44, 33], c3: [91, 85, 53], eye: [91, 93, 55] }, vary: { h: 8, s: 6, l: 5 },
@@ -5662,7 +5662,7 @@ export const SPECIES = [
     desc: 'Lies in the riverbed like a log until the log has you by the ankle.',
   },
   {
-    id: 'kitedraco', name: 'Kitedraco', nameParts: ['Kite', 'draco'], clade: 'reptile', rig: 'reptile', types: ['Flying', 'Rock'], tier: 'common', bst: 403,
+    id: 'kitedraco', name: 'Kitedraco', nameParts: ['Kite', 'draco'], clade: 'reptile', rig: 'reptile', types: ['Flying', 'Rock'], tier: 'common', bst: 406,
     stats: { hp: 0.13, melee: 0.08, ranged: 0.22, magic: 0.09, meleeDef: 0.11, rangedDef: 0.12, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'r.body.croc', head: 'r.head.dragon', eyes: 'r.eyes.hooded', jaw: 'r.jaw.tusks', crest: ['r.crest.plume', 'r.crest.none'], legsFront: 'r.legsFront.dragon', legsBack: 'r.legsBack.lizard', tail: 'r.tail.raptor', back: 'r.back.none', wings: ['r.wings.tattered', 'r.wings.none'], throat: 'r.throat.plates', scales: 'r.scales.none' },
     palette: { c1: [205, 38, 68], c2: [216, 29, 52], c3: [50, 57, 85], eye: [206, 72, 44] }, vary: { h: 8, s: 6, l: 5 },
@@ -5672,7 +5672,7 @@ export const SPECIES = [
     desc: 'Spreads its ribs into wings and glides between the crags. Landings are optional.',
   },
   {
-    id: 'oraclecobra', name: 'Oraclecobra', nameParts: ['Oracle', 'cobra'], clade: 'reptile', rig: 'reptile', types: ['Rock', 'Psychic'], tier: 'uncommon', bst: 460,
+    id: 'oraclecobra', name: 'Oraclecobra', nameParts: ['Oracle', 'cobra'], clade: 'reptile', rig: 'reptile', types: ['Rock', 'Psychic'], tier: 'uncommon', bst: 458,
     stats: { hp: 0.13, melee: 0.06, ranged: 0.08, magic: 0.23, meleeDef: 0.11, rangedDef: 0.11, magicDef: 0.13, spe: 0.15 },
     recipe: { body: 'r.body.lizard', head: 'r.head.raptor', eyes: 'r.eyes.gem', jaw: 'r.jaw.underbite', crest: 'r.crest.none', legsFront: 'r.legsFront.dragon', legsBack: 'r.legsBack.gecko', tail: 'r.tail.raptor', back: 'r.back.plates', wings: ['r.wings.feathered', 'r.wings.none'], throat: ['r.throat.dewlap', 'r.throat.none'], scales: 'r.scales.spots' },
     palette: { c1: [293, 41, 69], c2: [288, 39, 50], c3: [53, 85, 77], eye: [299, 79, 56] }, vary: { h: 8, s: 6, l: 5 },
@@ -5682,7 +5682,7 @@ export const SPECIES = [
     desc: 'Sways to music nobody is playing. Knows which way you will step.',
   },
   {
-    id: 'chitinagama', name: 'Chitinagama', nameParts: ['Chitin', 'agama'], clade: 'reptile', rig: 'reptile', types: ['Bug', 'Rock'], tier: 'common', bst: 468,
+    id: 'chitinagama', name: 'Chitinagama', nameParts: ['Chitin', 'agama'], clade: 'reptile', rig: 'reptile', types: ['Bug', 'Rock'], tier: 'common', bst: 466,
     stats: { hp: 0.13, melee: 0.08, ranged: 0.22, magic: 0.09, meleeDef: 0.11, rangedDef: 0.12, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'r.body.turtle', head: 'r.head.lizard', eyes: 'r.eyes.fierce', jaw: 'r.jaw.tongue', crest: 'r.crest.none', legsFront: 'r.legsFront.dragon', legsBack: 'r.legsBack.lizard', tail: 'r.tail.finned', back: ['r.back.plates', 'r.back.none'], wings: 'r.wings.none', throat: ['r.throat.plates', 'r.throat.none'], scales: 'r.scales.none' },
     palette: { c1: [74, 40, 44], c2: [80, 41, 33], c3: [37, 92, 63], eye: [61, 69, 42] }, vary: { h: 8, s: 6, l: 5 },
@@ -5712,7 +5712,7 @@ export const SPECIES = [
     desc: 'The turtle that bit the ferryman a hundred years ago. Still hungry.',
   },
   {
-    id: 'talonraptor', name: 'Talonraptor', nameParts: ['Talon', 'raptor'], clade: 'reptile', rig: 'reptile', types: ['Rock', 'Dragon'], tier: 'uncommon', bst: 411,
+    id: 'talonraptor', name: 'Talonraptor', nameParts: ['Talon', 'raptor'], clade: 'reptile', rig: 'reptile', types: ['Rock', 'Dragon'], tier: 'uncommon', bst: 412,
     stats: { hp: 0.14, melee: 0.22, ranged: 0.08, magic: 0.07, meleeDef: 0.13, rangedDef: 0.11, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'r.body.dragon', head: 'r.head.chameleon', eyes: 'r.eyes.round', jaw: 'r.jaw.fangs', crest: ['r.crest.horns', 'r.crest.none'], legsFront: 'r.legsFront.chameleon', legsBack: 'r.legsBack.raptor', tail: 'r.tail.croc', back: ['r.back.ridge', 'r.back.none'], wings: ['r.wings.crystal', 'r.wings.none'], throat: ['r.throat.frill', 'r.throat.none'], scales: 'r.scales.saddle' },
     palette: { c1: [340, 40, 41], c2: [347, 42, 32], c3: [40, 91, 58], eye: [40, 93, 59] }, vary: { h: 8, s: 6, l: 5 },
@@ -5722,7 +5722,7 @@ export const SPECIES = [
     desc: 'The little dragon that never grew wings and never forgave anyone.',
   },
   {
-    id: 'murkpython', name: 'Murkpython', nameParts: ['Murk', 'python'], clade: 'reptile', rig: 'reptile', types: ['Dark', 'Rock'], tier: 'common', bst: 395,
+    id: 'murkpython', name: 'Murkpython', nameParts: ['Murk', 'python'], clade: 'reptile', rig: 'reptile', types: ['Dark', 'Rock'], tier: 'common', bst: 384,
     stats: { hp: 0.11, melee: 0.08, ranged: 0.22, magic: 0.09, meleeDef: 0.09, rangedDef: 0.12, magicDef: 0.09, spe: 0.2 },
     recipe: { body: 'r.body.chameleon', head: 'r.head.cobra', eyes: 'r.eyes.slit', jaw: 'r.jaw.fangs', crest: 'r.crest.none', legsFront: 'r.legsFront.croc', legsBack: 'r.legsBack.dragon', tail: 'r.tail.turtle', back: ['r.back.plates', 'r.back.none'], wings: ['r.wings.crystal', 'r.wings.none'], throat: 'r.throat.plates', scales: 'r.scales.scutes' },
     palette: { c1: [248, 14, 40], c2: [257, 23, 29], c3: [330, 77, 57], eye: [336, 85, 64] }, vary: { h: 8, s: 6, l: 5 },
@@ -5732,7 +5732,7 @@ export const SPECIES = [
     desc: 'Lives in the dark under the crags and squeezes whatever comes to check.',
   },
   {
-    id: 'anvilshell', name: 'Anvilshell', nameParts: ['Anvil', 'shell'], clade: 'reptile', rig: 'reptile', types: ['Rock', 'Steel'], tier: 'uncommon', bst: 425,
+    id: 'anvilshell', name: 'Anvilshell', nameParts: ['Anvil', 'shell'], clade: 'reptile', rig: 'reptile', types: ['Rock', 'Steel'], tier: 'uncommon', bst: 426,
     stats: { hp: 0.16, melee: 0.2, ranged: 0.08, magic: 0.07, meleeDef: 0.17, rangedDef: 0.13, magicDef: 0.1, spe: 0.09 },
     recipe: { body: 'r.body.croc', head: 'r.head.turtle', eyes: 'r.eyes.bead', jaw: 'r.jaw.underbite', crest: ['r.crest.frill', 'r.crest.none'], legsFront: 'r.legsFront.chameleon', legsBack: 'r.legsBack.gecko', tail: 'r.tail.dragon', back: ['r.back.plates', 'r.back.none'], wings: 'r.wings.leaf', throat: 'r.throat.plates', scales: ['r.scales.bands', 'r.scales.none'] },
     palette: { c1: [211, 8, 60], c2: [209, 14, 37], c3: [41, 74, 57], eye: [36, 81, 52] }, vary: { h: 8, s: 6, l: 5 },
@@ -5762,7 +5762,7 @@ export const SPECIES = [
     desc: 'Made of the scree it lives in. Sneezes gravel.',
   },
   {
-    id: 'magmasaur', name: 'Magmasaur', nameParts: ['Magma', 'saur'], clade: 'reptile', rig: 'reptile', types: ['Fire', 'Rock'], tier: 'rare', bst: 453,
+    id: 'magmasaur', name: 'Magmasaur', nameParts: ['Magma', 'saur'], clade: 'reptile', rig: 'reptile', types: ['Fire', 'Rock'], tier: 'rare', bst: 452,
     stats: { hp: 0.16, melee: 0.2, ranged: 0.08, magic: 0.07, meleeDef: 0.17, rangedDef: 0.13, magicDef: 0.1, spe: 0.09 },
     recipe: { body: 'r.body.serpent', head: 'r.head.raptor', eyes: 'r.eyes.turret', jaw: 'r.jaw.grin', crest: ['r.crest.spikes', 'r.crest.none'], legsFront: 'r.legsFront.chameleon', legsBack: 'r.legsBack.dragon', tail: 'r.tail.lizard', back: 'r.back.plates', wings: ['r.wings.flame', 'r.wings.none'], throat: 'r.throat.none', scales: ['r.scales.scutes', 'r.scales.none'] },
     palette: { c1: [12, 79, 44], c2: [5, 68, 34], c3: [40, 97, 59], eye: [42, 97, 51] }, vary: { h: 8, s: 6, l: 5 },
@@ -5772,7 +5772,7 @@ export const SPECIES = [
     desc: 'The mountain\'s own lizard. Sleeps in lava and wakes up annoyed.',
   },
   {
-    id: 'mirrorviper', name: 'Mirrorviper', nameParts: ['Mirror', 'viper'], clade: 'reptile', rig: 'reptile', types: ['Psychic', 'Ice'], tier: 'rare', bst: 434,
+    id: 'mirrorviper', name: 'Mirrorviper', nameParts: ['Mirror', 'viper'], clade: 'reptile', rig: 'reptile', types: ['Psychic', 'Ice'], tier: 'rare', bst: 430,
     stats: { hp: 0.13, melee: 0.06, ranged: 0.08, magic: 0.23, meleeDef: 0.11, rangedDef: 0.11, magicDef: 0.13, spe: 0.15 },
     recipe: { body: 'r.body.chameleon', head: 'r.head.dragon', eyes: 'r.eyes.gem', jaw: 'r.jaw.grin', crest: 'r.crest.spikes', legsFront: 'r.legsFront.chameleon', legsBack: 'r.legsBack.raptor', tail: 'r.tail.croc', back: ['r.back.crystals', 'r.back.none'], wings: 'r.wings.none', throat: 'r.throat.dewlap', scales: ['r.scales.spots', 'r.scales.none'] },
     palette: { c1: [296, 41, 64], c2: [296, 37, 50], c3: [51, 94, 76], eye: [296, 83, 56] }, vary: { h: 8, s: 6, l: 5 },
@@ -5782,7 +5782,7 @@ export const SPECIES = [
     desc: 'Scales like frost on glass. You see yourself in it, then you see nothing.',
   },
   {
-    id: 'thunderguana', name: 'Thunderguana', nameParts: ['Thunder', 'guana'], clade: 'reptile', rig: 'reptile', types: ['Electric', 'Dragon'], tier: 'rare', bst: 398,
+    id: 'thunderguana', name: 'Thunderguana', nameParts: ['Thunder', 'guana'], clade: 'reptile', rig: 'reptile', types: ['Electric', 'Dragon'], tier: 'rare', bst: 396,
     stats: { hp: 0.13, melee: 0.08, ranged: 0.22, magic: 0.09, meleeDef: 0.11, rangedDef: 0.12, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'r.body.lizard', head: 'r.head.lizard', eyes: 'r.eyes.bead', jaw: 'r.jaw.fangs', crest: ['r.crest.horns', 'r.crest.none'], legsFront: 'r.legsFront.chameleon', legsBack: 'r.legsBack.dragon', tail: 'r.tail.lizard', back: ['r.back.ridge', 'r.back.none'], wings: 'r.wings.leaf', throat: 'r.throat.none', scales: 'r.scales.saddle' },
     palette: { c1: [46, 84, 55], c2: [38, 70, 45], c3: [50, 100, 70], eye: [42, 90, 44] }, vary: { h: 8, s: 6, l: 5 },
@@ -5803,7 +5803,7 @@ export const SPECIES = [
     desc: 'A carp that simmers its own pond. The frogs moved out.',
   },
   {
-    id: 'surfminnow', name: 'Surfminnow', nameParts: ['Surf', 'minnow'], clade: 'fish', rig: 'fish', types: ['Water'], tier: 'uncommon', bst: 406,
+    id: 'surfminnow', name: 'Surfminnow', nameParts: ['Surf', 'minnow'], clade: 'fish', rig: 'fish', types: ['Water'], tier: 'uncommon', bst: 408,
     stats: { hp: 0.13, melee: 0.08, ranged: 0.22, magic: 0.09, meleeDef: 0.11, rangedDef: 0.12, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'f.body.round', eyes: 'f.eyes.glow', mouth: 'f.mouth.frown', dorsal: 'f.dorsal.ribbon', pectoral: 'f.pectoral.paddle', tail: 'f.tail.fan', belly: ['f.belly.paddle', 'f.belly.none'], gills: 'f.gills.plumes', crest: 'f.crest.crown', barbels: ['f.barbels.koi', 'f.barbels.none'], spines: ['f.spines.bumps', 'f.spines.none'], pattern: 'f.pattern.none' },
     palette: { c1: [215, 58, 49], c2: [220, 59, 36], c3: [192, 82, 67], eye: [213, 83, 47] }, vary: { h: 8, s: 6, l: 5 },
@@ -5823,7 +5823,7 @@ export const SPECIES = [
     desc: 'Sparks between the reeds. Anglers count their fingers afterwards.',
   },
   {
-    id: 'kelpguppy', name: 'Kelpguppy', nameParts: ['Kelp', 'guppy'], clade: 'fish', rig: 'fish', types: ['Water', 'Grass'], tier: 'uncommon', bst: 426,
+    id: 'kelpguppy', name: 'Kelpguppy', nameParts: ['Kelp', 'guppy'], clade: 'fish', rig: 'fish', types: ['Water', 'Grass'], tier: 'uncommon', bst: 424,
     stats: { hp: 0.13, melee: 0.08, ranged: 0.22, magic: 0.09, meleeDef: 0.11, rangedDef: 0.12, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'f.body.shark', eyes: 'f.eyes.sleepy', mouth: 'f.mouth.smile', dorsal: 'f.dorsal.flowing', pectoral: 'f.pectoral.tiny', tail: 'f.tail.lyre', belly: 'f.belly.none', gills: ['f.gills.slits', 'f.gills.none'], crest: 'f.crest.none', barbels: ['f.barbels.beard', 'f.barbels.none'], spines: 'f.spines.bumps', pattern: 'f.pattern.glow' },
     palette: { c1: [117, 40, 43], c2: [130, 43, 34], c3: [88, 79, 58], eye: [99, 74, 40] }, vary: { h: 8, s: 6, l: 5 },
@@ -5833,7 +5833,7 @@ export const SPECIES = [
     desc: 'A guppy with fins like seaweed. Sways when there is no current.',
   },
   {
-    id: 'hailperch', name: 'Hailperch', nameParts: ['Hail', 'perch'], clade: 'fish', rig: 'fish', types: ['Ice', 'Water'], tier: 'common', bst: 421,
+    id: 'hailperch', name: 'Hailperch', nameParts: ['Hail', 'perch'], clade: 'fish', rig: 'fish', types: ['Ice', 'Water'], tier: 'common', bst: 420,
     stats: { hp: 0.13, melee: 0.06, ranged: 0.08, magic: 0.23, meleeDef: 0.11, rangedDef: 0.11, magicDef: 0.13, spe: 0.15 },
     recipe: { body: 'f.body.betta', eyes: 'f.eyes.fierce', mouth: 'f.mouth.smile', dorsal: 'f.dorsal.ribbon', pectoral: 'f.pectoral.paddle', tail: 'f.tail.curl', belly: 'f.belly.paddle', gills: ['f.gills.flap', 'f.gills.none'], crest: 'f.crest.crown', barbels: ['f.barbels.spiky', 'f.barbels.none'], spines: 'f.spines.armour', pattern: ['f.pattern.stripes', 'f.pattern.none'] },
     palette: { c1: [207, 49, 81], c2: [212, 40, 60], c3: [201, 90, 80], eye: [217, 84, 55] }, vary: { h: 8, s: 6, l: 5 },
@@ -5843,7 +5843,7 @@ export const SPECIES = [
     desc: 'Freezes the top of the pond so it can knock on it from underneath.',
   },
   {
-    id: 'punchpike', name: 'Punchpike', nameParts: ['Punch', 'pike'], clade: 'fish', rig: 'fish', types: ['Water', 'Fighting'], tier: 'uncommon', bst: 432,
+    id: 'punchpike', name: 'Punchpike', nameParts: ['Punch', 'pike'], clade: 'fish', rig: 'fish', types: ['Water', 'Fighting'], tier: 'uncommon', bst: 426,
     stats: { hp: 0.14, melee: 0.22, ranged: 0.08, magic: 0.07, meleeDef: 0.13, rangedDef: 0.11, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'f.body.angler', eyes: 'f.eyes.round', mouth: 'f.mouth.pout', dorsal: 'f.dorsal.spiky', pectoral: 'f.pectoral.paddle', tail: 'f.tail.lyre', belly: 'f.belly.anal', gills: ['f.gills.ridge', 'f.gills.none'], crest: ['f.crest.horn', 'f.crest.none'], barbels: ['f.barbels.tentacles', 'f.barbels.none'], spines: ['f.spines.side', 'f.spines.none'], pattern: 'f.pattern.glow' },
     palette: { c1: [25, 42, 48], c2: [23, 37, 28], c3: [8, 72, 55], eye: [39, 66, 33] }, vary: { h: 8, s: 6, l: 5 },
@@ -5863,7 +5863,7 @@ export const SPECIES = [
     desc: 'Puffs up into a cloud that makes the whole shoal dizzy.',
   },
   {
-    id: 'mudloach', name: 'Mudloach', nameParts: ['Mud', 'loach'], clade: 'fish', rig: 'fish', types: ['Water', 'Ground'], tier: 'uncommon', bst: 427,
+    id: 'mudloach', name: 'Mudloach', nameParts: ['Mud', 'loach'], clade: 'fish', rig: 'fish', types: ['Water', 'Ground'], tier: 'uncommon', bst: 422,
     stats: { hp: 0.14, melee: 0.22, ranged: 0.08, magic: 0.07, meleeDef: 0.13, rangedDef: 0.11, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'f.body.eel', eyes: 'f.eyes.bead', mouth: 'f.mouth.frown', dorsal: 'f.dorsal.ribbon', pectoral: 'f.pectoral.pointed', tail: 'f.tail.curl', belly: 'f.belly.pelvic', gills: 'f.gills.none', crest: ['f.crest.unicorn', 'f.crest.none'], barbels: ['f.barbels.beard', 'f.barbels.none'], spines: ['f.spines.ridge', 'f.spines.none'], pattern: ['f.pattern.gradient', 'f.pattern.none'] },
     palette: { c1: [39, 40, 51], c2: [32, 44, 34], c3: [52, 70, 64], eye: [46, 61, 36] }, vary: { h: 8, s: 6, l: 5 },
@@ -5873,7 +5873,7 @@ export const SPECIES = [
     desc: 'Burrows into the silt and waits for the pond to come back.',
   },
   {
-    id: 'soargar', name: 'Soargar', nameParts: ['Soar', 'gar'], clade: 'fish', rig: 'fish', types: ['Flying', 'Water'], tier: 'common', bst: 426,
+    id: 'soargar', name: 'Soargar', nameParts: ['Soar', 'gar'], clade: 'fish', rig: 'fish', types: ['Flying', 'Water'], tier: 'common', bst: 428,
     stats: { hp: 0.13, melee: 0.08, ranged: 0.22, magic: 0.09, meleeDef: 0.11, rangedDef: 0.12, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'f.body.eel', eyes: 'f.eyes.wide', mouth: 'f.mouth.frown', dorsal: 'f.dorsal.fan', pectoral: 'f.pectoral.wing', tail: 'f.tail.fan', belly: ['f.belly.anal', 'f.belly.none'], gills: 'f.gills.none', crest: ['f.crest.plume', 'f.crest.none'], barbels: 'f.barbels.catfish', spines: 'f.spines.none', pattern: ['f.pattern.gradient', 'f.pattern.none'] },
     palette: { c1: [218, 37, 69], c2: [224, 26, 54], c3: [56, 55, 89], eye: [219, 68, 47] }, vary: { h: 8, s: 6, l: 5 },
@@ -5883,7 +5883,7 @@ export const SPECIES = [
     desc: 'Leaps from the lagoon and glides further than a fish should.',
   },
   {
-    id: 'trancetang', name: 'Trancetang', nameParts: ['Trance', 'tang'], clade: 'fish', rig: 'fish', types: ['Water', 'Psychic'], tier: 'uncommon', bst: 445,
+    id: 'trancetang', name: 'Trancetang', nameParts: ['Trance', 'tang'], clade: 'fish', rig: 'fish', types: ['Water', 'Psychic'], tier: 'uncommon', bst: 448,
     stats: { hp: 0.13, melee: 0.06, ranged: 0.08, magic: 0.23, meleeDef: 0.11, rangedDef: 0.11, magicDef: 0.13, spe: 0.15 },
     recipe: { body: 'f.body.seahorse', eyes: 'f.eyes.wide', mouth: 'f.mouth.fangs', dorsal: 'f.dorsal.fan', pectoral: 'f.pectoral.pointed', tail: 'f.tail.eel', belly: ['f.belly.tiny', 'f.belly.none'], gills: 'f.gills.glow', crest: ['f.crest.crown', 'f.crest.none'], barbels: ['f.barbels.koi', 'f.barbels.none'], spines: ['f.spines.ridge', 'f.spines.none'], pattern: 'f.pattern.glow' },
     palette: { c1: [305, 43, 67], c2: [299, 37, 48], c3: [64, 90, 69], eye: [311, 79, 60] }, vary: { h: 8, s: 6, l: 5 },
@@ -5893,7 +5893,7 @@ export const SPECIES = [
     desc: 'Its stripes turn slowly. Watch them and forget your lunch.',
   },
   {
-    id: 'larvagoby', name: 'Larvagoby', nameParts: ['Larva', 'goby'], clade: 'fish', rig: 'fish', types: ['Bug', 'Water'], tier: 'common', bst: 420,
+    id: 'larvagoby', name: 'Larvagoby', nameParts: ['Larva', 'goby'], clade: 'fish', rig: 'fish', types: ['Bug', 'Water'], tier: 'common', bst: 423,
     stats: { hp: 0.13, melee: 0.08, ranged: 0.22, magic: 0.09, meleeDef: 0.11, rangedDef: 0.12, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'f.body.shark', eyes: 'f.eyes.bead', mouth: 'f.mouth.pout', dorsal: 'f.dorsal.crest', pectoral: 'f.pectoral.paddle', tail: 'f.tail.forked', belly: ['f.belly.paddle', 'f.belly.none'], gills: 'f.gills.none', crest: ['f.crest.crown', 'f.crest.none'], barbels: ['f.barbels.beard', 'f.barbels.none'], spines: ['f.spines.armour', 'f.spines.none'], pattern: ['f.pattern.spots', 'f.pattern.none'] },
     palette: { c1: [80, 42, 45], c2: [89, 39, 38], c3: [53, 90, 58], eye: [68, 74, 39] }, vary: { h: 8, s: 6, l: 5 },
@@ -5903,7 +5903,7 @@ export const SPECIES = [
     desc: 'Eats grubs until it looks like one. The grubs are not fooled.',
   },
   {
-    id: 'slatebass', name: 'Slatebass', nameParts: ['Slate', 'bass'], clade: 'fish', rig: 'fish', types: ['Water', 'Rock'], tier: 'uncommon', bst: 487,
+    id: 'slatebass', name: 'Slatebass', nameParts: ['Slate', 'bass'], clade: 'fish', rig: 'fish', types: ['Water', 'Rock'], tier: 'uncommon', bst: 481,
     stats: { hp: 0.16, melee: 0.2, ranged: 0.08, magic: 0.07, meleeDef: 0.17, rangedDef: 0.13, magicDef: 0.1, spe: 0.09 },
     recipe: { body: 'f.body.angler', eyes: 'f.eyes.sleepy', mouth: 'f.mouth.frown', dorsal: 'f.dorsal.shark', pectoral: 'f.pectoral.wing', tail: 'f.tail.eel', belly: ['f.belly.spiky', 'f.belly.none'], gills: 'f.gills.none', crest: ['f.crest.crown', 'f.crest.none'], barbels: 'f.barbels.spiky', spines: ['f.spines.armour', 'f.spines.none'], pattern: ['f.pattern.glow', 'f.pattern.none'] },
     palette: { c1: [46, 21, 48], c2: [39, 23, 39], c3: [50, 58, 57], eye: [46, 60, 45] }, vary: { h: 8, s: 6, l: 5 },
@@ -5913,7 +5913,7 @@ export const SPECIES = [
     desc: 'Sits on the bottom pretending to be a stone. Is mostly stone.',
   },
   {
-    id: 'spectrecod', name: 'Spectrecod', nameParts: ['Spectre', 'cod'], clade: 'fish', rig: 'fish', types: ['Ghost', 'Water'], tier: 'common', bst: 382,
+    id: 'spectrecod', name: 'Spectrecod', nameParts: ['Spectre', 'cod'], clade: 'fish', rig: 'fish', types: ['Ghost', 'Water'], tier: 'common', bst: 378,
     stats: { hp: 0.13, melee: 0.06, ranged: 0.08, magic: 0.23, meleeDef: 0.11, rangedDef: 0.11, magicDef: 0.13, spe: 0.15 },
     recipe: { body: 'f.body.betta', eyes: 'f.eyes.fierce', mouth: 'f.mouth.grin', dorsal: 'f.dorsal.ribbon', pectoral: 'f.pectoral.paddle', tail: 'f.tail.curl', belly: ['f.belly.paddle', 'f.belly.none'], gills: ['f.gills.armour', 'f.gills.none'], crest: ['f.crest.crown', 'f.crest.none'], barbels: ['f.barbels.spiky', 'f.barbels.none'], spines: 'f.spines.bumps', pattern: ['f.pattern.stripes', 'f.pattern.none'] },
     palette: { c1: [267, 19, 71], c2: [268, 23, 51], c3: [162, 70, 66], eye: [156, 85, 66] }, vary: { h: 8, s: 6, l: 5 },
@@ -5923,7 +5923,7 @@ export const SPECIES = [
     desc: 'The cod that got away, forever. Nets pass straight through it.',
   },
   {
-    id: 'serpentkoi', name: 'Serpentkoi', nameParts: ['Serpent', 'koi'], clade: 'fish', rig: 'fish', types: ['Water', 'Dragon'], tier: 'uncommon', bst: 439,
+    id: 'serpentkoi', name: 'Serpentkoi', nameParts: ['Serpent', 'koi'], clade: 'fish', rig: 'fish', types: ['Water', 'Dragon'], tier: 'uncommon', bst: 443,
     stats: { hp: 0.14, melee: 0.22, ranged: 0.08, magic: 0.07, meleeDef: 0.13, rangedDef: 0.11, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'f.body.puffer', eyes: 'f.eyes.deadeye', mouth: 'f.mouth.fangs', dorsal: 'f.dorsal.sail', pectoral: 'f.pectoral.wing', tail: 'f.tail.shark', belly: ['f.belly.spiky', 'f.belly.none'], gills: 'f.gills.ridge', crest: ['f.crest.horn', 'f.crest.none'], barbels: ['f.barbels.tiny', 'f.barbels.none'], spines: ['f.spines.ridge', 'f.spines.none'], pattern: ['f.pattern.scales', 'f.pattern.none'] },
     palette: { c1: [351, 44, 44], c2: [1, 40, 28], c3: [50, 85, 61], eye: [52, 97, 56] }, vary: { h: 8, s: 6, l: 5 },
@@ -5943,7 +5943,7 @@ export const SPECIES = [
     desc: 'Its lure is the only light in the deep and it is lying.',
   },
   {
-    id: 'chrometrout', name: 'Chrometrout', nameParts: ['Chrome', 'trout'], clade: 'fish', rig: 'fish', types: ['Water', 'Steel'], tier: 'uncommon', bst: 386,
+    id: 'chrometrout', name: 'Chrometrout', nameParts: ['Chrome', 'trout'], clade: 'fish', rig: 'fish', types: ['Water', 'Steel'], tier: 'uncommon', bst: 384,
     stats: { hp: 0.16, melee: 0.2, ranged: 0.08, magic: 0.07, meleeDef: 0.17, rangedDef: 0.13, magicDef: 0.1, spe: 0.09 },
     recipe: { body: 'f.body.shark', eyes: 'f.eyes.bead', mouth: 'f.mouth.pout', dorsal: 'f.dorsal.fan', pectoral: 'f.pectoral.spiky', tail: 'f.tail.shark', belly: ['f.belly.tiny', 'f.belly.none'], gills: 'f.gills.armour', crest: ['f.crest.crown', 'f.crest.none'], barbels: ['f.barbels.tiny', 'f.barbels.none'], spines: ['f.spines.armour', 'f.spines.none'], pattern: ['f.pattern.scales', 'f.pattern.none'] },
     palette: { c1: [218, 15, 63], c2: [226, 9, 39], c3: [46, 76, 57], eye: [54, 81, 54] }, vary: { h: 8, s: 6, l: 5 },
@@ -5953,7 +5953,7 @@ export const SPECIES = [
     desc: 'Scales like a polished spoon. Anglers cast at their own reflection.',
   },
   {
-    id: 'bellbetta', name: 'Bellbetta', nameParts: ['Bell', 'betta'], clade: 'fish', rig: 'fish', types: ['Fairy', 'Water'], tier: 'common', bst: 378,
+    id: 'bellbetta', name: 'Bellbetta', nameParts: ['Bell', 'betta'], clade: 'fish', rig: 'fish', types: ['Fairy', 'Water'], tier: 'common', bst: 375,
     stats: { hp: 0.13, melee: 0.06, ranged: 0.08, magic: 0.23, meleeDef: 0.11, rangedDef: 0.11, magicDef: 0.13, spe: 0.15 },
     recipe: { body: 'f.body.eel', eyes: 'f.eyes.round', mouth: 'f.mouth.fangs', dorsal: 'f.dorsal.ribbon', pectoral: 'f.pectoral.paddle', tail: 'f.tail.eel', belly: ['f.belly.ribbon', 'f.belly.none'], gills: 'f.gills.plumes', crest: 'f.crest.crown', barbels: ['f.barbels.tentacles', 'f.barbels.none'], spines: ['f.spines.ridge', 'f.spines.none'], pattern: 'f.pattern.belly' },
     palette: { c1: [339, 45, 79], c2: [333, 39, 64], c3: [65, 92, 76], eye: [334, 78, 64] }, vary: { h: 8, s: 6, l: 5 },
@@ -5963,7 +5963,7 @@ export const SPECIES = [
     desc: 'Fins like a ballgown. It fights other bettas and wins on style.',
   },
   {
-    id: 'puddlefry', name: 'Puddlefry', nameParts: ['Puddle', 'fry'], clade: 'fish', rig: 'fish', types: ['Water', 'Normal'], tier: 'uncommon', bst: 408,
+    id: 'puddlefry', name: 'Puddlefry', nameParts: ['Puddle', 'fry'], clade: 'fish', rig: 'fish', types: ['Water', 'Normal'], tier: 'uncommon', bst: 401,
     stats: { hp: 0.14, melee: 0.22, ranged: 0.08, magic: 0.07, meleeDef: 0.13, rangedDef: 0.11, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'f.body.round', eyes: 'f.eyes.round', mouth: 'f.mouth.grin', dorsal: 'f.dorsal.crest', pectoral: 'f.pectoral.fan', tail: 'f.tail.forked', belly: ['f.belly.pelvic', 'f.belly.none'], gills: ['f.gills.flap', 'f.gills.none'], crest: ['f.crest.plume', 'f.crest.none'], barbels: 'f.barbels.none', spines: 'f.spines.ridge', pattern: ['f.pattern.belly', 'f.pattern.none'] },
     palette: { c1: [44, 38, 64], c2: [41, 29, 50], c3: [32, 58, 59], eye: [34, 61, 32] }, vary: { h: 8, s: 6, l: 5 },
@@ -5973,7 +5973,7 @@ export const SPECIES = [
     desc: 'The smallest fish in the smallest puddle, and lord of it.',
   },
   {
-    id: 'leviatide', name: 'Leviatide', nameParts: ['Levia', 'tide'], clade: 'fish', rig: 'fish', types: ['Water', 'Dragon'], tier: 'rare', bst: 409,
+    id: 'leviatide', name: 'Leviatide', nameParts: ['Levia', 'tide'], clade: 'fish', rig: 'fish', types: ['Water', 'Dragon'], tier: 'rare', bst: 410,
     stats: { hp: 0.13, melee: 0.06, ranged: 0.08, magic: 0.23, meleeDef: 0.11, rangedDef: 0.11, magicDef: 0.13, spe: 0.15 },
     recipe: { body: 'f.body.puffer', eyes: 'f.eyes.glow', mouth: 'f.mouth.fangs', dorsal: 'f.dorsal.crest', pectoral: 'f.pectoral.wing', tail: 'f.tail.eel', belly: ['f.belly.paddle', 'f.belly.none'], gills: 'f.gills.none', crest: 'f.crest.none', barbels: ['f.barbels.tentacles', 'f.barbels.none'], spines: 'f.spines.none', pattern: ['f.pattern.scales', 'f.pattern.none'] },
     palette: { c1: [210, 62, 55], c2: [223, 60, 40], c3: [191, 78, 70], eye: [206, 83, 46] }, vary: { h: 8, s: 6, l: 5 },
@@ -5983,7 +5983,7 @@ export const SPECIES = [
     desc: 'The lagoon\'s old god. It surfaces once a year and the fishing is cancelled.',
   },
   {
-    id: 'stormgill', name: 'Stormgill', nameParts: ['Storm', 'gill'], clade: 'fish', rig: 'fish', types: ['Electric', 'Flying'], tier: 'rare', bst: 420,
+    id: 'stormgill', name: 'Stormgill', nameParts: ['Storm', 'gill'], clade: 'fish', rig: 'fish', types: ['Electric', 'Flying'], tier: 'rare', bst: 416,
     stats: { hp: 0.13, melee: 0.08, ranged: 0.22, magic: 0.09, meleeDef: 0.11, rangedDef: 0.12, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'f.body.betta', eyes: 'f.eyes.wide', mouth: 'f.mouth.smile', dorsal: 'f.dorsal.sail', pectoral: 'f.pectoral.wing', tail: 'f.tail.fan', belly: ['f.belly.anal', 'f.belly.none'], gills: 'f.gills.glow', crest: ['f.crest.plume', 'f.crest.none'], barbels: ['f.barbels.catfish', 'f.barbels.none'], spines: 'f.spines.none', pattern: ['f.pattern.glow', 'f.pattern.none'] },
     palette: { c1: [58, 86, 62], c2: [52, 66, 45], c3: [68, 96, 70], eye: [58, 88, 42] }, vary: { h: 8, s: 6, l: 5 },
@@ -5993,7 +5993,7 @@ export const SPECIES = [
     desc: 'A flying fish that fell out of a thunderhead and never came down.',
   },
   {
-    id: 'bonepike', name: 'Bonepike', nameParts: ['Bone', 'pike'], clade: 'fish', rig: 'fish', types: ['Ghost', 'Steel'], tier: 'rare', bst: 371,
+    id: 'bonepike', name: 'Bonepike', nameParts: ['Bone', 'pike'], clade: 'fish', rig: 'fish', types: ['Ghost', 'Steel'], tier: 'rare', bst: 369,
     stats: { hp: 0.14, melee: 0.22, ranged: 0.08, magic: 0.07, meleeDef: 0.13, rangedDef: 0.11, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'f.body.seahorse', eyes: 'f.eyes.deadeye', mouth: 'f.mouth.smile', dorsal: 'f.dorsal.ribbon', pectoral: 'f.pectoral.paddle', tail: 'f.tail.shark', belly: 'f.belly.flowing', gills: ['f.gills.armour', 'f.gills.none'], crest: ['f.crest.lure', 'f.crest.none'], barbels: ['f.barbels.beard', 'f.barbels.none'], spines: ['f.spines.armour', 'f.spines.none'], pattern: ['f.pattern.scales', 'f.pattern.none'] },
     palette: { c1: [263, 23, 68], c2: [270, 20, 46], c3: [156, 70, 59], eye: [155, 80, 55] }, vary: { h: 8, s: 6, l: 5 },
@@ -6004,7 +6004,7 @@ export const SPECIES = [
   },
   // ---- Roster expansion: type pass, bird ----
   {
-    id: 'emberrobin', name: 'Emberrobin', nameParts: ['Ember', 'robin'], clade: 'bird', rig: 'bird', types: ['Fire', 'Flying'], tier: 'common', bst: 435,
+    id: 'emberrobin', name: 'Emberrobin', nameParts: ['Ember', 'robin'], clade: 'bird', rig: 'bird', types: ['Fire', 'Flying'], tier: 'common', bst: 433,
     stats: { hp: 0.13, melee: 0.06, ranged: 0.08, magic: 0.23, meleeDef: 0.11, rangedDef: 0.11, magicDef: 0.13, spe: 0.15 },
     recipe: { body: 'b.body.parrot', head: 'b.head.duck', eyes: 'b.eyes.round', beak: 'b.beak.long', crest: ['b.crest.plume', 'b.crest.none'], face: 'b.face.none', wings: 'b.wings.long', tail: 'b.tail.fan', legs: 'b.legs.raptor', chest: 'b.chest.none', back: 'b.back.flame', pattern: ['b.pattern.patches', 'b.pattern.none'] },
     palette: { c1: [11, 74, 53], c2: [358, 62, 39], c3: [33, 100, 60], eye: [33, 98, 59] }, vary: { h: 8, s: 6, l: 5 },
@@ -6014,7 +6014,7 @@ export const SPECIES = [
     desc: 'A robin with a chest of live coals. Sings in the snow and melts it.',
   },
   {
-    id: 'splashtern', name: 'Splashtern', nameParts: ['Splash', 'tern'], clade: 'bird', rig: 'bird', types: ['Flying', 'Water'], tier: 'uncommon', bst: 418,
+    id: 'splashtern', name: 'Splashtern', nameParts: ['Splash', 'tern'], clade: 'bird', rig: 'bird', types: ['Flying', 'Water'], tier: 'uncommon', bst: 417,
     stats: { hp: 0.13, melee: 0.08, ranged: 0.22, magic: 0.09, meleeDef: 0.11, rangedDef: 0.12, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'b.body.hawk', head: 'b.head.parrot', eyes: 'b.eyes.ring', beak: 'b.beak.long', crest: 'b.crest.cockatoo', face: 'b.face.none', wings: 'b.wings.pointed', tail: 'b.tail.wedge', legs: 'b.legs.webbed', chest: ['b.chest.ruff', 'b.chest.none'], back: ['b.back.coverts', 'b.back.none'], pattern: ['b.pattern.speckles', 'b.pattern.none'] },
     palette: { c1: [199, 58, 54], c2: [204, 58, 38], c3: [170, 81, 69], eye: [191, 76, 49] }, vary: { h: 8, s: 6, l: 5 },
@@ -6024,7 +6024,7 @@ export const SPECIES = [
     desc: 'Dives for fish and comes up with the whole wave.',
   },
   {
-    id: 'flashkestrel', name: 'Flashkestrel', nameParts: ['Flash', 'kestrel'], clade: 'bird', rig: 'bird', types: ['Electric', 'Flying'], tier: 'common', bst: 401,
+    id: 'flashkestrel', name: 'Flashkestrel', nameParts: ['Flash', 'kestrel'], clade: 'bird', rig: 'bird', types: ['Electric', 'Flying'], tier: 'common', bst: 399,
     stats: { hp: 0.11, melee: 0.08, ranged: 0.22, magic: 0.09, meleeDef: 0.09, rangedDef: 0.12, magicDef: 0.09, spe: 0.2 },
     recipe: { body: 'b.body.songbird', head: 'b.head.owl', eyes: 'b.eyes.fierce', beak: 'b.beak.long', crest: 'b.crest.none', face: ['b.face.beard', 'b.face.none'], wings: 'b.wings.long', tail: 'b.tail.long', legs: 'b.legs.stilts', chest: ['b.chest.bib', 'b.chest.none'], back: ['b.back.coverts', 'b.back.none'], pattern: ['b.pattern.patches', 'b.pattern.none'] },
     palette: { c1: [37, 90, 57], c2: [29, 69, 44], c3: [46, 98, 75], eye: [42, 92, 41] }, vary: { h: 8, s: 6, l: 5 },
@@ -6034,7 +6034,7 @@ export const SPECIES = [
     desc: 'Hovers on the storm and strikes with it. Mice have started praying.',
   },
   {
-    id: 'sprigquail', name: 'Sprigquail', nameParts: ['Sprig', 'quail'], clade: 'bird', rig: 'bird', types: ['Flying', 'Grass'], tier: 'uncommon', bst: 448,
+    id: 'sprigquail', name: 'Sprigquail', nameParts: ['Sprig', 'quail'], clade: 'bird', rig: 'bird', types: ['Flying', 'Grass'], tier: 'uncommon', bst: 444,
     stats: { hp: 0.13, melee: 0.08, ranged: 0.22, magic: 0.09, meleeDef: 0.11, rangedDef: 0.12, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'b.body.penguin', head: 'b.head.penguin', eyes: 'b.eyes.sleepy', beak: 'b.beak.short', crest: ['b.crest.tuft', 'b.crest.none'], face: ['b.face.spectacles', 'b.face.none'], wings: 'b.wings.pointed', tail: 'b.tail.stubby', legs: 'b.legs.zygo', chest: ['b.chest.bib', 'b.chest.none'], back: 'b.back.none', pattern: 'b.pattern.belly' },
     palette: { c1: [104, 42, 45], c2: [114, 38, 30], c3: [66, 80, 60], eye: [82, 74, 44] }, vary: { h: 8, s: 6, l: 5 },
@@ -6044,7 +6044,7 @@ export const SPECIES = [
     desc: 'Nests in the wheat and grows more wheat on its back.',
   },
   {
-    id: 'sleetowl', name: 'Sleetowl', nameParts: ['Sleet', 'owl'], clade: 'bird', rig: 'bird', types: ['Ice', 'Flying'], tier: 'common', bst: 401,
+    id: 'sleetowl', name: 'Sleetowl', nameParts: ['Sleet', 'owl'], clade: 'bird', rig: 'bird', types: ['Ice', 'Flying'], tier: 'common', bst: 407,
     stats: { hp: 0.13, melee: 0.06, ranged: 0.08, magic: 0.23, meleeDef: 0.11, rangedDef: 0.11, magicDef: 0.13, spe: 0.15 },
     recipe: { body: 'b.body.peacock', head: 'b.head.duck', eyes: 'b.eyes.sparkle', beak: 'b.beak.long', crest: 'b.crest.none', face: ['b.face.beard', 'b.face.none'], wings: 'b.wings.long', tail: 'b.tail.fan', legs: 'b.legs.raptor', chest: ['b.chest.fluffy', 'b.chest.none'], back: ['b.back.coverts', 'b.back.none'], pattern: 'b.pattern.patches' },
     palette: { c1: [184, 49, 82], c2: [189, 41, 59], c3: [182, 86, 78], eye: [191, 83, 50] }, vary: { h: 8, s: 6, l: 5 },
@@ -6054,7 +6054,7 @@ export const SPECIES = [
     desc: 'A white owl that brings the sleet with it. Barns board up.',
   },
   {
-    id: 'cloutrook', name: 'Cloutrook', nameParts: ['Clout', 'rook'], clade: 'bird', rig: 'bird', types: ['Flying', 'Fighting'], tier: 'uncommon', bst: 494,
+    id: 'cloutrook', name: 'Cloutrook', nameParts: ['Clout', 'rook'], clade: 'bird', rig: 'bird', types: ['Flying', 'Fighting'], tier: 'uncommon', bst: 492,
     stats: { hp: 0.14, melee: 0.22, ranged: 0.08, magic: 0.07, meleeDef: 0.13, rangedDef: 0.11, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'b.body.duck', head: 'b.head.peacock', eyes: 'b.eyes.bead', beak: 'b.beak.stout', crest: ['b.crest.mohawk', 'b.crest.none'], face: ['b.face.spectacles', 'b.face.none'], wings: 'b.wings.flipper', tail: 'b.tail.forked', legs: 'b.legs.penguin', chest: ['b.chest.tuxedo', 'b.chest.none'], back: ['b.back.starcloak', 'b.back.none'], pattern: ['b.pattern.gradient', 'b.pattern.none'] },
     palette: { c1: [13, 48, 49], c2: [1, 42, 27], c3: [348, 71, 49], eye: [18, 71, 35] }, vary: { h: 8, s: 6, l: 5 },
@@ -6074,7 +6074,7 @@ export const SPECIES = [
     desc: 'Eats what nothing else will and shares the smell.',
   },
   {
-    id: 'dustlark', name: 'Dustlark', nameParts: ['Dust', 'lark'], clade: 'bird', rig: 'bird', types: ['Flying', 'Ground'], tier: 'uncommon', bst: 436,
+    id: 'dustlark', name: 'Dustlark', nameParts: ['Dust', 'lark'], clade: 'bird', rig: 'bird', types: ['Flying', 'Ground'], tier: 'uncommon', bst: 427,
     stats: { hp: 0.14, melee: 0.22, ranged: 0.08, magic: 0.07, meleeDef: 0.13, rangedDef: 0.11, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'b.body.hawk', head: 'b.head.round', eyes: 'b.eyes.sleepy', beak: 'b.beak.short', crest: 'b.crest.eartufts', face: 'b.face.none', wings: 'b.wings.stubby', tail: 'b.tail.stubby', legs: 'b.legs.zygo', chest: ['b.chest.medallion', 'b.chest.none'], back: ['b.back.leaves', 'b.back.none'], pattern: ['b.pattern.bars', 'b.pattern.none'] },
     palette: { c1: [26, 45, 54], c2: [18, 43, 36], c3: [35, 67, 59], eye: [20, 61, 34] }, vary: { h: 8, s: 6, l: 5 },
@@ -6084,7 +6084,7 @@ export const SPECIES = [
     desc: 'Nests in the road and sings the carts around it.',
   },
   {
-    id: 'zephyrswift', name: 'Zephyrswift', nameParts: ['Zephyr', 'swift'], clade: 'bird', rig: 'bird', types: ['Flying'], tier: 'common', bst: 443,
+    id: 'zephyrswift', name: 'Zephyrswift', nameParts: ['Zephyr', 'swift'], clade: 'bird', rig: 'bird', types: ['Flying'], tier: 'common', bst: 436,
     stats: { hp: 0.13, melee: 0.08, ranged: 0.22, magic: 0.09, meleeDef: 0.11, rangedDef: 0.12, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'b.body.penguin', head: 'b.head.duck', eyes: 'b.eyes.round', beak: 'b.beak.long', crest: ['b.crest.plume', 'b.crest.none'], face: ['b.face.beard', 'b.face.none'], wings: 'b.wings.long', tail: 'b.tail.fan', legs: 'b.legs.stilts', chest: ['b.chest.scales', 'b.chest.none'], back: ['b.back.coverts', 'b.back.none'], pattern: ['b.pattern.patches', 'b.pattern.none'] },
     palette: { c1: [204, 30, 75], c2: [201, 28, 48], c3: [42, 63, 83], eye: [199, 74, 45] }, vary: { h: 8, s: 6, l: 5 },
@@ -6094,7 +6094,7 @@ export const SPECIES = [
     desc: 'Sleeps on the wing and has never once landed on purpose.',
   },
   {
-    id: 'seermagpie', name: 'Seermagpie', nameParts: ['Seer', 'magpie'], clade: 'bird', rig: 'bird', types: ['Flying', 'Psychic'], tier: 'uncommon', bst: 456,
+    id: 'seermagpie', name: 'Seermagpie', nameParts: ['Seer', 'magpie'], clade: 'bird', rig: 'bird', types: ['Flying', 'Psychic'], tier: 'uncommon', bst: 458,
     stats: { hp: 0.13, melee: 0.06, ranged: 0.08, magic: 0.23, meleeDef: 0.11, rangedDef: 0.11, magicDef: 0.13, spe: 0.15 },
     recipe: { body: 'b.body.songbird', head: 'b.head.hawk', eyes: 'b.eyes.ring', beak: 'b.beak.hooked', crest: 'b.crest.halo', face: 'b.face.disc', wings: 'b.wings.pointed', tail: 'b.tail.pintail', legs: 'b.legs.webbed', chest: 'b.chest.none', back: ['b.back.starcloak', 'b.back.none'], pattern: 'b.pattern.none' },
     palette: { c1: [287, 48, 66], c2: [284, 35, 50], c3: [44, 91, 74], eye: [289, 75, 55] }, vary: { h: 8, s: 6, l: 5 },
@@ -6104,7 +6104,7 @@ export const SPECIES = [
     desc: 'Steals one shiny thing from every fortune. Knows yours.',
   },
   {
-    id: 'buzzhummer', name: 'Buzzhummer', nameParts: ['Buzz', 'hummer'], clade: 'bird', rig: 'bird', types: ['Bug', 'Flying'], tier: 'common', bst: 449,
+    id: 'buzzhummer', name: 'Buzzhummer', nameParts: ['Buzz', 'hummer'], clade: 'bird', rig: 'bird', types: ['Bug', 'Flying'], tier: 'common', bst: 446,
     stats: { hp: 0.13, melee: 0.08, ranged: 0.22, magic: 0.09, meleeDef: 0.11, rangedDef: 0.12, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'b.body.parrot', head: 'b.head.owl', eyes: 'b.eyes.sparkle', beak: 'b.beak.long', crest: ['b.crest.plume', 'b.crest.none'], face: 'b.face.none', wings: 'b.wings.long', tail: 'b.tail.long', legs: 'b.legs.raptor', chest: ['b.chest.scales', 'b.chest.none'], back: ['b.back.coverts', 'b.back.none'], pattern: 'b.pattern.none' },
     palette: { c1: [68, 46, 44], c2: [73, 37, 30], c3: [34, 91, 58], eye: [46, 70, 42] }, vary: { h: 8, s: 6, l: 5 },
@@ -6114,7 +6114,7 @@ export const SPECIES = [
     desc: 'A hummingbird that hums in bee. The bees are flattered.',
   },
   {
-    id: 'granitepelican', name: 'Granitepelican', nameParts: ['Granite', 'pelican'], clade: 'bird', rig: 'bird', types: ['Flying', 'Rock'], tier: 'uncommon', bst: 503,
+    id: 'granitepelican', name: 'Granitepelican', nameParts: ['Granite', 'pelican'], clade: 'bird', rig: 'bird', types: ['Flying', 'Rock'], tier: 'uncommon', bst: 499,
     stats: { hp: 0.16, melee: 0.2, ranged: 0.08, magic: 0.07, meleeDef: 0.17, rangedDef: 0.13, magicDef: 0.1, spe: 0.09 },
     recipe: { body: 'b.body.peacock', head: 'b.head.peacock', eyes: 'b.eyes.bead', beak: 'b.beak.flat', crest: ['b.crest.halo', 'b.crest.none'], face: 'b.face.none', wings: 'b.wings.stubby', tail: 'b.tail.long', legs: 'b.legs.feathered', chest: 'b.chest.none', back: ['b.back.leaves', 'b.back.none'], pattern: ['b.pattern.belly', 'b.pattern.none'] },
     palette: { c1: [22, 22, 54], c2: [25, 19, 39], c3: [39, 62, 57], eye: [34, 63, 44] }, vary: { h: 8, s: 6, l: 5 },
@@ -6124,7 +6124,7 @@ export const SPECIES = [
     desc: 'Its bill is a quarry bucket. The lagoon rocks are getting smaller.',
   },
   {
-    id: 'hauntnightjar', name: 'Hauntnightjar', nameParts: ['Haunt', 'nightjar'], clade: 'bird', rig: 'bird', types: ['Ghost', 'Flying'], tier: 'common', bst: 392,
+    id: 'hauntnightjar', name: 'Hauntnightjar', nameParts: ['Haunt', 'nightjar'], clade: 'bird', rig: 'bird', types: ['Ghost', 'Flying'], tier: 'common', bst: 394,
     stats: { hp: 0.13, melee: 0.06, ranged: 0.08, magic: 0.23, meleeDef: 0.11, rangedDef: 0.11, magicDef: 0.13, spe: 0.15 },
     recipe: { body: 'b.body.owl', head: 'b.head.round', eyes: 'b.eyes.big', beak: 'b.beak.long', crest: ['b.crest.plume', 'b.crest.none'], face: ['b.face.beard', 'b.face.none'], wings: 'b.wings.long', tail: 'b.tail.fan', legs: 'b.legs.thin', chest: ['b.chest.medallion', 'b.chest.none'], back: 'b.back.coverts', pattern: ['b.pattern.patches', 'b.pattern.none'] },
     palette: { c1: [241, 18, 69], c2: [248, 20, 53], c3: [137, 67, 72], eye: [137, 75, 60] }, vary: { h: 8, s: 6, l: 5 },
@@ -6134,7 +6134,7 @@ export const SPECIES = [
     desc: 'Churrs on the grave mound after dark. The grave mound churrs back.',
   },
   {
-    id: 'regalcondor', name: 'Regalcondor', nameParts: ['Regal', 'condor'], clade: 'bird', rig: 'bird', types: ['Flying', 'Dragon'], tier: 'uncommon', bst: 438,
+    id: 'regalcondor', name: 'Regalcondor', nameParts: ['Regal', 'condor'], clade: 'bird', rig: 'bird', types: ['Flying', 'Dragon'], tier: 'uncommon', bst: 437,
     stats: { hp: 0.14, melee: 0.22, ranged: 0.08, magic: 0.07, meleeDef: 0.13, rangedDef: 0.11, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'b.body.duck', head: 'b.head.parrot', eyes: 'b.eyes.fierce', beak: 'b.beak.stout', crest: ['b.crest.plume', 'b.crest.none'], face: ['b.face.brows', 'b.face.none'], wings: 'b.wings.long', tail: 'b.tail.forked', legs: 'b.legs.webbed', chest: ['b.chest.scales', 'b.chest.none'], back: 'b.back.none', pattern: ['b.pattern.patches', 'b.pattern.none'] },
     palette: { c1: [337, 38, 44], c2: [339, 41, 25], c3: [40, 92, 56], eye: [34, 95, 59] }, vary: { h: 8, s: 6, l: 5 },
@@ -6154,7 +6154,7 @@ export const SPECIES = [
     desc: 'Ten thousand of them make one shadow. It has ideas.',
   },
   {
-    id: 'gearpigeon', name: 'Gearpigeon', nameParts: ['Gear', 'pigeon'], clade: 'bird', rig: 'bird', types: ['Flying', 'Steel'], tier: 'uncommon', bst: 409,
+    id: 'gearpigeon', name: 'Gearpigeon', nameParts: ['Gear', 'pigeon'], clade: 'bird', rig: 'bird', types: ['Flying', 'Steel'], tier: 'uncommon', bst: 403,
     stats: { hp: 0.16, melee: 0.2, ranged: 0.08, magic: 0.07, meleeDef: 0.17, rangedDef: 0.13, magicDef: 0.1, spe: 0.09 },
     recipe: { body: 'b.body.hawk', head: 'b.head.hawk', eyes: 'b.eyes.round', beak: 'b.beak.long', crest: ['b.crest.plume', 'b.crest.none'], face: ['b.face.wattle', 'b.face.none'], wings: 'b.wings.flipper', tail: 'b.tail.pintail', legs: 'b.legs.webbed', chest: ['b.chest.bib', 'b.chest.none'], back: ['b.back.mantle', 'b.back.none'], pattern: ['b.pattern.gradient', 'b.pattern.none'] },
     palette: { c1: [196, 14, 57], c2: [200, 16, 42], c3: [25, 75, 57], eye: [35, 76, 49] }, vary: { h: 8, s: 6, l: 5 },
@@ -6164,7 +6164,7 @@ export const SPECIES = [
     desc: 'A pigeon that lives in the clock tower and has learned to tick.',
   },
   {
-    id: 'dazzlefinch', name: 'Dazzlefinch', nameParts: ['Dazzle', 'finch'], clade: 'bird', rig: 'bird', types: ['Fairy', 'Flying'], tier: 'common', bst: 397,
+    id: 'dazzlefinch', name: 'Dazzlefinch', nameParts: ['Dazzle', 'finch'], clade: 'bird', rig: 'bird', types: ['Fairy', 'Flying'], tier: 'common', bst: 398,
     stats: { hp: 0.13, melee: 0.06, ranged: 0.08, magic: 0.23, meleeDef: 0.11, rangedDef: 0.11, magicDef: 0.13, spe: 0.15 },
     recipe: { body: 'b.body.songbird', head: 'b.head.owl', eyes: 'b.eyes.sparkle', beak: 'b.beak.long', crest: 'b.crest.none', face: ['b.face.beard', 'b.face.none'], wings: 'b.wings.long', tail: 'b.tail.long', legs: 'b.legs.webbed', chest: ['b.chest.medallion', 'b.chest.none'], back: 'b.back.none', pattern: ['b.pattern.patches', 'b.pattern.none'] },
     palette: { c1: [320, 50, 77], c2: [315, 44, 64], c3: [48, 88, 77], eye: [324, 75, 64] }, vary: { h: 8, s: 6, l: 5 },
@@ -6174,7 +6174,7 @@ export const SPECIES = [
     desc: 'Feathers like a spilled jewellery box. Sings in colours.',
   },
   {
-    id: 'breezesparrow', name: 'Breezesparrow', nameParts: ['Breeze', 'sparrow'], clade: 'bird', rig: 'bird', types: ['Flying', 'Normal'], tier: 'uncommon', bst: 442,
+    id: 'breezesparrow', name: 'Breezesparrow', nameParts: ['Breeze', 'sparrow'], clade: 'bird', rig: 'bird', types: ['Flying', 'Normal'], tier: 'uncommon', bst: 440,
     stats: { hp: 0.14, melee: 0.22, ranged: 0.08, magic: 0.07, meleeDef: 0.13, rangedDef: 0.11, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'b.body.songbird', head: 'b.head.round', eyes: 'b.eyes.round', beak: 'b.beak.short', crest: 'b.crest.tuft', face: ['b.face.cheeks', 'b.face.none'], wings: 'b.wings.stubby', tail: 'b.tail.stubby', legs: 'b.legs.thin', chest: ['b.chest.fluffy', 'b.chest.none'], back: 'b.back.none', pattern: ['b.pattern.belly', 'b.pattern.none'] },
     palette: { c1: [27, 38, 68], c2: [23, 34, 48], c3: [7, 60, 59], eye: [17, 60, 31] }, vary: { h: 8, s: 6, l: 5 },
@@ -6184,7 +6184,7 @@ export const SPECIES = [
     desc: 'Ordinary, brown and everywhere. Underestimated by design.',
   },
   {
-    id: 'phoenixquill', name: 'Phoenixquill', nameParts: ['Phoenix', 'quill'], clade: 'bird', rig: 'bird', types: ['Fire', 'Fairy'], tier: 'rare', bst: 387,
+    id: 'phoenixquill', name: 'Phoenixquill', nameParts: ['Phoenix', 'quill'], clade: 'bird', rig: 'bird', types: ['Fire', 'Fairy'], tier: 'rare', bst: 386,
     stats: { hp: 0.13, melee: 0.06, ranged: 0.08, magic: 0.23, meleeDef: 0.11, rangedDef: 0.11, magicDef: 0.13, spe: 0.15 },
     recipe: { body: 'b.body.duck', head: 'b.head.parrot', eyes: 'b.eyes.sparkle', beak: 'b.beak.hooked', crest: 'b.crest.none', face: 'b.face.none', wings: 'b.wings.broad', tail: 'b.tail.wedge', legs: 'b.legs.feathered', chest: ['b.chest.ruff', 'b.chest.none'], back: 'b.back.flame', pattern: ['b.pattern.belly', 'b.pattern.none'] },
     palette: { c1: [4, 77, 52], c2: [359, 64, 42], c3: [31, 97, 65], eye: [31, 98, 55] }, vary: { h: 8, s: 6, l: 5 },
@@ -6194,7 +6194,7 @@ export const SPECIES = [
     desc: 'Burns down to an egg every winter and hatches on the first warm day.',
   },
   {
-    id: 'thunderroc', name: 'Thunderroc', nameParts: ['Thunder', 'roc'], clade: 'bird', rig: 'bird', types: ['Electric', 'Dragon'], tier: 'rare', bst: 435,
+    id: 'thunderroc', name: 'Thunderroc', nameParts: ['Thunder', 'roc'], clade: 'bird', rig: 'bird', types: ['Electric', 'Dragon'], tier: 'rare', bst: 437,
     stats: { hp: 0.13, melee: 0.08, ranged: 0.22, magic: 0.09, meleeDef: 0.11, rangedDef: 0.12, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'b.body.owl', head: 'b.head.peacock', eyes: 'b.eyes.big', beak: 'b.beak.flat', crest: ['b.crest.tuft', 'b.crest.none'], face: ['b.face.cheeks', 'b.face.none'], wings: 'b.wings.broad', tail: 'b.tail.stubby', legs: 'b.legs.thin', chest: ['b.chest.scales', 'b.chest.none'], back: ['b.back.mantle', 'b.back.none'], pattern: 'b.pattern.none' },
     palette: { c1: [37, 85, 55], c2: [28, 68, 42], c3: [48, 98, 71], eye: [36, 93, 49] }, vary: { h: 8, s: 6, l: 5 },
@@ -6204,7 +6204,7 @@ export const SPECIES = [
     desc: 'A bird the size of a barn with a storm for a shadow.',
   },
   {
-    id: 'gravecrane', name: 'Gravecrane', nameParts: ['Grave', 'crane'], clade: 'bird', rig: 'bird', types: ['Ghost', 'Ice'], tier: 'rare', bst: 407,
+    id: 'gravecrane', name: 'Gravecrane', nameParts: ['Grave', 'crane'], clade: 'bird', rig: 'bird', types: ['Ghost', 'Ice'], tier: 'rare', bst: 406,
     stats: { hp: 0.13, melee: 0.06, ranged: 0.08, magic: 0.23, meleeDef: 0.11, rangedDef: 0.11, magicDef: 0.13, spe: 0.15 },
     recipe: { body: 'b.body.penguin', head: 'b.head.penguin', eyes: 'b.eyes.ring', beak: 'b.beak.flat', crest: ['b.crest.tuft', 'b.crest.none'], face: 'b.face.beard', wings: 'b.wings.stubby', tail: 'b.tail.wedge', legs: 'b.legs.stilts', chest: ['b.chest.scales', 'b.chest.none'], back: 'b.back.icicles', pattern: 'b.pattern.none' },
     palette: { c1: [245, 18, 70], c2: [252, 22, 49], c3: [143, 70, 66], eye: [140, 80, 61] }, vary: { h: 8, s: 6, l: 5 },
@@ -6215,7 +6215,7 @@ export const SPECIES = [
   },
   // ---- Roster expansion: type pass, insect ----
   {
-    id: 'ashbeetle', name: 'Ashbeetle', nameParts: ['Ash', 'beetle'], clade: 'insect', rig: 'insect', types: ['Fire', 'Bug'], tier: 'common', bst: 437,
+    id: 'ashbeetle', name: 'Ashbeetle', nameParts: ['Ash', 'beetle'], clade: 'insect', rig: 'insect', types: ['Fire', 'Bug'], tier: 'common', bst: 433,
     stats: { hp: 0.13, melee: 0.06, ranged: 0.08, magic: 0.23, meleeDef: 0.11, rangedDef: 0.11, magicDef: 0.13, spe: 0.15 },
     recipe: { body: 'i.body.mantis', head: 'i.head.ladybug', eyes: 'i.eyes.glow', mandibles: 'i.mandibles.tiny', antennae: 'i.antennae.horn', wings: 'i.wings.clear', legsFront: 'i.legsFront.spiny', legsMid: 'i.legsMid.spiny', legsBack: 'i.legsBack.spiny', tail: ['i.tail.cerci', 'i.tail.none'], shell: ['i.shell.armour', 'i.shell.none'], pattern: 'i.pattern.gradient' },
     palette: { c1: [20, 72, 49], c2: [13, 61, 39], c3: [42, 97, 60], eye: [46, 96, 56] }, vary: { h: 8, s: 6, l: 5 },
@@ -6225,7 +6225,7 @@ export const SPECIES = [
     desc: 'Rolls balls of ash across the cinder fields. Warm to hold, briefly.',
   },
   {
-    id: 'dropletmidge', name: 'Dropletmidge', nameParts: ['Droplet', 'midge'], clade: 'insect', rig: 'insect', types: ['Bug', 'Water'], tier: 'uncommon', bst: 432,
+    id: 'dropletmidge', name: 'Dropletmidge', nameParts: ['Droplet', 'midge'], clade: 'insect', rig: 'insect', types: ['Bug', 'Water'], tier: 'uncommon', bst: 431,
     stats: { hp: 0.13, melee: 0.08, ranged: 0.22, magic: 0.09, meleeDef: 0.11, rangedDef: 0.12, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'i.body.beetle', head: 'i.head.ant', eyes: 'i.eyes.round', mandibles: 'i.mandibles.grin', antennae: 'i.antennae.straight', wings: ['i.wings.moth', 'i.wings.none'], legsFront: 'i.legsFront.hairy', legsMid: 'i.legsMid.sturdy', legsBack: 'i.legsBack.hooked', tail: 'i.tail.club', shell: ['i.shell.leaf', 'i.shell.none'], pattern: 'i.pattern.spots' },
     palette: { c1: [202, 58, 51], c2: [210, 52, 34], c3: [188, 82, 72], eye: [202, 82, 42] }, vary: { h: 8, s: 6, l: 5 },
@@ -6245,7 +6245,7 @@ export const SPECIES = [
     desc: 'Each hop a spark. A field of them is a fireworks show.',
   },
   {
-    id: 'leafwalker', name: 'Leafwalker', nameParts: ['Leaf', 'walker'], clade: 'insect', rig: 'insect', types: ['Bug', 'Grass'], tier: 'uncommon', bst: 475,
+    id: 'leafwalker', name: 'Leafwalker', nameParts: ['Leaf', 'walker'], clade: 'insect', rig: 'insect', types: ['Bug', 'Grass'], tier: 'uncommon', bst: 474,
     stats: { hp: 0.13, melee: 0.08, ranged: 0.22, magic: 0.09, meleeDef: 0.11, rangedDef: 0.12, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'i.body.ant', head: 'i.head.mantis', eyes: 'i.eyes.wide', mandibles: 'i.mandibles.beak', antennae: 'i.antennae.feathered', wings: ['i.wings.lacewing', 'i.wings.none'], legsFront: 'i.legsFront.hooked', legsMid: 'i.legsMid.spiny', legsBack: 'i.legsBack.long', tail: ['i.tail.cerci', 'i.tail.none'], shell: ['i.shell.leaf', 'i.shell.none'], pattern: ['i.pattern.chevrons', 'i.pattern.none'] },
     palette: { c1: [116, 43, 45], c2: [119, 42, 31], c3: [79, 78, 57], eye: [94, 73, 39] }, vary: { h: 8, s: 6, l: 5 },
@@ -6255,7 +6255,7 @@ export const SPECIES = [
     desc: 'A stick insect that is now a whole hedge. Do not sit on the hedge.',
   },
   {
-    id: 'frostweevil', name: 'Frostweevil', nameParts: ['Frost', 'weevil'], clade: 'insect', rig: 'insect', types: ['Ice', 'Bug'], tier: 'common', bst: 451,
+    id: 'frostweevil', name: 'Frostweevil', nameParts: ['Frost', 'weevil'], clade: 'insect', rig: 'insect', types: ['Ice', 'Bug'], tier: 'common', bst: 454,
     stats: { hp: 0.13, melee: 0.06, ranged: 0.08, magic: 0.23, meleeDef: 0.11, rangedDef: 0.11, magicDef: 0.13, spe: 0.15 },
     recipe: { body: 'i.body.moth', head: 'i.head.moth', eyes: 'i.eyes.fierce', mandibles: 'i.mandibles.proboscis', antennae: 'i.antennae.clubbed', wings: ['i.wings.fairy', 'i.wings.none'], legsFront: 'i.legsFront.spiny', legsMid: 'i.legsMid.spiny', legsBack: 'i.legsBack.spiny', tail: ['i.tail.stinger', 'i.tail.none'], shell: 'i.shell.none', pattern: 'i.pattern.none' },
     palette: { c1: [191, 45, 85], c2: [199, 39, 62], c3: [188, 93, 80], eye: [203, 86, 50] }, vary: { h: 8, s: 6, l: 5 },
@@ -6265,7 +6265,7 @@ export const SPECIES = [
     desc: 'Bores into the snowbank and eats the cold.',
   },
   {
-    id: 'grapplestag', name: 'Grapplestag', nameParts: ['Grapple', 'stag'], clade: 'insect', rig: 'insect', types: ['Bug', 'Fighting'], tier: 'uncommon', bst: 462,
+    id: 'grapplestag', name: 'Grapplestag', nameParts: ['Grapple', 'stag'], clade: 'insect', rig: 'insect', types: ['Bug', 'Fighting'], tier: 'uncommon', bst: 459,
     stats: { hp: 0.14, melee: 0.22, ranged: 0.08, magic: 0.07, meleeDef: 0.13, rangedDef: 0.11, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'i.body.ladybug', head: 'i.head.dragonfly', eyes: 'i.eyes.compound', mandibles: 'i.mandibles.tiny', antennae: 'i.antennae.horn', wings: ['i.wings.clear', 'i.wings.none'], legsFront: 'i.legsFront.hairy', legsMid: 'i.legsMid.hairy', legsBack: 'i.legsBack.thin', tail: 'i.tail.club', shell: 'i.shell.crystal', pattern: ['i.pattern.spots', 'i.pattern.none'] },
     palette: { c1: [17, 42, 47], c2: [20, 44, 30], c3: [357, 72, 51], eye: [32, 68, 38] }, vary: { h: 8, s: 6, l: 5 },
@@ -6275,7 +6275,7 @@ export const SPECIES = [
     desc: 'A stag beetle that pins other stag beetles and then everything else.',
   },
   {
-    id: 'toxinhornet', name: 'Toxinhornet', nameParts: ['Toxin', 'hornet'], clade: 'insect', rig: 'insect', types: ['Poison', 'Bug'], tier: 'common', bst: 506,
+    id: 'toxinhornet', name: 'Toxinhornet', nameParts: ['Toxin', 'hornet'], clade: 'insect', rig: 'insect', types: ['Poison', 'Bug'], tier: 'common', bst: 507,
     stats: { hp: 0.13, melee: 0.08, ranged: 0.22, magic: 0.09, meleeDef: 0.11, rangedDef: 0.12, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'i.body.dragonfly', head: 'i.head.beetle', eyes: 'i.eyes.ocelli', mandibles: 'i.mandibles.proboscis', antennae: 'i.antennae.straight', wings: 'i.wings.none', legsFront: 'i.legsFront.spiny', legsMid: 'i.legsMid.spiny', legsBack: 'i.legsBack.spiny', tail: ['i.tail.stinger', 'i.tail.none'], shell: ['i.shell.spiky', 'i.shell.none'], pattern: 'i.pattern.gradient' },
     palette: { c1: [289, 36, 44], c2: [280, 36, 29], c3: [97, 87, 57], eye: [97, 94, 52] }, vary: { h: 8, s: 6, l: 5 },
@@ -6285,7 +6285,7 @@ export const SPECIES = [
     desc: 'A sting like a hot needle full of regret.',
   },
   {
-    id: 'burrowcricket', name: 'Burrowcricket', nameParts: ['Burrow', 'cricket'], clade: 'insect', rig: 'insect', types: ['Bug', 'Ground'], tier: 'uncommon', bst: 443,
+    id: 'burrowcricket', name: 'Burrowcricket', nameParts: ['Burrow', 'cricket'], clade: 'insect', rig: 'insect', types: ['Bug', 'Ground'], tier: 'uncommon', bst: 437,
     stats: { hp: 0.14, melee: 0.22, ranged: 0.08, magic: 0.07, meleeDef: 0.13, rangedDef: 0.11, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'i.body.beetle', head: 'i.head.beetle', eyes: 'i.eyes.dot', mandibles: 'i.mandibles.proboscis', antennae: 'i.antennae.curly', wings: 'i.wings.fairy', legsFront: 'i.legsFront.hooked', legsMid: 'i.legsMid.stubby', legsBack: 'i.legsBack.hairy', tail: 'i.tail.club', shell: ['i.shell.fuzz', 'i.shell.none'], pattern: ['i.pattern.eyespots', 'i.pattern.none'] },
     palette: { c1: [35, 45, 54], c2: [24, 38, 41], c3: [44, 71, 66], eye: [41, 59, 33] }, vary: { h: 8, s: 6, l: 5 },
@@ -6295,7 +6295,7 @@ export const SPECIES = [
     desc: 'Digs a tunnel to sing in. The whole meadow is its cathedral.',
   },
   {
-    id: 'draftdamsel', name: 'Draftdamsel', nameParts: ['Draft', 'damsel'], clade: 'insect', rig: 'insect', types: ['Flying', 'Bug'], tier: 'common', bst: 432,
+    id: 'draftdamsel', name: 'Draftdamsel', nameParts: ['Draft', 'damsel'], clade: 'insect', rig: 'insect', types: ['Flying', 'Bug'], tier: 'common', bst: 430,
     stats: { hp: 0.13, melee: 0.08, ranged: 0.22, magic: 0.09, meleeDef: 0.11, rangedDef: 0.12, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'i.body.dragonfly', head: 'i.head.ladybug', eyes: 'i.eyes.wide', mandibles: 'i.mandibles.proboscis', antennae: 'i.antennae.straight', wings: ['i.wings.long', 'i.wings.none'], legsFront: 'i.legsFront.spiny', legsMid: 'i.legsMid.spiny', legsBack: 'i.legsBack.long', tail: ['i.tail.plume', 'i.tail.none'], shell: 'i.shell.elytra', pattern: ['i.pattern.gradient', 'i.pattern.none'] },
     palette: { c1: [209, 33, 75], c2: [219, 27, 51], c3: [51, 60, 82], eye: [209, 72, 48] }, vary: { h: 8, s: 6, l: 5 },
@@ -6315,7 +6315,7 @@ export const SPECIES = [
     desc: 'Its wing eyes blink. Whatever they see, it sees too.',
   },
   {
-    id: 'hivedrone', name: 'Hivedrone', nameParts: ['Hive', 'drone'], clade: 'insect', rig: 'insect', types: ['Bug'], tier: 'common', bst: 483,
+    id: 'hivedrone', name: 'Hivedrone', nameParts: ['Hive', 'drone'], clade: 'insect', rig: 'insect', types: ['Bug'], tier: 'common', bst: 473,
     stats: { hp: 0.13, melee: 0.08, ranged: 0.22, magic: 0.09, meleeDef: 0.11, rangedDef: 0.12, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'i.body.bee', head: 'i.head.dragonfly', eyes: 'i.eyes.fierce', mandibles: 'i.mandibles.fangs', antennae: 'i.antennae.horn', wings: 'i.wings.moth', legsFront: 'i.legsFront.spiny', legsMid: 'i.legsMid.spiny', legsBack: 'i.legsBack.spiny', tail: 'i.tail.pincers', shell: 'i.shell.none', pattern: ['i.pattern.gradient', 'i.pattern.none'] },
     palette: { c1: [71, 47, 49], c2: [84, 44, 32], c3: [49, 94, 63], eye: [61, 68, 44] }, vary: { h: 8, s: 6, l: 5 },
@@ -6325,7 +6325,7 @@ export const SPECIES = [
     desc: 'One of thousands. Ask it about the queen and it will not stop.',
   },
   {
-    id: 'pebblescarab', name: 'Pebblescarab', nameParts: ['Pebble', 'scarab'], clade: 'insect', rig: 'insect', types: ['Bug', 'Rock'], tier: 'uncommon', bst: 514,
+    id: 'pebblescarab', name: 'Pebblescarab', nameParts: ['Pebble', 'scarab'], clade: 'insect', rig: 'insect', types: ['Bug', 'Rock'], tier: 'uncommon', bst: 510,
     stats: { hp: 0.16, melee: 0.2, ranged: 0.08, magic: 0.07, meleeDef: 0.17, rangedDef: 0.13, magicDef: 0.1, spe: 0.09 },
     recipe: { body: 'i.body.ant', head: 'i.head.bee', eyes: 'i.eyes.dot', mandibles: 'i.mandibles.pincers', antennae: 'i.antennae.feathered', wings: ['i.wings.fairy', 'i.wings.none'], legsFront: 'i.legsFront.hooked', legsMid: 'i.legsMid.sturdy', legsBack: 'i.legsBack.thin', tail: ['i.tail.club', 'i.tail.none'], shell: ['i.shell.armour', 'i.shell.none'], pattern: ['i.pattern.stripes', 'i.pattern.none'] },
     palette: { c1: [37, 16, 53], c2: [33, 15, 38], c3: [44, 55, 59], eye: [37, 63, 51] }, vary: { h: 8, s: 6, l: 5 },
@@ -6335,7 +6335,7 @@ export const SPECIES = [
     desc: 'A scarab of gravel that rolls itself when there is nothing else to roll.',
   },
   {
-    id: 'wispmayfly', name: 'Wispmayfly', nameParts: ['Wisp', 'mayfly'], clade: 'insect', rig: 'insect', types: ['Ghost', 'Bug'], tier: 'common', bst: 384,
+    id: 'wispmayfly', name: 'Wispmayfly', nameParts: ['Wisp', 'mayfly'], clade: 'insect', rig: 'insect', types: ['Ghost', 'Bug'], tier: 'common', bst: 379,
     stats: { hp: 0.13, melee: 0.06, ranged: 0.08, magic: 0.23, meleeDef: 0.11, rangedDef: 0.11, magicDef: 0.13, spe: 0.15 },
     recipe: { body: 'i.body.moth', head: 'i.head.mantis', eyes: 'i.eyes.compound', mandibles: 'i.mandibles.tiny', antennae: 'i.antennae.short', wings: ['i.wings.beetle', 'i.wings.none'], legsFront: 'i.legsFront.spiny', legsMid: 'i.legsMid.spiny', legsBack: 'i.legsBack.spiny', tail: ['i.tail.lantern', 'i.tail.none'], shell: ['i.shell.armour', 'i.shell.none'], pattern: ['i.pattern.gradient', 'i.pattern.none'] },
     palette: { c1: [257, 20, 75], c2: [263, 27, 56], c3: [150, 71, 68], eye: [154, 80, 63] }, vary: { h: 8, s: 6, l: 5 },
@@ -6345,7 +6345,7 @@ export const SPECIES = [
     desc: 'Lives a day and haunts the rest of the year to make up for it.',
   },
   {
-    id: 'talonwasp', name: 'Talonwasp', nameParts: ['Talon', 'wasp'], clade: 'insect', rig: 'insect', types: ['Bug', 'Dragon'], tier: 'uncommon', bst: 442,
+    id: 'talonwasp', name: 'Talonwasp', nameParts: ['Talon', 'wasp'], clade: 'insect', rig: 'insect', types: ['Bug', 'Dragon'], tier: 'uncommon', bst: 446,
     stats: { hp: 0.14, melee: 0.22, ranged: 0.08, magic: 0.07, meleeDef: 0.13, rangedDef: 0.11, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'i.body.ladybug', head: 'i.head.ant', eyes: 'i.eyes.ocelli', mandibles: 'i.mandibles.fangs', antennae: 'i.antennae.horn', wings: ['i.wings.beetle', 'i.wings.none'], legsFront: 'i.legsFront.sturdy', legsMid: 'i.legsMid.thin', legsBack: 'i.legsBack.hairy', tail: ['i.tail.lantern', 'i.tail.none'], shell: ['i.shell.elytra', 'i.shell.none'], pattern: 'i.pattern.none' },
     palette: { c1: [350, 45, 42], c2: [356, 37, 32], c3: [43, 93, 55], eye: [42, 93, 55] }, vary: { h: 8, s: 6, l: 5 },
@@ -6355,7 +6355,7 @@ export const SPECIES = [
     desc: 'A wasp with claws and ambitions. The hive calls it sir.',
   },
   {
-    id: 'shadowroach', name: 'Shadowroach', nameParts: ['Shadow', 'roach'], clade: 'insect', rig: 'insect', types: ['Dark', 'Bug'], tier: 'common', bst: 468,
+    id: 'shadowroach', name: 'Shadowroach', nameParts: ['Shadow', 'roach'], clade: 'insect', rig: 'insect', types: ['Dark', 'Bug'], tier: 'common', bst: 475,
     stats: { hp: 0.11, melee: 0.08, ranged: 0.22, magic: 0.09, meleeDef: 0.09, rangedDef: 0.12, magicDef: 0.09, spe: 0.2 },
     recipe: { body: 'i.body.moth', head: 'i.head.dragonfly', eyes: 'i.eyes.round', mandibles: 'i.mandibles.fangs', antennae: 'i.antennae.horn', wings: 'i.wings.long', legsFront: 'i.legsFront.spiny', legsMid: 'i.legsMid.spiny', legsBack: 'i.legsBack.spiny', tail: 'i.tail.pincers', shell: 'i.shell.none', pattern: ['i.pattern.gradient', 'i.pattern.none'] },
     palette: { c1: [254, 19, 38], c2: [253, 23, 29], c3: [330, 84, 58], eye: [341, 86, 63] }, vary: { h: 8, s: 6, l: 5 },
@@ -6365,7 +6365,7 @@ export const SPECIES = [
     desc: 'Runs when the lamp comes on and runs the room when it goes off.',
   },
   {
-    id: 'cogbug', name: 'Cogbug', nameParts: ['Cog', 'bug'], clade: 'insect', rig: 'insect', types: ['Bug', 'Steel'], tier: 'uncommon', bst: 417,
+    id: 'cogbug', name: 'Cogbug', nameParts: ['Cog', 'bug'], clade: 'insect', rig: 'insect', types: ['Bug', 'Steel'], tier: 'uncommon', bst: 431,
     stats: { hp: 0.16, melee: 0.2, ranged: 0.08, magic: 0.07, meleeDef: 0.17, rangedDef: 0.13, magicDef: 0.1, spe: 0.09 },
     recipe: { body: 'i.body.ladybug', head: 'i.head.moth', eyes: 'i.eyes.glow', mandibles: 'i.mandibles.beak', antennae: 'i.antennae.curly', wings: 'i.wings.none', legsFront: 'i.legsFront.hooked', legsMid: 'i.legsMid.spiny', legsBack: 'i.legsBack.hooked', tail: 'i.tail.cerci', shell: ['i.shell.armour', 'i.shell.none'], pattern: ['i.pattern.bands', 'i.pattern.none'] },
     palette: { c1: [211, 12, 59], c2: [216, 8, 44], c3: [41, 77, 59], eye: [46, 81, 53] }, vary: { h: 8, s: 6, l: 5 },
@@ -6375,7 +6375,7 @@ export const SPECIES = [
     desc: 'Clicks like a wound watch. Its shell is gears all the way down.',
   },
   {
-    id: 'sugarbee', name: 'Sugarbee', nameParts: ['Sugar', 'bee'], clade: 'insect', rig: 'insect', types: ['Fairy', 'Bug'], tier: 'common', bst: 405,
+    id: 'sugarbee', name: 'Sugarbee', nameParts: ['Sugar', 'bee'], clade: 'insect', rig: 'insect', types: ['Fairy', 'Bug'], tier: 'common', bst: 402,
     stats: { hp: 0.13, melee: 0.06, ranged: 0.08, magic: 0.23, meleeDef: 0.11, rangedDef: 0.11, magicDef: 0.13, spe: 0.15 },
     recipe: { body: 'i.body.mantis', head: 'i.head.beetle', eyes: 'i.eyes.dot', mandibles: 'i.mandibles.pincers', antennae: 'i.antennae.horn', wings: 'i.wings.none', legsFront: 'i.legsFront.spiny', legsMid: 'i.legsMid.spiny', legsBack: 'i.legsBack.spiny', tail: 'i.tail.none', shell: ['i.shell.spiky', 'i.shell.none'], pattern: 'i.pattern.gradient' },
     palette: { c1: [330, 49, 76], c2: [317, 42, 58], c3: [60, 92, 76], eye: [329, 84, 62] }, vary: { h: 8, s: 6, l: 5 },
@@ -6395,7 +6395,7 @@ export const SPECIES = [
     desc: 'A grub with big plans and no legs yet.',
   },
   {
-    id: 'infernomantis', name: 'Infernomantis', nameParts: ['Inferno', 'mantis'], clade: 'insect', rig: 'insect', types: ['Fire', 'Fighting'], tier: 'rare', bst: 414,
+    id: 'infernomantis', name: 'Infernomantis', nameParts: ['Inferno', 'mantis'], clade: 'insect', rig: 'insect', types: ['Fire', 'Fighting'], tier: 'rare', bst: 415,
     stats: { hp: 0.14, melee: 0.22, ranged: 0.08, magic: 0.07, meleeDef: 0.13, rangedDef: 0.11, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'i.body.ant', head: 'i.head.ant', eyes: 'i.eyes.fierce', mandibles: 'i.mandibles.grin', antennae: 'i.antennae.horn', wings: ['i.wings.clear', 'i.wings.none'], legsFront: 'i.legsFront.thin', legsMid: 'i.legsMid.stubby', legsBack: 'i.legsBack.long', tail: 'i.tail.club', shell: ['i.shell.elytra', 'i.shell.none'], pattern: ['i.pattern.spots', 'i.pattern.none'] },
     palette: { c1: [23, 70, 47], c2: [9, 68, 33], c3: [48, 100, 58], eye: [48, 91, 49] }, vary: { h: 8, s: 6, l: 5 },
@@ -6405,7 +6405,7 @@ export const SPECIES = [
     desc: 'Prays with burning forelegs. The prayer is short.',
   },
   {
-    id: 'glassmoth', name: 'Glassmoth', nameParts: ['Glass', 'moth'], clade: 'insect', rig: 'insect', types: ['Ice', 'Psychic'], tier: 'rare', bst: 383,
+    id: 'glassmoth', name: 'Glassmoth', nameParts: ['Glass', 'moth'], clade: 'insect', rig: 'insect', types: ['Ice', 'Psychic'], tier: 'rare', bst: 380,
     stats: { hp: 0.13, melee: 0.06, ranged: 0.08, magic: 0.23, meleeDef: 0.11, rangedDef: 0.11, magicDef: 0.13, spe: 0.15 },
     recipe: { body: 'i.body.dragonfly', head: 'i.head.mantis', eyes: 'i.eyes.wide', mandibles: 'i.mandibles.proboscis', antennae: 'i.antennae.curly', wings: 'i.wings.none', legsFront: 'i.legsFront.hairy', legsMid: 'i.legsMid.sturdy', legsBack: 'i.legsBack.hairy', tail: ['i.tail.lantern', 'i.tail.none'], shell: ['i.shell.crystal', 'i.shell.none'], pattern: ['i.pattern.chevrons', 'i.pattern.none'] },
     palette: { c1: [200, 49, 79], c2: [205, 45, 62], c3: [191, 89, 84], eye: [201, 88, 53] }, vary: { h: 8, s: 6, l: 5 },
@@ -6415,7 +6415,7 @@ export const SPECIES = [
     desc: 'Wings of frost you can see through. It dreams and the meadow frosts over.',
   },
   {
-    id: 'ironstag', name: 'Ironstag', nameParts: ['Iron', 'stag'], clade: 'insect', rig: 'insect', types: ['Steel', 'Bug'], tier: 'rare', bst: 429,
+    id: 'ironstag', name: 'Ironstag', nameParts: ['Iron', 'stag'], clade: 'insect', rig: 'insect', types: ['Steel', 'Bug'], tier: 'rare', bst: 427,
     stats: { hp: 0.16, melee: 0.2, ranged: 0.08, magic: 0.07, meleeDef: 0.17, rangedDef: 0.13, magicDef: 0.1, spe: 0.09 },
     recipe: { body: 'i.body.beetle', head: 'i.head.bee', eyes: 'i.eyes.ocelli', mandibles: 'i.mandibles.smile', antennae: 'i.antennae.curly', wings: ['i.wings.moth', 'i.wings.none'], legsFront: 'i.legsFront.spiny', legsMid: 'i.legsMid.spiny', legsBack: 'i.legsBack.spiny', tail: 'i.tail.cerci', shell: ['i.shell.armour', 'i.shell.none'], pattern: 'i.pattern.bands' },
     palette: { c1: [208, 8, 59], c2: [214, 13, 39], c3: [42, 72, 62], eye: [39, 78, 50] }, vary: { h: 8, s: 6, l: 5 },
@@ -6436,7 +6436,7 @@ export const SPECIES = [
     desc: 'A prawn that cooks itself and is still faster than you.',
   },
   {
-    id: 'surfclam', name: 'Surfclam', nameParts: ['Surf', 'clam'], clade: 'invertebrate', rig: 'invertebrate', types: ['Water'], tier: 'uncommon', bst: 422,
+    id: 'surfclam', name: 'Surfclam', nameParts: ['Surf', 'clam'], clade: 'invertebrate', rig: 'invertebrate', types: ['Water'], tier: 'uncommon', bst: 430,
     stats: { hp: 0.13, melee: 0.08, ranged: 0.22, magic: 0.09, meleeDef: 0.11, rangedDef: 0.12, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'v.body.crab', eyes: 'v.eyes.bead', mouth: ['v.mouth.beak', 'v.mouth.none'], arms: ['v.arms.paddles', 'v.arms.none'], legs: 'v.legs.spider', shell: 'v.shell.cone', tail: 'v.tail.none', crown: 'v.crown.bubble', feelers: ['v.feelers.hairs', 'v.feelers.none'], pattern: 'v.pattern.mottled', glow: ['v.glow.bubbles', 'v.glow.none'], skirt: 'v.skirt.fringe' },
     palette: { c1: [221, 63, 55], c2: [221, 55, 39], c3: [200, 81, 66], eye: [210, 83, 42] }, vary: { h: 8, s: 6, l: 5 },
@@ -6446,7 +6446,7 @@ export const SPECIES = [
     desc: 'Opens when the wave comes in, closes on whatever came with it.',
   },
   {
-    id: 'voltsquid', name: 'Voltsquid', nameParts: ['Volt', 'squid'], clade: 'invertebrate', rig: 'invertebrate', types: ['Electric', 'Water'], tier: 'common', bst: 381,
+    id: 'voltsquid', name: 'Voltsquid', nameParts: ['Volt', 'squid'], clade: 'invertebrate', rig: 'invertebrate', types: ['Electric', 'Water'], tier: 'common', bst: 384,
     stats: { hp: 0.11, melee: 0.08, ranged: 0.22, magic: 0.09, meleeDef: 0.09, rangedDef: 0.12, magicDef: 0.09, spe: 0.2 },
     recipe: { body: 'v.body.octopus', eyes: 'v.eyes.glow', mouth: 'v.mouth.fangs', arms: 'v.arms.none', legs: ['v.legs.stubby', 'v.legs.none'], shell: ['v.shell.geode', 'v.shell.none'], tail: ['v.tail.stinger', 'v.tail.none'], crown: 'v.crown.none', feelers: 'v.feelers.none', pattern: ['v.pattern.gradient', 'v.pattern.none'], glow: ['v.glow.bubbles', 'v.glow.none'], skirt: ['v.skirt.tentacles', 'v.skirt.none'] },
     palette: { c1: [59, 83, 60], c2: [56, 67, 41], c3: [69, 100, 71], eye: [59, 90, 45] }, vary: { h: 8, s: 6, l: 5 },
@@ -6456,7 +6456,7 @@ export const SPECIES = [
     desc: 'Lights up its whole body before it strikes. Sporting of it.',
   },
   {
-    id: 'mosssnail', name: 'Mosssnail', nameParts: ['Moss', 'snail'], clade: 'invertebrate', rig: 'invertebrate', types: ['Water', 'Grass'], tier: 'uncommon', bst: 421,
+    id: 'mosssnail', name: 'Mosssnail', nameParts: ['Moss', 'snail'], clade: 'invertebrate', rig: 'invertebrate', types: ['Water', 'Grass'], tier: 'uncommon', bst: 424,
     stats: { hp: 0.13, melee: 0.08, ranged: 0.22, magic: 0.09, meleeDef: 0.11, rangedDef: 0.12, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'v.body.spider', eyes: 'v.eyes.cluster', mouth: ['v.mouth.frown', 'v.mouth.none'], arms: ['v.arms.claws', 'v.arms.none'], legs: ['v.legs.tubefeet', 'v.legs.none'], shell: ['v.shell.cone', 'v.shell.none'], tail: ['v.tail.slugtip', 'v.tail.none'], crown: ['v.crown.tuft', 'v.crown.none'], feelers: ['v.feelers.flaps', 'v.feelers.none'], pattern: ['v.pattern.rings', 'v.pattern.none'], glow: 'v.glow.none', skirt: ['v.skirt.roots', 'v.skirt.none'] },
     palette: { c1: [123, 40, 45], c2: [136, 38, 28], c3: [82, 79, 60], eye: [108, 70, 37] }, vary: { h: 8, s: 6, l: 5 },
@@ -6466,7 +6466,7 @@ export const SPECIES = [
     desc: 'A snail with a garden on its shell. The garden is winning.',
   },
   {
-    id: 'icicleurchin', name: 'Icicleurchin', nameParts: ['Icicle', 'urchin'], clade: 'invertebrate', rig: 'invertebrate', types: ['Ice', 'Water'], tier: 'common', bst: 417,
+    id: 'icicleurchin', name: 'Icicleurchin', nameParts: ['Icicle', 'urchin'], clade: 'invertebrate', rig: 'invertebrate', types: ['Ice', 'Water'], tier: 'common', bst: 419,
     stats: { hp: 0.13, melee: 0.06, ranged: 0.08, magic: 0.23, meleeDef: 0.11, rangedDef: 0.11, magicDef: 0.13, spe: 0.15 },
     recipe: { body: 'v.body.slug', eyes: 'v.eyes.hollow', mouth: ['v.mouth.beak', 'v.mouth.none'], arms: ['v.arms.stubs', 'v.arms.none'], legs: ['v.legs.scorpion', 'v.legs.none'], shell: 'v.shell.geode', tail: 'v.tail.sting', crown: 'v.crown.none', feelers: ['v.feelers.threads', 'v.feelers.none'], pattern: ['v.pattern.mottled', 'v.pattern.none'], glow: 'v.glow.bubbles', skirt: ['v.skirt.ribbons', 'v.skirt.none'] },
     palette: { c1: [203, 46, 80], c2: [209, 37, 63], c3: [198, 91, 83], eye: [216, 86, 50] }, vary: { h: 8, s: 6, l: 5 },
@@ -6476,7 +6476,7 @@ export const SPECIES = [
     desc: 'Spines of ice. Step on it and lose the foot to frostbite as well.',
   },
   {
-    id: 'bruiserlobster', name: 'Bruiserlobster', nameParts: ['Bruiser', 'lobster'], clade: 'invertebrate', rig: 'invertebrate', types: ['Water', 'Fighting'], tier: 'uncommon', bst: 439,
+    id: 'bruiserlobster', name: 'Bruiserlobster', nameParts: ['Bruiser', 'lobster'], clade: 'invertebrate', rig: 'invertebrate', types: ['Water', 'Fighting'], tier: 'uncommon', bst: 438,
     stats: { hp: 0.14, melee: 0.22, ranged: 0.08, magic: 0.07, meleeDef: 0.13, rangedDef: 0.11, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'v.body.scorpion', eyes: 'v.eyes.stalks', mouth: ['v.mouth.o', 'v.mouth.none'], arms: 'v.arms.none', legs: 'v.legs.none', shell: 'v.shell.none', tail: 'v.tail.tentacle', crown: ['v.crown.horns', 'v.crown.none'], feelers: ['v.feelers.slug', 'v.feelers.none'], pattern: 'v.pattern.mottled', glow: ['v.glow.motes', 'v.glow.none'], skirt: ['v.skirt.fringe', 'v.skirt.none'] },
     palette: { c1: [31, 41, 45], c2: [28, 39, 27], c3: [11, 75, 50], eye: [39, 66, 35] }, vary: { h: 8, s: 6, l: 5 },
@@ -6486,7 +6486,7 @@ export const SPECIES = [
     desc: 'Two claws, both dominant. Undefeated in the rock pool.',
   },
   {
-    id: 'stinganemone', name: 'Stinganemone', nameParts: ['Sting', 'anemone'], clade: 'invertebrate', rig: 'invertebrate', types: ['Poison', 'Water'], tier: 'common', bst: 420,
+    id: 'stinganemone', name: 'Stinganemone', nameParts: ['Sting', 'anemone'], clade: 'invertebrate', rig: 'invertebrate', types: ['Poison', 'Water'], tier: 'common', bst: 422,
     stats: { hp: 0.13, melee: 0.08, ranged: 0.22, magic: 0.09, meleeDef: 0.11, rangedDef: 0.12, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'v.body.jelly', eyes: 'v.eyes.stalked', mouth: ['v.mouth.o', 'v.mouth.none'], arms: 'v.arms.wisps', legs: ['v.legs.spindly', 'v.legs.none'], shell: ['v.shell.hermit', 'v.shell.none'], tail: ['v.tail.sting', 'v.tail.none'], crown: ['v.crown.bubble', 'v.crown.none'], feelers: ['v.feelers.hairs', 'v.feelers.none'], pattern: 'v.pattern.none', glow: 'v.glow.bubbles', skirt: ['v.skirt.fringe', 'v.skirt.none'] },
     palette: { c1: [293, 37, 46], c2: [296, 44, 31], c3: [111, 82, 55], eye: [112, 92, 56] }, vary: { h: 8, s: 6, l: 5 },
@@ -6496,7 +6496,7 @@ export const SPECIES = [
     desc: 'Pretty, waving, and full of needles. The fish know. You will learn.',
   },
   {
-    id: 'siltworm', name: 'Siltworm', nameParts: ['Silt', 'worm'], clade: 'invertebrate', rig: 'invertebrate', types: ['Water', 'Ground'], tier: 'uncommon', bst: 423,
+    id: 'siltworm', name: 'Siltworm', nameParts: ['Silt', 'worm'], clade: 'invertebrate', rig: 'invertebrate', types: ['Water', 'Ground'], tier: 'uncommon', bst: 426,
     stats: { hp: 0.14, melee: 0.22, ranged: 0.08, magic: 0.07, meleeDef: 0.13, rangedDef: 0.11, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'v.body.jelly', eyes: 'v.eyes.stalks', mouth: 'v.mouth.fangs', arms: 'v.arms.none', legs: ['v.legs.stubby', 'v.legs.none'], shell: 'v.shell.none', tail: ['v.tail.sting', 'v.tail.none'], crown: ['v.crown.horns', 'v.crown.none'], feelers: ['v.feelers.hairs', 'v.feelers.none'], pattern: ['v.pattern.stripes', 'v.pattern.none'], glow: 'v.glow.none', skirt: 'v.skirt.none' },
     palette: { c1: [45, 45, 51], c2: [40, 40, 35], c3: [52, 70, 65], eye: [45, 61, 35] }, vary: { h: 8, s: 6, l: 5 },
@@ -6506,7 +6506,7 @@ export const SPECIES = [
     desc: 'Eats the marsh bed and leaves it tidier. Slowly.',
   },
   {
-    id: 'sailjelly', name: 'Sailjelly', nameParts: ['Sail', 'jelly'], clade: 'invertebrate', rig: 'invertebrate', types: ['Flying', 'Water'], tier: 'common', bst: 422,
+    id: 'sailjelly', name: 'Sailjelly', nameParts: ['Sail', 'jelly'], clade: 'invertebrate', rig: 'invertebrate', types: ['Flying', 'Water'], tier: 'common', bst: 423,
     stats: { hp: 0.13, melee: 0.08, ranged: 0.22, magic: 0.09, meleeDef: 0.11, rangedDef: 0.12, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'v.body.scorpion', eyes: 'v.eyes.hollow', mouth: 'v.mouth.none', arms: 'v.arms.feelers', legs: 'v.legs.none', shell: 'v.shell.spiral', tail: ['v.tail.tentacle', 'v.tail.none'], crown: ['v.crown.bubble', 'v.crown.none'], feelers: ['v.feelers.flaps', 'v.feelers.none'], pattern: ['v.pattern.dots', 'v.pattern.none'], glow: ['v.glow.bubbles', 'v.glow.none'], skirt: 'v.skirt.none' },
     palette: { c1: [222, 36, 69], c2: [229, 34, 53], c3: [59, 58, 82], eye: [222, 74, 42] }, vary: { h: 8, s: 6, l: 5 },
@@ -6516,7 +6516,7 @@ export const SPECIES = [
     desc: 'A jellyfish that catches the wind in its bell and goes where it likes.',
   },
   {
-    id: 'thoughtcuttle', name: 'Thoughtcuttle', nameParts: ['Thought', 'cuttle'], clade: 'invertebrate', rig: 'invertebrate', types: ['Water', 'Psychic'], tier: 'uncommon', bst: 454,
+    id: 'thoughtcuttle', name: 'Thoughtcuttle', nameParts: ['Thought', 'cuttle'], clade: 'invertebrate', rig: 'invertebrate', types: ['Water', 'Psychic'], tier: 'uncommon', bst: 452,
     stats: { hp: 0.13, melee: 0.06, ranged: 0.08, magic: 0.23, meleeDef: 0.11, rangedDef: 0.11, magicDef: 0.13, spe: 0.15 },
     recipe: { body: 'v.body.spider', eyes: 'v.eyes.glow', mouth: ['v.mouth.fangs', 'v.mouth.none'], arms: ['v.arms.feelers', 'v.arms.none'], legs: 'v.legs.tubefeet', shell: 'v.shell.spiral', tail: ['v.tail.slugtip', 'v.tail.none'], crown: 'v.crown.crystal', feelers: 'v.feelers.antennae', pattern: ['v.pattern.gradient', 'v.pattern.none'], glow: ['v.glow.bubbles', 'v.glow.none'], skirt: ['v.skirt.tassels', 'v.skirt.none'] },
     palette: { c1: [317, 47, 67], c2: [306, 42, 45], c3: [70, 90, 70], eye: [310, 75, 58] }, vary: { h: 8, s: 6, l: 5 },
@@ -6526,7 +6526,7 @@ export const SPECIES = [
     desc: 'Its skin shows what it is thinking, and then what you are.',
   },
   {
-    id: 'swarmkrill', name: 'Swarmkrill', nameParts: ['Swarm', 'krill'], clade: 'invertebrate', rig: 'invertebrate', types: ['Bug', 'Water'], tier: 'common', bst: 427,
+    id: 'swarmkrill', name: 'Swarmkrill', nameParts: ['Swarm', 'krill'], clade: 'invertebrate', rig: 'invertebrate', types: ['Bug', 'Water'], tier: 'common', bst: 428,
     stats: { hp: 0.13, melee: 0.08, ranged: 0.22, magic: 0.09, meleeDef: 0.11, rangedDef: 0.12, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'v.body.octopus', eyes: 'v.eyes.cluster', mouth: ['v.mouth.o', 'v.mouth.none'], arms: 'v.arms.feelers', legs: 'v.legs.scorpion', shell: ['v.shell.plates', 'v.shell.none'], tail: ['v.tail.coil', 'v.tail.none'], crown: ['v.crown.bubble', 'v.crown.none'], feelers: 'v.feelers.antennae', pattern: 'v.pattern.none', glow: 'v.glow.none', skirt: ['v.skirt.roots', 'v.skirt.none'] },
     palette: { c1: [91, 43, 51], c2: [92, 40, 33], c3: [57, 95, 60], eye: [69, 67, 41] }, vary: { h: 8, s: 6, l: 5 },
@@ -6536,7 +6536,7 @@ export const SPECIES = [
     desc: 'A cloud of tiny things that thinks as one and mostly thinks about eating.',
   },
   {
-    id: 'cobblelimpet', name: 'Cobblelimpet', nameParts: ['Cobble', 'limpet'], clade: 'invertebrate', rig: 'invertebrate', types: ['Water', 'Rock'], tier: 'uncommon', bst: 461,
+    id: 'cobblelimpet', name: 'Cobblelimpet', nameParts: ['Cobble', 'limpet'], clade: 'invertebrate', rig: 'invertebrate', types: ['Water', 'Rock'], tier: 'uncommon', bst: 470,
     stats: { hp: 0.16, melee: 0.2, ranged: 0.08, magic: 0.07, meleeDef: 0.17, rangedDef: 0.13, magicDef: 0.1, spe: 0.09 },
     recipe: { body: 'v.body.scorpion', eyes: 'v.eyes.bead', mouth: 'v.mouth.none', arms: 'v.arms.none', legs: 'v.legs.stubby', shell: 'v.shell.plates', tail: 'v.tail.coil', crown: ['v.crown.coral', 'v.crown.none'], feelers: ['v.feelers.hairs', 'v.feelers.none'], pattern: ['v.pattern.stripes', 'v.pattern.none'], glow: 'v.glow.static', skirt: 'v.skirt.tassels' },
     palette: { c1: [46, 15, 55], c2: [43, 16, 36], c3: [53, 56, 61], eye: [49, 64, 50] }, vary: { h: 8, s: 6, l: 5 },
@@ -6556,7 +6556,7 @@ export const SPECIES = [
     desc: 'An empty shell that walks. Hermit crabs will not go near it.',
   },
   {
-    id: 'eldernautilus', name: 'Eldernautilus', nameParts: ['Elder', 'nautilus'], clade: 'invertebrate', rig: 'invertebrate', types: ['Water', 'Dragon'], tier: 'uncommon', bst: 441,
+    id: 'eldernautilus', name: 'Eldernautilus', nameParts: ['Elder', 'nautilus'], clade: 'invertebrate', rig: 'invertebrate', types: ['Water', 'Dragon'], tier: 'uncommon', bst: 450,
     stats: { hp: 0.14, melee: 0.22, ranged: 0.08, magic: 0.07, meleeDef: 0.13, rangedDef: 0.11, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'v.body.crab', eyes: 'v.eyes.stalked', mouth: ['v.mouth.fangs', 'v.mouth.none'], arms: ['v.arms.feelers', 'v.arms.none'], legs: ['v.legs.jointed', 'v.legs.none'], shell: 'v.shell.none', tail: 'v.tail.none', crown: 'v.crown.none', feelers: 'v.feelers.hairs', pattern: 'v.pattern.stripes', glow: ['v.glow.bubbles', 'v.glow.none'], skirt: 'v.skirt.tassels' },
     palette: { c1: [353, 45, 38], c2: [4, 37, 31], c3: [58, 93, 55], eye: [60, 99, 61] }, vary: { h: 8, s: 6, l: 5 },
@@ -6566,7 +6566,7 @@ export const SPECIES = [
     desc: 'Older than the lagoon and spiralled like its history.',
   },
   {
-    id: 'inktopus', name: 'Inktopus', nameParts: ['Ink', 'topus'], clade: 'invertebrate', rig: 'invertebrate', types: ['Dark', 'Water'], tier: 'common', bst: 362,
+    id: 'inktopus', name: 'Inktopus', nameParts: ['Ink', 'topus'], clade: 'invertebrate', rig: 'invertebrate', types: ['Dark', 'Water'], tier: 'common', bst: 363,
     stats: { hp: 0.11, melee: 0.08, ranged: 0.22, magic: 0.09, meleeDef: 0.09, rangedDef: 0.12, magicDef: 0.09, spe: 0.2 },
     recipe: { body: 'v.body.slug', eyes: 'v.eyes.big', mouth: ['v.mouth.fangs', 'v.mouth.none'], arms: ['v.arms.claws', 'v.arms.none'], legs: 'v.legs.none', shell: ['v.shell.geode', 'v.shell.none'], tail: 'v.tail.streamer', crown: 'v.crown.bubble', feelers: ['v.feelers.flaps', 'v.feelers.none'], pattern: ['v.pattern.mottled', 'v.pattern.none'], glow: 'v.glow.none', skirt: 'v.skirt.hem' },
     palette: { c1: [258, 16, 39], c2: [269, 24, 30], c3: [345, 84, 61], eye: [351, 84, 56] }, vary: { h: 8, s: 6, l: 5 },
@@ -6576,7 +6576,7 @@ export const SPECIES = [
     desc: 'Vanishes in a cloud of its own opinion.',
   },
   {
-    id: 'boltbarnacle', name: 'Boltbarnacle', nameParts: ['Bolt', 'barnacle'], clade: 'invertebrate', rig: 'invertebrate', types: ['Water', 'Steel'], tier: 'uncommon', bst: 394,
+    id: 'boltbarnacle', name: 'Boltbarnacle', nameParts: ['Bolt', 'barnacle'], clade: 'invertebrate', rig: 'invertebrate', types: ['Water', 'Steel'], tier: 'uncommon', bst: 393,
     stats: { hp: 0.16, melee: 0.2, ranged: 0.08, magic: 0.07, meleeDef: 0.17, rangedDef: 0.13, magicDef: 0.1, spe: 0.09 },
     recipe: { body: 'v.body.scorpion', eyes: 'v.eyes.glow', mouth: 'v.mouth.frown', arms: 'v.arms.none', legs: ['v.legs.scorpion', 'v.legs.none'], shell: ['v.shell.plates', 'v.shell.none'], tail: 'v.tail.none', crown: ['v.crown.horns', 'v.crown.none'], feelers: ['v.feelers.hairs', 'v.feelers.none'], pattern: ['v.pattern.rings', 'v.pattern.none'], glow: 'v.glow.bubbles', skirt: 'v.skirt.tassels' },
     palette: { c1: [224, 14, 56], c2: [231, 12, 37], c3: [54, 76, 57], eye: [58, 82, 51] }, vary: { h: 8, s: 6, l: 5 },
@@ -6586,7 +6586,7 @@ export const SPECIES = [
     desc: 'Rivets itself to hulls and refuses to be scraped.',
   },
   {
-    id: 'pearlscallop', name: 'Pearlscallop', nameParts: ['Pearl', 'scallop'], clade: 'invertebrate', rig: 'invertebrate', types: ['Fairy', 'Water'], tier: 'common', bst: 399,
+    id: 'pearlscallop', name: 'Pearlscallop', nameParts: ['Pearl', 'scallop'], clade: 'invertebrate', rig: 'invertebrate', types: ['Fairy', 'Water'], tier: 'common', bst: 397,
     stats: { hp: 0.13, melee: 0.06, ranged: 0.08, magic: 0.23, meleeDef: 0.11, rangedDef: 0.11, magicDef: 0.13, spe: 0.15 },
     recipe: { body: 'v.body.slug', eyes: 'v.eyes.bead', mouth: ['v.mouth.fangs', 'v.mouth.none'], arms: ['v.arms.pedipalps', 'v.arms.none'], legs: 'v.legs.jointed', shell: 'v.shell.spiky', tail: ['v.tail.streamer', 'v.tail.none'], crown: ['v.crown.bubble', 'v.crown.none'], feelers: 'v.feelers.flaps', pattern: ['v.pattern.stripes', 'v.pattern.none'], glow: 'v.glow.none', skirt: ['v.skirt.ribbons', 'v.skirt.none'] },
     palette: { c1: [339, 42, 80], c2: [328, 43, 58], c3: [62, 93, 75], eye: [347, 83, 65] }, vary: { h: 8, s: 6, l: 5 },
@@ -6596,7 +6596,7 @@ export const SPECIES = [
     desc: 'Snaps its shell to swim and leaves a trail of glitter.',
   },
   {
-    id: 'tidalslug', name: 'Tidalslug', nameParts: ['Tidal', 'slug'], clade: 'invertebrate', rig: 'invertebrate', types: ['Water', 'Normal'], tier: 'uncommon', bst: 403,
+    id: 'tidalslug', name: 'Tidalslug', nameParts: ['Tidal', 'slug'], clade: 'invertebrate', rig: 'invertebrate', types: ['Water', 'Normal'], tier: 'uncommon', bst: 412,
     stats: { hp: 0.14, melee: 0.22, ranged: 0.08, magic: 0.07, meleeDef: 0.13, rangedDef: 0.11, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'v.body.octopus', eyes: 'v.eyes.cluster', mouth: ['v.mouth.beak', 'v.mouth.none'], arms: ['v.arms.stubs', 'v.arms.none'], legs: ['v.legs.stubby', 'v.legs.none'], shell: ['v.shell.hermit', 'v.shell.none'], tail: 'v.tail.sting', crown: 'v.crown.none', feelers: ['v.feelers.antennae', 'v.feelers.none'], pattern: ['v.pattern.mottled', 'v.pattern.none'], glow: ['v.glow.mist', 'v.glow.none'], skirt: ['v.skirt.roots', 'v.skirt.none'] },
     palette: { c1: [46, 33, 65], c2: [48, 26, 45], c3: [34, 58, 56], eye: [43, 56, 32] }, vary: { h: 8, s: 6, l: 5 },
@@ -6616,7 +6616,7 @@ export const SPECIES = [
     desc: 'The small one. The lagoon does not talk about the large one.',
   },
   {
-    id: 'coralmind', name: 'Coralmind', nameParts: ['Coral', 'mind'], clade: 'invertebrate', rig: 'invertebrate', types: ['Psychic', 'Rock'], tier: 'rare', bst: 413,
+    id: 'coralmind', name: 'Coralmind', nameParts: ['Coral', 'mind'], clade: 'invertebrate', rig: 'invertebrate', types: ['Psychic', 'Rock'], tier: 'rare', bst: 405,
     stats: { hp: 0.13, melee: 0.06, ranged: 0.08, magic: 0.23, meleeDef: 0.11, rangedDef: 0.11, magicDef: 0.13, spe: 0.15 },
     recipe: { body: 'v.body.crab', eyes: 'v.eyes.glow', mouth: 'v.mouth.none', arms: ['v.arms.feelers', 'v.arms.none'], legs: 'v.legs.spindly', shell: 'v.shell.none', tail: 'v.tail.none', crown: ['v.crown.crystal', 'v.crown.none'], feelers: ['v.feelers.antennae', 'v.feelers.none'], pattern: ['v.pattern.gradient', 'v.pattern.none'], glow: 'v.glow.static', skirt: 'v.skirt.tassels' },
     palette: { c1: [310, 45, 68], c2: [312, 41, 50], c3: [62, 86, 70], eye: [312, 85, 54] }, vary: { h: 8, s: 6, l: 5 },
@@ -6626,7 +6626,7 @@ export const SPECIES = [
     desc: 'A reef that thinks. Slowly, and about everything.',
   },
   {
-    id: 'voltmedusa', name: 'Voltmedusa', nameParts: ['Volt', 'medusa'], clade: 'invertebrate', rig: 'invertebrate', types: ['Electric', 'Ghost'], tier: 'rare', bst: 391,
+    id: 'voltmedusa', name: 'Voltmedusa', nameParts: ['Volt', 'medusa'], clade: 'invertebrate', rig: 'invertebrate', types: ['Electric', 'Ghost'], tier: 'rare', bst: 389,
     stats: { hp: 0.13, melee: 0.06, ranged: 0.08, magic: 0.23, meleeDef: 0.11, rangedDef: 0.11, magicDef: 0.13, spe: 0.15 },
     recipe: { body: 'v.body.wisp', eyes: 'v.eyes.hollow', mouth: 'v.mouth.none', arms: ['v.arms.wisps', 'v.arms.none'], legs: 'v.legs.spider', shell: 'v.shell.plates', tail: 'v.tail.none', crown: ['v.crown.flame', 'v.crown.none'], feelers: ['v.feelers.flaps', 'v.feelers.none'], pattern: 'v.pattern.dots', glow: ['v.glow.mist', 'v.glow.none'], skirt: ['v.skirt.hem', 'v.skirt.none'] },
     palette: { c1: [65, 87, 63], c2: [52, 65, 42], c3: [68, 100, 72], eye: [60, 94, 47] }, vary: { h: 8, s: 6, l: 5 },
@@ -6637,7 +6637,7 @@ export const SPECIES = [
   },
   // ---- Roster expansion: type pass, amphibian ----
   {
-    id: 'chartoad', name: 'Chartoad', nameParts: ['Char', 'toad'], clade: 'amphibian', rig: 'amphibian', types: ['Fire', 'Water'], tier: 'common', bst: 398,
+    id: 'chartoad', name: 'Chartoad', nameParts: ['Char', 'toad'], clade: 'amphibian', rig: 'amphibian', types: ['Fire', 'Water'], tier: 'common', bst: 392,
     stats: { hp: 0.13, melee: 0.06, ranged: 0.08, magic: 0.23, meleeDef: 0.11, rangedDef: 0.11, magicDef: 0.13, spe: 0.15 },
     recipe: { body: 'a.body.treefrog', head: 'a.head.newt', eyes: 'a.eyes.big', mouth: 'a.mouth.tongue', gills: ['a.gills.spiky', 'a.gills.none'], legsFront: 'a.legsFront.polliwog', legsBack: 'a.legsBack.polliwog', tail: ['a.tail.flame', 'a.tail.none'], throat: 'a.throat.none', crest: ['a.crest.fin', 'a.crest.none'], back: ['a.back.flames', 'a.back.none'], pattern: ['a.pattern.stripes', 'a.pattern.none'] },
     palette: { c1: [15, 72, 49], c2: [1, 63, 37], c3: [33, 100, 61], eye: [44, 93, 60] }, vary: { h: 8, s: 6, l: 5 },
@@ -6647,7 +6647,7 @@ export const SPECIES = [
     desc: 'Sits on the hot stones and steams. The pond is a little warmer for it.',
   },
   {
-    id: 'rainfrog', name: 'Rainfrog', nameParts: ['Rain', 'frog'], clade: 'amphibian', rig: 'amphibian', types: ['Water'], tier: 'uncommon', bst: 421,
+    id: 'rainfrog', name: 'Rainfrog', nameParts: ['Rain', 'frog'], clade: 'amphibian', rig: 'amphibian', types: ['Water'], tier: 'uncommon', bst: 418,
     stats: { hp: 0.13, melee: 0.08, ranged: 0.22, magic: 0.09, meleeDef: 0.11, rangedDef: 0.12, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'a.body.newt', head: 'a.head.treefrog', eyes: 'a.eyes.sleepy', mouth: 'a.mouth.tongue', gills: ['a.gills.stubs', 'a.gills.none'], legsFront: 'a.legsFront.newt', legsBack: 'a.legsBack.polliwog', tail: ['a.tail.fin', 'a.tail.none'], throat: ['a.throat.bubble', 'a.throat.none'], crest: ['a.crest.fin', 'a.crest.none'], back: ['a.back.ridge', 'a.back.none'], pattern: ['a.pattern.stripes', 'a.pattern.none'] },
     palette: { c1: [203, 63, 56], c2: [203, 51, 42], c3: [180, 82, 67], eye: [198, 76, 46] }, vary: { h: 8, s: 6, l: 5 },
@@ -6657,7 +6657,7 @@ export const SPECIES = [
     desc: 'Sings the rain in and then sings it out again.',
   },
   {
-    id: 'sparknewt', name: 'Sparknewt', nameParts: ['Spark', 'newt'], clade: 'amphibian', rig: 'amphibian', types: ['Electric', 'Water'], tier: 'common', bst: 394,
+    id: 'sparknewt', name: 'Sparknewt', nameParts: ['Spark', 'newt'], clade: 'amphibian', rig: 'amphibian', types: ['Electric', 'Water'], tier: 'common', bst: 397,
     stats: { hp: 0.11, melee: 0.08, ranged: 0.22, magic: 0.09, meleeDef: 0.09, rangedDef: 0.12, magicDef: 0.09, spe: 0.2 },
     recipe: { body: 'a.body.frog', head: 'a.head.toad', eyes: 'a.eyes.glow', mouth: 'a.mouth.smirk', gills: ['a.gills.leafy', 'a.gills.none'], legsFront: 'a.legsFront.polliwog', legsBack: 'a.legsBack.axolotl', tail: 'a.tail.none', throat: ['a.throat.bubble', 'a.throat.none'], crest: 'a.crest.fin', back: ['a.back.ridge', 'a.back.none'], pattern: ['a.pattern.stripes', 'a.pattern.none'] },
     palette: { c1: [40, 89, 62], c2: [38, 66, 39], c3: [50, 100, 69], eye: [48, 93, 45] }, vary: { h: 8, s: 6, l: 5 },
@@ -6667,7 +6667,7 @@ export const SPECIES = [
     desc: 'Sparks between its gills. Do not pick it up in the wet.',
   },
   {
-    id: 'mossfrog', name: 'Mossfrog', nameParts: ['Moss', 'frog'], clade: 'amphibian', rig: 'amphibian', types: ['Water', 'Grass'], tier: 'uncommon', bst: 434,
+    id: 'mossfrog', name: 'Mossfrog', nameParts: ['Moss', 'frog'], clade: 'amphibian', rig: 'amphibian', types: ['Water', 'Grass'], tier: 'uncommon', bst: 432,
     stats: { hp: 0.13, melee: 0.08, ranged: 0.22, magic: 0.09, meleeDef: 0.11, rangedDef: 0.12, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'a.body.polliwog', head: 'a.head.axolotl', eyes: 'a.eyes.bead', mouth: 'a.mouth.gape', gills: ['a.gills.feathery', 'a.gills.none'], legsFront: 'a.legsFront.axolotl', legsBack: 'a.legsBack.toad', tail: ['a.tail.leaf', 'a.tail.none'], throat: ['a.throat.dewlap', 'a.throat.none'], crest: ['a.crest.moss', 'a.crest.none'], back: ['a.back.moss', 'a.back.none'], pattern: 'a.pattern.spots' },
     palette: { c1: [102, 42, 46], c2: [110, 40, 32], c3: [70, 85, 61], eye: [92, 69, 44] }, vary: { h: 8, s: 6, l: 5 },
@@ -6677,7 +6677,7 @@ export const SPECIES = [
     desc: 'Green on green. It sits on the lily pad and the lily pad thinks it is one.',
   },
   {
-    id: 'chillsalamander', name: 'Chillsalamander', nameParts: ['Chill', 'salamander'], clade: 'amphibian', rig: 'amphibian', types: ['Ice', 'Water'], tier: 'common', bst: 437,
+    id: 'chillsalamander', name: 'Chillsalamander', nameParts: ['Chill', 'salamander'], clade: 'amphibian', rig: 'amphibian', types: ['Ice', 'Water'], tier: 'common', bst: 432,
     stats: { hp: 0.13, melee: 0.06, ranged: 0.08, magic: 0.23, meleeDef: 0.11, rangedDef: 0.11, magicDef: 0.13, spe: 0.15 },
     recipe: { body: 'a.body.axolotl', head: 'a.head.frog', eyes: 'a.eyes.gold', mouth: 'a.mouth.pout', gills: 'a.gills.feathery', legsFront: 'a.legsFront.axolotl', legsBack: 'a.legsBack.newt', tail: 'a.tail.none', throat: 'a.throat.none', crest: 'a.crest.fin', back: ['a.back.ridge', 'a.back.none'], pattern: 'a.pattern.none' },
     palette: { c1: [188, 47, 79], c2: [190, 44, 64], c3: [186, 93, 81], eye: [202, 86, 56] }, vary: { h: 8, s: 6, l: 5 },
@@ -6687,7 +6687,7 @@ export const SPECIES = [
     desc: 'A salamander that lives in the ice instead of the fire. Contrary.',
   },
   {
-    id: 'grappletoad', name: 'Grappletoad', nameParts: ['Grapple', 'toad'], clade: 'amphibian', rig: 'amphibian', types: ['Water', 'Fighting'], tier: 'uncommon', bst: 440,
+    id: 'grappletoad', name: 'Grappletoad', nameParts: ['Grapple', 'toad'], clade: 'amphibian', rig: 'amphibian', types: ['Water', 'Fighting'], tier: 'uncommon', bst: 438,
     stats: { hp: 0.14, melee: 0.22, ranged: 0.08, magic: 0.07, meleeDef: 0.13, rangedDef: 0.11, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'a.body.toad', head: 'a.head.polliwog', eyes: 'a.eyes.sleepy', mouth: 'a.mouth.smile', gills: ['a.gills.plumes', 'a.gills.none'], legsFront: 'a.legsFront.treefrog', legsBack: 'a.legsBack.toad', tail: ['a.tail.salamander', 'a.tail.none'], throat: 'a.throat.bubble', crest: ['a.crest.horns', 'a.crest.none'], back: 'a.back.none', pattern: 'a.pattern.rings' },
     palette: { c1: [11, 49, 46], c2: [9, 40, 34], c3: [358, 77, 50], eye: [21, 72, 41] }, vary: { h: 8, s: 6, l: 5 },
@@ -6697,7 +6697,7 @@ export const SPECIES = [
     desc: 'Wrestles anything that lands on its rock. Has thrown a heron.',
   },
   {
-    id: 'blightdart', name: 'Blightdart', nameParts: ['Blight', 'dart'], clade: 'amphibian', rig: 'amphibian', types: ['Poison', 'Water'], tier: 'common', bst: 425,
+    id: 'blightdart', name: 'Blightdart', nameParts: ['Blight', 'dart'], clade: 'amphibian', rig: 'amphibian', types: ['Poison', 'Water'], tier: 'common', bst: 423,
     stats: { hp: 0.13, melee: 0.08, ranged: 0.22, magic: 0.09, meleeDef: 0.11, rangedDef: 0.12, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'a.body.salamander', head: 'a.head.salamander', eyes: 'a.eyes.wide', mouth: 'a.mouth.frown', gills: ['a.gills.fan', 'a.gills.none'], legsFront: 'a.legsFront.salamander', legsBack: 'a.legsBack.frog', tail: ['a.tail.fin', 'a.tail.none'], throat: ['a.throat.bubble', 'a.throat.none'], crest: ['a.crest.fin', 'a.crest.none'], back: ['a.back.ridge', 'a.back.none'], pattern: 'a.pattern.stripes' },
     palette: { c1: [275, 35, 44], c2: [273, 45, 34], c3: [88, 85, 56], eye: [94, 89, 57] }, vary: { h: 8, s: 6, l: 5 },
@@ -6707,7 +6707,7 @@ export const SPECIES = [
     desc: 'Bright as a warning and twice as honest.',
   },
   {
-    id: 'spadehopper', name: 'Spadehopper', nameParts: ['Spade', 'hopper'], clade: 'amphibian', rig: 'amphibian', types: ['Water', 'Ground'], tier: 'uncommon', bst: 402,
+    id: 'spadehopper', name: 'Spadehopper', nameParts: ['Spade', 'hopper'], clade: 'amphibian', rig: 'amphibian', types: ['Water', 'Ground'], tier: 'uncommon', bst: 395,
     stats: { hp: 0.14, melee: 0.22, ranged: 0.08, magic: 0.07, meleeDef: 0.13, rangedDef: 0.11, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'a.body.newt', head: 'a.head.newt', eyes: 'a.eyes.bulge', mouth: 'a.mouth.smile', gills: 'a.gills.feathery', legsFront: 'a.legsFront.axolotl', legsBack: 'a.legsBack.treefrog', tail: 'a.tail.none', throat: 'a.throat.none', crest: ['a.crest.moss', 'a.crest.none'], back: ['a.back.flames', 'a.back.none'], pattern: 'a.pattern.none' },
     palette: { c1: [27, 43, 52], c2: [17, 44, 36], c3: [43, 73, 63], eye: [28, 57, 35] }, vary: { h: 8, s: 6, l: 5 },
@@ -6727,7 +6727,7 @@ export const SPECIES = [
     desc: 'Webbed feet like sails. Leaps from the canopy and mostly arrives.',
   },
   {
-    id: 'dreamlotl', name: 'Dreamlotl', nameParts: ['Dream', 'lotl'], clade: 'amphibian', rig: 'amphibian', types: ['Water', 'Psychic'], tier: 'uncommon', bst: 451,
+    id: 'dreamlotl', name: 'Dreamlotl', nameParts: ['Dream', 'lotl'], clade: 'amphibian', rig: 'amphibian', types: ['Water', 'Psychic'], tier: 'uncommon', bst: 450,
     stats: { hp: 0.13, melee: 0.06, ranged: 0.08, magic: 0.23, meleeDef: 0.11, rangedDef: 0.11, magicDef: 0.13, spe: 0.15 },
     recipe: { body: 'a.body.salamander', head: 'a.head.toad', eyes: 'a.eyes.wide', mouth: 'a.mouth.smile', gills: ['a.gills.fan', 'a.gills.none'], legsFront: 'a.legsFront.newt', legsBack: 'a.legsBack.toad', tail: 'a.tail.none', throat: 'a.throat.bubble', crest: ['a.crest.spikes', 'a.crest.none'], back: ['a.back.mushrooms', 'a.back.none'], pattern: ['a.pattern.stripes', 'a.pattern.none'] },
     palette: { c1: [299, 46, 63], c2: [287, 38, 46], c3: [45, 93, 75], eye: [298, 78, 61] }, vary: { h: 8, s: 6, l: 5 },
@@ -6737,7 +6737,7 @@ export const SPECIES = [
     desc: 'Floats belly-up and dreams. The pond dreams with it.',
   },
   {
-    id: 'gnattoad', name: 'Gnattoad', nameParts: ['Gnat', 'toad'], clade: 'amphibian', rig: 'amphibian', types: ['Bug', 'Water'], tier: 'common', bst: 425,
+    id: 'gnattoad', name: 'Gnattoad', nameParts: ['Gnat', 'toad'], clade: 'amphibian', rig: 'amphibian', types: ['Bug', 'Water'], tier: 'common', bst: 428,
     stats: { hp: 0.13, melee: 0.08, ranged: 0.22, magic: 0.09, meleeDef: 0.11, rangedDef: 0.12, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'a.body.polliwog', head: 'a.head.treefrog', eyes: 'a.eyes.glow', mouth: 'a.mouth.smirk', gills: ['a.gills.stubs', 'a.gills.none'], legsFront: 'a.legsFront.salamander', legsBack: 'a.legsBack.salamander', tail: ['a.tail.fin', 'a.tail.none'], throat: ['a.throat.bubble', 'a.throat.none'], crest: ['a.crest.fin', 'a.crest.none'], back: 'a.back.none', pattern: ['a.pattern.stripes', 'a.pattern.none'] },
     palette: { c1: [70, 44, 49], c2: [71, 35, 36], c3: [40, 85, 63], eye: [58, 67, 41] }, vary: { h: 8, s: 6, l: 5 },
@@ -6747,7 +6747,7 @@ export const SPECIES = [
     desc: 'Eats a thousand gnats a night and has begun to buzz.',
   },
   {
-    id: 'gravelbull', name: 'Gravelbull', nameParts: ['Gravel', 'bull'], clade: 'amphibian', rig: 'amphibian', types: ['Water', 'Rock'], tier: 'uncommon', bst: 462,
+    id: 'gravelbull', name: 'Gravelbull', nameParts: ['Gravel', 'bull'], clade: 'amphibian', rig: 'amphibian', types: ['Water', 'Rock'], tier: 'uncommon', bst: 469,
     stats: { hp: 0.16, melee: 0.2, ranged: 0.08, magic: 0.07, meleeDef: 0.17, rangedDef: 0.13, magicDef: 0.1, spe: 0.09 },
     recipe: { body: 'a.body.frog', head: 'a.head.polliwog', eyes: 'a.eyes.sleepy', mouth: 'a.mouth.smile', gills: 'a.gills.none', legsFront: 'a.legsFront.treefrog', legsBack: 'a.legsBack.treefrog', tail: 'a.tail.leaf', throat: ['a.throat.double', 'a.throat.none'], crest: ['a.crest.fin', 'a.crest.none'], back: ['a.back.boulder', 'a.back.none'], pattern: ['a.pattern.belly', 'a.pattern.none'] },
     palette: { c1: [30, 16, 48], c2: [21, 24, 38], c3: [39, 57, 62], eye: [35, 56, 50] }, vary: { h: 8, s: 6, l: 5 },
@@ -6757,7 +6757,7 @@ export const SPECIES = [
     desc: 'A bullfrog the size and colour of a boulder. It sits. That is the whole trick.',
   },
   {
-    id: 'spooknewt', name: 'Spooknewt', nameParts: ['Spook', 'newt'], clade: 'amphibian', rig: 'amphibian', types: ['Ghost', 'Water'], tier: 'common', bst: 378,
+    id: 'spooknewt', name: 'Spooknewt', nameParts: ['Spook', 'newt'], clade: 'amphibian', rig: 'amphibian', types: ['Ghost', 'Water'], tier: 'common', bst: 379,
     stats: { hp: 0.13, melee: 0.06, ranged: 0.08, magic: 0.23, meleeDef: 0.11, rangedDef: 0.11, magicDef: 0.13, spe: 0.15 },
     recipe: { body: 'a.body.toad', head: 'a.head.salamander', eyes: 'a.eyes.bead', mouth: 'a.mouth.frown', gills: 'a.gills.feathery', legsFront: 'a.legsFront.toad', legsBack: 'a.legsBack.polliwog', tail: ['a.tail.fin', 'a.tail.none'], throat: 'a.throat.bubble', crest: ['a.crest.fin', 'a.crest.none'], back: 'a.back.ridge', pattern: 'a.pattern.stripes' },
     palette: { c1: [252, 21, 71], c2: [257, 20, 49], c3: [139, 68, 68], eye: [144, 79, 64] }, vary: { h: 8, s: 6, l: 5 },
@@ -6767,7 +6767,7 @@ export const SPECIES = [
     desc: 'A newt you only see in puddles, never in the pond.',
   },
   {
-    id: 'elderlotl', name: 'Elderlotl', nameParts: ['Elder', 'lotl'], clade: 'amphibian', rig: 'amphibian', types: ['Water', 'Dragon'], tier: 'uncommon', bst: 448,
+    id: 'elderlotl', name: 'Elderlotl', nameParts: ['Elder', 'lotl'], clade: 'amphibian', rig: 'amphibian', types: ['Water', 'Dragon'], tier: 'uncommon', bst: 449,
     stats: { hp: 0.14, melee: 0.22, ranged: 0.08, magic: 0.07, meleeDef: 0.13, rangedDef: 0.11, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'a.body.axolotl', head: 'a.head.axolotl', eyes: 'a.eyes.bulge', mouth: 'a.mouth.pout', gills: ['a.gills.fan', 'a.gills.none'], legsFront: 'a.legsFront.treefrog', legsBack: 'a.legsBack.frog', tail: ['a.tail.leaf', 'a.tail.none'], throat: 'a.throat.none', crest: 'a.crest.none', back: ['a.back.ridge', 'a.back.none'], pattern: 'a.pattern.blotches' },
     palette: { c1: [337, 36, 46], c2: [341, 41, 32], c3: [37, 91, 58], eye: [39, 99, 59] }, vary: { h: 8, s: 6, l: 5 },
@@ -6777,7 +6777,7 @@ export const SPECIES = [
     desc: 'An axolotl that never grew up and grew enormous instead.',
   },
   {
-    id: 'gloomcroaker', name: 'Gloomcroaker', nameParts: ['Gloom', 'croaker'], clade: 'amphibian', rig: 'amphibian', types: ['Dark', 'Water'], tier: 'common', bst: 384,
+    id: 'gloomcroaker', name: 'Gloomcroaker', nameParts: ['Gloom', 'croaker'], clade: 'amphibian', rig: 'amphibian', types: ['Dark', 'Water'], tier: 'common', bst: 381,
     stats: { hp: 0.11, melee: 0.08, ranged: 0.22, magic: 0.09, meleeDef: 0.09, rangedDef: 0.12, magicDef: 0.09, spe: 0.2 },
     recipe: { body: 'a.body.polliwog', head: 'a.head.frog', eyes: 'a.eyes.gold', mouth: 'a.mouth.smile', gills: 'a.gills.spiky', legsFront: 'a.legsFront.toad', legsBack: 'a.legsBack.toad', tail: ['a.tail.fin', 'a.tail.none'], throat: ['a.throat.bubble', 'a.throat.none'], crest: 'a.crest.none', back: 'a.back.ridge', pattern: ['a.pattern.stripes', 'a.pattern.none'] },
     palette: { c1: [241, 22, 40], c2: [247, 19, 24], c3: [324, 82, 59], eye: [326, 82, 62] }, vary: { h: 8, s: 6, l: 5 },
@@ -6787,7 +6787,7 @@ export const SPECIES = [
     desc: 'Croaks from under the bank where the lamps do not reach.',
   },
   {
-    id: 'anviltoad', name: 'Anviltoad', nameParts: ['Anvil', 'toad'], clade: 'amphibian', rig: 'amphibian', types: ['Water', 'Steel'], tier: 'uncommon', bst: 395,
+    id: 'anviltoad', name: 'Anviltoad', nameParts: ['Anvil', 'toad'], clade: 'amphibian', rig: 'amphibian', types: ['Water', 'Steel'], tier: 'uncommon', bst: 392,
     stats: { hp: 0.16, melee: 0.2, ranged: 0.08, magic: 0.07, meleeDef: 0.17, rangedDef: 0.13, magicDef: 0.1, spe: 0.09 },
     recipe: { body: 'a.body.newt', head: 'a.head.salamander', eyes: 'a.eyes.big', mouth: 'a.mouth.pout', gills: ['a.gills.leafy', 'a.gills.none'], legsFront: 'a.legsFront.salamander', legsBack: 'a.legsBack.polliwog', tail: 'a.tail.none', throat: ['a.throat.bubble', 'a.throat.none'], crest: ['a.crest.spikes', 'a.crest.none'], back: ['a.back.mushrooms', 'a.back.none'], pattern: 'a.pattern.stripes' },
     palette: { c1: [200, 14, 58], c2: [209, 14, 40], c3: [30, 71, 61], eye: [38, 79, 52] }, vary: { h: 8, s: 6, l: 5 },
@@ -6807,7 +6807,7 @@ export const SPECIES = [
     desc: 'Kiss it and nothing happens, but it glitters while you decide.',
   },
   {
-    id: 'puddletadpole', name: 'Puddletadpole', nameParts: ['Puddle', 'tadpole'], clade: 'amphibian', rig: 'amphibian', types: ['Water', 'Normal'], tier: 'uncommon', bst: 398,
+    id: 'puddletadpole', name: 'Puddletadpole', nameParts: ['Puddle', 'tadpole'], clade: 'amphibian', rig: 'amphibian', types: ['Water', 'Normal'], tier: 'uncommon', bst: 401,
     stats: { hp: 0.14, melee: 0.22, ranged: 0.08, magic: 0.07, meleeDef: 0.13, rangedDef: 0.11, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'a.body.polliwog', head: 'a.head.axolotl', eyes: 'a.eyes.bead', mouth: 'a.mouth.frown', gills: ['a.gills.stubs', 'a.gills.none'], legsFront: 'a.legsFront.toad', legsBack: 'a.legsBack.polliwog', tail: ['a.tail.stub', 'a.tail.none'], throat: ['a.throat.bubble', 'a.throat.none'], crest: 'a.crest.none', back: ['a.back.boulder', 'a.back.none'], pattern: ['a.pattern.belly', 'a.pattern.none'] },
     palette: { c1: [33, 32, 67], c2: [25, 25, 44], c3: [19, 58, 60], eye: [22, 63, 29] }, vary: { h: 8, s: 6, l: 5 },
@@ -6817,7 +6817,7 @@ export const SPECIES = [
     desc: 'A tadpole in a puddle waiting to become something. Any day now.',
   },
   {
-    id: 'lavalotl', name: 'Lavalotl', nameParts: ['Lava', 'lotl'], clade: 'amphibian', rig: 'amphibian', types: ['Fire', 'Water'], tier: 'rare', bst: 395,
+    id: 'lavalotl', name: 'Lavalotl', nameParts: ['Lava', 'lotl'], clade: 'amphibian', rig: 'amphibian', types: ['Fire', 'Water'], tier: 'rare', bst: 394,
     stats: { hp: 0.13, melee: 0.06, ranged: 0.08, magic: 0.23, meleeDef: 0.11, rangedDef: 0.11, magicDef: 0.13, spe: 0.15 },
     recipe: { body: 'a.body.salamander', head: 'a.head.treefrog', eyes: 'a.eyes.bulge', mouth: 'a.mouth.tongue', gills: 'a.gills.stubs', legsFront: 'a.legsFront.frog', legsBack: 'a.legsBack.polliwog', tail: ['a.tail.flame', 'a.tail.none'], throat: 'a.throat.bubble', crest: 'a.crest.fin', back: 'a.back.none', pattern: 'a.pattern.stripes' },
     palette: { c1: [16, 79, 57], c2: [6, 61, 36], c3: [34, 100, 59], eye: [35, 97, 55] }, vary: { h: 8, s: 6, l: 5 },
@@ -6827,7 +6827,7 @@ export const SPECIES = [
     desc: 'Lives in the hot spring and treats scalding as a spa.',
   },
   {
-    id: 'thunderbull', name: 'Thunderbull', nameParts: ['Thunder', 'bull'], clade: 'amphibian', rig: 'amphibian', types: ['Electric', 'Fighting'], tier: 'rare', bst: 407,
+    id: 'thunderbull', name: 'Thunderbull', nameParts: ['Thunder', 'bull'], clade: 'amphibian', rig: 'amphibian', types: ['Electric', 'Fighting'], tier: 'rare', bst: 411,
     stats: { hp: 0.14, melee: 0.22, ranged: 0.08, magic: 0.07, meleeDef: 0.13, rangedDef: 0.11, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'a.body.treefrog', head: 'a.head.newt', eyes: 'a.eyes.glow', mouth: 'a.mouth.pout', gills: ['a.gills.fan', 'a.gills.none'], legsFront: 'a.legsFront.newt', legsBack: 'a.legsBack.toad', tail: 'a.tail.none', throat: ['a.throat.glowsac', 'a.throat.none'], crest: ['a.crest.horns', 'a.crest.none'], back: ['a.back.mushrooms', 'a.back.none'], pattern: 'a.pattern.belly' },
     palette: { c1: [39, 87, 54], c2: [35, 69, 38], c3: [52, 97, 67], eye: [48, 87, 42] }, vary: { h: 8, s: 6, l: 5 },
@@ -6837,7 +6837,7 @@ export const SPECIES = [
     desc: 'A bullfrog that croaks thunder and punches lightning.',
   },
   {
-    id: 'marshwarden', name: 'Marshwarden', nameParts: ['Marsh', 'warden'], clade: 'amphibian', rig: 'amphibian', types: ['Grass', 'Ghost'], tier: 'rare', bst: 398,
+    id: 'marshwarden', name: 'Marshwarden', nameParts: ['Marsh', 'warden'], clade: 'amphibian', rig: 'amphibian', types: ['Grass', 'Ghost'], tier: 'rare', bst: 400,
     stats: { hp: 0.13, melee: 0.08, ranged: 0.22, magic: 0.09, meleeDef: 0.11, rangedDef: 0.12, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'a.body.toad', head: 'a.head.frog', eyes: 'a.eyes.big', mouth: 'a.mouth.frown', gills: 'a.gills.frills', legsFront: 'a.legsFront.newt', legsBack: 'a.legsBack.treefrog', tail: ['a.tail.leaf', 'a.tail.none'], throat: ['a.throat.bubble', 'a.throat.none'], crest: ['a.crest.moss', 'a.crest.none'], back: 'a.back.none', pattern: 'a.pattern.gradient' },
     palette: { c1: [99, 41, 43], c2: [119, 37, 31], c3: [70, 78, 63], eye: [91, 66, 38] }, vary: { h: 8, s: 6, l: 5 },
@@ -6848,7 +6848,7 @@ export const SPECIES = [
   },
   // ---- Roster expansion: type pass, flora ----
   {
-    id: 'emberbloom', name: 'Emberbloom', nameParts: ['Ember', 'bloom'], clade: 'flora', rig: 'flora', types: ['Fire', 'Grass'], tier: 'common', bst: 395,
+    id: 'emberbloom', name: 'Emberbloom', nameParts: ['Ember', 'bloom'], clade: 'flora', rig: 'flora', types: ['Fire', 'Grass'], tier: 'common', bst: 397,
     stats: { hp: 0.13, melee: 0.06, ranged: 0.08, magic: 0.23, meleeDef: 0.11, rangedDef: 0.11, magicDef: 0.13, spe: 0.15 },
     recipe: { body: 'p.body.vine', head: 'p.head.thistle', eyes: 'p.eyes.seed', mouth: 'p.mouth.smile', leaves: 'p.leaves.broad', roots: 'p.roots.taproot', vines: ['p.vines.thorny', 'p.vines.none'], pods: ['p.pods.seedpods', 'p.pods.none'], thorns: 'p.thorns.none', canopy: 'p.canopy.none', bark: ['p.bark.moss', 'p.bark.none'], fruit: ['p.fruit.seed', 'p.fruit.none'] },
     palette: { c1: [25, 78, 50], c2: [13, 64, 38], c3: [49, 96, 62], eye: [54, 90, 55] }, vary: { h: 8, s: 6, l: 5 },
@@ -6858,7 +6858,7 @@ export const SPECIES = [
     desc: 'A flower that flowers in fire. Bees learn fast.',
   },
   {
-    id: 'marshreed', name: 'Marshreed', nameParts: ['Marsh', 'reed'], clade: 'flora', rig: 'flora', types: ['Grass', 'Water'], tier: 'uncommon', bst: 440,
+    id: 'marshreed', name: 'Marshreed', nameParts: ['Marsh', 'reed'], clade: 'flora', rig: 'flora', types: ['Grass', 'Water'], tier: 'uncommon', bst: 441,
     stats: { hp: 0.13, melee: 0.08, ranged: 0.22, magic: 0.09, meleeDef: 0.11, rangedDef: 0.12, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'p.body.cactus', head: 'p.head.tulip', eyes: 'p.eyes.sharp', mouth: 'p.mouth.smile', leaves: 'p.leaves.maple', roots: 'p.roots.threads', vines: 'p.vines.none', pods: 'p.pods.bulbs', thorns: ['p.thorns.halo', 'p.thorns.none'], canopy: ['p.canopy.brambles', 'p.canopy.none'], bark: ['p.bark.speckles', 'p.bark.none'], fruit: ['p.fruit.nut', 'p.fruit.none'] },
     palette: { c1: [206, 56, 50], c2: [214, 53, 34], c3: [187, 84, 68], eye: [205, 76, 44] }, vary: { h: 8, s: 6, l: 5 },
@@ -6868,7 +6868,7 @@ export const SPECIES = [
     desc: 'A reed that walks the fen edge and never gets its feet wet somehow.',
   },
   {
-    id: 'staticthistle', name: 'Staticthistle', nameParts: ['Static', 'thistle'], clade: 'flora', rig: 'flora', types: ['Electric', 'Grass'], tier: 'common', bst: 440,
+    id: 'staticthistle', name: 'Staticthistle', nameParts: ['Static', 'thistle'], clade: 'flora', rig: 'flora', types: ['Electric', 'Grass'], tier: 'common', bst: 438,
     stats: { hp: 0.11, melee: 0.08, ranged: 0.22, magic: 0.09, meleeDef: 0.09, rangedDef: 0.12, magicDef: 0.09, spe: 0.2 },
     recipe: { body: 'p.body.vine', head: 'p.head.rose', eyes: 'p.eyes.glow', mouth: 'p.mouth.pout', leaves: 'p.leaves.broad', roots: 'p.roots.knot', vines: 'p.vines.none', pods: 'p.pods.none', thorns: 'p.thorns.none', canopy: 'p.canopy.brambles', bark: ['p.bark.moss', 'p.bark.none'], fruit: ['p.fruit.seed', 'p.fruit.none'] },
     palette: { c1: [50, 83, 59], c2: [48, 69, 40], c3: [64, 99, 70], eye: [60, 92, 45] }, vary: { h: 8, s: 6, l: 5 },
@@ -6878,7 +6878,7 @@ export const SPECIES = [
     desc: 'Touch it and lose the feeling in your arm for a week.',
   },
   {
-    id: 'sproutling', name: 'Sproutling', nameParts: ['Sprout', 'ling'], clade: 'flora', rig: 'flora', types: ['Grass'], tier: 'uncommon', bst: 462,
+    id: 'sproutling', name: 'Sproutling', nameParts: ['Sprout', 'ling'], clade: 'flora', rig: 'flora', types: ['Grass'], tier: 'uncommon', bst: 463,
     stats: { hp: 0.13, melee: 0.08, ranged: 0.22, magic: 0.09, meleeDef: 0.11, rangedDef: 0.12, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'p.body.vine', head: 'p.head.sunflower', eyes: 'p.eyes.seed', mouth: 'p.mouth.smile', leaves: 'p.leaves.broad', roots: 'p.roots.tangle', vines: ['p.vines.flowering', 'p.vines.none'], pods: ['p.pods.seedpods', 'p.pods.none'], thorns: ['p.thorns.tuft', 'p.thorns.none'], canopy: ['p.canopy.flowerbed', 'p.canopy.none'], bark: ['p.bark.moss', 'p.bark.none'], fruit: ['p.fruit.seed', 'p.fruit.none'] },
     palette: { c1: [111, 50, 45], c2: [125, 39, 35], c3: [76, 77, 57], eye: [103, 68, 41] }, vary: { h: 8, s: 6, l: 5 },
@@ -6888,7 +6888,7 @@ export const SPECIES = [
     desc: 'Just came up. Has not decided what to be. Eats sunlight.',
   },
   {
-    id: 'snowdrop', name: 'Snowdrop', nameParts: ['Snow', 'drop'], clade: 'flora', rig: 'flora', types: ['Ice', 'Grass'], tier: 'common', bst: 401,
+    id: 'snowdrop', name: 'Snowdrop', nameParts: ['Snow', 'drop'], clade: 'flora', rig: 'flora', types: ['Ice', 'Grass'], tier: 'common', bst: 395,
     stats: { hp: 0.13, melee: 0.06, ranged: 0.08, magic: 0.23, meleeDef: 0.11, rangedDef: 0.11, magicDef: 0.13, spe: 0.15 },
     recipe: { body: 'p.body.vine', head: 'p.head.orchid', eyes: 'p.eyes.gem', mouth: 'p.mouth.maw', leaves: 'p.leaves.broad', roots: 'p.roots.hairy', vines: ['p.vines.thorny', 'p.vines.none'], pods: 'p.pods.none', thorns: ['p.thorns.tuft', 'p.thorns.none'], canopy: ['p.canopy.flowerbed', 'p.canopy.none'], bark: ['p.bark.moss', 'p.bark.none'], fruit: 'p.fruit.seed' },
     palette: { c1: [204, 47, 84], c2: [206, 44, 66], c3: [190, 94, 77], eye: [214, 87, 54] }, vary: { h: 8, s: 6, l: 5 },
@@ -6898,7 +6898,7 @@ export const SPECIES = [
     desc: 'Blooms in the snow because nobody told it not to.',
   },
   {
-    id: 'knotroot', name: 'Knotroot', nameParts: ['Knot', 'root'], clade: 'flora', rig: 'flora', types: ['Grass', 'Fighting'], tier: 'uncommon', bst: 511,
+    id: 'knotroot', name: 'Knotroot', nameParts: ['Knot', 'root'], clade: 'flora', rig: 'flora', types: ['Grass', 'Fighting'], tier: 'uncommon', bst: 514,
     stats: { hp: 0.14, melee: 0.22, ranged: 0.08, magic: 0.07, meleeDef: 0.13, rangedDef: 0.11, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'p.body.treant', head: 'p.head.daisy', eyes: 'p.eyes.sleepy', mouth: 'p.mouth.frown', leaves: 'p.leaves.needle', roots: 'p.roots.threads', vines: 'p.vines.coil', pods: 'p.pods.acorn', thorns: ['p.thorns.halo', 'p.thorns.none'], canopy: ['p.canopy.brambles', 'p.canopy.none'], bark: ['p.bark.moss', 'p.bark.none'], fruit: 'p.fruit.none' },
     palette: { c1: [23, 49, 44], c2: [16, 44, 29], c3: [4, 70, 56], eye: [31, 75, 35] }, vary: { h: 8, s: 6, l: 5 },
@@ -6908,7 +6908,7 @@ export const SPECIES = [
     desc: 'A root that punches through paving. The town has given up repaving.',
   },
   {
-    id: 'hemlockbud', name: 'Hemlockbud', nameParts: ['Hemlock', 'bud'], clade: 'flora', rig: 'flora', types: ['Poison', 'Grass'], tier: 'common', bst: 465,
+    id: 'hemlockbud', name: 'Hemlockbud', nameParts: ['Hemlock', 'bud'], clade: 'flora', rig: 'flora', types: ['Poison', 'Grass'], tier: 'common', bst: 460,
     stats: { hp: 0.13, melee: 0.08, ranged: 0.22, magic: 0.09, meleeDef: 0.11, rangedDef: 0.12, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'p.body.pad', head: 'p.head.bell', eyes: 'p.eyes.seed', mouth: 'p.mouth.pout', leaves: 'p.leaves.needle', roots: 'p.roots.taproot', vines: 'p.vines.none', pods: ['p.pods.seedpods', 'p.pods.none'], thorns: ['p.thorns.tuft', 'p.thorns.none'], canopy: 'p.canopy.brambles', bark: 'p.bark.moss', fruit: ['p.fruit.seed', 'p.fruit.none'] },
     palette: { c1: [295, 45, 45], c2: [286, 44, 32], c3: [99, 84, 55], eye: [98, 95, 58] }, vary: { h: 8, s: 6, l: 5 },
@@ -6938,7 +6938,7 @@ export const SPECIES = [
     desc: 'A dandelion clock that goes where the wind is not.',
   },
   {
-    id: 'sagefern', name: 'Sagefern', nameParts: ['Sage', 'fern'], clade: 'flora', rig: 'flora', types: ['Grass', 'Psychic'], tier: 'uncommon', bst: 463,
+    id: 'sagefern', name: 'Sagefern', nameParts: ['Sage', 'fern'], clade: 'flora', rig: 'flora', types: ['Grass', 'Psychic'], tier: 'uncommon', bst: 473,
     stats: { hp: 0.13, melee: 0.06, ranged: 0.08, magic: 0.23, meleeDef: 0.11, rangedDef: 0.11, magicDef: 0.13, spe: 0.15 },
     recipe: { body: 'p.body.gourd', head: 'p.head.sunflower', eyes: 'p.eyes.gem', mouth: 'p.mouth.grin', leaves: 'p.leaves.needle', roots: 'p.roots.hairy', vines: ['p.vines.coil', 'p.vines.none'], pods: ['p.pods.bulbs', 'p.pods.none'], thorns: 'p.thorns.none', canopy: ['p.canopy.branches', 'p.canopy.none'], bark: ['p.bark.veins', 'p.bark.none'], fruit: 'p.fruit.none' },
     palette: { c1: [305, 40, 68], c2: [303, 40, 45], c3: [63, 88, 75], eye: [306, 84, 55] }, vary: { h: 8, s: 6, l: 5 },
@@ -6948,7 +6948,7 @@ export const SPECIES = [
     desc: 'An old fern that remembers the forest before the forest.',
   },
   {
-    id: 'gallnut', name: 'Gallnut', nameParts: ['Gall', 'nut'], clade: 'flora', rig: 'flora', types: ['Bug', 'Grass'], tier: 'common', bst: 475,
+    id: 'gallnut', name: 'Gallnut', nameParts: ['Gall', 'nut'], clade: 'flora', rig: 'flora', types: ['Bug', 'Grass'], tier: 'common', bst: 478,
     stats: { hp: 0.13, melee: 0.08, ranged: 0.22, magic: 0.09, meleeDef: 0.11, rangedDef: 0.12, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'p.body.bulb', head: 'p.head.daisy', eyes: 'p.eyes.sharp', mouth: 'p.mouth.pout', leaves: 'p.leaves.broad', roots: 'p.roots.taproot', vines: ['p.vines.flowering', 'p.vines.none'], pods: ['p.pods.seedpods', 'p.pods.none'], thorns: ['p.thorns.tuft', 'p.thorns.none'], canopy: 'p.canopy.brambles', bark: ['p.bark.moss', 'p.bark.none'], fruit: ['p.fruit.seed', 'p.fruit.none'] },
     palette: { c1: [78, 46, 47], c2: [90, 39, 36], c3: [51, 94, 61], eye: [67, 72, 38] }, vary: { h: 8, s: 6, l: 5 },
@@ -6958,7 +6958,7 @@ export const SPECIES = [
     desc: 'A gall that grew legs. The wasp inside is still in charge.',
   },
   {
-    id: 'lichenstone', name: 'Lichenstone', nameParts: ['Lichen', 'stone'], clade: 'flora', rig: 'flora', types: ['Grass', 'Rock'], tier: 'uncommon', bst: 489,
+    id: 'lichenstone', name: 'Lichenstone', nameParts: ['Lichen', 'stone'], clade: 'flora', rig: 'flora', types: ['Grass', 'Rock'], tier: 'uncommon', bst: 492,
     stats: { hp: 0.16, melee: 0.2, ranged: 0.08, magic: 0.07, meleeDef: 0.17, rangedDef: 0.13, magicDef: 0.1, spe: 0.09 },
     recipe: { body: 'p.body.cactus', head: 'p.head.tulip', eyes: 'p.eyes.wide', mouth: 'p.mouth.pout', leaves: 'p.leaves.maple', roots: 'p.roots.threads', vines: ['p.vines.tendril', 'p.vines.none'], pods: ['p.pods.acorn', 'p.pods.none'], thorns: 'p.thorns.none', canopy: 'p.canopy.flowerbed', bark: 'p.bark.none', fruit: 'p.fruit.berry' },
     palette: { c1: [35, 18, 48], c2: [33, 24, 39], c3: [46, 62, 63], eye: [48, 64, 49] }, vary: { h: 8, s: 6, l: 5 },
@@ -6968,7 +6968,7 @@ export const SPECIES = [
     desc: 'A stone with lichen that walks. The lichen does the walking.',
   },
   {
-    id: 'willowshade', name: 'Willowshade', nameParts: ['Willow', 'shade'], clade: 'flora', rig: 'flora', types: ['Ghost', 'Grass'], tier: 'common', bst: 378,
+    id: 'willowshade', name: 'Willowshade', nameParts: ['Willow', 'shade'], clade: 'flora', rig: 'flora', types: ['Ghost', 'Grass'], tier: 'common', bst: 381,
     stats: { hp: 0.13, melee: 0.06, ranged: 0.08, magic: 0.23, meleeDef: 0.11, rangedDef: 0.11, magicDef: 0.13, spe: 0.15 },
     recipe: { body: 'p.body.pad', head: 'p.head.rose', eyes: 'p.eyes.sharp', mouth: 'p.mouth.maw', leaves: 'p.leaves.broad', roots: 'p.roots.stilts', vines: 'p.vines.thorny', pods: ['p.pods.lantern', 'p.pods.none'], thorns: 'p.thorns.tuft', canopy: 'p.canopy.brambles', bark: 'p.bark.moss', fruit: 'p.fruit.seed' },
     palette: { c1: [261, 15, 70], c2: [266, 18, 53], c3: [155, 69, 68], eye: [160, 83, 60] }, vary: { h: 8, s: 6, l: 5 },
@@ -6978,7 +6978,7 @@ export const SPECIES = [
     desc: 'A weeping willow that weeps for someone in particular.',
   },
   {
-    id: 'drakethorn', name: 'Drakethorn', nameParts: ['Drake', 'thorn'], clade: 'flora', rig: 'flora', types: ['Grass', 'Dragon'], tier: 'uncommon', bst: 452,
+    id: 'drakethorn', name: 'Drakethorn', nameParts: ['Drake', 'thorn'], clade: 'flora', rig: 'flora', types: ['Grass', 'Dragon'], tier: 'uncommon', bst: 459,
     stats: { hp: 0.14, melee: 0.22, ranged: 0.08, magic: 0.07, meleeDef: 0.13, rangedDef: 0.11, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'p.body.sprout', head: 'p.head.bell', eyes: 'p.eyes.glow', mouth: 'p.mouth.maw', leaves: 'p.leaves.needle', roots: 'p.roots.knot', vines: ['p.vines.thorny', 'p.vines.none'], pods: ['p.pods.acorn', 'p.pods.none'], thorns: ['p.thorns.halo', 'p.thorns.none'], canopy: ['p.canopy.brambles', 'p.canopy.none'], bark: ['p.bark.moss', 'p.bark.none'], fruit: 'p.fruit.none' },
     palette: { c1: [347, 44, 42], c2: [0, 36, 28], c3: [53, 92, 57], eye: [54, 93, 56] }, vary: { h: 8, s: 6, l: 5 },
@@ -6988,7 +6988,7 @@ export const SPECIES = [
     desc: 'A thorn bush with a dragon\'s temper and a dragon\'s hoard of finches.',
   },
   {
-    id: 'nightbloom', name: 'Nightbloom', nameParts: ['Night', 'bloom'], clade: 'flora', rig: 'flora', types: ['Dark', 'Grass'], tier: 'common', bst: 438,
+    id: 'nightbloom', name: 'Nightbloom', nameParts: ['Night', 'bloom'], clade: 'flora', rig: 'flora', types: ['Dark', 'Grass'], tier: 'common', bst: 439,
     stats: { hp: 0.11, melee: 0.08, ranged: 0.22, magic: 0.09, meleeDef: 0.09, rangedDef: 0.12, magicDef: 0.09, spe: 0.2 },
     recipe: { body: 'p.body.bulb', head: 'p.head.daisy', eyes: 'p.eyes.sharp', mouth: 'p.mouth.smile', leaves: 'p.leaves.broad', roots: 'p.roots.tangle', vines: 'p.vines.none', pods: 'p.pods.seedpods', thorns: 'p.thorns.tuft', canopy: 'p.canopy.flowerbed', bark: ['p.bark.moss', 'p.bark.none'], fruit: ['p.fruit.seed', 'p.fruit.none'] },
     palette: { c1: [259, 21, 40], c2: [261, 19, 24], c3: [330, 76, 62], eye: [345, 84, 59] }, vary: { h: 8, s: 6, l: 5 },
@@ -6998,7 +6998,7 @@ export const SPECIES = [
     desc: 'Opens only in the dark and closes on whatever came to look.',
   },
   {
-    id: 'ironbark', name: 'Ironbark', nameParts: ['Iron', 'bark'], clade: 'flora', rig: 'flora', types: ['Grass', 'Steel'], tier: 'uncommon', bst: 395,
+    id: 'ironbark', name: 'Ironbark', nameParts: ['Iron', 'bark'], clade: 'flora', rig: 'flora', types: ['Grass', 'Steel'], tier: 'uncommon', bst: 396,
     stats: { hp: 0.16, melee: 0.2, ranged: 0.08, magic: 0.07, meleeDef: 0.17, rangedDef: 0.13, magicDef: 0.1, spe: 0.09 },
     recipe: { body: 'p.body.gourd', head: 'p.head.bell', eyes: 'p.eyes.dew', mouth: 'p.mouth.maw', leaves: 'p.leaves.blade', roots: 'p.roots.threads', vines: 'p.vines.none', pods: ['p.pods.seedpods', 'p.pods.none'], thorns: ['p.thorns.sepals', 'p.thorns.none'], canopy: ['p.canopy.fronds', 'p.canopy.none'], bark: ['p.bark.knots', 'p.bark.none'], fruit: 'p.fruit.apple' },
     palette: { c1: [216, 8, 62], c2: [225, 11, 41], c3: [44, 72, 55], eye: [48, 76, 55] }, vary: { h: 8, s: 6, l: 5 },
@@ -7008,7 +7008,7 @@ export const SPECIES = [
     desc: 'Bark like plate. Axes bounce and lumberjacks retire.',
   },
   {
-    id: 'blossomsprite', name: 'Blossomsprite', nameParts: ['Blossom', 'sprite'], clade: 'flora', rig: 'flora', types: ['Fairy', 'Grass'], tier: 'common', bst: 394,
+    id: 'blossomsprite', name: 'Blossomsprite', nameParts: ['Blossom', 'sprite'], clade: 'flora', rig: 'flora', types: ['Fairy', 'Grass'], tier: 'common', bst: 401,
     stats: { hp: 0.13, melee: 0.06, ranged: 0.08, magic: 0.23, meleeDef: 0.11, rangedDef: 0.11, magicDef: 0.13, spe: 0.15 },
     recipe: { body: 'p.body.treant', head: 'p.head.bell', eyes: 'p.eyes.seed', mouth: 'p.mouth.smile', leaves: 'p.leaves.broad', roots: 'p.roots.taproot', vines: 'p.vines.flowering', pods: ['p.pods.seedpods', 'p.pods.none'], thorns: ['p.thorns.tuft', 'p.thorns.none'], canopy: 'p.canopy.flowerbed', bark: 'p.bark.none', fruit: 'p.fruit.none' },
     palette: { c1: [334, 45, 76], c2: [322, 39, 64], c3: [64, 87, 81], eye: [339, 80, 57] }, vary: { h: 8, s: 6, l: 5 },
@@ -7018,7 +7018,7 @@ export const SPECIES = [
     desc: 'A blossom that fell off the tree and kept dancing.',
   },
   {
-    id: 'cloverkin', name: 'Cloverkin', nameParts: ['Clover', 'kin'], clade: 'flora', rig: 'flora', types: ['Grass', 'Normal'], tier: 'uncommon', bst: 467,
+    id: 'cloverkin', name: 'Cloverkin', nameParts: ['Clover', 'kin'], clade: 'flora', rig: 'flora', types: ['Grass', 'Normal'], tier: 'uncommon', bst: 465,
     stats: { hp: 0.14, melee: 0.22, ranged: 0.08, magic: 0.07, meleeDef: 0.13, rangedDef: 0.11, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'p.body.bulb', head: 'p.head.rose', eyes: 'p.eyes.dew', mouth: 'p.mouth.pout', leaves: 'p.leaves.blade', roots: 'p.roots.taproot', vines: ['p.vines.tendril', 'p.vines.none'], pods: 'p.pods.bulbs', thorns: 'p.thorns.tuft', canopy: 'p.canopy.bush', bark: ['p.bark.veins', 'p.bark.none'], fruit: 'p.fruit.none' },
     palette: { c1: [42, 31, 65], c2: [41, 28, 50], c3: [25, 64, 56], eye: [34, 56, 32] }, vary: { h: 8, s: 6, l: 5 },
@@ -7028,7 +7028,7 @@ export const SPECIES = [
     desc: 'Four leaves and knows it. Insufferable about it.',
   },
   {
-    id: 'sunflare', name: 'Sunflare', nameParts: ['Sun', 'flare'], clade: 'flora', rig: 'flora', types: ['Fire', 'Grass'], tier: 'rare', bst: 394,
+    id: 'sunflare', name: 'Sunflare', nameParts: ['Sun', 'flare'], clade: 'flora', rig: 'flora', types: ['Fire', 'Grass'], tier: 'rare', bst: 398,
     stats: { hp: 0.13, melee: 0.06, ranged: 0.08, magic: 0.23, meleeDef: 0.11, rangedDef: 0.11, magicDef: 0.13, spe: 0.15 },
     recipe: { body: 'p.body.gourd', head: 'p.head.thistle', eyes: 'p.eyes.seed', mouth: 'p.mouth.whistle', leaves: 'p.leaves.broad', roots: 'p.roots.taproot', vines: ['p.vines.thorny', 'p.vines.none'], pods: 'p.pods.seedpods', thorns: 'p.thorns.tuft', canopy: ['p.canopy.flowerbed', 'p.canopy.none'], bark: ['p.bark.moss', 'p.bark.none'], fruit: 'p.fruit.none' },
     palette: { c1: [19, 75, 54], c2: [15, 66, 42], c3: [49, 98, 61], eye: [47, 92, 62] }, vary: { h: 8, s: 6, l: 5 },
@@ -7059,7 +7059,7 @@ export const SPECIES = [
   },
   // ---- Roster expansion: type pass, ooze ----
   {
-    id: 'magmagoo', name: 'Magmagoo', nameParts: ['Magma', 'goo'], clade: 'ooze', rig: 'ooze', types: ['Fire', 'Poison'], tier: 'common', bst: 407,
+    id: 'magmagoo', name: 'Magmagoo', nameParts: ['Magma', 'goo'], clade: 'ooze', rig: 'ooze', types: ['Fire', 'Poison'], tier: 'common', bst: 404,
     stats: { hp: 0.13, melee: 0.06, ranged: 0.08, magic: 0.23, meleeDef: 0.11, rangedDef: 0.11, magicDef: 0.13, spe: 0.15 },
     recipe: { body: 'o.body.cube', core: 'o.core.ember', eyes: 'o.eyes.bead', mouth: 'o.mouth.wavy', pseudopods: 'o.pseudopods.paddle', drips: 'o.drips.none', crown: 'o.crown.wisp', tendrils: ['o.tendrils.loop', 'o.tendrils.none'], base: 'o.base.trail', inclusions: 'o.inclusions.none', sheen: 'o.sheen.bands', bumps: ['o.bumps.nubs', 'o.bumps.none'] },
     palette: { c1: [1, 70, 57], c2: [353, 65, 37], c3: [28, 100, 59], eye: [27, 100, 60] }, vary: { h: 8, s: 6, l: 5 },
@@ -7069,7 +7069,7 @@ export const SPECIES = [
     desc: 'A puddle of lava with eyes. Warms the sump and melts the buckets.',
   },
   {
-    id: 'drizzleblob', name: 'Drizzleblob', nameParts: ['Drizzle', 'blob'], clade: 'ooze', rig: 'ooze', types: ['Poison', 'Water'], tier: 'uncommon', bst: 419,
+    id: 'drizzleblob', name: 'Drizzleblob', nameParts: ['Drizzle', 'blob'], clade: 'ooze', rig: 'ooze', types: ['Poison', 'Water'], tier: 'uncommon', bst: 424,
     stats: { hp: 0.13, melee: 0.08, ranged: 0.22, magic: 0.09, meleeDef: 0.11, rangedDef: 0.12, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'o.body.tall', core: 'o.core.bubble', eyes: 'o.eyes.void', mouth: 'o.mouth.wavy', pseudopods: 'o.pseudopods.paddle', drips: ['o.drips.drip', 'o.drips.none'], crown: 'o.crown.bubbles', tendrils: ['o.tendrils.fronds', 'o.tendrils.none'], base: 'o.base.bubbles', inclusions: ['o.inclusions.bubbles', 'o.inclusions.none'], sheen: ['o.sheen.wave', 'o.sheen.none'], bumps: 'o.bumps.none' },
     palette: { c1: [188, 63, 56], c2: [202, 52, 36], c3: [175, 80, 67], eye: [189, 81, 41] }, vary: { h: 8, s: 6, l: 5 },
@@ -7079,7 +7079,7 @@ export const SPECIES = [
     desc: 'Falls as rain and gets up as a blob. Every time.',
   },
   {
-    id: 'joltgel', name: 'Joltgel', nameParts: ['Jolt', 'gel'], clade: 'ooze', rig: 'ooze', types: ['Electric', 'Poison'], tier: 'common', bst: 385,
+    id: 'joltgel', name: 'Joltgel', nameParts: ['Jolt', 'gel'], clade: 'ooze', rig: 'ooze', types: ['Electric', 'Poison'], tier: 'common', bst: 376,
     stats: { hp: 0.11, melee: 0.08, ranged: 0.22, magic: 0.09, meleeDef: 0.09, rangedDef: 0.12, magicDef: 0.09, spe: 0.2 },
     recipe: { body: 'o.body.whirl', core: 'o.core.ember', eyes: 'o.eyes.sleepy', mouth: 'o.mouth.grin', pseudopods: 'o.pseudopods.curl', drips: ['o.drips.drip', 'o.drips.none'], crown: 'o.crown.halo', tendrils: 'o.tendrils.tendril', base: 'o.base.ring', inclusions: 'o.inclusions.pebbles', sheen: 'o.sheen.bands', bumps: 'o.bumps.none' },
     palette: { c1: [33, 83, 60], c2: [28, 75, 42], c3: [43, 97, 76], eye: [41, 92, 42] }, vary: { h: 8, s: 6, l: 5 },
@@ -7099,7 +7099,7 @@ export const SPECIES = [
     desc: 'Green ooze with moss on top. Possibly a lawn that got up.',
   },
   {
-    id: 'slushpuddle', name: 'Slushpuddle', nameParts: ['Slush', 'puddle'], clade: 'ooze', rig: 'ooze', types: ['Ice', 'Poison'], tier: 'common', bst: 468,
+    id: 'slushpuddle', name: 'Slushpuddle', nameParts: ['Slush', 'puddle'], clade: 'ooze', rig: 'ooze', types: ['Ice', 'Poison'], tier: 'common', bst: 467,
     stats: { hp: 0.13, melee: 0.06, ranged: 0.08, magic: 0.23, meleeDef: 0.11, rangedDef: 0.11, magicDef: 0.13, spe: 0.15 },
     recipe: { body: 'o.body.wide', core: 'o.core.gem', eyes: 'o.eyes.ring', mouth: 'o.mouth.gape', pseudopods: 'o.pseudopods.club', drips: 'o.drips.drip', crown: ['o.crown.stalk', 'o.crown.none'], tendrils: ['o.tendrils.loop', 'o.tendrils.none'], base: 'o.base.trail', inclusions: 'o.inclusions.shards', sheen: 'o.sheen.crackle', bumps: 'o.bumps.crystals' },
     palette: { c1: [182, 40, 79], c2: [192, 37, 64], c3: [176, 92, 81], eye: [189, 84, 50] }, vary: { h: 8, s: 6, l: 5 },
@@ -7109,7 +7109,7 @@ export const SPECIES = [
     desc: 'Half frozen and all grumpy. Slides downhill and takes the path with it.',
   },
   {
-    id: 'slapslime', name: 'Slapslime', nameParts: ['Slap', 'slime'], clade: 'ooze', rig: 'ooze', types: ['Poison', 'Fighting'], tier: 'uncommon', bst: 457,
+    id: 'slapslime', name: 'Slapslime', nameParts: ['Slap', 'slime'], clade: 'ooze', rig: 'ooze', types: ['Poison', 'Fighting'], tier: 'uncommon', bst: 456,
     stats: { hp: 0.14, melee: 0.22, ranged: 0.08, magic: 0.07, meleeDef: 0.13, rangedDef: 0.11, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'o.body.drop', core: 'o.core.cluster', eyes: 'o.eyes.wide', mouth: 'o.mouth.smile', pseudopods: 'o.pseudopods.fist', drips: 'o.drips.goop', crown: 'o.crown.horns', tendrils: ['o.tendrils.pair', 'o.tendrils.none'], base: 'o.base.splat', inclusions: 'o.inclusions.skull', sheen: ['o.sheen.gloss', 'o.sheen.none'], bumps: 'o.bumps.none' },
     palette: { c1: [5, 43, 45], c2: [0, 44, 29], c3: [344, 77, 56], eye: [17, 72, 34] }, vary: { h: 8, s: 6, l: 5 },
@@ -7119,7 +7119,7 @@ export const SPECIES = [
     desc: 'Hits with a wet slap that is somehow humiliating and effective.',
   },
   {
-    id: 'sludgeling', name: 'Sludgeling', nameParts: ['Sludge', 'ling'], clade: 'ooze', rig: 'ooze', types: ['Poison'], tier: 'common', bst: 450,
+    id: 'sludgeling', name: 'Sludgeling', nameParts: ['Sludge', 'ling'], clade: 'ooze', rig: 'ooze', types: ['Poison'], tier: 'common', bst: 452,
     stats: { hp: 0.13, melee: 0.08, ranged: 0.22, magic: 0.09, meleeDef: 0.11, rangedDef: 0.12, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'o.body.blob', core: 'o.core.cluster', eyes: 'o.eyes.round', mouth: 'o.mouth.grin', pseudopods: 'o.pseudopods.reach', drips: ['o.drips.drip', 'o.drips.none'], crown: ['o.crown.bubbles', 'o.crown.none'], tendrils: ['o.tendrils.pair', 'o.tendrils.none'], base: 'o.base.trail', inclusions: ['o.inclusions.pebbles', 'o.inclusions.none'], sheen: ['o.sheen.wave', 'o.sheen.none'], bumps: ['o.bumps.crystals', 'o.bumps.none'] },
     palette: { c1: [276, 40, 43], c2: [272, 45, 30], c3: [78, 83, 55], eye: [80, 88, 57] }, vary: { h: 8, s: 6, l: 5 },
@@ -7129,7 +7129,7 @@ export const SPECIES = [
     desc: 'The sump\'s own child. Smells of it too.',
   },
   {
-    id: 'clayblob', name: 'Clayblob', nameParts: ['Clay', 'blob'], clade: 'ooze', rig: 'ooze', types: ['Poison', 'Ground'], tier: 'uncommon', bst: 466,
+    id: 'clayblob', name: 'Clayblob', nameParts: ['Clay', 'blob'], clade: 'ooze', rig: 'ooze', types: ['Poison', 'Ground'], tier: 'uncommon', bst: 470,
     stats: { hp: 0.14, melee: 0.22, ranged: 0.08, magic: 0.07, meleeDef: 0.13, rangedDef: 0.11, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'o.body.split', core: 'o.core.skull', eyes: 'o.eyes.wide', mouth: 'o.mouth.frown', pseudopods: 'o.pseudopods.club', drips: ['o.drips.goop', 'o.drips.none'], crown: ['o.crown.fin', 'o.crown.none'], tendrils: ['o.tendrils.pair', 'o.tendrils.none'], base: 'o.base.drops', inclusions: ['o.inclusions.pebbles', 'o.inclusions.none'], sheen: ['o.sheen.rings', 'o.sheen.none'], bumps: ['o.bumps.barnacles', 'o.bumps.none'] },
     palette: { c1: [18, 48, 49], c2: [20, 41, 36], c3: [30, 68, 63], eye: [27, 57, 36] }, vary: { h: 8, s: 6, l: 5 },
@@ -7139,7 +7139,7 @@ export const SPECIES = [
     desc: 'Dries hard, cracks, and pours out of the cracks as itself again.',
   },
   {
-    id: 'cloudgel', name: 'Cloudgel', nameParts: ['Cloud', 'gel'], clade: 'ooze', rig: 'ooze', types: ['Flying', 'Poison'], tier: 'common', bst: 440,
+    id: 'cloudgel', name: 'Cloudgel', nameParts: ['Cloud', 'gel'], clade: 'ooze', rig: 'ooze', types: ['Flying', 'Poison'], tier: 'common', bst: 443,
     stats: { hp: 0.13, melee: 0.08, ranged: 0.22, magic: 0.09, meleeDef: 0.11, rangedDef: 0.12, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'o.body.wide', core: 'o.core.nucleus', eyes: 'o.eyes.wide', mouth: 'o.mouth.frown', pseudopods: 'o.pseudopods.reach', drips: ['o.drips.drip', 'o.drips.none'], crown: 'o.crown.none', tendrils: ['o.tendrils.whip', 'o.tendrils.none'], base: 'o.base.bubbles', inclusions: ['o.inclusions.bubbles', 'o.inclusions.none'], sheen: 'o.sheen.crackle', bumps: ['o.bumps.lobes', 'o.bumps.none'] },
     palette: { c1: [197, 37, 76], c2: [202, 34, 50], c3: [36, 61, 83], eye: [198, 71, 45] }, vary: { h: 8, s: 6, l: 5 },
@@ -7149,7 +7149,7 @@ export const SPECIES = [
     desc: 'A jelly so light it drifts. Rains a little when it is sad.',
   },
   {
-    id: 'dreamgoo', name: 'Dreamgoo', nameParts: ['Dream', 'goo'], clade: 'ooze', rig: 'ooze', types: ['Poison', 'Psychic'], tier: 'uncommon', bst: 427,
+    id: 'dreamgoo', name: 'Dreamgoo', nameParts: ['Dream', 'goo'], clade: 'ooze', rig: 'ooze', types: ['Poison', 'Psychic'], tier: 'uncommon', bst: 425,
     stats: { hp: 0.13, melee: 0.06, ranged: 0.08, magic: 0.23, meleeDef: 0.11, rangedDef: 0.11, magicDef: 0.13, spe: 0.15 },
     recipe: { body: 'o.body.wide', core: 'o.core.star', eyes: 'o.eyes.wide', mouth: 'o.mouth.tongue', pseudopods: 'o.pseudopods.curl', drips: 'o.drips.drip', crown: ['o.crown.halo', 'o.crown.none'], tendrils: 'o.tendrils.whip', base: 'o.base.trail', inclusions: ['o.inclusions.pebbles', 'o.inclusions.none'], sheen: ['o.sheen.sparkle', 'o.sheen.none'], bumps: ['o.bumps.warts', 'o.bumps.none'] },
     palette: { c1: [288, 41, 67], c2: [285, 41, 52], c3: [38, 85, 75], eye: [290, 83, 56] }, vary: { h: 8, s: 6, l: 5 },
@@ -7159,7 +7159,7 @@ export const SPECIES = [
     desc: 'It shows you your dreams on its surface and edits them.',
   },
   {
-    id: 'honeyglob', name: 'Honeyglob', nameParts: ['Honey', 'glob'], clade: 'ooze', rig: 'ooze', types: ['Bug', 'Poison'], tier: 'common', bst: 487,
+    id: 'honeyglob', name: 'Honeyglob', nameParts: ['Honey', 'glob'], clade: 'ooze', rig: 'ooze', types: ['Bug', 'Poison'], tier: 'common', bst: 490,
     stats: { hp: 0.13, melee: 0.08, ranged: 0.22, magic: 0.09, meleeDef: 0.11, rangedDef: 0.12, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'o.body.tall', core: 'o.core.skull', eyes: 'o.eyes.void', mouth: 'o.mouth.fangs', pseudopods: 'o.pseudopods.reach', drips: ['o.drips.drip', 'o.drips.none'], crown: 'o.crown.none', tendrils: ['o.tendrils.loop', 'o.tendrils.none'], base: 'o.base.trail', inclusions: ['o.inclusions.coins', 'o.inclusions.none'], sheen: ['o.sheen.sparkle', 'o.sheen.none'], bumps: 'o.bumps.barnacles' },
     palette: { c1: [60, 47, 45], c2: [67, 41, 36], c3: [28, 95, 61], eye: [43, 72, 38] }, vary: { h: 8, s: 6, l: 5 },
@@ -7179,7 +7179,7 @@ export const SPECIES = [
     desc: 'Slime that rolled through gravel and kept all of it.',
   },
   {
-    id: 'ghastgel', name: 'Ghastgel', nameParts: ['Ghast', 'gel'], clade: 'ooze', rig: 'ooze', types: ['Ghost', 'Poison'], tier: 'common', bst: 389,
+    id: 'ghastgel', name: 'Ghastgel', nameParts: ['Ghast', 'gel'], clade: 'ooze', rig: 'ooze', types: ['Ghost', 'Poison'], tier: 'common', bst: 381,
     stats: { hp: 0.13, melee: 0.06, ranged: 0.08, magic: 0.23, meleeDef: 0.11, rangedDef: 0.11, magicDef: 0.13, spe: 0.15 },
     recipe: { body: 'o.body.tall', core: 'o.core.cluster', eyes: 'o.eyes.void', mouth: 'o.mouth.fangs', pseudopods: 'o.pseudopods.stubs', drips: ['o.drips.drip', 'o.drips.none'], crown: 'o.crown.wisp', tendrils: ['o.tendrils.tail', 'o.tendrils.none'], base: 'o.base.bubbles', inclusions: ['o.inclusions.coins', 'o.inclusions.none'], sheen: 'o.sheen.none', bumps: ['o.bumps.blisters', 'o.bumps.none'] },
     palette: { c1: [240, 21, 71], c2: [249, 26, 56], c3: [132, 70, 68], eye: [137, 77, 65] }, vary: { h: 8, s: 6, l: 5 },
@@ -7189,7 +7189,7 @@ export const SPECIES = [
     desc: 'A cold jelly that passes through walls and leaves them damp.',
   },
   {
-    id: 'wyrmslick', name: 'Wyrmslick', nameParts: ['Wyrm', 'slick'], clade: 'ooze', rig: 'ooze', types: ['Poison', 'Dragon'], tier: 'uncommon', bst: 441,
+    id: 'wyrmslick', name: 'Wyrmslick', nameParts: ['Wyrm', 'slick'], clade: 'ooze', rig: 'ooze', types: ['Poison', 'Dragon'], tier: 'uncommon', bst: 436,
     stats: { hp: 0.14, melee: 0.22, ranged: 0.08, magic: 0.07, meleeDef: 0.13, rangedDef: 0.11, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'o.body.cube', core: 'o.core.star', eyes: 'o.eyes.sleepy', mouth: 'o.mouth.fangs', pseudopods: 'o.pseudopods.stubs', drips: 'o.drips.curtain', crown: 'o.crown.none', tendrils: ['o.tendrils.pair', 'o.tendrils.none'], base: 'o.base.puddle', inclusions: ['o.inclusions.skull', 'o.inclusions.none'], sheen: ['o.sheen.rings', 'o.sheen.none'], bumps: ['o.bumps.barnacles', 'o.bumps.none'] },
     palette: { c1: [329, 40, 42], c2: [339, 42, 28], c3: [28, 85, 60], eye: [33, 98, 57] }, vary: { h: 8, s: 6, l: 5 },
@@ -7199,7 +7199,7 @@ export const SPECIES = [
     desc: 'A slick that coils like a serpent and bites like one.',
   },
   {
-    id: 'pitchblob', name: 'Pitchblob', nameParts: ['Pitch', 'blob'], clade: 'ooze', rig: 'ooze', types: ['Dark', 'Poison'], tier: 'common', bst: 378,
+    id: 'pitchblob', name: 'Pitchblob', nameParts: ['Pitch', 'blob'], clade: 'ooze', rig: 'ooze', types: ['Dark', 'Poison'], tier: 'common', bst: 375,
     stats: { hp: 0.11, melee: 0.08, ranged: 0.22, magic: 0.09, meleeDef: 0.09, rangedDef: 0.12, magicDef: 0.09, spe: 0.2 },
     recipe: { body: 'o.body.drop', core: 'o.core.bubble', eyes: 'o.eyes.bead', mouth: 'o.mouth.fangs', pseudopods: 'o.pseudopods.fork', drips: 'o.drips.drip', crown: ['o.crown.wisp', 'o.crown.none'], tendrils: 'o.tendrils.streamers', base: 'o.base.feet', inclusions: ['o.inclusions.coins', 'o.inclusions.none'], sheen: ['o.sheen.bands', 'o.sheen.none'], bumps: 'o.bumps.none' },
     palette: { c1: [238, 14, 40], c2: [243, 22, 26], c3: [316, 75, 61], eye: [324, 84, 60] }, vary: { h: 8, s: 6, l: 5 },
@@ -7209,7 +7209,7 @@ export const SPECIES = [
     desc: 'Black as tar and twice as clingy. Do not step in it. It steps back.',
   },
   {
-    id: 'mercurydrop', name: 'Mercurydrop', nameParts: ['Mercury', 'drop'], clade: 'ooze', rig: 'ooze', types: ['Poison', 'Steel'], tier: 'uncommon', bst: 429,
+    id: 'mercurydrop', name: 'Mercurydrop', nameParts: ['Mercury', 'drop'], clade: 'ooze', rig: 'ooze', types: ['Poison', 'Steel'], tier: 'uncommon', bst: 437,
     stats: { hp: 0.16, melee: 0.2, ranged: 0.08, magic: 0.07, meleeDef: 0.17, rangedDef: 0.13, magicDef: 0.1, spe: 0.09 },
     recipe: { body: 'o.body.blob', core: 'o.core.ember', eyes: 'o.eyes.ring', mouth: 'o.mouth.gape', pseudopods: 'o.pseudopods.fork', drips: ['o.drips.spray', 'o.drips.none'], crown: ['o.crown.halo', 'o.crown.none'], tendrils: ['o.tendrils.tendril', 'o.tendrils.none'], base: 'o.base.trail', inclusions: 'o.inclusions.none', sheen: ['o.sheen.bands', 'o.sheen.none'], bumps: ['o.bumps.warts', 'o.bumps.none'] },
     palette: { c1: [198, 8, 55], c2: [198, 9, 40], c3: [26, 79, 61], eye: [26, 81, 50] }, vary: { h: 8, s: 6, l: 5 },
@@ -7229,7 +7229,7 @@ export const SPECIES = [
     desc: 'Sparkles when it moves and moves when you look away.',
   },
   {
-    id: 'vatling', name: 'Vatling', nameParts: ['Vat', 'ling'], clade: 'ooze', rig: 'ooze', types: ['Poison', 'Normal'], tier: 'uncommon', bst: 446,
+    id: 'vatling', name: 'Vatling', nameParts: ['Vat', 'ling'], clade: 'ooze', rig: 'ooze', types: ['Poison', 'Normal'], tier: 'uncommon', bst: 448,
     stats: { hp: 0.14, melee: 0.22, ranged: 0.08, magic: 0.07, meleeDef: 0.13, rangedDef: 0.11, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'o.body.blob', core: 'o.core.star', eyes: 'o.eyes.round', mouth: 'o.mouth.gape', pseudopods: 'o.pseudopods.club', drips: ['o.drips.spray', 'o.drips.none'], crown: 'o.crown.spikes', tendrils: ['o.tendrils.streamers', 'o.tendrils.none'], base: 'o.base.puddle', inclusions: ['o.inclusions.shards', 'o.inclusions.none'], sheen: ['o.sheen.gloss', 'o.sheen.none'], bumps: ['o.bumps.lobes', 'o.bumps.none'] },
     palette: { c1: [22, 32, 68], c2: [23, 26, 49], c3: [10, 58, 54], eye: [14, 61, 34] }, vary: { h: 8, s: 6, l: 5 },
@@ -7239,7 +7239,7 @@ export const SPECIES = [
     desc: 'Grew in the bottom of a vat and has never seen daylight. Prefers it.',
   },
   {
-    id: 'primordium', name: 'Primordium', nameParts: ['Primor', 'dium'], clade: 'ooze', rig: 'ooze', types: ['Water', 'Ground'], tier: 'rare', bst: 397,
+    id: 'primordium', name: 'Primordium', nameParts: ['Primor', 'dium'], clade: 'ooze', rig: 'ooze', types: ['Water', 'Ground'], tier: 'rare', bst: 395,
     stats: { hp: 0.13, melee: 0.06, ranged: 0.08, magic: 0.23, meleeDef: 0.11, rangedDef: 0.11, magicDef: 0.13, spe: 0.15 },
     recipe: { body: 'o.body.whirl', core: 'o.core.bubble', eyes: 'o.eyes.cross', mouth: 'o.mouth.frown', pseudopods: 'o.pseudopods.paddle', drips: ['o.drips.drip', 'o.drips.none'], crown: ['o.crown.bubbles', 'o.crown.none'], tendrils: ['o.tendrils.fronds', 'o.tendrils.none'], base: 'o.base.bubbles', inclusions: ['o.inclusions.bubbles', 'o.inclusions.none'], sheen: ['o.sheen.wave', 'o.sheen.none'], bumps: 'o.bumps.blisters' },
     palette: { c1: [197, 61, 55], c2: [201, 60, 43], c3: [174, 77, 71], eye: [190, 83, 52] }, vary: { h: 8, s: 6, l: 5 },
@@ -7249,7 +7249,7 @@ export const SPECIES = [
     desc: 'The first ooze. Everything in the sump is descended from it and knows.',
   },
   {
-    id: 'plasmoid', name: 'Plasmoid', nameParts: ['Plas', 'moid'], clade: 'ooze', rig: 'ooze', types: ['Electric', 'Psychic'], tier: 'rare', bst: 419,
+    id: 'plasmoid', name: 'Plasmoid', nameParts: ['Plas', 'moid'], clade: 'ooze', rig: 'ooze', types: ['Electric', 'Psychic'], tier: 'rare', bst: 422,
     stats: { hp: 0.13, melee: 0.08, ranged: 0.22, magic: 0.09, meleeDef: 0.11, rangedDef: 0.12, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'o.body.wide', core: 'o.core.star', eyes: 'o.eyes.wide', mouth: 'o.mouth.gape', pseudopods: 'o.pseudopods.curl', drips: ['o.drips.spray', 'o.drips.none'], crown: 'o.crown.halo', tendrils: ['o.tendrils.streamers', 'o.tendrils.none'], base: 'o.base.bubbles', inclusions: ['o.inclusions.skull', 'o.inclusions.none'], sheen: ['o.sheen.bands', 'o.sheen.none'], bumps: ['o.bumps.blisters', 'o.bumps.none'] },
     palette: { c1: [37, 88, 55], c2: [32, 70, 45], c3: [40, 100, 72], eye: [37, 86, 47] }, vary: { h: 8, s: 6, l: 5 },
@@ -7259,7 +7259,7 @@ export const SPECIES = [
     desc: 'A thinking storm in a jar with no jar.',
   },
   {
-    id: 'bilebeast', name: 'Bilebeast', nameParts: ['Bile', 'beast'], clade: 'ooze', rig: 'ooze', types: ['Poison', 'Dark'], tier: 'rare', bst: 427,
+    id: 'bilebeast', name: 'Bilebeast', nameParts: ['Bile', 'beast'], clade: 'ooze', rig: 'ooze', types: ['Poison', 'Dark'], tier: 'rare', bst: 415,
     stats: { hp: 0.14, melee: 0.22, ranged: 0.08, magic: 0.07, meleeDef: 0.13, rangedDef: 0.11, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'o.body.split', core: 'o.core.skull', eyes: 'o.eyes.void', mouth: 'o.mouth.fangs', pseudopods: 'o.pseudopods.reach', drips: ['o.drips.drip', 'o.drips.none'], crown: ['o.crown.halo', 'o.crown.none'], tendrils: ['o.tendrils.streamers', 'o.tendrils.none'], base: 'o.base.ring', inclusions: 'o.inclusions.none', sheen: ['o.sheen.sparkle', 'o.sheen.none'], bumps: ['o.bumps.lobes', 'o.bumps.none'] },
     palette: { c1: [269, 41, 39], c2: [271, 43, 29], c3: [85, 88, 54], eye: [81, 92, 49] }, vary: { h: 8, s: 6, l: 5 },
@@ -7270,7 +7270,7 @@ export const SPECIES = [
   },
   // ---- Roster expansion: type pass, fungus ----
   {
-    id: 'cindercap', name: 'Cindercap', nameParts: ['Cinder', 'cap'], clade: 'fungus', rig: 'fungus', types: ['Fire', 'Grass'], tier: 'common', bst: 381,
+    id: 'cindercap', name: 'Cindercap', nameParts: ['Cinder', 'cap'], clade: 'fungus', rig: 'fungus', types: ['Fire', 'Grass'], tier: 'common', bst: 383,
     stats: { hp: 0.13, melee: 0.06, ranged: 0.08, magic: 0.23, meleeDef: 0.11, rangedDef: 0.11, magicDef: 0.13, spe: 0.15 },
     recipe: { body: 'g.body.morel', head: 'g.head.stout', eyes: 'g.eyes.glow', mouth: 'g.mouth.whistle', gills: 'g.gills.ruffle', spores: ['g.spores.ring', 'g.spores.none'], roots: 'g.roots.knot', ring: ['g.ring.band', 'g.ring.none'], shelves: ['g.shelves.cups', 'g.shelves.none'], veil: 'g.veil.none', glow: 'g.glow.aura', pattern: 'g.pattern.crackle' },
     palette: { c1: [14, 71, 55], c2: [1, 68, 40], c3: [39, 98, 65], eye: [39, 99, 61] }, vary: { h: 8, s: 6, l: 5 },
@@ -7290,7 +7290,7 @@ export const SPECIES = [
     desc: 'A cap full of rainwater and frogs. The frogs pay rent.',
   },
   {
-    id: 'staticpuff', name: 'Staticpuff', nameParts: ['Static', 'puff'], clade: 'fungus', rig: 'fungus', types: ['Electric', 'Grass'], tier: 'common', bst: 442,
+    id: 'staticpuff', name: 'Staticpuff', nameParts: ['Static', 'puff'], clade: 'fungus', rig: 'fungus', types: ['Electric', 'Grass'], tier: 'common', bst: 439,
     stats: { hp: 0.11, melee: 0.08, ranged: 0.22, magic: 0.09, meleeDef: 0.09, rangedDef: 0.12, magicDef: 0.09, spe: 0.2 },
     recipe: { body: 'g.body.puffball', head: 'g.head.slender', eyes: 'g.eyes.glow', mouth: 'g.mouth.wavy', gills: 'g.gills.fine', spores: 'g.spores.sparkle', roots: 'g.roots.stilts', ring: 'g.ring.torn', shelves: ['g.shelves.stack', 'g.shelves.none'], veil: 'g.veil.curtain', glow: ['g.glow.halo', 'g.glow.none'], pattern: ['g.pattern.rings', 'g.pattern.none'] },
     palette: { c1: [52, 85, 55], c2: [44, 69, 40], c3: [59, 100, 75], eye: [45, 92, 45] }, vary: { h: 8, s: 6, l: 5 },
@@ -7300,7 +7300,7 @@ export const SPECIES = [
     desc: 'A puffball that stores a charge and lets it go when poked.',
   },
   {
-    id: 'buttonling', name: 'Buttonling', nameParts: ['Button', 'ling'], clade: 'fungus', rig: 'fungus', types: ['Grass'], tier: 'uncommon', bst: 462,
+    id: 'buttonling', name: 'Buttonling', nameParts: ['Button', 'ling'], clade: 'fungus', rig: 'fungus', types: ['Grass'], tier: 'uncommon', bst: 465,
     stats: { hp: 0.13, melee: 0.08, ranged: 0.22, magic: 0.09, meleeDef: 0.11, rangedDef: 0.12, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'g.body.cone', head: 'g.head.bulb', eyes: 'g.eyes.squint', mouth: 'g.mouth.tooth', gills: 'g.gills.fine', spores: ['g.spores.fall', 'g.spores.none'], roots: 'g.roots.knot', ring: ['g.ring.band', 'g.ring.none'], shelves: ['g.shelves.cups', 'g.shelves.none'], veil: ['g.veil.lace', 'g.veil.none'], glow: ['g.glow.sparkles', 'g.glow.none'], pattern: ['g.pattern.freckles', 'g.pattern.none'] },
     palette: { c1: [106, 46, 44], c2: [116, 38, 28], c3: [69, 80, 59], eye: [91, 69, 37] }, vary: { h: 8, s: 6, l: 5 },
@@ -7310,7 +7310,7 @@ export const SPECIES = [
     desc: 'A button mushroom that sprouted legs to get away from the omelette.',
   },
   {
-    id: 'rimeshelf', name: 'Rimeshelf', nameParts: ['Rime', 'shelf'], clade: 'fungus', rig: 'fungus', types: ['Ice', 'Grass'], tier: 'common', bst: 407,
+    id: 'rimeshelf', name: 'Rimeshelf', nameParts: ['Rime', 'shelf'], clade: 'fungus', rig: 'fungus', types: ['Ice', 'Grass'], tier: 'common', bst: 408,
     stats: { hp: 0.13, melee: 0.06, ranged: 0.08, magic: 0.23, meleeDef: 0.11, rangedDef: 0.11, magicDef: 0.13, spe: 0.15 },
     recipe: { body: 'g.body.parasol', head: 'g.head.bent', eyes: 'g.eyes.spore', mouth: 'g.mouth.gape', gills: 'g.gills.broad', spores: ['g.spores.fall', 'g.spores.none'], roots: 'g.roots.stilts', ring: 'g.ring.cuff', shelves: ['g.shelves.bracket', 'g.shelves.none'], veil: ['g.veil.fringe', 'g.veil.none'], glow: ['g.glow.crescent', 'g.glow.none'], pattern: ['g.pattern.spots', 'g.pattern.none'] },
     palette: { c1: [196, 43, 86], c2: [197, 37, 67], c3: [184, 87, 84], eye: [201, 87, 55] }, vary: { h: 8, s: 6, l: 5 },
@@ -7320,7 +7320,7 @@ export const SPECIES = [
     desc: 'A bracket fungus that grows on the north side of everything.',
   },
   {
-    id: 'slabshroom', name: 'Slabshroom', nameParts: ['Slab', 'shroom'], clade: 'fungus', rig: 'fungus', types: ['Grass', 'Fighting'], tier: 'uncommon', bst: 492,
+    id: 'slabshroom', name: 'Slabshroom', nameParts: ['Slab', 'shroom'], clade: 'fungus', rig: 'fungus', types: ['Grass', 'Fighting'], tier: 'uncommon', bst: 493,
     stats: { hp: 0.14, melee: 0.22, ranged: 0.08, magic: 0.07, meleeDef: 0.13, rangedDef: 0.11, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'g.body.funnel', head: 'g.head.woody', eyes: 'g.eyes.bead', mouth: 'g.mouth.gape', gills: 'g.gills.dark', spores: 'g.spores.sparkle', roots: 'g.roots.stump', ring: 'g.ring.cuff', shelves: 'g.shelves.ears', veil: ['g.veil.fringe', 'g.veil.none'], glow: ['g.glow.halo', 'g.glow.none'], pattern: ['g.pattern.scales', 'g.pattern.none'] },
     palette: { c1: [19, 40, 46], c2: [11, 37, 32], c3: [359, 71, 55], eye: [26, 70, 40] }, vary: { h: 8, s: 6, l: 5 },
@@ -7330,7 +7330,7 @@ export const SPECIES = [
     desc: 'A mushroom with a cap like a fist. Headbutts stumps.',
   },
   {
-    id: 'deathbell', name: 'Deathbell', nameParts: ['Death', 'bell'], clade: 'fungus', rig: 'fungus', types: ['Poison', 'Grass'], tier: 'common', bst: 459,
+    id: 'deathbell', name: 'Deathbell', nameParts: ['Death', 'bell'], clade: 'fungus', rig: 'fungus', types: ['Poison', 'Grass'], tier: 'common', bst: 457,
     stats: { hp: 0.13, melee: 0.08, ranged: 0.22, magic: 0.09, meleeDef: 0.11, rangedDef: 0.12, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'g.body.bell', head: 'g.head.ribbed', eyes: 'g.eyes.spore', mouth: 'g.mouth.tooth', gills: 'g.gills.fine', spores: 'g.spores.none', roots: 'g.roots.stilts', ring: 'g.ring.double', shelves: ['g.shelves.stack', 'g.shelves.none'], veil: ['g.veil.scallop', 'g.veil.none'], glow: ['g.glow.rays', 'g.glow.none'], pattern: 'g.pattern.freckles' },
     palette: { c1: [284, 44, 47], c2: [276, 44, 29], c3: [91, 80, 58], eye: [93, 85, 58] }, vary: { h: 8, s: 6, l: 5 },
@@ -7340,7 +7340,7 @@ export const SPECIES = [
     desc: 'The pretty one. The one the foragers warn the new foragers about.',
   },
   {
-    id: 'trufflekin', name: 'Trufflekin', nameParts: ['Truffle', 'kin'], clade: 'fungus', rig: 'fungus', types: ['Grass', 'Ground'], tier: 'uncommon', bst: 475,
+    id: 'trufflekin', name: 'Trufflekin', nameParts: ['Truffle', 'kin'], clade: 'fungus', rig: 'fungus', types: ['Grass', 'Ground'], tier: 'uncommon', bst: 477,
     stats: { hp: 0.14, melee: 0.22, ranged: 0.08, magic: 0.07, meleeDef: 0.13, rangedDef: 0.11, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'g.body.bell', head: 'g.head.stubby', eyes: 'g.eyes.round', mouth: 'g.mouth.whistle', gills: 'g.gills.lace', spores: 'g.spores.swirl', roots: 'g.roots.knot', ring: ['g.ring.double', 'g.ring.none'], shelves: 'g.shelves.coral', veil: ['g.veil.fringe', 'g.veil.none'], glow: ['g.glow.halo', 'g.glow.none'], pattern: 'g.pattern.crackle' },
     palette: { c1: [28, 44, 55], c2: [30, 39, 36], c3: [46, 71, 60], eye: [29, 59, 36] }, vary: { h: 8, s: 6, l: 5 },
@@ -7360,7 +7360,7 @@ export const SPECIES = [
     desc: 'A cap so light the wind takes it. Seeds a forest wherever it lands.',
   },
   {
-    id: 'oraclemorel', name: 'Oraclemorel', nameParts: ['Oracle', 'morel'], clade: 'fungus', rig: 'fungus', types: ['Grass', 'Psychic'], tier: 'uncommon', bst: 459,
+    id: 'oraclemorel', name: 'Oraclemorel', nameParts: ['Oracle', 'morel'], clade: 'fungus', rig: 'fungus', types: ['Grass', 'Psychic'], tier: 'uncommon', bst: 461,
     stats: { hp: 0.13, melee: 0.06, ranged: 0.08, magic: 0.23, meleeDef: 0.11, rangedDef: 0.11, magicDef: 0.13, spe: 0.15 },
     recipe: { body: 'g.body.parasol', head: 'g.head.slender', eyes: 'g.eyes.wide', mouth: 'g.mouth.whistle', gills: 'g.gills.ruffle', spores: ['g.spores.swirl', 'g.spores.none'], roots: 'g.roots.stump', ring: ['g.ring.skirt', 'g.ring.none'], shelves: 'g.shelves.buttons', veil: 'g.veil.lace', glow: ['g.glow.halo', 'g.glow.none'], pattern: 'g.pattern.none' },
     palette: { c1: [302, 40, 61], c2: [289, 37, 47], c3: [48, 92, 72], eye: [296, 83, 59] }, vary: { h: 8, s: 6, l: 5 },
@@ -7370,7 +7370,7 @@ export const SPECIES = [
     desc: 'Its honeycomb cap holds a hundred small thoughts. Some are yours.',
   },
   {
-    id: 'antcap', name: 'Antcap', nameParts: ['Ant', 'cap'], clade: 'fungus', rig: 'fungus', types: ['Bug', 'Grass'], tier: 'common', bst: 496,
+    id: 'antcap', name: 'Antcap', nameParts: ['Ant', 'cap'], clade: 'fungus', rig: 'fungus', types: ['Bug', 'Grass'], tier: 'common', bst: 495,
     stats: { hp: 0.13, melee: 0.08, ranged: 0.22, magic: 0.09, meleeDef: 0.11, rangedDef: 0.12, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'g.body.button', head: 'g.head.stout', eyes: 'g.eyes.sleepy', mouth: 'g.mouth.gape', gills: 'g.gills.pores', spores: ['g.spores.ring', 'g.spores.none'], roots: 'g.roots.knot', ring: 'g.ring.torn', shelves: ['g.shelves.shelf', 'g.shelves.none'], veil: ['g.veil.tatters', 'g.veil.none'], glow: 'g.glow.none', pattern: 'g.pattern.scales' },
     palette: { c1: [70, 46, 46], c2: [82, 37, 34], c3: [44, 89, 60], eye: [53, 67, 40] }, vary: { h: 8, s: 6, l: 5 },
@@ -7390,7 +7390,7 @@ export const SPECIES = [
     desc: 'A shelf fungus hard enough to strike a spark on.',
   },
   {
-    id: 'ghoststalk', name: 'Ghoststalk', nameParts: ['Ghost', 'stalk'], clade: 'fungus', rig: 'fungus', types: ['Ghost', 'Grass'], tier: 'common', bst: 364,
+    id: 'ghoststalk', name: 'Ghoststalk', nameParts: ['Ghost', 'stalk'], clade: 'fungus', rig: 'fungus', types: ['Ghost', 'Grass'], tier: 'common', bst: 366,
     stats: { hp: 0.13, melee: 0.06, ranged: 0.08, magic: 0.23, meleeDef: 0.11, rangedDef: 0.11, magicDef: 0.13, spe: 0.15 },
     recipe: { body: 'g.body.morel', head: 'g.head.bulb', eyes: 'g.eyes.round', mouth: 'g.mouth.whistle', gills: 'g.gills.dark', spores: ['g.spores.sparkle', 'g.spores.none'], roots: 'g.roots.stilts', ring: 'g.ring.none', shelves: 'g.shelves.none', veil: ['g.veil.tatters', 'g.veil.none'], glow: ['g.glow.pulse', 'g.glow.none'], pattern: ['g.pattern.freckles', 'g.pattern.none'] },
     palette: { c1: [256, 17, 73], c2: [263, 25, 52], c3: [150, 68, 64], eye: [151, 81, 63] }, vary: { h: 8, s: 6, l: 5 },
@@ -7400,7 +7400,7 @@ export const SPECIES = [
     desc: 'Pale as a candle and cold as one that has gone out.',
   },
   {
-    id: 'wyrmbolete', name: 'Wyrmbolete', nameParts: ['Wyrm', 'bolete'], clade: 'fungus', rig: 'fungus', types: ['Grass', 'Dragon'], tier: 'uncommon', bst: 453,
+    id: 'wyrmbolete', name: 'Wyrmbolete', nameParts: ['Wyrm', 'bolete'], clade: 'fungus', rig: 'fungus', types: ['Grass', 'Dragon'], tier: 'uncommon', bst: 451,
     stats: { hp: 0.14, melee: 0.22, ranged: 0.08, magic: 0.07, meleeDef: 0.13, rangedDef: 0.11, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'g.body.cone', head: 'g.head.ribbed', eyes: 'g.eyes.sleepy', mouth: 'g.mouth.wavy', gills: 'g.gills.dark', spores: 'g.spores.none', roots: 'g.roots.knot', ring: 'g.ring.skirt', shelves: ['g.shelves.shelf', 'g.shelves.none'], veil: ['g.veil.cobweb', 'g.veil.none'], glow: ['g.glow.aura', 'g.glow.none'], pattern: ['g.pattern.scales', 'g.pattern.none'] },
     palette: { c1: [344, 42, 45], c2: [352, 40, 27], c3: [40, 89, 59], eye: [44, 91, 60] }, vary: { h: 8, s: 6, l: 5 },
@@ -7410,7 +7410,7 @@ export const SPECIES = [
     desc: 'A bolete the size of a shield with scales instead of pores.',
   },
   {
-    id: 'inkcap', name: 'Inkcap', nameParts: ['Ink', 'cap'], clade: 'fungus', rig: 'fungus', types: ['Dark', 'Grass'], tier: 'common', bst: 444,
+    id: 'inkcap', name: 'Inkcap', nameParts: ['Ink', 'cap'], clade: 'fungus', rig: 'fungus', types: ['Dark', 'Grass'], tier: 'common', bst: 447,
     stats: { hp: 0.11, melee: 0.08, ranged: 0.22, magic: 0.09, meleeDef: 0.09, rangedDef: 0.12, magicDef: 0.09, spe: 0.2 },
     recipe: { body: 'g.body.puffball', head: 'g.head.ribbed', eyes: 'g.eyes.bead', mouth: 'g.mouth.tooth', gills: 'g.gills.dark', spores: ['g.spores.ring', 'g.spores.none'], roots: 'g.roots.stilts', ring: 'g.ring.none', shelves: ['g.shelves.shelf', 'g.shelves.none'], veil: ['g.veil.tatters', 'g.veil.none'], glow: ['g.glow.aura', 'g.glow.none'], pattern: ['g.pattern.freckles', 'g.pattern.none'] },
     palette: { c1: [248, 16, 39], c2: [249, 20, 26], c3: [324, 83, 58], eye: [332, 86, 59] }, vary: { h: 8, s: 6, l: 5 },
@@ -7420,7 +7420,7 @@ export const SPECIES = [
     desc: 'Dissolves into black ink at dusk and writes itself back by dawn.',
   },
   {
-    id: 'ironbracket', name: 'Ironbracket', nameParts: ['Iron', 'bracket'], clade: 'fungus', rig: 'fungus', types: ['Grass', 'Steel'], tier: 'uncommon', bst: 401,
+    id: 'ironbracket', name: 'Ironbracket', nameParts: ['Iron', 'bracket'], clade: 'fungus', rig: 'fungus', types: ['Grass', 'Steel'], tier: 'uncommon', bst: 398,
     stats: { hp: 0.16, melee: 0.2, ranged: 0.08, magic: 0.07, meleeDef: 0.17, rangedDef: 0.13, magicDef: 0.1, spe: 0.09 },
     recipe: { body: 'g.body.bell', head: 'g.head.woody', eyes: 'g.eyes.bead', mouth: 'g.mouth.whistle', gills: 'g.gills.ruffle', spores: 'g.spores.drift', roots: 'g.roots.pad', ring: ['g.ring.frill', 'g.ring.none'], shelves: ['g.shelves.coral', 'g.shelves.none'], veil: ['g.veil.cobweb', 'g.veil.none'], glow: 'g.glow.aura', pattern: ['g.pattern.crackle', 'g.pattern.none'] },
     palette: { c1: [210, 13, 59], c2: [209, 12, 41], c3: [40, 73, 58], eye: [43, 83, 54] }, vary: { h: 8, s: 6, l: 5 },
@@ -7430,7 +7430,7 @@ export const SPECIES = [
     desc: 'A bracket fungus that grew on a rusted gate and took its strength.',
   },
   {
-    id: 'ringdancer', name: 'Ringdancer', nameParts: ['Ring', 'dancer'], clade: 'fungus', rig: 'fungus', types: ['Fairy', 'Grass'], tier: 'common', bst: 404,
+    id: 'ringdancer', name: 'Ringdancer', nameParts: ['Ring', 'dancer'], clade: 'fungus', rig: 'fungus', types: ['Fairy', 'Grass'], tier: 'common', bst: 407,
     stats: { hp: 0.13, melee: 0.06, ranged: 0.08, magic: 0.23, meleeDef: 0.11, rangedDef: 0.11, magicDef: 0.13, spe: 0.15 },
     recipe: { body: 'g.body.bell', head: 'g.head.bent', eyes: 'g.eyes.round', mouth: 'g.mouth.tooth', gills: 'g.gills.fine', spores: 'g.spores.none', roots: 'g.roots.stilts', ring: ['g.ring.band', 'g.ring.none'], shelves: ['g.shelves.ears', 'g.shelves.none'], veil: ['g.veil.beads', 'g.veil.none'], glow: ['g.glow.crescent', 'g.glow.none'], pattern: ['g.pattern.spots', 'g.pattern.none'] },
     palette: { c1: [330, 48, 78], c2: [322, 37, 58], c3: [57, 89, 75], eye: [327, 77, 57] }, vary: { h: 8, s: 6, l: 5 },
@@ -7440,7 +7440,7 @@ export const SPECIES = [
     desc: 'Grows in a ring and dances in it. Step inside and dance too.',
   },
   {
-    id: 'weecap', name: 'Weecap', nameParts: ['Wee', 'cap'], clade: 'fungus', rig: 'fungus', types: ['Grass', 'Normal'], tier: 'uncommon', bst: 449,
+    id: 'weecap', name: 'Weecap', nameParts: ['Wee', 'cap'], clade: 'fungus', rig: 'fungus', types: ['Grass', 'Normal'], tier: 'uncommon', bst: 451,
     stats: { hp: 0.14, melee: 0.22, ranged: 0.08, magic: 0.07, meleeDef: 0.13, rangedDef: 0.11, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'g.body.puffball', head: 'g.head.stubby', eyes: 'g.eyes.round', mouth: 'g.mouth.whistle', gills: 'g.gills.teeth', spores: ['g.spores.sparkle', 'g.spores.none'], roots: 'g.roots.bulb', ring: 'g.ring.none', shelves: 'g.shelves.ears', veil: 'g.veil.none', glow: ['g.glow.crescent', 'g.glow.none'], pattern: ['g.pattern.dots', 'g.pattern.none'] },
     palette: { c1: [34, 40, 64], c2: [32, 26, 44], c3: [15, 60, 57], eye: [23, 62, 28] }, vary: { h: 8, s: 6, l: 5 },
@@ -7450,7 +7450,7 @@ export const SPECIES = [
     desc: 'The smallest mushroom in the wood, on the biggest stalk.',
   },
   {
-    id: 'sporelord', name: 'Sporelord', nameParts: ['Spore', 'lord'], clade: 'fungus', rig: 'fungus', types: ['Grass', 'Poison'], tier: 'rare', bst: 409,
+    id: 'sporelord', name: 'Sporelord', nameParts: ['Spore', 'lord'], clade: 'fungus', rig: 'fungus', types: ['Grass', 'Poison'], tier: 'rare', bst: 408,
     stats: { hp: 0.13, melee: 0.06, ranged: 0.08, magic: 0.23, meleeDef: 0.11, rangedDef: 0.11, magicDef: 0.13, spe: 0.15 },
     recipe: { body: 'g.body.funnel', head: 'g.head.stout', eyes: 'g.eyes.spore', mouth: 'g.mouth.tooth', gills: 'g.gills.lace', spores: ['g.spores.ring', 'g.spores.none'], roots: 'g.roots.knot', ring: 'g.ring.none', shelves: ['g.shelves.ears', 'g.shelves.none'], veil: ['g.veil.lace', 'g.veil.none'], glow: ['g.glow.aura', 'g.glow.none'], pattern: 'g.pattern.none' },
     palette: { c1: [106, 47, 50], c2: [120, 36, 32], c3: [78, 83, 60], eye: [91, 67, 47] }, vary: { h: 8, s: 6, l: 5 },
@@ -7460,7 +7460,7 @@ export const SPECIES = [
     desc: 'The wood\'s oldest fungus. Everything below the leaf litter is its.',
   },
   {
-    id: 'glowshroom', name: 'Glowshroom', nameParts: ['Glow', 'shroom'], clade: 'fungus', rig: 'fungus', types: ['Electric', 'Ghost'], tier: 'rare', bst: 381,
+    id: 'glowshroom', name: 'Glowshroom', nameParts: ['Glow', 'shroom'], clade: 'fungus', rig: 'fungus', types: ['Electric', 'Ghost'], tier: 'rare', bst: 365,
     stats: { hp: 0.13, melee: 0.08, ranged: 0.22, magic: 0.09, meleeDef: 0.11, rangedDef: 0.12, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'g.body.button', head: 'g.head.bulb', eyes: 'g.eyes.glow', mouth: 'g.mouth.gape', gills: 'g.gills.dark', spores: 'g.spores.none', roots: 'g.roots.pad', ring: ['g.ring.frill', 'g.ring.none'], shelves: ['g.shelves.bracket', 'g.shelves.none'], veil: ['g.veil.tatters', 'g.veil.none'], glow: ['g.glow.halo', 'g.glow.none'], pattern: 'g.pattern.freckles' },
     palette: { c1: [48, 87, 54], c2: [36, 66, 46], c3: [55, 97, 73], eye: [49, 87, 46] }, vary: { h: 8, s: 6, l: 5 },
@@ -7470,7 +7470,7 @@ export const SPECIES = [
     desc: 'Lights the wood at night with a cold blue that the moths adore.',
   },
   {
-    id: 'stonecap', name: 'Stonecap', nameParts: ['Stone', 'cap'], clade: 'fungus', rig: 'fungus', types: ['Rock', 'Grass'], tier: 'rare', bst: 503,
+    id: 'stonecap', name: 'Stonecap', nameParts: ['Stone', 'cap'], clade: 'fungus', rig: 'fungus', types: ['Rock', 'Grass'], tier: 'rare', bst: 507,
     stats: { hp: 0.16, melee: 0.2, ranged: 0.08, magic: 0.07, meleeDef: 0.17, rangedDef: 0.13, magicDef: 0.1, spe: 0.09 },
     recipe: { body: 'g.body.cone', head: 'g.head.slender', eyes: 'g.eyes.squint', mouth: 'g.mouth.smile', gills: 'g.gills.lace', spores: 'g.spores.ring', roots: 'g.roots.knot', ring: ['g.ring.collar', 'g.ring.none'], shelves: 'g.shelves.cups', veil: ['g.veil.cobweb', 'g.veil.none'], glow: ['g.glow.aura', 'g.glow.none'], pattern: ['g.pattern.scales', 'g.pattern.none'] },
     palette: { c1: [33, 20, 53], c2: [27, 16, 37], c3: [48, 58, 58], eye: [39, 56, 46] }, vary: { h: 8, s: 6, l: 5 },
@@ -7481,7 +7481,7 @@ export const SPECIES = [
   },
   // ---- Roster expansion: type pass, wyrm ----
   {
-    id: 'kilncoil', name: 'Kilncoil', nameParts: ['Kiln', 'coil'], clade: 'wyrm', rig: 'wyrm', types: ['Fire', 'Dragon'], tier: 'common', bst: 412,
+    id: 'kilncoil', name: 'Kilncoil', nameParts: ['Kiln', 'coil'], clade: 'wyrm', rig: 'wyrm', types: ['Fire', 'Dragon'], tier: 'common', bst: 416,
     stats: { hp: 0.13, melee: 0.06, ranged: 0.08, magic: 0.23, meleeDef: 0.11, rangedDef: 0.11, magicDef: 0.13, spe: 0.15 },
     recipe: { body: 'w.body.arch', head: 'w.head.lion', eyes: 'w.eyes.slit', maw: 'w.maw.fangs', whiskers: ['w.whiskers.curled', 'w.whiskers.none'], legs: 'w.legs.claw', tail: 'w.tail.flame', mane: 'w.mane.none', plates: ['w.plates.scales', 'w.plates.none'], horns: ['w.horns.crest', 'w.horns.none'], glow: 'w.glow.embers', bands: ['w.bands.scales', 'w.bands.none'] },
     palette: { c1: [32, 71, 54], c2: [17, 66, 40], c3: [49, 99, 60], eye: [57, 91, 57] }, vary: { h: 8, s: 6, l: 5 },
@@ -7491,7 +7491,7 @@ export const SPECIES = [
     desc: 'A coil of red heat that sleeps in the potters\' kilns.',
   },
   {
-    id: 'rivercoil', name: 'Rivercoil', nameParts: ['River', 'coil'], clade: 'wyrm', rig: 'wyrm', types: ['Dragon', 'Water'], tier: 'uncommon', bst: 430,
+    id: 'rivercoil', name: 'Rivercoil', nameParts: ['River', 'coil'], clade: 'wyrm', rig: 'wyrm', types: ['Dragon', 'Water'], tier: 'uncommon', bst: 427,
     stats: { hp: 0.13, melee: 0.08, ranged: 0.22, magic: 0.09, meleeDef: 0.11, rangedDef: 0.12, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'w.body.rearing', head: 'w.head.sleek', eyes: 'w.eyes.fierce', maw: 'w.maw.fangs', whiskers: 'w.whiskers.curled', legs: 'w.legs.fin', tail: 'w.tail.fin', mane: ['w.mane.ridge', 'w.mane.none'], plates: 'w.plates.none', horns: 'w.horns.none', glow: ['w.glow.stormcloud', 'w.glow.none'], bands: 'w.bands.scales' },
     palette: { c1: [211, 58, 48], c2: [224, 51, 42], c3: [194, 80, 73], eye: [210, 83, 45] }, vary: { h: 8, s: 6, l: 5 },
@@ -7501,7 +7501,7 @@ export const SPECIES = [
     desc: 'Follows the river from source to sea and back, forever.',
   },
   {
-    id: 'boltwyrm', name: 'Boltwyrm', nameParts: ['Bolt', 'wyrm'], clade: 'wyrm', rig: 'wyrm', types: ['Electric', 'Dragon'], tier: 'common', bst: 432,
+    id: 'boltwyrm', name: 'Boltwyrm', nameParts: ['Bolt', 'wyrm'], clade: 'wyrm', rig: 'wyrm', types: ['Electric', 'Dragon'], tier: 'common', bst: 428,
     stats: { hp: 0.11, melee: 0.08, ranged: 0.22, magic: 0.09, meleeDef: 0.09, rangedDef: 0.12, magicDef: 0.09, spe: 0.2 },
     recipe: { body: 'w.body.hover', head: 'w.head.blunt', eyes: 'w.eyes.glow', maw: 'w.maw.fangs', whiskers: ['w.whiskers.curled', 'w.whiskers.none'], legs: 'w.legs.spur', tail: 'w.tail.spiked', mane: ['w.mane.ridge', 'w.mane.none'], plates: 'w.plates.scales', horns: 'w.horns.crest', glow: ['w.glow.halo', 'w.glow.none'], bands: ['w.bands.scales', 'w.bands.none'] },
     palette: { c1: [60, 86, 55], c2: [52, 66, 39], c3: [62, 100, 73], eye: [61, 89, 43] }, vary: { h: 8, s: 6, l: 5 },
@@ -7511,7 +7511,7 @@ export const SPECIES = [
     desc: 'A wyrm made of a single lightning strike that never finished.',
   },
   {
-    id: 'vinecoil', name: 'Vinecoil', nameParts: ['Vine', 'coil'], clade: 'wyrm', rig: 'wyrm', types: ['Dragon', 'Grass'], tier: 'uncommon', bst: 469,
+    id: 'vinecoil', name: 'Vinecoil', nameParts: ['Vine', 'coil'], clade: 'wyrm', rig: 'wyrm', types: ['Dragon', 'Grass'], tier: 'uncommon', bst: 475,
     stats: { hp: 0.13, melee: 0.08, ranged: 0.22, magic: 0.09, meleeDef: 0.11, rangedDef: 0.12, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'w.body.knot', head: 'w.head.beaked', eyes: 'w.eyes.bead', maw: 'w.maw.tongue', whiskers: ['w.whiskers.tufted', 'w.whiskers.none'], legs: 'w.legs.claw', tail: 'w.tail.tuft', mane: ['w.mane.feathers', 'w.mane.none'], plates: ['w.plates.ridges', 'w.plates.none'], horns: 'w.horns.nubs', glow: ['w.glow.embers', 'w.glow.none'], bands: ['w.bands.stripes', 'w.bands.none'] },
     palette: { c1: [122, 46, 42], c2: [125, 39, 36], c3: [84, 76, 58], eye: [104, 68, 42] }, vary: { h: 8, s: 6, l: 5 },
@@ -7521,7 +7521,7 @@ export const SPECIES = [
     desc: 'A wyrm of braided vines. Trees lean away from it.',
   },
   {
-    id: 'glaciercoil', name: 'Glaciercoil', nameParts: ['Glacier', 'coil'], clade: 'wyrm', rig: 'wyrm', types: ['Ice', 'Dragon'], tier: 'common', bst: 458,
+    id: 'glaciercoil', name: 'Glaciercoil', nameParts: ['Glacier', 'coil'], clade: 'wyrm', rig: 'wyrm', types: ['Ice', 'Dragon'], tier: 'common', bst: 455,
     stats: { hp: 0.13, melee: 0.06, ranged: 0.08, magic: 0.23, meleeDef: 0.11, rangedDef: 0.11, magicDef: 0.13, spe: 0.15 },
     recipe: { body: 'w.body.serpent', head: 'w.head.wide', eyes: 'w.eyes.gem', maw: 'w.maw.fangs', whiskers: ['w.whiskers.tufted', 'w.whiskers.none'], legs: 'w.legs.claw', tail: 'w.tail.taper', mane: ['w.mane.spines', 'w.mane.none'], plates: ['w.plates.scales', 'w.plates.none'], horns: 'w.horns.crest', glow: 'w.glow.stormcloud', bands: 'w.bands.scales' },
     palette: { c1: [203, 45, 84], c2: [209, 41, 63], c3: [195, 92, 82], eye: [214, 86, 53] }, vary: { h: 8, s: 6, l: 5 },
@@ -7531,7 +7531,7 @@ export const SPECIES = [
     desc: 'Moves as slowly as its namesake and grinds the gorge as flat.',
   },
   {
-    id: 'knotwyrm', name: 'Knotwyrm', nameParts: ['Knot', 'wyrm'], clade: 'wyrm', rig: 'wyrm', types: ['Dragon', 'Fighting'], tier: 'uncommon', bst: 453,
+    id: 'knotwyrm', name: 'Knotwyrm', nameParts: ['Knot', 'wyrm'], clade: 'wyrm', rig: 'wyrm', types: ['Dragon', 'Fighting'], tier: 'uncommon', bst: 457,
     stats: { hp: 0.14, melee: 0.22, ranged: 0.08, magic: 0.07, meleeDef: 0.13, rangedDef: 0.11, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'w.body.stout', head: 'w.head.frilled', eyes: 'w.eyes.round', maw: 'w.maw.roar', whiskers: ['w.whiskers.short', 'w.whiskers.none'], legs: 'w.legs.claw', tail: 'w.tail.flame', mane: 'w.mane.spines', plates: 'w.plates.spikes', horns: ['w.horns.curved', 'w.horns.none'], glow: ['w.glow.halo', 'w.glow.none'], bands: 'w.bands.none' },
     palette: { c1: [28, 45, 45], c2: [22, 44, 28], c3: [9, 78, 53], eye: [39, 69, 39] }, vary: { h: 8, s: 6, l: 5 },
@@ -7541,7 +7541,7 @@ export const SPECIES = [
     desc: 'Ties itself in knots and then ties you in them.',
   },
   {
-    id: 'venomcoil', name: 'Venomcoil', nameParts: ['Venom', 'coil'], clade: 'wyrm', rig: 'wyrm', types: ['Poison', 'Dragon'], tier: 'common', bst: 455,
+    id: 'venomcoil', name: 'Venomcoil', nameParts: ['Venom', 'coil'], clade: 'wyrm', rig: 'wyrm', types: ['Poison', 'Dragon'], tier: 'common', bst: 454,
     stats: { hp: 0.13, melee: 0.08, ranged: 0.22, magic: 0.09, meleeDef: 0.11, rangedDef: 0.12, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'w.body.coil', head: 'w.head.serpent', eyes: 'w.eyes.sleepy', maw: 'w.maw.fangs', whiskers: 'w.whiskers.droop', legs: 'w.legs.claw', tail: 'w.tail.spade', mane: ['w.mane.spines', 'w.mane.none'], plates: ['w.plates.scales', 'w.plates.none'], horns: 'w.horns.none', glow: 'w.glow.mist', bands: ['w.bands.scales', 'w.bands.none'] },
     palette: { c1: [298, 37, 49], c2: [290, 38, 35], c3: [99, 89, 56], eye: [101, 91, 51] }, vary: { h: 8, s: 6, l: 5 },
@@ -7551,7 +7551,7 @@ export const SPECIES = [
     desc: 'Its coils sweat poison. The gorge floor is bare where it rests.',
   },
   {
-    id: 'tunnelcoil', name: 'Tunnelcoil', nameParts: ['Tunnel', 'coil'], clade: 'wyrm', rig: 'wyrm', types: ['Dragon', 'Ground'], tier: 'uncommon', bst: 446,
+    id: 'tunnelcoil', name: 'Tunnelcoil', nameParts: ['Tunnel', 'coil'], clade: 'wyrm', rig: 'wyrm', types: ['Dragon', 'Ground'], tier: 'uncommon', bst: 450,
     stats: { hp: 0.14, melee: 0.22, ranged: 0.08, magic: 0.07, meleeDef: 0.13, rangedDef: 0.11, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'w.body.rearing', head: 'w.head.frilled', eyes: 'w.eyes.fierce', maw: 'w.maw.tongue', whiskers: ['w.whiskers.long', 'w.whiskers.none'], legs: 'w.legs.paw', tail: 'w.tail.flame', mane: ['w.mane.ridge', 'w.mane.none'], plates: ['w.plates.scutes', 'w.plates.none'], horns: ['w.horns.straight', 'w.horns.none'], glow: ['w.glow.halo', 'w.glow.none'], bands: 'w.bands.none' },
     palette: { c1: [42, 50, 55], c2: [34, 39, 40], c3: [50, 72, 63], eye: [48, 62, 33] }, vary: { h: 8, s: 6, l: 5 },
@@ -7561,7 +7561,7 @@ export const SPECIES = [
     desc: 'Bores through the gorge wall and leaves it honeycombed.',
   },
   {
-    id: 'kitewyrm', name: 'Kitewyrm', nameParts: ['Kite', 'wyrm'], clade: 'wyrm', rig: 'wyrm', types: ['Flying', 'Dragon'], tier: 'common', bst: 432,
+    id: 'kitewyrm', name: 'Kitewyrm', nameParts: ['Kite', 'wyrm'], clade: 'wyrm', rig: 'wyrm', types: ['Flying', 'Dragon'], tier: 'common', bst: 430,
     stats: { hp: 0.13, melee: 0.08, ranged: 0.22, magic: 0.09, meleeDef: 0.11, rangedDef: 0.12, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'w.body.serpent', head: 'w.head.wide', eyes: 'w.eyes.slit', maw: 'w.maw.fangs', whiskers: 'w.whiskers.long', legs: 'w.legs.fin', tail: 'w.tail.spade', mane: 'w.mane.feathers', plates: ['w.plates.scales', 'w.plates.none'], horns: ['w.horns.crest', 'w.horns.none'], glow: ['w.glow.embers', 'w.glow.none'], bands: 'w.bands.none' },
     palette: { c1: [216, 37, 70], c2: [221, 33, 49], c3: [63, 61, 85], eye: [222, 71, 44] }, vary: { h: 8, s: 6, l: 5 },
@@ -7571,7 +7571,7 @@ export const SPECIES = [
     desc: 'Rides the gorge thermals with fins for wings. Kite flyers salute it.',
   },
   {
-    id: 'dreamwyrm', name: 'Dreamwyrm', nameParts: ['Dream', 'wyrm'], clade: 'wyrm', rig: 'wyrm', types: ['Dragon', 'Psychic'], tier: 'uncommon', bst: 420,
+    id: 'dreamwyrm', name: 'Dreamwyrm', nameParts: ['Dream', 'wyrm'], clade: 'wyrm', rig: 'wyrm', types: ['Dragon', 'Psychic'], tier: 'uncommon', bst: 422,
     stats: { hp: 0.13, melee: 0.06, ranged: 0.08, magic: 0.23, meleeDef: 0.11, rangedDef: 0.11, magicDef: 0.13, spe: 0.15 },
     recipe: { body: 'w.body.knot', head: 'w.head.wide', eyes: 'w.eyes.gem', maw: 'w.maw.grin', whiskers: ['w.whiskers.curled', 'w.whiskers.none'], legs: 'w.legs.spur', tail: 'w.tail.curl', mane: ['w.mane.ridge', 'w.mane.none'], plates: 'w.plates.gems', horns: ['w.horns.crown', 'w.horns.none'], glow: 'w.glow.halo', bands: 'w.bands.none' },
     palette: { c1: [312, 48, 61], c2: [303, 37, 52], c3: [60, 94, 74], eye: [311, 80, 60] }, vary: { h: 8, s: 6, l: 5 },
@@ -7581,7 +7581,7 @@ export const SPECIES = [
     desc: 'Sleeps most of the year and the gorge dreams what it dreams.',
   },
   {
-    id: 'chitincoil', name: 'Chitincoil', nameParts: ['Chitin', 'coil'], clade: 'wyrm', rig: 'wyrm', types: ['Bug', 'Dragon'], tier: 'common', bst: 507,
+    id: 'chitincoil', name: 'Chitincoil', nameParts: ['Chitin', 'coil'], clade: 'wyrm', rig: 'wyrm', types: ['Bug', 'Dragon'], tier: 'common', bst: 505,
     stats: { hp: 0.13, melee: 0.08, ranged: 0.22, magic: 0.09, meleeDef: 0.11, rangedDef: 0.12, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'w.body.coil', head: 'w.head.sleek', eyes: 'w.eyes.glow', maw: 'w.maw.fangs', whiskers: ['w.whiskers.short', 'w.whiskers.none'], legs: 'w.legs.talon', tail: 'w.tail.flame', mane: ['w.mane.ridge', 'w.mane.none'], plates: ['w.plates.shell', 'w.plates.none'], horns: 'w.horns.crest', glow: ['w.glow.halo', 'w.glow.none'], bands: 'w.bands.scales' },
     palette: { c1: [88, 41, 52], c2: [92, 41, 36], c3: [49, 91, 60], eye: [67, 72, 41] }, vary: { h: 8, s: 6, l: 5 },
@@ -7591,7 +7591,7 @@ export const SPECIES = [
     desc: 'Armoured in segments like a centipede. Rattles when it hunts.',
   },
   {
-    id: 'screecoil', name: 'Screecoil', nameParts: ['Scree', 'coil'], clade: 'wyrm', rig: 'wyrm', types: ['Dragon', 'Rock'], tier: 'uncommon', bst: 491,
+    id: 'screecoil', name: 'Screecoil', nameParts: ['Scree', 'coil'], clade: 'wyrm', rig: 'wyrm', types: ['Dragon', 'Rock'], tier: 'uncommon', bst: 492,
     stats: { hp: 0.16, melee: 0.2, ranged: 0.08, magic: 0.07, meleeDef: 0.17, rangedDef: 0.13, magicDef: 0.1, spe: 0.09 },
     recipe: { body: 'w.body.stout', head: 'w.head.lion', eyes: 'w.eyes.sleepy', maw: 'w.maw.fangs', whiskers: 'w.whiskers.tufted', legs: 'w.legs.talon', tail: 'w.tail.spiked', mane: ['w.mane.fur', 'w.mane.none'], plates: ['w.plates.scutes', 'w.plates.none'], horns: ['w.horns.ram', 'w.horns.none'], glow: ['w.glow.stormcloud', 'w.glow.none'], bands: ['w.bands.belly', 'w.bands.none'] },
     palette: { c1: [45, 20, 54], c2: [40, 25, 41], c3: [54, 60, 61], eye: [46, 56, 48] }, vary: { h: 8, s: 6, l: 5 },
@@ -7631,7 +7631,7 @@ export const SPECIES = [
     desc: 'Hunts the gorge after dark with no light at all. It does not need one.',
   },
   {
-    id: 'chaincoil', name: 'Chaincoil', nameParts: ['Chain', 'coil'], clade: 'wyrm', rig: 'wyrm', types: ['Dragon', 'Steel'], tier: 'uncommon', bst: 404,
+    id: 'chaincoil', name: 'Chaincoil', nameParts: ['Chain', 'coil'], clade: 'wyrm', rig: 'wyrm', types: ['Dragon', 'Steel'], tier: 'uncommon', bst: 406,
     stats: { hp: 0.16, melee: 0.2, ranged: 0.08, magic: 0.07, meleeDef: 0.17, rangedDef: 0.13, magicDef: 0.1, spe: 0.09 },
     recipe: { body: 'w.body.serpent', head: 'w.head.blunt', eyes: 'w.eyes.sleepy', maw: 'w.maw.smile', whiskers: ['w.whiskers.tufted', 'w.whiskers.none'], legs: 'w.legs.stub', tail: 'w.tail.spade', mane: ['w.mane.ridge', 'w.mane.none'], plates: 'w.plates.scutes', horns: ['w.horns.nubs', 'w.horns.none'], glow: ['w.glow.aura', 'w.glow.none'], bands: 'w.bands.belly' },
     palette: { c1: [223, 12, 55], c2: [220, 10, 38], c3: [46, 78, 57], eye: [50, 84, 53] }, vary: { h: 8, s: 6, l: 5 },
@@ -7651,7 +7651,7 @@ export const SPECIES = [
     desc: 'A coil of silk ribbon that glitters. Bites like anything else.',
   },
   {
-    id: 'loopling', name: 'Loopling', nameParts: ['Loop', 'ling'], clade: 'wyrm', rig: 'wyrm', types: ['Dragon', 'Normal'], tier: 'uncommon', bst: 430,
+    id: 'loopling', name: 'Loopling', nameParts: ['Loop', 'ling'], clade: 'wyrm', rig: 'wyrm', types: ['Dragon', 'Normal'], tier: 'uncommon', bst: 420,
     stats: { hp: 0.14, melee: 0.22, ranged: 0.08, magic: 0.07, meleeDef: 0.13, rangedDef: 0.11, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'w.body.rearing', head: 'w.head.blunt', eyes: 'w.eyes.round', maw: 'w.maw.roar', whiskers: 'w.whiskers.short', legs: 'w.legs.stub', tail: 'w.tail.tuft', mane: 'w.mane.none', plates: ['w.plates.saddle', 'w.plates.none'], horns: ['w.horns.nubs', 'w.horns.none'], glow: 'w.glow.none', bands: 'w.bands.diamonds' },
     palette: { c1: [43, 35, 61], c2: [43, 29, 45], c3: [28, 58, 57], eye: [36, 64, 34] }, vary: { h: 8, s: 6, l: 5 },
@@ -7661,7 +7661,7 @@ export const SPECIES = [
     desc: 'A hatchling wyrm still learning to uncoil. Trips over itself.',
   },
   {
-    id: 'sunwyrm', name: 'Sunwyrm', nameParts: ['Sun', 'wyrm'], clade: 'wyrm', rig: 'wyrm', types: ['Fire', 'Dragon'], tier: 'rare', bst: 392,
+    id: 'sunwyrm', name: 'Sunwyrm', nameParts: ['Sun', 'wyrm'], clade: 'wyrm', rig: 'wyrm', types: ['Fire', 'Dragon'], tier: 'rare', bst: 406,
     stats: { hp: 0.13, melee: 0.06, ranged: 0.08, magic: 0.23, meleeDef: 0.11, rangedDef: 0.11, magicDef: 0.13, spe: 0.15 },
     recipe: { body: 'w.body.stout', head: 'w.head.lion', eyes: 'w.eyes.bead', maw: 'w.maw.fangs', whiskers: ['w.whiskers.forked', 'w.whiskers.none'], legs: 'w.legs.fin', tail: 'w.tail.flame', mane: ['w.mane.ridge', 'w.mane.none'], plates: ['w.plates.scales', 'w.plates.none'], horns: ['w.horns.crest', 'w.horns.none'], glow: 'w.glow.embers', bands: 'w.bands.scales' },
     palette: { c1: [22, 76, 52], c2: [22, 70, 39], c3: [52, 100, 61], eye: [51, 97, 57] }, vary: { h: 8, s: 6, l: 5 },
@@ -7681,7 +7681,7 @@ export const SPECIES = [
     desc: 'Freezes the river as it passes and thaws it behind.',
   },
   {
-    id: 'starcoil', name: 'Starcoil', nameParts: ['Star', 'coil'], clade: 'wyrm', rig: 'wyrm', types: ['Psychic', 'Dragon'], tier: 'rare', bst: 433,
+    id: 'starcoil', name: 'Starcoil', nameParts: ['Star', 'coil'], clade: 'wyrm', rig: 'wyrm', types: ['Psychic', 'Dragon'], tier: 'rare', bst: 435,
     stats: { hp: 0.13, melee: 0.06, ranged: 0.08, magic: 0.23, meleeDef: 0.11, rangedDef: 0.11, magicDef: 0.13, spe: 0.15 },
     recipe: { body: 'w.body.arch', head: 'w.head.wide', eyes: 'w.eyes.gem', maw: 'w.maw.fangs', whiskers: 'w.whiskers.curled', legs: 'w.legs.fin', tail: 'w.tail.curl', mane: ['w.mane.spines', 'w.mane.none'], plates: ['w.plates.scales', 'w.plates.none'], horns: 'w.horns.none', glow: ['w.glow.halo', 'w.glow.none'], bands: ['w.bands.scales', 'w.bands.none'] },
     palette: { c1: [306, 48, 61], c2: [308, 44, 49], c3: [63, 92, 74], eye: [304, 75, 59] }, vary: { h: 8, s: 6, l: 5 },
@@ -7692,7 +7692,7 @@ export const SPECIES = [
   },
   // ---- Roster expansion: type pass, draconic ----
   {
-    id: 'kindledrake', name: 'Kindledrake', nameParts: ['Kindle', 'drake'], clade: 'draconic', rig: 'draconic', types: ['Fire', 'Dragon'], tier: 'common', bst: 399,
+    id: 'kindledrake', name: 'Kindledrake', nameParts: ['Kindle', 'drake'], clade: 'draconic', rig: 'draconic', types: ['Fire', 'Dragon'], tier: 'common', bst: 397,
     stats: { hp: 0.13, melee: 0.06, ranged: 0.08, magic: 0.23, meleeDef: 0.11, rangedDef: 0.11, magicDef: 0.13, spe: 0.15 },
     recipe: { body: 'd.body.drake', head: 'd.head.crested', eyes: 'd.eyes.narrow', jaw: 'd.jaw.fangs', horns: ['d.horns.straight', 'd.horns.none'], wings: 'd.wings.fin', legsFront: 'd.legsFront.stout', legsBack: 'd.legsBack.paw', tail: 'd.tail.flame', spines: 'd.spines.ridge', chest: 'd.chest.none', breath: ['d.breath.flame', 'd.breath.none'] },
     palette: { c1: [11, 74, 54], c2: [354, 67, 38], c3: [36, 95, 64], eye: [35, 96, 59] }, vary: { h: 8, s: 6, l: 5 },
@@ -7702,7 +7702,7 @@ export const SPECIES = [
     desc: 'A hatchling that breathes sparks and sets its own bed alight nightly.',
   },
   {
-    id: 'raindrake', name: 'Raindrake', nameParts: ['Rain', 'drake'], clade: 'draconic', rig: 'draconic', types: ['Dragon', 'Water'], tier: 'uncommon', bst: 433,
+    id: 'raindrake', name: 'Raindrake', nameParts: ['Rain', 'drake'], clade: 'draconic', rig: 'draconic', types: ['Dragon', 'Water'], tier: 'uncommon', bst: 431,
     stats: { hp: 0.13, melee: 0.08, ranged: 0.22, magic: 0.09, meleeDef: 0.11, rangedDef: 0.12, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'd.body.brute', head: 'd.head.round', eyes: 'd.eyes.glow', jaw: 'd.jaw.fangs', horns: ['d.horns.straight', 'd.horns.none'], wings: 'd.wings.fin', legsFront: 'd.legsFront.stout', legsBack: 'd.legsBack.spring', tail: 'd.tail.fin', spines: ['d.spines.sail', 'd.spines.none'], chest: 'd.chest.dorsal', breath: ['d.breath.bubbles', 'd.breath.none'] },
     palette: { c1: [201, 57, 49], c2: [200, 52, 41], c3: [177, 80, 68], eye: [193, 78, 47] }, vary: { h: 8, s: 6, l: 5 },
@@ -7712,7 +7712,7 @@ export const SPECIES = [
     desc: 'Brings the storm with it and sulks when it clears.',
   },
   {
-    id: 'sparkdrake', name: 'Sparkdrake', nameParts: ['Spark', 'drake'], clade: 'draconic', rig: 'draconic', types: ['Electric', 'Dragon'], tier: 'common', bst: 421,
+    id: 'sparkdrake', name: 'Sparkdrake', nameParts: ['Spark', 'drake'], clade: 'draconic', rig: 'draconic', types: ['Electric', 'Dragon'], tier: 'common', bst: 423,
     stats: { hp: 0.11, melee: 0.08, ranged: 0.22, magic: 0.09, meleeDef: 0.09, rangedDef: 0.12, magicDef: 0.09, spe: 0.2 },
     recipe: { body: 'd.body.drake', head: 'd.head.crested', eyes: 'd.eyes.glow', jaw: 'd.jaw.fangs', horns: ['d.horns.straight', 'd.horns.none'], wings: 'd.wings.fairy', legsFront: 'd.legsFront.paw', legsBack: 'd.legsBack.slim', tail: 'd.tail.spade', spines: ['d.spines.ridge', 'd.spines.none'], chest: ['d.chest.scales', 'd.chest.none'], breath: ['d.breath.lightning', 'd.breath.none'] },
     palette: { c1: [38, 84, 54], c2: [37, 71, 45], c3: [45, 97, 74], eye: [43, 88, 48] }, vary: { h: 8, s: 6, l: 5 },
@@ -7722,7 +7722,7 @@ export const SPECIES = [
     desc: 'Crackles when it flies. Shepherds bring the flocks in.',
   },
   {
-    id: 'mossdrake', name: 'Mossdrake', nameParts: ['Moss', 'drake'], clade: 'draconic', rig: 'draconic', types: ['Dragon', 'Grass'], tier: 'uncommon', bst: 484,
+    id: 'mossdrake', name: 'Mossdrake', nameParts: ['Moss', 'drake'], clade: 'draconic', rig: 'draconic', types: ['Dragon', 'Grass'], tier: 'uncommon', bst: 485,
     stats: { hp: 0.13, melee: 0.08, ranged: 0.22, magic: 0.09, meleeDef: 0.11, rangedDef: 0.12, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'd.body.long', head: 'd.head.blunt', eyes: 'd.eyes.sleepy', jaw: 'd.jaw.smile', horns: ['d.horns.crown', 'd.horns.none'], wings: 'd.wings.tattered', legsFront: 'd.legsFront.slim', legsBack: 'd.legsBack.spring', tail: 'd.tail.tuft', spines: ['d.spines.frill', 'd.spines.none'], chest: 'd.chest.spots', breath: 'd.breath.lightning' },
     palette: { c1: [102, 48, 49], c2: [113, 43, 34], c3: [61, 82, 58], eye: [89, 68, 40] }, vary: { h: 8, s: 6, l: 5 },
@@ -7742,7 +7742,7 @@ export const SPECIES = [
     desc: 'Its breath is a hailstorm and its temper is worse.',
   },
   {
-    id: 'fistdrake', name: 'Fistdrake', nameParts: ['Fist', 'drake'], clade: 'draconic', rig: 'draconic', types: ['Dragon', 'Fighting'], tier: 'uncommon', bst: 457,
+    id: 'fistdrake', name: 'Fistdrake', nameParts: ['Fist', 'drake'], clade: 'draconic', rig: 'draconic', types: ['Dragon', 'Fighting'], tier: 'uncommon', bst: 458,
     stats: { hp: 0.14, melee: 0.22, ranged: 0.08, magic: 0.07, meleeDef: 0.13, rangedDef: 0.11, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'd.body.brute', head: 'd.head.frilled', eyes: 'd.eyes.round', jaw: 'd.jaw.tusks', horns: ['d.horns.single', 'd.horns.none'], wings: 'd.wings.feathered', legsFront: 'd.legsFront.claw', legsBack: 'd.legsBack.stout', tail: 'd.tail.club', spines: ['d.spines.flames', 'd.spines.none'], chest: ['d.chest.stripes', 'd.chest.none'], breath: 'd.breath.sparks' },
     palette: { c1: [15, 43, 46], c2: [4, 37, 31], c3: [354, 74, 49], eye: [18, 68, 35] }, vary: { h: 8, s: 6, l: 5 },
@@ -7752,7 +7752,7 @@ export const SPECIES = [
     desc: 'Fights with its forelegs like a boxer. Wings are for dodging.',
   },
   {
-    id: 'blightdrake', name: 'Blightdrake', nameParts: ['Blight', 'drake'], clade: 'draconic', rig: 'draconic', types: ['Poison', 'Dragon'], tier: 'common', bst: 426,
+    id: 'blightdrake', name: 'Blightdrake', nameParts: ['Blight', 'drake'], clade: 'draconic', rig: 'draconic', types: ['Poison', 'Dragon'], tier: 'common', bst: 430,
     stats: { hp: 0.13, melee: 0.08, ranged: 0.22, magic: 0.09, meleeDef: 0.11, rangedDef: 0.12, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'd.body.drake', head: 'd.head.narrow', eyes: 'd.eyes.slit', jaw: 'd.jaw.fangs', horns: ['d.horns.straight', 'd.horns.none'], wings: 'd.wings.fairy', legsFront: 'd.legsFront.claw', legsBack: 'd.legsBack.slim', tail: 'd.tail.flame', spines: ['d.spines.ridge', 'd.spines.none'], chest: 'd.chest.scales', breath: ['d.breath.sparks', 'd.breath.none'] },
     palette: { c1: [272, 45, 45], c2: [272, 42, 29], c3: [90, 85, 58], eye: [86, 85, 52] }, vary: { h: 8, s: 6, l: 5 },
@@ -7762,7 +7762,7 @@ export const SPECIES = [
     desc: 'Where it lands the grass dies. Where it breathes, so do the sheep.',
   },
   {
-    id: 'dunedrake', name: 'Dunedrake', nameParts: ['Dune', 'drake'], clade: 'draconic', rig: 'draconic', types: ['Dragon', 'Ground'], tier: 'uncommon', bst: 453,
+    id: 'dunedrake', name: 'Dunedrake', nameParts: ['Dune', 'drake'], clade: 'draconic', rig: 'draconic', types: ['Dragon', 'Ground'], tier: 'uncommon', bst: 457,
     stats: { hp: 0.14, melee: 0.22, ranged: 0.08, magic: 0.07, meleeDef: 0.13, rangedDef: 0.11, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'd.body.armour', head: 'd.head.classic', eyes: 'd.eyes.fierce', jaw: 'd.jaw.tusks', horns: 'd.horns.antler', wings: 'd.wings.small', legsFront: 'd.legsFront.digger', legsBack: 'd.legsBack.paw', tail: 'd.tail.club', spines: ['d.spines.frill', 'd.spines.none'], chest: ['d.chest.plates', 'd.chest.none'], breath: 'd.breath.none' },
     palette: { c1: [19, 43, 51], c2: [20, 40, 34], c3: [38, 65, 59], eye: [25, 63, 40] }, vary: { h: 8, s: 6, l: 5 },
@@ -7772,7 +7772,7 @@ export const SPECIES = [
     desc: 'Buries itself in the scree and erupts under the unwary.',
   },
   {
-    id: 'galedrake', name: 'Galedrake', nameParts: ['Gale', 'drake'], clade: 'draconic', rig: 'draconic', types: ['Flying', 'Dragon'], tier: 'common', bst: 437,
+    id: 'galedrake', name: 'Galedrake', nameParts: ['Gale', 'drake'], clade: 'draconic', rig: 'draconic', types: ['Flying', 'Dragon'], tier: 'common', bst: 440,
     stats: { hp: 0.13, melee: 0.08, ranged: 0.22, magic: 0.09, meleeDef: 0.11, rangedDef: 0.12, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'd.body.long', head: 'd.head.croc', eyes: 'd.eyes.round', jaw: 'd.jaw.fangs', horns: ['d.horns.single', 'd.horns.none'], wings: 'd.wings.bat', legsFront: 'd.legsFront.armoured', legsBack: 'd.legsBack.stout', tail: 'd.tail.whip', spines: 'd.spines.sail', chest: ['d.chest.scales', 'd.chest.none'], breath: ['d.breath.smoke', 'd.breath.none'] },
     palette: { c1: [198, 36, 76], c2: [204, 32, 56], c3: [42, 62, 87], eye: [205, 75, 45] }, vary: { h: 8, s: 6, l: 5 },
@@ -7782,7 +7782,7 @@ export const SPECIES = [
     desc: 'All wing. It goes where the wind goes and the wind goes where it wants.',
   },
   {
-    id: 'omendrake', name: 'Omendrake', nameParts: ['Omen', 'drake'], clade: 'draconic', rig: 'draconic', types: ['Dragon', 'Psychic'], tier: 'uncommon', bst: 426,
+    id: 'omendrake', name: 'Omendrake', nameParts: ['Omen', 'drake'], clade: 'draconic', rig: 'draconic', types: ['Dragon', 'Psychic'], tier: 'uncommon', bst: 427,
     stats: { hp: 0.13, melee: 0.06, ranged: 0.08, magic: 0.23, meleeDef: 0.11, rangedDef: 0.11, magicDef: 0.13, spe: 0.15 },
     recipe: { body: 'd.body.wyvern', head: 'd.head.classic', eyes: 'd.eyes.gem', jaw: 'd.jaw.tusks', horns: ['d.horns.crown', 'd.horns.none'], wings: 'd.wings.crystal', legsFront: 'd.legsFront.paw', legsBack: 'd.legsBack.talon', tail: 'd.tail.flame', spines: ['d.spines.crystals', 'd.spines.none'], chest: ['d.chest.gem', 'd.chest.none'], breath: 'd.breath.flame' },
     palette: { c1: [293, 41, 67], c2: [287, 35, 50], c3: [45, 86, 71], eye: [296, 80, 54] }, vary: { h: 8, s: 6, l: 5 },
@@ -7802,7 +7802,7 @@ export const SPECIES = [
     desc: 'A drake in a beetle\'s armour. Its wings fold under a shell.',
   },
   {
-    id: 'cragdrake', name: 'Cragdrake', nameParts: ['Crag', 'drake'], clade: 'draconic', rig: 'draconic', types: ['Dragon', 'Rock'], tier: 'uncommon', bst: 502,
+    id: 'cragdrake', name: 'Cragdrake', nameParts: ['Crag', 'drake'], clade: 'draconic', rig: 'draconic', types: ['Dragon', 'Rock'], tier: 'uncommon', bst: 503,
     stats: { hp: 0.16, melee: 0.2, ranged: 0.08, magic: 0.07, meleeDef: 0.17, rangedDef: 0.13, magicDef: 0.1, spe: 0.09 },
     recipe: { body: 'd.body.armour', head: 'd.head.frilled', eyes: 'd.eyes.slit', jaw: 'd.jaw.grin', horns: 'd.horns.none', wings: 'd.wings.small', legsFront: 'd.legsFront.armoured', legsBack: 'd.legsBack.armoured', tail: 'd.tail.club', spines: 'd.spines.plates', chest: ['d.chest.plates', 'd.chest.none'], breath: ['d.breath.sparks', 'd.breath.none'] },
     palette: { c1: [27, 24, 54], c2: [18, 17, 35], c3: [38, 63, 59], eye: [34, 56, 48] }, vary: { h: 8, s: 6, l: 5 },
@@ -7812,7 +7812,7 @@ export const SPECIES = [
     desc: 'Hewn from the peak itself. Landslides are its footsteps.',
   },
   {
-    id: 'spectredrake', name: 'Spectredrake', nameParts: ['Spectre', 'drake'], clade: 'draconic', rig: 'draconic', types: ['Ghost', 'Dragon'], tier: 'common', bst: 377,
+    id: 'spectredrake', name: 'Spectredrake', nameParts: ['Spectre', 'drake'], clade: 'draconic', rig: 'draconic', types: ['Ghost', 'Dragon'], tier: 'common', bst: 380,
     stats: { hp: 0.13, melee: 0.06, ranged: 0.08, magic: 0.23, meleeDef: 0.11, rangedDef: 0.11, magicDef: 0.13, spe: 0.15 },
     recipe: { body: 'd.body.pudgy', head: 'd.head.round', eyes: 'd.eyes.fierce', jaw: 'd.jaw.fangs', horns: ['d.horns.straight', 'd.horns.none'], wings: 'd.wings.fin', legsFront: 'd.legsFront.talon', legsBack: 'd.legsBack.paw', tail: 'd.tail.spade', spines: 'd.spines.none', chest: ['d.chest.scales', 'd.chest.none'], breath: ['d.breath.smoke', 'd.breath.none'] },
     palette: { c1: [248, 24, 76], c2: [249, 20, 50], c3: [137, 69, 65], eye: [146, 79, 59] }, vary: { h: 8, s: 6, l: 5 },
@@ -7822,7 +7822,7 @@ export const SPECIES = [
     desc: 'The drake that died on the peak and kept the peak.',
   },
   {
-    id: 'whelpling', name: 'Whelpling', nameParts: ['Whelp', 'ling'], clade: 'draconic', rig: 'draconic', types: ['Dragon'], tier: 'uncommon', bst: 439,
+    id: 'whelpling', name: 'Whelpling', nameParts: ['Whelp', 'ling'], clade: 'draconic', rig: 'draconic', types: ['Dragon'], tier: 'uncommon', bst: 438,
     stats: { hp: 0.14, melee: 0.22, ranged: 0.08, magic: 0.07, meleeDef: 0.13, rangedDef: 0.11, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'd.body.drake', head: 'd.head.narrow', eyes: 'd.eyes.narrow', jaw: 'd.jaw.fangs', horns: ['d.horns.single', 'd.horns.none'], wings: 'd.wings.fin', legsFront: 'd.legsFront.claw', legsBack: 'd.legsBack.stout', tail: 'd.tail.spade', spines: ['d.spines.ridge', 'd.spines.none'], chest: ['d.chest.scales', 'd.chest.none'], breath: ['d.breath.lightning', 'd.breath.none'] },
     palette: { c1: [334, 43, 40], c2: [343, 42, 31], c3: [33, 94, 56], eye: [40, 92, 54] }, vary: { h: 8, s: 6, l: 5 },
@@ -7832,7 +7832,7 @@ export const SPECIES = [
     desc: 'A dragon whelp, all teeth and expectation.',
   },
   {
-    id: 'noxdrake', name: 'Noxdrake', nameParts: ['Nox', 'drake'], clade: 'draconic', rig: 'draconic', types: ['Dark', 'Dragon'], tier: 'common', bst: 389,
+    id: 'noxdrake', name: 'Noxdrake', nameParts: ['Nox', 'drake'], clade: 'draconic', rig: 'draconic', types: ['Dark', 'Dragon'], tier: 'common', bst: 392,
     stats: { hp: 0.11, melee: 0.08, ranged: 0.22, magic: 0.09, meleeDef: 0.09, rangedDef: 0.12, magicDef: 0.09, spe: 0.2 },
     recipe: { body: 'd.body.sleek', head: 'd.head.narrow', eyes: 'd.eyes.slit', jaw: 'd.jaw.fangs', horns: ['d.horns.curved', 'd.horns.none'], wings: 'd.wings.fairy', legsFront: 'd.legsFront.claw', legsBack: 'd.legsBack.armoured', tail: 'd.tail.spiked', spines: 'd.spines.ridge', chest: 'd.chest.none', breath: ['d.breath.smoke', 'd.breath.none'] },
     palette: { c1: [239, 17, 37], c2: [244, 23, 26], c3: [316, 75, 58], eye: [324, 89, 62] }, vary: { h: 8, s: 6, l: 5 },
@@ -7842,7 +7842,7 @@ export const SPECIES = [
     desc: 'Flies only when there is no moon. The peaks are quiet then.',
   },
   {
-    id: 'chromedrake', name: 'Chromedrake', nameParts: ['Chrome', 'drake'], clade: 'draconic', rig: 'draconic', types: ['Dragon', 'Steel'], tier: 'uncommon', bst: 416,
+    id: 'chromedrake', name: 'Chromedrake', nameParts: ['Chrome', 'drake'], clade: 'draconic', rig: 'draconic', types: ['Dragon', 'Steel'], tier: 'uncommon', bst: 413,
     stats: { hp: 0.16, melee: 0.2, ranged: 0.08, magic: 0.07, meleeDef: 0.17, rangedDef: 0.13, magicDef: 0.1, spe: 0.09 },
     recipe: { body: 'd.body.armour', head: 'd.head.blunt', eyes: 'd.eyes.narrow', jaw: 'd.jaw.roar', horns: 'd.horns.single', wings: 'd.wings.fairy', legsFront: 'd.legsFront.armoured', legsBack: 'd.legsBack.armoured', tail: 'd.tail.club', spines: ['d.spines.plates', 'd.spines.none'], chest: ['d.chest.plates', 'd.chest.none'], breath: 'd.breath.none' },
     palette: { c1: [199, 14, 57], c2: [202, 9, 44], c3: [35, 73, 62], eye: [28, 79, 50] }, vary: { h: 8, s: 6, l: 5 },
@@ -7852,7 +7852,7 @@ export const SPECIES = [
     desc: 'Scales like mirrors. It blinds you and then it eats you.',
   },
   {
-    id: 'glimmerdrake', name: 'Glimmerdrake', nameParts: ['Glimmer', 'drake'], clade: 'draconic', rig: 'draconic', types: ['Fairy', 'Dragon'], tier: 'common', bst: 405,
+    id: 'glimmerdrake', name: 'Glimmerdrake', nameParts: ['Glimmer', 'drake'], clade: 'draconic', rig: 'draconic', types: ['Fairy', 'Dragon'], tier: 'common', bst: 399,
     stats: { hp: 0.13, melee: 0.06, ranged: 0.08, magic: 0.23, meleeDef: 0.11, rangedDef: 0.11, magicDef: 0.13, spe: 0.15 },
     recipe: { body: 'd.body.pudgy', head: 'd.head.crested', eyes: 'd.eyes.round', jaw: 'd.jaw.fangs', horns: ['d.horns.single', 'd.horns.none'], wings: 'd.wings.bat', legsFront: 'd.legsFront.paw', legsBack: 'd.legsBack.paw', tail: 'd.tail.flame', spines: 'd.spines.ridge', chest: ['d.chest.scales', 'd.chest.none'], breath: ['d.breath.smoke', 'd.breath.none'] },
     palette: { c1: [324, 49, 81], c2: [311, 44, 58], c3: [42, 91, 82], eye: [323, 75, 64] }, vary: { h: 8, s: 6, l: 5 },
@@ -7862,7 +7862,7 @@ export const SPECIES = [
     desc: 'A drake of glitter and mischief. Steals crowns, wears them badly.',
   },
   {
-    id: 'brooddrake', name: 'Brooddrake', nameParts: ['Brood', 'drake'], clade: 'draconic', rig: 'draconic', types: ['Dragon', 'Normal'], tier: 'uncommon', bst: 434,
+    id: 'brooddrake', name: 'Brooddrake', nameParts: ['Brood', 'drake'], clade: 'draconic', rig: 'draconic', types: ['Dragon', 'Normal'], tier: 'uncommon', bst: 437,
     stats: { hp: 0.14, melee: 0.22, ranged: 0.08, magic: 0.07, meleeDef: 0.13, rangedDef: 0.11, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'd.body.pudgy', head: 'd.head.classic', eyes: 'd.eyes.round', jaw: 'd.jaw.smile', horns: ['d.horns.nubs', 'd.horns.none'], wings: 'd.wings.small', legsFront: 'd.legsFront.paw', legsBack: 'd.legsBack.paw', tail: 'd.tail.tuft', spines: 'd.spines.none', chest: ['d.chest.plates', 'd.chest.none'], breath: ['d.breath.frost', 'd.breath.none'] },
     palette: { c1: [26, 36, 68], c2: [20, 26, 50], c3: [10, 65, 59], eye: [20, 58, 29] }, vary: { h: 8, s: 6, l: 5 },
@@ -7872,7 +7872,7 @@ export const SPECIES = [
     desc: 'The one that stays with the eggs. Do not go near the eggs.',
   },
   {
-    id: 'infernodrake', name: 'Infernodrake', nameParts: ['Inferno', 'drake'], clade: 'draconic', rig: 'draconic', types: ['Fire', 'Dark'], tier: 'rare', bst: 444,
+    id: 'infernodrake', name: 'Infernodrake', nameParts: ['Inferno', 'drake'], clade: 'draconic', rig: 'draconic', types: ['Fire', 'Dark'], tier: 'rare', bst: 441,
     stats: { hp: 0.13, melee: 0.06, ranged: 0.08, magic: 0.23, meleeDef: 0.11, rangedDef: 0.11, magicDef: 0.13, spe: 0.15 },
     recipe: { body: 'd.body.wyvern', head: 'd.head.narrow', eyes: 'd.eyes.narrow', jaw: 'd.jaw.fangs', horns: ['d.horns.straight', 'd.horns.none'], wings: 'd.wings.tattered', legsFront: 'd.legsFront.claw', legsBack: 'd.legsBack.haunch', tail: 'd.tail.flame', spines: 'd.spines.none', chest: ['d.chest.dorsal', 'd.chest.none'], breath: 'd.breath.smoke' },
     palette: { c1: [4, 71, 49], c2: [0, 64, 37], c3: [32, 100, 67], eye: [32, 94, 59] }, vary: { h: 8, s: 6, l: 5 },
@@ -7882,7 +7882,7 @@ export const SPECIES = [
     desc: 'The peaks\' own furnace. The snow line moves when it wakes.',
   },
   {
-    id: 'tempestdrake', name: 'Tempestdrake', nameParts: ['Tempest', 'drake'], clade: 'draconic', rig: 'draconic', types: ['Electric', 'Flying'], tier: 'rare', bst: 408,
+    id: 'tempestdrake', name: 'Tempestdrake', nameParts: ['Tempest', 'drake'], clade: 'draconic', rig: 'draconic', types: ['Electric', 'Flying'], tier: 'rare', bst: 405,
     stats: { hp: 0.13, melee: 0.08, ranged: 0.22, magic: 0.09, meleeDef: 0.11, rangedDef: 0.12, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'd.body.long', head: 'd.head.croc', eyes: 'd.eyes.glow', jaw: 'd.jaw.beak', horns: ['d.horns.single', 'd.horns.none'], wings: 'd.wings.fairy', legsFront: 'd.legsFront.claw', legsBack: 'd.legsBack.talon', tail: 'd.tail.whip', spines: ['d.spines.sail', 'd.spines.none'], chest: 'd.chest.none', breath: 'd.breath.lightning' },
     palette: { c1: [46, 88, 56], c2: [35, 74, 46], c3: [45, 100, 71], eye: [38, 85, 48] }, vary: { h: 8, s: 6, l: 5 },
@@ -7892,7 +7892,7 @@ export const SPECIES = [
     desc: 'Lives inside the storm cloud and only comes down to argue.',
   },
   {
-    id: 'titandrake', name: 'Titandrake', nameParts: ['Titan', 'drake'], clade: 'draconic', rig: 'draconic', types: ['Steel', 'Dragon'], tier: 'rare', bst: 405,
+    id: 'titandrake', name: 'Titandrake', nameParts: ['Titan', 'drake'], clade: 'draconic', rig: 'draconic', types: ['Steel', 'Dragon'], tier: 'rare', bst: 402,
     stats: { hp: 0.16, melee: 0.2, ranged: 0.08, magic: 0.07, meleeDef: 0.17, rangedDef: 0.13, magicDef: 0.1, spe: 0.09 },
     recipe: { body: 'd.body.armour', head: 'd.head.round', eyes: 'd.eyes.gem', jaw: 'd.jaw.fangs', horns: ['d.horns.curved', 'd.horns.none'], wings: 'd.wings.fairy', legsFront: 'd.legsFront.armoured', legsBack: 'd.legsBack.armoured', tail: 'd.tail.spade', spines: ['d.spines.plates', 'd.spines.none'], chest: ['d.chest.scales', 'd.chest.none'], breath: ['d.breath.smoke', 'd.breath.none'] },
     palette: { c1: [197, 8, 56], c2: [206, 10, 38], c3: [34, 71, 63], eye: [29, 80, 50] }, vary: { h: 8, s: 6, l: 5 },
@@ -7903,7 +7903,7 @@ export const SPECIES = [
   },
   // ---- Roster expansion: type pass, skeletal ----
   {
-    id: 'cinderbones', name: 'Cinderbones', nameParts: ['Cinder', 'bones'], clade: 'skeletal', rig: 'skeletal', types: ['Fire', 'Ghost'], tier: 'common', bst: 382,
+    id: 'cinderbones', name: 'Cinderbones', nameParts: ['Cinder', 'bones'], clade: 'skeletal', rig: 'skeletal', types: ['Fire', 'Ghost'], tier: 'common', bst: 387,
     stats: { hp: 0.13, melee: 0.06, ranged: 0.08, magic: 0.23, meleeDef: 0.11, rangedDef: 0.11, magicDef: 0.13, spe: 0.15 },
     recipe: { body: 'k.body.fishbone', head: 'k.head.fish', eyes: 'k.eyes.blaze', jaw: 'k.jaw.split', legsFront: 'k.legsFront.stubby', legsBack: 'k.legsBack.bird', tail: 'k.tail.whip', horns: ['k.horns.ram', 'k.horns.none'], wings: ['k.wings.stub', 'k.wings.none'], light: ['k.light.flame', 'k.light.none'], shroud: ['k.shroud.mist', 'k.shroud.none'], cracks: 'k.cracks.none' },
     palette: { c1: [17, 73, 50], c2: [6, 63, 36], c3: [42, 97, 62], eye: [44, 96, 62] }, vary: { h: 8, s: 6, l: 5 },
@@ -7913,7 +7913,7 @@ export const SPECIES = [
     desc: 'Bones still smouldering from the pyre. Walks off before the ashes cool.',
   },
   {
-    id: 'driftbones', name: 'Driftbones', nameParts: ['Drift', 'bones'], clade: 'skeletal', rig: 'skeletal', types: ['Ghost', 'Water'], tier: 'uncommon', bst: 385,
+    id: 'driftbones', name: 'Driftbones', nameParts: ['Drift', 'bones'], clade: 'skeletal', rig: 'skeletal', types: ['Ghost', 'Water'], tier: 'uncommon', bst: 383,
     stats: { hp: 0.13, melee: 0.08, ranged: 0.22, magic: 0.09, meleeDef: 0.11, rangedDef: 0.12, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'k.body.fishbone', head: 'k.head.fish', eyes: 'k.eyes.hollow', jaw: 'k.jaw.beak', legsFront: 'k.legsFront.heavy', legsBack: 'k.legsBack.hound', tail: 'k.tail.fishtail', horns: 'k.horns.ram', wings: ['k.wings.tattered', 'k.wings.none'], light: ['k.light.flame', 'k.light.none'], shroud: 'k.shroud.cobwebs', cracks: ['k.cracks.gilt', 'k.cracks.none'] },
     palette: { c1: [209, 62, 51], c2: [213, 54, 37], c3: [190, 79, 69], eye: [205, 78, 43] }, vary: { h: 8, s: 6, l: 5 },
@@ -7923,7 +7923,7 @@ export const SPECIES = [
     desc: 'Bones the river brought down. It put itself back together wrong.',
   },
   {
-    id: 'sparkmarrow', name: 'Sparkmarrow', nameParts: ['Spark', 'marrow'], clade: 'skeletal', rig: 'skeletal', types: ['Electric', 'Ghost'], tier: 'common', bst: 361,
+    id: 'sparkmarrow', name: 'Sparkmarrow', nameParts: ['Spark', 'marrow'], clade: 'skeletal', rig: 'skeletal', types: ['Electric', 'Ghost'], tier: 'common', bst: 360,
     stats: { hp: 0.11, melee: 0.08, ranged: 0.22, magic: 0.09, meleeDef: 0.09, rangedDef: 0.12, magicDef: 0.09, spe: 0.2 },
     recipe: { body: 'k.body.wrapped', head: 'k.head.brute', eyes: 'k.eyes.hollow', jaw: 'k.jaw.needle', legsFront: 'k.legsFront.hound', legsBack: 'k.legsBack.hoof', tail: 'k.tail.fishtail', horns: 'k.horns.none', wings: ['k.wings.bare', 'k.wings.none'], light: 'k.light.none', shroud: 'k.shroud.mist', cracks: ['k.cracks.runes', 'k.cracks.none'] },
     palette: { c1: [55, 85, 58], c2: [45, 69, 43], c3: [61, 96, 71], eye: [48, 94, 46] }, vary: { h: 8, s: 6, l: 5 },
@@ -7933,7 +7933,7 @@ export const SPECIES = [
     desc: 'Lightning struck the barrow and this walked out.',
   },
   {
-    id: 'rootbones', name: 'Rootbones', nameParts: ['Root', 'bones'], clade: 'skeletal', rig: 'skeletal', types: ['Ghost', 'Grass'], tier: 'uncommon', bst: 414,
+    id: 'rootbones', name: 'Rootbones', nameParts: ['Root', 'bones'], clade: 'skeletal', rig: 'skeletal', types: ['Ghost', 'Grass'], tier: 'uncommon', bst: 419,
     stats: { hp: 0.13, melee: 0.08, ranged: 0.22, magic: 0.09, meleeDef: 0.11, rangedDef: 0.12, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'k.body.coil', head: 'k.head.feline', eyes: 'k.eyes.ember', jaw: 'k.jaw.slack', legsFront: 'k.legsFront.bird', legsBack: 'k.legsBack.bird', tail: 'k.tail.rattle', horns: 'k.horns.none', wings: 'k.wings.feather', light: ['k.light.flame', 'k.light.none'], shroud: ['k.shroud.moss', 'k.shroud.none'], cracks: 'k.cracks.moss' },
     palette: { c1: [114, 41, 47], c2: [125, 37, 36], c3: [72, 84, 62], eye: [101, 68, 43] }, vary: { h: 8, s: 6, l: 5 },
@@ -7943,7 +7943,7 @@ export const SPECIES = [
     desc: 'Roots grew through the ribs and now the roots do the walking.',
   },
   {
-    id: 'rimeskull', name: 'Rimeskull', nameParts: ['Rime', 'skull'], clade: 'skeletal', rig: 'skeletal', types: ['Ice', 'Ghost'], tier: 'common', bst: 386,
+    id: 'rimeskull', name: 'Rimeskull', nameParts: ['Rime', 'skull'], clade: 'skeletal', rig: 'skeletal', types: ['Ice', 'Ghost'], tier: 'common', bst: 385,
     stats: { hp: 0.13, melee: 0.06, ranged: 0.08, magic: 0.23, meleeDef: 0.11, rangedDef: 0.11, magicDef: 0.13, spe: 0.15 },
     recipe: { body: 'k.body.giant', head: 'k.head.serpent', eyes: 'k.eyes.gem', jaw: 'k.jaw.tusked', legsFront: 'k.legsFront.claw', legsBack: 'k.legsBack.spring', tail: 'k.tail.arrow', horns: ['k.horns.crown', 'k.horns.none'], wings: ['k.wings.fan', 'k.wings.none'], light: ['k.light.gem', 'k.light.none'], shroud: ['k.shroud.mist', 'k.shroud.none'], cracks: 'k.cracks.frost' },
     palette: { c1: [195, 48, 81], c2: [201, 36, 61], c3: [194, 85, 84], eye: [207, 87, 53] }, vary: { h: 8, s: 6, l: 5 },
@@ -7953,7 +7953,7 @@ export const SPECIES = [
     desc: 'Frozen in the marsh and thawed out cross.',
   },
   {
-    id: 'knucklebones', name: 'Knucklebones', nameParts: ['Knuckle', 'bones'], clade: 'skeletal', rig: 'skeletal', types: ['Ghost', 'Fighting'], tier: 'uncommon', bst: 435,
+    id: 'knucklebones', name: 'Knucklebones', nameParts: ['Knuckle', 'bones'], clade: 'skeletal', rig: 'skeletal', types: ['Ghost', 'Fighting'], tier: 'uncommon', bst: 439,
     stats: { hp: 0.14, melee: 0.22, ranged: 0.08, magic: 0.07, meleeDef: 0.13, rangedDef: 0.11, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'k.body.barrel', head: 'k.head.brute', eyes: 'k.eyes.twin', jaw: 'k.jaw.tusked', legsFront: 'k.legsFront.heavy', legsBack: 'k.legsBack.heavy', tail: 'k.tail.club', horns: ['k.horns.curved', 'k.horns.none'], wings: ['k.wings.stub', 'k.wings.none'], light: ['k.light.orb', 'k.light.none'], shroud: ['k.shroud.moss', 'k.shroud.none'], cracks: ['k.cracks.gilt', 'k.cracks.none'] },
     palette: { c1: [19, 48, 46], c2: [12, 37, 29], c3: [0, 75, 56], eye: [29, 74, 38] }, vary: { h: 8, s: 6, l: 5 },
@@ -7963,7 +7963,7 @@ export const SPECIES = [
     desc: 'Fights with its own thighbone. It has spares.',
   },
   {
-    id: 'blightbones', name: 'Blightbones', nameParts: ['Blight', 'bones'], clade: 'skeletal', rig: 'skeletal', types: ['Poison', 'Ghost'], tier: 'common', bst: 399,
+    id: 'blightbones', name: 'Blightbones', nameParts: ['Blight', 'bones'], clade: 'skeletal', rig: 'skeletal', types: ['Poison', 'Ghost'], tier: 'common', bst: 398,
     stats: { hp: 0.13, melee: 0.08, ranged: 0.22, magic: 0.09, meleeDef: 0.11, rangedDef: 0.12, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'k.body.keel', head: 'k.head.ram', eyes: 'k.eyes.hollow', jaw: 'k.jaw.needle', legsFront: 'k.legsFront.claw', legsBack: 'k.legsBack.stubby', tail: 'k.tail.arrow', horns: 'k.horns.ram', wings: ['k.wings.fan', 'k.wings.none'], light: 'k.light.coal', shroud: ['k.shroud.mist', 'k.shroud.none'], cracks: 'k.cracks.none' },
     palette: { c1: [285, 44, 47], c2: [280, 37, 32], c3: [98, 90, 51], eye: [93, 91, 54] }, vary: { h: 8, s: 6, l: 5 },
@@ -7973,7 +7973,7 @@ export const SPECIES = [
     desc: 'Green with rot and proud of it. The barrow flowers wilt as it passes.',
   },
   {
-    id: 'cairnbones', name: 'Cairnbones', nameParts: ['Cairn', 'bones'], clade: 'skeletal', rig: 'skeletal', types: ['Ghost', 'Ground'], tier: 'uncommon', bst: 435,
+    id: 'cairnbones', name: 'Cairnbones', nameParts: ['Cairn', 'bones'], clade: 'skeletal', rig: 'skeletal', types: ['Ghost', 'Ground'], tier: 'uncommon', bst: 437,
     stats: { hp: 0.14, melee: 0.22, ranged: 0.08, magic: 0.07, meleeDef: 0.13, rangedDef: 0.11, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'k.body.barrel', head: 'k.head.beaked', eyes: 'k.eyes.ghostlight', jaw: 'k.jaw.slack', legsFront: 'k.legsFront.heavy', legsBack: 'k.legsBack.heavy', tail: 'k.tail.club', horns: ['k.horns.antler', 'k.horns.none'], wings: 'k.wings.none', light: 'k.light.star', shroud: ['k.shroud.roots', 'k.shroud.none'], cracks: ['k.cracks.bands', 'k.cracks.none'] },
     palette: { c1: [33, 49, 52], c2: [26, 35, 40], c3: [42, 72, 62], eye: [39, 58, 39] }, vary: { h: 8, s: 6, l: 5 },
@@ -7983,7 +7983,7 @@ export const SPECIES = [
     desc: 'Piled itself into a cairn to rest and got up when someone added a stone.',
   },
   {
-    id: 'wingbones', name: 'Wingbones', nameParts: ['Wing', 'bones'], clade: 'skeletal', rig: 'skeletal', types: ['Flying', 'Ghost'], tier: 'common', bst: 400,
+    id: 'wingbones', name: 'Wingbones', nameParts: ['Wing', 'bones'], clade: 'skeletal', rig: 'skeletal', types: ['Flying', 'Ghost'], tier: 'common', bst: 402,
     stats: { hp: 0.13, melee: 0.08, ranged: 0.22, magic: 0.09, meleeDef: 0.11, rangedDef: 0.12, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'k.body.coil', head: 'k.head.canine', eyes: 'k.eyes.hollow', jaw: 'k.jaw.grin', legsFront: 'k.legsFront.long', legsBack: 'k.legsBack.long', tail: 'k.tail.whip', horns: 'k.horns.ram', wings: ['k.wings.fan', 'k.wings.none'], light: ['k.light.coal', 'k.light.none'], shroud: 'k.shroud.mist', cracks: 'k.cracks.gilt' },
     palette: { c1: [211, 31, 74], c2: [213, 34, 53], c3: [55, 63, 83], eye: [212, 67, 47] }, vary: { h: 8, s: 6, l: 5 },
@@ -7993,7 +7993,7 @@ export const SPECIES = [
     desc: 'Wings of bare bone. Flies anyway, out of habit.',
   },
   {
-    id: 'omenskull', name: 'Omenskull', nameParts: ['Omen', 'skull'], clade: 'skeletal', rig: 'skeletal', types: ['Ghost', 'Psychic'], tier: 'uncommon', bst: 378,
+    id: 'omenskull', name: 'Omenskull', nameParts: ['Omen', 'skull'], clade: 'skeletal', rig: 'skeletal', types: ['Ghost', 'Psychic'], tier: 'uncommon', bst: 385,
     stats: { hp: 0.13, melee: 0.06, ranged: 0.08, magic: 0.23, meleeDef: 0.11, rangedDef: 0.11, magicDef: 0.13, spe: 0.15 },
     recipe: { body: 'k.body.ribcage', head: 'k.head.beaked', eyes: 'k.eyes.gem', jaw: 'k.jaw.grin', legsFront: 'k.legsFront.claw', legsBack: 'k.legsBack.hoof', tail: 'k.tail.stub', horns: 'k.horns.crown', wings: ['k.wings.wide', 'k.wings.none'], light: 'k.light.gem', shroud: ['k.shroud.mist', 'k.shroud.none'], cracks: ['k.cracks.moss', 'k.cracks.none'] },
     palette: { c1: [303, 46, 69], c2: [301, 36, 50], c3: [58, 89, 73], eye: [297, 80, 55] }, vary: { h: 8, s: 6, l: 5 },
@@ -8003,7 +8003,7 @@ export const SPECIES = [
     desc: 'A skull that knows the date you will join it. It will not say.',
   },
   {
-    id: 'chitinbones', name: 'Chitinbones', nameParts: ['Chitin', 'bones'], clade: 'skeletal', rig: 'skeletal', types: ['Bug', 'Ghost'], tier: 'common', bst: 415,
+    id: 'chitinbones', name: 'Chitinbones', nameParts: ['Chitin', 'bones'], clade: 'skeletal', rig: 'skeletal', types: ['Bug', 'Ghost'], tier: 'common', bst: 413,
     stats: { hp: 0.13, melee: 0.08, ranged: 0.22, magic: 0.09, meleeDef: 0.11, rangedDef: 0.12, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'k.body.ribcage', head: 'k.head.feline', eyes: 'k.eyes.hollow', jaw: 'k.jaw.fangs', legsFront: 'k.legsFront.hound', legsBack: 'k.legsBack.bird', tail: 'k.tail.arrow', horns: ['k.horns.crown', 'k.horns.none'], wings: ['k.wings.bare', 'k.wings.none'], light: ['k.light.coal', 'k.light.none'], shroud: ['k.shroud.mist', 'k.shroud.none'], cracks: ['k.cracks.gilt', 'k.cracks.none'] },
     palette: { c1: [76, 47, 45], c2: [78, 42, 35], c3: [49, 86, 57], eye: [59, 73, 42] }, vary: { h: 8, s: 6, l: 5 },
@@ -8023,7 +8023,7 @@ export const SPECIES = [
     desc: 'Half bone, half the flint it was buried in.',
   },
   {
-    id: 'barrowhound', name: 'Barrowhound', nameParts: ['Barrow', 'hound'], clade: 'skeletal', rig: 'skeletal', types: ['Ghost'], tier: 'common', bst: 396,
+    id: 'barrowhound', name: 'Barrowhound', nameParts: ['Barrow', 'hound'], clade: 'skeletal', rig: 'skeletal', types: ['Ghost'], tier: 'common', bst: 397,
     stats: { hp: 0.13, melee: 0.06, ranged: 0.08, magic: 0.23, meleeDef: 0.11, rangedDef: 0.11, magicDef: 0.13, spe: 0.15 },
     recipe: { body: 'k.body.wrapped', head: 'k.head.canine', eyes: 'k.eyes.ghostlight', jaw: 'k.jaw.grin', legsFront: 'k.legsFront.heavy', legsBack: 'k.legsBack.hound', tail: 'k.tail.rattle', horns: ['k.horns.crown', 'k.horns.none'], wings: 'k.wings.none', light: ['k.light.coal', 'k.light.none'], shroud: ['k.shroud.mist', 'k.shroud.none'], cracks: 'k.cracks.none' },
     palette: { c1: [254, 20, 71], c2: [257, 20, 49], c3: [150, 67, 67], eye: [156, 76, 65] }, vary: { h: 8, s: 6, l: 5 },
@@ -8033,7 +8033,7 @@ export const SPECIES = [
     desc: 'The barrow\'s dog. Still guarding a master who left long ago.',
   },
   {
-    id: 'wyrmbones', name: 'Wyrmbones', nameParts: ['Wyrm', 'bones'], clade: 'skeletal', rig: 'skeletal', types: ['Ghost', 'Dragon'], tier: 'uncommon', bst: 415,
+    id: 'wyrmbones', name: 'Wyrmbones', nameParts: ['Wyrm', 'bones'], clade: 'skeletal', rig: 'skeletal', types: ['Ghost', 'Dragon'], tier: 'uncommon', bst: 423,
     stats: { hp: 0.14, melee: 0.22, ranged: 0.08, magic: 0.07, meleeDef: 0.13, rangedDef: 0.11, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'k.body.coil', head: 'k.head.ram', eyes: 'k.eyes.pinprick', jaw: 'k.jaw.fangs', legsFront: 'k.legsFront.heavy', legsBack: 'k.legsBack.long', tail: 'k.tail.spine', horns: 'k.horns.none', wings: ['k.wings.fan', 'k.wings.none'], light: ['k.light.flame', 'k.light.none'], shroud: ['k.shroud.cape', 'k.shroud.none'], cracks: ['k.cracks.scorch', 'k.cracks.none'] },
     palette: { c1: [348, 43, 43], c2: [350, 45, 33], c3: [44, 88, 63], eye: [43, 93, 58] }, vary: { h: 8, s: 6, l: 5 },
@@ -8053,7 +8053,7 @@ export const SPECIES = [
     desc: 'A skull with no light in the sockets, only dark. The dark looks back.',
   },
   {
-    id: 'rivetbones', name: 'Rivetbones', nameParts: ['Rivet', 'bones'], clade: 'skeletal', rig: 'skeletal', types: ['Ghost', 'Steel'], tier: 'uncommon', bst: 382,
+    id: 'rivetbones', name: 'Rivetbones', nameParts: ['Rivet', 'bones'], clade: 'skeletal', rig: 'skeletal', types: ['Ghost', 'Steel'], tier: 'uncommon', bst: 384,
     stats: { hp: 0.16, melee: 0.2, ranged: 0.08, magic: 0.07, meleeDef: 0.17, rangedDef: 0.13, magicDef: 0.1, spe: 0.09 },
     recipe: { body: 'k.body.keel', head: 'k.head.ram', eyes: 'k.eyes.ember', jaw: 'k.jaw.slack', legsFront: 'k.legsFront.stubby', legsBack: 'k.legsBack.spring', tail: 'k.tail.fishtail', horns: 'k.horns.none', wings: ['k.wings.bare', 'k.wings.none'], light: ['k.light.gem', 'k.light.none'], shroud: 'k.shroud.none', cracks: ['k.cracks.bands', 'k.cracks.none'] },
     palette: { c1: [214, 15, 61], c2: [219, 15, 45], c3: [45, 74, 59], eye: [39, 82, 50] }, vary: { h: 8, s: 6, l: 5 },
@@ -8063,7 +8063,7 @@ export const SPECIES = [
     desc: 'Held together with bolts by someone who meant well.',
   },
   {
-    id: 'gloambones', name: 'Gloambones', nameParts: ['Gloam', 'bones'], clade: 'skeletal', rig: 'skeletal', types: ['Fairy', 'Ghost'], tier: 'common', bst: 361,
+    id: 'gloambones', name: 'Gloambones', nameParts: ['Gloam', 'bones'], clade: 'skeletal', rig: 'skeletal', types: ['Fairy', 'Ghost'], tier: 'common', bst: 360,
     stats: { hp: 0.13, melee: 0.06, ranged: 0.08, magic: 0.23, meleeDef: 0.11, rangedDef: 0.11, magicDef: 0.13, spe: 0.15 },
     recipe: { body: 'k.body.giant', head: 'k.head.fish', eyes: 'k.eyes.ghostlight', jaw: 'k.jaw.beak', legsFront: 'k.legsFront.long', legsBack: 'k.legsBack.stubby', tail: 'k.tail.stub', horns: ['k.horns.antler', 'k.horns.none'], wings: 'k.wings.none', light: ['k.light.star', 'k.light.none'], shroud: ['k.shroud.mist', 'k.shroud.none'], cracks: ['k.cracks.runes', 'k.cracks.none'] },
     palette: { c1: [330, 49, 80], c2: [318, 36, 64], c3: [53, 92, 75], eye: [335, 76, 64] }, vary: { h: 8, s: 6, l: 5 },
@@ -8083,7 +8083,7 @@ export const SPECIES = [
     desc: 'A small skeleton of something small. It does not remember what.',
   },
   {
-    id: 'ossarch', name: 'Ossarch', nameParts: ['Oss', 'arch'], clade: 'skeletal', rig: 'skeletal', types: ['Ghost', 'Steel'], tier: 'rare', bst: 400,
+    id: 'ossarch', name: 'Ossarch', nameParts: ['Oss', 'arch'], clade: 'skeletal', rig: 'skeletal', types: ['Ghost', 'Steel'], tier: 'rare', bst: 396,
     stats: { hp: 0.16, melee: 0.2, ranged: 0.08, magic: 0.07, meleeDef: 0.17, rangedDef: 0.13, magicDef: 0.1, spe: 0.09 },
     recipe: { body: 'k.body.fishbone', head: 'k.head.beaked', eyes: 'k.eyes.ghostlight', jaw: 'k.jaw.tusked', legsFront: 'k.legsFront.claw', legsBack: 'k.legsBack.stubby', tail: 'k.tail.fishtail', horns: ['k.horns.ram', 'k.horns.none'], wings: ['k.wings.bare', 'k.wings.none'], light: 'k.light.coal', shroud: ['k.shroud.mist', 'k.shroud.none'], cracks: 'k.cracks.bands' },
     palette: { c1: [254, 23, 64], c2: [257, 26, 45], c3: [149, 66, 62], eye: [148, 82, 54] }, vary: { h: 8, s: 6, l: 5 },
@@ -8093,7 +8093,7 @@ export const SPECIES = [
     desc: 'The barrow king in his iron crown. The other bones kneel.',
   },
   {
-    id: 'pyrelich', name: 'Pyrelich', nameParts: ['Pyre', 'lich'], clade: 'skeletal', rig: 'skeletal', types: ['Fire', 'Psychic'], tier: 'rare', bst: 402,
+    id: 'pyrelich', name: 'Pyrelich', nameParts: ['Pyre', 'lich'], clade: 'skeletal', rig: 'skeletal', types: ['Fire', 'Psychic'], tier: 'rare', bst: 404,
     stats: { hp: 0.13, melee: 0.06, ranged: 0.08, magic: 0.23, meleeDef: 0.11, rangedDef: 0.11, magicDef: 0.13, spe: 0.15 },
     recipe: { body: 'k.body.wrapped', head: 'k.head.canine', eyes: 'k.eyes.blaze', jaw: 'k.jaw.grin', legsFront: 'k.legsFront.heavy', legsBack: 'k.legsBack.hoof', tail: 'k.tail.spine', horns: ['k.horns.crown', 'k.horns.none'], wings: 'k.wings.wide', light: 'k.light.flame', shroud: 'k.shroud.roots', cracks: 'k.cracks.scorch' },
     palette: { c1: [18, 80, 55], c2: [7, 64, 41], c3: [46, 97, 65], eye: [43, 91, 60] }, vary: { h: 8, s: 6, l: 5 },
@@ -8114,7 +8114,7 @@ export const SPECIES = [
   },
   // ---- Roster expansion: type pass, nightwing ----
   {
-    id: 'cinderflit', name: 'Cinderflit', nameParts: ['Cinder', 'flit'], clade: 'nightwing', rig: 'nightwing', types: ['Fire', 'Dark'], tier: 'common', bst: 417,
+    id: 'cinderflit', name: 'Cinderflit', nameParts: ['Cinder', 'flit'], clade: 'nightwing', rig: 'nightwing', types: ['Fire', 'Dark'], tier: 'common', bst: 414,
     stats: { hp: 0.13, melee: 0.06, ranged: 0.08, magic: 0.23, meleeDef: 0.11, rangedDef: 0.11, magicDef: 0.13, spe: 0.15 },
     recipe: { body: 'n.body.fluffy', head: 'n.head.leaf', ears: 'n.ears.tufted', eyes: 'n.eyes.slit', muzzle: 'n.muzzle.fanged', wings: 'n.wings.ragged', legs: 'n.legs.clawed', tail: 'n.tail.fan', crest: ['n.crest.leaf', 'n.crest.none'], ruff: 'n.ruff.petals', thumbs: ['n.thumbs.long', 'n.thumbs.none'], markings: ['n.markings.blaze', 'n.markings.none'] },
     palette: { c1: [30, 76, 50], c2: [18, 63, 36], c3: [59, 100, 62], eye: [56, 92, 61] }, vary: { h: 8, s: 6, l: 5 },
@@ -8154,7 +8154,7 @@ export const SPECIES = [
     desc: 'Wings like leaves. Hangs in the canopy and is mistaken for autumn.',
   },
   {
-    id: 'snowbat', name: 'Snowbat', nameParts: ['Snow', 'bat'], clade: 'nightwing', rig: 'nightwing', types: ['Ice', 'Dark'], tier: 'common', bst: 409,
+    id: 'snowbat', name: 'Snowbat', nameParts: ['Snow', 'bat'], clade: 'nightwing', rig: 'nightwing', types: ['Ice', 'Dark'], tier: 'common', bst: 401,
     stats: { hp: 0.13, melee: 0.06, ranged: 0.08, magic: 0.23, meleeDef: 0.11, rangedDef: 0.11, magicDef: 0.13, spe: 0.15 },
     recipe: { body: 'n.body.long', head: 'n.head.snub', ears: 'n.ears.notched', eyes: 'n.eyes.slit', muzzle: 'n.muzzle.long', wings: 'n.wings.narrow', legs: 'n.legs.clawed', tail: 'n.tail.long', crest: 'n.crest.none', ruff: 'n.ruff.beads', thumbs: 'n.thumbs.double', markings: ['n.markings.belly', 'n.markings.none'] },
     palette: { c1: [208, 45, 85], c2: [212, 37, 62], c3: [201, 88, 79], eye: [223, 85, 49] }, vary: { h: 8, s: 6, l: 5 },
@@ -8164,7 +8164,7 @@ export const SPECIES = [
     desc: 'White fur, cold breath. It roosts in the ice caves and prefers it.',
   },
   {
-    id: 'fistwing', name: 'Fistwing', nameParts: ['Fist', 'wing'], clade: 'nightwing', rig: 'nightwing', types: ['Dark', 'Fighting'], tier: 'uncommon', bst: 425,
+    id: 'fistwing', name: 'Fistwing', nameParts: ['Fist', 'wing'], clade: 'nightwing', rig: 'nightwing', types: ['Dark', 'Fighting'], tier: 'uncommon', bst: 429,
     stats: { hp: 0.14, melee: 0.22, ranged: 0.08, magic: 0.07, meleeDef: 0.13, rangedDef: 0.11, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'n.body.pear', head: 'n.head.wide', ears: 'n.ears.tufted', eyes: 'n.eyes.sleepy', muzzle: 'n.muzzle.leaf', wings: 'n.wings.hooked', legs: 'n.legs.clawed', tail: 'n.tail.fan', crest: ['n.crest.horns', 'n.crest.none'], ruff: ['n.ruff.collar', 'n.ruff.none'], thumbs: ['n.thumbs.long', 'n.thumbs.none'], markings: ['n.markings.belly', 'n.markings.none'] },
     palette: { c1: [31, 42, 44], c2: [33, 37, 30], c3: [9, 75, 49], eye: [46, 71, 36] }, vary: { h: 8, s: 6, l: 5 },
@@ -8174,7 +8174,7 @@ export const SPECIES = [
     desc: 'Its wing thumbs are knuckles. It boxes owls.',
   },
   {
-    id: 'venomflit', name: 'Venomflit', nameParts: ['Venom', 'flit'], clade: 'nightwing', rig: 'nightwing', types: ['Poison', 'Dark'], tier: 'common', bst: 405,
+    id: 'venomflit', name: 'Venomflit', nameParts: ['Venom', 'flit'], clade: 'nightwing', rig: 'nightwing', types: ['Poison', 'Dark'], tier: 'common', bst: 402,
     stats: { hp: 0.13, melee: 0.08, ranged: 0.22, magic: 0.09, meleeDef: 0.11, rangedDef: 0.12, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'n.body.slim', head: 'n.head.pointed', ears: 'n.ears.tufted', eyes: 'n.eyes.bead', muzzle: 'n.muzzle.tube', wings: 'n.wings.narrow', legs: 'n.legs.clawed', tail: 'n.tail.tuck', crest: ['n.crest.tuft', 'n.crest.none'], ruff: 'n.ruff.spiky', thumbs: ['n.thumbs.double', 'n.thumbs.none'], markings: ['n.markings.stripes', 'n.markings.none'] },
     palette: { c1: [296, 39, 44], c2: [293, 37, 35], c3: [109, 88, 55], eye: [106, 95, 57] }, vary: { h: 8, s: 6, l: 5 },
@@ -8184,7 +8184,7 @@ export const SPECIES = [
     desc: 'A bite that itches for a month. It thinks that is funny.',
   },
   {
-    id: 'cavebat', name: 'Cavebat', nameParts: ['Cave', 'bat'], clade: 'nightwing', rig: 'nightwing', types: ['Dark', 'Ground'], tier: 'uncommon', bst: 439,
+    id: 'cavebat', name: 'Cavebat', nameParts: ['Cave', 'bat'], clade: 'nightwing', rig: 'nightwing', types: ['Dark', 'Ground'], tier: 'uncommon', bst: 447,
     stats: { hp: 0.14, melee: 0.22, ranged: 0.08, magic: 0.07, meleeDef: 0.13, rangedDef: 0.11, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'n.body.broad', head: 'n.head.round', ears: 'n.ears.tall', eyes: 'n.eyes.big', muzzle: 'n.muzzle.tube', wings: 'n.wings.huge', legs: 'n.legs.stubby', tail: 'n.tail.long', crest: 'n.crest.none', ruff: 'n.ruff.none', thumbs: ['n.thumbs.double', 'n.thumbs.none'], markings: ['n.markings.stripes', 'n.markings.none'] },
     palette: { c1: [48, 40, 53], c2: [44, 37, 39], c3: [56, 72, 61], eye: [43, 57, 35] }, vary: { h: 8, s: 6, l: 5 },
@@ -8194,7 +8194,7 @@ export const SPECIES = [
     desc: 'Lives so deep it has forgotten the sky. Eats stone bugs.',
   },
   {
-    id: 'zephyrbat', name: 'Zephyrbat', nameParts: ['Zephyr', 'bat'], clade: 'nightwing', rig: 'nightwing', types: ['Flying', 'Dark'], tier: 'common', bst: 433,
+    id: 'zephyrbat', name: 'Zephyrbat', nameParts: ['Zephyr', 'bat'], clade: 'nightwing', rig: 'nightwing', types: ['Flying', 'Dark'], tier: 'common', bst: 426,
     stats: { hp: 0.13, melee: 0.08, ranged: 0.22, magic: 0.09, meleeDef: 0.11, rangedDef: 0.12, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'n.body.long', head: 'n.head.long', ears: 'n.ears.huge', eyes: 'n.eyes.wide', muzzle: 'n.muzzle.long', wings: 'n.wings.ragged', legs: 'n.legs.long', tail: 'n.tail.fan', crest: ['n.crest.plume', 'n.crest.none'], ruff: ['n.ruff.mane', 'n.ruff.none'], thumbs: ['n.thumbs.long', 'n.thumbs.none'], markings: ['n.markings.spots', 'n.markings.none'] },
     palette: { c1: [225, 30, 75], c2: [230, 31, 52], c3: [65, 60, 82], eye: [225, 70, 43] }, vary: { h: 8, s: 6, l: 5 },
@@ -8204,7 +8204,7 @@ export const SPECIES = [
     desc: 'Fastest thing in the chasm. Nobody has seen it land.',
   },
   {
-    id: 'tranceflit', name: 'Tranceflit', nameParts: ['Trance', 'flit'], clade: 'nightwing', rig: 'nightwing', types: ['Dark', 'Psychic'], tier: 'uncommon', bst: 441,
+    id: 'tranceflit', name: 'Tranceflit', nameParts: ['Trance', 'flit'], clade: 'nightwing', rig: 'nightwing', types: ['Dark', 'Psychic'], tier: 'uncommon', bst: 444,
     stats: { hp: 0.13, melee: 0.06, ranged: 0.08, magic: 0.23, meleeDef: 0.11, rangedDef: 0.11, magicDef: 0.13, spe: 0.15 },
     recipe: { body: 'n.body.tiny', head: 'n.head.wide', ears: 'n.ears.huge', eyes: 'n.eyes.wide', muzzle: 'n.muzzle.tube', wings: 'n.wings.scalloped', legs: 'n.legs.splayed', tail: 'n.tail.whip', crest: 'n.crest.crown', ruff: ['n.ruff.beads', 'n.ruff.none'], thumbs: 'n.thumbs.blunt', markings: 'n.markings.stripes' },
     palette: { c1: [313, 45, 67], c2: [312, 37, 51], c3: [73, 92, 74], eye: [314, 81, 58] }, vary: { h: 8, s: 6, l: 5 },
@@ -8214,7 +8214,7 @@ export const SPECIES = [
     desc: 'Its squeak puts you to sleep and then it reads your dreams.',
   },
   {
-    id: 'gnatwing', name: 'Gnatwing', nameParts: ['Gnat', 'wing'], clade: 'nightwing', rig: 'nightwing', types: ['Bug', 'Dark'], tier: 'common', bst: 493,
+    id: 'gnatwing', name: 'Gnatwing', nameParts: ['Gnat', 'wing'], clade: 'nightwing', rig: 'nightwing', types: ['Bug', 'Dark'], tier: 'common', bst: 498,
     stats: { hp: 0.13, melee: 0.08, ranged: 0.22, magic: 0.09, meleeDef: 0.11, rangedDef: 0.12, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'n.body.slim', head: 'n.head.snub', ears: 'n.ears.round', eyes: 'n.eyes.slit', muzzle: 'n.muzzle.leaf', wings: 'n.wings.ragged', legs: 'n.legs.clawed', tail: 'n.tail.tuck', crest: 'n.crest.none', ruff: 'n.ruff.petals', thumbs: 'n.thumbs.double', markings: ['n.markings.mottled', 'n.markings.none'] },
     palette: { c1: [87, 45, 52], c2: [96, 42, 37], c3: [62, 90, 60], eye: [77, 70, 37] }, vary: { h: 8, s: 6, l: 5 },
@@ -8234,7 +8234,7 @@ export const SPECIES = [
     desc: 'Hung from the cave roof so long it turned to stone. Still flies.',
   },
   {
-    id: 'shadebat', name: 'Shadebat', nameParts: ['Shade', 'bat'], clade: 'nightwing', rig: 'nightwing', types: ['Ghost', 'Dark'], tier: 'common', bst: 383,
+    id: 'shadebat', name: 'Shadebat', nameParts: ['Shade', 'bat'], clade: 'nightwing', rig: 'nightwing', types: ['Ghost', 'Dark'], tier: 'common', bst: 372,
     stats: { hp: 0.13, melee: 0.06, ranged: 0.08, magic: 0.23, meleeDef: 0.11, rangedDef: 0.11, magicDef: 0.13, spe: 0.15 },
     recipe: { body: 'n.body.tiny', head: 'n.head.fox', ears: 'n.ears.leaf', eyes: 'n.eyes.red', muzzle: 'n.muzzle.leaf', wings: 'n.wings.narrow', legs: 'n.legs.clawed', tail: 'n.tail.tuck', crest: 'n.crest.none', ruff: ['n.ruff.collar', 'n.ruff.none'], thumbs: ['n.thumbs.double', 'n.thumbs.none'], markings: ['n.markings.mottled', 'n.markings.none'] },
     palette: { c1: [264, 22, 72], c2: [277, 23, 55], c3: [166, 73, 71], eye: [166, 81, 66] }, vary: { h: 8, s: 6, l: 5 },
@@ -8244,7 +8244,7 @@ export const SPECIES = [
     desc: 'A bat you can hear and not see. The chasm folk stopped looking.',
   },
   {
-    id: 'drakebat', name: 'Drakebat', nameParts: ['Drake', 'bat'], clade: 'nightwing', rig: 'nightwing', types: ['Dark', 'Dragon'], tier: 'uncommon', bst: 442,
+    id: 'drakebat', name: 'Drakebat', nameParts: ['Drake', 'bat'], clade: 'nightwing', rig: 'nightwing', types: ['Dark', 'Dragon'], tier: 'uncommon', bst: 445,
     stats: { hp: 0.14, melee: 0.22, ranged: 0.08, magic: 0.07, meleeDef: 0.13, rangedDef: 0.11, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'n.body.fluffy', head: 'n.head.long', ears: 'n.ears.huge', eyes: 'n.eyes.glow', muzzle: 'n.muzzle.grin', wings: 'n.wings.scalloped', legs: 'n.legs.splayed', tail: 'n.tail.whip', crest: 'n.crest.none', ruff: ['n.ruff.collar', 'n.ruff.none'], thumbs: 'n.thumbs.none', markings: 'n.markings.none' },
     palette: { c1: [3, 45, 43], c2: [2, 44, 29], c3: [58, 95, 62], eye: [54, 92, 54] }, vary: { h: 8, s: 6, l: 5 },
@@ -8254,7 +8254,7 @@ export const SPECIES = [
     desc: 'A bat with a dragon\'s snout and a dragon\'s grudges.',
   },
   {
-    id: 'noxflit', name: 'Noxflit', nameParts: ['Nox', 'flit'], clade: 'nightwing', rig: 'nightwing', types: ['Dark'], tier: 'common', bst: 380,
+    id: 'noxflit', name: 'Noxflit', nameParts: ['Nox', 'flit'], clade: 'nightwing', rig: 'nightwing', types: ['Dark'], tier: 'common', bst: 386,
     stats: { hp: 0.11, melee: 0.08, ranged: 0.22, magic: 0.09, meleeDef: 0.09, rangedDef: 0.12, magicDef: 0.09, spe: 0.2 },
     recipe: { body: 'n.body.round', head: 'n.head.round', ears: 'n.ears.tall', eyes: 'n.eyes.bead', muzzle: 'n.muzzle.fanged', wings: 'n.wings.ragged', legs: 'n.legs.clawed', tail: 'n.tail.long', crest: ['n.crest.leaf', 'n.crest.none'], ruff: ['n.ruff.fluff', 'n.ruff.none'], thumbs: 'n.thumbs.none', markings: ['n.markings.mottled', 'n.markings.none'] },
     palette: { c1: [267, 21, 36], c2: [272, 21, 29], c3: [344, 78, 59], eye: [350, 85, 57] }, vary: { h: 8, s: 6, l: 5 },
@@ -8264,7 +8264,7 @@ export const SPECIES = [
     desc: 'The plainest bat in the chasm and the most of them.',
   },
   {
-    id: 'chromebat', name: 'Chromebat', nameParts: ['Chrome', 'bat'], clade: 'nightwing', rig: 'nightwing', types: ['Dark', 'Steel'], tier: 'uncommon', bst: 378,
+    id: 'chromebat', name: 'Chromebat', nameParts: ['Chrome', 'bat'], clade: 'nightwing', rig: 'nightwing', types: ['Dark', 'Steel'], tier: 'uncommon', bst: 381,
     stats: { hp: 0.16, melee: 0.2, ranged: 0.08, magic: 0.07, meleeDef: 0.17, rangedDef: 0.13, magicDef: 0.1, spe: 0.09 },
     recipe: { body: 'n.body.tiny', head: 'n.head.leaf', ears: 'n.ears.tall', eyes: 'n.eyes.sleepy', muzzle: 'n.muzzle.grin', wings: 'n.wings.ragged', legs: 'n.legs.splayed', tail: 'n.tail.whip', crest: ['n.crest.crown', 'n.crest.none'], ruff: 'n.ruff.none', thumbs: 'n.thumbs.bony', markings: ['n.markings.spots', 'n.markings.none'] },
     palette: { c1: [218, 12, 59], c2: [227, 13, 39], c3: [50, 73, 56], eye: [52, 79, 52] }, vary: { h: 8, s: 6, l: 5 },
@@ -8274,7 +8274,7 @@ export const SPECIES = [
     desc: 'Wings like foil. It flashes in the lamp light and then it is gone.',
   },
   {
-    id: 'glimmerbat', name: 'Glimmerbat', nameParts: ['Glimmer', 'bat'], clade: 'nightwing', rig: 'nightwing', types: ['Fairy', 'Dark'], tier: 'common', bst: 374,
+    id: 'glimmerbat', name: 'Glimmerbat', nameParts: ['Glimmer', 'bat'], clade: 'nightwing', rig: 'nightwing', types: ['Fairy', 'Dark'], tier: 'common', bst: 376,
     stats: { hp: 0.13, melee: 0.06, ranged: 0.08, magic: 0.23, meleeDef: 0.11, rangedDef: 0.11, magicDef: 0.13, spe: 0.15 },
     recipe: { body: 'n.body.long', head: 'n.head.fox', ears: 'n.ears.notched', eyes: 'n.eyes.slit', muzzle: 'n.muzzle.grin', wings: 'n.wings.ragged', legs: 'n.legs.clawed', tail: 'n.tail.stub', crest: 'n.crest.tuft', ruff: 'n.ruff.fluff', thumbs: ['n.thumbs.double', 'n.thumbs.none'], markings: ['n.markings.stripes', 'n.markings.none'] },
     palette: { c1: [343, 49, 81], c2: [336, 43, 63], c3: [66, 91, 78], eye: [344, 79, 64] }, vary: { h: 8, s: 6, l: 5 },
@@ -8284,7 +8284,7 @@ export const SPECIES = [
     desc: 'Glitters when it flies. Fairies ride it, or say they do.',
   },
   {
-    id: 'pipwing', name: 'Pipwing', nameParts: ['Pip', 'wing'], clade: 'nightwing', rig: 'nightwing', types: ['Dark', 'Normal'], tier: 'uncommon', bst: 384,
+    id: 'pipwing', name: 'Pipwing', nameParts: ['Pip', 'wing'], clade: 'nightwing', rig: 'nightwing', types: ['Dark', 'Normal'], tier: 'uncommon', bst: 385,
     stats: { hp: 0.14, melee: 0.22, ranged: 0.08, magic: 0.07, meleeDef: 0.13, rangedDef: 0.11, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'n.body.fluffy', head: 'n.head.round', ears: 'n.ears.round', eyes: 'n.eyes.big', muzzle: 'n.muzzle.long', wings: 'n.wings.short', legs: 'n.legs.stubby', tail: 'n.tail.stub', crest: 'n.crest.tuft', ruff: 'n.ruff.fluff', thumbs: ['n.thumbs.bony', 'n.thumbs.none'], markings: ['n.markings.saddle', 'n.markings.none'] },
     palette: { c1: [47, 30, 66], c2: [44, 33, 43], c3: [28, 59, 59], eye: [46, 56, 36] }, vary: { h: 8, s: 6, l: 5 },
@@ -8294,7 +8294,7 @@ export const SPECIES = [
     desc: 'A pipistrelle of the chasm. Small, fast, everywhere.',
   },
   {
-    id: 'vampryre', name: 'Vampryre', nameParts: ['Vam', 'pryre'], clade: 'nightwing', rig: 'nightwing', types: ['Dark', 'Fire'], tier: 'rare', bst: 412,
+    id: 'vampryre', name: 'Vampryre', nameParts: ['Vam', 'pryre'], clade: 'nightwing', rig: 'nightwing', types: ['Dark', 'Fire'], tier: 'rare', bst: 409,
     stats: { hp: 0.14, melee: 0.22, ranged: 0.08, magic: 0.07, meleeDef: 0.13, rangedDef: 0.11, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'n.body.pear', head: 'n.head.pointed', ears: 'n.ears.notched', eyes: 'n.eyes.red', muzzle: 'n.muzzle.whiskered', wings: 'n.wings.narrow', legs: 'n.legs.clawed', tail: 'n.tail.long', crest: ['n.crest.plume', 'n.crest.none'], ruff: 'n.ruff.none', thumbs: ['n.thumbs.double', 'n.thumbs.none'], markings: ['n.markings.blaze', 'n.markings.none'] },
     palette: { c1: [266, 22, 36], c2: [271, 24, 25], c3: [339, 79, 58], eye: [343, 86, 61] }, vary: { h: 8, s: 6, l: 5 },
@@ -8304,7 +8304,7 @@ export const SPECIES = [
     desc: 'Drinks heat. Where it feeds the frost comes.',
   },
   {
-    id: 'sonarch', name: 'Sonarch', nameParts: ['Son', 'arch'], clade: 'nightwing', rig: 'nightwing', types: ['Psychic', 'Flying'], tier: 'rare', bst: 449,
+    id: 'sonarch', name: 'Sonarch', nameParts: ['Son', 'arch'], clade: 'nightwing', rig: 'nightwing', types: ['Psychic', 'Flying'], tier: 'rare', bst: 442,
     stats: { hp: 0.13, melee: 0.06, ranged: 0.08, magic: 0.23, meleeDef: 0.11, rangedDef: 0.11, magicDef: 0.13, spe: 0.15 },
     recipe: { body: 'n.body.long', head: 'n.head.long', ears: 'n.ears.huge', eyes: 'n.eyes.wide', muzzle: 'n.muzzle.long', wings: 'n.wings.narrow', legs: 'n.legs.long', tail: 'n.tail.fan', crest: ['n.crest.plume', 'n.crest.none'], ruff: 'n.ruff.none', thumbs: 'n.thumbs.long', markings: ['n.markings.collar', 'n.markings.none'] },
     palette: { c1: [308, 41, 62], c2: [307, 37, 45], c3: [66, 89, 76], eye: [309, 79, 57] }, vary: { h: 8, s: 6, l: 5 },
@@ -8314,7 +8314,7 @@ export const SPECIES = [
     desc: 'Its echo maps the whole chasm at once. It is never lost and never alone.',
   },
   {
-    id: 'umbrabat', name: 'Umbrabat', nameParts: ['Umbra', 'bat'], clade: 'nightwing', rig: 'nightwing', types: ['Dark', 'Ghost'], tier: 'rare', bst: 404,
+    id: 'umbrabat', name: 'Umbrabat', nameParts: ['Umbra', 'bat'], clade: 'nightwing', rig: 'nightwing', types: ['Dark', 'Ghost'], tier: 'rare', bst: 403,
     stats: { hp: 0.13, melee: 0.06, ranged: 0.08, magic: 0.23, meleeDef: 0.11, rangedDef: 0.11, magicDef: 0.13, spe: 0.15 },
     recipe: { body: 'n.body.round', head: 'n.head.snub', ears: 'n.ears.round', eyes: 'n.eyes.bead', muzzle: 'n.muzzle.tube', wings: 'n.wings.narrow', legs: 'n.legs.clawed', tail: 'n.tail.stub', crest: ['n.crest.spikes', 'n.crest.none'], ruff: ['n.ruff.petals', 'n.ruff.none'], thumbs: ['n.thumbs.double', 'n.thumbs.none'], markings: 'n.markings.mottled' },
     palette: { c1: [260, 19, 38], c2: [265, 21, 28], c3: [344, 85, 62], eye: [350, 83, 60] }, vary: { h: 8, s: 6, l: 5 },
@@ -8325,7 +8325,7 @@ export const SPECIES = [
   },
   // ---- Roster expansion: type pass, crystalline ----
   {
-    id: 'embergem', name: 'Embergem', nameParts: ['Ember', 'gem'], clade: 'crystalline', rig: 'crystalline', types: ['Fire', 'Rock'], tier: 'common', bst: 405,
+    id: 'embergem', name: 'Embergem', nameParts: ['Ember', 'gem'], clade: 'crystalline', rig: 'crystalline', types: ['Fire', 'Rock'], tier: 'common', bst: 406,
     stats: { hp: 0.13, melee: 0.06, ranged: 0.08, magic: 0.23, meleeDef: 0.11, rangedDef: 0.11, magicDef: 0.13, spe: 0.15 },
     recipe: { body: 'c.body.geode', head: 'c.head.cube', eyes: 'c.eyes.slit', mouth: 'c.mouth.small', legsFront: 'c.legsFront.block', legsBack: 'c.legsBack.block', spines: 'c.spines.cluster', crown: ['c.crown.halo', 'c.crown.none'], tail: 'c.tail.club', seam: 'c.seam.none', facets: ['c.facets.shards', 'c.facets.none'], aura: ['c.aura.ring', 'c.aura.none'] },
     palette: { c1: [10, 78, 52], c2: [7, 66, 38], c3: [40, 100, 61], eye: [44, 92, 55] }, vary: { h: 8, s: 6, l: 5 },
@@ -8345,7 +8345,7 @@ export const SPECIES = [
     desc: 'A quartz that sweats rain. The caverns pool under it.',
   },
   {
-    id: 'sparkshard', name: 'Sparkshard', nameParts: ['Spark', 'shard'], clade: 'crystalline', rig: 'crystalline', types: ['Electric', 'Rock'], tier: 'common', bst: 511,
+    id: 'sparkshard', name: 'Sparkshard', nameParts: ['Spark', 'shard'], clade: 'crystalline', rig: 'crystalline', types: ['Electric', 'Rock'], tier: 'common', bst: 512,
     stats: { hp: 0.11, melee: 0.08, ranged: 0.22, magic: 0.09, meleeDef: 0.09, rangedDef: 0.12, magicDef: 0.09, spe: 0.2 },
     recipe: { body: 'c.body.pebble', head: 'c.head.cube', eyes: 'c.eyes.glow', mouth: 'c.mouth.grin', legsFront: 'c.legsFront.block', legsBack: 'c.legsBack.block', spines: 'c.spines.single', crown: ['c.crown.cluster', 'c.crown.none'], tail: 'c.tail.club', seam: ['c.seam.zigzag', 'c.seam.none'], facets: 'c.facets.shards', aura: ['c.aura.glow', 'c.aura.none'] },
     palette: { c1: [50, 88, 60], c2: [34, 73, 41], c3: [53, 100, 73], eye: [46, 91, 47] }, vary: { h: 8, s: 6, l: 5 },
@@ -8355,7 +8355,7 @@ export const SPECIES = [
     desc: 'A shard full of static. It clings to everything and everyone.',
   },
   {
-    id: 'jadesprout', name: 'Jadesprout', nameParts: ['Jade', 'sprout'], clade: 'crystalline', rig: 'crystalline', types: ['Rock', 'Grass'], tier: 'uncommon', bst: 446,
+    id: 'jadesprout', name: 'Jadesprout', nameParts: ['Jade', 'sprout'], clade: 'crystalline', rig: 'crystalline', types: ['Rock', 'Grass'], tier: 'uncommon', bst: 445,
     stats: { hp: 0.13, melee: 0.08, ranged: 0.22, magic: 0.09, meleeDef: 0.11, rangedDef: 0.12, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'c.body.cluster', head: 'c.head.dome', eyes: 'c.eyes.star', mouth: 'c.mouth.wide', legsFront: 'c.legsFront.split', legsBack: 'c.legsBack.column', spines: ['c.spines.low', 'c.spines.none'], crown: ['c.crown.antler', 'c.crown.none'], tail: 'c.tail.beads', seam: 'c.seam.cracks', facets: 'c.facets.triangles', aura: 'c.aura.none' },
     palette: { c1: [103, 45, 43], c2: [117, 40, 29], c3: [74, 79, 61], eye: [87, 70, 38] }, vary: { h: 8, s: 6, l: 5 },
@@ -8365,7 +8365,7 @@ export const SPECIES = [
     desc: 'Jade that grows like a plant, one facet a year.',
   },
   {
-    id: 'glaciershard', name: 'Glaciershard', nameParts: ['Glacier', 'shard'], clade: 'crystalline', rig: 'crystalline', types: ['Ice', 'Rock'], tier: 'common', bst: 395,
+    id: 'glaciershard', name: 'Glaciershard', nameParts: ['Glacier', 'shard'], clade: 'crystalline', rig: 'crystalline', types: ['Ice', 'Rock'], tier: 'common', bst: 396,
     stats: { hp: 0.13, melee: 0.06, ranged: 0.08, magic: 0.23, meleeDef: 0.11, rangedDef: 0.11, magicDef: 0.13, spe: 0.15 },
     recipe: { body: 'c.body.boulder', head: 'c.head.gem', eyes: 'c.eyes.gem', mouth: 'c.mouth.flat', legsFront: 'c.legsFront.crystal', legsBack: 'c.legsBack.crystal', spines: ['c.spines.cluster', 'c.spines.none'], crown: ['c.crown.antler', 'c.crown.none'], tail: 'c.tail.club', seam: 'c.seam.cracks', facets: ['c.facets.diamonds', 'c.facets.none'], aura: ['c.aura.shards', 'c.aura.none'] },
     palette: { c1: [187, 43, 85], c2: [199, 40, 66], c3: [187, 89, 79], eye: [196, 84, 53] }, vary: { h: 8, s: 6, l: 5 },
@@ -8375,7 +8375,7 @@ export const SPECIES = [
     desc: 'A shard of old ice that decided to stay. It grinds the caverns flat.',
   },
   {
-    id: 'fistgeode', name: 'Fistgeode', nameParts: ['Fist', 'geode'], clade: 'crystalline', rig: 'crystalline', types: ['Rock', 'Fighting'], tier: 'uncommon', bst: 473,
+    id: 'fistgeode', name: 'Fistgeode', nameParts: ['Fist', 'geode'], clade: 'crystalline', rig: 'crystalline', types: ['Rock', 'Fighting'], tier: 'uncommon', bst: 464,
     stats: { hp: 0.14, melee: 0.22, ranged: 0.08, magic: 0.07, meleeDef: 0.13, rangedDef: 0.11, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'c.body.shard', head: 'c.head.cluster', eyes: 'c.eyes.dot', mouth: 'c.mouth.grin', legsFront: 'c.legsFront.block', legsBack: 'c.legsBack.block', spines: 'c.spines.ridge', crown: 'c.crown.none', tail: 'c.tail.club', seam: ['c.seam.bands', 'c.seam.none'], facets: ['c.facets.mosaic', 'c.facets.none'], aura: 'c.aura.haze' },
     palette: { c1: [18, 48, 44], c2: [6, 40, 30], c3: [351, 76, 52], eye: [23, 65, 36] }, vary: { h: 8, s: 6, l: 5 },
@@ -8385,7 +8385,7 @@ export const SPECIES = [
     desc: 'A geode with knuckles. It cracks other geodes to see inside.',
   },
   {
-    id: 'venomspar', name: 'Venomspar', nameParts: ['Venom', 'spar'], clade: 'crystalline', rig: 'crystalline', types: ['Poison', 'Rock'], tier: 'common', bst: 474,
+    id: 'venomspar', name: 'Venomspar', nameParts: ['Venom', 'spar'], clade: 'crystalline', rig: 'crystalline', types: ['Poison', 'Rock'], tier: 'common', bst: 478,
     stats: { hp: 0.13, melee: 0.08, ranged: 0.22, magic: 0.09, meleeDef: 0.11, rangedDef: 0.12, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'c.body.slab', head: 'c.head.spike', eyes: 'c.eyes.twin', mouth: 'c.mouth.wide', legsFront: 'c.legsFront.block', legsBack: 'c.legsBack.block', spines: ['c.spines.ridge', 'c.spines.none'], crown: 'c.crown.none', tail: 'c.tail.club', seam: ['c.seam.cracks', 'c.seam.none'], facets: ['c.facets.panes', 'c.facets.none'], aura: 'c.aura.none' },
     palette: { c1: [277, 35, 42], c2: [272, 44, 29], c3: [89, 83, 53], eye: [94, 88, 54] }, vary: { h: 8, s: 6, l: 5 },
@@ -8395,7 +8395,7 @@ export const SPECIES = [
     desc: 'Crystals that sweat poison. The gem cutters wear gloves and pray.',
   },
   {
-    id: 'claygeode', name: 'Claygeode', nameParts: ['Clay', 'geode'], clade: 'crystalline', rig: 'crystalline', types: ['Rock', 'Ground'], tier: 'uncommon', bst: 438,
+    id: 'claygeode', name: 'Claygeode', nameParts: ['Clay', 'geode'], clade: 'crystalline', rig: 'crystalline', types: ['Rock', 'Ground'], tier: 'uncommon', bst: 432,
     stats: { hp: 0.14, melee: 0.22, ranged: 0.08, magic: 0.07, meleeDef: 0.13, rangedDef: 0.11, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'c.body.cluster', head: 'c.head.prism', eyes: 'c.eyes.hollow', mouth: 'c.mouth.fanged', legsFront: 'c.legsFront.stubby', legsBack: 'c.legsBack.stubby', spines: 'c.spines.tall', crown: 'c.crown.none', tail: 'c.tail.club', seam: 'c.seam.lattice', facets: ['c.facets.diamonds', 'c.facets.none'], aura: ['c.aura.ring', 'c.aura.none'] },
     palette: { c1: [24, 43, 53], c2: [23, 38, 40], c3: [37, 74, 59], eye: [33, 64, 38] }, vary: { h: 8, s: 6, l: 5 },
@@ -8405,7 +8405,7 @@ export const SPECIES = [
     desc: 'A geode still half in the clay. It digs itself out a little every year.',
   },
   {
-    id: 'driftshard', name: 'Driftshard', nameParts: ['Drift', 'shard'], clade: 'crystalline', rig: 'crystalline', types: ['Flying', 'Rock'], tier: 'common', bst: 431,
+    id: 'driftshard', name: 'Driftshard', nameParts: ['Drift', 'shard'], clade: 'crystalline', rig: 'crystalline', types: ['Flying', 'Rock'], tier: 'common', bst: 423,
     stats: { hp: 0.13, melee: 0.08, ranged: 0.22, magic: 0.09, meleeDef: 0.11, rangedDef: 0.12, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'c.body.boulder', head: 'c.head.spike', eyes: 'c.eyes.star', mouth: 'c.mouth.wide', legsFront: 'c.legsFront.block', legsBack: 'c.legsBack.block', spines: 'c.spines.none', crown: ['c.crown.halo', 'c.crown.none'], tail: 'c.tail.fan', seam: ['c.seam.cracks', 'c.seam.none'], facets: ['c.facets.diamonds', 'c.facets.none'], aura: 'c.aura.none' },
     palette: { c1: [203, 30, 75], c2: [212, 29, 56], c3: [47, 58, 83], eye: [204, 74, 43] }, vary: { h: 8, s: 6, l: 5 },
@@ -8415,7 +8415,7 @@ export const SPECIES = [
     desc: 'A crystal so light it floats. The cavern drafts carry it about.',
   },
   {
-    id: 'oraclegem', name: 'Oraclegem', nameParts: ['Oracle', 'gem'], clade: 'crystalline', rig: 'crystalline', types: ['Rock', 'Psychic'], tier: 'uncommon', bst: 453,
+    id: 'oraclegem', name: 'Oraclegem', nameParts: ['Oracle', 'gem'], clade: 'crystalline', rig: 'crystalline', types: ['Rock', 'Psychic'], tier: 'uncommon', bst: 454,
     stats: { hp: 0.13, melee: 0.06, ranged: 0.08, magic: 0.23, meleeDef: 0.11, rangedDef: 0.11, magicDef: 0.13, spe: 0.15 },
     recipe: { body: 'c.body.slab', head: 'c.head.gem', eyes: 'c.eyes.gem', mouth: 'c.mouth.wide', legsFront: 'c.legsFront.split', legsBack: 'c.legsBack.column', spines: ['c.spines.single', 'c.spines.none'], crown: 'c.crown.halo', tail: 'c.tail.fan', seam: ['c.seam.veins', 'c.seam.none'], facets: 'c.facets.none', aura: 'c.aura.halo' },
     palette: { c1: [297, 44, 62], c2: [286, 38, 51], c3: [48, 90, 69], eye: [299, 82, 57] }, vary: { h: 8, s: 6, l: 5 },
@@ -8425,7 +8425,7 @@ export const SPECIES = [
     desc: 'Look into it and see next week. Nobody likes next week.',
   },
   {
-    id: 'amberbug', name: 'Amberbug', nameParts: ['Amber', 'bug'], clade: 'crystalline', rig: 'crystalline', types: ['Bug', 'Rock'], tier: 'common', bst: 458,
+    id: 'amberbug', name: 'Amberbug', nameParts: ['Amber', 'bug'], clade: 'crystalline', rig: 'crystalline', types: ['Bug', 'Rock'], tier: 'common', bst: 457,
     stats: { hp: 0.13, melee: 0.08, ranged: 0.22, magic: 0.09, meleeDef: 0.11, rangedDef: 0.12, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'c.body.pebble', head: 'c.head.cube', eyes: 'c.eyes.glow', mouth: 'c.mouth.grin', legsFront: 'c.legsFront.block', legsBack: 'c.legsBack.block', spines: 'c.spines.none', crown: ['c.crown.halo', 'c.crown.none'], tail: 'c.tail.club', seam: 'c.seam.none', facets: ['c.facets.panes', 'c.facets.none'], aura: ['c.aura.motes', 'c.aura.none'] },
     palette: { c1: [69, 46, 47], c2: [75, 35, 37], c3: [37, 85, 58], eye: [56, 74, 36] }, vary: { h: 8, s: 6, l: 5 },
@@ -8435,7 +8435,7 @@ export const SPECIES = [
     desc: 'A beetle in amber that got up and walked. The amber came too.',
   },
   {
-    id: 'cobblekin', name: 'Cobblekin', nameParts: ['Cobble', 'kin'], clade: 'crystalline', rig: 'crystalline', types: ['Rock'], tier: 'uncommon', bst: 465,
+    id: 'cobblekin', name: 'Cobblekin', nameParts: ['Cobble', 'kin'], clade: 'crystalline', rig: 'crystalline', types: ['Rock'], tier: 'uncommon', bst: 467,
     stats: { hp: 0.16, melee: 0.2, ranged: 0.08, magic: 0.07, meleeDef: 0.17, rangedDef: 0.13, magicDef: 0.1, spe: 0.09 },
     recipe: { body: 'c.body.geode', head: 'c.head.cluster', eyes: 'c.eyes.twin', mouth: 'c.mouth.fanged', legsFront: 'c.legsFront.block', legsBack: 'c.legsBack.block', spines: ['c.spines.single', 'c.spines.none'], crown: ['c.crown.cluster', 'c.crown.none'], tail: 'c.tail.club', seam: ['c.seam.cracks', 'c.seam.none'], facets: 'c.facets.shards', aura: 'c.aura.none' },
     palette: { c1: [27, 23, 56], c2: [25, 22, 39], c3: [38, 60, 57], eye: [30, 57, 44] }, vary: { h: 8, s: 6, l: 5 },
@@ -8455,7 +8455,7 @@ export const SPECIES = [
     desc: 'A shard from the grave crystals. It hums the names it heard.',
   },
   {
-    id: 'wyrmspar', name: 'Wyrmspar', nameParts: ['Wyrm', 'spar'], clade: 'crystalline', rig: 'crystalline', types: ['Rock', 'Dragon'], tier: 'uncommon', bst: 426,
+    id: 'wyrmspar', name: 'Wyrmspar', nameParts: ['Wyrm', 'spar'], clade: 'crystalline', rig: 'crystalline', types: ['Rock', 'Dragon'], tier: 'uncommon', bst: 422,
     stats: { hp: 0.14, melee: 0.22, ranged: 0.08, magic: 0.07, meleeDef: 0.13, rangedDef: 0.11, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'c.body.shard', head: 'c.head.wedge', eyes: 'c.eyes.slit', mouth: 'c.mouth.crack', legsFront: 'c.legsFront.shard', legsBack: 'c.legsBack.column', spines: 'c.spines.ridge', crown: 'c.crown.twin', tail: 'c.tail.fan', seam: ['c.seam.cracks', 'c.seam.none'], facets: 'c.facets.shards', aura: ['c.aura.motes', 'c.aura.none'] },
     palette: { c1: [336, 37, 39], c2: [342, 44, 32], c3: [36, 88, 59], eye: [42, 96, 58] }, vary: { h: 8, s: 6, l: 5 },
@@ -8465,7 +8465,7 @@ export const SPECIES = [
     desc: 'A crystal that grew in the shape of a coiled wyrm and remembers being one.',
   },
   {
-    id: 'nightshard', name: 'Nightshard', nameParts: ['Night', 'shard'], clade: 'crystalline', rig: 'crystalline', types: ['Dark', 'Rock'], tier: 'common', bst: 444,
+    id: 'nightshard', name: 'Nightshard', nameParts: ['Night', 'shard'], clade: 'crystalline', rig: 'crystalline', types: ['Dark', 'Rock'], tier: 'common', bst: 443,
     stats: { hp: 0.11, melee: 0.08, ranged: 0.22, magic: 0.09, meleeDef: 0.09, rangedDef: 0.12, magicDef: 0.09, spe: 0.2 },
     recipe: { body: 'c.body.slab', head: 'c.head.dome', eyes: 'c.eyes.slit', mouth: 'c.mouth.fanged', legsFront: 'c.legsFront.block', legsBack: 'c.legsBack.block', spines: ['c.spines.cluster', 'c.spines.none'], crown: ['c.crown.twin', 'c.crown.none'], tail: 'c.tail.club', seam: ['c.seam.cracks', 'c.seam.none'], facets: 'c.facets.diamonds', aura: ['c.aura.motes', 'c.aura.none'] },
     palette: { c1: [244, 20, 42], c2: [245, 24, 24], c3: [321, 81, 57], eye: [330, 83, 61] }, vary: { h: 8, s: 6, l: 5 },
@@ -8485,7 +8485,7 @@ export const SPECIES = [
     desc: 'Iron and crystal grown together. It rings like a bell when struck.',
   },
   {
-    id: 'opalsprite', name: 'Opalsprite', nameParts: ['Opal', 'sprite'], clade: 'crystalline', rig: 'crystalline', types: ['Fairy', 'Rock'], tier: 'common', bst: 400,
+    id: 'opalsprite', name: 'Opalsprite', nameParts: ['Opal', 'sprite'], clade: 'crystalline', rig: 'crystalline', types: ['Fairy', 'Rock'], tier: 'common', bst: 402,
     stats: { hp: 0.13, melee: 0.06, ranged: 0.08, magic: 0.23, meleeDef: 0.11, rangedDef: 0.11, magicDef: 0.13, spe: 0.15 },
     recipe: { body: 'c.body.boulder', head: 'c.head.cube', eyes: 'c.eyes.star', mouth: 'c.mouth.point', legsFront: 'c.legsFront.block', legsBack: 'c.legsBack.block', spines: ['c.spines.cluster', 'c.spines.none'], crown: 'c.crown.none', tail: 'c.tail.club', seam: 'c.seam.none', facets: 'c.facets.shards', aura: ['c.aura.sparkles', 'c.aura.none'] },
     palette: { c1: [323, 41, 81], c2: [312, 42, 58], c3: [53, 85, 77], eye: [322, 82, 58] }, vary: { h: 8, s: 6, l: 5 },
@@ -8495,7 +8495,7 @@ export const SPECIES = [
     desc: 'An opal that glitters in every colour and picks one to sulk in.',
   },
   {
-    id: 'shalekin', name: 'Shalekin', nameParts: ['Shale', 'kin'], clade: 'crystalline', rig: 'crystalline', types: ['Rock', 'Normal'], tier: 'uncommon', bst: 436,
+    id: 'shalekin', name: 'Shalekin', nameParts: ['Shale', 'kin'], clade: 'crystalline', rig: 'crystalline', types: ['Rock', 'Normal'], tier: 'uncommon', bst: 438,
     stats: { hp: 0.14, melee: 0.22, ranged: 0.08, magic: 0.07, meleeDef: 0.13, rangedDef: 0.11, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'c.body.pebble', head: 'c.head.dome', eyes: 'c.eyes.dot', mouth: 'c.mouth.small', legsFront: 'c.legsFront.stubby', legsBack: 'c.legsBack.stubby', spines: ['c.spines.low', 'c.spines.none'], crown: ['c.crown.cluster', 'c.crown.none'], tail: 'c.tail.stub', seam: ['c.seam.rings', 'c.seam.none'], facets: 'c.facets.hexes', aura: 'c.aura.haze' },
     palette: { c1: [36, 30, 65], c2: [25, 32, 48], c3: [11, 64, 55], eye: [30, 60, 36] }, vary: { h: 8, s: 6, l: 5 },
@@ -8505,7 +8505,7 @@ export const SPECIES = [
     desc: 'A flake of shale that walks. Splits when frightened.',
   },
   {
-    id: 'diamondrake', name: 'Diamondrake', nameParts: ['Diamon', 'drake'], clade: 'crystalline', rig: 'crystalline', types: ['Rock', 'Dragon'], tier: 'rare', bst: 453,
+    id: 'diamondrake', name: 'Diamondrake', nameParts: ['Diamon', 'drake'], clade: 'crystalline', rig: 'crystalline', types: ['Rock', 'Dragon'], tier: 'rare', bst: 456,
     stats: { hp: 0.16, melee: 0.2, ranged: 0.08, magic: 0.07, meleeDef: 0.17, rangedDef: 0.13, magicDef: 0.1, spe: 0.09 },
     recipe: { body: 'c.body.pebble', head: 'c.head.spike', eyes: 'c.eyes.twin', mouth: 'c.mouth.fanged', legsFront: 'c.legsFront.block', legsBack: 'c.legsBack.block', spines: 'c.spines.none', crown: ['c.crown.twin', 'c.crown.none'], tail: 'c.tail.club', seam: 'c.seam.cracks', facets: ['c.facets.shards', 'c.facets.none'], aura: 'c.aura.shards' },
     palette: { c1: [26, 16, 54], c2: [24, 17, 39], c3: [43, 62, 59], eye: [35, 61, 43] }, vary: { h: 8, s: 6, l: 5 },
@@ -8515,7 +8515,7 @@ export const SPECIES = [
     desc: 'The hardest thing in the caverns and the proudest.',
   },
   {
-    id: 'auroragem', name: 'Auroragem', nameParts: ['Aurora', 'gem'], clade: 'crystalline', rig: 'crystalline', types: ['Ice', 'Psychic'], tier: 'rare', bst: 422,
+    id: 'auroragem', name: 'Auroragem', nameParts: ['Aurora', 'gem'], clade: 'crystalline', rig: 'crystalline', types: ['Ice', 'Psychic'], tier: 'rare', bst: 423,
     stats: { hp: 0.13, melee: 0.06, ranged: 0.08, magic: 0.23, meleeDef: 0.11, rangedDef: 0.11, magicDef: 0.13, spe: 0.15 },
     recipe: { body: 'c.body.prism', head: 'c.head.gem', eyes: 'c.eyes.gem', mouth: 'c.mouth.wide', legsFront: 'c.legsFront.crystal', legsBack: 'c.legsBack.crystal', spines: ['c.spines.tall', 'c.spines.none'], crown: 'c.crown.none', tail: 'c.tail.stub', seam: ['c.seam.lattice', 'c.seam.none'], facets: 'c.facets.diamonds', aura: 'c.aura.halo' },
     palette: { c1: [193, 45, 83], c2: [191, 39, 61], c3: [185, 86, 79], eye: [196, 86, 56] }, vary: { h: 8, s: 6, l: 5 },
@@ -8525,7 +8525,7 @@ export const SPECIES = [
     desc: 'A gem with the northern lights trapped inside. It thinks in colours.',
   },
   {
-    id: 'emberonyx', name: 'Emberonyx', nameParts: ['Ember', 'onyx'], clade: 'crystalline', rig: 'crystalline', types: ['Fire', 'Dark'], tier: 'rare', bst: 427,
+    id: 'emberonyx', name: 'Emberonyx', nameParts: ['Ember', 'onyx'], clade: 'crystalline', rig: 'crystalline', types: ['Fire', 'Dark'], tier: 'rare', bst: 419,
     stats: { hp: 0.13, melee: 0.06, ranged: 0.08, magic: 0.23, meleeDef: 0.11, rangedDef: 0.11, magicDef: 0.13, spe: 0.15 },
     recipe: { body: 'c.body.cluster', head: 'c.head.cluster', eyes: 'c.eyes.slit', mouth: 'c.mouth.small', legsFront: 'c.legsFront.block', legsBack: 'c.legsBack.tall', spines: ['c.spines.tall', 'c.spines.none'], crown: ['c.crown.points', 'c.crown.none'], tail: 'c.tail.spike', seam: ['c.seam.zigzag', 'c.seam.none'], facets: ['c.facets.diamonds', 'c.facets.none'], aura: ['c.aura.glow', 'c.aura.none'] },
     palette: { c1: [11, 72, 56], c2: [5, 69, 39], c3: [34, 97, 65], eye: [41, 93, 60] }, vary: { h: 8, s: 6, l: 5 },
@@ -8536,7 +8536,7 @@ export const SPECIES = [
   },
   // ---- Roster expansion: type pass, myriapod ----
   {
-    id: 'emberpede', name: 'Emberpede', nameParts: ['Ember', 'pede'], clade: 'myriapod', rig: 'myriapod', types: ['Fire', 'Bug'], tier: 'common', bst: 441,
+    id: 'emberpede', name: 'Emberpede', nameParts: ['Ember', 'pede'], clade: 'myriapod', rig: 'myriapod', types: ['Fire', 'Bug'], tier: 'common', bst: 438,
     stats: { hp: 0.13, melee: 0.06, ranged: 0.08, magic: 0.23, meleeDef: 0.11, rangedDef: 0.11, magicDef: 0.13, spe: 0.15 },
     recipe: { body: 'y.body.long', head: 'y.head.horned', eyes: 'y.eyes.ring', mandibles: 'y.mandibles.saw', antennae: 'y.antennae.twin', legs: 'y.legs.spiny', tail: 'y.tail.fan', plates: ['y.plates.scutes', 'y.plates.none'], bristles: ['y.bristles.tufted', 'y.bristles.none'], glow: 'y.glow.none', bands: 'y.bands.none', venom: ['y.venom.bubbles', 'y.venom.none'] },
     palette: { c1: [23, 78, 56], c2: [10, 65, 43], c3: [50, 100, 60], eye: [46, 99, 58] }, vary: { h: 8, s: 6, l: 5 },
@@ -8546,7 +8546,7 @@ export const SPECIES = [
     desc: 'Every segment a coal. It leaves a line of scorch marks across the warren.',
   },
   {
-    id: 'rainpede', name: 'Rainpede', nameParts: ['Rain', 'pede'], clade: 'myriapod', rig: 'myriapod', types: ['Bug', 'Water'], tier: 'uncommon', bst: 425,
+    id: 'rainpede', name: 'Rainpede', nameParts: ['Rain', 'pede'], clade: 'myriapod', rig: 'myriapod', types: ['Bug', 'Water'], tier: 'uncommon', bst: 426,
     stats: { hp: 0.13, melee: 0.08, ranged: 0.22, magic: 0.09, meleeDef: 0.11, rangedDef: 0.12, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'y.body.coiled', head: 'y.head.bulb', eyes: 'y.eyes.bead', mandibles: 'y.mandibles.needles', antennae: 'y.antennae.twin', legs: 'y.legs.paddle', tail: 'y.tail.pincer', plates: 'y.plates.none', bristles: ['y.bristles.tufted', 'y.bristles.none'], glow: 'y.glow.none', bands: 'y.bands.stripes', venom: 'y.venom.none' },
     palette: { c1: [208, 59, 51], c2: [216, 53, 42], c3: [190, 78, 74], eye: [208, 79, 42] }, vary: { h: 8, s: 6, l: 5 },
@@ -8566,7 +8566,7 @@ export const SPECIES = [
     desc: 'Static builds in its segments and lets go on the next leg.',
   },
   {
-    id: 'leafpede', name: 'Leafpede', nameParts: ['Leaf', 'pede'], clade: 'myriapod', rig: 'myriapod', types: ['Bug', 'Grass'], tier: 'uncommon', bst: 477,
+    id: 'leafpede', name: 'Leafpede', nameParts: ['Leaf', 'pede'], clade: 'myriapod', rig: 'myriapod', types: ['Bug', 'Grass'], tier: 'uncommon', bst: 484,
     stats: { hp: 0.13, melee: 0.08, ranged: 0.22, magic: 0.09, meleeDef: 0.11, rangedDef: 0.12, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'y.body.flat', head: 'y.head.shield', eyes: 'y.eyes.dot', mandibles: 'y.mandibles.saw', antennae: 'y.antennae.short', legs: 'y.legs.thin', tail: 'y.tail.pincer', plates: ['y.plates.dome', 'y.plates.none'], bristles: ['y.bristles.tufted', 'y.bristles.none'], glow: ['y.glow.pulse', 'y.glow.none'], bands: 'y.bands.dots', venom: ['y.venom.mist', 'y.venom.none'] },
     palette: { c1: [119, 47, 45], c2: [121, 37, 32], c3: [84, 78, 56], eye: [101, 65, 37] }, vary: { h: 8, s: 6, l: 5 },
@@ -8576,7 +8576,7 @@ export const SPECIES = [
     desc: 'Segments like leaves. It hides in the litter and is the litter.',
   },
   {
-    id: 'frostlegs', name: 'Frostlegs', nameParts: ['Frost', 'legs'], clade: 'myriapod', rig: 'myriapod', types: ['Ice', 'Bug'], tier: 'common', bst: 456,
+    id: 'frostlegs', name: 'Frostlegs', nameParts: ['Frost', 'legs'], clade: 'myriapod', rig: 'myriapod', types: ['Ice', 'Bug'], tier: 'common', bst: 453,
     stats: { hp: 0.13, melee: 0.06, ranged: 0.08, magic: 0.23, meleeDef: 0.11, rangedDef: 0.11, magicDef: 0.13, spe: 0.15 },
     recipe: { body: 'y.body.spiky', head: 'y.head.capsule', eyes: 'y.eyes.cluster', mandibles: 'y.mandibles.crushers', antennae: 'y.antennae.feathered', legs: 'y.legs.spiny', tail: 'y.tail.spike', plates: ['y.plates.scutes', 'y.plates.none'], bristles: ['y.bristles.dense', 'y.bristles.none'], glow: 'y.glow.none', bands: ['y.bands.dots', 'y.bands.none'], venom: 'y.venom.drips' },
     palette: { c1: [205, 44, 81], c2: [202, 37, 63], c3: [197, 88, 80], eye: [207, 83, 49] }, vary: { h: 8, s: 6, l: 5 },
@@ -8586,7 +8586,7 @@ export const SPECIES = [
     desc: 'Frost on every leg. It crawls through the ice cellar and keeps it cold.',
   },
   {
-    id: 'fistpede', name: 'Fistpede', nameParts: ['Fist', 'pede'], clade: 'myriapod', rig: 'myriapod', types: ['Bug', 'Fighting'], tier: 'uncommon', bst: 455,
+    id: 'fistpede', name: 'Fistpede', nameParts: ['Fist', 'pede'], clade: 'myriapod', rig: 'myriapod', types: ['Bug', 'Fighting'], tier: 'uncommon', bst: 454,
     stats: { hp: 0.14, melee: 0.22, ranged: 0.08, magic: 0.07, meleeDef: 0.13, rangedDef: 0.11, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'y.body.armored', head: 'y.head.horned', eyes: 'y.eyes.slit', mandibles: 'y.mandibles.saw', antennae: 'y.antennae.long', legs: 'y.legs.thick', tail: 'y.tail.plume', plates: ['y.plates.horns', 'y.plates.none'], bristles: 'y.bristles.none', glow: 'y.glow.none', bands: ['y.bands.stripes', 'y.bands.none'], venom: ['y.venom.bubbles', 'y.venom.none'] },
     palette: { c1: [29, 42, 46], c2: [19, 43, 29], c3: [8, 73, 55], eye: [33, 71, 39] }, vary: { h: 8, s: 6, l: 5 },
@@ -8596,7 +8596,7 @@ export const SPECIES = [
     desc: 'A hundred legs and every one a punch.',
   },
   {
-    id: 'venomcrawl', name: 'Venomcrawl', nameParts: ['Venom', 'crawl'], clade: 'myriapod', rig: 'myriapod', types: ['Poison', 'Bug'], tier: 'common', bst: 505,
+    id: 'venomcrawl', name: 'Venomcrawl', nameParts: ['Venom', 'crawl'], clade: 'myriapod', rig: 'myriapod', types: ['Poison', 'Bug'], tier: 'common', bst: 504,
     stats: { hp: 0.13, melee: 0.08, ranged: 0.22, magic: 0.09, meleeDef: 0.11, rangedDef: 0.12, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'y.body.bulbous', head: 'y.head.helm', eyes: 'y.eyes.big', mandibles: 'y.mandibles.needles', antennae: 'y.antennae.feathered', legs: 'y.legs.spiny', tail: 'y.tail.stinger', plates: 'y.plates.none', bristles: 'y.bristles.short', glow: ['y.glow.sparks', 'y.glow.none'], bands: ['y.bands.chevrons', 'y.bands.none'], venom: 'y.venom.mist' },
     palette: { c1: [292, 45, 49], c2: [286, 40, 32], c3: [100, 82, 51], eye: [105, 94, 53] }, vary: { h: 8, s: 6, l: 5 },
@@ -8606,7 +8606,7 @@ export const SPECIES = [
     desc: 'Venom in the fangs and venom in the feet. It walks over you and that is enough.',
   },
   {
-    id: 'tunnelpede', name: 'Tunnelpede', nameParts: ['Tunnel', 'pede'], clade: 'myriapod', rig: 'myriapod', types: ['Bug', 'Ground'], tier: 'uncommon', bst: 441,
+    id: 'tunnelpede', name: 'Tunnelpede', nameParts: ['Tunnel', 'pede'], clade: 'myriapod', rig: 'myriapod', types: ['Bug', 'Ground'], tier: 'uncommon', bst: 443,
     stats: { hp: 0.14, melee: 0.22, ranged: 0.08, magic: 0.07, meleeDef: 0.13, rangedDef: 0.11, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'y.body.coiled', head: 'y.head.narrow', eyes: 'y.eyes.glow', mandibles: 'y.mandibles.small', antennae: 'y.antennae.curled', legs: 'y.legs.paddle', tail: 'y.tail.blunt', plates: ['y.plates.keel', 'y.plates.none'], bristles: 'y.bristles.short', glow: ['y.glow.pulse', 'y.glow.none'], bands: ['y.bands.segments', 'y.bands.none'], venom: 'y.venom.none' },
     palette: { c1: [41, 41, 49], c2: [36, 42, 34], c3: [51, 67, 60], eye: [37, 63, 41] }, vary: { h: 8, s: 6, l: 5 },
@@ -8616,7 +8616,7 @@ export const SPECIES = [
     desc: 'Digs the warren\'s tunnels and eats what comes down them.',
   },
   {
-    id: 'glidepede', name: 'Glidepede', nameParts: ['Glide', 'pede'], clade: 'myriapod', rig: 'myriapod', types: ['Flying', 'Bug'], tier: 'common', bst: 440,
+    id: 'glidepede', name: 'Glidepede', nameParts: ['Glide', 'pede'], clade: 'myriapod', rig: 'myriapod', types: ['Flying', 'Bug'], tier: 'common', bst: 444,
     stats: { hp: 0.13, melee: 0.08, ranged: 0.22, magic: 0.09, meleeDef: 0.11, rangedDef: 0.12, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'y.body.long', head: 'y.head.narrow', eyes: 'y.eyes.dot', mandibles: 'y.mandibles.wide', antennae: 'y.antennae.long', legs: 'y.legs.long', tail: 'y.tail.fan', plates: 'y.plates.none', bristles: 'y.bristles.none', glow: ['y.glow.stripes', 'y.glow.none'], bands: 'y.bands.dots', venom: ['y.venom.spit', 'y.venom.none'] },
     palette: { c1: [216, 32, 73], c2: [225, 25, 56], c3: [57, 64, 83], eye: [212, 67, 47] }, vary: { h: 8, s: 6, l: 5 },
@@ -8626,7 +8626,7 @@ export const SPECIES = [
     desc: 'Flattens itself and glides from the root ceiling. Lands on necks.',
   },
   {
-    id: 'dreampede', name: 'Dreampede', nameParts: ['Dream', 'pede'], clade: 'myriapod', rig: 'myriapod', types: ['Bug', 'Psychic'], tier: 'uncommon', bst: 427,
+    id: 'dreampede', name: 'Dreampede', nameParts: ['Dream', 'pede'], clade: 'myriapod', rig: 'myriapod', types: ['Bug', 'Psychic'], tier: 'uncommon', bst: 428,
     stats: { hp: 0.13, melee: 0.06, ranged: 0.08, magic: 0.23, meleeDef: 0.11, rangedDef: 0.11, magicDef: 0.13, spe: 0.15 },
     recipe: { body: 'y.body.bulbous', head: 'y.head.helm', eyes: 'y.eyes.glow', mandibles: 'y.mandibles.wide', antennae: 'y.antennae.curled', legs: 'y.legs.spiny', tail: 'y.tail.blunt', plates: ['y.plates.dome', 'y.plates.none'], bristles: 'y.bristles.none', glow: 'y.glow.halo', bands: ['y.bands.chevrons', 'y.bands.none'], venom: ['y.venom.glow', 'y.venom.none'] },
     palette: { c1: [309, 50, 63], c2: [297, 35, 49], c3: [61, 92, 74], eye: [310, 75, 55] }, vary: { h: 8, s: 6, l: 5 },
@@ -8636,7 +8636,7 @@ export const SPECIES = [
     desc: 'Crawls through sleep. You wake with a tickle and a memory.',
   },
   {
-    id: 'grubpede', name: 'Grubpede', nameParts: ['Grub', 'pede'], clade: 'myriapod', rig: 'myriapod', types: ['Bug'], tier: 'common', bst: 498,
+    id: 'grubpede', name: 'Grubpede', nameParts: ['Grub', 'pede'], clade: 'myriapod', rig: 'myriapod', types: ['Bug'], tier: 'common', bst: 497,
     stats: { hp: 0.13, melee: 0.08, ranged: 0.22, magic: 0.09, meleeDef: 0.11, rangedDef: 0.12, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'y.body.armored', head: 'y.head.shield', eyes: 'y.eyes.cluster', mandibles: 'y.mandibles.wide', antennae: 'y.antennae.clubbed', legs: 'y.legs.spiny', tail: 'y.tail.fan', plates: 'y.plates.scutes', bristles: ['y.bristles.spiky', 'y.bristles.none'], glow: ['y.glow.halo', 'y.glow.none'], bands: ['y.bands.chevrons', 'y.bands.none'], venom: ['y.venom.mist', 'y.venom.none'] },
     palette: { c1: [82, 46, 45], c2: [86, 39, 37], c3: [50, 89, 58], eye: [61, 69, 39] }, vary: { h: 8, s: 6, l: 5 },
@@ -8646,7 +8646,7 @@ export const SPECIES = [
     desc: 'Not yet grown. Has most of its legs and all of its appetite.',
   },
   {
-    id: 'pebblemillie', name: 'Pebblemillie', nameParts: ['Pebble', 'millie'], clade: 'myriapod', rig: 'myriapod', types: ['Bug', 'Rock'], tier: 'uncommon', bst: 518,
+    id: 'pebblemillie', name: 'Pebblemillie', nameParts: ['Pebble', 'millie'], clade: 'myriapod', rig: 'myriapod', types: ['Bug', 'Rock'], tier: 'uncommon', bst: 509,
     stats: { hp: 0.16, melee: 0.2, ranged: 0.08, magic: 0.07, meleeDef: 0.17, rangedDef: 0.13, magicDef: 0.1, spe: 0.09 },
     recipe: { body: 'y.body.armored', head: 'y.head.capsule', eyes: 'y.eyes.slit', mandibles: 'y.mandibles.hooks', antennae: 'y.antennae.curled', legs: 'y.legs.stilt', tail: 'y.tail.fan', plates: 'y.plates.none', bristles: 'y.bristles.none', glow: 'y.glow.sparks', bands: 'y.bands.saddle', venom: 'y.venom.bubbles' },
     palette: { c1: [44, 21, 55], c2: [39, 18, 38], c3: [47, 64, 56], eye: [49, 55, 47] }, vary: { h: 8, s: 6, l: 5 },
@@ -8656,7 +8656,7 @@ export const SPECIES = [
     desc: 'A millipede of pebbles rolled into a line. Rolls uphill.',
   },
   {
-    id: 'wraithpede', name: 'Wraithpede', nameParts: ['Wraith', 'pede'], clade: 'myriapod', rig: 'myriapod', types: ['Ghost', 'Bug'], tier: 'common', bst: 391,
+    id: 'wraithpede', name: 'Wraithpede', nameParts: ['Wraith', 'pede'], clade: 'myriapod', rig: 'myriapod', types: ['Ghost', 'Bug'], tier: 'common', bst: 393,
     stats: { hp: 0.13, melee: 0.06, ranged: 0.08, magic: 0.23, meleeDef: 0.11, rangedDef: 0.11, magicDef: 0.13, spe: 0.15 },
     recipe: { body: 'y.body.flat', head: 'y.head.bulb', eyes: 'y.eyes.bead', mandibles: 'y.mandibles.needles', antennae: 'y.antennae.clubbed', legs: 'y.legs.spiny', tail: 'y.tail.spike', plates: ['y.plates.scutes', 'y.plates.none'], bristles: 'y.bristles.feathered', glow: ['y.glow.soft', 'y.glow.none'], bands: ['y.bands.segments', 'y.bands.none'], venom: ['y.venom.mist', 'y.venom.none'] },
     palette: { c1: [263, 25, 70], c2: [270, 24, 49], c3: [159, 70, 67], eye: [152, 79, 62] }, vary: { h: 8, s: 6, l: 5 },
@@ -8666,7 +8666,7 @@ export const SPECIES = [
     desc: 'You feel it cross your foot. Nothing is there.',
   },
   {
-    id: 'drakecrawl', name: 'Drakecrawl', nameParts: ['Drake', 'crawl'], clade: 'myriapod', rig: 'myriapod', types: ['Bug', 'Dragon'], tier: 'uncommon', bst: 452,
+    id: 'drakecrawl', name: 'Drakecrawl', nameParts: ['Drake', 'crawl'], clade: 'myriapod', rig: 'myriapod', types: ['Bug', 'Dragon'], tier: 'uncommon', bst: 455,
     stats: { hp: 0.14, melee: 0.22, ranged: 0.08, magic: 0.07, meleeDef: 0.13, rangedDef: 0.11, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'y.body.spiky', head: 'y.head.horned', eyes: 'y.eyes.ring', mandibles: 'y.mandibles.saw', antennae: 'y.antennae.short', legs: 'y.legs.spiny', tail: 'y.tail.pincer', plates: ['y.plates.horns', 'y.plates.none'], bristles: 'y.bristles.feathered', glow: 'y.glow.halo', bands: 'y.bands.rings', venom: 'y.venom.fangs' },
     palette: { c1: [356, 37, 41], c2: [353, 40, 33], c3: [55, 89, 57], eye: [47, 99, 58] }, vary: { h: 8, s: 6, l: 5 },
@@ -8676,7 +8676,7 @@ export const SPECIES = [
     desc: 'A centipede with a dragon\'s head and the temper to match.',
   },
   {
-    id: 'nightcrawl', name: 'Nightcrawl', nameParts: ['Night', 'crawl'], clade: 'myriapod', rig: 'myriapod', types: ['Dark', 'Bug'], tier: 'common', bst: 457,
+    id: 'nightcrawl', name: 'Nightcrawl', nameParts: ['Night', 'crawl'], clade: 'myriapod', rig: 'myriapod', types: ['Dark', 'Bug'], tier: 'common', bst: 453,
     stats: { hp: 0.11, melee: 0.08, ranged: 0.22, magic: 0.09, meleeDef: 0.09, rangedDef: 0.12, magicDef: 0.09, spe: 0.2 },
     recipe: { body: 'y.body.segmented', head: 'y.head.narrow', eyes: 'y.eyes.slit', mandibles: 'y.mandibles.needles', antennae: 'y.antennae.short', legs: 'y.legs.spiny', tail: 'y.tail.plume', plates: ['y.plates.scutes', 'y.plates.none'], bristles: 'y.bristles.feathered', glow: 'y.glow.sparks', bands: ['y.bands.segments', 'y.bands.none'], venom: 'y.venom.none' },
     palette: { c1: [259, 20, 39], c2: [265, 21, 29], c3: [340, 82, 57], eye: [342, 87, 57] }, vary: { h: 8, s: 6, l: 5 },
@@ -8696,7 +8696,7 @@ export const SPECIES = [
     desc: 'Links of iron with legs. Clanks through the warren after dark.',
   },
   {
-    id: 'glittercrawl', name: 'Glittercrawl', nameParts: ['Glitter', 'crawl'], clade: 'myriapod', rig: 'myriapod', types: ['Fairy', 'Bug'], tier: 'common', bst: 419,
+    id: 'glittercrawl', name: 'Glittercrawl', nameParts: ['Glitter', 'crawl'], clade: 'myriapod', rig: 'myriapod', types: ['Fairy', 'Bug'], tier: 'common', bst: 418,
     stats: { hp: 0.13, melee: 0.06, ranged: 0.08, magic: 0.23, meleeDef: 0.11, rangedDef: 0.11, magicDef: 0.13, spe: 0.15 },
     recipe: { body: 'y.body.bulbous', head: 'y.head.pincer', eyes: 'y.eyes.cluster', mandibles: 'y.mandibles.wide', antennae: 'y.antennae.long', legs: 'y.legs.spiny', tail: 'y.tail.blunt', plates: ['y.plates.scutes', 'y.plates.none'], bristles: ['y.bristles.short', 'y.bristles.none'], glow: 'y.glow.soft', bands: ['y.bands.saddle', 'y.bands.none'], venom: ['y.venom.mist', 'y.venom.none'] },
     palette: { c1: [339, 41, 77], c2: [323, 40, 62], c3: [61, 91, 82], eye: [336, 82, 62] }, vary: { h: 8, s: 6, l: 5 },
@@ -8706,7 +8706,7 @@ export const SPECIES = [
     desc: 'Glitters in the dark of the warren. Fairies race them.',
   },
   {
-    id: 'ringlet', name: 'Ringlet', nameParts: ['Ring', 'let'], clade: 'myriapod', rig: 'myriapod', types: ['Bug', 'Normal'], tier: 'uncommon', bst: 438,
+    id: 'ringlet', name: 'Ringlet', nameParts: ['Ring', 'let'], clade: 'myriapod', rig: 'myriapod', types: ['Bug', 'Normal'], tier: 'uncommon', bst: 441,
     stats: { hp: 0.14, melee: 0.22, ranged: 0.08, magic: 0.07, meleeDef: 0.13, rangedDef: 0.11, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'y.body.coiled', head: 'y.head.capsule', eyes: 'y.eyes.big', mandibles: 'y.mandibles.small', antennae: 'y.antennae.short', legs: 'y.legs.stilt', tail: 'y.tail.blunt', plates: ['y.plates.dome', 'y.plates.none'], bristles: 'y.bristles.short', glow: ['y.glow.soft', 'y.glow.none'], bands: ['y.bands.dashes', 'y.bands.none'], venom: 'y.venom.none' },
     palette: { c1: [43, 32, 69], c2: [43, 27, 48], c3: [24, 57, 56], eye: [35, 60, 34] }, vary: { h: 8, s: 6, l: 5 },
@@ -8726,7 +8726,7 @@ export const SPECIES = [
     desc: 'The warren\'s burning centipede. Roots catch as it passes.',
   },
   {
-    id: 'deepcrawl', name: 'Deepcrawl', nameParts: ['Deep', 'crawl'], clade: 'myriapod', rig: 'myriapod', types: ['Water', 'Dark'], tier: 'rare', bst: 425,
+    id: 'deepcrawl', name: 'Deepcrawl', nameParts: ['Deep', 'crawl'], clade: 'myriapod', rig: 'myriapod', types: ['Water', 'Dark'], tier: 'rare', bst: 424,
     stats: { hp: 0.13, melee: 0.08, ranged: 0.22, magic: 0.09, meleeDef: 0.11, rangedDef: 0.12, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'y.body.long', head: 'y.head.narrow', eyes: 'y.eyes.slit', mandibles: 'y.mandibles.hooks', antennae: 'y.antennae.feathered', legs: 'y.legs.paddle', tail: 'y.tail.fan', plates: ['y.plates.crest', 'y.plates.none'], bristles: ['y.bristles.fine', 'y.bristles.none'], glow: 'y.glow.dots', bands: 'y.bands.segments', venom: ['y.venom.bubbles', 'y.venom.none'] },
     palette: { c1: [212, 63, 48], c2: [220, 54, 37], c3: [189, 83, 73], eye: [208, 83, 47] }, vary: { h: 8, s: 6, l: 5 },
@@ -8736,7 +8736,7 @@ export const SPECIES = [
     desc: 'Lives in the flooded lower warren. Nobody has measured it.',
   },
   {
-    id: 'kingpede', name: 'Kingpede', nameParts: ['King', 'pede'], clade: 'myriapod', rig: 'myriapod', types: ['Bug', 'Dragon'], tier: 'rare', bst: 517,
+    id: 'kingpede', name: 'Kingpede', nameParts: ['King', 'pede'], clade: 'myriapod', rig: 'myriapod', types: ['Bug', 'Dragon'], tier: 'rare', bst: 519,
     stats: { hp: 0.16, melee: 0.2, ranged: 0.08, magic: 0.07, meleeDef: 0.17, rangedDef: 0.13, magicDef: 0.1, spe: 0.09 },
     recipe: { body: 'y.body.spiky', head: 'y.head.horned', eyes: 'y.eyes.bead', mandibles: 'y.mandibles.crushers', antennae: 'y.antennae.clubbed', legs: 'y.legs.spiny', tail: 'y.tail.stinger', plates: 'y.plates.horns', bristles: ['y.bristles.feathered', 'y.bristles.none'], glow: 'y.glow.none', bands: ['y.bands.stripes', 'y.bands.none'], venom: ['y.venom.fangs', 'y.venom.none'] },
     palette: { c1: [80, 42, 47], c2: [86, 37, 32], c3: [48, 90, 58], eye: [66, 69, 40] }, vary: { h: 8, s: 6, l: 5 },
@@ -8747,7 +8747,7 @@ export const SPECIES = [
   },
   // ---- Roster expansion: type pass, fiend ----
   {
-    id: 'flareimp', name: 'Flareimp', nameParts: ['Flare', 'imp'], clade: 'fiend', rig: 'fiend', types: ['Fire'], tier: 'common', bst: 400,
+    id: 'flareimp', name: 'Flareimp', nameParts: ['Flare', 'imp'], clade: 'fiend', rig: 'fiend', types: ['Fire'], tier: 'common', bst: 401,
     stats: { hp: 0.13, melee: 0.06, ranged: 0.08, magic: 0.23, meleeDef: 0.11, rangedDef: 0.11, magicDef: 0.13, spe: 0.15 },
     recipe: { body: 'e.body.regal', head: 'e.head.sly', eyes: 'e.eyes.ember', mouth: 'e.mouth.grin', horns: ['e.horns.curled', 'e.horns.none'], arms: 'e.arms.talon', legs: 'e.legs.digitigrade', tail: ['e.tail.stub', 'e.tail.none'], wings: ['e.wings.ember', 'e.wings.none'], hand: ['e.hand.torch', 'e.hand.none'], marks: ['e.marks.cracks', 'e.marks.none'], aura: 'e.aura.none' },
     palette: { c1: [5, 77, 50], c2: [356, 61, 42], c3: [26, 99, 59], eye: [35, 90, 57] }, vary: { h: 8, s: 6, l: 5 },
@@ -8757,7 +8757,7 @@ export const SPECIES = [
     desc: 'Throws sparks at passers-by and giggles. Has burned three barns.',
   },
   {
-    id: 'steamfiend', name: 'Steamfiend', nameParts: ['Steam', 'fiend'], clade: 'fiend', rig: 'fiend', types: ['Fire', 'Water'], tier: 'uncommon', bst: 428,
+    id: 'steamfiend', name: 'Steamfiend', nameParts: ['Steam', 'fiend'], clade: 'fiend', rig: 'fiend', types: ['Fire', 'Water'], tier: 'uncommon', bst: 421,
     stats: { hp: 0.13, melee: 0.08, ranged: 0.22, magic: 0.09, meleeDef: 0.11, rangedDef: 0.12, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'e.body.imp', head: 'e.head.goat', eyes: 'e.eyes.wide', mouth: 'e.mouth.grin', horns: 'e.horns.none', arms: 'e.arms.brawny', legs: 'e.legs.hoofed', tail: ['e.tail.thick', 'e.tail.none'], wings: 'e.wings.bat', hand: 'e.hand.fireball', marks: ['e.marks.cracks', 'e.marks.none'], aura: ['e.aura.halo', 'e.aura.none'] },
     palette: { c1: [189, 63, 50], c2: [199, 53, 38], c3: [176, 78, 67], eye: [190, 79, 41] }, vary: { h: 8, s: 6, l: 5 },
@@ -8767,7 +8767,7 @@ export const SPECIES = [
     desc: 'Hisses like a kettle and scalds like one.',
   },
   {
-    id: 'sparkimp', name: 'Sparkimp', nameParts: ['Spark', 'imp'], clade: 'fiend', rig: 'fiend', types: ['Electric', 'Fire'], tier: 'common', bst: 383,
+    id: 'sparkimp', name: 'Sparkimp', nameParts: ['Spark', 'imp'], clade: 'fiend', rig: 'fiend', types: ['Electric', 'Fire'], tier: 'common', bst: 386,
     stats: { hp: 0.11, melee: 0.08, ranged: 0.22, magic: 0.09, meleeDef: 0.09, rangedDef: 0.12, magicDef: 0.09, spe: 0.2 },
     recipe: { body: 'e.body.lanky', head: 'e.head.imp', eyes: 'e.eyes.ember', mouth: 'e.mouth.frown', horns: ['e.horns.antler', 'e.horns.none'], arms: 'e.arms.brawny', legs: 'e.legs.clawed', tail: ['e.tail.thick', 'e.tail.none'], wings: 'e.wings.ember', hand: 'e.hand.torch', marks: 'e.marks.glow', aura: ['e.aura.sparks', 'e.aura.none'] },
     palette: { c1: [41, 82, 55], c2: [35, 68, 44], c3: [46, 100, 73], eye: [40, 86, 46] }, vary: { h: 8, s: 6, l: 5 },
@@ -8787,7 +8787,7 @@ export const SPECIES = [
     desc: 'An imp grown from a thorn hedge. Prickly in every sense.',
   },
   {
-    id: 'sleetimp', name: 'Sleetimp', nameParts: ['Sleet', 'imp'], clade: 'fiend', rig: 'fiend', types: ['Ice', 'Fire'], tier: 'common', bst: 380,
+    id: 'sleetimp', name: 'Sleetimp', nameParts: ['Sleet', 'imp'], clade: 'fiend', rig: 'fiend', types: ['Ice', 'Fire'], tier: 'common', bst: 372,
     stats: { hp: 0.13, melee: 0.06, ranged: 0.08, magic: 0.23, meleeDef: 0.11, rangedDef: 0.11, magicDef: 0.13, spe: 0.15 },
     recipe: { body: 'e.body.stout', head: 'e.head.ridged', eyes: 'e.eyes.blank', mouth: 'e.mouth.grin', horns: ['e.horns.straight', 'e.horns.none'], arms: 'e.arms.brawny', legs: 'e.legs.hoofed', tail: 'e.tail.barbed', wings: ['e.wings.ember', 'e.wings.none'], hand: ['e.hand.torch', 'e.hand.none'], marks: 'e.marks.none', aura: 'e.aura.none' },
     palette: { c1: [180, 46, 80], c2: [186, 43, 59], c3: [175, 93, 80], eye: [192, 81, 55] }, vary: { h: 8, s: 6, l: 5 },
@@ -8807,7 +8807,7 @@ export const SPECIES = [
     desc: 'Fights for hire and enjoys the work. Takes payment in teeth.',
   },
   {
-    id: 'fumeimp', name: 'Fumeimp', nameParts: ['Fume', 'imp'], clade: 'fiend', rig: 'fiend', types: ['Poison', 'Fire'], tier: 'common', bst: 432,
+    id: 'fumeimp', name: 'Fumeimp', nameParts: ['Fume', 'imp'], clade: 'fiend', rig: 'fiend', types: ['Poison', 'Fire'], tier: 'common', bst: 427,
     stats: { hp: 0.13, melee: 0.08, ranged: 0.22, magic: 0.09, meleeDef: 0.11, rangedDef: 0.12, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'e.body.armoured', head: 'e.head.hound', eyes: 'e.eyes.ember', mouth: 'e.mouth.needle', horns: 'e.horns.twin', arms: 'e.arms.gauntlet', legs: 'e.legs.stubby', tail: 'e.tail.barbed', wings: 'e.wings.none', hand: ['e.hand.torch', 'e.hand.none'], marks: ['e.marks.cracks', 'e.marks.none'], aura: ['e.aura.smoke', 'e.aura.none'] },
     palette: { c1: [268, 41, 44], c2: [263, 36, 36], c3: [86, 85, 55], eye: [83, 87, 59] }, vary: { h: 8, s: 6, l: 5 },
@@ -8817,7 +8817,7 @@ export const SPECIES = [
     desc: 'Trails a stink. Sells perfume. There is a connection.',
   },
   {
-    id: 'clayfiend', name: 'Clayfiend', nameParts: ['Clay', 'fiend'], clade: 'fiend', rig: 'fiend', types: ['Fire', 'Ground'], tier: 'uncommon', bst: 442,
+    id: 'clayfiend', name: 'Clayfiend', nameParts: ['Clay', 'fiend'], clade: 'fiend', rig: 'fiend', types: ['Fire', 'Ground'], tier: 'uncommon', bst: 431,
     stats: { hp: 0.14, melee: 0.22, ranged: 0.08, magic: 0.07, meleeDef: 0.13, rangedDef: 0.11, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'e.body.hunched', head: 'e.head.brute', eyes: 'e.eyes.narrow', mouth: 'e.mouth.tusks', horns: 'e.horns.twin', arms: 'e.arms.stubby', legs: 'e.legs.stubby', tail: ['e.tail.thick', 'e.tail.none'], wings: 'e.wings.wide', hand: 'e.hand.none', marks: ['e.marks.sigil', 'e.marks.none'], aura: ['e.aura.sparks', 'e.aura.none'] },
     palette: { c1: [16, 47, 52], c2: [21, 38, 35], c3: [32, 66, 59], eye: [26, 61, 34] }, vary: { h: 8, s: 6, l: 5 },
@@ -8827,7 +8827,7 @@ export const SPECIES = [
     desc: 'Shaped from the sinks\' clay and fired badly. Chips.',
   },
   {
-    id: 'galeimp', name: 'Galeimp', nameParts: ['Gale', 'imp'], clade: 'fiend', rig: 'fiend', types: ['Flying', 'Fire'], tier: 'common', bst: 440,
+    id: 'galeimp', name: 'Galeimp', nameParts: ['Gale', 'imp'], clade: 'fiend', rig: 'fiend', types: ['Flying', 'Fire'], tier: 'common', bst: 430,
     stats: { hp: 0.13, melee: 0.08, ranged: 0.22, magic: 0.09, meleeDef: 0.11, rangedDef: 0.12, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'e.body.regal', head: 'e.head.goat', eyes: 'e.eyes.wide', mouth: 'e.mouth.maw', horns: 'e.horns.curled', arms: 'e.arms.long', legs: 'e.legs.clawed', tail: 'e.tail.whip', wings: ['e.wings.ember', 'e.wings.none'], hand: ['e.hand.torch', 'e.hand.none'], marks: 'e.marks.cracks', aura: ['e.aura.smoke', 'e.aura.none'] },
     palette: { c1: [200, 36, 72], c2: [199, 31, 50], c3: [41, 58, 89], eye: [196, 73, 45] }, vary: { h: 8, s: 6, l: 5 },
@@ -8837,7 +8837,7 @@ export const SPECIES = [
     desc: 'Rides the hot updraught over the sinks and rains sparks.',
   },
   {
-    id: 'whisperimp', name: 'Whisperimp', nameParts: ['Whisper', 'imp'], clade: 'fiend', rig: 'fiend', types: ['Fire', 'Psychic'], tier: 'uncommon', bst: 450,
+    id: 'whisperimp', name: 'Whisperimp', nameParts: ['Whisper', 'imp'], clade: 'fiend', rig: 'fiend', types: ['Fire', 'Psychic'], tier: 'uncommon', bst: 453,
     stats: { hp: 0.13, melee: 0.06, ranged: 0.08, magic: 0.23, meleeDef: 0.11, rangedDef: 0.11, magicDef: 0.13, spe: 0.15 },
     recipe: { body: 'e.body.imp', head: 'e.head.gaunt', eyes: 'e.eyes.three', mouth: 'e.mouth.fangs', horns: ['e.horns.crown', 'e.horns.none'], arms: 'e.arms.talon', legs: 'e.legs.digitigrade', tail: ['e.tail.barbed', 'e.tail.none'], wings: 'e.wings.none', hand: ['e.hand.orb', 'e.hand.none'], marks: ['e.marks.glow', 'e.marks.none'], aura: 'e.aura.halo' },
     palette: { c1: [291, 49, 69], c2: [287, 36, 46], c3: [42, 85, 73], eye: [283, 77, 59] }, vary: { h: 8, s: 6, l: 5 },
@@ -8847,7 +8847,7 @@ export const SPECIES = [
     desc: 'Talks you into things. Afterwards you are not sure it spoke.',
   },
   {
-    id: 'gnatimp', name: 'Gnatimp', nameParts: ['Gnat', 'imp'], clade: 'fiend', rig: 'fiend', types: ['Bug', 'Fire'], tier: 'common', bst: 497,
+    id: 'gnatimp', name: 'Gnatimp', nameParts: ['Gnat', 'imp'], clade: 'fiend', rig: 'fiend', types: ['Bug', 'Fire'], tier: 'common', bst: 498,
     stats: { hp: 0.13, melee: 0.08, ranged: 0.22, magic: 0.09, meleeDef: 0.11, rangedDef: 0.12, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'e.body.hunched', head: 'e.head.ridged', eyes: 'e.eyes.slit', mouth: 'e.mouth.needle', horns: 'e.horns.crown', arms: 'e.arms.brawny', legs: 'e.legs.armoured', tail: 'e.tail.whip', wings: ['e.wings.ember', 'e.wings.none'], hand: 'e.hand.none', marks: 'e.marks.cracks', aura: 'e.aura.none' },
     palette: { c1: [65, 44, 46], c2: [68, 35, 34], c3: [29, 87, 64], eye: [52, 74, 40] }, vary: { h: 8, s: 6, l: 5 },
@@ -8857,7 +8857,7 @@ export const SPECIES = [
     desc: 'An imp the size of a gnat with the soul of a lawyer.',
   },
   {
-    id: 'cobblefiend', name: 'Cobblefiend', nameParts: ['Cobble', 'fiend'], clade: 'fiend', rig: 'fiend', types: ['Fire', 'Rock'], tier: 'uncommon', bst: 455,
+    id: 'cobblefiend', name: 'Cobblefiend', nameParts: ['Cobble', 'fiend'], clade: 'fiend', rig: 'fiend', types: ['Fire', 'Rock'], tier: 'uncommon', bst: 453,
     stats: { hp: 0.16, melee: 0.2, ranged: 0.08, magic: 0.07, meleeDef: 0.17, rangedDef: 0.13, magicDef: 0.1, spe: 0.09 },
     recipe: { body: 'e.body.armoured', head: 'e.head.brute', eyes: 'e.eyes.hollow', mouth: 'e.mouth.grin', horns: 'e.horns.stub', arms: 'e.arms.gauntlet', legs: 'e.legs.armoured', tail: ['e.tail.thick', 'e.tail.none'], wings: ['e.wings.bone', 'e.wings.none'], hand: ['e.hand.orb', 'e.hand.none'], marks: 'e.marks.cracks', aura: 'e.aura.flames' },
     palette: { c1: [22, 20, 48], c2: [18, 22, 34], c3: [32, 61, 57], eye: [28, 62, 45] }, vary: { h: 8, s: 6, l: 5 },
@@ -8877,7 +8877,7 @@ export const SPECIES = [
     desc: 'A dead imp that did not notice. Still collects debts.',
   },
   {
-    id: 'drakefiend', name: 'Drakefiend', nameParts: ['Drake', 'fiend'], clade: 'fiend', rig: 'fiend', types: ['Fire', 'Dragon'], tier: 'uncommon', bst: 438,
+    id: 'drakefiend', name: 'Drakefiend', nameParts: ['Drake', 'fiend'], clade: 'fiend', rig: 'fiend', types: ['Fire', 'Dragon'], tier: 'uncommon', bst: 440,
     stats: { hp: 0.14, melee: 0.22, ranged: 0.08, magic: 0.07, meleeDef: 0.13, rangedDef: 0.11, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'e.body.lanky', head: 'e.head.imp', eyes: 'e.eyes.slit', mouth: 'e.mouth.fangs', horns: ['e.horns.straight', 'e.horns.none'], arms: 'e.arms.stubby', legs: 'e.legs.thin', tail: 'e.tail.thick', wings: ['e.wings.bone', 'e.wings.none'], hand: 'e.hand.claws', marks: ['e.marks.cracks', 'e.marks.none'], aura: ['e.aura.halo', 'e.aura.none'] },
     palette: { c1: [334, 39, 38], c2: [334, 41, 25], c3: [33, 89, 62], eye: [34, 97, 55] }, vary: { h: 8, s: 6, l: 5 },
@@ -8887,7 +8887,7 @@ export const SPECIES = [
     desc: 'Half devil, half dragon, all appetite. Hoards debts instead of gold.',
   },
   {
-    id: 'nightfiend', name: 'Nightfiend', nameParts: ['Night', 'fiend'], clade: 'fiend', rig: 'fiend', types: ['Dark', 'Fire'], tier: 'common', bst: 395,
+    id: 'nightfiend', name: 'Nightfiend', nameParts: ['Night', 'fiend'], clade: 'fiend', rig: 'fiend', types: ['Dark', 'Fire'], tier: 'common', bst: 396,
     stats: { hp: 0.11, melee: 0.08, ranged: 0.22, magic: 0.09, meleeDef: 0.09, rangedDef: 0.12, magicDef: 0.09, spe: 0.2 },
     recipe: { body: 'e.body.lanky', head: 'e.head.sly', eyes: 'e.eyes.narrow', mouth: 'e.mouth.fangs', horns: 'e.horns.crown', arms: 'e.arms.clawed', legs: 'e.legs.clawed', tail: ['e.tail.stub', 'e.tail.none'], wings: 'e.wings.ember', hand: ['e.hand.torch', 'e.hand.none'], marks: 'e.marks.cracks', aura: ['e.aura.smoke', 'e.aura.none'] },
     palette: { c1: [236, 15, 36], c2: [241, 19, 28], c3: [315, 78, 59], eye: [325, 80, 56] }, vary: { h: 8, s: 6, l: 5 },
@@ -8927,7 +8927,7 @@ export const SPECIES = [
     desc: 'A baby fiend, still learning to burn things on purpose.',
   },
   {
-    id: 'hellion', name: 'Hellion', nameParts: ['Hell', 'ion'], clade: 'fiend', rig: 'fiend', types: ['Fire', 'Fighting'], tier: 'rare', bst: 457,
+    id: 'hellion', name: 'Hellion', nameParts: ['Hell', 'ion'], clade: 'fiend', rig: 'fiend', types: ['Fire', 'Fighting'], tier: 'rare', bst: 459,
     stats: { hp: 0.14, melee: 0.22, ranged: 0.08, magic: 0.07, meleeDef: 0.13, rangedDef: 0.11, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'e.body.brute', head: 'e.head.brute', eyes: 'e.eyes.ember', mouth: 'e.mouth.tusks', horns: ['e.horns.crown', 'e.horns.none'], arms: 'e.arms.brawny', legs: 'e.legs.brawny', tail: 'e.tail.thick', wings: 'e.wings.ember', hand: 'e.hand.claws', marks: ['e.marks.cracks', 'e.marks.none'], aura: 'e.aura.smoke' },
     palette: { c1: [1, 80, 49], c2: [352, 60, 36], c3: [34, 100, 57], eye: [37, 99, 51] }, vary: { h: 8, s: 6, l: 5 },
@@ -8937,7 +8937,7 @@ export const SPECIES = [
     desc: 'The bruiser of the sinks. It fights for the joy and wins for the spite.',
   },
   {
-    id: 'sulfurax', name: 'Sulfurax', nameParts: ['Sulfur', 'ax'], clade: 'fiend', rig: 'fiend', types: ['Fire', 'Poison'], tier: 'rare', bst: 413,
+    id: 'sulfurax', name: 'Sulfurax', nameParts: ['Sulfur', 'ax'], clade: 'fiend', rig: 'fiend', types: ['Fire', 'Poison'], tier: 'rare', bst: 417,
     stats: { hp: 0.13, melee: 0.08, ranged: 0.22, magic: 0.09, meleeDef: 0.11, rangedDef: 0.12, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 'e.body.hunched', head: 'e.head.imp', eyes: 'e.eyes.blank', mouth: 'e.mouth.needle', horns: 'e.horns.crown', arms: 'e.arms.thin', legs: 'e.legs.armoured', tail: ['e.tail.barbed', 'e.tail.none'], wings: ['e.wings.ember', 'e.wings.none'], hand: ['e.hand.torch', 'e.hand.none'], marks: ['e.marks.cracks', 'e.marks.none'], aura: 'e.aura.smoke' },
     palette: { c1: [10, 74, 47], c2: [358, 61, 37], c3: [31, 100, 64], eye: [29, 98, 55] }, vary: { h: 8, s: 6, l: 5 },
@@ -8947,7 +8947,7 @@ export const SPECIES = [
     desc: 'Breathes brimstone and bargains in it.',
   },
   {
-    id: 'nightsovereign', name: 'Nightsovereign', nameParts: ['Night', 'sovereign'], clade: 'fiend', rig: 'fiend', types: ['Dark', 'Psychic'], tier: 'rare', bst: 405,
+    id: 'nightsovereign', name: 'Nightsovereign', nameParts: ['Night', 'sovereign'], clade: 'fiend', rig: 'fiend', types: ['Dark', 'Psychic'], tier: 'rare', bst: 403,
     stats: { hp: 0.13, melee: 0.06, ranged: 0.08, magic: 0.23, meleeDef: 0.11, rangedDef: 0.11, magicDef: 0.13, spe: 0.15 },
     recipe: { body: 'e.body.regal', head: 'e.head.sly', eyes: 'e.eyes.three', mouth: 'e.mouth.fangs', horns: 'e.horns.none', arms: 'e.arms.clawed', legs: 'e.legs.clawed', tail: ['e.tail.thick', 'e.tail.none'], wings: 'e.wings.none', hand: ['e.hand.claws', 'e.hand.none'], marks: 'e.marks.glow', aura: ['e.aura.halo', 'e.aura.none'] },
     palette: { c1: [237, 16, 42], c2: [243, 20, 32], c3: [315, 83, 63], eye: [323, 90, 62] }, vary: { h: 8, s: 6, l: 5 },
@@ -8958,7 +8958,7 @@ export const SPECIES = [
   },
   // ---- Roster expansion: type pass, spirit ----
   {
-    id: 'candlewisp', name: 'Candlewisp', nameParts: ['Candle', 'wisp'], clade: 'spirit', rig: 'spirit', types: ['Fire', 'Ghost'], tier: 'common', bst: 388,
+    id: 'candlewisp', name: 'Candlewisp', nameParts: ['Candle', 'wisp'], clade: 'spirit', rig: 'spirit', types: ['Fire', 'Ghost'], tier: 'common', bst: 386,
     stats: { hp: 0.13, melee: 0.06, ranged: 0.08, magic: 0.23, meleeDef: 0.11, rangedDef: 0.11, magicDef: 0.13, spe: 0.15 },
     recipe: { body: 's.body.flame', eyes: 's.eyes.hollow', mouth: 's.mouth.frown', arms: 's.arms.mist', tail: 's.tail.smoke', hood: 's.hood.candle', chains: 's.chains.none', lantern: 's.lantern.candle', aura: 's.aura.mist', tatters: ['s.tatters.trail', 's.tatters.none'], mask: ['s.mask.gilded', 's.mask.none'], veil: 's.veil.ripples' },
     palette: { c1: [15, 77, 53], c2: [11, 69, 42], c3: [43, 98, 64], eye: [39, 91, 61] }, vary: { h: 8, s: 6, l: 5 },
@@ -8968,7 +8968,7 @@ export const SPECIES = [
     desc: 'A wisp that sits on candles and keeps them lit past their wick.',
   },
   {
-    id: 'rainshade', name: 'Rainshade', nameParts: ['Rain', 'shade'], clade: 'spirit', rig: 'spirit', types: ['Ghost', 'Water'], tier: 'uncommon', bst: 390,
+    id: 'rainshade', name: 'Rainshade', nameParts: ['Rain', 'shade'], clade: 'spirit', rig: 'spirit', types: ['Ghost', 'Water'], tier: 'uncommon', bst: 387,
     stats: { hp: 0.13, melee: 0.08, ranged: 0.22, magic: 0.09, meleeDef: 0.11, rangedDef: 0.12, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 's.body.blob', eyes: 's.eyes.wide', mouth: 's.mouth.line', arms: 's.arms.wisps', tail: 's.tail.drips', hood: 's.hood.none', chains: ['s.chains.chain', 's.chains.none'], lantern: ['s.lantern.key', 's.lantern.none'], aura: ['s.aura.halo', 's.aura.none'], tatters: 's.tatters.ribbons', mask: ['s.mask.fox', 's.mask.none'], veil: 's.veil.none' },
     palette: { c1: [206, 56, 55], c2: [214, 55, 41], c3: [187, 80, 68], eye: [204, 78, 41] }, vary: { h: 8, s: 6, l: 5 },
@@ -8978,7 +8978,7 @@ export const SPECIES = [
     desc: 'The shape in the rain that is not a person. Follows you home.',
   },
   {
-    id: 'stormwraith', name: 'Stormwraith', nameParts: ['Storm', 'wraith'], clade: 'spirit', rig: 'spirit', types: ['Electric', 'Ghost'], tier: 'common', bst: 362,
+    id: 'stormwraith', name: 'Stormwraith', nameParts: ['Storm', 'wraith'], clade: 'spirit', rig: 'spirit', types: ['Electric', 'Ghost'], tier: 'common', bst: 363,
     stats: { hp: 0.11, melee: 0.08, ranged: 0.22, magic: 0.09, meleeDef: 0.09, rangedDef: 0.12, magicDef: 0.09, spe: 0.2 },
     recipe: { body: 's.body.wisp', eyes: 's.eyes.glow', mouth: 's.mouth.jagged', arms: 's.arms.mist', tail: 's.tail.wisp', hood: ['s.hood.candle', 's.hood.none'], chains: ['s.chains.shackles', 's.chains.none'], lantern: ['s.lantern.lantern', 's.lantern.none'], aura: 's.aura.none', tatters: ['s.tatters.trail', 's.tatters.none'], mask: ['s.mask.cracked', 's.mask.none'], veil: ['s.veil.drips', 's.veil.none'] },
     palette: { c1: [46, 90, 59], c2: [43, 72, 41], c3: [55, 100, 69], eye: [45, 88, 42] }, vary: { h: 8, s: 6, l: 5 },
@@ -8988,7 +8988,7 @@ export const SPECIES = [
     desc: 'Rides the lightning down and hangs in the air after.',
   },
   {
-    id: 'mosswisp', name: 'Mosswisp', nameParts: ['Moss', 'wisp'], clade: 'spirit', rig: 'spirit', types: ['Ghost', 'Grass'], tier: 'uncommon', bst: 409,
+    id: 'mosswisp', name: 'Mosswisp', nameParts: ['Moss', 'wisp'], clade: 'spirit', rig: 'spirit', types: ['Ghost', 'Grass'], tier: 'uncommon', bst: 410,
     stats: { hp: 0.13, melee: 0.08, ranged: 0.22, magic: 0.09, meleeDef: 0.11, rangedDef: 0.12, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 's.body.wraith', eyes: 's.eyes.dot', mouth: 's.mouth.fangs', arms: 's.arms.mist', tail: 's.tail.split', hood: 's.hood.none', chains: ['s.chains.barbed', 's.chains.none'], lantern: ['s.lantern.key', 's.lantern.none'], aura: ['s.aura.sparks', 's.aura.none'], tatters: 's.tatters.trail', mask: ['s.mask.porcelain', 's.mask.none'], veil: ['s.veil.stripes', 's.veil.none'] },
     palette: { c1: [114, 43, 44], c2: [114, 42, 31], c3: [76, 80, 59], eye: [93, 73, 44] }, vary: { h: 8, s: 6, l: 5 },
@@ -8998,7 +8998,7 @@ export const SPECIES = [
     desc: 'A wisp that lives in the moss and glows green when it is glad.',
   },
   {
-    id: 'snowwraith', name: 'Snowwraith', nameParts: ['Snow', 'wraith'], clade: 'spirit', rig: 'spirit', types: ['Ice', 'Ghost'], tier: 'common', bst: 387,
+    id: 'snowwraith', name: 'Snowwraith', nameParts: ['Snow', 'wraith'], clade: 'spirit', rig: 'spirit', types: ['Ice', 'Ghost'], tier: 'common', bst: 390,
     stats: { hp: 0.13, melee: 0.06, ranged: 0.08, magic: 0.23, meleeDef: 0.11, rangedDef: 0.11, magicDef: 0.13, spe: 0.15 },
     recipe: { body: 's.body.wisp', eyes: 's.eyes.hollow', mouth: 's.mouth.o', arms: 's.arms.mist', tail: 's.tail.wisp', hood: ['s.hood.candle', 's.hood.none'], chains: ['s.chains.beads', 's.chains.none'], lantern: ['s.lantern.lantern', 's.lantern.none'], aura: ['s.aura.cold', 's.aura.none'], tatters: ['s.tatters.trail', 's.tatters.none'], mask: ['s.mask.porcelain', 's.mask.none'], veil: 's.veil.none' },
     palette: { c1: [197, 44, 83], c2: [203, 41, 66], c3: [185, 94, 82], eye: [199, 82, 57] }, vary: { h: 8, s: 6, l: 5 },
@@ -9008,7 +9008,7 @@ export const SPECIES = [
     desc: 'The cold spot in the marsh where the snow never melts. It has a face.',
   },
   {
-    id: 'fistwisp', name: 'Fistwisp', nameParts: ['Fist', 'wisp'], clade: 'spirit', rig: 'spirit', types: ['Ghost', 'Fighting'], tier: 'uncommon', bst: 435,
+    id: 'fistwisp', name: 'Fistwisp', nameParts: ['Fist', 'wisp'], clade: 'spirit', rig: 'spirit', types: ['Ghost', 'Fighting'], tier: 'uncommon', bst: 437,
     stats: { hp: 0.14, melee: 0.22, ranged: 0.08, magic: 0.07, meleeDef: 0.13, rangedDef: 0.11, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 's.body.sheet', eyes: 's.eyes.slit', mouth: 's.mouth.jagged', arms: 's.arms.claws', tail: 's.tail.smoke', hood: ['s.hood.horns', 's.hood.none'], chains: ['s.chains.heavy', 's.chains.none'], lantern: ['s.lantern.orb', 's.lantern.none'], aura: 's.aura.mist', tatters: ['s.tatters.rags', 's.tatters.none'], mask: ['s.mask.fox', 's.mask.none'], veil: 's.veil.none' },
     palette: { c1: [16, 42, 45], c2: [10, 36, 27], c3: [3, 72, 55], eye: [27, 67, 37] }, vary: { h: 8, s: 6, l: 5 },
@@ -9028,7 +9028,7 @@ export const SPECIES = [
     desc: 'A wisp of marsh gas that learned to want things.',
   },
   {
-    id: 'barrowwisp', name: 'Barrowwisp', nameParts: ['Barrow', 'wisp'], clade: 'spirit', rig: 'spirit', types: ['Ghost', 'Ground'], tier: 'uncommon', bst: 424,
+    id: 'barrowwisp', name: 'Barrowwisp', nameParts: ['Barrow', 'wisp'], clade: 'spirit', rig: 'spirit', types: ['Ghost', 'Ground'], tier: 'uncommon', bst: 411,
     stats: { hp: 0.14, melee: 0.22, ranged: 0.08, magic: 0.07, meleeDef: 0.13, rangedDef: 0.11, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 's.body.orb', eyes: 's.eyes.spiral', mouth: 's.mouth.frown', arms: 's.arms.mist', tail: 's.tail.stub', hood: 's.hood.candle', chains: ['s.chains.heavy', 's.chains.none'], lantern: ['s.lantern.scythe', 's.lantern.none'], aura: ['s.aura.ring', 's.aura.none'], tatters: ['s.tatters.web', 's.tatters.none'], mask: ['s.mask.fox', 's.mask.none'], veil: ['s.veil.stars', 's.veil.none'] },
     palette: { c1: [33, 41, 56], c2: [23, 44, 38], c3: [41, 75, 64], eye: [36, 58, 34] }, vary: { h: 8, s: 6, l: 5 },
@@ -9038,7 +9038,7 @@ export const SPECIES = [
     desc: 'A wisp that lives in the cairn and rearranges the stones.',
   },
   {
-    id: 'zephyrwisp', name: 'Zephyrwisp', nameParts: ['Zephyr', 'wisp'], clade: 'spirit', rig: 'spirit', types: ['Flying', 'Ghost'], tier: 'common', bst: 385,
+    id: 'zephyrwisp', name: 'Zephyrwisp', nameParts: ['Zephyr', 'wisp'], clade: 'spirit', rig: 'spirit', types: ['Flying', 'Ghost'], tier: 'common', bst: 386,
     stats: { hp: 0.13, melee: 0.08, ranged: 0.22, magic: 0.09, meleeDef: 0.11, rangedDef: 0.12, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 's.body.blob', eyes: 's.eyes.wide', mouth: 's.mouth.fangs', arms: 's.arms.long', tail: 's.tail.long', hood: 's.hood.candle', chains: ['s.chains.chain', 's.chains.none'], lantern: ['s.lantern.candle', 's.lantern.none'], aura: ['s.aura.mist', 's.aura.none'], tatters: ['s.tatters.long', 's.tatters.none'], mask: 's.mask.none', veil: ['s.veil.swirl', 's.veil.none'] },
     palette: { c1: [213, 39, 69], c2: [218, 32, 54], c3: [54, 60, 87], eye: [206, 75, 48] }, vary: { h: 8, s: 6, l: 5 },
@@ -9048,7 +9048,7 @@ export const SPECIES = [
     desc: 'Rides the marsh wind and whistles through the reeds.',
   },
   {
-    id: 'trancewraith', name: 'Trancewraith', nameParts: ['Trance', 'wraith'], clade: 'spirit', rig: 'spirit', types: ['Ghost', 'Psychic'], tier: 'uncommon', bst: 383,
+    id: 'trancewraith', name: 'Trancewraith', nameParts: ['Trance', 'wraith'], clade: 'spirit', rig: 'spirit', types: ['Ghost', 'Psychic'], tier: 'uncommon', bst: 390,
     stats: { hp: 0.13, melee: 0.06, ranged: 0.08, magic: 0.23, meleeDef: 0.11, rangedDef: 0.11, magicDef: 0.13, spe: 0.15 },
     recipe: { body: 's.body.orb', eyes: 's.eyes.spiral', mouth: 's.mouth.frown', arms: 's.arms.wisps', tail: 's.tail.spiral', hood: ['s.hood.halo', 's.hood.none'], chains: ['s.chains.rope', 's.chains.none'], lantern: ['s.lantern.orb', 's.lantern.none'], aura: ['s.aura.halo', 's.aura.none'], tatters: ['s.tatters.trail', 's.tatters.none'], mask: ['s.mask.fox', 's.mask.none'], veil: 's.veil.stars' },
     palette: { c1: [299, 50, 65], c2: [292, 41, 45], c3: [51, 89, 73], eye: [296, 85, 58] }, vary: { h: 8, s: 6, l: 5 },
@@ -9058,7 +9058,7 @@ export const SPECIES = [
     desc: 'Stares until you sleep. Then it does the rest.',
   },
   {
-    id: 'mothwisp', name: 'Mothwisp', nameParts: ['Moth', 'wisp'], clade: 'spirit', rig: 'spirit', types: ['Bug', 'Ghost'], tier: 'common', bst: 415,
+    id: 'mothwisp', name: 'Mothwisp', nameParts: ['Moth', 'wisp'], clade: 'spirit', rig: 'spirit', types: ['Bug', 'Ghost'], tier: 'common', bst: 416,
     stats: { hp: 0.13, melee: 0.08, ranged: 0.22, magic: 0.09, meleeDef: 0.11, rangedDef: 0.12, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 's.body.wisp', eyes: 's.eyes.hollow', mouth: 's.mouth.smile', arms: 's.arms.mist', tail: 's.tail.smoke', hood: ['s.hood.candle', 's.hood.none'], chains: 's.chains.double', lantern: 's.lantern.candle', aura: ['s.aura.mist', 's.aura.none'], tatters: 's.tatters.none', mask: 's.mask.fox', veil: ['s.veil.runes', 's.veil.none'] },
     palette: { c1: [77, 47, 45], c2: [83, 37, 36], c3: [45, 89, 56], eye: [57, 74, 41] }, vary: { h: 8, s: 6, l: 5 },
@@ -9068,7 +9068,7 @@ export const SPECIES = [
     desc: 'A wisp that flutters like a moth and is drawn to lanterns for company.',
   },
   {
-    id: 'cairnshade', name: 'Cairnshade', nameParts: ['Cairn', 'shade'], clade: 'spirit', rig: 'spirit', types: ['Ghost', 'Rock'], tier: 'uncommon', bst: 448,
+    id: 'cairnshade', name: 'Cairnshade', nameParts: ['Cairn', 'shade'], clade: 'spirit', rig: 'spirit', types: ['Ghost', 'Rock'], tier: 'uncommon', bst: 444,
     stats: { hp: 0.16, melee: 0.2, ranged: 0.08, magic: 0.07, meleeDef: 0.17, rangedDef: 0.13, magicDef: 0.1, spe: 0.09 },
     recipe: { body: 's.body.shade', eyes: 's.eyes.sad', mouth: 's.mouth.wail', arms: 's.arms.stubs', tail: 's.tail.spiral', hood: 's.hood.bonnet', chains: ['s.chains.heavy', 's.chains.none'], lantern: 's.lantern.none', aura: ['s.aura.mist', 's.aura.none'], tatters: ['s.tatters.ribbons', 's.tatters.none'], mask: ['s.mask.cracked', 's.mask.none'], veil: ['s.veil.ripples', 's.veil.none'] },
     palette: { c1: [33, 23, 52], c2: [30, 20, 34], c3: [48, 64, 62], eye: [34, 63, 49] }, vary: { h: 8, s: 6, l: 5 },
@@ -9088,7 +9088,7 @@ export const SPECIES = [
     desc: 'A shade with nothing inside. It is looking for something to be.',
   },
   {
-    id: 'wyrmwraith', name: 'Wyrmwraith', nameParts: ['Wyrm', 'wraith'], clade: 'spirit', rig: 'spirit', types: ['Ghost', 'Dragon'], tier: 'uncommon', bst: 436,
+    id: 'wyrmwraith', name: 'Wyrmwraith', nameParts: ['Wyrm', 'wraith'], clade: 'spirit', rig: 'spirit', types: ['Ghost', 'Dragon'], tier: 'uncommon', bst: 433,
     stats: { hp: 0.14, melee: 0.22, ranged: 0.08, magic: 0.07, meleeDef: 0.13, rangedDef: 0.11, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 's.body.wraith', eyes: 's.eyes.dot', mouth: 's.mouth.fangs', arms: 's.arms.bony', tail: 's.tail.spiral', hood: ['s.hood.horns', 's.hood.none'], chains: ['s.chains.beads', 's.chains.none'], lantern: ['s.lantern.candle', 's.lantern.none'], aura: ['s.aura.glow', 's.aura.none'], tatters: 's.tatters.strips', mask: ['s.mask.fox', 's.mask.none'], veil: ['s.veil.stars', 's.veil.none'] },
     palette: { c1: [342, 42, 41], c2: [346, 39, 28], c3: [43, 93, 56], eye: [47, 98, 55] }, vary: { h: 8, s: 6, l: 5 },
@@ -9098,7 +9098,7 @@ export const SPECIES = [
     desc: 'What was left of a wyrm. Still coils, still hoards.',
   },
   {
-    id: 'nightwisp', name: 'Nightwisp', nameParts: ['Night', 'wisp'], clade: 'spirit', rig: 'spirit', types: ['Dark', 'Ghost'], tier: 'common', bst: 360,
+    id: 'nightwisp', name: 'Nightwisp', nameParts: ['Night', 'wisp'], clade: 'spirit', rig: 'spirit', types: ['Dark', 'Ghost'], tier: 'common', bst: 361,
     stats: { hp: 0.11, melee: 0.08, ranged: 0.22, magic: 0.09, meleeDef: 0.09, rangedDef: 0.12, magicDef: 0.09, spe: 0.2 },
     recipe: { body: 's.body.shade', eyes: 's.eyes.slit', mouth: 's.mouth.fangs', arms: 's.arms.claws', tail: 's.tail.wisp', hood: ['s.hood.cowl', 's.hood.none'], chains: 's.chains.heavy', lantern: ['s.lantern.lantern', 's.lantern.none'], aura: ['s.aura.mist', 's.aura.none'], tatters: ['s.tatters.trail', 's.tatters.none'], mask: 's.mask.none', veil: ['s.veil.swirl', 's.veil.none'] },
     palette: { c1: [249, 13, 37], c2: [252, 26, 29], c3: [332, 84, 60], eye: [330, 86, 64] }, vary: { h: 8, s: 6, l: 5 },
@@ -9108,7 +9108,7 @@ export const SPECIES = [
     desc: 'The dark between the marsh lamps, moving.',
   },
   {
-    id: 'bellshade', name: 'Bellshade', nameParts: ['Bell', 'shade'], clade: 'spirit', rig: 'spirit', types: ['Ghost', 'Steel'], tier: 'uncommon', bst: 383,
+    id: 'bellshade', name: 'Bellshade', nameParts: ['Bell', 'shade'], clade: 'spirit', rig: 'spirit', types: ['Ghost', 'Steel'], tier: 'uncommon', bst: 382,
     stats: { hp: 0.16, melee: 0.2, ranged: 0.08, magic: 0.07, meleeDef: 0.17, rangedDef: 0.13, magicDef: 0.1, spe: 0.09 },
     recipe: { body: 's.body.flame', eyes: 's.eyes.glow', mouth: 's.mouth.fangs', arms: 's.arms.stubs', tail: 's.tail.long', hood: 's.hood.none', chains: ['s.chains.chain', 's.chains.none'], lantern: 's.lantern.key', aura: ['s.aura.ring', 's.aura.none'], tatters: 's.tatters.long', mask: 's.mask.gilded', veil: ['s.veil.spots', 's.veil.none'] },
     palette: { c1: [210, 13, 58], c2: [218, 14, 43], c3: [34, 77, 55], eye: [39, 82, 53] }, vary: { h: 8, s: 6, l: 5 },
@@ -9138,7 +9138,7 @@ export const SPECIES = [
     desc: 'A tiny ghost that says boo and means it.',
   },
   {
-    id: 'banshee', name: 'Banshee', nameParts: ['Ban', 'shee'], clade: 'spirit', rig: 'spirit', types: ['Ghost', 'Flying'], tier: 'rare', bst: 362,
+    id: 'banshee', name: 'Banshee', nameParts: ['Ban', 'shee'], clade: 'spirit', rig: 'spirit', types: ['Ghost', 'Flying'], tier: 'rare', bst: 360,
     stats: { hp: 0.13, melee: 0.06, ranged: 0.08, magic: 0.23, meleeDef: 0.11, rangedDef: 0.11, magicDef: 0.13, spe: 0.15 },
     recipe: { body: 's.body.blob', eyes: 's.eyes.wide', mouth: 's.mouth.jagged', arms: 's.arms.mist', tail: 's.tail.wisp', hood: 's.hood.candle', chains: 's.chains.double', lantern: 's.lantern.lantern', aura: ['s.aura.mist', 's.aura.none'], tatters: 's.tatters.long', mask: ['s.mask.fox', 's.mask.none'], veil: ['s.veil.stripes', 's.veil.none'] },
     palette: { c1: [254, 15, 69], c2: [264, 23, 52], c3: [149, 75, 65], eye: [149, 77, 61] }, vary: { h: 8, s: 6, l: 5 },
@@ -9148,7 +9148,7 @@ export const SPECIES = [
     desc: 'Its wail crosses the marsh and every lamp gutters.',
   },
   {
-    id: 'revenant', name: 'Revenant', nameParts: ['Reve', 'nant'], clade: 'spirit', rig: 'spirit', types: ['Ghost', 'Fighting'], tier: 'rare', bst: 423,
+    id: 'revenant', name: 'Revenant', nameParts: ['Reve', 'nant'], clade: 'spirit', rig: 'spirit', types: ['Ghost', 'Fighting'], tier: 'rare', bst: 420,
     stats: { hp: 0.14, melee: 0.22, ranged: 0.08, magic: 0.07, meleeDef: 0.13, rangedDef: 0.11, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 's.body.wisp', eyes: 's.eyes.sad', mouth: 's.mouth.o', arms: 's.arms.claws', tail: 's.tail.smoke', hood: ['s.hood.horns', 's.hood.none'], chains: 's.chains.heavy', lantern: ['s.lantern.lantern', 's.lantern.none'], aura: ['s.aura.mist', 's.aura.none'], tatters: 's.tatters.none', mask: 's.mask.none', veil: ['s.veil.swirl', 's.veil.none'] },
     palette: { c1: [253, 20, 65], c2: [254, 26, 46], c3: [151, 71, 64], eye: [146, 78, 55] }, vary: { h: 8, s: 6, l: 5 },
@@ -9158,7 +9158,7 @@ export const SPECIES = [
     desc: 'Came back for one more fight. Has not decided which.',
   },
   {
-    id: 'polterwisp', name: 'Polterwisp', nameParts: ['Polter', 'wisp'], clade: 'spirit', rig: 'spirit', types: ['Ghost', 'Electric'], tier: 'rare', bst: 388,
+    id: 'polterwisp', name: 'Polterwisp', nameParts: ['Polter', 'wisp'], clade: 'spirit', rig: 'spirit', types: ['Ghost', 'Electric'], tier: 'rare', bst: 381,
     stats: { hp: 0.13, melee: 0.08, ranged: 0.22, magic: 0.09, meleeDef: 0.11, rangedDef: 0.12, magicDef: 0.1, spe: 0.15 },
     recipe: { body: 's.body.flame', eyes: 's.eyes.glow', mouth: 's.mouth.jagged', arms: 's.arms.mist', tail: 's.tail.wisp', hood: 's.hood.none', chains: ['s.chains.barbed', 's.chains.none'], lantern: 's.lantern.candle', aura: 's.aura.glow', tatters: ['s.tatters.trail', 's.tatters.none'], mask: ['s.mask.skull', 's.mask.none'], veil: 's.veil.swirl' },
     palette: { c1: [251, 16, 72], c2: [257, 17, 48], c3: [145, 67, 68], eye: [145, 82, 64] }, vary: { h: 8, s: 6, l: 5 },
