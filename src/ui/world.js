@@ -15,7 +15,7 @@ import { JOURNEY, newJourney, chooseJourneyStarter, tryMove, facing, talkTo, acc
 import { WORLD, TILE, REGIONS, HUB, BIOME_ORDER, worldFor, tileAt, biomeAt, habitatTypeAt, trainerAt, findPath, isHubTile } from '../game/world.js';
 import { TYPE_INFO, TYPE_LIST } from '../data/types.js';
 import { DAMAGE_TYPES } from '../data/damage.js';
-import { marketCatalogue, buyMove, bagList, bagCount, canTeach, teachMove, itemCatalogue, itemList, buyItem, useItem, scrollTypes, scrollLearners, listWords, charmCatalogue, charmList, buyCharm, giveCharm, takeCharm, charmHolders, tutorTypes, tutorCatalogue, buyTutorMove, recallOptions, recallCost, recallMove } from '../game/market.js';
+import { marketCatalogue, buyMove, bagList, bagCount, canTeach, teachMove, itemCatalogue, itemList, buyItem, useItem, scrollTypes, scrollLearners, listWords, charmCatalogue, charmList, buyCharm, giveCharm, takeCharm, charmHolders, forgeList, forgeCost, forgeCharm, tutorTypes, tutorCatalogue, buyTutorMove, recallOptions, recallCost, recallMove } from '../game/market.js';
 import { getCharm } from '../data/charms.js';
 import { dexSeen, dexCaught, dexCounts, dexStatus, dexMorphs, dexHabitat, dexRewards, claimDexReward, dexSpeciesOf } from '../game/dex.js';
 import { speciesGenome } from '../creature/genome.js';
@@ -805,6 +805,18 @@ function owMarketSheet(j) {
           owSave(); sfx.heal(); toast(`Bought a ${charm.name} for ${cost.toLocaleString()} gold`); render();
         } }, `${cost.toLocaleString()} ◆`)));
     }
+    const forgeRows = h('div', { class: 'shop-list' });
+    const forgeable = forgeList(j);
+    for (const row of forgeable) {
+      forgeRows.append(h('div', { class: `shop-row${row.ready ? ' next' : ''}` },
+        owCharmInfo(row.into, `two ${row.from.name}s (you have ${row.have}) and ${row.cost.toLocaleString()} gold`),
+        h('button', { class: `btn small${row.ready ? ' primary' : ''}`, type: 'button', disabled: !row.ready, title: row.have < 2 ? 'The forge wants two of them' : '', onclick: () => {
+          const r = forgeCharm(j, row.from.id);
+          if (!r.ok) { toast(r.reason); return; }
+          owSave(); sfx.win(); toast(`Forged a ${r.into.name} for ${r.cost.toLocaleString()} gold and the pair.`);
+          render(); owRefreshHud();
+        } }, `Forge ◆ ${row.cost.toLocaleString()}`)));
+    }
     const potionList = h('div', { class: 'shop-list' });
     for (const { item, cost } of potions) {
       const owned = bagCount(j, item.id);
@@ -838,6 +850,9 @@ function owMarketSheet(j) {
     appendChildren(body, [
       h('p', { class: 'hint' }, `◆ ${(j.gold || 0).toLocaleString()} gold. Everything goes to your Bag. Trainers pay gold when beaten.`),
       ...section('Potions', potionList),
+      ...section('The forge', h('p', { class: 'hint' }, forgeable.length
+        ? 'Two of the same charm and gold make its greater form: stronger numbers, and the once-a-battle charms fire twice. Greater charms are never sold.'
+        : 'Bring two of the same charm and the forge will make its greater form. Nothing in your bag is doubled up yet.'), forgeRows),
       ...section('Charms', h('p', { class: 'hint' }, 'A held charm goes into every fight with its creature: a type charm lifts that type’s moves by a fifth, a band lifts one damage type by a tenth, and the rest carry a small passive of their own. Give them out from the Bag. Every Warden hands one over with their badge.'), charmRows),
       ...section('Move scrolls', h('p', { class: 'hint' }, 'The Market stocks the basics: every Normal scroll and anything of 60 power or less. The heavier type scrolls are taught at the camps out in the regions, three types apiece, once you hold that region\'s badge. A creature learns scrolls of its own types, of its Elemental element, and any Normal scroll; "My team" hides the rest.'), chips, shown ? list : h('p', { class: 'hint' }, 'No scroll here suits your team.')),
     ]);

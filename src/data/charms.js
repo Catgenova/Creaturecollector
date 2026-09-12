@@ -33,10 +33,39 @@ Object.assign(CHARMS, {
   lure_charm: { id: 'lure_charm', name: 'Lure Charm', kind: 'lure', cost: 1500, color: '#b6f06a', desc: 'Wild creatures turn up twice as often while the lead holds it.' },
   prism_charm: { id: 'prism_charm', name: 'Prism Charm', kind: 'prism', cost: 12000, color: '#e6e0ff', desc: 'Wild creatures are born Elemental ten times as often while the lead holds it.' },
 });
+/**
+ * Greater charms: forged at the Market from two of the same charm and gold, never sold. Each carries its
+ * own numbers, so the engine reads the charm rather than the table of defaults.
+ */
+export const GREATER = {
+  type: { typeMul: 1.35, desc: (c) => `${c.type} moves hit 1.35x harder.` },
+  style: { styleMul: 1.18, desc: (c) => `${c.style[0].toUpperCase()}${c.style.slice(1)} moves hit 1.18x harder.` },
+  regen: { regen: 1 / 10, desc: () => 'Restores a tenth of max HP at the end of every turn.' },
+  siphon: { siphon: 1 / 5, desc: () => 'Heals a fifth of the damage its holder deals.' },
+  sturdy: { uses: 2, desc: () => 'Twice a battle, survives a hit that would knock it out from full HP with 1 HP left.' },
+  crit: { critMul: 3, desc: () => 'Critical hits land three times as often.' },
+  speed: { speedMul: 1.18, desc: () => 'Speed is 1.18x.' },
+  salve: { uses: 2, desc: () => 'Twice a battle, cures its holder’s status at the end of the turn.' },
+  xp: { xpMul: 2, desc: () => 'Its holder earns twice the experience.' },
+  gold: { goldMul: 2, desc: () => 'Trainers pay twice the gold while a party member holds it.' },
+  lure: { lureMul: 3, desc: () => 'Wild creatures turn up three times as often while the lead holds it.' },
+  prism: { prismMul: 25, desc: () => 'Wild creatures are born Elemental twenty-five times as often while the lead holds it.' },
+};
+for (const id of Object.keys(CHARMS)) {
+  const base = CHARMS[id], up = GREATER[base.kind];
+  if (!up) continue;
+  const { desc, ...values } = up;
+  CHARMS[`${id}_2`] = { ...base, ...values, id: `${id}_2`, name: `Greater ${base.name}`, grade: 2, from: id, cost: base.cost * 3, desc: desc(base) };
+}
+
 export const CHARM_IDS = Object.keys(CHARMS);
 export function getCharm(id) { return CHARMS[id] || null; }
-/** Everything the Market sells, type charms first, then the bands and the rest by price. */
-export const CHARM_SHOP = CHARM_IDS;
+/** Everything the Market sells, type charms first, then the bands and the rest by price. Greater charms are forged, never sold. */
+export const CHARM_SHOP = CHARM_IDS.filter((id) => !CHARMS[id].grade);
+/** The charms a forge can make: every ordinary charm whose kind has a greater form. */
+export const FORGEABLE = CHARM_SHOP.filter((id) => CHARMS[`${id}_2`]);
+/** The greater form of a charm, or null. */
+export function greaterOf(id) { return CHARMS[`${id}_2`] || null; }
 
 /** The charm a Warden hands over with their badge: one per biome, no two alike. */
 export const WARDEN_CHARMS = {
@@ -45,12 +74,20 @@ export const WARDEN_CHARMS = {
   invertebrate: 'siphon_charm', skeletal: 'ghost_charm', reptile: 'fire_charm', fiend: 'hawk_charm', draconic: 'sage_band', spirit: 'moss_charm',
 };
 
+/** A charm's own number for a rule, or the ordinary one. A greater charm carries its own. */
+export function charmValue(heldId, key) {
+  const c = CHARMS[heldId];
+  return c && c[key] != null ? c[key] : CHARM_RULE[key];
+}
+/** How many times a once-a-battle charm may fire. */
+export function charmUses(heldId) { const c = CHARMS[heldId]; return c && c.uses ? c.uses : 1; }
+
 /** Power multiplier a held charm gives a move (1 when it does not apply). */
 export function charmPowerMul(heldId, mv) {
   const c = CHARMS[heldId];
   if (!c || !mv || mv.typeless) return 1;
-  if (c.kind === 'type' && c.type === mv.type) return CHARM_RULE.typeMul;
-  if (c.kind === 'style' && c.style === mv.cat) return CHARM_RULE.styleMul;
+  if (c.kind === 'type' && c.type === mv.type) return charmValue(heldId, 'typeMul');
+  if (c.kind === 'style' && c.style === mv.cat) return charmValue(heldId, 'styleMul');
   return 1;
 }
 /** Is this charm of this kind? */

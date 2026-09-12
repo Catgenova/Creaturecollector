@@ -4,7 +4,7 @@
 // Everything bought sits in the Bag (keyed by item or move id) until used. Pure functions over the journey.
 import { MOVES, getMove } from '../data/moves.js';
 import { ITEMS, ITEM_IDS, getItem, potionHeal, potionUseful } from '../data/items.js';
-import { CHARMS, CHARM_SHOP, getCharm } from '../data/charms.js';
+import { CHARMS, CHARM_SHOP, FORGEABLE, greaterOf, getCharm } from '../data/charms.js';
 import { memberMaxHp } from './party.js';
 import { elementalOf } from '../creature/genome.js';
 import { ELEMENTS } from '../data/elements.js';
@@ -99,8 +99,33 @@ function bagAdd(j, id, n = 1) { j.bag = j.bag || {}; j.bag[id] = bagCount(j, id)
 
 // ---- charms: held items, one per creature ------------------------------------------------
 
-/** The charms on sale: type charms first, then the bands and the rest. */
+/** The charms on sale: type charms first, then the bands and the rest. Greater charms are forged, not sold. */
 export function charmCatalogue() { return CHARM_SHOP.map((id) => ({ charm: CHARMS[id], cost: CHARMS[id].cost })); }
+
+/** What the forge asks in gold on top of the two charms it consumes: twice the ordinary charm's price. */
+export function forgeCost(charmId) { const c = getCharm(charmId); return c && !c.grade ? c.cost * 2 : 0; }
+
+/** Every charm the Bag could forge right now: [{ from, into, cost, have, ready }]. */
+export function forgeList(j) {
+  return FORGEABLE.map((id) => {
+    const have = bagCount(j, id), cost = forgeCost(id), into = greaterOf(id);
+    return { from: CHARMS[id], into, cost, have, ready: have >= 2 && (j.gold || 0) >= cost };
+  }).filter((row) => row.have > 0);
+}
+
+/** Forge two of a charm into its greater form. Consumes both and the gold. */
+export function forgeCharm(j, charmId) {
+  const c = getCharm(charmId), into = greaterOf(charmId);
+  if (!c || !into) return { ok: false, reason: 'That charm cannot be forged.', cost: 0 };
+  const cost = forgeCost(charmId);
+  if (bagCount(j, charmId) < 2) return { ok: false, reason: `The forge wants two ${c.name}s; you have ${bagCount(j, charmId)}.`, cost };
+  if ((j.gold || 0) < cost) return { ok: false, reason: `Forging asks ${cost.toLocaleString()} gold on top of the pair.`, cost };
+  if (bagCount(j, into.id) >= MARKET.maxStack) return { ok: false, reason: 'Your bag cannot hold more of those.', cost };
+  j.gold -= cost;
+  bagAdd(j, charmId, -2);
+  bagAdd(j, into.id);
+  return { ok: true, cost, into };
+}
 
 /** The Bag's charms: [{ charm, qty }] in shop order. */
 export function charmList(j) { return CHARM_SHOP.filter((id) => bagCount(j, id) > 0).map((id) => ({ charm: CHARMS[id], qty: j.bag[id] })); }

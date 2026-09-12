@@ -70,6 +70,10 @@ more Melee Atk and less Ranged Atk, Timid more Speed and less Melee Atk);
 seven are even. HP is never touched. A fusion takes a parent's nature, and
 the creature sheet marks the lean on the stat bars.
 
+The charm forge: two of the same charm and twice its price in gold make its
+greater form, which is never sold. Greater charms carry stronger numbers, and
+the once-a-battle ones fire twice.
+
 A second passive slot: 40,000 gold at the Rookery opens a second slot on one
 creature for good, and from then on it fights with both passives. Swaps and
 wild draws can turn over either slot. Only the player can buy one, so wild

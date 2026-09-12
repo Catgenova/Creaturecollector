@@ -17,7 +17,7 @@ import { learnsetOf } from '../creature/genome.js';
 import { SPECIES_BY_ID } from '../data/species.js';
 import { statsAtLevel, movesAtLevel } from './stats.js';
 import { ITEM_IDS, getItem, potionHeal, potionUseful } from '../data/items.js';
-import { getCharm, charmPowerMul, heldKind, CHARM_RULE } from '../data/charms.js';
+import { getCharm, charmPowerMul, heldKind, charmValue, charmUses, CHARM_RULE } from '../data/charms.js';
 
 export const STATUS_INFO = {
   brn: { name: 'Burn', short: 'BRN', verb: 'was burned' },
@@ -197,7 +197,7 @@ function speedOrder(state, rng) {
 export function effectiveStat(b, k) {
   let v = b.stats[k] * stageMul(b.stages[k]);
   if (k === 'spe' && b.status === 'par') v *= 0.5;
-  if (k === 'spe' && heldKind(b.held) === 'speed') v *= CHARM_RULE.speedMul;
+  if (k === 'spe' && heldKind(b.held) === 'speed') v *= charmValue(b.held, 'speedMul');
   if (k === 'spe') { v *= abMul(b, 'statMul', (f) => f.stat === 'spe'); if (b.status) v *= abMul(b, 'statusStat', (f) => f.stat === 'spe'); }
   return v;
 }
@@ -716,7 +716,7 @@ function executeMove(state, i, action, events, rng) {
   let total = 0, landed = 0, anyCrit = false;
   for (let h = 0; h < hits; h++) {
     if (target.fainted) break;
-    let crit = rng.chance((mv.crit >= 1 ? 1 / 8 : 1 / 24) * (abIs(user, 'keen_edge') ? 2 : 1) * (heldKind(user.held) === 'crit' ? 2 : 1) * abMul(user, 'critRate'));
+    let crit = rng.chance((mv.crit >= 1 ? 1 / 8 : 1 / 24) * (abIs(user, 'keen_edge') ? 2 : 1) * (heldKind(user.held) === 'crit' ? charmValue(user.held, 'critMul') || 2 : 1) * abMul(user, 'critRate'));
     if (guardFx(user, target, 'critImmune').length) crit = false;
     else if (target.status && abHas(user, 'mercilessCrit')) crit = true;
     else if (abFx(user, 'critIf').some((f) => (f.when === 'firstTurn' ? !user.turnsOut : f.when === 'lowHp' ? user.hp <= user.maxHp / 3 : user.hp === user.maxHp))) crit = true;
@@ -728,7 +728,7 @@ function executeMove(state, i, action, events, rng) {
     let held = false, sturdy = false, endured = false;
     if (dmg >= target.hp && target.hp === target.maxHp && abIs(target, 'stonewall')) { dmg = target.hp - 1; held = true; }
     else if (dmg >= target.hp && target.hp === target.maxHp && guardFx(user, target, 'endure').length && !target.endureUsed) { dmg = target.hp - 1; endured = true; target.endureUsed = true; }
-    else if (dmg >= target.hp && target.hp === target.maxHp && heldKind(target.held) === 'sturdy' && !target.sturdyUsed) { dmg = target.hp - 1; sturdy = true; target.sturdyUsed = true; }
+    else if (dmg >= target.hp && target.hp === target.maxHp && heldKind(target.held) === 'sturdy' && (target.sturdyUsed || 0) < charmUses(target.held)) { dmg = target.hp - 1; sturdy = true; target.sturdyUsed = (target.sturdyUsed || 0) + 1; }
     dmg = Math.min(dmg, target.hp);
     target.hp -= dmg;
     total += dmg; landed++;
@@ -763,7 +763,7 @@ function executeMove(state, i, action, events, rng) {
   }
   if (heldKind(user.held) === 'siphon' && total > 0 && user.hp < user.maxHp) {
     events.push({ t: 'held', side: i, name: user.name, item: getCharm(user.held).name });
-    healBattler(state, i, Math.max(1, total * CHARM_RULE.siphon), events, 'drain');
+    healBattler(state, i, Math.max(1, total * charmValue(user.held, 'siphon')), events, 'drain');
   }
   if (abIs(user, 'vital_core') && mv.flags.includes('contact') && total > 0 && user.hp < user.maxHp) {
     events.push({ t: 'ability', side: i, name: user.name, ability: abilityName(user.ability) });
@@ -914,11 +914,11 @@ function endOfTurn(state, events, rng) {
     }
     if (!b.fainted && heldKind(b.held) === 'regen' && b.hp < b.maxHp) {
       events.push({ t: 'held', side: i, name: b.name, item: getCharm(b.held).name });
-      healBattler(state, i, Math.max(1, b.maxHp * CHARM_RULE.regen), events, 'ability');
+      healBattler(state, i, Math.max(1, b.maxHp * charmValue(b.held, 'regen')), events, 'ability');
     }
-    if (!b.fainted && heldKind(b.held) === 'salve' && b.status && !b.salveUsed) {
+    if (!b.fainted && heldKind(b.held) === 'salve' && b.status && (b.salveUsed || 0) < charmUses(b.held)) {
       const was = b.status;
-      b.status = null; b.sleepTurns = 0; b.salveUsed = true;
+      b.status = null; b.sleepTurns = 0; b.salveUsed = (b.salveUsed || 0) + 1;
       events.push({ t: 'held', side: i, name: b.name, item: getCharm(b.held).name });
       events.push({ t: 'cure', side: i, name: b.name, status: was, why: 'held' });
     }

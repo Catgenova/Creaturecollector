@@ -1465,6 +1465,26 @@ tournament simulator all field one passive as before, so the 40-60% band the
 tuner maintains is untouched; what the player buys is a build, not a stat.
 An Elemental still keeps its core and cannot buy a slot.
 
+## The charm forge (implemented)
+
+Thirty-one charms, each bought once and then done with. Every one now has a
+greater form, forged rather than sold: two of the same charm and twice its
+price in gold. A Greater Ember Charm lifts Fire moves 1.35x instead of 1.2x,
+Greater Moss heals a tenth a turn instead of a sixteenth, Greater Swift is
+1.18x Speed, and the once-a-battle charms, Sturdy and Salve, fire twice.
+
+The charms carry their own numbers now. The engine used to read one table of
+constants, so every charm of a kind behaved alike; it reads the charm itself
+and falls back to the table, which is what lets a greater charm differ. That
+covers the battle rules and the world ones: a Greater Scholar's Charm doubles
+its holder's experience, a Greater Lucky Coin doubles the gold, a Greater Lure
+triples the encounters and a Greater Prism makes Elementals twenty-five times
+as likely.
+
+The forge sits in the Market and lists only what the Bag has doubled up.
+Greater charms are never on the shelf, and the Wardens hand over ordinary
+ones, so the only way to a greater charm is two of the same and the gold.
+
 ## The postgame (implemented)
 
 Beating the Council left the Battle Tower as the only thing to do. Two more

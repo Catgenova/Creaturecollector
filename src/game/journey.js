@@ -11,7 +11,7 @@ import { createBattle, makeBattler } from '../battle/engine.js';
 import { PARTY, XP, makeMember, gainXp, healParty, xpProgress, xpReward, memberMaxHp, canFight } from './party.js';
 import { WORLD, TILE, REGIONS, BIOME_ORDER, worldFor, tileAt, biomeAt, trainerAt, isWalkable, inBounds, wildSpawn, levelAt } from './world.js';
 import { goldReward, battleItems, syncBagFromBattle, returnCharms } from './market.js';
-import { getCharm, heldKind, CHARM_RULE, WARDEN_CHARMS } from '../data/charms.js';
+import { getCharm, heldKind, charmValue, CHARM_RULE, WARDEN_CHARMS } from '../data/charms.js';
 import { TRIAL, trialDay, trialOf, trialState, trialBlock, enterTrial, trialEncounter, trialGold } from './trial.js';
 import { abilityWorldMul } from '../data/abilities.js';
 import { recordTowerWin, towerRecord } from './tower.js';
@@ -109,8 +109,9 @@ export function tryMove(j, dir) {
   if (tile === TILE.habitat && j.cooldown <= 0) {
     const rng = makeRng(`${j.seed}:step:${j.stats.steps}`);
     const leadHeld = heldKind(j.party[0] && j.party[0].held); // the lead's charm shapes the road: a Lure draws creatures out, a Prism draws out Elementals
-    if (rng.chance(Math.min(1, WORLD.encounterChance * (leadHeld === 'lure' ? CHARM_RULE.lureMul : 1)))) {
-      const spawn = wildSpawn(world, nx, ny, rng.fork('spawn'), { elementalMul: leadHeld === 'prism' ? CHARM_RULE.prismMul : 1 });
+    const leadCharm = j.party[0] && j.party[0].held;
+    if (rng.chance(Math.min(1, WORLD.encounterChance * (leadHeld === 'lure' ? charmValue(leadCharm, 'lureMul') : 1)))) {
+      const spawn = wildSpawn(world, nx, ny, rng.fork('spawn'), { elementalMul: leadHeld === 'prism' ? charmValue(leadCharm, 'prismMul') : 1 });
       const name = `${spawn.alpha ? 'Alpha ' : 'Wild '}${spawn.genome.morph ? `${MORPHS[spawn.genome.morph].name} ` : ''}${spawn.genome.name}`;
       j.encounter = { kind: 'wild', name, foes: [{ genome: spawn.genome, level: spawn.level }], capturable: true, biome: spawn.biome, alpha: spawn.alpha, elemental: spawn.elemental, type: spawn.type };
       return { moved: true, event: { kind: 'encounter', encounter: j.encounter } };
@@ -309,7 +310,7 @@ export function applyJourneyBattle(j, state) {
     if (bench && (m.hp <= 0 || benchShare <= 0)) return;
     if (bench) report.bench++;
     const before = xpProgress(m);
-    const scholar = heldKind(m.held) === 'xp' ? CHARM_RULE.xpMul : 1; // a Scholar's Charm lifts its holder's own share
+    const scholar = heldKind(m.held) === 'xp' ? charmValue(m.held, 'xpMul') : 1; // a Scholar's Charm lifts its holder's own share
     const studious = abilityWorldMul(m.genome && m.genome.ability, 'worldXp'); // and so does a studious passive
     const r = gainXp(m, Math.floor((bench ? benchShare : share) * scholar * studious));
     const after = xpProgress(m);
@@ -332,7 +333,8 @@ export function applyJourneyBattle(j, state) {
   if (enc.kind !== 'wild') {
     const rematch = enc.kind === 'boss' ? j.badges.includes(enc.biome) : enc.kind === 'council' ? j.champion : enc.kind === 'tower' ? towerRecord(j, enc.floor, enc.level) > 0 : Boolean(enc.rematch);
     report.gold = goldReward(enc.foes, enc.kind, rematch);
-    if (j.party.some((m) => heldKind(m.held) === 'gold')) report.gold = Math.round((report.gold * CHARM_RULE.goldMul) / 10) * 10; // a Lucky Coin anywhere in the party
+    const coin = j.party.find((m) => heldKind(m.held) === 'gold'); // a Lucky Coin anywhere in the party
+    if (coin) report.gold = Math.round((report.gold * charmValue(coin.held, 'goldMul')) / 10) * 10;
     const forager = Math.max(...j.party.map((m) => abilityWorldMul(m.genome && m.genome.ability, 'worldGold'))); // the best forager in the party sniffs out the rest
     if (forager > 1) report.gold = Math.round((report.gold * forager) / 10) * 10;
     j.gold = (j.gold || 0) + report.gold;

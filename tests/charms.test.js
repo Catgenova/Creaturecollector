@@ -2,7 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { makeRng } from '../src/core/rng.js';
 import { SPECIES_BY_ID } from '../src/data/species.js';
-import { CHARMS, CHARM_IDS, getCharm, charmPowerMul, WARDEN_CHARMS, CHARM_RULE } from '../src/data/charms.js';
+import { CHARMS, CHARM_IDS, CHARM_SHOP, getCharm, charmPowerMul, WARDEN_CHARMS, CHARM_RULE } from '../src/data/charms.js';
 import { getMove } from '../src/data/moves.js';
 import { TYPE_LIST } from '../src/data/types.js';
 import { speciesGenome } from '../src/creature/genome.js';
@@ -14,7 +14,8 @@ import { normalizeJourney } from '../src/game/save.js';
 import { BIOME_ORDER, worldFor, WORLD } from '../src/game/world.js';
 
 test('the charm table: one type charm per type, distinct Warden gifts, prices and text', () => {
-  assert.equal(CHARM_IDS.length, 31);
+  assert.equal(CHARM_SHOP.length, 31, 'the Market sells the ordinary charms');
+  assert.equal(CHARM_IDS.length, 62, 'and every one has a greater form, forged rather than sold');
   for (const t of TYPE_LIST) { const c = CHARMS[`${t.toLowerCase()}_charm`]; assert.ok(c && c.kind === 'type' && c.type === t, t); }
   const names = new Set();
   for (const id of CHARM_IDS) {
@@ -32,7 +33,8 @@ test('the charm table: one type charm per type, distinct Warden gifts, prices an
   assert.equal(charmPowerMul('brawler_band', getMove('bump')), CHARM_RULE.styleMul);
   assert.equal(charmPowerMul('brawler_band', getMove('bellow')), 1);
   assert.equal(charmPowerMul('nope', getMove('bump')), 1);
-  assert.equal(charmCatalogue().length, CHARM_IDS.length);
+  assert.equal(charmCatalogue().length, CHARM_SHOP.length, 'the shop lists the ordinary charms only');
+  for (const id of CHARM_IDS.filter((x) => CHARMS[x].grade)) assert.ok(!CHARM_SHOP.includes(id), `${id} is on sale`);
   assert.ok(!marketCatalogue().some((x) => getCharm(x.move.id)), 'charms are not scrolls');
 });
 
