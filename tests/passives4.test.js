@@ -15,8 +15,8 @@ const near = (a, b, m) => Math.abs(a - b * m) <= Math.ceil(b * 0.03) + 1;
 const dmg = (u, t, id, eff = 1) => calcDamage(u, t, getMove(id), eff, 1, false);
 
 test('the whole passive pool is spread across the roster', () => {
-  assert.equal(ABILITY_IDS.length, 479);
-  assert.ok(DATA_ABILITY_IDS.length >= 423);
+  assert.equal(ABILITY_IDS.length, 535);
+  assert.ok(DATA_ABILITY_IDS.length >= 479);
   const use = {};
   for (const s of SPECIES) for (const ab of s.abilities) use[ab] = (use[ab] || 0) + 1;
   // While a batch is landing the incremental placer gives new passives a few homes each; the final

@@ -85,14 +85,15 @@ const AB_STATUS_VERB = { brn: 'burned', psn: 'poisoned', par: 'paralyzed', slp: 
 const AB_FLAG_NAME = { contact: 'Contact', punch: 'Punching', bite: 'Biting', sound: 'Sound', powder: 'Powder' };
 const AB_FX_NAME = { drain: 'Draining', recoil: 'Recoil', multi: 'Multi-hit', status: 'Status-inflicting', flinch: 'Flinching' };
 const abFrac = (r) => (Math.abs(r - 1 / 16) < 1e-9 ? 'a sixteenth' : Math.abs(r - 1 / 8) < 1e-9 ? 'an eighth' : Math.abs(r - 1 / 6) < 1e-9 ? 'a sixth' : Math.abs(r - 1 / 4) < 1e-9 ? 'a quarter' : Math.abs(r - 1 / 3) < 1e-9 ? 'a third' : Math.abs(r - 1 / 2) < 1e-9 ? 'half' : `${Math.round(r * 100)}%`);
+const AB_STAT_NAME = { ...STAT_NAMES, acc: 'accuracy', eva: 'evasion' };
 const abAn = (word) => `${/^[AEIOU]/i.test(word) ? 'an' : 'a'} ${word}`;
 const abList = (words) => (words.length < 2 ? words.join('') : `${words.slice(0, -1).join(', ')} and ${words[words.length - 1]}`);
 const abStages = (stats, who) => {
   const rows = Object.entries(stats);
   const same = rows.every(([, n]) => (n > 0) === (rows[0][1] > 0) && Math.abs(n) === Math.abs(rows[0][1]));
   const verb = (n, many) => `${n > 0 ? (many ? 'rise' : 'rises') : (many ? 'fall' : 'falls')}${Math.abs(n) > 1 ? ' sharply' : ''}`;
-  if (same && rows.length > 1) return `${who} ${abList(rows.map(([k]) => STAT_NAMES[k] || k))} ${verb(rows[0][1], true)}`.trim();
-  return abList(rows.map(([k, n]) => `${who} ${STAT_NAMES[k] || k} ${verb(n, false)}`.trim()));
+  if (same && rows.length > 1) return `${who} ${abList(rows.map(([k]) => AB_STAT_NAME[k] || k))} ${verb(rows[0][1], true)}`.trim();
+  return abList(rows.map(([k, n]) => `${who} ${AB_STAT_NAME[k] || k} ${verb(n, false)}`.trim()));
 };
 const abChance = (p) => (p == null || p >= 100 ? '' : `${p}% chance to `);
 const abX = (m) => `${m}x`;
@@ -622,6 +623,72 @@ defA('prism_scale', 'Prism Scale', [{ k: 'filter', m: 0.7 }, { k: 'tintedLens', 
 defA('mirror_polish', 'Mirror Polish', [{ k: 'critImmune' }, { k: 'evasion', m: 0.95 }]);
 defA('sealed_vents', 'Sealed Vents', [{ k: 'soundImmune' }, { k: 'powderImmune' }]);
 defA('iron_curtain', 'Iron Curtain', [{ k: 'allResist', m: 0.9 }, { k: 'statMul', stat: 'spe', m: 0.9 }]);
+
+// ---- batch eight: field craft — coming in, holding the field, going out, and what touching it costs --
+defA('war_drums', 'War Drums', { k: 'entryStat', who: 'self', stats: { melee: 1, spe: 1 } });
+defA('battle_hymn', 'Battle Hymn', { k: 'entryStat', who: 'self', stats: { magic: 1, magicDef: 1 } });
+defA('standard_bearer', 'Standard Bearer', { k: 'entryStat', who: 'self', stats: { meleeDef: 1, rangedDef: 1, magicDef: 1 } });
+defA('dread_gaze', 'Dread Gaze', { k: 'entryStat', who: 'foe', stats: { magic: -1, magicDef: -1 } });
+defA('hobble', 'Hobble', { k: 'entryStat', who: 'foe', stats: { spe: -2 } });
+defA('blinding_dust', 'Blinding Dust', [{ k: 'entryStat', who: 'foe', stats: { acc: -1 } }, { k: 'powderImmune' }]);
+defA('skulk', 'Skulk', { k: 'entryStat', who: 'self', stats: { eva: 1 } });
+defA('herald', 'Herald', [{ k: 'entryStat', who: 'self', stats: { spe: 1 } }, { k: 'entryStat', who: 'foe', stats: { spe: -1 } }]);
+defA('loom', 'Loom', [{ k: 'entryStat', who: 'foe', stats: { melee: -1 } }, { k: 'foeFullBoost', m: 1.2 }]);
+defA('scout_report', 'Scout Report', [{ k: 'entryStat', who: 'self', stats: { acc: 1 } }, { k: 'accBoost', m: 1.05 }]);
+defA('chorus', 'Chorus', [{ k: 'entryStat', who: 'self', stats: { magic: 1 } }, { k: 'soundImmune' }]);
+defA('sunroot', 'Sunroot', [{ k: 'turnHeal', r: 1 / 8 }, { k: 'typeResist', type: 'Grass', m: 0.75 }]);
+
+defA('spring_water', 'Spring Water', [{ k: 'turnHeal', r: 1 / 16 }, { k: 'turnCure', p: 15 }]);
+defA('nightmare_aura', 'Nightmare Aura', { k: 'turnHurtFoe', r: 1 / 8, statusOnly: true });
+defA('withering_aura', 'Withering Aura', [{ k: 'turnHurtFoe', r: 1 / 16 }, { k: 'turnHeal', r: 1 / 16 }]);
+defA('grinding_gears', 'Grinding Gears', { k: 'turnStat', stats: { melee: 1 }, p: 25 });
+defA('winding_up', 'Winding Up', { k: 'turnStat', stats: { ranged: 1 }, p: 25 });
+defA('focusing', 'Focusing', { k: 'turnStat', stats: { magic: 1 }, p: 25 });
+defA('hardening', 'Hardening', { k: 'turnStat', stats: { meleeDef: 1, rangedDef: 1 }, p: 20 });
+defA('quickening', 'Quickening', { k: 'turnStat', stats: { spe: 1 }, p: 30 });
+defA('sharpening', 'Sharpening', [{ k: 'turnStat', stats: { acc: 1 }, p: 30 }, { k: 'critRate', m: 1.5 }]);
+defA('fading', 'Fading', { k: 'turnStat', stats: { eva: 1 }, p: 25 });
+defA('metabolism', 'Metabolism', { k: 'turnCure', p: 40 });
+
+defA('field_dressing', 'Field Dressing', { k: 'switchHeal', r: 1 / 3 });
+defA('fresh_air', 'Fresh Air', [{ k: 'switchCure' }, { k: 'switchHeal', r: 1 / 6 }]);
+defA('rotation', 'Rotation', [{ k: 'switchHeal', r: 1 / 4 }, { k: 'entryStat', who: 'self', stats: { spe: 1 } }]);
+defA('baton', 'Baton', [{ k: 'switchHeal', r: 1 / 8 }, { k: 'turnStat', stats: { spe: 1 }, p: 20 }]);
+defA('retreat_drill', 'Retreat Drill', [{ k: 'switchHeal', r: 1 / 2 }, { k: 'statMul', stat: 'spe', m: 0.9 }]);
+defA('second_breath', 'Second Breath', [{ k: 'switchCure' }, { k: 'turnHeal', r: 1 / 16 }]);
+defA('regroup', 'Regroup', [{ k: 'switchHeal', r: 1 / 4 }, { k: 'avengeStat', stats: { meleeDef: 1 } }]);
+defA('hand_off', 'Hand-off', [{ k: 'switchHeal', r: 1 / 6 }, { k: 'koHeal', r: 1 / 8 }]);
+
+defA('bloodlust', 'Bloodlust', { k: 'koStat', stats: { melee: 1, spe: 1 } });
+defA('soul_harvest', 'Soul Harvest', { k: 'koStat', stats: { magic: 2 } });
+defA('trophy_rack', 'Trophy Rack', { k: 'koHeal', r: 1 / 3 });
+defA('victors_rest', "Victor's Rest", [{ k: 'koHeal', r: 1 / 4 }, { k: 'koStat', stats: { meleeDef: 1 } }]);
+defA('hunters_high', "Hunter's High", { k: 'koStat', stats: { spe: 2 } });
+defA('cannibal', 'Cannibal', [{ k: 'koHeal', r: 1 / 2 }, { k: 'statMul', stat: 'spe', m: 0.95 }]);
+defA('reapers_toll', "Reaper's Toll", [{ k: 'koStat', stats: { magic: 1 } }, { k: 'turnHurtFoe', r: 1 / 16 }]);
+defA('momentum_kill', 'Momentum Kill', { k: 'koStat', stats: { ranged: 1, spe: 1 } });
+
+defA('barbed_coat', 'Barbed Coat', { k: 'contactStat', stats: { melee: -1 }, p: 30 });
+defA('slick_coat', 'Slick Coat', { k: 'contactStat', stats: { ranged: -1 }, p: 30 });
+defA('hex_coat', 'Hex Coat', { k: 'contactStat', stats: { magic: -1 }, p: 30 });
+defA('cracking_shell', 'Cracking Shell', { k: 'contactStat', stats: { meleeDef: -1, rangedDef: -1 }, p: 20 });
+defA('numbing_fur', 'Numbing Fur', [{ k: 'contactStatus', s: 'par', p: 30 }, { k: 'contactStat', stats: { spe: -1 }, p: 20 }]);
+defA('blistering_hide', 'Blistering Hide', [{ k: 'contactStatus', s: 'brn', p: 30 }, { k: 'contactHurt', r: 1 / 16 }]);
+defA('septic_spines', 'Septic Spines', [{ k: 'contactStatus', s: 'psn', p: 30 }, { k: 'contactHurt', r: 1 / 16 }]);
+defA('freezing_fur', 'Freezing Fur', [{ k: 'contactStatus', s: 'frz', p: 20 }, { k: 'typeResist', type: 'Ice', m: 0.75 }]);
+defA('sleep_coat', 'Sleep Coat', [{ k: 'contactStatus', s: 'slp', p: 15 }, { k: 'powderImmune' }]);
+defA('grasping_vines', 'Grasping Vines', { k: 'contactStat', stats: { spe: -2 }, p: 25 });
+defA('sticky_sap', 'Sticky Sap', [{ k: 'contactHurt', r: 1 / 8 }, { k: 'contactStat', stats: { spe: -1 }, p: 25 }]);
+defA('mirror_barbs', 'Mirror Barbs', { k: 'hurtFoeStat', stats: { melee: -1, ranged: -1 }, p: 25 });
+
+defA('startle', 'Startle', [{ k: 'addFlinch', p: 20 }, { k: 'firstStrike', m: 1.1 }]);
+defA('thunderclap', 'Thunderclap', { k: 'addFlinch', p: 30 });
+defA('braced_nerves', 'Braced Nerves', { k: 'flinchStat', stats: { meleeDef: 2 } });
+defA('adrenaline', 'Adrenaline', { k: 'flinchStat', stats: { melee: 2 } });
+defA('fast_hands', 'Fast Hands', [{ k: 'quickDraw', p: 30 }, { k: 'flagBoost', flag: 'punch', m: 1.1 }]);
+defA('open_guard', 'Open Guard', [{ k: 'accBoost', m: 1.2 }, { k: 'evasion', m: 1.1 }]);
+defA('storm_rider', 'Storm Rider', { k: 'prioType', type: 'Electric' });
+defA('deep_breath', 'Deep Breath', [{ k: 'earlyBird' }, { k: 'turnCure', p: 20 }]);
 
 export const ABILITY_IDS = Object.keys(ABILITIES);
 export function getAbility(id) { return ABILITIES[id] || null; }
