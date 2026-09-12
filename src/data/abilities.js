@@ -85,7 +85,15 @@ const AB_STATUS_VERB = { brn: 'burned', psn: 'poisoned', par: 'paralyzed', slp: 
 const AB_FLAG_NAME = { contact: 'Contact', punch: 'Punching', bite: 'Biting', sound: 'Sound', powder: 'Powder' };
 const AB_FX_NAME = { drain: 'Draining', recoil: 'Recoil', multi: 'Multi-hit', status: 'Status-inflicting', flinch: 'Flinching' };
 const abFrac = (r) => (Math.abs(r - 1 / 16) < 1e-9 ? 'a sixteenth' : Math.abs(r - 1 / 8) < 1e-9 ? 'an eighth' : Math.abs(r - 1 / 6) < 1e-9 ? 'a sixth' : Math.abs(r - 1 / 4) < 1e-9 ? 'a quarter' : Math.abs(r - 1 / 3) < 1e-9 ? 'a third' : Math.abs(r - 1 / 2) < 1e-9 ? 'half' : `${Math.round(r * 100)}%`);
-const abStages = (stats, who) => Object.entries(stats).map(([k, n]) => `${who} ${STAT_NAMES[k] || k} ${n > 0 ? 'rises' : 'falls'}${Math.abs(n) > 1 ? ' sharply' : ''}`).join(' and ');
+const abAn = (word) => `${/^[AEIOU]/i.test(word) ? 'an' : 'a'} ${word}`;
+const abList = (words) => (words.length < 2 ? words.join('') : `${words.slice(0, -1).join(', ')} and ${words[words.length - 1]}`);
+const abStages = (stats, who) => {
+  const rows = Object.entries(stats);
+  const same = rows.every(([, n]) => (n > 0) === (rows[0][1] > 0) && Math.abs(n) === Math.abs(rows[0][1]));
+  const verb = (n, many) => `${n > 0 ? (many ? 'rise' : 'rises') : (many ? 'fall' : 'falls')}${Math.abs(n) > 1 ? ' sharply' : ''}`;
+  if (same && rows.length > 1) return `${who} ${abList(rows.map(([k]) => STAT_NAMES[k] || k))} ${verb(rows[0][1], true)}`.trim();
+  return abList(rows.map(([k, n]) => `${who} ${STAT_NAMES[k] || k} ${verb(n, false)}`.trim()));
+};
 const abChance = (p) => (p == null || p >= 100 ? '' : `${p}% chance to `);
 const abX = (m) => `${m}x`;
 export function describeFx(f) {
@@ -139,7 +147,7 @@ export function describeFx(f) {
     case 'contactStatus': return f.s === 'random' ? `Contact has a ${f.p}% chance to leave the attacker burned, poisoned or paralyzed.` : `Contact has a ${f.p}% chance to leave the attacker ${AB_STATUS_VERB[f.s]}.`;
     case 'contactStat': return `${abChance(f.p) ? `Contact has a ${f.p}% chance: the attacker’s ` : 'Contact: the attacker’s '}${abStages(f.stats, '').trim().replace(/^ /, '')}.`;
     case 'hurtStat': return `${abStages(f.stats, 'Own')} when hit by a ${f.cat ? `${AB_CAT_NAME[f.cat]} ` : ''}move.`;
-    case 'hitByTypeStat': return `${abStages(f.stats, 'Own')} when hit by a ${f.type} move.`;
+    case 'hitByTypeStat': return `${abStages(f.stats, 'Own')} when hit by ${abAn(`${f.type} move`)}.`;
     case 'hurtFoeStat': return `${abChance(f.p) ? `When hit, ${f.p}% chance that the attacker’s ` : 'When hit, the attacker’s '}${abStages(f.stats, '').trim()}.`;
     case 'catThorns': return `${AB_CAT_NAME[f.cat]} moves that hit it deal ${abFrac(f.r)} of their damage back.`;
     case 'critStat': return `${abStages(f.stats, 'Own')} when hit critically.`;
@@ -546,6 +554,74 @@ defA('mourning_veil', 'Mourning Veil', { k: 'avengeStat', stats: { magic: 1, mag
 defA('rally', 'Rally', { k: 'avengeStat', stats: { spe: 2 } });
 defA('shieldbearer', 'Shieldbearer', { k: 'avengeStat', stats: { meleeDef: 1, rangedDef: 1 } });
 defA('torchbearer', 'Torchbearer', [{ k: 'avengeStat', stats: { magic: 2 } }, { k: 'revengeBoost', m: 1.15 }]);
+
+// ---- batch seven: the armory — what it drinks, what it shrugs off, and what it gives back ------------
+defA('slipstream', 'Slipstream', { k: 'typeAbsorb', type: 'Water', stats: { spe: 1 } });
+defA('featherbed', 'Featherbed', { k: 'typeAbsorb', type: 'Normal', heal: 1 / 4 });
+defA('sparring_partner', 'Sparring Partner', { k: 'typeAbsorb', type: 'Fighting', stats: { melee: 1 } });
+defA('mind_sponge', 'Mind Sponge', { k: 'typeAbsorb', type: 'Psychic', stats: { magic: 1 } });
+defA('hive_sense', 'Hive Sense', { k: 'typeAbsorb', type: 'Bug', stats: { spe: 1 } });
+defA('stone_eater', 'Stone Eater', { k: 'typeAbsorb', type: 'Rock', heal: 1 / 4 });
+defA('wyrm_ward', 'Wyrm Ward', { k: 'typeAbsorb', type: 'Dragon', stats: { magicDef: 1 } });
+defA('umbral_drinker', 'Umbral Drinker', { k: 'typeAbsorb', type: 'Dark', heal: 1 / 4 });
+defA('rust_feeder', 'Rust Feeder', { k: 'typeAbsorb', type: 'Steel', heal: 1 / 4 });
+defA('glamour_ward', 'Glamour Ward', { k: 'typeAbsorb', type: 'Fairy', stats: { magicDef: 1 } });
+
+defA('spirit_step', 'Spirit Step', [{ k: 'typeImmune', type: 'Fighting' }, { k: 'typeWeak', type: 'Fairy', m: 1.25 }]);
+defA('ash_lungs', 'Ash Lungs', [{ k: 'typeImmune', type: 'Fire' }, { k: 'typeWeak', type: 'Water', m: 1.5 }]);
+defA('earthed', 'Earthed', [{ k: 'typeImmune', type: 'Electric' }, { k: 'typeWeak', type: 'Ground', m: 1.5 }]);
+defA('sky_born', 'Sky Born', [{ k: 'typeImmune', type: 'Ground' }, { k: 'typeWeak', type: 'Ice', m: 1.5 }]);
+defA('dream_shell', 'Dream Shell', [{ k: 'typeImmune', type: 'Psychic' }, { k: 'typeWeak', type: 'Bug', m: 1.5 }]);
+defA('iron_lung', 'Iron Lung', [{ k: 'typeImmune', type: 'Poison' }, { k: 'typeWeak', type: 'Fire', m: 1.25 }]);
+
+defA('guard_stance', 'Guard Stance', [{ k: 'catResist', cat: 'melee', m: 0.75 }, { k: 'defMul', stat: 'meleeDef', m: 1.1 }]);
+defA('volley_screen', 'Volley Screen', [{ k: 'catResist', cat: 'ranged', m: 0.75 }, { k: 'defMul', stat: 'rangedDef', m: 1.1 }]);
+defA('ward_sign', 'Ward Sign', [{ k: 'catResist', cat: 'magic', m: 0.75 }, { k: 'defMul', stat: 'magicDef', m: 1.1 }]);
+defA('turtle_up', 'Turtle Up', [{ k: 'catResist', cat: 'melee', m: 0.6 }, { k: 'statMul', stat: 'spe', m: 0.9 }]);
+defA('arrow_catcher', 'Arrow Catcher', [{ k: 'catResist', cat: 'ranged', m: 0.6 }, { k: 'statMul', stat: 'spe', m: 0.9 }]);
+defA('hex_eater', 'Hex Eater', [{ k: 'catResist', cat: 'magic', m: 0.6 }, { k: 'statMul', stat: 'spe', m: 0.9 }]);
+
+defA('fireproof_blood', 'Fireproof Blood', [{ k: 'statusImmune', s: 'brn' }, { k: 'typeResist', type: 'Fire', m: 0.75 }]);
+defA('clean_veins', 'Clean Veins', [{ k: 'statusImmune', s: 'psn' }, { k: 'turnHeal', r: 1 / 16 }]);
+defA('grounded_nerves', 'Grounded Nerves', [{ k: 'statusImmune', s: 'par' }, { k: 'statMul', stat: 'spe', m: 1.1 }]);
+defA('insomniac', 'Insomniac', [{ k: 'statusImmune', s: 'slp' }, { k: 'accBoost', m: 1.05 }]);
+defA('warm_blood', 'Warm Blood', [{ k: 'statusImmune', s: 'frz' }, { k: 'typeResist', type: 'Ice', m: 0.75 }]);
+defA('sealed_body', 'Sealed Body', [{ k: 'allStatusImmune' }, { k: 'statMul', stat: 'spe', m: 0.9 }]);
+defA('fever_plate', 'Fever Plate', [{ k: 'statusDef', stat: 'meleeDef', m: 1.5 }, { k: 'turnCure', p: 20 }]);
+defA('toxic_patience', 'Toxic Patience', [{ k: 'poisonHeal' }, { k: 'statusDef', stat: 'magicDef', m: 1.3 }]);
+
+defA('steam_vent', 'Steam Vent', { k: 'hitByTypeStat', type: 'Water', stats: { spe: 1 } });
+defA('sun_bath', 'Sun Bath', [{ k: 'hitByTypeStat', type: 'Fire', stats: { magic: 1 } }, { k: 'typeResist', type: 'Fire', m: 0.8 }]);
+defA('rime_coat', 'Rime Coat', { k: 'hitByTypeStat', type: 'Ice', stats: { meleeDef: 1 } });
+defA('live_coat', 'Live Coat', { k: 'hitByTypeStat', type: 'Electric', stats: { spe: 2 } });
+defA('rooted_answer', 'Rooted Answer', { k: 'hitByTypeStat', type: 'Grass', stats: { rangedDef: 1 } });
+defA('gale_answer', 'Gale Answer', { k: 'hitByTypeStat', type: 'Flying', stats: { spe: 1 } });
+defA('bruised_pride', 'Bruised Pride', { k: 'hurtStat', cat: 'melee', stats: { melee: 1, spe: 1 } });
+defA('sniped_pride', 'Sniped Pride', { k: 'hurtStat', cat: 'ranged', stats: { ranged: 1, spe: 1 } });
+defA('hexed_pride', 'Hexed Pride', { k: 'hurtStat', cat: 'magic', stats: { magic: 1, spe: 1 } });
+defA('scar_tissue', 'Scar Tissue', { k: 'critStat', stats: { meleeDef: 2 } });
+
+defA('caltrops', 'Caltrops', [{ k: 'contactHurt', r: 1 / 6 }, { k: 'contactStat', stats: { spe: -1 }, p: 30 }]);
+defA('acid_skin', 'Acid Skin', [{ k: 'contactHurt', r: 1 / 8 }, { k: 'contactStatus', s: 'psn', p: 20 }]);
+defA('static_coat', 'Static Coat', [{ k: 'contactHurt', r: 1 / 8 }, { k: 'contactStatus', s: 'par', p: 20 }]);
+defA('ash_coat', 'Ash Coat', [{ k: 'contactHurt', r: 1 / 8 }, { k: 'contactStatus', s: 'brn', p: 20 }]);
+defA('arrow_thorns', 'Arrow Thorns', { k: 'catThorns', cat: 'ranged', r: 1 / 3 });
+defA('hex_thorns', 'Hex Thorns', { k: 'catThorns', cat: 'magic', r: 0.25 });
+defA('death_cap', 'Death Cap', { k: 'aftermath', r: 0.5 });
+defA('bitter_sap', 'Bitter Sap', [{ k: 'liquidOoze' }, { k: 'turnHeal', r: 1 / 16 }]);
+
+defA('heat_haze', 'Heat Haze', [{ k: 'evasion', m: 0.85 }, { k: 'accBoost', m: 1.1 }]);
+defA('bodyguard', 'Bodyguard', [{ k: 'prioImmune' }, { k: 'prioBoost', m: 1.2 }]);
+defA('overseer', 'Overseer', [{ k: 'pressure' }, { k: 'defMul', stat: 'magicDef', m: 1.1 }]);
+defA('dust_cloak', 'Dust Cloak', [{ k: 'shieldDust' }, { k: 'evasion', m: 0.9 }]);
+defA('firm_footing', 'Firm Footing', [{ k: 'noStatDrop', stat: 'spe' }, { k: 'noStatDrop', stat: 'meleeDef' }]);
+defA('proud_horns', 'Proud Horns', [{ k: 'noStatDrop', stat: 'melee' }, { k: 'debuffedStat', stats: { melee: 1 } }]);
+defA('fresh_plate', 'Fresh Plate', [{ k: 'fullHpResist', m: 0.7 }, { k: 'turnHeal', r: 1 / 16 }]);
+defA('last_wall', 'Last Wall', [{ k: 'lowHpResist', m: 0.6 }, { k: 'lowHpStat', stats: { meleeDef: 1, rangedDef: 1 }, at: 1 / 3 }]);
+defA('prism_scale', 'Prism Scale', [{ k: 'filter', m: 0.7 }, { k: 'tintedLens', m: 1.2 }]);
+defA('mirror_polish', 'Mirror Polish', [{ k: 'critImmune' }, { k: 'evasion', m: 0.95 }]);
+defA('sealed_vents', 'Sealed Vents', [{ k: 'soundImmune' }, { k: 'powderImmune' }]);
+defA('iron_curtain', 'Iron Curtain', [{ k: 'allResist', m: 0.9 }, { k: 'statMul', stat: 'spe', m: 0.9 }]);
 
 export const ABILITY_IDS = Object.keys(ABILITIES);
 export function getAbility(id) { return ABILITIES[id] || null; }
