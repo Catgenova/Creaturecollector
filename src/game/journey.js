@@ -14,6 +14,7 @@ import { goldReward, battleItems, syncBagFromBattle, returnCharms } from './mark
 import { getCharm, heldKind, CHARM_RULE, WARDEN_CHARMS } from '../data/charms.js';
 import { recordTowerWin, towerRecord } from './tower.js';
 import { newBoard, ensureBoard, questEvent } from './quests.js';
+import { newBounties, ensureBounties } from './bounties.js';
 
 export const JOURNEY = { starterLevel: PARTY.starterLevel, maxLevel: PARTY.maxLevel, partyMax: PARTY.max, gauntletHeal: 0.35, badgesForSpire: BIOME_ORDER.length, councilFights: 4 };
 export const DIRS = { up: [0, -1], down: [0, 1], left: [-1, 0], right: [1, 0] };
@@ -33,11 +34,11 @@ export function newJourney(seed) {
   const world = worldFor(seed);
   return {
     seed: String(seed), world: WORLD.version, phase: 'starter', starters, party: [], box: [], nextId: 1, pendingLearns: [],
-    stats: { steps: 0, battles: 0, captures: 0, fusions: 0, trainers: 0, bosses: 0, wipes: 0, tower: 0, quests: 0 },
+    stats: { steps: 0, battles: 0, captures: 0, fusions: 0, trainers: 0, bosses: 0, wipes: 0, tower: 0, quests: 0, bounties: 0 },
     tower: { challenges: 0, wins: {} },
     player: { x: world.start.x, y: world.start.y, dir: 'down' },
     badges: [], beaten: {}, camps: [], lastCamp: { x: world.hubCamp.x, y: world.hubCamp.y }, cooldown: 0,
-    gold: 0, bag: {}, quests: newBoard(),
+    gold: 0, bag: {}, quests: newBoard(), bounties: newBounties(),
     gauntlet: null, champion: false, encounter: null, lastReport: null,
   };
 }
@@ -49,6 +50,7 @@ export function chooseJourneyStarter(j, index) {
   j.starters = null;
   j.phase = 'roam';
   ensureBoard(j); // the first three notices go up once there is a party to send
+  ensureBounties(j);
   return j;
 }
 
@@ -99,6 +101,7 @@ export function tryMove(j, dir) {
   if (tile === TILE.marketDoor) return { moved: true, event: { kind: 'market' } };
   if (tile === TILE.storageDoor) return { moved: true, event: { kind: 'storage' } };
   if (tile === TILE.towerDoor) return { moved: true, event: { kind: 'tower' } };
+  if (tile === TILE.bountyDoor) return { moved: true, event: { kind: 'bounty' } };
   if (tileAt(world, nx + DIRS[dir][0], ny + DIRS[dir][1]) === TILE.board) return { moved: true, event: { kind: 'board' } };
   if (tile === TILE.habitat && j.cooldown <= 0) {
     const rng = makeRng(`${j.seed}:step:${j.stats.steps}`);

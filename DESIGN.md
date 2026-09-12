@@ -1138,6 +1138,38 @@ in reach: every badge held plus the next two on the ring.
   survives the save with its progress; unknown kinds or rewards are dropped
   and the board topped back up.
 
+## Natures (implemented)
+
+`src/data/natures.js` holds forty-nine natures over the seven battle stats
+(HP is never leaned): a seven by seven grid where the row is the stat lifted
+and the column the stat lowered, the diagonal being the seven even natures
+(Even, Mild, Plain, Quiet, Docile, Bashful, Level). `statsAtLevel` multiplies
+the finished level stat by 1.1 or 0.9, floored, so the lean scales with level
+like everything else. Every wild roll draws a nature uniformly (one in seven
+is even); validation gives creatures from before natures the Even nature so
+nothing they had changes; fusion takes the face parent's nature three times
+in five and the other's otherwise. The creature sheet names the nature under
+the title, says what it leans in the stats section and marks the lifted and
+lowered rows with green and red arrows. Natures add noise but no bias to the
+tournament, so the balance loop stands.
+
+## The Bounty Office (implemented)
+
+A 3 by 2 house on the hub's south-east edge (`TILE.bounty`, door
+`TILE.bountyDoor` on the square; `WORLD.version` 11, and the notice board
+moved a step to make room). `src/game/bounties.js` keeps five standing
+bounties, each wanting a fusion of one type (no two alike), priced at 1,500
+gold plus 300 a badge, times a per-bounty spread of 0.8 to 1.4, rounded to
+tens. Any member of the party or storage with generation one or more that
+carries the type qualifies; the payout is the bounty's gold times a level
+bonus of 1 + level/100 (1.01 at level 1, 2.00 at level 100). Handing one over
+returns its charm to the Bag, removes it (it stays in the Collection), pays
+the purse, counts toward `stats.bounties` and pins a fresh bounty. Locked
+creatures and the last member of the party are refused. The office sheet
+lists the five with the best candidate's payout, then the candidates with
+their multipliers; a second tap confirms. The save keeps the list and drops
+junk types, prices and duplicates.
+
 ## Mobile view (implemented)
 
 The game was drawn for a phone from the start (portrait layout, 44px targets,

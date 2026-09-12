@@ -7,6 +7,7 @@ import { baseStats, resolveParts, TRAIT_KEYS, speciesOf, rigOf, makeElemental, e
 import { getMove } from '../data/moves.js';
 import { getAbility } from '../data/abilities.js';
 import { getCharm } from '../data/charms.js';
+import { getNature, natureLabel, DEFAULT_NATURE } from '../data/natures.js';
 import { STAT_KEYS, STAT_NAMES } from '../data/damage.js';
 import { ELEMENT_IDS, ELEMENTS } from '../data/elements.js';
 import { stageOf, stageName } from '../data/evolution.js';
@@ -17,9 +18,12 @@ import { cladeName } from '../data/clades.js';
 
 function statRows(g) {
   const base = baseStats(g);
+  const nature = getNature(g.nature) || getNature(DEFAULT_NATURE);
   const rows = [];
   for (const k of STAT_KEYS) {
-    rows.push(h('span', {}, STAT_NAMES[k]), h('div', { class: 'bar' }, h('i', { style: { width: `${Math.min(100, base[k] / 1.6)}%` } })), h('b', {}, String(base[k])));
+    const lean = nature.up === k ? 'up' : nature.down === k ? 'down' : '';
+    rows.push(h('span', { class: lean ? `lean ${lean}` : null }, STAT_NAMES[k], lean ? h('i', { title: lean === 'up' ? 'Lifted a tenth by its nature' : 'Lowered a tenth by its nature' }, lean === 'up' ? ' ▲' : ' ▼') : null),
+      h('div', { class: 'bar' }, h('i', { class: lean || null, style: { width: `${Math.min(100, base[k] / 1.6)}%` } })), h('b', {}, String(base[k])));
   }
   const total = STAT_KEYS.reduce((a, k) => a + base[k], 0);
   rows.push(h('span', {}, 'Total'), h('span', {}), h('b', {}, String(total)));
@@ -192,6 +196,7 @@ function sheetContent(g, sheetOpts, ctx) {
         releaseBtn) : null,
       h('button', { class: 'btn close', onclick: ctx.close, 'aria-label': 'Close' }, '✕')),
     h('p', { class: 'meta' }, sp ? `${sp.name} · ${sp.tier}` : 'Fusion', ` · ${cladeName(cladeOf(g))} · gen ${g.gen} · seed ${g.seed}`),
+    h('p', { class: 'meta nature-line' }, h('b', {}, natureLabel(g.nature).split(' (')[0]), ` nature · ${natureLabel(g.nature).includes('no lean') ? 'no lean' : natureLabel(g.nature).split(' (')[1].replace(')', '')}`),
     abilityCard(g),
     sheetOpts.held && optVal(sheetOpts.held.id) ? heldCard(sheetOpts.held) : null,
     hero,
@@ -204,7 +209,7 @@ function sheetContent(g, sheetOpts, ctx) {
         redraw();
       } }, h('option', { value: '' }, 'Elemental preview'), ...ELEMENT_IDS.map((id) => h('option', { value: id }, `${ELEMENTS[id].name} Elemental`)))),
     sp ? h('p', { class: 'desc' }, sp.desc) : null,
-    ...section('Base stats', statRows(g)),
+    ...section('Base stats', h('p', { class: 'hint', style: { margin: '0 0 6px' } }, getNature(g.nature) && getNature(g.nature).up ? `${getNature(g.nature).name} nature: ${STAT_NAMES[getNature(g.nature).up]} a tenth higher and ${STAT_NAMES[getNature(g.nature).down]} a tenth lower at every level.` : 'An even nature: no stat leans.'), statRows(g)),
     ...(moveRows(sheetOpts.moves) ? section('Moves', moveRows(sheetOpts.moves)) : []),
     ...section('Learns by level', learnsetRows(g, sheetOpts.level, sheetOpts.moves)),
     ...section('Parts', partRows(g)),

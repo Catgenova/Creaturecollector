@@ -6,7 +6,7 @@
 // a lair where its Warden waits with a badge, and a few trainers on the paths who fight
 // when asked. The hub also has a fusion
 // shrine, a Market selling moves for the gold trainers pay, a Creature Storage holding the box, a Battle Tower
-// of six-on-six fights at chosen levels and a notice board of requests. The Council Spire in the hub opens with every badge: four fights in a row.
+// of six-on-six fights at chosen levels, a notice board of requests and a Bounty Office that buys fusions. The Council Spire in the hub opens with every badge: four fights in a row.
 //
 // Everything here is pure data derived from the seed. The map is three Uint8Arrays
 // (tile kind, biome index, habitat type) plus placed content.
@@ -19,11 +19,11 @@ import { speciesGenome, rollElemental } from '../creature/genome.js';
 import { fuse, canFuse } from '../creature/fusion.js';
 
 /** Map size and ring geometry. `version` bumps whenever the layout changes, so saved positions from an older map reset to the Crossroads. */
-export const WORLD = { version: 10, w: 224, h: 192, hubR: 6, ringR: 58, lairR: 84, trainersPerBiome: 6, encounterChance: 0.12, encounterCooldown: 4, homeSpawnShare: 0.72 };
+export const WORLD = { version: 11, w: 224, h: 192, hubR: 6, ringR: 58, lairR: 84, trainersPerBiome: 6, encounterChance: 0.12, encounterCooldown: 4, homeSpawnShare: 0.72 };
 
 /** Tile kinds. */
-export const TILE = { grass: 0, habitat: 1, path: 2, wall: 3, water: 4, hub: 5, lair: 6, door: 7, camp: 8, spire: 9, spireDoor: 10, shrine: 11, market: 12, marketDoor: 13, storage: 14, storageDoor: 15, tower: 16, towerDoor: 17, board: 18 };
-export const WALKABLE_TILES = new Set([TILE.grass, TILE.habitat, TILE.path, TILE.hub, TILE.door, TILE.camp, TILE.spireDoor, TILE.shrine, TILE.marketDoor, TILE.storageDoor, TILE.towerDoor]);
+export const TILE = { grass: 0, habitat: 1, path: 2, wall: 3, water: 4, hub: 5, lair: 6, door: 7, camp: 8, spire: 9, spireDoor: 10, shrine: 11, market: 12, marketDoor: 13, storage: 14, storageDoor: 15, tower: 16, towerDoor: 17, board: 18, bounty: 19, bountyDoor: 20 };
+export const WALKABLE_TILES = new Set([TILE.grass, TILE.habitat, TILE.path, TILE.hub, TILE.door, TILE.camp, TILE.spireDoor, TILE.shrine, TILE.marketDoor, TILE.storageDoor, TILE.towerDoor, TILE.bountyDoor]);
 
 /** Biomes in difficulty order, clockwise from the south of the hub. Levels climb 5 to the fifties; the gaps in the ladder are for classes still to come. */
 export const BIOME_ORDER = ['mammal', 'amphibian', 'flora', 'insect', 'nightwing', 'fungus', 'bird', 'crystalline', 'ooze', 'fish', 'myriapod', 'wyrm', 'invertebrate', 'skeletal', 'reptile', 'fiend', 'draconic', 'spirit'];
@@ -369,7 +369,7 @@ export function generateWorld(seed) {
       }
     }
   }
-  const world = { seed: String(seed), w, h, tiles, bio, hab, hub, biomes, trainers: [], trainerAt: new Map(), wardens: {}, council: [], start: { x: hub.x, y: hub.y + 1 }, spireDoor: { x: hub.x, y: hub.y - 5 }, shrine: { x: hub.x + 3, y: hub.y }, hubCamp: { x: hub.x - 3, y: hub.y }, market: { x: hub.x + 4, y: hub.y - 4 }, marketDoor: { x: hub.x + 4, y: hub.y - 2 }, storage: { x: hub.x - 4, y: hub.y - 4 }, storageDoor: { x: hub.x - 4, y: hub.y - 2 }, tower: { x: hub.x - 4, y: hub.y + 3 }, towerDoor: { x: hub.x - 4, y: hub.y + 2 }, board: { x: hub.x + 2, y: hub.y + 3 } };
+  const world = { seed: String(seed), w, h, tiles, bio, hab, hub, biomes, trainers: [], trainerAt: new Map(), wardens: {}, council: [], start: { x: hub.x, y: hub.y + 1 }, spireDoor: { x: hub.x, y: hub.y - 5 }, shrine: { x: hub.x + 3, y: hub.y }, hubCamp: { x: hub.x - 3, y: hub.y }, market: { x: hub.x + 4, y: hub.y - 4 }, marketDoor: { x: hub.x + 4, y: hub.y - 2 }, storage: { x: hub.x - 4, y: hub.y - 4 }, storageDoor: { x: hub.x - 4, y: hub.y - 2 }, tower: { x: hub.x - 4, y: hub.y + 3 }, towerDoor: { x: hub.x - 4, y: hub.y + 2 }, board: { x: hub.x + 1, y: hub.y + 4 }, bounty: { x: hub.x + 4, y: hub.y + 3 }, bountyDoor: { x: hub.x + 4, y: hub.y + 2 } };
 
   // the hub disc, its spire, shrine and camp
   for (let y = hub.y - WORLD.hubR; y <= hub.y + WORLD.hubR; y++) for (let x = hub.x - WORLD.hubR; x <= hub.x + WORLD.hubR; x++) if (isHubTile(world, x, y)) tiles[idx(x, y)] = TILE.hub;
@@ -378,6 +378,9 @@ export function generateWorld(seed) {
   tiles[idx(world.shrine.x, world.shrine.y)] = TILE.shrine;
   tiles[idx(world.hubCamp.x, world.hubCamp.y)] = TILE.camp;
   tiles[idx(world.board.x, world.board.y)] = TILE.board; // the notice board: stand beside it and press A
+  // the Bounty Office: a 3 x 2 house on the hub's south-east edge, door facing the square, where fusions are handed in for gold
+  for (let y = world.bounty.y; y <= world.bounty.y + 1; y++) for (let x = world.bounty.x - 1; x <= world.bounty.x + 1; x++) tiles[idx(x, y)] = TILE.bounty;
+  tiles[idx(world.bountyDoor.x, world.bountyDoor.y)] = TILE.bountyDoor;
   // the Market: a 3 x 2 shop on the hub's north-east edge, door facing the square
   for (let y = world.market.y; y <= world.market.y + 1; y++) for (let x = world.market.x - 1; x <= world.market.x + 1; x++) tiles[idx(x, y)] = TILE.market;
   tiles[idx(world.marketDoor.x, world.marketDoor.y)] = TILE.marketDoor;
@@ -440,7 +443,7 @@ export function generateWorld(seed) {
   world.council = councilFor(rng.fork('council'));
 
   // guarantee: every camp, lair front, the spire door and the shrine are reachable from the start
-  const targets = [world.spireDoor, world.shrine, world.hubCamp, world.marketDoor, world.storageDoor, world.towerDoor, ...biomes.map((b) => b.camp), ...biomes.map((b) => b.lair.front)];
+  const targets = [world.spireDoor, world.shrine, world.hubCamp, world.marketDoor, world.storageDoor, world.towerDoor, world.bountyDoor, { x: world.board.x, y: world.board.y + 1 }, ...biomes.map((b) => b.camp), ...biomes.map((b) => b.lair.front)];
   for (let round = 0; round < 3; round++) {
     const reach = reachableFrom(world, world.start);
     const missing = targets.filter((t) => !reach.has(idx(t.x, t.y)));

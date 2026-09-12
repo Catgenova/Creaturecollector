@@ -18,6 +18,7 @@ import { GENOME_VERSION, PAINT_PERMS, TRAIT_KEYS, randomPartId, learnsetOf, clad
 import { STAT_KEYS } from '../data/damage.js';
 import { ELEMENTS, isCoreAbility } from '../data/elements.js';
 import { CLADES, cladeName } from '../data/clades.js';
+import { NATURES, DEFAULT_NATURE } from '../data/natures.js';
 import { getMove, UNIVERSAL_LEARNSET } from '../data/moves.js';
 import { blendColor, harmonizePalette, morphPalette } from './palette.js';
 import { joinNameParts, splitName } from './naming.js';
@@ -213,6 +214,9 @@ export function fuse(a, b, rng) {
     else { const sp = speciesOf(P1) || speciesOf(P2); ability = (sp && sp.abilities && sp.abilities[0]) || 'lucky_streak'; }
   }
 
+  // the nature comes from the face's parent three times in five, else the other's
+  const natureOf = (p) => (NATURES[p.nature] ? p.nature : DEFAULT_NATURE);
+  const nature = rng.fork('nature').chance(0.6) ? natureOf(P1) : natureOf(P2);
   const nameParts = [namePartsOf(P1)[0], namePartsOf(P2)[1]];
   const lineage = [...(a.lineage || []), ...(b.lineage || [])].filter((x, i, arr) => arr.indexOf(x) === i).slice(-FUSE.maxLineage);
 
@@ -232,6 +236,7 @@ export function fuse(a, b, rng) {
     parents: [a.name, b.name],
     learnset: fuseLearnsets(a, b, [primary, secondary]),
     ability,
+    nature,
   };
   if (Object.keys(aura).length) child.aura = aura;
   return {

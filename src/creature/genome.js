@@ -14,6 +14,7 @@ import { splitName } from './naming.js';
 import { getMove, UNIVERSAL_LEARNSET } from '../data/moves.js';
 import { ABILITIES } from '../data/abilities.js';
 import { CLADES } from '../data/clades.js';
+import { NATURES, NATURE_IDS, DEFAULT_NATURE } from '../data/natures.js';
 import { jitterPalette, shinyPalette, harmonizePalette, morphPalette, MORPH_IDS } from './palette.js';
 
 export const GENOME_VERSION = 1;
@@ -66,6 +67,7 @@ export function speciesGenome(species, rng) {
   const rTraits = rng.fork('traits');
   const rStats = rng.fork('stats');
   const rAbility = rng.fork('ability');
+  const rNature = rng.fork('nature');
 
   const rig = speciesRig(species);
   const parts = {};
@@ -127,6 +129,7 @@ export function speciesGenome(species, rng) {
     lineage: [species.id],
     learnset: (species.learnset || UNIVERSAL_LEARNSET).map((e) => e.slice()),
     ability: rAbility.pick(species.abilities || ['lucky_streak']),
+    nature: rNature.pick(NATURE_IDS),
   };
 }
 
@@ -289,5 +292,6 @@ export function validateGenome(g) {
   g.learnset = Array.isArray(g.learnset) ? g.learnset.filter((e) => Array.isArray(e) && Number.isFinite(e[0]) && getMove(e[1])).map((e) => [e[0], e[1]]) : [];
   if (!g.learnset.length) g.learnset = ((sp && sp.learnset) || UNIVERSAL_LEARNSET).map((e) => e.slice());
   if (!ABILITIES[g.ability]) g.ability = (sp && sp.abilities && sp.abilities[0]) || 'lucky_streak';
+  if (!NATURES[g.nature]) g.nature = DEFAULT_NATURE; // creatures from before natures are even-handed
   return g;
 }

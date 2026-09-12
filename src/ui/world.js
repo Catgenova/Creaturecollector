@@ -22,6 +22,7 @@ import { speciesGenome } from '../creature/genome.js';
 import { MORPHS } from '../creature/palette.js';
 import { CLADE_IDS } from '../data/clades.js';
 import { openQuests, questReady, rewardText, claimQuest, abandonQuest } from '../game/quests.js';
+import { openBounties, bountyCandidates, bountyPayout, bountyLevelMul, turnInBounty } from '../game/bounties.js';
 import { TOWER, TOWER_TRAINERS, challengeTower, towerRecord } from '../game/tower.js';
 import { abilityName } from '../data/abilities.js';
 import { getMove } from '../data/moves.js';
@@ -282,6 +283,7 @@ function owAfterStep(event) {
   if (event.kind === 'encounter') { owSave(); sfx.cry(j.encounter.foes[0].genome); renderWorldScreen(ow.root); return; }
   if (event.kind === 'camp') { owSave(); sfx.heal(); toast(event.place.id === 'hub' ? 'Rested at the Crossroads. Party healed.' : event.quests && event.quests.length ? 'Camp reached. Party healed. A notice is done: claim it at the board.' : 'Camp reached. Party healed.'); owRefreshHud(); return; }
   if (event.kind === 'board') { owBoardSheet(j); return; }
+  if (event.kind === 'bounty') { owBountySheet(j); return; }
   if (event.kind === 'lair') { owLairDialog(event); return; }
   if (event.kind === 'spire') { owSpireDialog(event); return; }
   if (event.kind === 'shrine') { owShrineSheet(j); return; }
@@ -310,6 +312,7 @@ function owInteract() {
   if (here === TILE.marketDoor) { owMarketSheet(j); return; }
   if (here === TILE.storageDoor) { owStorageSheet(j); return; }
   if (here === TILE.towerDoor) { owTowerSheet(j); return; }
+  if (here === TILE.bountyDoor) { owBountySheet(j); return; }
   if (here === TILE.camp) { toast('The fire is warm. Your party is rested.'); return; }
   if (tileAt(world, f.x, f.y) === TILE.board) { owBoardSheet(j); return; }
   const ht = habitatTypeAt(world, f.x, f.y);
@@ -567,7 +570,7 @@ function owPartySheet(j) {
     appendChildren(body, [
       ...section(`Party · ${j.party.length}/${JOURNEY.partyMax}`, h('p', { class: 'hint' }, `The lead goes out first. Camps heal everyone; a wipe sends you back to the last one you rested at. ${j.box.length ? `${j.box.length} in storage` : 'Storage is empty'}; deposit and withdraw at the Creature Storage in the Crossroads. Release lets a creature go for good; it stays in your Collection.`), partyList),
     ]);
-    body.append(h('p', { class: 'hint' }, `${j.stats.steps} steps · ${j.stats.battles} battles · ${j.stats.captures} caught · ${j.stats.trainers} trainers · ${j.stats.bosses} wardens · ${j.stats.fusions} fusions · ${j.stats.quests || 0} notices`));
+    body.append(h('p', { class: 'hint' }, `${j.stats.steps} steps · ${j.stats.battles} battles · ${j.stats.captures} caught · ${j.stats.trainers} trainers · ${j.stats.bosses} wardens · ${j.stats.fusions} fusions · ${j.stats.quests || 0} notices · ${j.stats.bounties || 0} bounties`));
   };
   const render = () => owKeepScroll(body, draw);
   render();
@@ -580,7 +583,7 @@ function owMapSheet(j) {
   const ctx = c.getContext('2d');
   for (let y = 0; y < world.h; y++) for (let x = 0; x < world.w; x++) {
     const t = world.tiles[y * world.w + x], r = REGIONS[world.biomes[world.bio[y * world.w + x]].clade];
-    ctx.fillStyle = t === TILE.water ? r.water : t === TILE.wall ? r.wallColor : t === TILE.path || t === TILE.door ? r.path : t === TILE.hub || t === TILE.shrine || t === TILE.spireDoor ? HUB.paving : t === TILE.habitat ? r.habitat : t === TILE.lair || t === TILE.spire || t === TILE.tower ? '#1a1a22' : r.ground;
+    ctx.fillStyle = t === TILE.water ? r.water : t === TILE.wall ? r.wallColor : t === TILE.path || t === TILE.door ? r.path : t === TILE.hub || t === TILE.shrine || t === TILE.spireDoor ? HUB.paving : t === TILE.habitat ? r.habitat : t === TILE.lair || t === TILE.spire || t === TILE.tower || t === TILE.bounty ? '#1a1a22' : r.ground;
     ctx.fillRect(x * S, y * S, S, S);
   }
   const dot = (p, color, rad) => { ctx.fillStyle = color; ctx.beginPath(); ctx.arc(p.x * S + S / 2, p.y * S + S / 2, rad, 0, Math.PI * 2); ctx.fill(); };
@@ -590,10 +593,11 @@ function owMapSheet(j) {
   dot(world.storageDoor, '#4fc0a0', 5);
   dot(world.towerDoor, '#ff9f43', 5);
   dot(world.board, '#e0c86f', 4);
+  dot(world.bountyDoor, '#f26aa3', 5);
   for (const t of world.trainers) dot({ x: t.x, y: t.y }, j.beaten[t.id] ? '#8f96a8' : '#4f8ef7', 2.5);
   dot(j.player, '#f5c518', 6); ctx.strokeStyle = '#000'; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.arc(j.player.x * S + S / 2, j.player.y * S + S / 2, 6, 0, Math.PI * 2); ctx.stroke();
   const legend = h('div', { class: 'ow-legend' }, world.biomes.map((b) => h('div', {}, h('i', { style: { background: REGIONS[b.clade].ground } }), `${b.name} · to Lv ${b.level}${j.badges.includes(b.id) ? ' · badge ✓' : ''}`)));
-  owSheet('World map', h('div', {}, c, legend, h('p', { class: 'hint', style: { marginTop: '8px' } }, 'You are the gold dot. White: camps. Red: Wardens (gold once beaten). Blue: trainers. Purple: the Council Spire. Green: the Market. Teal: Creature Storage. Orange: the Battle Tower. Straw: the notice board.')));
+  owSheet('World map', h('div', {}, c, legend, h('p', { class: 'hint', style: { marginTop: '8px' } }, 'You are the gold dot. White: camps. Red: Wardens (gold once beaten). Blue: trainers. Purple: the Council Spire. Green: the Market. Teal: Creature Storage. Orange: the Battle Tower. Straw: the notice board. Pink: the Bounty Office.')));
 }
 
 function owMenuSheet(j) {
@@ -875,6 +879,58 @@ function owTowerSheet(j) {
   const { close } = owSheet('Battle Tower', body, () => owRefreshHud());
 }
 
+// ---- the Bounty Office ------------------------------------------------------------
+
+/** Five standing bounties for fusions by type; hand one over for its gold times the level bonus. */
+function owBountySheet(j) {
+  const body = h('div');
+  let picking = null; // bounty id whose candidates are shown
+  const draw = () => {
+    clear(body);
+    if (picking) {
+      const bounty = openBounties(j).find((b) => b.id === picking);
+      if (!bounty) { picking = null; render(); return; }
+      const cands = bountyCandidates(j, bounty);
+      body.append(h('div', { class: 'row', style: { justifyContent: 'flex-start' } }, h('button', { class: 'btn small', type: 'button', onclick: () => { picking = null; render(); } }, '‹ Bounties'),
+        h('span', { class: 'hint', style: { margin: 0 } }, `Hand over a ${bounty.type} fusion for ${bounty.gold.toLocaleString()} gold × its level bonus.`)));
+      if (!cands.length) body.append(h('p', { class: 'hint' }, `No ${bounty.type} fusion travels with you or waits in storage. The shrine fuses two creatures of one class; the child keeps its parents' types.`));
+      const list = h('div', { class: 'party-list' });
+      for (const c of cands) {
+        const m = c.member, block = c.locked ? `${m.genome.name} is locked. Unlock it in Info first.` : c.last ? 'Keep at least one creature with you.' : '';
+        list.append(owMemberRow(j, m, [
+          h('span', { class: 'hint', style: { margin: 0 } }, `× ${bountyLevelMul(m.level).toFixed(2)} at Lv ${m.level} = `, h('b', { class: 'ow-gold' }, `◆ ${c.payout.toLocaleString()}`)),
+          h('button', { class: `btn small${block ? '' : ' primary'}`, type: 'button', disabled: Boolean(block), title: block, onclick: () => {
+            if (ow.confirmBounty !== m.uid) { ow.confirmBounty = m.uid; toast(`Tap again to hand ${m.genome.name} over for good`); setTimeout(() => { if (ow.confirmBounty === m.uid) ow.confirmBounty = null; }, 4000); return; }
+            ow.confirmBounty = null;
+            const r = turnInBounty(j, bounty.id, m.uid);
+            if (!r.ok) { toast(r.reason); return; }
+            owSave(); sfx.win(); toast(`${r.member.genome.name} handed over: +${r.paid.toLocaleString()} gold (× ${r.mult.toFixed(2)}). It stays in your Collection.`);
+            picking = null; render(); owRefreshHud();
+          } }, 'Hand over'),
+        ]));
+      }
+      body.append(list);
+      return;
+    }
+    const list = h('div', { class: 'shop-list' });
+    for (const b of openBounties(j)) {
+      const cands = bountyCandidates(j, b);
+      const best = cands.find((c) => !c.locked && !c.last);
+      list.append(h('div', { class: `shop-row bounty${best ? ' next' : ''}` },
+        h('div', { class: 'shop-info' }, h('b', {}, 'Wanted: a ', h('span', { class: 'chip', style: { '--chip': TYPE_INFO[b.type].color } }, b.type), ' fusion'),
+          h('div', { class: 'shop-meta' }, h('span', {}, `${b.gold.toLocaleString()} gold × 1.01 to 2.00 by level`), h('span', { class: 'shop-tag' }, best ? `${best.member.genome.name} would fetch ${best.payout.toLocaleString()}` : cands.length ? 'yours are locked' : 'none with you'))),
+        h('button', { class: `btn small${best ? ' primary' : ''}`, type: 'button', onclick: () => { picking = b.id; render(); } }, cands.length ? 'Hand over…' : 'Who fits?')));
+    }
+    appendChildren(body, [
+      h('p', { class: 'hint' }, `The office buys fusions: any creature born at the shrine that carries the wanted type, from the party or storage, for the listed gold times a level bonus (1.01 at Lv 1, 2.00 at Lv 100). The creature is gone for good but stays in your Collection; a new bounty goes up at once. ${j.stats.bounties || 0} paid so far.`),
+      list,
+    ]);
+  };
+  const render = () => owKeepScroll(body, draw);
+  render();
+  owSheet('Bounty Office', body, () => owRefreshHud());
+}
+
 // ---- the notice board -------------------------------------------------------------
 
 /** The board's three notices: what to do, how far along, what it pays; Claim when done, or tear one down for another. */
@@ -1143,7 +1199,7 @@ function owDraw(ts) {
       else if (t === TILE.path || t === TILE.door) ground = region.path;
       else if (t === TILE.water) ground = region.water;
       else if (t === TILE.habitat) ground = region.habitat;
-      else if (t === TILE.lair || t === TILE.spire || t === TILE.market || t === TILE.storage || t === TILE.tower) ground = '#2a2731';
+      else if (t === TILE.lair || t === TILE.spire || t === TILE.market || t === TILE.storage || t === TILE.tower || t === TILE.bounty) ground = '#2a2731';
       ctx.fillStyle = ground; ctx.fillRect(px, py, T + 0.5, T + 0.5);
       if (t === TILE.grass && hsh > 0.6) { ctx.strokeStyle = 'rgba(0,0,0,.12)'; ctx.lineWidth = 1.5 * s; ctx.beginPath(); ctx.moveTo(px + T * 0.3, py + T * 0.7); ctx.lineTo(px + T * 0.35, py + T * 0.5); ctx.moveTo(px + T * 0.62, py + T * 0.6); ctx.lineTo(px + T * 0.66, py + T * 0.42); ctx.stroke(); }
       else if (t === TILE.habitat) {
@@ -1163,7 +1219,7 @@ function owDraw(ts) {
       } else if (t === TILE.shrine) {
         ctx.fillStyle = '#f5c518'; ctx.beginPath(); ctx.moveTo(px + T / 2, py + T * 0.12); ctx.lineTo(px + T * 0.78, py + T / 2); ctx.lineTo(px + T / 2, py + T * 0.88); ctx.lineTo(px + T * 0.22, py + T / 2); ctx.closePath(); ctx.fill();
         ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(px + T / 2, py + T / 2, T * 0.1, 0, Math.PI * 2); ctx.fill();
-      } else if (t === TILE.door || t === TILE.spireDoor || t === TILE.marketDoor || t === TILE.storageDoor || t === TILE.towerDoor) { ctx.fillStyle = 'rgba(0,0,0,.25)'; ctx.fillRect(px + T * 0.2, py + T * 0.3, T * 0.6, T * 0.4); }
+      } else if (t === TILE.door || t === TILE.spireDoor || t === TILE.marketDoor || t === TILE.storageDoor || t === TILE.towerDoor || t === TILE.bountyDoor) { ctx.fillStyle = 'rgba(0,0,0,.25)'; ctx.fillRect(px + T * 0.2, py + T * 0.3, T * 0.6, T * 0.4); }
       else if (t === TILE.board) {
         // the notice board: two posts, a straw-coloured panel and three pinned slips
         ctx.fillStyle = 'rgba(0,0,0,.22)'; ctx.fillRect(px + T * 0.15, py + T * 0.82, T * 0.7, 3 * s);
@@ -1242,6 +1298,19 @@ function owDraw(ts) {
       ctx.fillStyle = '#ff9f43'; ctx.fillRect(tx + W / 2 - 6 * s, ty - rise + T * 0.2, 12 * s, T * 0.9); ctx.fillStyle = '#2a1f1a'; ctx.font = `bold ${Math.round(T * 0.42)}px system-ui, sans-serif`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText('VI', tx + W / 2, ty - rise + T * 0.65);
       ctx.fillStyle = '#2a2731'; ctx.beginPath(); ctx.arc(tx + W / 2, ty - T * 0.1, T * 0.42, Math.PI, 0); ctx.lineTo(tx + W / 2 + T * 0.42, ty + T * 0.3); ctx.lineTo(tx + W / 2 - T * 0.42, ty + T * 0.3); ctx.closePath(); ctx.fill();
       ctx.fillStyle = 'rgba(0,0,0,.25)'; ctx.fillRect(tx, ty + H, W, 3 * s);
+    }
+  }
+  {
+    // the Bounty Office: a low pink-roofed house with a wanted poster by the square-side door and a coin scale sign
+    const bo = world.bounty, bx = (bo.x - 1) * T - cam.x, by = bo.y * T - cam.y, W = 3 * T, H = 2 * T;
+    if (bx + W > 0 && bx < ow.cssW && by + H + T > 0 && by - T < ow.cssH) {
+      ctx.fillStyle = '#6b5a5e'; ctx.fillRect(bx + 2 * s, by + 2 * s, W - 4 * s, H - 2 * s);
+      ctx.fillStyle = '#c95a8a'; ctx.fillRect(bx, by - T * 0.25, W, T * 0.75);
+      ctx.fillStyle = 'rgba(0,0,0,.2)'; ctx.fillRect(bx, by + T * 0.5, W, 3 * s);
+      ctx.fillStyle = '#ffe9a8'; ctx.fillRect(bx + T * 0.4, by + T * 0.85, 7 * s, 8 * s); ctx.fillRect(bx + W - T * 0.4 - 7 * s, by + T * 0.85, 7 * s, 8 * s);
+      ctx.fillStyle = '#fff7e0'; ctx.fillRect(bx + W / 2 - 8 * s, by + T * 0.8, 16 * s, 14 * s);
+      ctx.fillStyle = '#c23b3b'; ctx.fillRect(bx + W / 2 - 6 * s, by + T * 0.8 + 2 * s, 12 * s, 2 * s); ctx.fillRect(bx + W / 2 - 6 * s, by + T * 0.8 + 6 * s, 12 * s, 1.5 * s); ctx.fillRect(bx + W / 2 - 6 * s, by + T * 0.8 + 9 * s, 8 * s, 1.5 * s);
+      ctx.fillStyle = 'rgba(0,0,0,.25)'; ctx.fillRect(bx, by + H, W, 3 * s);
     }
   }
   // tap target

@@ -64,6 +64,18 @@ the same anatomy. All eighteen classes are on rigs and the old shared skeleton i
 pushed every slot away from field-guide realism: forehead sigils, tufted and
 leaf ears, orb and flame tails, glowing tips and bold markings. See `DESIGN.md`.
 
+Natures: every creature is born with one of 49 natures. Forty-two lift one
+of the seven battle stats by a tenth and lower another by a tenth (Brash is
+more Melee Atk and less Ranged Atk, Timid more Speed and less Melee Atk);
+seven are even. HP is never touched. A fusion takes a parent's nature, and
+the creature sheet marks the lean on the stat bars.
+
+Bounty Office: a small house on the square with five standing bounties, each
+wanting a fusion of a given type. Hand over any shrine-born creature carrying
+that type, from the party or storage, for the listed gold times a level bonus
+that runs from 1.01 at level 1 to 2.00 at level 100. The creature is gone for
+good but stays in your Collection, and a new bounty goes up at once.
+
 Notice board: three requests from the townsfolk hang in the Crossroads at a
 time, drawn from ten kinds (catch a type above a level, catch a named species,
 beat trainers on a biome's roads, fuse two of a class, rest at a camp, win a

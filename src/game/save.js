@@ -10,6 +10,7 @@ import { getItem } from '../data/items.js';
 import { getCharm } from '../data/charms.js';
 import { emptyDex, normalizeDex, dexSeed } from './dex.js';
 import { normalizeBoard, ensureBoard } from './quests.js';
+import { normalizeBounties, ensureBounties } from './bounties.js';
 
 export const SAVE_KEY = 'creaturecollector.save';
 export const SAVE_VERSION = 1;
@@ -77,7 +78,7 @@ export function normalizeJourney(r) {
     box: (Array.isArray(r.box) ? r.box : []).map(cleanMember).filter(Boolean),
     nextId: Number(r.nextId) || 1,
     pendingLearns: (Array.isArray(r.pendingLearns) ? r.pendingLearns : []).filter((q) => q && typeof q.uid === 'string' && getMove(q.moveId)),
-    stats: { steps: 0, battles: 0, captures: 0, fusions: 0, trainers: 0, bosses: 0, wipes: 0, tower: 0, quests: 0 },
+    stats: { steps: 0, battles: 0, captures: 0, fusions: 0, trainers: 0, bosses: 0, wipes: 0, tower: 0, quests: 0, bounties: 0 },
     tower: { challenges: 0, wins: {} },
     player: { ...cleanPoint(sameWorld ? r.player : null, { x: hub.x, y: hub.y + 1 }), dir: ['up', 'down', 'left', 'right'].includes(r.player && r.player.dir) ? r.player.dir : 'down' },
     badges: Array.isArray(r.badges) ? r.badges.filter((b, i, arr) => BIOME_ORDER.includes(b) && arr.indexOf(b) === i) : [],
@@ -85,7 +86,7 @@ export function normalizeJourney(r) {
     lastCamp: cleanPoint(sameWorld ? r.lastCamp : null, { x: hub.x - 3, y: hub.y }), cooldown: Math.max(0, Number(r.cooldown) || 0),
     gauntlet: r.gauntlet && Number.isFinite(r.gauntlet.stage) && r.gauntlet.stage >= 0 && r.gauntlet.stage < 4 ? { stage: Math.round(r.gauntlet.stage) } : null,
     champion: Boolean(r.champion), encounter: null, lastReport: r.lastReport || null,
-    gold: Math.max(0, Math.floor(Number(r.gold) || 0)), bag: {}, quests: normalizeBoard(r.quests),
+    gold: Math.max(0, Math.floor(Number(r.gold) || 0)), bag: {}, quests: normalizeBoard(r.quests), bounties: normalizeBounties(r.bounties),
   };
   if (r.bag && typeof r.bag === 'object') for (const [id, q] of Object.entries(r.bag)) { const n = Math.min(99, Math.floor(Number(q) || 0)); if (n > 0 && (getItem(id) || getCharm(id) || getMove(id)) && id !== 'struggle') j.bag[id] = n; }
   if (r.stats && typeof r.stats === 'object') for (const k of Object.keys(j.stats)) j.stats[k] = Math.max(0, Number(r.stats[k]) || 0);
@@ -110,6 +111,7 @@ export function normalizeJourney(r) {
   }
   if (!j.party.length) { if (!j.box.length) return null; j.party.push(j.box.shift()); }
   ensureBoard(j); // top the board back up to three notices
+  ensureBounties(j);
   return j;
 }
 
