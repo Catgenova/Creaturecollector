@@ -1007,6 +1007,21 @@ each of the eighteen classes, 378 in all, taking the roster from 517 to 895.
   pool (Fairy and Normal magic, for instance) still put a style attack in
   every band.
 
+Balance: the 378 newcomers arrived at archetype totals (400 common, 435
+uncommon, 465 rare) and a first 30,000-game tournament read 27–79% with 85
+species outside the band. Four tuner passes over the 895 followed, all at
+40,000 games a round so each species sees about 270 games: `4 40000 100 0`,
+then three runs of `2 40000 100 40000`. Between passes, fourteen type-pass
+learnsets that had put a 110 or 120-power move at level 28 were reordered so
+the strongest move waits for level 52 (the tournament plays at level 50, so
+this also took the move out of their hands); the four species pinned at the
+520 cap were given an on-type 75-power attack at level 34 in place of an
+off-style one; and Sparkwisp, still at 62% on the 360 floor, traded its fast
+spread for the plain ranged one. The final 40,000-game verification read
+40–61% with one species at 61% and a mean of 50.0%. Totals still span 360 to
+520: 72 fast Dark, Ghost and Electric attackers rest on the floor and one
+Fighting brawler on the cap, all inside the band.
+
 ## Mobile view (implemented)
 
 The game was drawn for a phone from the start (portrait layout, 44px targets,
