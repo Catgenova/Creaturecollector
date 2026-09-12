@@ -481,6 +481,72 @@ defA('rime_edge', 'Rime Edge', { k: 'critStatus', s: 'frz', p: 50 });
 defA('shifter', 'Shifter', { k: 'protean' });
 defA('chameleon_skin', 'Chameleon Skin', { k: 'colorChange' });
 
+// ---- batch six: tactics, once-a-battle guards and the passives that reach outside the fight -----------
+defA('guard_breaker', 'Guard Breaker', { k: 'moldBreaker' });
+defA('bulldozer', 'Bulldozer', [{ k: 'moldBreaker' }, { k: 'catBoost', cat: 'melee', m: 1.1 }]);
+defA('spellbreaker', 'Spellbreaker', [{ k: 'moldBreaker' }, { k: 'catBoost', cat: 'magic', m: 1.1 }]);
+defA('wall_breaker', 'Wall Breaker', [{ k: 'moldBreaker' }, { k: 'powerBand', min: 100, m: 1.1 }]);
+defA('keyhole', 'Keyhole', [{ k: 'moldBreaker' }, { k: 'accBoost', m: 1.1 }]);
+defA('plain_sight', 'Plain Sight', { k: 'unaware' });
+defA('level_head', 'Level Head', [{ k: 'unaware' }, { k: 'defMul', stat: 'meleeDef', m: 1.15 }]);
+defA('even_ground', 'Even Ground', [{ k: 'unaware' }, { k: 'turnCure', p: 30 }]);
+defA('mirror_mind', 'Mirror Mind', [{ k: 'unaware' }, { k: 'defMul', stat: 'magicDef', m: 1.15 }]);
+defA('topsy', 'Topsy', { k: 'contrary' });
+defA('wrong_way', 'Wrong Way', [{ k: 'contrary' }, { k: 'statMul', stat: 'spe', m: 1.1 }]);
+defA('upside_down', 'Upside Down', [{ k: 'contrary' }, { k: 'hurtStat', stats: { melee: -1 } }]);
+defA('open_book', 'Open Book', { k: 'simple' });
+defA('eager_student', 'Eager Student', [{ k: 'simple' }, { k: 'entryStat', who: 'self', stats: { melee: 1 } }]);
+defA('beginners_luck', "Beginner's Luck", [{ k: 'simple' }, { k: 'turnStat', stats: { spe: 1 }, p: 20 }]);
+defA('downlink', 'Downlink', { k: 'download', n: 1 });
+defA('deep_scan', 'Deep Scan', { k: 'download', n: 2 });
+defA('sly_scan', 'Sly Scan', [{ k: 'download', n: 1 }, { k: 'accBoost', m: 1.1 }]);
+defA('mimicry', 'Mimicry', { k: 'trace' });
+defA('copycat', 'Copycat', [{ k: 'trace' }, { k: 'statMul', stat: 'spe', m: 1.05 }]);
+
+defA('costume', 'Costume', { k: 'disguise' });
+defA('straw_double', 'Straw Double', [{ k: 'disguise' }, { k: 'statMul', stat: 'spe', m: 0.9 }]);
+defA('false_face', 'False Face', [{ k: 'disguise' }, { k: 'evasion', m: 0.9 }]);
+defA('sturdy_frame', 'Sturdy Frame', { k: 'endure' });
+defA('last_breath', 'Last Breath', [{ k: 'endure' }, { k: 'turnHeal', r: 1 / 16 }]);
+defA('crash_test', 'Crash Test', [{ k: 'endure' }, { k: 'recoilImmune' }]);
+defA('berry_heart', 'Berry Heart', { k: 'lowHpHeal', r: 1 / 4, at: 0.25 });
+defA('deep_reserve', 'Deep Reserve', { k: 'lowHpHeal', r: 1 / 3, at: 0.3 });
+defA('iron_reserve', 'Iron Reserve', [{ k: 'lowHpHeal', r: 1 / 4, at: 0.5 }, { k: 'lowHpResist', m: 0.8 }]);
+defA('hard_candy', 'Hard Candy', { k: 'lowHpHeal', r: 1 / 2, at: 0.2 });
+defA('mirror_cloak', 'Mirror Cloak', { k: 'magicBounce' });
+defA('hex_mirror', 'Hex Mirror', [{ k: 'magicBounce' }, { k: 'defMul', stat: 'magicDef', m: 1.1 }]);
+defA('bounce_back', 'Bounce Back', [{ k: 'magicBounce' }, { k: 'turnCure', p: 25 }]);
+defA('soft_landing', 'Soft Landing', { k: 'firstHitResist', m: 0.5 });
+defA('warm_up', 'Warm Up', [{ k: 'firstHitResist', m: 0.5 }, { k: 'slowStart', m: 0.8, turns: 1 }]);
+defA('plate_armor', 'Plate Armor', [{ k: 'firstHitResist', m: 0.5 }, { k: 'critShield', m: 0.7 }]);
+
+defA('thick_padding', 'Thick Padding', { k: 'critShield', m: 0.5 });
+defA('dense_bone', 'Dense Bone', [{ k: 'critShield', m: 0.7 }, { k: 'defMul', stat: 'meleeDef', m: 1.1 }]);
+defA('blunt_scales', 'Blunt Scales', [{ k: 'critShield', m: 0.6 }, { k: 'bandResist', min: 100, m: 0.8 }]);
+defA('shock_absorber', 'Shock Absorber', { k: 'bandResist', min: 100, m: 0.7 });
+defA('featherweight', 'Featherweight', { k: 'bandResist', max: 60, m: 0.6 });
+defA('gap_guard', 'Gap Guard', { k: 'fxResist', fx: 'multi', m: 0.6 });
+defA('clotted_hide', 'Clotted Hide', { k: 'fxResist', fx: 'drain', m: 0.6 });
+defA('braced', 'Braced', { k: 'fxResist', fx: 'recoil', m: 0.5 });
+defA('unshakable', 'Unshakable', [{ k: 'fxResist', fx: 'flinch', m: 0.7 }, { k: 'flinchImmune' }]);
+defA('serum_skin', 'Serum Skin', { k: 'fxResist', fx: 'status', m: 0.75 });
+
+defA('treasure_nose', 'Treasure Nose', { k: 'worldGold', m: 1.25 });
+defA('coin_hoard', 'Coin Hoard', { k: 'worldGold', m: 1.75 });
+defA('toll_keeper', 'Toll Keeper', [{ k: 'worldGold', m: 1.5 }, { k: 'entryStat', who: 'foe', stats: { spe: -1 } }]);
+defA('quick_study', 'Quick Study', { k: 'worldXp', m: 1.25 });
+defA('prodigy', 'Prodigy', { k: 'worldXp', m: 1.5 });
+defA('mentor', 'Mentor', [{ k: 'worldXp', m: 1.5 }, { k: 'statMul', stat: 'spe', m: 0.95 }]);
+defA('charmer', 'Charmer', { k: 'worldCatch', m: 1.3 });
+defA('beastmaster', 'Beastmaster', { k: 'worldCatch', m: 1.5 });
+defA('pied_piper', 'Pied Piper', [{ k: 'worldCatch', m: 1.4 }, { k: 'soundImmune' }]);
+
+defA('grief', 'Grief', { k: 'avengeStat', stats: { melee: 1, ranged: 1 } });
+defA('mourning_veil', 'Mourning Veil', { k: 'avengeStat', stats: { magic: 1, magicDef: 1 } });
+defA('rally', 'Rally', { k: 'avengeStat', stats: { spe: 2 } });
+defA('shieldbearer', 'Shieldbearer', { k: 'avengeStat', stats: { meleeDef: 1, rangedDef: 1 } });
+defA('torchbearer', 'Torchbearer', [{ k: 'avengeStat', stats: { magic: 2 } }, { k: 'revengeBoost', m: 1.15 }]);
+
 export const ABILITY_IDS = Object.keys(ABILITIES);
 export function getAbility(id) { return ABILITIES[id] || null; }
 export function abilityName(id) { const a = ABILITIES[id]; return a ? a.name : 'None'; }
