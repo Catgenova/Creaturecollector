@@ -1218,6 +1218,19 @@ Batches so far:
   Tangled Feet and No Guard, and Sniper, Super Luck, Shell Armor, Merciless
   and Steady Nerves.
 
+- **Batch 3 (60).** Situational boosts (Ambusher, Counterpuncher, Merciless
+  Edge, Fresh, Finisher, Quickdraw, Sheer Force, Tinted Lens, Filter), raw
+  stat leans (Brawn, Deadeye, Insight, Fleet, Thick Coat, Dense Plate, Clear
+  Mind) and status-fed ones (Quick Feet, Flare Boost, Toxic Boost, Marvel
+  Scale, Fever Ward), priority (Gale Wings, Shadow Step, Prankster, Triage,
+  Quick Draw, Early Bird), immunities (Earplugs, Overcoat, Armor Tail, Good as
+  Gold, Purity, Shield Dust, Magic Guard, Rock Head), Liquid Ooze,
+  Synchronize, Pressure, Scrappy, the touches (Poison, Scorching, Static,
+  Chilling, Toxic Chain, Stench), the stat guards (Big Pecks, Clear Amber,
+  Sure-Footed), Defiant, Competitive, Steadfast, Aftermath, Hustle, Wide
+  Stance, Focused Mind, Vampiric, Opportunist, Bully, Technician and Grand
+  Slam.
+
 Distribution: a script hands each new passive to about six species by
 affinity (its type first, then its style, then anywhere), preferring species
 not yet touched, replacing the second ability and then the first, and every
