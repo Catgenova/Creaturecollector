@@ -70,6 +70,10 @@ more Melee Atk and less Ranged Atk, Timid more Speed and less Melee Atk);
 seven are even. HP is never touched. A fusion takes a parent's nature, and
 the creature sheet marks the lean on the stat bars.
 
+The broker: 2,000 gold at the Market buys word of a creature your Dex has
+never seen, naming its region and types and marking it seen. Three offers
+stand at a time and the list runs dry once the Dex has seen everything.
+
 Nature draws: the shrine draws a creature a new nature for 8,000 gold, random
 and never the one it has. The draw follows the journey and the number of draws
 so far, so reloading cannot fish for a better one.

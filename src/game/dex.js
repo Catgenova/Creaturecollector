@@ -2,6 +2,7 @@
 // have turned up, and the rewards that milestones unlock. It lives in the save beside the collection,
 // keyed by species id so it stays small however many creatures pass through. Pure functions.
 import { SPECIES, SPECIES_BY_ID, WILD_SPECIES } from '../data/species.js';
+import { makeRng } from '../core/rng.js';
 import { CLADE_IDS } from '../data/clades.js';
 import { MORPH_IDS } from '../creature/palette.js';
 import { REGIONS } from './world.js';
@@ -86,6 +87,37 @@ export function dexCounts(save) {
 }
 
 /** Where a species lives: its class's region and its types, for the dex hint. */
+/** The broker at the Market: gold for word of a creature you have never seen. */
+export const BROKER = { cost: 2000, offers: 3 };
+
+/** Three creatures the broker knows of that the Dex has never seen. Deterministic per journey and purchase. */
+export function brokerOffers(save, j) {
+  const unseen = WILD_SPECIES.filter((s) => dexStatus(save, s.id) === 'unseen');
+  if (!unseen.length) return [];
+  const rng = makeRng(`${j ? j.seed : 'broker'}:broker:${(j && j.stats && j.stats.hints) || 0}`);
+  const picked = [];
+  const pool = unseen.slice();
+  for (let k = 0; k < Math.min(BROKER.offers, pool.length); k++) {
+    const i = Math.floor(rng.next() * pool.length);
+    picked.push(pool.splice(i, 1)[0]);
+  }
+  return picked.map((sp) => ({ species: sp, cost: BROKER.cost, where: dexHabitat(sp.id) }));
+}
+
+/** Buy word of one creature: it costs gold and the Dex counts it as seen. */
+export function buyHint(save, j, speciesId) {
+  const sp = SPECIES_BY_ID[speciesId];
+  if (!sp || sp.hidden) return { ok: false, reason: 'The broker has never heard of it.' };
+  if (dexStatus(save, speciesId) !== 'unseen') return { ok: false, reason: `You have already seen a ${sp.name}.` };
+  if (!brokerOffers(save, j).some((row) => row.species.id === speciesId)) return { ok: false, reason: 'That is not on the broker\'s list today.' };
+  if ((j.gold || 0) < BROKER.cost) return { ok: false, reason: `A word costs ${BROKER.cost.toLocaleString()} gold.` };
+  j.gold -= BROKER.cost;
+  j.stats = j.stats || {};
+  j.stats.hints = (j.stats.hints || 0) + 1;
+  dexSeen(save, { species: sp.id });
+  return { ok: true, species: sp, where: dexHabitat(sp.id), paid: BROKER.cost };
+}
+
 export function dexHabitat(speciesId) {
   const s = SPECIES_BY_ID[speciesId];
   if (!s) return null;

@@ -17,7 +17,7 @@ import { TYPE_INFO, TYPE_LIST } from '../data/types.js';
 import { DAMAGE_TYPES } from '../data/damage.js';
 import { marketCatalogue, buyMove, bagList, bagCount, canTeach, teachMove, itemCatalogue, itemList, buyItem, useItem, scrollTypes, scrollLearners, listWords, charmCatalogue, charmList, buyCharm, giveCharm, takeCharm, charmHolders, forgeList, forgeCost, forgeCharm, tutorTypes, tutorCatalogue, buyTutorMove, recallOptions, recallCost, recallMove } from '../game/market.js';
 import { getCharm } from '../data/charms.js';
-import { dexSeen, dexCaught, dexCounts, dexStatus, dexMorphs, dexHabitat, dexRewards, claimDexReward, dexSpeciesOf } from '../game/dex.js';
+import { dexSeen, dexCaught, dexCounts, dexStatus, dexMorphs, dexHabitat, dexRewards, claimDexReward, dexSpeciesOf, BROKER, brokerOffers, buyHint } from '../game/dex.js';
 import { speciesGenome } from '../creature/genome.js';
 import { MORPHS } from '../creature/palette.js';
 import { natureLabel } from '../data/natures.js';
@@ -819,6 +819,19 @@ function owMarketSheet(j) {
           render(); owRefreshHud();
         } }, `Forge ◆ ${row.cost.toLocaleString()}`)));
     }
+    const brokerRows = h('div', { class: 'shop-list' });
+    const offers = brokerOffers(ow.save, j);
+    for (const row of offers) {
+      brokerRows.append(h('div', { class: 'shop-row' },
+        h('div', { class: 'shop-info' }, h('b', {}, 'Word of something unseen'),
+          h('div', { class: 'shop-meta' }, h('span', {}, `Lives in the ${row.where.region}`), h('span', { class: 'shop-tag' }, row.where.types.join('/')))),
+        h('button', { class: `btn small${(j.gold || 0) >= row.cost ? ' primary' : ''}`, type: 'button', disabled: (j.gold || 0) < row.cost, onclick: () => {
+          const r = buyHint(ow.save, j, row.species.id);
+          if (!r.ok) { toast(r.reason); return; }
+          owSave(); sfx.heal(); toast(`${r.species.name} lives in the ${r.where.region}. The Dex has it now.`);
+          render(); owRefreshHud();
+        } }, `${row.cost.toLocaleString()} ◆`)));
+    }
     const potionList = h('div', { class: 'shop-list' });
     for (const { item, cost } of potions) {
       const owned = bagCount(j, item.id);
@@ -852,6 +865,9 @@ function owMarketSheet(j) {
     appendChildren(body, [
       h('p', { class: 'hint' }, `◆ ${(j.gold || 0).toLocaleString()} gold. Everything goes to your Bag. Trainers pay gold when beaten.`),
       ...section('Potions', potionList),
+      ...section('The broker', h('p', { class: 'hint' }, offers.length
+        ? `A word costs ${BROKER.cost.toLocaleString()} gold: the broker names a creature your Dex has never seen and the region it lives in, and the Dex counts it as seen.`
+        : 'The broker has nothing left to tell you: your Dex has seen everything alive.'), brokerRows),
       ...section('The forge', h('p', { class: 'hint' }, forgeable.length
         ? 'Two of the same charm and gold make its greater form: stronger numbers, and the once-a-battle charms fire twice. Greater charms are never sold.'
         : 'Bring two of the same charm and the forge will make its greater form. Nothing in your bag is doubled up yet.'), forgeRows),

@@ -1465,6 +1465,17 @@ tournament simulator all field one passive as before, so the 40-60% band the
 tuner maintains is untouched; what the player buys is a build, not a stat.
 An Elemental still keeps its core and cannot buy a slot.
 
+## The broker (implemented)
+
+The Market keeps a broker who sells word of creatures the Dex has never seen:
+2,000 gold names one, says which region it lives in and what types it carries,
+and the Dex counts it as seen, which counts towards the collection rewards.
+Three offers stand at a time, drawn from everything unseen and held still
+until one is bought, and the list runs dry when the Dex has seen the roster.
+
+It converts gold into collection progress and nothing else: a seen creature is
+still one you have to go and catch.
+
 ## Nature draws at the shrine (implemented)
 
 A nature is rolled at capture and was fixed for life, which made 49 of them

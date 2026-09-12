@@ -26462,6 +26462,7 @@ function worldStats(world) {
 
 
 
+
 function emptyDex() { return { seen: {}, caught: {}, morphs: {}, claimed: [] }; }
 
 /** Milestones by species caught, each claimed once per save: gold into the purse, charms into the Bag. */
@@ -26541,6 +26542,37 @@ function dexCounts(save) {
 }
 
 /** Where a species lives: its class's region and its types, for the dex hint. */
+/** The broker at the Market: gold for word of a creature you have never seen. */
+const BROKER = { cost: 2000, offers: 3 };
+
+/** Three creatures the broker knows of that the Dex has never seen. Deterministic per journey and purchase. */
+function brokerOffers(save, j) {
+  const unseen = WILD_SPECIES.filter((s) => dexStatus(save, s.id) === 'unseen');
+  if (!unseen.length) return [];
+  const rng = makeRng(`${j ? j.seed : 'broker'}:broker:${(j && j.stats && j.stats.hints) || 0}`);
+  const picked = [];
+  const pool = unseen.slice();
+  for (let k = 0; k < Math.min(BROKER.offers, pool.length); k++) {
+    const i = Math.floor(rng.next() * pool.length);
+    picked.push(pool.splice(i, 1)[0]);
+  }
+  return picked.map((sp) => ({ species: sp, cost: BROKER.cost, where: dexHabitat(sp.id) }));
+}
+
+/** Buy word of one creature: it costs gold and the Dex counts it as seen. */
+function buyHint(save, j, speciesId) {
+  const sp = SPECIES_BY_ID[speciesId];
+  if (!sp || sp.hidden) return { ok: false, reason: 'The broker has never heard of it.' };
+  if (dexStatus(save, speciesId) !== 'unseen') return { ok: false, reason: `You have already seen a ${sp.name}.` };
+  if (!brokerOffers(save, j).some((row) => row.species.id === speciesId)) return { ok: false, reason: 'That is not on the broker\'s list today.' };
+  if ((j.gold || 0) < BROKER.cost) return { ok: false, reason: `A word costs ${BROKER.cost.toLocaleString()} gold.` };
+  j.gold -= BROKER.cost;
+  j.stats = j.stats || {};
+  j.stats.hints = (j.stats.hints || 0) + 1;
+  dexSeen(save, { species: sp.id });
+  return { ok: true, species: sp, where: dexHabitat(sp.id), paid: BROKER.cost };
+}
+
 function dexHabitat(speciesId) {
   const s = SPECIES_BY_ID[speciesId];
   if (!s) return null;
@@ -29033,6 +29065,19 @@ function owMarketSheet(j) {
           render(); owRefreshHud();
         } }, `Forge ◆ ${row.cost.toLocaleString()}`)));
     }
+    const brokerRows = h('div', { class: 'shop-list' });
+    const offers = brokerOffers(ow.save, j);
+    for (const row of offers) {
+      brokerRows.append(h('div', { class: 'shop-row' },
+        h('div', { class: 'shop-info' }, h('b', {}, 'Word of something unseen'),
+          h('div', { class: 'shop-meta' }, h('span', {}, `Lives in the ${row.where.region}`), h('span', { class: 'shop-tag' }, row.where.types.join('/')))),
+        h('button', { class: `btn small${(j.gold || 0) >= row.cost ? ' primary' : ''}`, type: 'button', disabled: (j.gold || 0) < row.cost, onclick: () => {
+          const r = buyHint(ow.save, j, row.species.id);
+          if (!r.ok) { toast(r.reason); return; }
+          owSave(); sfx.heal(); toast(`${r.species.name} lives in the ${r.where.region}. The Dex has it now.`);
+          render(); owRefreshHud();
+        } }, `${row.cost.toLocaleString()} ◆`)));
+    }
     const potionList = h('div', { class: 'shop-list' });
     for (const { item, cost } of potions) {
       const owned = bagCount(j, item.id);
@@ -29066,6 +29111,9 @@ function owMarketSheet(j) {
     appendChildren(body, [
       h('p', { class: 'hint' }, `◆ ${(j.gold || 0).toLocaleString()} gold. Everything goes to your Bag. Trainers pay gold when beaten.`),
       ...section('Potions', potionList),
+      ...section('The broker', h('p', { class: 'hint' }, offers.length
+        ? `A word costs ${BROKER.cost.toLocaleString()} gold: the broker names a creature your Dex has never seen and the region it lives in, and the Dex counts it as seen.`
+        : 'The broker has nothing left to tell you: your Dex has seen everything alive.'), brokerRows),
       ...section('The forge', h('p', { class: 'hint' }, forgeable.length
         ? 'Two of the same charm and gold make its greater form: stronger numbers, and the once-a-battle charms fire twice. Greater charms are never sold.'
         : 'Bring two of the same charm and the forge will make its greater form. Nothing in your bag is doubled up yet.'), forgeRows),
