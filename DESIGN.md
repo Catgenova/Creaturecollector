@@ -1537,6 +1537,15 @@ The forge sits in the Market and lists only what the Bag has doubled up.
 Greater charms are never on the shelf, and the Wardens hand over ordinary
 ones, so the only way to a greater charm is two of the same and the gold.
 
+**Fixed since:** the Bag listed the charms the Market *sells*, which is the
+ordinary thirty-one by definition, so a forged charm went into the bag and
+vanished: it could not be seen, and since Give starts from that list, it could
+not be handed to anything. The Bag now reads the whole charm table and shows
+each greater charm beside the plain one it was forged from. The same slip had
+notices paying out in greater charms — the reward pool was drawn from every
+charm id rather than the shop's — which both gave away a gold sink and handed
+over something invisible; notices now pay in ordinary charms only.
+
 ## The postgame (implemented)
 
 Beating the Council left the Battle Tower as the only thing to do. Two more

@@ -9,7 +9,8 @@ import { speciesGenome } from '../src/creature/genome.js';
 import { makeBattler, calcDamage, createBattle, step, activeOf } from '../src/battle/engine.js';
 import { newJourney } from '../src/game/journey.js';
 import { makeMember } from '../src/game/party.js';
-import { forgeList, forgeCost, forgeCharm, bagCount, charmCatalogue } from '../src/game/market.js';
+import { forgeList, forgeCost, forgeCharm, bagCount, charmCatalogue, charmList, giveCharm, takeCharm } from '../src/game/market.js';
+import { newBoard, ensureBoard } from '../src/game/quests.js';
 
 const mk = (id, opts = {}) => makeBattler(speciesGenome(SPECIES_BY_ID[id], makeRng(`fg-${id}`)), 50, { ability: 'lucky_streak', ...opts });
 function journeyWithBag(bag, gold = 60000) {
@@ -86,4 +87,43 @@ test('a Greater Sturdy Charm saves its holder twice in one battle', () => {
   };
   assert.deepEqual(run('sturdy_charm_2'), [1, 1], 'twice a battle');
   assert.equal(run('sturdy_charm')[0], 1, 'the ordinary one holds once');
+});
+
+test('a forged charm shows up in the Bag and can be handed to a creature', () => {
+  // it used to be invisible: the Bag listed the shop's charms, and the greater ones are never sold
+  const j = journeyWithBag({ fire_charm: 2, moss_charm: 1 });
+  const forged = forgeCharm(j, 'fire_charm');
+  assert.equal(forged.ok, true);
+  assert.equal(bagCount(j, 'fire_charm_2'), 1);
+  const rows = charmList(j).map((x) => [x.charm.id, x.qty]);
+  assert.deepEqual(rows, [['fire_charm_2', 1], ['moss_charm', 1]], 'the greater charm is listed where its plain form would be');
+
+  const lead = j.party[0];
+  assert.equal(giveCharm(j, lead.uid, 'fire_charm_2').ok, true);
+  assert.equal(lead.held, 'fire_charm_2');
+  assert.equal(bagCount(j, 'fire_charm_2'), 0);
+  assert.equal(takeCharm(j, lead.uid).charmId, 'fire_charm_2');
+  assert.equal(charmList(j).some((x) => x.charm.id === 'fire_charm_2'), true, 'and it comes back to the Bag');
+
+  // both grades at once: the greater one sits beside the plain one rather than at the end of the list
+  j.bag.fire_charm = 1;
+  j.bag.swift_charm = 1;
+  const both = charmList(j).map((x) => x.charm.id);
+  assert.deepEqual(both.slice(0, 2), ['fire_charm', 'fire_charm_2']);
+  assert.ok(both.includes('swift_charm') && both.includes('moss_charm'));
+});
+
+test('a notice never pays in a greater charm: those are the forge\'s business', () => {
+  const rewards = new Set();
+  for (let i = 0; i < 120; i++) {
+    const j = newJourney(`notice-${i}`);
+    j.badges = ['mammal', 'amphibian', 'flora', 'insect', 'nightwing', 'fungus'];
+    j.party = [makeMember(speciesGenome(SPECIES_BY_ID.emberox, makeRng(`np${i}`)), 55, 'u0')];
+    j.quests = newBoard();
+    ensureBoard(j);
+    for (const q of j.quests.open) if (q.reward && q.reward.item) rewards.add(q.reward.item);
+  }
+  const graded = [...rewards].filter((id) => CHARMS[id] && CHARMS[id].grade);
+  assert.deepEqual(graded, [], `notices offered ${graded.join(', ')}`);
+  assert.ok([...rewards].some((id) => CHARMS[id]), 'and they do still pay in charms');
 });

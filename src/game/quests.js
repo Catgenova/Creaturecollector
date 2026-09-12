@@ -8,7 +8,7 @@ import { MOVES, getMove } from '../data/moves.js';
 import { CLADE_IDS, cladeName } from '../data/clades.js';
 import { TYPE_LIST } from '../data/types.js';
 import { ITEMS } from '../data/items.js';
-import { CHARMS, CHARM_IDS } from '../data/charms.js';
+import { CHARMS, CHARM_SHOP } from '../data/charms.js';
 import { BIOME_ORDER, REGIONS, worldFor, habitatTypesFor } from './world.js';
 import { TOWER } from './tower.js';
 import { cladeOf } from '../creature/genome.js';
@@ -35,9 +35,10 @@ function rewardFor(kind, rng, j, hint) {
     const fresh = pool.filter((m) => !taken.has(m.id));
     item = ((fresh.length ? fresh : pool).length ? rng.pick(fresh.length ? fresh : pool) : getMove('headbonk')).id;
   } else {
-    const utility = CHARM_IDS.filter((id) => CHARMS[id].kind !== 'type' && CHARMS[id].kind !== 'prism' && !taken.has(id));
+    // a notice pays in ordinary charms: the greater ones are the forge's business, bought with gold and a pair
+    const utility = CHARM_SHOP.filter((id) => CHARMS[id].kind !== 'type' && CHARMS[id].kind !== 'prism' && !taken.has(id));
     const typed = hint ? `${hint.toLowerCase()}_charm` : null;
-    item = typed && CHARMS[typed] && !taken.has(typed) && rng.chance(0.5) ? typed : rng.pick(utility.length ? utility : CHARM_IDS);
+    item = typed && CHARMS[typed] && !taken.has(typed) && rng.chance(0.5) ? typed : rng.pick(utility.length ? utility : CHARM_SHOP);
   }
   return { gold, item };
 }

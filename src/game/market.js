@@ -4,7 +4,7 @@
 // Everything bought sits in the Bag (keyed by item or move id) until used. Pure functions over the journey.
 import { MOVES, getMove } from '../data/moves.js';
 import { ITEMS, ITEM_IDS, getItem, potionHeal, potionUseful } from '../data/items.js';
-import { CHARMS, CHARM_SHOP, FORGEABLE, greaterOf, getCharm } from '../data/charms.js';
+import { CHARMS, CHARM_IDS, CHARM_SHOP, FORGEABLE, greaterOf, getCharm } from '../data/charms.js';
 import { memberMaxHp } from './party.js';
 import { elementalOf } from '../creature/genome.js';
 import { ELEMENTS } from '../data/elements.js';
@@ -127,8 +127,16 @@ export function forgeCharm(j, charmId) {
   return { ok: true, cost, into };
 }
 
-/** The Bag's charms: [{ charm, qty }] in shop order. */
-export function charmList(j) { return CHARM_SHOP.filter((id) => bagCount(j, id) > 0).map((id) => ({ charm: CHARMS[id], qty: j.bag[id] })); }
+/**
+ * The Bag's charms: [{ charm, qty }] in shop order, with a greater charm beside the one it was forged
+ * from. It reads the whole table rather than the shop, or a forged charm would sit in the bag unseen.
+ */
+export function charmList(j) {
+  const order = new Map(CHARM_SHOP.map((id, i) => [id, i]));
+  const rank = (c) => (order.has(c.from || c.id) ? order.get(c.from || c.id) : order.size);
+  return CHARM_IDS.filter((id) => bagCount(j, id) > 0).map((id) => ({ charm: CHARMS[id], qty: j.bag[id] }))
+    .sort((a, b) => rank(a.charm) - rank(b.charm) || (a.charm.grade || 1) - (b.charm.grade || 1));
+}
 
 /** Buy one charm. Returns { ok, reason?, cost }. */
 export function buyCharm(j, charmId) {

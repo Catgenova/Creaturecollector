@@ -23628,9 +23628,9 @@ const pool = MOVES.filter((m) => !m.signature && !m.struggle && m.cat !== 'statu
 const fresh = pool.filter((m) => !taken.has(m.id));
 item = ((fresh.length ? fresh : pool).length ? rng.pick(fresh.length ? fresh : pool) : getMove('headbonk')).id;
 } else {
-const utility = CHARM_IDS.filter((id) => CHARMS[id].kind !== 'type' && CHARMS[id].kind !== 'prism' && !taken.has(id));
+const utility = CHARM_SHOP.filter((id) => CHARMS[id].kind !== 'type' && CHARMS[id].kind !== 'prism' && !taken.has(id));
 const typed = hint ? `${hint.toLowerCase()}_charm` : null;
-item = typed && CHARMS[typed] && !taken.has(typed) && rng.chance(0.5) ? typed : rng.pick(utility.length ? utility : CHARM_IDS);
+item = typed && CHARMS[typed] && !taken.has(typed) && rng.chance(0.5) ? typed : rng.pick(utility.length ? utility : CHARM_SHOP);
 }
 return { gold, item };
 }
@@ -23854,7 +23854,12 @@ bagAdd(j, charmId, -2);
 bagAdd(j, into.id);
 return { ok: true, cost, into };
 }
-function charmList(j) { return CHARM_SHOP.filter((id) => bagCount(j, id) > 0).map((id) => ({ charm: CHARMS[id], qty: j.bag[id] })); }
+function charmList(j) {
+const order = new Map(CHARM_SHOP.map((id, i) => [id, i]));
+const rank = (c) => (order.has(c.from || c.id) ? order.get(c.from || c.id) : order.size);
+return CHARM_IDS.filter((id) => bagCount(j, id) > 0).map((id) => ({ charm: CHARMS[id], qty: j.bag[id] }))
+.sort((a, b) => rank(a.charm) - rank(b.charm) || (a.charm.grade || 1) - (b.charm.grade || 1));
+}
 function buyCharm(j, charmId) {
 const c = getCharm(charmId);
 if (!c) return { ok: false, reason: 'The Market does not sell that.', cost: 0 };
