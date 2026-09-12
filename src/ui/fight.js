@@ -10,6 +10,7 @@ import { getMove, accuracyText, moveEffects } from '../data/moves.js';
 import { ITEM_IDS, getItem } from '../data/items.js';
 import { TYPE_INFO } from '../data/types.js';
 import { abilityName, getAbility } from '../data/abilities.js';
+import { getCharm } from '../data/charms.js';
 import { DAMAGE_TYPES, triangleEdge } from '../data/damage.js';
 import { STAGE_LEVELS, stageOf, stageName } from '../data/evolution.js';
 import { openSheet } from './sheet.js';
@@ -82,6 +83,7 @@ function renderPanel(f, i) {
       h('span', { class: 'panel-info', 'aria-hidden': 'true' }, 'i')),
     typeChips(b.types),
     h('div', { class: 'passive' }, h('b', {}, abilityName(b.ability)), h('span', {}, ` ${(getAbility(b.ability) || { desc: 'No passive skill.' }).desc}`)),
+    b.held && getCharm(b.held) ? h('div', { class: 'passive held' }, h('b', {}, getCharm(b.held).name), h('span', {}, ` ${getCharm(b.held).desc}`)) : null,
     h('div', { class: 'hpbar' }, h('i', { class: hpClass(frac), style: { width: `${Math.max(0, frac * 100)}%` } })),
     h('div', { class: 'panel-foot' },
       h('span', { class: 'hpnum' }, i === 0 ? `${b.hp} / ${b.maxHp}` : `${Math.ceil(frac * 100)}%`),

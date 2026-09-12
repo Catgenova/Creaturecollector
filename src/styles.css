@@ -371,3 +371,11 @@ button, .btn { touch-action: manipulation; }
 /* a rare's signature move: its own move, never sold */
 .shop-row.signature { border-color: rgba(245, 197, 24, .45); background: linear-gradient(90deg, rgba(245, 197, 24, .10), transparent 60%); }
 .shop-row.signature .shop-tag { color: #f5c518; }
+
+/* held charms */
+.held-chip { font-size: 10px; padding: 1px 6px; }
+.charm-icon { border-radius: 8px; font-size: 14px; }
+.held-card { border-color: var(--line); grid-template-columns: auto 1fr auto; }
+.held-card small { grid-column: 1 / -1; }
+.held-card .btn { grid-column: 3; grid-row: 2; }
+.panel .passive.held::before { content: '◈ '; color: var(--fg2); }

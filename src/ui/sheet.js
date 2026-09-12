@@ -6,6 +6,7 @@ import { typeChips, creatureEl, section, elementalBadge, styleChip, moveInfoEl }
 import { baseStats, resolveParts, TRAIT_KEYS, speciesOf, rigOf, makeElemental, elementalOf, cladeOf, learnsetOf } from '../creature/genome.js';
 import { getMove } from '../data/moves.js';
 import { getAbility } from '../data/abilities.js';
+import { getCharm } from '../data/charms.js';
 import { STAT_KEYS, STAT_NAMES } from '../data/damage.js';
 import { ELEMENT_IDS, ELEMENTS } from '../data/elements.js';
 import { stageOf, stageName } from '../data/evolution.js';
@@ -79,6 +80,15 @@ function abilityCard(g) {
 }
 
 const optVal = (v) => (typeof v === 'function' ? v() : v);
+
+/** The charm a creature holds: name, effect and, from the journey, a Take button. opts = { id, onTake() }. */
+function heldCard(opts) {
+  const c = getCharm(optVal(opts.id));
+  if (!c) return null;
+  const card = h('div', { class: 'ability-card held-card' }, h('small', {}, 'Held charm'), h('b', { style: { color: c.color } }, `◈ ${c.name}`), h('span', {}, c.desc),
+    opts.onTake ? h('button', { class: 'btn small', type: 'button', onclick: () => { const r = opts.onTake(); if (r && r.ok) card.remove(); } }, 'Take') : null);
+  return card;
+}
 
 /**
  * Release, in the sheet head beside the close button: two taps, the second within a few seconds.
@@ -181,6 +191,7 @@ function sheetContent(g, sheetOpts, ctx) {
       h('button', { class: 'btn close', onclick: ctx.close, 'aria-label': 'Close' }, '✕')),
     h('p', { class: 'meta' }, sp ? `${sp.name} · ${sp.tier}` : 'Fusion', ` · ${cladeName(cladeOf(g))} · gen ${g.gen} · seed ${g.seed}`),
     abilityCard(g),
+    sheetOpts.held && optVal(sheetOpts.held.id) ? heldCard(sheetOpts.held) : null,
     hero,
     stageRow,
     h('div', { class: 'row' },

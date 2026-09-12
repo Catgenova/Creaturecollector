@@ -17,6 +17,7 @@ import { learnsetOf } from '../creature/genome.js';
 import { SPECIES_BY_ID } from '../data/species.js';
 import { statsAtLevel, movesAtLevel } from './stats.js';
 import { ITEM_IDS, getItem, potionHeal, potionUseful } from '../data/items.js';
+import { getCharm, charmPowerMul, heldKind, CHARM_RULE } from '../data/charms.js';
 
 export const STATUS_INFO = {
   brn: { name: 'Burn', short: 'BRN', verb: 'was burned' },
@@ -33,7 +34,7 @@ const stageMul = (n) => (n >= 0 ? (2 + n) / 2 : 2 / (2 - n));
 const accMul = (n) => (n >= 0 ? (3 + n) / 3 : 3 / (3 - n));
 const SURGE = { ember_heart: 'Fire', tide_heart: 'Water', bloom_heart: 'Grass', frost_heart: 'Ice', storm_heart: 'Electric', venom_heart: 'Poison', gale_heart: 'Flying', stone_heart: 'Rock' };
 
-/** Build a battler from a genome at a level. opts.moves / opts.ability override the defaults. */
+/** Build a battler from a genome at a level. opts.moves / opts.ability override the defaults; opts.held is the charm it carries. */
 export function makeBattler(genome, level, opts = {}) {
   const stats = statsAtLevel(genome, level);
   const moveIds = (opts.moves && opts.moves.length ? opts.moves : movesAtLevel(learnsetOf(genome), level)).slice(0, 4);
@@ -48,6 +49,7 @@ export function makeBattler(genome, level, opts = {}) {
     hp: stats.hp,
     moves: moveIds.map((id) => { const mv = getMove(id) || getMove('bump'); return { id: mv.id, pp: mv.pp, maxPp: mv.pp }; }),
     ability: opts.ability || genome.ability || 'lucky_streak',
+    held: getCharm(opts.held) ? opts.held : null, // the charm it carries into the fight, if any
     style: combatStyle(stats), // melee | ranged | magic: the damage type of its best attack stat
     xp: opts.xp || null, // { cur, prev, next } progress toward the next level, for display only
     status: null,
@@ -147,6 +149,7 @@ function speedOrder(state, rng) {
 export function effectiveStat(b, k) {
   let v = b.stats[k] * stageMul(b.stages[k]);
   if (k === 'spe' && b.status === 'par') v *= 0.5;
+  if (k === 'spe' && heldKind(b.held) === 'speed') v *= CHARM_RULE.speedMul;
   return v;
 }
 
@@ -385,6 +388,7 @@ export function calcDamage(user, target, mv, eff, roll, crit) {
   if (SURGE[user.ability] === mv.type && user.hp <= user.maxHp / 3) power *= 1.5;
   const core = coreTypes(user.ability);
   if (core && core.includes(mv.type)) power *= 1.3;
+  power *= charmPowerMul(user.held, mv);
   let dmg = Math.floor(Math.floor((Math.floor((2 * user.level) / 5) + 2) * power * A / D) / 50) + 2;
   if (crit) dmg = Math.floor(dmg * 1.5);
   dmg = Math.floor(dmg * roll);
@@ -479,22 +483,28 @@ function executeMove(state, i, action, events, rng) {
   let total = 0, landed = 0;
   for (let h = 0; h < hits; h++) {
     if (target.fainted) break;
-    const crit = rng.chance((mv.crit >= 1 ? 1 / 8 : 1 / 24) * (user.ability === 'keen_edge' ? 2 : 1));
+    const crit = rng.chance((mv.crit >= 1 ? 1 / 8 : 1 / 24) * (user.ability === 'keen_edge' ? 2 : 1) * (heldKind(user.held) === 'crit' ? 2 : 1));
     const roll = rng.between(85, 100) / 100;
     let dmg = calcDamage(user, target, mv, eff, roll, crit);
-    let held = false;
+    let held = false, sturdy = false;
     if (dmg >= target.hp && target.hp === target.maxHp && target.ability === 'stonewall') { dmg = target.hp - 1; held = true; }
+    else if (dmg >= target.hp && target.hp === target.maxHp && heldKind(target.held) === 'sturdy' && !target.sturdyUsed) { dmg = target.hp - 1; sturdy = true; target.sturdyUsed = true; }
     dmg = Math.min(dmg, target.hp);
     target.hp -= dmg;
     total += dmg; landed++;
     events.push({ t: 'damage', side: foeSide, name: target.name, amount: dmg, hp: target.hp, maxHp: target.maxHp, eff, crit });
     if (held) events.push({ t: 'ability', side: foeSide, name: target.name, ability: abilityName(target.ability) });
+    if (sturdy) events.push({ t: 'held', side: foeSide, name: target.name, item: getCharm(target.held).name });
     if (target.hp <= 0) faint(state, foeSide, events);
   }
   if (hits > 1) events.push({ t: 'multihit', side: i, hits: landed });
 
   const drain = moveFx(mv, 'drain');
   if (drain && total > 0) healBattler(state, i, Math.max(1, total * drain.r), events, 'drain');
+  if (heldKind(user.held) === 'siphon' && total > 0 && user.hp < user.maxHp) {
+    events.push({ t: 'held', side: i, name: user.name, item: getCharm(user.held).name });
+    healBattler(state, i, Math.max(1, total * CHARM_RULE.siphon), events, 'drain');
+  }
   if (user.ability === 'vital_core' && mv.flags.includes('contact') && total > 0 && user.hp < user.maxHp) {
     events.push({ t: 'ability', side: i, name: user.name, ability: abilityName(user.ability) });
     healBattler(state, i, Math.max(1, total / 4), events, 'drain');
@@ -593,6 +603,16 @@ function endOfTurn(state, events, rng) {
       events.push({ t: 'ability', side: i, name: b.name, ability: abilityName(b.ability) });
       healBattler(state, i, Math.max(1, b.maxHp / 16), events, 'ability');
     }
+    if (!b.fainted && heldKind(b.held) === 'regen' && b.hp < b.maxHp) {
+      events.push({ t: 'held', side: i, name: b.name, item: getCharm(b.held).name });
+      healBattler(state, i, Math.max(1, b.maxHp * CHARM_RULE.regen), events, 'ability');
+    }
+    if (!b.fainted && heldKind(b.held) === 'salve' && b.status && !b.salveUsed) {
+      const was = b.status;
+      b.status = null; b.sleepTurns = 0; b.salveUsed = true;
+      events.push({ t: 'held', side: i, name: b.name, item: getCharm(b.held).name });
+      events.push({ t: 'cure', side: i, name: b.name, status: was, why: 'held' });
+    }
   }
 }
 
@@ -629,7 +649,7 @@ export function describeEvent(e, names = ['You', 'Foe'], opts = {}) {
     case 'no_effect': return e.reason === 'already' ? `${who} is already affected.` : e.reason === 'full' ? `${who}'s HP is already full.` : e.reason === 'immune' ? `It doesn't affect ${who}…` : 'But it failed!';
     case 'status': return `${who} ${STATUS_INFO[e.status].verb}!`;
     case 'status_skip': return e.status === 'slp' ? `${who} is fast asleep.` : e.status === 'frz' ? `${who} is frozen solid!` : `${who} is paralyzed and can't move!`;
-    case 'cure': return e.why === 'item' || e.why === 'move' ? `${who} was cured of its ${STATUS_INFO[e.status].name.toLowerCase()}!` : e.status === 'slp' ? `${who} woke up!` : e.status === 'frz' ? `${who} thawed out!` : `${who} recovered.`;
+    case 'cure': return e.why === 'item' || e.why === 'move' || e.why === 'held' ? `${who} was cured of its ${STATUS_INFO[e.status].name.toLowerCase()}!` : e.status === 'slp' ? `${who} woke up!` : e.status === 'frz' ? `${who} thawed out!` : `${who} recovered.`;
     case 'item': return `${foe ? names[1] : names[0]} used a ${e.item} on ${e.name}!`;
     case 'flinch': return `${who} flinched!`;
     case 'recharge': return `${who} must recharge!`;
@@ -643,6 +663,7 @@ export function describeEvent(e, names = ['You', 'Foe'], opts = {}) {
     case 'heal': return e.why === 'drain' ? `${who} drained some HP!` : e.why === 'restore' ? `${who} restored ${e.amount} HP!` : `${who} recovered ${e.amount} HP.`;
     case 'hurt': return e.why === 'recoil' || e.why === 'struggle' ? `${who} is hit with recoil!` : e.why === 'brn' ? `${who} is hurt by its burn!` : e.why === 'psn' ? `${who} is hurt by poison!` : e.why === 'thorns' ? `${who} is pricked by thorns!` : `${who} took ${e.amount} damage.`;
     case 'ability': return `[${who}'s ${e.ability}]`;
+    case 'held': return `[${who}'s ${e.item}]`;
     case 'faint': return `${who} fainted!`;
     case 'capture': return e.ok ? `Gotcha! ${e.name} was caught!` : e.shakes === 0 ? 'Oh no! It broke free right away!' : e.shakes === 1 ? 'It shook once… and broke free!' : 'So close! It broke free!';
     case 'end': return e.capture ? `${e.name} joined the team!` : e.winner == null ? 'Both sides are out of creatures. It is a draw!' : e.winner === 0 ? `${names[0]} won the battle!` : opts.wild ? 'Your team was defeated…' : `${names[1]} won the battle!`;

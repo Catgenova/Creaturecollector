@@ -387,6 +387,14 @@ button, .btn { touch-action: manipulation; }
 /* a rare's signature move: its own move, never sold */
 .shop-row.signature { border-color: rgba(245, 197, 24, .45); background: linear-gradient(90deg, rgba(245, 197, 24, .10), transparent 60%); }
 .shop-row.signature .shop-tag { color: #f5c518; }
+
+/* held charms */
+.held-chip { font-size: 10px; padding: 1px 6px; }
+.charm-icon { border-radius: 8px; font-size: 14px; }
+.held-card { border-color: var(--line); grid-template-columns: auto 1fr auto; }
+.held-card small { grid-column: 1 / -1; }
+.held-card .btn { grid-column: 3; grid-row: 2; }
+.panel .passive.held::before { content: '◈ '; color: var(--fg2); }
 </style>
 </head>
 <body>
@@ -21968,10 +21976,70 @@ function freshSeed() {
   return s;
 }
 
+// ---- src/data/charms.js ----
+// Held charms: one per creature, carried into every fight. Type charms lift one type's moves, bands lift
+// one damage type, and the utility charms add a small passive of their own. Sold at the Market, given by
+// Wardens with their badge, and swapped freely from the Bag; a released or fused creature's charm goes
+// back to the Bag. The engine reads `held` on a battler by charm kind.
+
+
+const TYPE_CHARM_NAMES = {
+  Fire: 'Ember Charm', Water: 'Tide Charm', Electric: 'Spark Charm', Grass: 'Leaf Charm', Ice: 'Frost Charm', Fighting: 'Fist Charm',
+  Poison: 'Venom Charm', Ground: 'Loam Charm', Flying: 'Feather Charm', Psychic: 'Mind Charm', Bug: 'Chitin Charm', Rock: 'Stone Charm',
+  Ghost: 'Wisp Charm', Dragon: 'Scale Charm', Dark: 'Dusk Charm', Steel: 'Rivet Charm', Fairy: 'Glimmer Charm', Normal: 'Plain Charm',
+};
+
+/** How much a type charm lifts its type's moves, a band its damage type, the Swift Charm its holder's Speed. */
+const CHARM_RULE = { typeMul: 1.2, styleMul: 1.1, speedMul: 1.1, regen: 1 / 16, siphon: 1 / 8, xpMul: 1.5, goldMul: 1.5, lureMul: 2, prismMul: 10 };
+
+const CHARMS = {};
+for (const t of TYPE_LIST) {
+  const id = `${t.toLowerCase()}_charm`;
+  CHARMS[id] = { id, name: TYPE_CHARM_NAMES[t], kind: 'type', type: t, cost: 2500, color: TYPE_INFO[t].color, desc: `${t} moves hit 1.2x harder.` };
+}
+Object.assign(CHARMS, {
+  brawler_band: { id: 'brawler_band', name: "Brawler's Band", kind: 'style', style: 'melee', cost: 3000, color: '#e8734a', desc: 'Melee moves hit 1.1x harder.' },
+  marksman_band: { id: 'marksman_band', name: "Marksman's Band", kind: 'style', style: 'ranged', cost: 3000, color: '#4fc0a0', desc: 'Ranged moves hit 1.1x harder.' },
+  sage_band: { id: 'sage_band', name: "Sage's Band", kind: 'style', style: 'magic', cost: 3000, color: '#a98bff', desc: 'Magic moves hit 1.1x harder.' },
+  moss_charm: { id: 'moss_charm', name: 'Moss Charm', kind: 'regen', cost: 3500, color: '#6fbf5a', desc: 'Restores a sixteenth of max HP at the end of every turn.' },
+  siphon_charm: { id: 'siphon_charm', name: 'Siphon Charm', kind: 'siphon', cost: 3500, color: '#c95a8a', desc: 'Heals an eighth of the damage its holder deals.' },
+  sturdy_charm: { id: 'sturdy_charm', name: 'Sturdy Charm', kind: 'sturdy', cost: 4000, color: '#9a9a9a', desc: 'Once a battle, survives a hit that would knock it out from full HP with 1 HP left.' },
+  hawk_charm: { id: 'hawk_charm', name: 'Hawk Charm', kind: 'crit', cost: 3000, color: '#d8a35a', desc: 'Critical hits land twice as often.' },
+  swift_charm: { id: 'swift_charm', name: 'Swift Charm', kind: 'speed', cost: 3000, color: '#7fd6e6', desc: 'Speed is 1.1x.' },
+  salve_charm: { id: 'salve_charm', name: 'Salve Charm', kind: 'salve', cost: 3000, color: '#f2a5c8', desc: 'Once a battle, cures its holder’s status at the end of the turn.' },
+  scholar_charm: { id: 'scholar_charm', name: "Scholar's Charm", kind: 'xp', cost: 5000, color: '#4f8ef7', desc: 'Its holder earns half again the experience.' },
+  lucky_coin: { id: 'lucky_coin', name: 'Lucky Coin', kind: 'gold', cost: 4000, color: '#f5c518', desc: 'Trainers pay half again the gold while a party member holds it.' },
+  lure_charm: { id: 'lure_charm', name: 'Lure Charm', kind: 'lure', cost: 1500, color: '#b6f06a', desc: 'Wild creatures turn up twice as often while the lead holds it.' },
+  prism_charm: { id: 'prism_charm', name: 'Prism Charm', kind: 'prism', cost: 12000, color: '#e6e0ff', desc: 'Wild creatures are born Elemental ten times as often while the lead holds it.' },
+});
+const CHARM_IDS = Object.keys(CHARMS);
+function getCharm(id) { return CHARMS[id] || null; }
+/** Everything the Market sells, type charms first, then the bands and the rest by price. */
+const CHARM_SHOP = CHARM_IDS;
+
+/** The charm a Warden hands over with their badge: one per biome, no two alike. */
+const WARDEN_CHARMS = {
+  mammal: 'brawler_band', amphibian: 'water_charm', flora: 'grass_charm', insect: 'bug_charm', nightwing: 'dark_charm', fungus: 'salve_charm',
+  bird: 'flying_charm', crystalline: 'rock_charm', ooze: 'poison_charm', fish: 'marksman_band', myriapod: 'swift_charm', wyrm: 'dragon_charm',
+  invertebrate: 'siphon_charm', skeletal: 'ghost_charm', reptile: 'fire_charm', fiend: 'hawk_charm', draconic: 'sage_band', spirit: 'moss_charm',
+};
+
+/** Power multiplier a held charm gives a move (1 when it does not apply). */
+function charmPowerMul(heldId, mv) {
+  const c = CHARMS[heldId];
+  if (!c || !mv || mv.typeless) return 1;
+  if (c.kind === 'type' && c.type === mv.type) return CHARM_RULE.typeMul;
+  if (c.kind === 'style' && c.style === mv.cat) return CHARM_RULE.styleMul;
+  return 1;
+}
+/** Is this charm of this kind? */
+function heldKind(heldId) { const c = CHARMS[heldId]; return c ? c.kind : null; }
+
 // ---- src/ui/sheet.js ----
 // The creature sheet: a bottom sheet with the hero render (flip, stage, Elemental preview),
 // base stats, parts, palette and traits. Opened from party rows, the collection, fusion previews
 // and the fight view.
+
 
 
 
@@ -22050,6 +22118,15 @@ function abilityCard(g) {
 }
 
 const optVal = (v) => (typeof v === 'function' ? v() : v);
+
+/** The charm a creature holds: name, effect and, from the journey, a Take button. opts = { id, onTake() }. */
+function heldCard(opts) {
+  const c = getCharm(optVal(opts.id));
+  if (!c) return null;
+  const card = h('div', { class: 'ability-card held-card' }, h('small', {}, 'Held charm'), h('b', { style: { color: c.color } }, `◈ ${c.name}`), h('span', {}, c.desc),
+    opts.onTake ? h('button', { class: 'btn small', type: 'button', onclick: () => { const r = opts.onTake(); if (r && r.ok) card.remove(); } }, 'Take') : null);
+  return card;
+}
 
 /**
  * Release, in the sheet head beside the close button: two taps, the second within a few seconds.
@@ -22152,6 +22229,7 @@ function sheetContent(g, sheetOpts, ctx) {
       h('button', { class: 'btn close', onclick: ctx.close, 'aria-label': 'Close' }, '✕')),
     h('p', { class: 'meta' }, sp ? `${sp.name} · ${sp.tier}` : 'Fusion', ` · ${cladeName(cladeOf(g))} · gen ${g.gen} · seed ${g.seed}`),
     abilityCard(g),
+    sheetOpts.held && optVal(sheetOpts.held.id) ? heldCard(sheetOpts.held) : null,
     hero,
     stageRow,
     h('div', { class: 'row' },
@@ -22282,6 +22360,7 @@ function potionUseful(item, hp, maxHp, status) {
 
 
 
+
 const STATUS_INFO = {
   brn: { name: 'Burn', short: 'BRN', verb: 'was burned' },
   psn: { name: 'Poison', short: 'PSN', verb: 'was poisoned' },
@@ -22297,7 +22376,7 @@ const stageMul = (n) => (n >= 0 ? (2 + n) / 2 : 2 / (2 - n));
 const accMul = (n) => (n >= 0 ? (3 + n) / 3 : 3 / (3 - n));
 const SURGE = { ember_heart: 'Fire', tide_heart: 'Water', bloom_heart: 'Grass', frost_heart: 'Ice', storm_heart: 'Electric', venom_heart: 'Poison', gale_heart: 'Flying', stone_heart: 'Rock' };
 
-/** Build a battler from a genome at a level. opts.moves / opts.ability override the defaults. */
+/** Build a battler from a genome at a level. opts.moves / opts.ability override the defaults; opts.held is the charm it carries. */
 function makeBattler(genome, level, opts = {}) {
   const stats = statsAtLevel(genome, level);
   const moveIds = (opts.moves && opts.moves.length ? opts.moves : movesAtLevel(learnsetOf(genome), level)).slice(0, 4);
@@ -22312,6 +22391,7 @@ function makeBattler(genome, level, opts = {}) {
     hp: stats.hp,
     moves: moveIds.map((id) => { const mv = getMove(id) || getMove('bump'); return { id: mv.id, pp: mv.pp, maxPp: mv.pp }; }),
     ability: opts.ability || genome.ability || 'lucky_streak',
+    held: getCharm(opts.held) ? opts.held : null, // the charm it carries into the fight, if any
     style: combatStyle(stats), // melee | ranged | magic: the damage type of its best attack stat
     xp: opts.xp || null, // { cur, prev, next } progress toward the next level, for display only
     status: null,
@@ -22411,6 +22491,7 @@ function speedOrder(state, rng) {
 function effectiveStat(b, k) {
   let v = b.stats[k] * stageMul(b.stages[k]);
   if (k === 'spe' && b.status === 'par') v *= 0.5;
+  if (k === 'spe' && heldKind(b.held) === 'speed') v *= CHARM_RULE.speedMul;
   return v;
 }
 
@@ -22649,6 +22730,7 @@ function calcDamage(user, target, mv, eff, roll, crit) {
   if (SURGE[user.ability] === mv.type && user.hp <= user.maxHp / 3) power *= 1.5;
   const core = coreTypes(user.ability);
   if (core && core.includes(mv.type)) power *= 1.3;
+  power *= charmPowerMul(user.held, mv);
   let dmg = Math.floor(Math.floor((Math.floor((2 * user.level) / 5) + 2) * power * A / D) / 50) + 2;
   if (crit) dmg = Math.floor(dmg * 1.5);
   dmg = Math.floor(dmg * roll);
@@ -22743,22 +22825,28 @@ function executeMove(state, i, action, events, rng) {
   let total = 0, landed = 0;
   for (let h = 0; h < hits; h++) {
     if (target.fainted) break;
-    const crit = rng.chance((mv.crit >= 1 ? 1 / 8 : 1 / 24) * (user.ability === 'keen_edge' ? 2 : 1));
+    const crit = rng.chance((mv.crit >= 1 ? 1 / 8 : 1 / 24) * (user.ability === 'keen_edge' ? 2 : 1) * (heldKind(user.held) === 'crit' ? 2 : 1));
     const roll = rng.between(85, 100) / 100;
     let dmg = calcDamage(user, target, mv, eff, roll, crit);
-    let held = false;
+    let held = false, sturdy = false;
     if (dmg >= target.hp && target.hp === target.maxHp && target.ability === 'stonewall') { dmg = target.hp - 1; held = true; }
+    else if (dmg >= target.hp && target.hp === target.maxHp && heldKind(target.held) === 'sturdy' && !target.sturdyUsed) { dmg = target.hp - 1; sturdy = true; target.sturdyUsed = true; }
     dmg = Math.min(dmg, target.hp);
     target.hp -= dmg;
     total += dmg; landed++;
     events.push({ t: 'damage', side: foeSide, name: target.name, amount: dmg, hp: target.hp, maxHp: target.maxHp, eff, crit });
     if (held) events.push({ t: 'ability', side: foeSide, name: target.name, ability: abilityName(target.ability) });
+    if (sturdy) events.push({ t: 'held', side: foeSide, name: target.name, item: getCharm(target.held).name });
     if (target.hp <= 0) faint(state, foeSide, events);
   }
   if (hits > 1) events.push({ t: 'multihit', side: i, hits: landed });
 
   const drain = moveFx(mv, 'drain');
   if (drain && total > 0) healBattler(state, i, Math.max(1, total * drain.r), events, 'drain');
+  if (heldKind(user.held) === 'siphon' && total > 0 && user.hp < user.maxHp) {
+    events.push({ t: 'held', side: i, name: user.name, item: getCharm(user.held).name });
+    healBattler(state, i, Math.max(1, total * CHARM_RULE.siphon), events, 'drain');
+  }
   if (user.ability === 'vital_core' && mv.flags.includes('contact') && total > 0 && user.hp < user.maxHp) {
     events.push({ t: 'ability', side: i, name: user.name, ability: abilityName(user.ability) });
     healBattler(state, i, Math.max(1, total / 4), events, 'drain');
@@ -22857,6 +22945,16 @@ function endOfTurn(state, events, rng) {
       events.push({ t: 'ability', side: i, name: b.name, ability: abilityName(b.ability) });
       healBattler(state, i, Math.max(1, b.maxHp / 16), events, 'ability');
     }
+    if (!b.fainted && heldKind(b.held) === 'regen' && b.hp < b.maxHp) {
+      events.push({ t: 'held', side: i, name: b.name, item: getCharm(b.held).name });
+      healBattler(state, i, Math.max(1, b.maxHp * CHARM_RULE.regen), events, 'ability');
+    }
+    if (!b.fainted && heldKind(b.held) === 'salve' && b.status && !b.salveUsed) {
+      const was = b.status;
+      b.status = null; b.sleepTurns = 0; b.salveUsed = true;
+      events.push({ t: 'held', side: i, name: b.name, item: getCharm(b.held).name });
+      events.push({ t: 'cure', side: i, name: b.name, status: was, why: 'held' });
+    }
   }
 }
 
@@ -22893,7 +22991,7 @@ function describeEvent(e, names = ['You', 'Foe'], opts = {}) {
     case 'no_effect': return e.reason === 'already' ? `${who} is already affected.` : e.reason === 'full' ? `${who}'s HP is already full.` : e.reason === 'immune' ? `It doesn't affect ${who}…` : 'But it failed!';
     case 'status': return `${who} ${STATUS_INFO[e.status].verb}!`;
     case 'status_skip': return e.status === 'slp' ? `${who} is fast asleep.` : e.status === 'frz' ? `${who} is frozen solid!` : `${who} is paralyzed and can't move!`;
-    case 'cure': return e.why === 'item' || e.why === 'move' ? `${who} was cured of its ${STATUS_INFO[e.status].name.toLowerCase()}!` : e.status === 'slp' ? `${who} woke up!` : e.status === 'frz' ? `${who} thawed out!` : `${who} recovered.`;
+    case 'cure': return e.why === 'item' || e.why === 'move' || e.why === 'held' ? `${who} was cured of its ${STATUS_INFO[e.status].name.toLowerCase()}!` : e.status === 'slp' ? `${who} woke up!` : e.status === 'frz' ? `${who} thawed out!` : `${who} recovered.`;
     case 'item': return `${foe ? names[1] : names[0]} used a ${e.item} on ${e.name}!`;
     case 'flinch': return `${who} flinched!`;
     case 'recharge': return `${who} must recharge!`;
@@ -22907,6 +23005,7 @@ function describeEvent(e, names = ['You', 'Foe'], opts = {}) {
     case 'heal': return e.why === 'drain' ? `${who} drained some HP!` : e.why === 'restore' ? `${who} restored ${e.amount} HP!` : `${who} recovered ${e.amount} HP.`;
     case 'hurt': return e.why === 'recoil' || e.why === 'struggle' ? `${who} is hit with recoil!` : e.why === 'brn' ? `${who} is hurt by its burn!` : e.why === 'psn' ? `${who} is hurt by poison!` : e.why === 'thorns' ? `${who} is pricked by thorns!` : `${who} took ${e.amount} damage.`;
     case 'ability': return `[${who}'s ${e.ability}]`;
+    case 'held': return `[${who}'s ${e.item}]`;
     case 'faint': return `${who} fainted!`;
     case 'capture': return e.ok ? `Gotcha! ${e.name} was caught!` : e.shakes === 0 ? 'Oh no! It broke free right away!' : e.shakes === 1 ? 'It shook once… and broke free!' : 'So close! It broke free!';
     case 'end': return e.capture ? `${e.name} joined the team!` : e.winner == null ? 'Both sides are out of creatures. It is a draw!' : e.winner === 0 ? `${names[0]} won the battle!` : opts.wild ? 'Your team was defeated…' : `${names[1]} won the battle!`;
@@ -23122,6 +23221,7 @@ const sfx = {
 
 
 
+
 const wait = (ms) => new Promise((r) => setTimeout(r, ms));
 const hpClass = (frac) => (frac > 0.5 ? 'ok' : frac > 0.2 ? 'warn' : 'low');
 
@@ -23189,6 +23289,7 @@ function renderPanel(f, i) {
       h('span', { class: 'panel-info', 'aria-hidden': 'true' }, 'i')),
     typeChips(b.types),
     h('div', { class: 'passive' }, h('b', {}, abilityName(b.ability)), h('span', {}, ` ${(getAbility(b.ability) || { desc: 'No passive skill.' }).desc}`)),
+    b.held && getCharm(b.held) ? h('div', { class: 'passive held' }, h('b', {}, getCharm(b.held).name), h('span', {}, ` ${getCharm(b.held).desc}`)) : null,
     h('div', { class: 'hpbar' }, h('i', { class: hpClass(frac), style: { width: `${Math.max(0, frac * 100)}%` } })),
     h('div', { class: 'panel-foot' },
       h('span', { class: 'hpnum' }, i === 0 ? `${b.hp} / ${b.maxHp}` : `${Math.ceil(frac * 100)}%`),
@@ -23842,7 +23943,7 @@ function xpProgress(m) {
 }
 
 function makeMember(genome, level, uid) {
-  const m = { uid, genome, level, xp: xpForLevel(level), hp: 0, status: null, moves: movesAtLevel(learnsetOf(genome), level) };
+  const m = { uid, genome, level, xp: xpForLevel(level), hp: 0, status: null, moves: movesAtLevel(learnsetOf(genome), level), held: null };
   m.hp = memberMaxHp(m);
   return m;
 }
@@ -23935,6 +24036,7 @@ function releaseMember(owner, uid) {
     owner.party = owner.party.filter((x) => x !== m);
   } else owner.box = owner.box.filter((x) => x !== m);
   if (Array.isArray(owner.pendingLearns)) owner.pendingLearns = owner.pendingLearns.filter((p) => p.uid !== uid);
+  if (m.held) { owner.bag = owner.bag || {}; owner.bag[m.held] = (owner.bag[m.held] || 0) + 1; m.held = null; } // its charm stays with you
   return { ok: true, member: m };
 }
 
@@ -24222,7 +24324,7 @@ function spawnTable(clade, type) {
 }
 
 /** Roll the wild creature for a habitat tile: species by class and element, level by the area with rarer stronger rolls, and the 1/1000 Elemental. */
-function wildSpawn(world, x, y, rng) {
+function wildSpawn(world, x, y, rng, opts = {}) {
   const biome = biomeAt(world, x, y);
   const type = habitatTypeAt(world, x, y);
   const sp = rng.weighted(spawnTable(biome.clade, type), ([, w]) => w)[0];
@@ -24234,7 +24336,7 @@ function wildSpawn(world, x, y, rng) {
   if (r < WILD_LEVEL.alpha) { level = L + Math.min(WILD_LEVEL.alphaMax, 3 + Math.round(L * 0.3)) + rng.between(0, 2); alpha = true; }
   else if (r < WILD_LEVEL.alpha + WILD_LEVEL.strong) level = L + Math.min(WILD_LEVEL.strongMax, 2 + Math.round(L * 0.15)) + rng.between(0, 1);
   level = Math.max(1, Math.min(100, level));
-  const elemental = rollElemental(genome, rng.fork('elemental'), WILD_ELEMENTAL.chance);
+  const elemental = rollElemental(genome, rng.fork('elemental'), Math.min(1, WILD_ELEMENTAL.chance * (opts.elementalMul || 1)));
   return { genome, level, alpha, elemental, type, biome: biome.id, areaLevel: L };
 }
 
@@ -24537,6 +24639,7 @@ function worldStats(world) {
 
 
 
+
 const SAVE_KEY = 'creaturecollector.save';
 const SAVE_VERSION = 1;
 const SAVE_PREFIX = 'CCSAVE1.';
@@ -24560,7 +24663,7 @@ function cleanMember(m) {
   const level = Math.max(1, Math.min(100, Math.round(m.level)));
   let moves = Array.isArray(m.moves) ? m.moves.filter((id) => typeof id === 'string' && getMove(id)).slice(0, 4) : [];
   if (!moves.length) moves = movesAtLevel(learnsetOf(m.genome), level);
-  return { uid: String(m.uid || ''), genome: m.genome, level, xp: Number.isFinite(m.xp) ? m.xp : 0, hp: Number.isFinite(m.hp) ? Math.max(0, m.hp) : 1, status: m.status || null, moves, locked: Boolean(m.locked) };
+  return { uid: String(m.uid || ''), genome: m.genome, level, xp: Number.isFinite(m.xp) ? m.xp : 0, hp: Number.isFinite(m.hp) ? Math.max(0, m.hp) : 1, status: m.status || null, moves, locked: Boolean(m.locked), held: getCharm(m.held) ? m.held : null };
 }
 
 /** Coerce any parsed object into a valid save, dropping anything broken. */
@@ -24610,7 +24713,7 @@ function normalizeJourney(r) {
     champion: Boolean(r.champion), encounter: null, lastReport: r.lastReport || null,
     gold: Math.max(0, Math.floor(Number(r.gold) || 0)), bag: {},
   };
-  if (r.bag && typeof r.bag === 'object') for (const [id, q] of Object.entries(r.bag)) { const n = Math.min(99, Math.floor(Number(q) || 0)); if (n > 0 && (getItem(id) || getMove(id)) && id !== 'struggle') j.bag[id] = n; }
+  if (r.bag && typeof r.bag === 'object') for (const [id, q] of Object.entries(r.bag)) { const n = Math.min(99, Math.floor(Number(q) || 0)); if (n > 0 && (getItem(id) || getCharm(id) || getMove(id)) && id !== 'struggle') j.bag[id] = n; }
   if (r.stats && typeof r.stats === 'object') for (const k of Object.keys(j.stats)) j.stats[k] = Math.max(0, Number(r.stats[k]) || 0);
   if (r.beaten && typeof r.beaten === 'object') for (const [k, v] of Object.entries(r.beaten)) if (v) j.beaten[k] = true;
   if (r.tower && typeof r.tower === 'object') {
@@ -24699,6 +24802,7 @@ function retireJourney(save) {
 
 
 
+
 /** A thousand gold per twenty points of power beyond the first forty; status and weak moves cost the base. */
 const MARKET = { unit: 1000, powerPerUnit: 20, maxStack: 99 };
 /** Gold for beating a trainer: per creature, per level of their team's average; Wardens and the Council pay double, rematches a quarter. */
@@ -24726,6 +24830,61 @@ function goldReward(foes, kind = 'trainer', rematch = false) {
 }
 
 function bagCount(j, id) { return (j.bag && j.bag[id]) || 0; }
+
+function bagAdd(j, id, n = 1) { j.bag = j.bag || {}; j.bag[id] = bagCount(j, id) + n; if (j.bag[id] <= 0) delete j.bag[id]; }
+
+// ---- charms: held items, one per creature ------------------------------------------------
+
+/** The charms on sale: type charms first, then the bands and the rest. */
+function charmCatalogue() { return CHARM_SHOP.map((id) => ({ charm: CHARMS[id], cost: CHARMS[id].cost })); }
+
+/** The Bag's charms: [{ charm, qty }] in shop order. */
+function charmList(j) { return CHARM_SHOP.filter((id) => bagCount(j, id) > 0).map((id) => ({ charm: CHARMS[id], qty: j.bag[id] })); }
+
+/** Buy one charm. Returns { ok, reason?, cost }. */
+function buyCharm(j, charmId) {
+  const c = getCharm(charmId);
+  if (!c) return { ok: false, reason: 'The Market does not sell that.', cost: 0 };
+  if (bagCount(j, charmId) >= MARKET.maxStack) return { ok: false, reason: 'Your bag cannot hold more of those.', cost: c.cost };
+  if ((j.gold || 0) < c.cost) return { ok: false, reason: `Not enough gold: a ${c.name} costs ${c.cost.toLocaleString()}.`, cost: c.cost };
+  j.gold -= c.cost;
+  bagAdd(j, charmId);
+  return { ok: true, cost: c.cost };
+}
+
+/** Names of the party and box members holding a charm. */
+function charmHolders(j, charmId) { return [...j.party, ...(j.box || [])].filter((m) => m.held === charmId).map((m) => m.genome.name); }
+
+/** Hand a charm from the Bag to a member; whatever it held before goes back to the Bag. { ok, reason?, swapped? } */
+function giveCharm(j, uid, charmId) {
+  const c = getCharm(charmId);
+  if (!c || bagCount(j, charmId) <= 0) return { ok: false, reason: 'No such charm in the bag.' };
+  const m = bagMember(j, uid);
+  if (!m) return { ok: false, reason: 'No such creature.' };
+  if (m.held === charmId) return { ok: false, reason: `${m.genome.name} already holds a ${c.name}.` };
+  const swapped = m.held || null;
+  bagAdd(j, charmId, -1);
+  if (swapped) bagAdd(j, swapped, 1);
+  m.held = charmId;
+  return { ok: true, swapped };
+}
+
+/** Take a member's charm back into the Bag. { ok, reason?, charmId } */
+function takeCharm(j, uid) {
+  const m = bagMember(j, uid);
+  if (!m) return { ok: false, reason: 'No such creature.' };
+  if (!m.held) return { ok: false, reason: `${m.genome.name} holds nothing.` };
+  const charmId = m.held;
+  m.held = null;
+  bagAdd(j, charmId, 1);
+  return { ok: true, charmId };
+}
+
+/** Every charm a list of members holds goes back to the Bag (release, fusion). */
+function returnCharms(j, members) {
+  for (const m of members) if (m && m.held) { bagAdd(j, m.held, 1); m.held = null; }
+  return j;
+}
 
 /** The potions on sale, weakest first. */
 function itemCatalogue() { return ITEM_IDS.map((id) => ({ item: ITEMS[id], cost: ITEMS[id].cost })); }
@@ -24785,14 +24944,14 @@ function syncBagFromBattle(j, state) {
 
 /** The Bag's contents, one line per move: [{ move, qty }], by type then name. */
 function bagList(j) {
-  return Object.entries(j.bag || {}).filter(([id, qty]) => qty > 0 && !getItem(id) && getMove(id)).map(([id, qty]) => ({ move: getMove(id), qty }))
+  return Object.entries(j.bag || {}).filter(([id, qty]) => qty > 0 && !getItem(id) && !getCharm(id) && getMove(id)).map(([id, qty]) => ({ move: getMove(id), qty }))
     .sort((a, b) => (a.move.type < b.move.type ? -1 : a.move.type > b.move.type ? 1 : a.move.name < b.move.name ? -1 : 1));
 }
 
 /** Buy one scroll of a move. Returns { ok, reason?, cost }. */
 function buyMove(j, moveId) {
   const mv = getMove(moveId);
-  if (!mv || mv.struggle || getItem(moveId)) return { ok: false, reason: 'The Market does not sell that.', cost: 0 };
+  if (!mv || mv.struggle || getItem(moveId) || getCharm(moveId)) return { ok: false, reason: 'The Market does not sell that.', cost: 0 };
   if (mv.signature) return { ok: false, reason: `${mv.name} belongs to one species alone; no scroll of it exists.`, cost: 0 };
   const cost = moveCost(mv);
   if (bagCount(j, moveId) >= MARKET.maxStack) return { ok: false, reason: 'Your bag cannot hold more of those.', cost };
@@ -24864,6 +25023,7 @@ function teachMove(j, uid, moveId, replaceIndex) {
 // logic over a plain `journey` object (party, box, position, badges, beaten trainers, the
 // pending encounter); the UI calls these and persists the result. Members, XP and healing
 // are the shared party helpers in party.js.
+
 
 
 
@@ -24958,8 +25118,9 @@ function tryMove(j, dir) {
   if (tile === TILE.towerDoor) return { moved: true, event: { kind: 'tower' } };
   if (tile === TILE.habitat && j.cooldown <= 0) {
     const rng = makeRng(`${j.seed}:step:${j.stats.steps}`);
-    if (rng.chance(WORLD.encounterChance)) {
-      const spawn = wildSpawn(world, nx, ny, rng.fork('spawn'));
+    const leadHeld = heldKind(j.party[0] && j.party[0].held); // the lead's charm shapes the road: a Lure draws creatures out, a Prism draws out Elementals
+    if (rng.chance(Math.min(1, WORLD.encounterChance * (leadHeld === 'lure' ? CHARM_RULE.lureMul : 1)))) {
+      const spawn = wildSpawn(world, nx, ny, rng.fork('spawn'), { elementalMul: leadHeld === 'prism' ? CHARM_RULE.prismMul : 1 });
       const name = `${spawn.alpha ? 'Alpha ' : 'Wild '}${spawn.genome.name}`;
       j.encounter = { kind: 'wild', name, foes: [{ genome: spawn.genome, level: spawn.level }], capturable: true, biome: spawn.biome, alpha: spawn.alpha, elemental: spawn.elemental, type: spawn.type };
       return { moved: true, event: { kind: 'encounter', encounter: j.encounter } };
@@ -25038,7 +25199,7 @@ function buildJourneyBattle(j) {
     j.party.unshift(...j.party.splice(k, 1));
   }
   const mine = j.party.map((m) => {
-    const b = makeBattler(m.genome, m.level, { moves: m.moves, xp: xpProgress(m) });
+    const b = makeBattler(m.genome, m.level, { moves: m.moves, xp: xpProgress(m), held: m.held });
     b.hp = Math.max(0, Math.min(m.hp, b.maxHp));
     b.status = m.status;
     b.fainted = b.hp <= 0;
@@ -25073,7 +25234,7 @@ function applyJourneyBattle(j, state) {
   const capturedBattler = state.captured ? foes.find((f) => f.uid === state.captured) : null;
   const won = state.winner === 0 || Boolean(capturedBattler);
   j.stats.battles++;
-  const report = { won, kind: enc.kind, foe: enc.name, xp: 0, gold: 0, xpGains: [], levelUps: [], learned: [], captured: null, toBox: false, badge: null, champion: false, nextStage: null, wiped: false, alpha: Boolean(enc.alpha) };
+  const report = { won, kind: enc.kind, foe: enc.name, xp: 0, gold: 0, xpGains: [], levelUps: [], learned: [], captured: null, toBox: false, badge: null, charm: null, champion: false, nextStage: null, wiped: false, alpha: Boolean(enc.alpha) };
   if (!won) {
     if (!canFight(j)) { report.wiped = true; j.stats.wipes++; respawnJourney(j); }
     else { j.encounter = null; j.gauntlet = null; j.cooldown = WORLD.encounterCooldown; }
@@ -25096,7 +25257,8 @@ function applyJourneyBattle(j, state) {
     if (bench && (m.hp <= 0 || benchShare <= 0)) return;
     if (bench) report.bench++;
     const before = xpProgress(m);
-    const r = gainXp(m, bench ? benchShare : share);
+    const scholar = heldKind(m.held) === 'xp' ? CHARM_RULE.xpMul : 1; // a Scholar's Charm lifts its holder's own share
+    const r = gainXp(m, Math.floor((bench ? benchShare : share) * scholar));
     const after = xpProgress(m);
     report.xpGains.push({ uid: m.uid, index, bench, from: { level: r.from, frac: before.frac }, to: { level: r.to, frac: after.frac }, after });
     if (r.to > r.from) report.levelUps.push({ name: m.genome.name, from: r.from, to: r.to });
@@ -25117,11 +25279,19 @@ function applyJourneyBattle(j, state) {
   if (enc.kind !== 'wild') {
     const rematch = enc.kind === 'boss' ? j.badges.includes(enc.biome) : enc.kind === 'council' ? j.champion : enc.kind === 'tower' ? towerRecord(j, enc.floor, enc.level) > 0 : false;
     report.gold = goldReward(enc.foes, enc.kind, rematch);
+    if (j.party.some((m) => heldKind(m.held) === 'gold')) report.gold = Math.round((report.gold * CHARM_RULE.goldMul) / 10) * 10; // a Lucky Coin anywhere in the party
     j.gold = (j.gold || 0) + report.gold;
   }
   if (enc.kind === 'trainer') { j.beaten[enc.trainerId] = true; j.stats.trainers++; }
   if (enc.kind === 'tower') { j.stats.tower = (j.stats.tower || 0) + 1; report.tower = { floor: enc.floor, level: enc.level, wins: recordTowerWin(j, enc.towerId, enc.level) }; }
-  if (enc.kind === 'boss') { j.stats.bosses++; if (!j.badges.includes(enc.biome)) { j.badges.push(enc.biome); report.badge = enc.badge; } }
+  if (enc.kind === 'boss') {
+    j.stats.bosses++;
+    if (!j.badges.includes(enc.biome)) {
+      j.badges.push(enc.biome); report.badge = enc.badge;
+      const gift = WARDEN_CHARMS[enc.biome]; // every Warden hands over a charm with their badge
+      if (getCharm(gift)) { j.bag = j.bag || {}; j.bag[gift] = (j.bag[gift] || 0) + 1; report.charm = gift; }
+    }
+  }
   j.encounter = null;
   j.cooldown = WORLD.encounterCooldown;
   if (enc.kind === 'council') {
@@ -25162,6 +25332,7 @@ function shrineFuse(j, uidA, uidB) {
     // fusing the whole party is fine: the child is the party
   }
   const child = previewShrineFusion(j, uidA, uidB);
+  returnCharms(j, [a, b]); // both parents' charms come back to the Bag
   const member = makeMember(child, Math.max(a.level, b.level), nextJourneyUid(j));
   j.party = j.party.filter((m) => m !== a && m !== b);
   j.box = j.box.filter((m) => m !== a && m !== b);
@@ -25188,6 +25359,7 @@ function partyHealth(j) {
 // tap on the ground; wild encounters on habitat tiles, trainers who fight when asked,
 // Wardens in their lairs, the Council Spire, camps that heal and a shrine that fuses.
 // Fights hand off to the shared fight view and come back to the same spot.
+
 
 
 
@@ -25304,6 +25476,7 @@ function owReportCard(j) {
     for (const l of r.learned || []) { const mv = getMove(l.move); lines.push(`${l.name} learned ${mv ? mv.name : l.move}!`); }
     if (r.captured) lines.push(`${r.captured.genome.name} joined ${r.toBox ? 'the box' : 'the party'}.`);
     if (r.badge) lines.push(`You earned the ${r.badge}!`);
+    if (r.charm && getCharm(r.charm)) lines.push(`The Warden handed over a ${getCharm(r.charm).name}. It is in your Bag.`);
     if (r.champion) lines.push('The Council is beaten. You are the Champion of the Crossroads!');
   }
   return h('div', { class: `result-card slim${r.badge || r.champion ? ' learn' : ''}` }, lines.map((t) => h('div', {}, t)),
@@ -25622,7 +25795,13 @@ function owMemberRow(j, m, actions) {
       h('div', { class: 'hpbar' }, h('i', { class: frac > 0.5 ? 'ok' : frac > 0.2 ? 'warn' : 'low', style: { width: `${Math.max(0, frac * 100)}%` } })),
       h('div', { class: 'xpline' }, xpRow(xp), h('span', { class: 'xpnum' }, xp.next > xp.prev ? `${xp.cur - xp.prev} / ${xp.next - xp.prev}` : 'MAX')),
       h('div', { class: 'move-chips' }, (m.moves || []).map((id) => { const mv = getMove(id); return mv ? h('span', { class: 'chip', style: { '--chip': TYPE_INFO[mv.type].color } }, mv.name) : null; })),
-      h('div', { class: 'row-actions' }, h('span', { class: 'hint', style: { margin: 0 } }, `${m.hp} / ${max} · ${abilityName(m.genome.ability)}`), ...actions)));
+      h('div', { class: 'row-actions' }, h('span', { class: 'hint', style: { margin: 0 } }, `${m.hp} / ${max} · ${abilityName(m.genome.ability)}`), owHeldChip(m), ...actions)));
+}
+
+/** '◈ Ember Charm' for a member holding a charm, or nothing. */
+function owHeldChip(m) {
+  const c = getCharm(m.held);
+  return c ? h('span', { class: 'chip held-chip', style: { '--chip': c.color }, title: c.desc }, `◈ ${c.name}`) : null;
 }
 
 /** Release: tap once to arm (the button changes in place), again within a few seconds to let the creature go. The party keeps at least one. */
@@ -25668,6 +25847,16 @@ function owInfoOpts(j, m, render) {
         if (!r.ok) { toast(r.reason); return r; }
         owSave(); render();
         toast(r.locked ? `${m.genome.name} is locked: it cannot be released or fused.` : `${m.genome.name} is unlocked.`);
+        return r;
+      },
+    },
+    held: {
+      id: () => m.held,
+      onTake: () => {
+        const r = takeCharm(j, m.uid);
+        if (!r.ok) { toast(r.reason); return r; }
+        owSave(); render();
+        toast(`Took the ${getCharm(r.charmId).name} back into the Bag.`);
         return r;
       },
     },
@@ -25778,13 +25967,21 @@ function owItemInfo(item, tag) {
 /** The Bag: potions to use on the party, and move scrolls, each taught once to any creature. */
 function owBagSheet(j) {
   const body = h('div');
-  let teaching = null, using = null;
+  let teaching = null, using = null, giving = null;
   const draw = () => {
     clear(body);
-    const scrolls = bagList(j), potions = itemList(j);
+    const scrolls = bagList(j), potions = itemList(j), charms = charmList(j);
     if (teaching) { body.append(owTeachPanel(j, teaching, () => { teaching = null; render(); })); return; }
     if (using) { body.append(owUsePanel(j, using, () => { using = null; render(); })); return; }
-    body.append(h('p', { class: 'hint' }, `◆ ${(j.gold || 0).toLocaleString()} gold.${scrolls.length || potions.length ? '' : ' The bag is empty. The Market at the Crossroads sells potions and move scrolls.'}`));
+    if (giving) { body.append(owGivePanel(j, giving, () => { giving = null; render(); })); return; }
+    body.append(h('p', { class: 'hint' }, `◆ ${(j.gold || 0).toLocaleString()} gold.${scrolls.length || potions.length || charms.length ? '' : ' The bag is empty. The Market at the Crossroads sells potions, charms and move scrolls.'}`));
+    if (charms.length) {
+      const list = h('div', { class: 'shop-list' });
+      for (const { charm, qty } of charms) list.append(h('div', { class: 'shop-row' }, owCharmInfo(charm, `×${qty}`), h('button', { class: 'btn small primary', type: 'button', onclick: () => { giving = charm.id; render(); } }, 'Give')));
+      body.append(...section('Charms', h('p', { class: 'hint' }, 'A creature holds one charm and carries it into every fight. Give swaps it for whatever the creature held; Take it back from its Info sheet.'), list));
+    }
+    const held = j.party.filter((m) => getCharm(m.held));
+    if (held.length) body.append(h('p', { class: 'hint' }, `Held now: ${held.map((m) => `${m.genome.name} (${getCharm(m.held).name})`).join(', ')}.`));
     if (potions.length) {
       const list = h('div', { class: 'shop-list' });
       for (const { item, qty } of potions) list.append(h('div', { class: 'shop-row' }, owItemInfo(item, `×${qty}`), h('button', { class: 'btn small primary', type: 'button', onclick: () => { using = item.id; render(); } }, 'Use')));
@@ -25799,6 +25996,39 @@ function owBagSheet(j) {
   const render = () => owKeepScroll(body, draw);
   render();
   owSheet('Bag', body, () => owRefreshHud());
+}
+
+/** A charm's name, effect and price or quantity. */
+function owCharmInfo(charm, tag) {
+  return h('div', { class: 'shop-info item-info' }, h('div', { class: 'item-icon small charm-icon', style: { '--chip': charm.color } }, '◈'),
+    h('div', {}, h('b', {}, charm.name),
+      h('div', { class: 'shop-meta' }, h('span', {}, charm.desc), tag ? h('span', { class: 'shop-tag' }, tag) : null)));
+}
+
+/** Pick the party member a charm is given to; it swaps with whatever that creature held. */
+function owGivePanel(j, charmId, back) {
+  const charm = getCharm(charmId);
+  const panel = h('div');
+  const draw = () => {
+    clear(panel);
+    const qty = bagCount(j, charmId);
+    panel.append(h('div', { class: 'row', style: { justifyContent: 'flex-start' } }, h('button', { class: 'btn small', type: 'button', onclick: back }, '‹ Bag'), h('span', { class: 'hint', style: { margin: 0 } }, `Give ${charm.name} (×${qty}) to…`)));
+    const list = h('div', { class: 'party-list' });
+    for (const m of j.party) {
+      const same = m.held === charmId;
+      list.append(owMemberRow(j, m, [h('button', { class: 'btn small primary', type: 'button', disabled: qty <= 0 || same, title: same ? 'Already holds it' : '', onclick: () => {
+        const r = giveCharm(j, m.uid, charmId);
+        if (!r.ok) { toast(r.reason); return; }
+        owSave(); sfx.levelUp();
+        toast(`${m.genome.name} now holds the ${charm.name}${r.swapped ? `; the ${getCharm(r.swapped).name} is back in the Bag` : ''}.`);
+        if (bagCount(j, charmId) > 0) render(); else back();
+      } }, m.held ? 'Swap' : 'Give')]));
+    }
+    panel.append(list);
+  };
+  const render = () => owKeepScroll(panel, draw);
+  render();
+  return panel;
 }
 
 /** Pick the party member a potion is used on. */
@@ -25865,8 +26095,19 @@ function owMarketSheet(j) {
   let filter = 'All', onlyMine = false;
   const catalogue = marketCatalogue();
   const potions = itemCatalogue();
+  const charms = charmCatalogue();
   const draw = () => {
     clear(body);
+    const charmRows = h('div', { class: 'shop-list' });
+    for (const { charm, cost } of charms) {
+      const owned = bagCount(j, charm.id), holders = charmHolders(j, charm.id);
+      charmRows.append(h('div', { class: 'shop-row' }, owCharmInfo(charm, [owned ? `in bag ×${owned}` : '', holders.length ? `held by ${holders.join(', ')}` : ''].filter(Boolean).join(' · ')),
+        h('button', { class: `btn small${(j.gold || 0) >= cost ? ' primary' : ''}`, type: 'button', disabled: (j.gold || 0) < cost, onclick: () => {
+          const r = buyCharm(j, charm.id);
+          if (!r.ok) { toast(r.reason); return; }
+          owSave(); sfx.heal(); toast(`Bought a ${charm.name} for ${cost.toLocaleString()} gold`); render();
+        } }, `${cost.toLocaleString()} ◆`)));
+    }
     const potionList = h('div', { class: 'shop-list' });
     for (const { item, cost } of potions) {
       const owned = bagCount(j, item.id);
@@ -25900,6 +26141,7 @@ function owMarketSheet(j) {
     appendChildren(body, [
       h('p', { class: 'hint' }, `◆ ${(j.gold || 0).toLocaleString()} gold. Everything goes to your Bag. Trainers pay gold when beaten.`),
       ...section('Potions', potionList),
+      ...section('Charms', h('p', { class: 'hint' }, 'A held charm goes into every fight with its creature: a type charm lifts that type’s moves by a fifth, a band lifts one damage type by a tenth, and the rest carry a small passive of their own. Give them out from the Bag. Every Warden hands one over with their badge.'), charmRows),
       ...section('Move scrolls', h('p', { class: 'hint' }, 'Every move is sold as a single-use scroll; prices rise with power in steps of 1000. A creature learns scrolls of its own types, of its Elemental element, and any Normal scroll; "My team" hides the rest.'), chips, shown ? list : h('p', { class: 'hint' }, 'No scroll here suits your team.')),
     ]);
   };

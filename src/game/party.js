@@ -31,7 +31,7 @@ export function xpProgress(m) {
 }
 
 export function makeMember(genome, level, uid) {
-  const m = { uid, genome, level, xp: xpForLevel(level), hp: 0, status: null, moves: movesAtLevel(learnsetOf(genome), level) };
+  const m = { uid, genome, level, xp: xpForLevel(level), hp: 0, status: null, moves: movesAtLevel(learnsetOf(genome), level), held: null };
   m.hp = memberMaxHp(m);
   return m;
 }
@@ -124,6 +124,7 @@ export function releaseMember(owner, uid) {
     owner.party = owner.party.filter((x) => x !== m);
   } else owner.box = owner.box.filter((x) => x !== m);
   if (Array.isArray(owner.pendingLearns)) owner.pendingLearns = owner.pendingLearns.filter((p) => p.uid !== uid);
+  if (m.held) { owner.bag = owner.bag || {}; owner.bag[m.held] = (owner.bag[m.held] || 0) + 1; m.held = null; } // its charm stays with you
   return { ok: true, member: m };
 }
 

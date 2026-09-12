@@ -64,6 +64,15 @@ the same anatomy. All eighteen classes are on rigs and the old shared skeleton i
 pushed every slot away from field-guide realism: forehead sigils, tufted and
 leaf ears, orb and flame tails, glowing tips and bold markings. See `DESIGN.md`.
 
+Held charms: a creature holds one charm and carries it into every fight.
+Eighteen type charms lift one type's moves by a fifth, three bands lift one
+damage type by a tenth, and ten utility charms add a small passive (Moss
+regenerates, Salve cures once a battle, Sturdy holds one blow from full HP,
+Siphon heals on hit, Hawk doubles critical hits, Swift adds Speed, Scholar and
+the Lucky Coin lift experience and gold, Lure and Prism shape the road). The
+Market sells them, every Warden hands one over with their badge, the Bag gives
+and swaps them, and a released or fused creature's charm comes back to you.
+
 Signature moves: every rare species (129 of them) learns a move of its own at
 level 38 that no other species has and no scroll teaches; fusion can carry it
 on. Seven new move effects came with them: restoring HP on a hit, curing the

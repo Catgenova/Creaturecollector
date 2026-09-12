@@ -15,7 +15,8 @@ import { JOURNEY, newJourney, chooseJourneyStarter, tryMove, facing, talkTo, acc
 import { WORLD, TILE, REGIONS, HUB, BIOME_ORDER, worldFor, tileAt, biomeAt, habitatTypeAt, trainerAt, findPath, isHubTile } from '../game/world.js';
 import { TYPE_INFO, TYPE_LIST } from '../data/types.js';
 import { DAMAGE_TYPES } from '../data/damage.js';
-import { marketCatalogue, buyMove, bagList, bagCount, canTeach, teachMove, itemCatalogue, itemList, buyItem, useItem, scrollTypes, scrollLearners, listWords } from '../game/market.js';
+import { marketCatalogue, buyMove, bagList, bagCount, canTeach, teachMove, itemCatalogue, itemList, buyItem, useItem, scrollTypes, scrollLearners, listWords, charmCatalogue, charmList, buyCharm, giveCharm, takeCharm, charmHolders } from '../game/market.js';
+import { getCharm } from '../data/charms.js';
 import { TOWER, TOWER_TRAINERS, challengeTower, towerRecord } from '../game/tower.js';
 import { abilityName } from '../data/abilities.js';
 import { getMove } from '../data/moves.js';
@@ -118,6 +119,7 @@ function owReportCard(j) {
     for (const l of r.learned || []) { const mv = getMove(l.move); lines.push(`${l.name} learned ${mv ? mv.name : l.move}!`); }
     if (r.captured) lines.push(`${r.captured.genome.name} joined ${r.toBox ? 'the box' : 'the party'}.`);
     if (r.badge) lines.push(`You earned the ${r.badge}!`);
+    if (r.charm && getCharm(r.charm)) lines.push(`The Warden handed over a ${getCharm(r.charm).name}. It is in your Bag.`);
     if (r.champion) lines.push('The Council is beaten. You are the Champion of the Crossroads!');
   }
   return h('div', { class: `result-card slim${r.badge || r.champion ? ' learn' : ''}` }, lines.map((t) => h('div', {}, t)),
@@ -436,7 +438,13 @@ function owMemberRow(j, m, actions) {
       h('div', { class: 'hpbar' }, h('i', { class: frac > 0.5 ? 'ok' : frac > 0.2 ? 'warn' : 'low', style: { width: `${Math.max(0, frac * 100)}%` } })),
       h('div', { class: 'xpline' }, xpRow(xp), h('span', { class: 'xpnum' }, xp.next > xp.prev ? `${xp.cur - xp.prev} / ${xp.next - xp.prev}` : 'MAX')),
       h('div', { class: 'move-chips' }, (m.moves || []).map((id) => { const mv = getMove(id); return mv ? h('span', { class: 'chip', style: { '--chip': TYPE_INFO[mv.type].color } }, mv.name) : null; })),
-      h('div', { class: 'row-actions' }, h('span', { class: 'hint', style: { margin: 0 } }, `${m.hp} / ${max} · ${abilityName(m.genome.ability)}`), ...actions)));
+      h('div', { class: 'row-actions' }, h('span', { class: 'hint', style: { margin: 0 } }, `${m.hp} / ${max} · ${abilityName(m.genome.ability)}`), owHeldChip(m), ...actions)));
+}
+
+/** '◈ Ember Charm' for a member holding a charm, or nothing. */
+function owHeldChip(m) {
+  const c = getCharm(m.held);
+  return c ? h('span', { class: 'chip held-chip', style: { '--chip': c.color }, title: c.desc }, `◈ ${c.name}`) : null;
 }
 
 /** Release: tap once to arm (the button changes in place), again within a few seconds to let the creature go. The party keeps at least one. */
@@ -482,6 +490,16 @@ function owInfoOpts(j, m, render) {
         if (!r.ok) { toast(r.reason); return r; }
         owSave(); render();
         toast(r.locked ? `${m.genome.name} is locked: it cannot be released or fused.` : `${m.genome.name} is unlocked.`);
+        return r;
+      },
+    },
+    held: {
+      id: () => m.held,
+      onTake: () => {
+        const r = takeCharm(j, m.uid);
+        if (!r.ok) { toast(r.reason); return r; }
+        owSave(); render();
+        toast(`Took the ${getCharm(r.charmId).name} back into the Bag.`);
         return r;
       },
     },
@@ -592,13 +610,21 @@ function owItemInfo(item, tag) {
 /** The Bag: potions to use on the party, and move scrolls, each taught once to any creature. */
 function owBagSheet(j) {
   const body = h('div');
-  let teaching = null, using = null;
+  let teaching = null, using = null, giving = null;
   const draw = () => {
     clear(body);
-    const scrolls = bagList(j), potions = itemList(j);
+    const scrolls = bagList(j), potions = itemList(j), charms = charmList(j);
     if (teaching) { body.append(owTeachPanel(j, teaching, () => { teaching = null; render(); })); return; }
     if (using) { body.append(owUsePanel(j, using, () => { using = null; render(); })); return; }
-    body.append(h('p', { class: 'hint' }, `◆ ${(j.gold || 0).toLocaleString()} gold.${scrolls.length || potions.length ? '' : ' The bag is empty. The Market at the Crossroads sells potions and move scrolls.'}`));
+    if (giving) { body.append(owGivePanel(j, giving, () => { giving = null; render(); })); return; }
+    body.append(h('p', { class: 'hint' }, `◆ ${(j.gold || 0).toLocaleString()} gold.${scrolls.length || potions.length || charms.length ? '' : ' The bag is empty. The Market at the Crossroads sells potions, charms and move scrolls.'}`));
+    if (charms.length) {
+      const list = h('div', { class: 'shop-list' });
+      for (const { charm, qty } of charms) list.append(h('div', { class: 'shop-row' }, owCharmInfo(charm, `×${qty}`), h('button', { class: 'btn small primary', type: 'button', onclick: () => { giving = charm.id; render(); } }, 'Give')));
+      body.append(...section('Charms', h('p', { class: 'hint' }, 'A creature holds one charm and carries it into every fight. Give swaps it for whatever the creature held; Take it back from its Info sheet.'), list));
+    }
+    const held = j.party.filter((m) => getCharm(m.held));
+    if (held.length) body.append(h('p', { class: 'hint' }, `Held now: ${held.map((m) => `${m.genome.name} (${getCharm(m.held).name})`).join(', ')}.`));
     if (potions.length) {
       const list = h('div', { class: 'shop-list' });
       for (const { item, qty } of potions) list.append(h('div', { class: 'shop-row' }, owItemInfo(item, `×${qty}`), h('button', { class: 'btn small primary', type: 'button', onclick: () => { using = item.id; render(); } }, 'Use')));
@@ -613,6 +639,39 @@ function owBagSheet(j) {
   const render = () => owKeepScroll(body, draw);
   render();
   owSheet('Bag', body, () => owRefreshHud());
+}
+
+/** A charm's name, effect and price or quantity. */
+function owCharmInfo(charm, tag) {
+  return h('div', { class: 'shop-info item-info' }, h('div', { class: 'item-icon small charm-icon', style: { '--chip': charm.color } }, '◈'),
+    h('div', {}, h('b', {}, charm.name),
+      h('div', { class: 'shop-meta' }, h('span', {}, charm.desc), tag ? h('span', { class: 'shop-tag' }, tag) : null)));
+}
+
+/** Pick the party member a charm is given to; it swaps with whatever that creature held. */
+function owGivePanel(j, charmId, back) {
+  const charm = getCharm(charmId);
+  const panel = h('div');
+  const draw = () => {
+    clear(panel);
+    const qty = bagCount(j, charmId);
+    panel.append(h('div', { class: 'row', style: { justifyContent: 'flex-start' } }, h('button', { class: 'btn small', type: 'button', onclick: back }, '‹ Bag'), h('span', { class: 'hint', style: { margin: 0 } }, `Give ${charm.name} (×${qty}) to…`)));
+    const list = h('div', { class: 'party-list' });
+    for (const m of j.party) {
+      const same = m.held === charmId;
+      list.append(owMemberRow(j, m, [h('button', { class: 'btn small primary', type: 'button', disabled: qty <= 0 || same, title: same ? 'Already holds it' : '', onclick: () => {
+        const r = giveCharm(j, m.uid, charmId);
+        if (!r.ok) { toast(r.reason); return; }
+        owSave(); sfx.levelUp();
+        toast(`${m.genome.name} now holds the ${charm.name}${r.swapped ? `; the ${getCharm(r.swapped).name} is back in the Bag` : ''}.`);
+        if (bagCount(j, charmId) > 0) render(); else back();
+      } }, m.held ? 'Swap' : 'Give')]));
+    }
+    panel.append(list);
+  };
+  const render = () => owKeepScroll(panel, draw);
+  render();
+  return panel;
 }
 
 /** Pick the party member a potion is used on. */
@@ -679,8 +738,19 @@ function owMarketSheet(j) {
   let filter = 'All', onlyMine = false;
   const catalogue = marketCatalogue();
   const potions = itemCatalogue();
+  const charms = charmCatalogue();
   const draw = () => {
     clear(body);
+    const charmRows = h('div', { class: 'shop-list' });
+    for (const { charm, cost } of charms) {
+      const owned = bagCount(j, charm.id), holders = charmHolders(j, charm.id);
+      charmRows.append(h('div', { class: 'shop-row' }, owCharmInfo(charm, [owned ? `in bag ×${owned}` : '', holders.length ? `held by ${holders.join(', ')}` : ''].filter(Boolean).join(' · ')),
+        h('button', { class: `btn small${(j.gold || 0) >= cost ? ' primary' : ''}`, type: 'button', disabled: (j.gold || 0) < cost, onclick: () => {
+          const r = buyCharm(j, charm.id);
+          if (!r.ok) { toast(r.reason); return; }
+          owSave(); sfx.heal(); toast(`Bought a ${charm.name} for ${cost.toLocaleString()} gold`); render();
+        } }, `${cost.toLocaleString()} ◆`)));
+    }
     const potionList = h('div', { class: 'shop-list' });
     for (const { item, cost } of potions) {
       const owned = bagCount(j, item.id);
@@ -714,6 +784,7 @@ function owMarketSheet(j) {
     appendChildren(body, [
       h('p', { class: 'hint' }, `◆ ${(j.gold || 0).toLocaleString()} gold. Everything goes to your Bag. Trainers pay gold when beaten.`),
       ...section('Potions', potionList),
+      ...section('Charms', h('p', { class: 'hint' }, 'A held charm goes into every fight with its creature: a type charm lifts that type’s moves by a fifth, a band lifts one damage type by a tenth, and the rest carry a small passive of their own. Give them out from the Bag. Every Warden hands one over with their badge.'), charmRows),
       ...section('Move scrolls', h('p', { class: 'hint' }, 'Every move is sold as a single-use scroll; prices rise with power in steps of 1000. A creature learns scrolls of its own types, of its Elemental element, and any Normal scroll; "My team" hides the rest.'), chips, shown ? list : h('p', { class: 'hint' }, 'No scroll here suits your team.')),
     ]);
   };

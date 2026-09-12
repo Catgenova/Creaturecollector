@@ -9,7 +9,8 @@ import { fuse, canFuse } from '../creature/fusion.js';
 import { createBattle, makeBattler } from '../battle/engine.js';
 import { PARTY, XP, makeMember, gainXp, healParty, xpProgress, xpReward, memberMaxHp, canFight } from './party.js';
 import { WORLD, TILE, REGIONS, BIOME_ORDER, worldFor, tileAt, biomeAt, trainerAt, isWalkable, inBounds, wildSpawn, levelAt } from './world.js';
-import { goldReward, battleItems, syncBagFromBattle } from './market.js';
+import { goldReward, battleItems, syncBagFromBattle, returnCharms } from './market.js';
+import { getCharm, heldKind, CHARM_RULE, WARDEN_CHARMS } from '../data/charms.js';
 import { recordTowerWin, towerRecord } from './tower.js';
 
 export const JOURNEY = { starterLevel: PARTY.starterLevel, maxLevel: PARTY.maxLevel, partyMax: PARTY.max, gauntletHeal: 0.35, badgesForSpire: BIOME_ORDER.length, councilFights: 4 };
@@ -96,8 +97,9 @@ export function tryMove(j, dir) {
   if (tile === TILE.towerDoor) return { moved: true, event: { kind: 'tower' } };
   if (tile === TILE.habitat && j.cooldown <= 0) {
     const rng = makeRng(`${j.seed}:step:${j.stats.steps}`);
-    if (rng.chance(WORLD.encounterChance)) {
-      const spawn = wildSpawn(world, nx, ny, rng.fork('spawn'));
+    const leadHeld = heldKind(j.party[0] && j.party[0].held); // the lead's charm shapes the road: a Lure draws creatures out, a Prism draws out Elementals
+    if (rng.chance(Math.min(1, WORLD.encounterChance * (leadHeld === 'lure' ? CHARM_RULE.lureMul : 1)))) {
+      const spawn = wildSpawn(world, nx, ny, rng.fork('spawn'), { elementalMul: leadHeld === 'prism' ? CHARM_RULE.prismMul : 1 });
       const name = `${spawn.alpha ? 'Alpha ' : 'Wild '}${spawn.genome.name}`;
       j.encounter = { kind: 'wild', name, foes: [{ genome: spawn.genome, level: spawn.level }], capturable: true, biome: spawn.biome, alpha: spawn.alpha, elemental: spawn.elemental, type: spawn.type };
       return { moved: true, event: { kind: 'encounter', encounter: j.encounter } };
@@ -176,7 +178,7 @@ export function buildJourneyBattle(j) {
     j.party.unshift(...j.party.splice(k, 1));
   }
   const mine = j.party.map((m) => {
-    const b = makeBattler(m.genome, m.level, { moves: m.moves, xp: xpProgress(m) });
+    const b = makeBattler(m.genome, m.level, { moves: m.moves, xp: xpProgress(m), held: m.held });
     b.hp = Math.max(0, Math.min(m.hp, b.maxHp));
     b.status = m.status;
     b.fainted = b.hp <= 0;
@@ -211,7 +213,7 @@ export function applyJourneyBattle(j, state) {
   const capturedBattler = state.captured ? foes.find((f) => f.uid === state.captured) : null;
   const won = state.winner === 0 || Boolean(capturedBattler);
   j.stats.battles++;
-  const report = { won, kind: enc.kind, foe: enc.name, xp: 0, gold: 0, xpGains: [], levelUps: [], learned: [], captured: null, toBox: false, badge: null, champion: false, nextStage: null, wiped: false, alpha: Boolean(enc.alpha) };
+  const report = { won, kind: enc.kind, foe: enc.name, xp: 0, gold: 0, xpGains: [], levelUps: [], learned: [], captured: null, toBox: false, badge: null, charm: null, champion: false, nextStage: null, wiped: false, alpha: Boolean(enc.alpha) };
   if (!won) {
     if (!canFight(j)) { report.wiped = true; j.stats.wipes++; respawnJourney(j); }
     else { j.encounter = null; j.gauntlet = null; j.cooldown = WORLD.encounterCooldown; }
@@ -234,7 +236,8 @@ export function applyJourneyBattle(j, state) {
     if (bench && (m.hp <= 0 || benchShare <= 0)) return;
     if (bench) report.bench++;
     const before = xpProgress(m);
-    const r = gainXp(m, bench ? benchShare : share);
+    const scholar = heldKind(m.held) === 'xp' ? CHARM_RULE.xpMul : 1; // a Scholar's Charm lifts its holder's own share
+    const r = gainXp(m, Math.floor((bench ? benchShare : share) * scholar));
     const after = xpProgress(m);
     report.xpGains.push({ uid: m.uid, index, bench, from: { level: r.from, frac: before.frac }, to: { level: r.to, frac: after.frac }, after });
     if (r.to > r.from) report.levelUps.push({ name: m.genome.name, from: r.from, to: r.to });
@@ -255,11 +258,19 @@ export function applyJourneyBattle(j, state) {
   if (enc.kind !== 'wild') {
     const rematch = enc.kind === 'boss' ? j.badges.includes(enc.biome) : enc.kind === 'council' ? j.champion : enc.kind === 'tower' ? towerRecord(j, enc.floor, enc.level) > 0 : false;
     report.gold = goldReward(enc.foes, enc.kind, rematch);
+    if (j.party.some((m) => heldKind(m.held) === 'gold')) report.gold = Math.round((report.gold * CHARM_RULE.goldMul) / 10) * 10; // a Lucky Coin anywhere in the party
     j.gold = (j.gold || 0) + report.gold;
   }
   if (enc.kind === 'trainer') { j.beaten[enc.trainerId] = true; j.stats.trainers++; }
   if (enc.kind === 'tower') { j.stats.tower = (j.stats.tower || 0) + 1; report.tower = { floor: enc.floor, level: enc.level, wins: recordTowerWin(j, enc.towerId, enc.level) }; }
-  if (enc.kind === 'boss') { j.stats.bosses++; if (!j.badges.includes(enc.biome)) { j.badges.push(enc.biome); report.badge = enc.badge; } }
+  if (enc.kind === 'boss') {
+    j.stats.bosses++;
+    if (!j.badges.includes(enc.biome)) {
+      j.badges.push(enc.biome); report.badge = enc.badge;
+      const gift = WARDEN_CHARMS[enc.biome]; // every Warden hands over a charm with their badge
+      if (getCharm(gift)) { j.bag = j.bag || {}; j.bag[gift] = (j.bag[gift] || 0) + 1; report.charm = gift; }
+    }
+  }
   j.encounter = null;
   j.cooldown = WORLD.encounterCooldown;
   if (enc.kind === 'council') {
@@ -300,6 +311,7 @@ export function shrineFuse(j, uidA, uidB) {
     // fusing the whole party is fine: the child is the party
   }
   const child = previewShrineFusion(j, uidA, uidB);
+  returnCharms(j, [a, b]); // both parents' charms come back to the Bag
   const member = makeMember(child, Math.max(a.level, b.level), nextJourneyUid(j));
   j.party = j.party.filter((m) => m !== a && m !== b);
   j.box = j.box.filter((m) => m !== a && m !== b);

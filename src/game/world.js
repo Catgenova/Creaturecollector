@@ -171,7 +171,7 @@ export function spawnTable(clade, type) {
 }
 
 /** Roll the wild creature for a habitat tile: species by class and element, level by the area with rarer stronger rolls, and the 1/1000 Elemental. */
-export function wildSpawn(world, x, y, rng) {
+export function wildSpawn(world, x, y, rng, opts = {}) {
   const biome = biomeAt(world, x, y);
   const type = habitatTypeAt(world, x, y);
   const sp = rng.weighted(spawnTable(biome.clade, type), ([, w]) => w)[0];
@@ -183,7 +183,7 @@ export function wildSpawn(world, x, y, rng) {
   if (r < WILD_LEVEL.alpha) { level = L + Math.min(WILD_LEVEL.alphaMax, 3 + Math.round(L * 0.3)) + rng.between(0, 2); alpha = true; }
   else if (r < WILD_LEVEL.alpha + WILD_LEVEL.strong) level = L + Math.min(WILD_LEVEL.strongMax, 2 + Math.round(L * 0.15)) + rng.between(0, 1);
   level = Math.max(1, Math.min(100, level));
-  const elemental = rollElemental(genome, rng.fork('elemental'), WILD_ELEMENTAL.chance);
+  const elemental = rollElemental(genome, rng.fork('elemental'), Math.min(1, WILD_ELEMENTAL.chance * (opts.elementalMul || 1)));
   return { genome, level, alpha, elemental, type, biome: biome.id, areaLevel: L };
 }
 

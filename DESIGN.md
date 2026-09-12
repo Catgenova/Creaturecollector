@@ -1049,6 +1049,32 @@ types, which is the only way a second species ever knows one.
 - **Balance.** Rares gained a strong move at 50, so the tuner ran again after
   this patch; see the balance note at the end of the content patches.
 
+## Held charms (implemented)
+
+One held item per creature, read by the engine from `held` on the battler.
+`src/data/charms.js` holds 31 charms in three families:
+
+- **Type charms** (18): one per type, lifting that type's moves by a fifth.
+- **Bands** (3): Brawler's, Marksman's and Sage's, lifting one damage type by
+  a tenth.
+- **Utility charms** (10): Moss (a sixteenth of max HP back every turn),
+  Siphon (heals an eighth of damage dealt), Sturdy (holds one hit that would
+  knock the holder out from full HP, once a battle), Hawk (critical hits twice
+  as often), Swift (Speed times 1.1), Salve (cures the holder's status at the
+  end of the turn, once a battle), Scholar's (the holder's experience share
+  times 1.5), Lucky Coin (trainer gold times 1.5 with the coin anywhere in the
+  party), Lure (wild encounters twice as often while the lead holds it) and
+  Prism (the lead's Elemental roll ten times as likely).
+
+Charms live in the Bag under their own ids beside potions and scrolls, so the
+save, the Market and the Bag share one structure. The Market sells them all
+(2,500 to 12,000 gold); every Warden also hands one over with their badge, a
+different charm per biome (`WARDEN_CHARMS`), so a lap of the ring collects
+eighteen. Give from the Bag swaps with whatever the creature held; Take on the
+Info sheet returns it; release and fusion return charms to the Bag. Foes never
+hold charms, and the tournament simulator does not use them, so they sit
+outside the balance loop as a player-side edge.
+
 ## Mobile view (implemented)
 
 The game was drawn for a phone from the start (portrait layout, 44px targets,

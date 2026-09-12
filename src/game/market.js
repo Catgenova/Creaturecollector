@@ -3,6 +3,7 @@
 // (keyed by item or move id) until used. Pure functions over the journey object.
 import { MOVES, getMove } from '../data/moves.js';
 import { ITEMS, ITEM_IDS, getItem, potionHeal, potionUseful } from '../data/items.js';
+import { CHARMS, CHARM_SHOP, getCharm } from '../data/charms.js';
 import { memberMaxHp } from './party.js';
 import { elementalOf } from '../creature/genome.js';
 import { ELEMENTS } from '../data/elements.js';
@@ -34,6 +35,61 @@ export function goldReward(foes, kind = 'trainer', rematch = false) {
 }
 
 export function bagCount(j, id) { return (j.bag && j.bag[id]) || 0; }
+
+function bagAdd(j, id, n = 1) { j.bag = j.bag || {}; j.bag[id] = bagCount(j, id) + n; if (j.bag[id] <= 0) delete j.bag[id]; }
+
+// ---- charms: held items, one per creature ------------------------------------------------
+
+/** The charms on sale: type charms first, then the bands and the rest. */
+export function charmCatalogue() { return CHARM_SHOP.map((id) => ({ charm: CHARMS[id], cost: CHARMS[id].cost })); }
+
+/** The Bag's charms: [{ charm, qty }] in shop order. */
+export function charmList(j) { return CHARM_SHOP.filter((id) => bagCount(j, id) > 0).map((id) => ({ charm: CHARMS[id], qty: j.bag[id] })); }
+
+/** Buy one charm. Returns { ok, reason?, cost }. */
+export function buyCharm(j, charmId) {
+  const c = getCharm(charmId);
+  if (!c) return { ok: false, reason: 'The Market does not sell that.', cost: 0 };
+  if (bagCount(j, charmId) >= MARKET.maxStack) return { ok: false, reason: 'Your bag cannot hold more of those.', cost: c.cost };
+  if ((j.gold || 0) < c.cost) return { ok: false, reason: `Not enough gold: a ${c.name} costs ${c.cost.toLocaleString()}.`, cost: c.cost };
+  j.gold -= c.cost;
+  bagAdd(j, charmId);
+  return { ok: true, cost: c.cost };
+}
+
+/** Names of the party and box members holding a charm. */
+export function charmHolders(j, charmId) { return [...j.party, ...(j.box || [])].filter((m) => m.held === charmId).map((m) => m.genome.name); }
+
+/** Hand a charm from the Bag to a member; whatever it held before goes back to the Bag. { ok, reason?, swapped? } */
+export function giveCharm(j, uid, charmId) {
+  const c = getCharm(charmId);
+  if (!c || bagCount(j, charmId) <= 0) return { ok: false, reason: 'No such charm in the bag.' };
+  const m = bagMember(j, uid);
+  if (!m) return { ok: false, reason: 'No such creature.' };
+  if (m.held === charmId) return { ok: false, reason: `${m.genome.name} already holds a ${c.name}.` };
+  const swapped = m.held || null;
+  bagAdd(j, charmId, -1);
+  if (swapped) bagAdd(j, swapped, 1);
+  m.held = charmId;
+  return { ok: true, swapped };
+}
+
+/** Take a member's charm back into the Bag. { ok, reason?, charmId } */
+export function takeCharm(j, uid) {
+  const m = bagMember(j, uid);
+  if (!m) return { ok: false, reason: 'No such creature.' };
+  if (!m.held) return { ok: false, reason: `${m.genome.name} holds nothing.` };
+  const charmId = m.held;
+  m.held = null;
+  bagAdd(j, charmId, 1);
+  return { ok: true, charmId };
+}
+
+/** Every charm a list of members holds goes back to the Bag (release, fusion). */
+export function returnCharms(j, members) {
+  for (const m of members) if (m && m.held) { bagAdd(j, m.held, 1); m.held = null; }
+  return j;
+}
 
 /** The potions on sale, weakest first. */
 export function itemCatalogue() { return ITEM_IDS.map((id) => ({ item: ITEMS[id], cost: ITEMS[id].cost })); }
@@ -93,14 +149,14 @@ export function syncBagFromBattle(j, state) {
 
 /** The Bag's contents, one line per move: [{ move, qty }], by type then name. */
 export function bagList(j) {
-  return Object.entries(j.bag || {}).filter(([id, qty]) => qty > 0 && !getItem(id) && getMove(id)).map(([id, qty]) => ({ move: getMove(id), qty }))
+  return Object.entries(j.bag || {}).filter(([id, qty]) => qty > 0 && !getItem(id) && !getCharm(id) && getMove(id)).map(([id, qty]) => ({ move: getMove(id), qty }))
     .sort((a, b) => (a.move.type < b.move.type ? -1 : a.move.type > b.move.type ? 1 : a.move.name < b.move.name ? -1 : 1));
 }
 
 /** Buy one scroll of a move. Returns { ok, reason?, cost }. */
 export function buyMove(j, moveId) {
   const mv = getMove(moveId);
-  if (!mv || mv.struggle || getItem(moveId)) return { ok: false, reason: 'The Market does not sell that.', cost: 0 };
+  if (!mv || mv.struggle || getItem(moveId) || getCharm(moveId)) return { ok: false, reason: 'The Market does not sell that.', cost: 0 };
   if (mv.signature) return { ok: false, reason: `${mv.name} belongs to one species alone; no scroll of it exists.`, cost: 0 };
   const cost = moveCost(mv);
   if (bagCount(j, moveId) >= MARKET.maxStack) return { ok: false, reason: 'Your bag cannot hold more of those.', cost };
