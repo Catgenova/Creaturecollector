@@ -1,6 +1,7 @@
 // Batch nine, and the shape of the whole pool: six hundred passives, each with a distinct name and a
 // distinct set of entries, spread two to six deep across the roster.
 import { test } from 'node:test';
+import { readFileSync } from 'node:fs';
 import assert from 'node:assert/strict';
 import { makeRng } from '../src/core/rng.js';
 import { SPECIES } from '../src/data/species.js';
@@ -36,6 +37,17 @@ test('nine hundred passives, every one distinct in name and in what it does', ()
     }
     assert.ok(!/\b(Attack|Defense|Sp\. Atk|Sp\. Def)\b/.test(a.desc), `${id} uses another game's stat words`);
   }
+});
+
+test('no passive id is written twice in the table', () => {
+  // a repeated id does not error: the second row silently replaces the first, which is how seven
+  // passives from the first six hundred quietly changed behaviour. Names and entries are checked
+  // above; this checks the source itself.
+  const src = readFileSync(new URL('../src/data/abilities.js', import.meta.url), 'utf8');
+  const ids = [...src.matchAll(/defA\('([a-z_]+)'/g)].map((m) => m[1]);
+  const seen = new Set(), twice = [];
+  for (const id of ids) { if (seen.has(id)) twice.push(id); seen.add(id); }
+  assert.deepEqual(twice, [], `written twice: ${twice.join(', ')}`);
 });
 
 test('the pool sits one to four deep on the roster, cores stay Elemental', () => {
