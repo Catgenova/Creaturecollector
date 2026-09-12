@@ -1182,6 +1182,36 @@ lists the five with the best candidate's payout, then the candidates with
 their multipliers; a second tap confirms. The save keeps the list and drops
 junk types, prices and duplicates.
 
+## Passives at scale (in progress)
+
+The first forty-two passives and the fourteen Elemental cores are implemented
+by id in the engine. To grow the pool toward three hundred without three
+hundred hand-written hooks, every later passive is a data row: `A(id, name,
+fx)` in `src/data/abilities.js`, where `fx` is a list of typed entries the
+engine interprets at its hooks (`abFx` in `src/battle/engine.js`, kinds listed
+in `PASSIVE_KINDS`). Descriptions are written from the entries in the game's
+own stat words, so text and behaviour cannot drift apart. Seventy-odd kinds
+cover power and accuracy multipliers by type, style, flag, power band, move
+effect and situation; resists, weaknesses, absorbs and immunities; entry,
+end-of-turn, switch, knockout and contact effects; reactions to being hit;
+status rules; priority tweaks; and a few classics (Sheer Force, Shield Dust,
+Synchronize, Magic Guard, Scrappy, Pressure, Early Bird, Quick Draw).
+
+Batches so far:
+
+- **Batch 1 (62).** Eighteen type affinities (a type's moves times 1.2),
+  the ten low-HP surges the first eight left out, eighteen type resists (times
+  0.6), eight absorbs (Fire, Ground, Ice and Poison heal a quarter; Grass,
+  Electric, Flying and Ghost lift a stat) and eight style boosts (Melee,
+  Ranged and Magic times 1.15, contact times 1.25, sound times 1.3, moves of
+  100 power or more, multi-hit and draining moves).
+
+Distribution: a script hands each new passive to about six species by
+affinity (its type first, then its style, then anywhere), preferring species
+not yet touched, replacing the second ability and then the first, and every
+data passive must be carried by at least one species (a test checks). A final
+even redistribution follows the last batch, then the tuner.
+
 ## Mobile view (implemented)
 
 The game was drawn for a phone from the start (portrait layout, 44px targets,

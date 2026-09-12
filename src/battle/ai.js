@@ -7,7 +7,7 @@ function bestEffVs(attacker, defender) {
   for (const m of attacker.moves) {
     const mv = getMove(m.id);
     if (!mv || !isDamaging(mv) || m.pp <= 0) continue;
-    best = Math.max(best, moveEffectiveness(mv, defender) * affinityBonus(attacker, mv));
+    best = Math.max(best, moveEffectiveness(mv, defender, attacker) * affinityBonus(attacker, mv));
   }
   return best;
 }
@@ -18,7 +18,7 @@ function scoreMove(state, side, action, rng) {
   const acc = mv.acc == null ? 1 : mv.acc / 100;
   const faster = effectiveStat(me, 'spe') > effectiveStat(foe, 'spe') || mv.prio > 0;
   if (isDamaging(mv)) {
-    const eff = moveEffectiveness(mv, foe);
+    const eff = moveEffectiveness(mv, foe, me);
     if (eff === 0) return -60;
     const est = calcDamage(me, foe, mv, eff, 0.925, false);
     const frac = Math.min(1, est / Math.max(1, foe.hp));
