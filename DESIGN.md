@@ -1415,6 +1415,37 @@ leaves every passive with the same number of homes. The last verification over
 nothing pinned at a clamp outside the band; totals span 360 to 520 with 17
 species on the floor and 9 on the cap.
 
+## The move kit pass (implemented)
+
+The passive pool had grown to nine hundred while the move table stood at 197
+ordinary moves and 129 signatures, and it showed: Glare sat on 498 of the 895
+species and Brace on 471, because for most buckets there was nothing else to
+give. Ranged had 67 moves against 115 each for melee and magic, and only 29
+moves were status at all.
+
+**The fill.** Every type now carries at least six melee, six ranged, six magic
+and four status moves, which took 205 new ones and lands the ordinary table at
+402 (531 with the signatures). They are generated from templates rather than
+typed out one by one: nine shapes per damaging category (a solid hit, a heavy
+one, a snapping bite, a jab that leaves the type's own status, a flurry, a
+drain, a reckless recoil, a keen edge, a quick strike) and eight for status
+moves, crossed with a word pool per type. Each type deals in the status it
+should (Fire burns, Poison poisons, Electric paralyses, Ice freezes, Grass and
+the other powdery types put to sleep), and the flags follow the type too, so
+biting belongs to Dark, Dragon and Water, punching to Fighting, Fire and
+Steel, powder to Grass, Bug, Poison and Fairy, sound to the callers.
+
+**The weave.** New moves nobody learns would only be shop stock, so a pass
+rewrote learnsets: any move carried by more than a hundred species counts as
+filler, and up to four of a species' filler slots are swapped for a move of
+its own type at the same level. The swap is like for like, damaging for
+damaging and status for status in the same category, so every species keeps an
+attack of its own style in each level band. It moved 3,026 entries across 859
+species. The commonest move is now Belly Flop on 202 species rather than Glare
+on 498, the median move is learned by six species rather than eleven, and 525
+of the 531 moves appear in some learnset. A test now also refuses a learnset
+that repeats a move, which caught one that already did.
+
 ## Mobile view (implemented)
 
 The game was drawn for a phone from the start (portrait layout, 44px targets,

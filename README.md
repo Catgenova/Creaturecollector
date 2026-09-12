@@ -18,7 +18,7 @@ Phase 2 — Fusion: fuse any two creatures of a class into one, with an
 inheritance report; stress-tested over five generations. It shipped as a
 Fusion Lab tab and now lives at the overworld's shrine.
 
-Phase 3 — Battle: a deterministic, headless battle engine (326 moves, 900
+Phase 3 — Battle: a deterministic, headless battle engine (531 moves, 900
 passives, status, stages, switching, parties of five, AI opponent, balance
 simulator) and a portrait fight view.
 

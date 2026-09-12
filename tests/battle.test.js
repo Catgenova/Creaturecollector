@@ -28,6 +28,8 @@ test('move and ability tables are well formed', () => {
   for (const s of SPECIES) {
     assert.ok(s.learnset.length >= 6, `${s.id} learnset`);
     for (const [lvl, id] of s.learnset) { assert.ok(lvl >= 1 && getMove(id), `${s.id} learns unknown ${id}`); }
+    const ids = s.learnset.map(([, id]) => id);
+    assert.equal(new Set(ids).size, ids.length, `${s.id} learns the same move twice`);
     assert.ok(s.learnset.some(([, id]) => isDamaging(getMove(id)) && s.learnset.find(([l]) => l === 1)), `${s.id} needs a level-1 move`);
     for (const a of s.abilities) assert.ok(ABILITIES[a], `${s.id} ability ${a}`);
   }
