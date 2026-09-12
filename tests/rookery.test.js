@@ -5,12 +5,14 @@ import { makeRng } from '../src/core/rng.js';
 import { SPECIES_BY_ID } from '../src/data/species.js';
 import { ABILITIES } from '../src/data/abilities.js';
 import { isCoreAbility } from '../src/data/elements.js';
-import { speciesGenome, makeElemental } from '../src/creature/genome.js';
+import { speciesGenome, makeElemental, validateGenome } from '../src/creature/genome.js';
 import { fuse } from '../src/creature/fusion.js';
 import { newJourney, chooseJourneyStarter, tryMove } from '../src/game/journey.js';
 import { makeMember } from '../src/game/party.js';
 import { WORLD, worldFor, TILE, tileAt, isWalkable, findPath } from '../src/game/world.js';
-import { bloodlinePassives, swapChoices, wildPool, swapPrice, drawPrice, rookeryBlock, swapPassive, wildDraw, ROOKERY } from '../src/game/rookery.js';
+import { makeBattler, calcDamage } from '../src/battle/engine.js';
+import { getMove } from '../src/data/moves.js';
+import { bloodlinePassives, swapChoices, wildPool, swapPrice, drawPrice, secondSlotPrice, rookeryBlock, swapPassive, wildDraw, openSecondSlot, ROOKERY } from '../src/game/rookery.js';
 
 const gen = (id, seed = 'r') => speciesGenome(SPECIES_BY_ID[id], makeRng(`${seed}-${id}`));
 function journeyWith(members, gold = 50000) {
@@ -110,4 +112,44 @@ test('an Elemental keeps its core, and gold is required', () => {
   const r = swapPassive(poor, poor.party[0].uid);
   assert.equal(r.ok, false);
   assert.match(r.reason, /gold/);
+});
+
+test('a second slot is bought once, and the engine fights with both passives', () => {
+  const j = journeyWith([gen('emberox')]);
+  const m = j.party[0];
+  assert.equal(m.genome.ability2, undefined, 'one slot until it is bought');
+  const price = secondSlotPrice();
+  assert.equal(price, ROOKERY.secondSlot);
+  const before = j.gold;
+  const r = openSecondSlot(j, m.uid);
+  assert.ok(r.ok, r.reason);
+  assert.equal(j.gold, before - price);
+  assert.ok(m.genome.ability2 && m.genome.ability2 !== m.genome.ability);
+  assert.match(openSecondSlot(j, m.uid).reason, /already/);
+
+  // both passives reach the battle: a creature with two type boosts hits harder than with either alone
+  const plain = makeBattler(gen('pufflet'), 50, { ability: 'lucky_streak' });
+  const one = makeBattler(gen('emberox'), 50, { ability: 'fire_affinity' });
+  const two = makeBattler(gen('emberox'), 50, { ability: 'fire_affinity', ability2: 'fire_zeal' }); // both lift Fire at any HP
+  const hit = (u) => calcDamage(u, plain, getMove('fire_stream'), 1, 1, false);
+  assert.ok(hit(two) > hit(one), `${hit(two)} vs ${hit(one)}`);
+  // and a defensive second passive is read too
+  const soft = makeBattler(gen('pufflet'), 50, { ability: 'lucky_streak' });
+  const armoured = makeBattler(gen('pufflet'), 50, { ability: 'lucky_streak', ability2: 'fire_proof' });
+  assert.ok(calcDamage(one, armoured, getMove('fire_stream'), 1, 1, false) < calcDamage(one, soft, getMove('fire_stream'), 1, 1, false));
+});
+
+test('an Elemental cannot buy a slot, and the second slot survives a save round trip', () => {
+  const elem = journeyWith([makeElemental(gen('emberox'), 'fire', makeRng('e2'))]);
+  assert.match(openSecondSlot(elem, elem.party[0].uid).reason, /Elemental/);
+
+  const j = journeyWith([gen('glacub')]);
+  assert.ok(openSecondSlot(j, j.party[0].uid).ok);
+  const second = j.party[0].genome.ability2;
+  const clean = validateGenome(JSON.parse(JSON.stringify(j.party[0].genome)));
+  assert.equal(clean.ability2, second, 'validation keeps a bought slot');
+  const nonsense = validateGenome({ ...JSON.parse(JSON.stringify(j.party[0].genome)), ability2: 'not_a_passive' });
+  assert.equal(nonsense.ability2, undefined, 'and drops a slot that names nothing');
+  const doubled = validateGenome({ ...JSON.parse(JSON.stringify(j.party[0].genome)), ability2: j.party[0].genome.ability });
+  assert.equal(doubled.ability2, undefined, 'and refuses the same passive twice');
 });

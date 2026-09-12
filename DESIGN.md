@@ -1446,6 +1446,25 @@ on 498, the median move is learned by six species rather than eleven, and 525
 of the 531 moves appear in some learnset. A test now also refuses a learnset
 that repeats a move, which caught one that already did.
 
+## The second slot (implemented)
+
+Gold had nowhere to go: a trainer rematch pays 2,630 at level 70 and a Tower
+floor 18,000, while the dearest thing in the game was a 12,000 charm and every
+charm ever printed came to 96,500 together. The first of the sinks is also the
+one that opens the passive library up.
+
+**A second passive slot**, 40,000 gold, bought once per creature at the
+Rookery and never closed. From then on the creature fights with both: the
+engine reads a battler's passives from `ability` and `ability2` together, the
+log names whichever of them fired, and every hand-implemented passive check
+looks in both slots. The Rookery's swap and wild draw take a slot number, so
+either can be turned over afterwards, and the creature sheet lists both.
+
+It is a player-only purchase. Wild creatures, trainers, Wardens and the
+tournament simulator all field one passive as before, so the 40-60% band the
+tuner maintains is untouched; what the player buys is a build, not a stat.
+An Elemental still keeps its core and cannot buy a slot.
+
 ## The postgame (implemented)
 
 Beating the Council left the Battle Tower as the only thing to do. Two more

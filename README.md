@@ -70,6 +70,11 @@ more Melee Atk and less Ranged Atk, Timid more Speed and less Melee Atk);
 seven are even. HP is never touched. A fusion takes a parent's nature, and
 the creature sheet marks the lean on the stat bars.
 
+A second passive slot: 40,000 gold at the Rookery opens a second slot on one
+creature for good, and from then on it fights with both passives. Swaps and
+wild draws can turn over either slot. Only the player can buy one, so wild
+creatures and trainers still field a single passive.
+
 The postgame: once you beat the Council, the Spire opens the Trial of the Day,
 one gauntlet a day seeded by the date so everyone meets the same one, with a
 rule that narrows what you may bring and three fights at level 70; and each

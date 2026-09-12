@@ -292,6 +292,9 @@ export function validateGenome(g) {
   g.learnset = Array.isArray(g.learnset) ? g.learnset.filter((e) => Array.isArray(e) && Number.isFinite(e[0]) && getMove(e[1])).map((e) => [e[0], e[1]]) : [];
   if (!g.learnset.length) g.learnset = ((sp && sp.learnset) || UNIVERSAL_LEARNSET).map((e) => e.slice());
   if (!ABILITIES[g.ability]) g.ability = (sp && sp.abilities && sp.abilities[0]) || 'lucky_streak';
+  // a second passive is bought at the Rookery, so it is optional and must not repeat the first
+  if (g.ability2 && (!ABILITIES[g.ability2] || g.ability2 === g.ability)) delete g.ability2;
+  if (!g.ability2) delete g.ability2; // absent unless the Rookery opened the slot, so old codes round-trip
   if (!NATURES[g.nature]) g.nature = DEFAULT_NATURE; // creatures from before natures are even-handed
   return g;
 }

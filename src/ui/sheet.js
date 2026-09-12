@@ -79,8 +79,12 @@ function learnsetRows(g, level, known) {
 
 /** The passive skill: its name and what it does, shown at the top of the sheet. */
 function abilityCard(g) {
-  const a = getAbility(g.ability);
-  return h('div', { class: 'ability-card' }, h('small', {}, 'Passive skill'), h('b', {}, a ? a.name : 'None'), h('span', {}, a ? a.desc : 'This creature has no passive skill.'));
+  const a = getAbility(g.ability), b = g.ability2 ? getAbility(g.ability2) : null;
+  return h('div', { class: 'ability-card' },
+    h('small', {}, b ? 'Passive skills' : 'Passive skill'),
+    h('b', {}, a ? a.name : 'None'), h('span', {}, a ? a.desc : 'This creature has no passive skill.'),
+    b ? h('b', { class: 'second-slot' }, b.name) : null,
+    b ? h('span', {}, b.desc) : null);
 }
 
 const optVal = (v) => (typeof v === 'function' ? v() : v);

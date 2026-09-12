@@ -35,14 +35,26 @@ const accMul = (n) => (n >= 0 ? (3 + n) / 3 : 3 / (3 - n));
 const SURGE = { ember_heart: 'Fire', tide_heart: 'Water', bloom_heart: 'Grass', frost_heart: 'Ice', storm_heart: 'Electric', venom_heart: 'Poison', gale_heart: 'Flying', stone_heart: 'Rock' };
 
 // ---- data-driven passives: the fx entries on a battler's ability, read by kind at each hook below ----
-const abFx = (b, kind) => (b && b.ability ? abilityFx(b.ability, kind) : []);
+/** The passives a battler is fighting with: the one it was born with, and a second bought at the Rookery. */
+const abIds = (b) => (b ? (b.ability2 ? [b.ability, b.ability2] : [b.ability]) : []);
+/** Whether a battler carries a named passive in either slot, for the hand-implemented ones. */
+export const abIs = (b, id) => Boolean(b) && (b.ability === id || b.ability2 === id);
+const abFx = (b, kind) => {
+  if (!b || !b.ability) return [];
+  const first = abilityFx(b.ability, kind);
+  if (!b.ability2) return first;
+  const second = abilityFx(b.ability2, kind);
+  return second.length ? first.concat(second) : first;
+};
 const abHas = (b, kind) => abFx(b, kind).length > 0;
+/** The passive of this battler that owns an entry of `kind`, so the log names the one that fired. */
+const abSource = (b, kind) => (b && b.ability2 && !abilityFx(b.ability, kind).length ? b.ability2 : b && b.ability);
 /** Product of the `m` of every entry of a kind that passes `pred` (1 when none do). */
 const abMul = (b, kind, pred) => { let m = 1; for (const f of abFx(b, kind)) if (!pred || pred(f)) m *= f.m; return m; };
 /** The target's defensive entries of a kind — none of them when the attacker's passive breaks through guards. */
 const guardFx = (user, target, kind) => (abHas(user, 'moldBreaker') ? [] : abFx(target, kind));
 const guardMul = (user, target, kind, pred) => { let m = 1; for (const f of guardFx(user, target, kind)) if (!pred || pred(f)) m *= f.m; return m; };
-const announce = (events, side, b) => events.push({ t: 'ability', side, name: b.name, ability: abilityName(b.ability) });
+const announce = (events, side, b, kind) => events.push({ t: 'ability', side, name: b.name, ability: abilityName(kind ? abSource(b, kind) : b.ability) });
 const hasSecondary = (mv) => mv.fx.some((f) => f.k === 'status' || f.k === 'flinch' || (f.k === 'stat' && f.who === 'foe'));
 /** Every fx kind the engine interprets; abilities.js must not use others. */
 export const PASSIVE_KINDS = ['typeBoost', 'catBoost', 'flagBoost', 'powerBand', 'fxBoost', 'firstStrike', 'lastStrike', 'statusBoost', 'fullHpBoost', 'foeLowBoost', 'prioBoost', 'sheerForce', 'statMul', 'statusStat', 'tintedLens', 'critBoost', 'critRate', 'mercilessCrit', 'accBoost', 'catAcc', 'noGuard', 'scrappy', 'addFlinch', 'addStatus', 'koStat', 'koHeal', 'prioType', 'prioStatus', 'prioHeal', 'quickDraw', 'earlyBird',
@@ -73,6 +85,7 @@ export function makeBattler(genome, level, opts = {}) {
     hp: stats.hp,
     moves: moveIds.map((id) => { const mv = getMove(id) || getMove('bump'); return { id: mv.id, pp: mv.pp, maxPp: mv.pp }; }),
     ability: opts.ability || genome.ability || 'lucky_streak',
+    ability2: opts.ability2 || genome.ability2 || null, // the Rookery's second slot, when it has been opened
     held: getCharm(opts.held) ? opts.held : null, // the charm it carries into the fight, if any
     style: combatStyle(stats), // melee | ranged | magic: the damage type of its best attack stat
     xp: opts.xp || null, // { cur, prev, next } progress toward the next level, for display only
@@ -308,7 +321,7 @@ function doSwitch(state, i, index, events, forced) {
   const side = state.sides[i];
   const out = side.party[side.active];
   if (!out.fainted && !forced) {
-    if (out.ability === 'second_wind' && out.hp < out.maxHp) {
+    if (abIs(out, 'second_wind') && out.hp < out.maxHp) {
       const amount = Math.min(out.maxHp - out.hp, Math.floor(out.maxHp / 3));
       out.hp += amount;
       events.push({ t: 'ability', side: i, name: out.name, ability: abilityName(out.ability) });
@@ -337,19 +350,19 @@ function entryHooks(state, i, events) {
   const me = activeOf(state, i);
   me.justEntered = false;
   const foe = activeOf(state, 1 - i);
-  if (me.ability === 'menace' && !foe.fainted) {
+  if (abIs(me, 'menace') && !foe.fainted) {
     events.push({ t: 'ability', side: i, name: me.name, ability: abilityName(me.ability) });
     changeStages(state, 1 - i, { melee: -1, ranged: -1 }, events, true);
   }
-  if (me.ability === 'umbral_core' && !foe.fainted) {
+  if (abIs(me, 'umbral_core') && !foe.fainted) {
     events.push({ t: 'ability', side: i, name: me.name, ability: abilityName(me.ability) });
     changeStages(state, 1 - i, { magic: -1 }, events, true);
   }
-  if ((me.ability === 'storm_core' || me.ability === 'quick_start') && me.stages.spe < 6) {
+  if ((abIs(me, 'storm_core') || abIs(me, 'quick_start')) && me.stages.spe < 6) {
     events.push({ t: 'ability', side: i, name: me.name, ability: abilityName(me.ability) });
     changeStages(state, i, { spe: 1 }, events);
   }
-  if (me.ability === 'lunar_core' && me.stages.magicDef < 6) {
+  if (abIs(me, 'lunar_core') && me.stages.magicDef < 6) {
     events.push({ t: 'ability', side: i, name: me.name, ability: abilityName(me.ability) });
     changeStages(state, i, { magicDef: 1 }, events);
   }
@@ -404,11 +417,11 @@ function canHaveStatus(b, status, mv) {
   const t = b.types;
   if (mv && mv.flags.includes('powder') && t.includes('Grass')) return false;
   switch (status) {
-    case 'brn': return !t.includes('Fire') && b.ability !== 'damp_coat' && b.ability !== 'inferno_core';
-    case 'psn': return !t.includes('Poison') && !t.includes('Steel') && b.ability !== 'antitoxin' && b.ability !== 'verdant_core';
-    case 'par': return !t.includes('Electric') && b.ability !== 'loose_joints' && b.ability !== 'storm_core';
-    case 'slp': return b.ability !== 'restless' && b.ability !== 'lunar_core';
-    case 'frz': return !t.includes('Ice') && b.ability !== 'warm_core' && b.ability !== 'frost_core';
+    case 'brn': return !t.includes('Fire') && !abIs(b, 'damp_coat') && !abIs(b, 'inferno_core');
+    case 'psn': return !t.includes('Poison') && !t.includes('Steel') && !abIs(b, 'antitoxin') && !abIs(b, 'verdant_core');
+    case 'par': return !t.includes('Electric') && !abIs(b, 'loose_joints') && !abIs(b, 'storm_core');
+    case 'slp': return !abIs(b, 'restless') && !abIs(b, 'lunar_core');
+    case 'frz': return !t.includes('Ice') && !abIs(b, 'warm_core') && !abIs(b, 'frost_core');
     default: return false;
   }
 }
@@ -430,8 +443,8 @@ function changeStages(state, side, stats, events, byFoe = false) {
   const twist = (n) => { let v = abHas(b, 'simple') ? n * 2 : n; if (abHas(b, 'contrary')) v = -v; return v; };
   for (const [k, raw] of Object.entries(stats)) {
     const n = twist(raw);
-    if (k === 'acc' && n < 0 && b.ability === 'hawkeye') { events.push({ t: 'ability', side, name: b.name, ability: abilityName(b.ability) }); continue; }
-    if (byFoe && n < 0 && b.ability === 'steady') { events.push({ t: 'ability', side, name: b.name, ability: abilityName(b.ability) }); continue; }
+    if (k === 'acc' && n < 0 && abIs(b, 'hawkeye')) { events.push({ t: 'ability', side, name: b.name, ability: abilityName(b.ability) }); continue; }
+    if (byFoe && n < 0 && abIs(b, 'steady')) { events.push({ t: 'ability', side, name: b.name, ability: abilityName(b.ability) }); continue; }
     if (byFoe && n < 0 && abFx(b, 'noStatDrop').some((f) => f.stat === k)) { announce(events, side, b); continue; }
     const cur = b.stages[k];
     const next = clamp(cur + n, -6, 6);
@@ -514,7 +527,7 @@ export function calcDamage(user, target, mv, eff, roll, crit) {
   if (abHas(user, 'unaware')) dStage = Math.min(0, dStage);
   let A = user.stats[atkKey] * stageMul(aStage);
   let D = Math.max(1, target.stats[defKey] * stageMul(dStage));
-  if (user.ability === 'grit' && user.status && mv.cat !== 'magic') A *= 1.5;
+  if (abIs(user, 'grit') && user.status && mv.cat !== 'magic') A *= 1.5;
   A *= abMul(user, 'statMul', (f) => f.stat === atkKey);
   if (user.status) A *= abMul(user, 'statusStat', (f) => f.stat === atkKey);
   D *= guardMul(user, target, 'defMul', (f) => f.stat === defKey);
@@ -526,10 +539,10 @@ export function calcDamage(user, target, mv, eff, roll, crit) {
   if (low && user.hp <= user.maxHp / 3) power *= low.m;
   const first = moveFx(mv, 'boostIfFirst');
   if (first && !target.moved) power *= first.m;
-  if (user.ability === 'finesse' && power <= 60) power *= 1.5;
-  if (user.ability === 'heavy_hands' && mv.flags.includes('punch')) power *= 1.2;
-  if (user.ability === 'vice_jaw' && mv.flags.includes('bite')) power *= 1.5;
-  if (user.ability === 'daredevil' && moveFx(mv, 'recoil')) power *= 1.2;
+  if (abIs(user, 'finesse') && power <= 60) power *= 1.5;
+  if (abIs(user, 'heavy_hands') && mv.flags.includes('punch')) power *= 1.2;
+  if (abIs(user, 'vice_jaw') && mv.flags.includes('bite')) power *= 1.5;
+  if (abIs(user, 'daredevil') && moveFx(mv, 'recoil')) power *= 1.2;
   if (SURGE[user.ability] === mv.type && user.hp <= user.maxHp / 3) power *= 1.5;
   const core = coreTypes(user.ability);
   if (core && core.includes(mv.type)) power *= 1.3;
@@ -573,13 +586,13 @@ export function calcDamage(user, target, mv, eff, roll, crit) {
   if (effMul === 1) effMul *= abMul(user, 'neutralBoost');
   dmg = Math.floor(dmg * effMul);
   dmg = Math.floor(dmg * triangleMul(mv.cat, target.style)); // Magic > Ranged > Melee > Magic
-  if (user.status === 'brn' && mv.cat !== 'magic' && user.ability !== 'grit') dmg = Math.floor(dmg / 2);
-  if (target.ability === 'blubber' && (mv.type === 'Fire' || mv.type === 'Ice')) dmg = Math.floor(dmg / 2);
-  if (target.ability === 'quake_core' && mv.cat === 'melee') dmg = Math.floor(dmg * 0.75);
-  if (target.ability === 'void_core' && mv.cat === 'ranged') dmg = Math.floor(dmg / 2);
-  if (target.ability === 'iron_hide' && mv.cat === 'melee') dmg = Math.floor(dmg * 0.75);
-  if (target.ability === 'bulwark' && mv.cat === 'ranged') dmg = Math.floor(dmg * 0.75);
-  if (target.ability === 'mirror_scale' && mv.cat === 'magic') dmg = Math.floor(dmg * 0.75);
+  if (user.status === 'brn' && mv.cat !== 'magic' && !abIs(user, 'grit')) dmg = Math.floor(dmg / 2);
+  if (abIs(target, 'blubber') && (mv.type === 'Fire' || mv.type === 'Ice')) dmg = Math.floor(dmg / 2);
+  if (abIs(target, 'quake_core') && mv.cat === 'melee') dmg = Math.floor(dmg * 0.75);
+  if (abIs(target, 'void_core') && mv.cat === 'ranged') dmg = Math.floor(dmg / 2);
+  if (abIs(target, 'iron_hide') && mv.cat === 'melee') dmg = Math.floor(dmg * 0.75);
+  if (abIs(target, 'bulwark') && mv.cat === 'ranged') dmg = Math.floor(dmg * 0.75);
+  if (abIs(target, 'mirror_scale') && mv.cat === 'magic') dmg = Math.floor(dmg * 0.75);
   const guard = guardMul(user, target, 'typeResist', (f) => f.type === mv.type && !mv.typeless) * abMul(target, 'typeWeak', (f) => f.type === mv.type && !mv.typeless)
     * guardMul(user, target, 'catResist', (f) => f.cat === mv.cat) * guardMul(user, target, 'flagResist', (f) => mv.flags.includes(f.flag)) * guardMul(user, target, 'allResist')
     * guardMul(user, target, 'fxResist', (f) => mv.fx.some((x) => x.k === f.fx))
@@ -597,7 +610,7 @@ export function calcDamage(user, target, mv, eff, roll, crit) {
  */
 export function affinityBonus(user, mv) {
   let bonus = 1;
-  if (!mv.typeless && user.types.includes(mv.type)) { const st = abFx(user, 'stab')[0]; bonus += user.ability === 'purebred' ? 0.5 : st ? st.m : 0.25; }
+  if (!mv.typeless && user.types.includes(mv.type)) { const st = abFx(user, 'stab')[0]; bonus += abIs(user, 'purebred') ? 0.5 : st ? st.m : 0.25; }
   if (mv.cat === user.style) bonus += 0.25;
   return bonus;
 }
@@ -607,9 +620,9 @@ export function moveEffectiveness(mv, target, user) {
   if (mv.typeless) return 1;
   const breaks = Boolean(user && abHas(user, 'moldBreaker')); // a passive that walks through the target's guards
   if (!breaks) {
-    if (mv.type === 'Ground' && target.ability === 'hover') return 0;
-    if ((mv.type === 'Water' && target.ability === 'sponge') || (mv.type === 'Electric' && target.ability === 'capacitor')) return 0;
-    if ((mv.type === 'Grass' && target.ability === 'verdant_core') || (mv.type === 'Dark' && target.ability === 'radiant_core')) return 0;
+    if (mv.type === 'Ground' && abIs(target, 'hover')) return 0;
+    if ((mv.type === 'Water' && abIs(target, 'sponge')) || (mv.type === 'Electric' && abIs(target, 'capacitor'))) return 0;
+    if ((mv.type === 'Grass' && abIs(target, 'verdant_core')) || (mv.type === 'Dark' && abIs(target, 'radiant_core'))) return 0;
     if (abFx(target, 'typeImmune').some((f) => f.type === mv.type) || abFx(target, 'typeAbsorb').some((f) => f.type === mv.type)) return 0;
   }
   if (user && abHas(user, 'scrappy') && (mv.type === 'Normal' || mv.type === 'Fighting') && target.types.includes('Ghost')) return typeEffectiveness(mv.type, target.types.map((t) => (t === 'Ghost' ? null : t)));
@@ -622,7 +635,7 @@ function hitChance(user, target, mv) {
   const stage = clamp(user.stages.acc - (blind ? 0 : target.stages.eva), -6, 6);
   let base = Math.min(1, (mv.acc / 100) * accMul(stage) * abMul(user, 'accBoost') * abMul(user, 'catAcc', (f) => f.cat === mv.cat));
   if (!blind) base *= abMul(target, 'evasion');
-  return target.ability === 'mist_core' ? base * 0.8 : base; // one attack in five slips through the mist
+  return abIs(target, 'mist_core') ? base * 0.8 : base; // one attack in five slips through the mist
 }
 
 function executeMove(state, i, action, events, rng) {
@@ -681,8 +694,8 @@ function executeMove(state, i, action, events, rng) {
       return;
     }
     if (abFx(target, 'typeImmune').some((f) => f.type === mv.type)) announce(events, foeSide, target);
-    if ((target.ability === 'hover' && mv.type === 'Ground') || (target.ability === 'radiant_core' && mv.type === 'Dark')) events.push({ t: 'ability', side: foeSide, name: target.name, ability: abilityName(target.ability) });
-    if ((target.ability === 'sponge' && mv.type === 'Water') || (target.ability === 'capacitor' && mv.type === 'Electric') || (target.ability === 'verdant_core' && mv.type === 'Grass')) {
+    if ((abIs(target, 'hover') && mv.type === 'Ground') || (abIs(target, 'radiant_core') && mv.type === 'Dark')) events.push({ t: 'ability', side: foeSide, name: target.name, ability: abilityName(target.ability) });
+    if ((abIs(target, 'sponge') && mv.type === 'Water') || (abIs(target, 'capacitor') && mv.type === 'Electric') || (abIs(target, 'verdant_core') && mv.type === 'Grass')) {
       events.push({ t: 'ability', side: foeSide, name: target.name, ability: abilityName(target.ability) });
       if (!healBattler(state, foeSide, target.maxHp / 4, events, 'absorb')) events.push({ t: 'immune', side: foeSide, name: target.name });
       return;
@@ -703,7 +716,7 @@ function executeMove(state, i, action, events, rng) {
   let total = 0, landed = 0, anyCrit = false;
   for (let h = 0; h < hits; h++) {
     if (target.fainted) break;
-    let crit = rng.chance((mv.crit >= 1 ? 1 / 8 : 1 / 24) * (user.ability === 'keen_edge' ? 2 : 1) * (heldKind(user.held) === 'crit' ? 2 : 1) * abMul(user, 'critRate'));
+    let crit = rng.chance((mv.crit >= 1 ? 1 / 8 : 1 / 24) * (abIs(user, 'keen_edge') ? 2 : 1) * (heldKind(user.held) === 'crit' ? 2 : 1) * abMul(user, 'critRate'));
     if (guardFx(user, target, 'critImmune').length) crit = false;
     else if (target.status && abHas(user, 'mercilessCrit')) crit = true;
     else if (abFx(user, 'critIf').some((f) => (f.when === 'firstTurn' ? !user.turnsOut : f.when === 'lowHp' ? user.hp <= user.maxHp / 3 : user.hp === user.maxHp))) crit = true;
@@ -713,7 +726,7 @@ function executeMove(state, i, action, events, rng) {
     const fhr = guardFx(user, target, 'firstHitResist')[0];
     if (fhr && !target.firstHitUsed) { target.firstHitUsed = true; dmg = Math.max(1, Math.floor(dmg * fhr.m)); announce(events, foeSide, target); }
     let held = false, sturdy = false, endured = false;
-    if (dmg >= target.hp && target.hp === target.maxHp && target.ability === 'stonewall') { dmg = target.hp - 1; held = true; }
+    if (dmg >= target.hp && target.hp === target.maxHp && abIs(target, 'stonewall')) { dmg = target.hp - 1; held = true; }
     else if (dmg >= target.hp && target.hp === target.maxHp && guardFx(user, target, 'endure').length && !target.endureUsed) { dmg = target.hp - 1; endured = true; target.endureUsed = true; }
     else if (dmg >= target.hp && target.hp === target.maxHp && heldKind(target.held) === 'sturdy' && !target.sturdyUsed) { dmg = target.hp - 1; sturdy = true; target.sturdyUsed = true; }
     dmg = Math.min(dmg, target.hp);
@@ -752,16 +765,16 @@ function executeMove(state, i, action, events, rng) {
     events.push({ t: 'held', side: i, name: user.name, item: getCharm(user.held).name });
     healBattler(state, i, Math.max(1, total * CHARM_RULE.siphon), events, 'drain');
   }
-  if (user.ability === 'vital_core' && mv.flags.includes('contact') && total > 0 && user.hp < user.maxHp) {
+  if (abIs(user, 'vital_core') && mv.flags.includes('contact') && total > 0 && user.hp < user.maxHp) {
     events.push({ t: 'ability', side: i, name: user.name, ability: abilityName(user.ability) });
     healBattler(state, i, Math.max(1, total / 4), events, 'drain');
   }
-  if (target.ability === 'resonant_core' && mv.cat === 'magic' && total > 0 && !user.fainted) {
+  if (abIs(target, 'resonant_core') && mv.cat === 'magic' && total > 0 && !user.fainted) {
     events.push({ t: 'ability', side: foeSide, name: target.name, ability: abilityName(target.ability) });
     hurtBattler(state, i, Math.max(1, total / 4), events, 'thorns');
   }
   const recoil = moveFx(mv, 'recoil');
-  if (recoil && total > 0 && user.ability !== 'thick_skull' && !abHas(user, 'recoilImmune')) hurtBattler(state, i, Math.max(1, total * recoil.r * abMul(user, 'recoilMul')), events, 'recoil');
+  if (recoil && total > 0 && !abIs(user, 'thick_skull') && !abHas(user, 'recoilImmune')) hurtBattler(state, i, Math.max(1, total * recoil.r * abMul(user, 'recoilMul')), events, 'recoil');
   const cost = abFx(user, 'hpCostBoost')[0];
   if (cost && total > 0 && !user.fainted) { announce(events, i, user); hurtBattler(state, i, Math.max(1, user.maxHp * cost.r), events, 'recoil'); }
   const restore = moveFx(mv, 'restore');
@@ -773,7 +786,7 @@ function executeMove(state, i, action, events, rng) {
 
   if (!target.fainted) applySecondaries(state, i, mv, events, rng);
   if (mv.flags.includes('contact') && !user.fainted) contactEffects(state, i, events, rng);
-  if (target.fainted && !user.fainted && user.ability === 'swagger') {
+  if (target.fainted && !user.fainted && abIs(user, 'swagger')) {
     events.push({ t: 'ability', side: i, name: user.name, ability: abilityName(user.ability) });
     changeStages(state, i, { melee: 1, ranged: 1 }, events);
   }
@@ -794,7 +807,7 @@ function syncBack(state, from, victimSide, status, events, rng) {
   setStatus(state, from, status, events, rng);
 }
 
-function chanceOf(user, p) { return Math.min(100, (user.ability === 'lucky_streak' ? p * 2 : p) * abMul(user, 'statusChanceMul')) / 100; }
+function chanceOf(user, p) { return Math.min(100, (abIs(user, 'lucky_streak') ? p * 2 : p) * abMul(user, 'statusChanceMul')) / 100; }
 
 function applySecondaries(state, i, mv, events, rng) {
   const user = activeOf(state, i), foeSide = 1 - i, target = activeOf(state, foeSide);
@@ -891,11 +904,11 @@ function endOfTurn(state, events, rng) {
       if (abHas(b, 'poisonHeal')) { if (b.hp < b.maxHp) { announce(events, i, b); healBattler(state, i, Math.max(1, b.maxHp / 8), events, 'ability'); } }
       else hurtBattler(state, i, Math.max(1, b.maxHp / 8), events, 'psn');
     }
-    if (!b.fainted && b.ability === 'momentum' && b.stages.spe < 6) {
+    if (!b.fainted && abIs(b, 'momentum') && b.stages.spe < 6) {
       events.push({ t: 'ability', side: i, name: b.name, ability: abilityName(b.ability) });
       changeStages(state, i, { spe: 1 }, events);
     }
-    if (!b.fainted && (b.ability === 'tide_core' || b.ability === 'regrowth') && b.hp < b.maxHp) {
+    if (!b.fainted && (abIs(b, 'tide_core') || abIs(b, 'regrowth')) && b.hp < b.maxHp) {
       events.push({ t: 'ability', side: i, name: b.name, ability: abilityName(b.ability) });
       healBattler(state, i, Math.max(1, b.maxHp / 16), events, 'ability');
     }

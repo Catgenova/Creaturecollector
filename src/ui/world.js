@@ -23,7 +23,7 @@ import { MORPHS } from '../creature/palette.js';
 import { CLADE_IDS } from '../data/clades.js';
 import { openQuests, questReady, rewardText, claimQuest, abandonQuest } from '../game/quests.js';
 import { openBounties, bountyCandidates, bountyPayout, bountyLevelMul, turnInBounty } from '../game/bounties.js';
-import { swapChoices, wildPool, swapPrice, drawPrice, rookeryBlock, swapPassive, wildDraw } from '../game/rookery.js';
+import { swapChoices, wildPool, swapPrice, drawPrice, secondSlotPrice, rookeryBlock, swapPassive, wildDraw, openSecondSlot } from '../game/rookery.js';
 import { SPECIES } from '../data/species.js';
 import { MOVES } from '../data/moves.js';
 import { ABILITY_IDS, ABILITIES } from '../data/abilities.js';
@@ -1047,20 +1047,36 @@ function owRookerySheet(j) {
     const list = h('div', { class: 'party-list' });
     const roster = [...(j.party || []), ...(j.box || [])];
     for (const m of roster) {
-      const swapBlock = rookeryBlock(m, 'swap'), drawBlock = rookeryBlock(m, 'draw');
-      const options = swapChoices(m.genome);
+      const slot = (ow.rookerySlot && ow.rookerySlot[m.uid]) || 1;
+      const swapBlock = rookeryBlock(m, 'swap', slot), drawBlock = rookeryBlock(m, 'draw', slot);
+      const secondBlock = rookeryBlock(m, 'second');
+      const options = swapChoices(m.genome, slot);
       const swapTo = options[0];
-      const swapGold = swapPrice(m), drawGold = drawPrice(m);
+      const swapGold = swapPrice(m), drawGold = drawPrice(m), slotGold = secondSlotPrice();
       const line = swapTo
-        ? h('span', { class: 'hint', style: { margin: 0 } }, 'Would become ', h('b', {}, abilityName(swapTo)))
+        ? h('span', { class: 'hint', style: { margin: 0 } }, `Slot ${slot} would become `, h('b', {}, abilityName(swapTo)))
         : h('span', { class: 'hint', style: { margin: 0 } }, swapBlock || '');
       list.append(owMemberRow(j, m, [
         line,
+        m.genome.ability2 ? h('button', { class: `btn small${slot === 2 ? ' on' : ''}`, type: 'button', title: 'Which slot these buttons act on',
+          onclick: () => { ow.rookerySlot = ow.rookerySlot || {}; ow.rookerySlot[m.uid] = slot === 1 ? 2 : 1; render(); } }, `Slot ${slot}`) : null,
+        m.genome.ability2 ? null : h('button', {
+          class: `btn small${!secondBlock && j.gold >= slotGold ? ' primary' : ''}`, type: 'button',
+          disabled: Boolean(secondBlock) || j.gold < slotGold, title: secondBlock || `A second passive, for good: ${slotGold.toLocaleString()} gold`,
+          onclick: () => {
+            if (ow.confirmSlot !== m.uid) { ow.confirmSlot = m.uid; toast(`Tap again: ${slotGold.toLocaleString()} gold opens a second slot for good`); setTimeout(() => { if (ow.confirmSlot === m.uid) ow.confirmSlot = null; }, 4000); return; }
+            ow.confirmSlot = null;
+            const r = openSecondSlot(j, m.uid);
+            if (!r.ok) { toast(r.reason); return; }
+            owSave(); sfx.win(); toast(`${r.member.genome.name} opened a second slot: ${abilityName(r.to)}.`);
+            render(); owRefreshHud();
+          },
+        }, `Second slot ◆ ${slotGold.toLocaleString()}`),
         h('button', {
           class: `btn small${!swapBlock && j.gold >= swapGold ? ' primary' : ''}`, type: 'button',
           disabled: Boolean(swapBlock) || j.gold < swapGold, title: swapBlock || `${swapGold.toLocaleString()} gold`,
           onclick: () => {
-            const r = swapPassive(j, m.uid);
+            const r = swapPassive(j, m.uid, null, slot);
             if (!r.ok) { toast(r.reason); return; }
             owSave(); sfx.levelUp(); toast(`${r.member.genome.name}: ${abilityName(r.from)} → ${abilityName(r.to)} for ${r.paid.toLocaleString()} gold.`);
             render(); owRefreshHud();
@@ -1072,7 +1088,7 @@ function owRookerySheet(j) {
           onclick: () => {
             if (ow.confirmDraw !== m.uid) { ow.confirmDraw = m.uid; toast('Tap again: a wild draw cannot be chosen or undone'); setTimeout(() => { if (ow.confirmDraw === m.uid) ow.confirmDraw = null; }, 4000); return; }
             ow.confirmDraw = null;
-            const r = wildDraw(j, m.uid);
+            const r = wildDraw(j, m.uid, slot);
             if (!r.ok) { toast(r.reason); return; }
             owSave(); sfx.win(); toast(`${r.member.genome.name} drew ${abilityName(r.to)} for ${r.paid.toLocaleString()} gold.`);
             render(); owRefreshHud();
@@ -1082,7 +1098,8 @@ function owRookerySheet(j) {
     }
     const sample = roster.length ? wildPool(roster[0].genome).length : 0;
     appendChildren(body, [
-      h('p', { class: 'hint' }, 'A swap turns a creature over to another passive its own bloodline carries, for gold that rises with its level. '
+      h('p', { class: 'hint' }, `A second slot costs ${secondSlotPrice().toLocaleString()} gold, opens once and never closes: from then on the creature fights with both passives, and the Slot button says which one the other two buttons act on. `
+        + 'A swap turns a creature over to another passive its own bloodline carries, for gold that rises with its level. '
         + `A wild draw is dearer and cannot be chosen: it takes one at random from the passives that suit its types or its fighting style${sample ? ` (${sample} of them for the first on this list)` : ''}. `
         + 'An Elemental keeps its core.'),
       list,
