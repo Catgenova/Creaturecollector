@@ -70,6 +70,12 @@ more Melee Atk and less Ranged Atk, Timid more Speed and less Melee Atk);
 seven are even. HP is never touched. A fusion takes a parent's nature, and
 the creature sheet marks the lean on the stat bars.
 
+Dex, Index and Team: the Dex searches every class at once by name, filters by
+type and by caught, seen or missing, indexes all 900 passives and 531 moves
+with a search that also reads the wording, and reads your party back to you:
+what it can hit, what hits it for double, and how it splits across the
+Melee, Ranged and Magic triangle.
+
 Trainers: each of the road's trainers has one of eight personalities that
 leans their team towards a damage style and gives them their own rematch
 line, and each of the eighteen Wardens fights to an authored theme with a

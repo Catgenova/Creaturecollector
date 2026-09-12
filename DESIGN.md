@@ -1446,6 +1446,24 @@ on 498, the median move is learned by six species rather than eleven, and 525
 of the 531 moves appear in some learnset. A test now also refuses a learnset
 that repeats a move, which caught one that already did.
 
+## Searching and planning (implemented)
+
+The game held 895 species, 900 passives and 531 moves, and nothing in it
+could search any of them. The Dex grew three things.
+
+- **Search and filters** on the species tab: a box that reaches across every
+  class at once, type chips, and a caught / seen only / missing filter. With
+  the box empty it still browses one class at a time, as before.
+- **An Index tab** listing every passive and every move, searchable by name,
+  by wording (so "thorns" finds the passives that mention thorns) or by type,
+  showing the first 120 matches. This is the only place the whole library is
+  legible.
+- **A Team tab** that reads the party as it stands: the best multiplier it can
+  bring against each of the eighteen types, which types nothing it knows can
+  touch, how many members each attacking type hits for double, and the
+  Melee / Ranged / Magic split of the party. The numbers come from
+  `src/game/planner.js`, so the tests read exactly what the screen shows.
+
 ## Trainers with a name to them (implemented)
 
 The road had 108 trainers who each said one line, fielded a spread of

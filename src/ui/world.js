@@ -24,6 +24,11 @@ import { CLADE_IDS } from '../data/clades.js';
 import { openQuests, questReady, rewardText, claimQuest, abandonQuest } from '../game/quests.js';
 import { openBounties, bountyCandidates, bountyPayout, bountyLevelMul, turnInBounty } from '../game/bounties.js';
 import { swapChoices, wildPool, swapPrice, drawPrice, rookeryBlock, swapPassive, wildDraw } from '../game/rookery.js';
+import { SPECIES } from '../data/species.js';
+import { MOVES, getMove as lookUpMove } from '../data/moves.js';
+import { ABILITY_IDS, ABILITIES } from '../data/abilities.js';
+import { isCoreAbility } from '../data/elements.js';
+import { teamReport } from '../game/planner.js';
 import { TOWER, TOWER_TRAINERS, challengeTower, towerRecord } from '../game/tower.js';
 import { abilityName } from '../data/abilities.js';
 import { getMove } from '../data/moves.js';
@@ -1114,9 +1119,17 @@ function owDexGenome(sp) { ow.dexCache = ow.dexCache || new Map(); if (!ow.dexCa
 function makeRngDex(id) { return makeRng(`${DEX_SEED}:${id}`); }
 
 /** One card per species of a class: caught species drawn in full, seen ones as silhouettes, the rest as numbered blanks. */
-function owDexGrid(clade) {
+function owDexGrid(clade, filter = {}) {
   const grid = h('div', { class: 'pool dex-grid' });
-  const list = dexSpeciesOf(clade);
+  const q = (filter.q || '').trim().toLowerCase();
+  let list = q ? SPECIES.filter((sp) => !sp.hidden) : dexSpeciesOf(clade); // a search reaches across every class
+  if (q) list = list.filter((sp) => sp.name.toLowerCase().includes(q) || sp.id.includes(q));
+  if (filter.type && filter.type !== 'All') list = list.filter((sp) => sp.types.includes(filter.type));
+  if (filter.state && filter.state !== 'all') list = list.filter((sp) => {
+    const st = dexStatus(ow.save, sp.id);
+    return filter.state === 'caught' ? st === 'caught' : filter.state === 'seen' ? st === 'seen' : st === 'unseen';
+  });
+  if (!list.length) { grid.append(h('p', { class: 'hint' }, 'Nothing matches.')); return grid; }
   const items = list.map((sp) => ({ sp, status: dexStatus(ow.save, sp.id) }));
   const known = items.filter((it) => it.status !== 'unseen');
   items.forEach((it, i) => {
@@ -1137,6 +1150,63 @@ function owDexGrid(clade) {
   return grid;
 }
 
+/** The index: every passive and every move, searchable, because there are 900 and 531 of them. */
+function owIndexPanel() {
+  const wrap = h('div');
+  const draw = () => {
+    clear(wrap);
+    const kind = ow.indexKind || 'passives';
+    const q = (ow.indexQuery || '').trim().toLowerCase();
+    const tabs = h('div', { class: 'type-filter' }, [['passives', `Passives (${ABILITY_IDS.length})`], ['moves', `Moves (${MOVES.length})`]]
+      .map(([id, label]) => h('button', { class: `btn small${kind === id ? ' on' : ''}`, type: 'button', onclick: () => { ow.indexKind = id; draw(); } }, label)));
+    const search = h('input', { class: 'dex-search', type: 'search', placeholder: kind === 'passives' ? 'Search passives by name or wording…' : 'Search moves by name or type…', value: ow.indexQuery || '',
+      oninput: (e) => { ow.indexQuery = e.target.value; draw(); } });
+    const list = h('div', { class: 'shop-list' });
+    let shown = 0;
+    if (kind === 'passives') {
+      for (const id of ABILITY_IDS) {
+        const a = ABILITIES[id];
+        if (q && !a.name.toLowerCase().includes(q) && !a.desc.toLowerCase().includes(q)) continue;
+        if (++shown > 120) break;
+        list.append(h('div', { class: 'shop-row' }, h('div', { class: 'shop-info' },
+          h('b', {}, a.name, isCoreAbility(id) ? h('span', { class: 'shop-tag' }, 'Elemental core') : null),
+          h('div', { class: 'shop-meta' }, h('span', {}, a.desc)))));
+      }
+    } else {
+      for (const mv of MOVES) {
+        if (q && !mv.name.toLowerCase().includes(q) && !mv.type.toLowerCase().includes(q) && !mv.cat.includes(q)) continue;
+        if (++shown > 120) break;
+        const info = moveInfoEl(mv, mv.signature ? 'signature move' : '');
+        list.append(h('div', { class: 'shop-row' }, info));
+      }
+    }
+    appendChildren(wrap, [tabs, search,
+      h('p', { class: 'hint' }, shown > 120 ? 'Showing the first 120. Keep typing to narrow it.' : `${shown} match${shown === 1 ? '' : 'es'}.`),
+      list]);
+  };
+  draw();
+  return wrap;
+}
+
+/** The team panel: what the party can hit, what hits it back, and how its damage types are spread. */
+function owTeamPanel(j) {
+  const wrap = h('div');
+  if (!j || !j.party || !j.party.length) { wrap.append(h('p', { class: 'hint' }, 'No party yet.')); return wrap; }
+  const rep = teamReport(j.party);
+  const chip = (t, label, cls) => h('span', { class: `chip ${cls || ''}`, style: { '--chip': TYPE_INFO[t].color } }, label || t);
+  const cover = h('div', { class: 'move-chips' }, rep.coverage.map((c) => chip(c.type, `${c.type} ${c.best >= 2 ? '×2' : c.best === 0 ? '×0' : c.best < 1 ? '½' : '·'}`, c.best >= 2 ? 'on' : c.best === 0 ? 'none' : '')));
+  const threat = h('div', { class: 'move-chips' }, rep.threats.filter((t) => t.count).map((t) => chip(t.type, `${t.type} ×${t.count}`, t.count >= 3 ? 'none' : '')));
+  const styles = h('div', { class: 'move-chips' }, Object.entries(rep.styles).map(([k, n]) => h('span', { class: 'chip' }, `${DAMAGE_TYPES[k] ? DAMAGE_TYPES[k].name : k}: ${n}`)));
+  appendChildren(wrap, [
+    h('p', { class: 'hint' }, 'What your party of ' + j.party.length + ' can do with the moves it knows right now.'),
+    ...section('Coverage', h('p', { class: 'hint' }, rep.strong.length ? `Strong against ${listWords(rep.strong)}.` : 'Nothing your party knows is strong against anything.'), cover,
+      rep.blind.length ? h('p', { class: 'hint' }, `Nothing you know touches ${listWords(rep.blind)}.`) : null),
+    ...section('What hits back', threat.childNodes.length ? threat : h('p', { class: 'hint' }, 'Nothing on the chart hits your party for double.')),
+    ...section('The triangle', h('p', { class: 'hint' }, 'Melee beats Ranged, Ranged beats Magic, Magic beats Melee.'), styles),
+  ]);
+  return wrap;
+}
+
 function owDexSheet() {
   const body = h('div');
   let clade = ow.dexClade || (ow.j && journeyPlace(ow.j).clade) || CLADE_IDS[0];
@@ -1144,12 +1214,26 @@ function owDexSheet() {
   const draw = () => {
     clear(body);
     const c = dexCounts(ow.save);
-    const tabs = h('div', { class: 'type-filter' }, [['species', 'Species'], ['fusions', 'Fusions'], ['rewards', 'Rewards']].map(([id, label]) => h('button', { class: `btn small${tab === id ? ' on' : ''}`, type: 'button', onclick: () => { tab = id; ow.dexTab = id; render(); } }, label)));
+    const tabs = h('div', { class: 'type-filter' }, [['species', 'Species'], ['fusions', 'Fusions'], ['index', 'Index'], ['team', 'Team'], ['rewards', 'Rewards']].map(([id, label]) => h('button', { class: `btn small${tab === id ? ' on' : ''}`, type: 'button', onclick: () => { tab = id; ow.dexTab = id; render(); } }, label)));
     body.append(h('p', { class: 'hint' }, `Caught ${c.caught} and seen ${c.seen} of ${c.total} species${c.morphs ? ` · ${c.morphs} colour morph${c.morphs > 1 ? 's' : ''} caught` : ''} · ${ow.save.totals.fusions + (ow.j ? ow.j.stats.fusions : 0)} fusions made. Every creature you face counts as seen; every one you choose, catch or fuse counts as caught.`), tabs);
     if (tab === 'species') {
       const chips = h('div', { class: 'type-filter' }, CLADE_IDS.map((id) => { const b = c.byClass[id]; return h('button', { class: `btn small${clade === id ? ' on' : ''}`, type: 'button', style: { '--chip': REGIONS[id].accent }, onclick: () => { clade = id; ow.dexClade = id; render(); } }, `${cladeName(id)} ${b.caught}/${b.total}`); }));
       const b = c.byClass[clade];
-      appendChildren(body, [chips, h('p', { class: 'hint' }, `${cladeName(clade)}s of the ${REGIONS[clade].name}: ${b.caught} caught, ${b.seen} seen of ${b.total}. Tap a card for its sheet.`), owDexGrid(clade)]);
+      const search = h('input', { class: 'dex-search', type: 'search', placeholder: 'Search every class by name…', value: ow.dexQuery || '',
+        oninput: (e) => { ow.dexQuery = e.target.value; render(); } });
+      const typeChipRow = h('div', { class: 'type-filter' }, ['All', ...TYPE_LIST].map((t) => h('button', { class: `btn small${(ow.dexType || 'All') === t ? ' on' : ''}`, type: 'button', style: t !== 'All' ? { '--chip': TYPE_INFO[t].color } : null, onclick: () => { ow.dexType = t; render(); } }, t)));
+      const stateRow = h('div', { class: 'type-filter' }, [['all', 'All'], ['caught', 'Caught'], ['seen', 'Seen only'], ['missing', 'Missing']].map(([id, label]) => h('button', { class: `btn small${(ow.dexState || 'all') === id ? ' on' : ''}`, type: 'button', onclick: () => { ow.dexState = id; render(); } }, label)));
+      const filter = { q: ow.dexQuery, type: ow.dexType, state: ow.dexState };
+      const searching = Boolean((ow.dexQuery || '').trim()) || (ow.dexType && ow.dexType !== 'All') || (ow.dexState && ow.dexState !== 'all');
+      appendChildren(body, [chips, search, typeChipRow, stateRow,
+        h('p', { class: 'hint' }, searching
+          ? 'Searching every class. Clear the box and the filters to go back to one at a time.'
+          : `${cladeName(clade)}s of the ${REGIONS[clade].name}: ${b.caught} caught, ${b.seen} seen of ${b.total}. Tap a card for its sheet.`),
+        owDexGrid(clade, filter)]);
+    } else if (tab === 'index') {
+      body.append(owIndexPanel());
+    } else if (tab === 'team') {
+      body.append(owTeamPanel(ow.j));
     } else if (tab === 'fusions') {
       const fusions = ow.save.collection.filter((e) => e.genome.gen > 0).slice().reverse();
       appendChildren(body, [h('p', { class: 'hint' }, fusions.length ? `${fusions.length} fusion${fusions.length > 1 ? 's' : ''} remembered in the collection, newest first.` : 'No fusions yet. The shrine at the Crossroads fuses two creatures of one class.'), owCollectionGrid(fusions)]);
