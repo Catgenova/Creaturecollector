@@ -149,8 +149,19 @@ test('trainers fight when asked and remember it; wardens give badges; the spire 
   assert.equal(acceptChallenge(j, world.trainers[1].id), null, 'one fight at a time');
   const r = applyJourneyBattle(j, decided(j, 0)).report;
   assert.ok(r.won && j.beaten[t.id] && j.stats.trainers === 1);
-  assert.equal(talkTo(j, t.id).text, t.after);
-  assert.equal(acceptChallenge(j, t.id), null, 'beaten trainers do not fight again');
+  const afterTalk = talkTo(j, t.id);
+  assert.ok(afterTalk.text.startsWith(t.after), afterTalk.text);
+  assert.equal(afterTalk.beaten, true);
+  // a beaten trainer waits until your team has outgrown theirs, then offers a rematch at your level
+  if (afterTalk.rematch) {
+    assert.ok(afterTalk.text.includes(t.rematchLine), 'they say their own line');
+    const again = acceptChallenge(j, t.id);
+    assert.ok(again && again.rematch, 'the rematch is on');
+    assert.ok(again.foes[0].level > t.team[0].level, 'and it comes up to meet you');
+    j.encounter = null;
+  } else {
+    assert.equal(acceptChallenge(j, t.id), null, 'no rematch until you have grown');
+  }
   // wardens
   assert.equal(enterSpire(j).ok, false);
   for (const b of BIOME_ORDER) {

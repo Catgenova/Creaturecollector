@@ -227,6 +227,47 @@ const TRAINER_LINES = {
 };
 const TRAINER_AFTER = ['Good match. Come back stronger.', 'Well fought. The Warden is another matter.', 'You earned that one.', 'My team will remember you.'];
 
+/**
+ * Trainer personalities. Each leans its team towards one damage style, says its own thing when it wants
+ * a rematch, and reads on the card, so two Herders on the same path fight differently.
+ */
+export const PERSONALITIES = {
+  bold: { name: 'Bold', style: 'melee', tag: 'goes straight at you', rematch: 'Again. I have been drilling since.' },
+  patient: { name: 'Patient', style: 'magic', tag: 'waits for the opening', rematch: 'I have had time to think about that loss.' },
+  keen: { name: 'Keen', style: 'ranged', tag: 'keeps its distance', rematch: 'New sights on my team. Care to test them?' },
+  showy: { name: 'Showy', style: 'magic', tag: 'plays to the crowd', rematch: 'One more, and this time people are watching.' },
+  grim: { name: 'Grim', style: 'melee', tag: 'grinds it out', rematch: 'Nothing settled last time. Again.' },
+  cheerful: { name: 'Cheerful', style: 'ranged', tag: 'is having a lovely time', rematch: 'Oh good, you came back! Again?' },
+  careful: { name: 'Careful', style: 'magic', tag: 'protects its lead', rematch: 'I have patched the hole you found. Try again.' },
+  wild: { name: 'Wild', style: 'melee', tag: 'never blocks', rematch: 'Rematch! No plan this time either.' },
+};
+export const PERSONALITY_IDS = Object.keys(PERSONALITIES);
+
+/**
+ * The eighteen Wardens, each with a way of fighting and three things to say. The theme leans their
+ * team towards one damage style, so a Warden's badge is earned against a strategy rather than a spread.
+ */
+export const WARDEN_PROFILES = {
+  mammal: { theme: 'melee', motto: 'The downs raise sturdy things. Mine hit first.', after: 'The Downs Badge is yours. The herd respects you.', rematch: 'The herd has grown. Come and see.' },
+  amphibian: { theme: 'magic', motto: 'The fen drowns the hasty. Take your time; you have none.', after: 'You waited me out. The Fen Badge is yours.', rematch: 'The water is higher this season. Try again.' },
+  flora: { theme: 'magic', motto: 'Everything here grows back. Does your team?', after: 'You cut deeper than the frost. Take the badge.', rematch: 'New growth since you left. Care to prune it?' },
+  insect: { theme: 'ranged', motto: 'Small things, in numbers, from a distance.', after: 'The swarm yields. The Meadow Badge is yours.', rematch: 'The hive has swelled. Again?' },
+  nightwing: { theme: 'ranged', motto: 'You will hear my team before you see them.', after: 'You fought in the dark and won. Take the badge.', rematch: 'Darker in here than last time. Still keen?' },
+  fungus: { theme: 'magic', motto: 'Breathe shallow. My team is already in your lungs.', after: 'Clean lungs and a clean win. The badge is yours.', rematch: 'The cellar has bloomed again. Come down.' },
+  bird: { theme: 'ranged', motto: 'The crags belong to whoever holds the wind.', after: 'You held the wind. The Crag Badge is yours.', rematch: 'A stronger gale today. Fly it with me.' },
+  crystalline: { theme: 'magic', motto: 'Every facet of my team throws your own moves back.', after: 'You found the flaw in the stone. Take the badge.', rematch: 'I have recut the team. Look for the flaw again.' },
+  ooze: { theme: 'melee', motto: 'Nothing in my team has bones to break.', after: 'You wore the sump down. The badge is yours.', rematch: 'The vats have been busy. Fancy another dip?' },
+  fish: { theme: 'ranged', motto: 'The lagoon is mine from the shallows to the trench.', after: 'You swam it. The Lagoon Badge is yours.', rematch: 'Spring tide. Deeper water. Interested?' },
+  myriapod: { theme: 'melee', motto: 'Under the roots, everything has more legs than you.', after: 'You held the tunnels. Take the badge.', rematch: 'The brood has moulted. Come below.' },
+  wyrm: { theme: 'magic', motto: 'The ridge coils around anything that climbs it.', after: 'You reached the top. The badge is yours.', rematch: 'The coil is tighter now. Climb again.' },
+  invertebrate: { theme: 'ranged', motto: 'The deep is patient and so is my team.', after: 'You outlasted the dark. Take the badge.', rematch: 'The trench has given me something new.' },
+  skeletal: { theme: 'melee', motto: 'My team has been dead for years and still turns up.', after: 'Even the dead concede. The badge is yours.', rematch: 'They have dug themselves out again. Shall we?' },
+  reptile: { theme: 'melee', motto: 'Ash in the air, fire in the blood. Keep up.', after: 'You walked the Scar. Take the badge.', rematch: 'The kilns are hotter now. Walk it again.' },
+  fiend: { theme: 'magic', motto: 'Everything here costs something. This will cost you.', after: 'Debt paid. The badge is yours.', rematch: 'Interest has accrued. Care to settle?' },
+  draconic: { theme: 'melee', motto: 'Every dragon on this mountain answers to me.', after: 'They answer to you now. Take the badge.', rematch: 'A new brood has hatched. They want a word.' },
+  spirit: { theme: 'magic', motto: 'Keep your voice down. My team is listening.', after: 'They have let you pass. The badge is yours.', rematch: 'They remember you. Come back in.' },
+};
+
 const COUNCIL = [
   { name: 'Marshal Kord', style: 'melee', line: 'Strength first. Show me yours.' },
   { name: 'Ranger Selene', style: 'ranged', line: 'Distance is a weapon. Close it if you can.' },
@@ -255,8 +296,11 @@ function trainersFor(rng, world, biome, spots) {
     const used = new Set();
     const team = [];
     const last = i === spots.length - 1; // the trainer before the lair runs a little hot
+    const person = PERSONALITIES[r.pick(PERSONALITY_IDS)]; // how they fight, and what they say
     for (let k = 0; k < sizes[i % sizes.length]; k++) {
-      const pool = k === 0 || r.chance(0.75) ? home : WILD_SPECIES; // the lead is always from the home class
+      const base = k === 0 || r.chance(0.75) ? home : WILD_SPECIES; // the lead is always from the home class
+      const leaning = base.filter((sp) => combatStyle(sp.stats) === person.style); // and the team leans their way
+      const pool = leaning.length >= 3 ? leaning : base;
       const sp = pickSpecies(r.fork(`s${k}`), pool, false, used);
       const L = levelAt(world, spot.x, spot.y);
       team.push({ genome: speciesGenome(sp, r.fork(`g${k}`)), level: Math.max(1, Math.min(100, L + (last ? 1 + r.int(2) : r.between(-1, 1)))) });
@@ -264,6 +308,7 @@ function trainersFor(rng, world, biome, spots) {
     out.push({
       id: `${clade}-${i}`, biome: clade, name: `${r.pick(TRAINER_TITLES[clade])} ${names[i % names.length]}`, x: spot.x, y: spot.y, dir: spot.dir || 'down',
       line: r.pick(TRAINER_LINES[clade]), after: r.pick(TRAINER_AFTER), team,
+      personality: person.name, style: person.style, tag: person.tag, rematchLine: person.rematch,
     });
   });
   return out;
@@ -273,15 +318,20 @@ function wardenFor(rng, biome) {
   const pool = WILD_SPECIES.filter((s) => s.clade === biome.clade);
   const used = new Set();
   const L = biome.level;
-  const a = speciesGenome(pickSpecies(rng.fork('a'), pool, true, used), rng.fork('ga'));
-  const b = speciesGenome(pickSpecies(rng.fork('b'), pool, true, used), rng.fork('gb'));
-  const c = speciesGenome(pickSpecies(rng.fork('c'), pool, true, used), rng.fork('gc'));
+  const themed = (WARDEN_PROFILES[biome.clade] && pool.filter((s) => combatStyle(s.stats) === WARDEN_PROFILES[biome.clade].theme)) || [];
+  const kit = themed.length >= 5 ? themed : pool; // the Warden's team leans the way they fight
+  const a = speciesGenome(pickSpecies(rng.fork('a'), kit, true, used), rng.fork('ga'));
+  const b = speciesGenome(pickSpecies(rng.fork('b'), kit, true, used), rng.fork('gb'));
+  const c = speciesGenome(pickSpecies(rng.fork('c'), kit, true, used), rng.fork('gc'));
   let leader = a;
   if (canFuse(a, b).ok) { const ab = fuse(a, b, rng.fork('f1')).child; leader = canFuse(ab, c).ok ? fuse(ab, c, rng.fork('f2')).child : ab; }
   const team = [{ genome: leader, level: Math.min(100, L + 6) }];
-  for (let i = 0; i < 4; i++) team.push({ genome: speciesGenome(pickSpecies(rng.fork(`m${i}`), pool, i < 2, used), rng.fork(`gm${i}`)), level: Math.min(100, L + 3 + (i % 2)) });
-  const region = REGIONS[biome.clade];
-  return { id: `warden-${biome.clade}`, name: region.warden, title: `Warden of ${biome.name}`, biome: biome.clade, badge: region.badge, level: L + 6, team, line: `I keep the ${region.badge}. Earn it.` };
+  for (let i = 0; i < 4; i++) team.push({ genome: speciesGenome(pickSpecies(rng.fork(`m${i}`), kit, i < 2, used), rng.fork(`gm${i}`)), level: Math.min(100, L + 3 + (i % 2)) });
+  const region = REGIONS[biome.clade], profile = WARDEN_PROFILES[biome.clade] || { theme: 'melee', motto: `I keep the ${region.badge}. Earn it.`, after: 'Take the badge.', rematch: 'Again?' };
+  return {
+    id: `warden-${biome.clade}`, name: region.warden, title: `Warden of ${biome.name}`, biome: biome.clade, badge: region.badge, level: L + 6, team,
+    theme: profile.theme, line: profile.motto, after: profile.after, rematchLine: profile.rematch,
+  };
 }
 
 function councilFor(rng) {

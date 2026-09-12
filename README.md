@@ -70,6 +70,13 @@ more Melee Atk and less Ranged Atk, Timid more Speed and less Melee Atk);
 seven are even. HP is never touched. A fusion takes a parent's nature, and
 the creature sheet marks the lean on the stat bars.
 
+Trainers: each of the road's trainers has one of eight personalities that
+leans their team towards a damage style and gives them their own rematch
+line, and each of the eighteen Wardens fights to an authored theme with a
+motto, a badge line and a rematch line. A beaten trainer offers a rematch
+once your best creature has outgrown their lead, coming up to two levels
+under it, and pays a quarter of the gold.
+
 Learning a move: the Market stocks the basics (every Normal scroll and
 anything of 60 power or less), each region's camp has a tutor who teaches
 three types at seven tenths of the Market's price once you hold that region's

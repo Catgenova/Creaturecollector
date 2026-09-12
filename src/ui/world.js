@@ -11,7 +11,7 @@ import { STATUS_INFO, levelCaptureMul } from '../battle/engine.js';
 import { stageOf, stageName } from '../data/evolution.js';
 import { loadSave, persistSave, exportSave, importSave, recordCollection, retireJourney } from '../game/save.js';
 import { memberMaxHp, xpProgress, learnMove, moveMember, setLead, canFight, releaseMember, renameMember, setLocked } from '../game/party.js';
-import { JOURNEY, newJourney, chooseJourneyStarter, tryMove, facing, talkTo, acceptChallenge, challengeWarden, enterSpire, fleeEncounter, buildJourneyBattle, applyJourneyBattle, journeyPlace, badgeList, canFuseJourney, previewShrineFusion, shrineFuse, respawnJourney } from '../game/journey.js';
+import { JOURNEY, newJourney, chooseJourneyStarter, tryMove, facing, talkTo, acceptChallenge, rematchTeam, challengeWarden, enterSpire, fleeEncounter, buildJourneyBattle, applyJourneyBattle, journeyPlace, badgeList, canFuseJourney, previewShrineFusion, shrineFuse, respawnJourney } from '../game/journey.js';
 import { WORLD, TILE, REGIONS, HUB, BIOME_ORDER, worldFor, tileAt, biomeAt, habitatTypeAt, trainerAt, findPath, isHubTile } from '../game/world.js';
 import { TYPE_INFO, TYPE_LIST } from '../data/types.js';
 import { DAMAGE_TYPES } from '../data/damage.js';
@@ -339,14 +339,16 @@ function owTalk(t) {
   const info = talkTo(j, t.id);
   if (!info) return;
   const lead = t.team[0];
-  const teamLine = `${t.team.length} creature${t.team.length > 1 ? 's' : ''} · Lv ${Math.min(...t.team.map((m) => m.level))}–${Math.max(...t.team.map((m) => m.level))}`;
+  const levels = info.rematch ? rematchTeam(j, t).map((m) => m.level) : t.team.map((m) => m.level);
+  const teamLine = `${t.team.length} creature${t.team.length > 1 ? 's' : ''} · Lv ${Math.min(...levels)}–${Math.max(...levels)}`
+    + (t.personality ? ` · ${t.personality}: ${t.tag}` : '') + (info.rematch ? ' · rematch, a quarter of the gold' : '');
   owShowDialog(
     h('div', { class: 'who' }, creatureEl(lead.genome, { size: 64, animate: false, level: lead.level, facing: 'left' })),
     h('div', { class: 'txt' }, h('b', {}, t.name), info.text, h('span', { class: 'hint', style: { margin: 0, display: 'block' } }, teamLine)),
     h('div', { class: 'row' },
       info.canFight ? h('button', { class: 'btn primary', type: 'button', onclick: () => { acceptChallenge(j, t.id); owSave(); owCloseDialog(); renderWorldScreen(ow.root); } }, 'Fight!') : null,
       !info.canFight && !info.beaten ? h('span', { class: 'hint', style: { margin: 0 } }, 'Nobody in your party can fight.') : null,
-      h('button', { class: 'btn', type: 'button', onclick: owCloseDialog }, info.beaten ? 'OK' : 'Not now')));
+      h('button', { class: 'btn', type: 'button', onclick: owCloseDialog }, info.beaten && !info.canFight ? 'OK' : 'Not now')));
 }
 
 function owLairDialog(ev) {

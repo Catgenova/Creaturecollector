@@ -1446,6 +1446,26 @@ on 498, the median move is learned by six species rather than eleven, and 525
 of the 531 moves appear in some learnset. A test now also refuses a learnset
 that repeats a move, which caught one that already did.
 
+## Trainers with a name to them (implemented)
+
+The road had 108 trainers who each said one line, fielded a spread of
+whatever lived nearby, and went quiet for good once beaten.
+
+- **Personalities.** Eight of them (Bold, Patient, Keen, Showy, Grim,
+  Cheerful, Careful, Wild), each leaning its team towards one damage style
+  and carrying its own rematch line. The card names it: "Falconer Ines ·
+  Keen: keeps its distance". Two Falconers on the same path now fight
+  differently.
+- **Wardens fight to a plan.** Each of the eighteen has an authored theme, a
+  motto, a line for handing over the badge and a line for a rematch, and
+  their team is drawn from the species of that theme's style, so a badge is
+  earned against a strategy rather than a spread. The Fen drowns you slowly
+  with Magic, the Meadow shoots from range, the Scar comes straight at you.
+- **Rematches.** A beaten trainer waits until your best creature has outgrown
+  their lead, then offers again with their team lifted to two levels under
+  your best, capped at 100. It pays a quarter of the gold, like a Warden
+  rematch, and the count sits in the journey stats.
+
 ## Learning a move (implemented)
 
 Every move but the signatures was sold at one shop, priced by power alone,

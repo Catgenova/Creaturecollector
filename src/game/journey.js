@@ -128,18 +128,35 @@ export function facing(j) {
 
 export function trainerById(j, id) { return worldFor(j.seed).trainers.find((t) => t.id === id) || null; }
 
-/** What a trainer says when spoken to, and whether they will fight. */
+/** The level a beaten trainer brings to a rematch: their own, lifted towards your best creature. */
+export function rematchLevel(j, base) {
+  const top = Math.max(1, ...(j.party || []).map((m) => m.level), ...(j.box || []).map((m) => m.level));
+  return Math.max(base, Math.min(100, top - 2));
+}
+
+/** A beaten trainer's team, brought up to meet the party it lost to. */
+export function rematchTeam(j, t) {
+  return t.team.map((m, i) => ({ genome: m.genome, level: rematchLevel(j, m.level) - (i % 2) }));
+}
+
+/** What a trainer says when spoken to, and whether they will fight. A beaten one offers a rematch. */
 export function talkTo(j, trainerId) {
   const t = trainerById(j, trainerId);
   if (!t) return null;
   const beaten = Boolean(j.beaten[t.id]);
-  return { trainer: t, beaten, text: beaten ? t.after : t.line, canFight: !beaten && !j.encounter && canFight(j) };
+  const ready = !j.encounter && canFight(j);
+  const rematch = beaten && rematchLevel(j, t.team[0].level) > t.team[0].level;
+  const text = beaten ? (rematch ? `${t.after} ${t.rematchLine || 'Care to go again?'}` : t.after) : t.line;
+  return { trainer: t, beaten, rematch, text, canFight: ready && (!beaten || rematch) };
 }
 
 export function acceptChallenge(j, trainerId) {
   const t = trainerById(j, trainerId);
-  if (!t || j.beaten[t.id] || j.encounter) return null;
-  j.encounter = { kind: 'trainer', trainerId: t.id, name: t.name, foes: t.team.map((m) => ({ genome: m.genome, level: m.level })), capturable: false, biome: t.biome };
+  if (!t || j.encounter) return null;
+  const beaten = Boolean(j.beaten[t.id]);
+  const foes = beaten ? rematchTeam(j, t) : t.team.map((m) => ({ genome: m.genome, level: m.level }));
+  if (beaten && foes[0].level <= t.team[0].level) return null; // nothing new to prove until you have grown
+  j.encounter = { kind: 'trainer', trainerId: t.id, name: t.name, foes, capturable: false, biome: t.biome, rematch: beaten };
   return j.encounter;
 }
 
@@ -267,14 +284,18 @@ export function applyJourneyBattle(j, state) {
   // trainers pay gold: by team size and average level, double for Wardens and the Council, a quarter on rematches
   // (a tower floor counts as beaten per level, so its first win at each level pays in full)
   if (enc.kind !== 'wild') {
-    const rematch = enc.kind === 'boss' ? j.badges.includes(enc.biome) : enc.kind === 'council' ? j.champion : enc.kind === 'tower' ? towerRecord(j, enc.floor, enc.level) > 0 : false;
+    const rematch = enc.kind === 'boss' ? j.badges.includes(enc.biome) : enc.kind === 'council' ? j.champion : enc.kind === 'tower' ? towerRecord(j, enc.floor, enc.level) > 0 : Boolean(enc.rematch);
     report.gold = goldReward(enc.foes, enc.kind, rematch);
     if (j.party.some((m) => heldKind(m.held) === 'gold')) report.gold = Math.round((report.gold * CHARM_RULE.goldMul) / 10) * 10; // a Lucky Coin anywhere in the party
     const forager = Math.max(...j.party.map((m) => abilityWorldMul(m.genome && m.genome.ability, 'worldGold'))); // the best forager in the party sniffs out the rest
     if (forager > 1) report.gold = Math.round((report.gold * forager) / 10) * 10;
     j.gold = (j.gold || 0) + report.gold;
   }
-  if (enc.kind === 'trainer') { j.beaten[enc.trainerId] = true; j.stats.trainers++; }
+  if (enc.kind === 'trainer') {
+    if (!j.beaten[enc.trainerId]) j.stats.trainers++;
+    else j.stats.rematches = (j.stats.rematches || 0) + 1;
+    j.beaten[enc.trainerId] = true;
+  }
   if (enc.kind === 'tower') { j.stats.tower = (j.stats.tower || 0) + 1; report.tower = { floor: enc.floor, level: enc.level, wins: recordTowerWin(j, enc.towerId, enc.level) }; }
   if (enc.kind === 'boss') {
     j.stats.bosses++;
