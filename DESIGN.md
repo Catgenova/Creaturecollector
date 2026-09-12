@@ -1465,6 +1465,18 @@ tournament simulator all field one passive as before, so the 40-60% band the
 tuner maintains is untouched; what the player buys is a build, not a stat.
 An Elemental still keeps its core and cannot buy a slot.
 
+## Nature draws at the shrine (implemented)
+
+A nature is rolled at capture and was fixed for life, which made 49 of them
+into 49 shrugs. The shrine will now draw a creature a new one for 8,000 gold:
+random, never the nature it already has, and never chosen. The draw is seeded
+by the journey and the number of draws so far, so reloading a save cannot fish
+for a better one, and the sheet asks for a second tap before it spends.
+
+It is the purest of the sinks. A nature lifts one stat a tenth and drops
+another, so a draw is a small, permanent lean, and chasing a particular one
+costs as much gold as the player is willing to lose.
+
 ## Stat coaching (implemented)
 
 A camp will move one point of a creature's stat spread from one stat to

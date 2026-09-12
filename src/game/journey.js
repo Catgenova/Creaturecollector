@@ -12,6 +12,7 @@ import { PARTY, XP, makeMember, gainXp, healParty, xpProgress, xpReward, memberM
 import { WORLD, TILE, REGIONS, BIOME_ORDER, worldFor, tileAt, biomeAt, trainerAt, isWalkable, inBounds, wildSpawn, levelAt } from './world.js';
 import { goldReward, battleItems, syncBagFromBattle, returnCharms } from './market.js';
 import { getCharm, heldKind, charmValue, CHARM_RULE, WARDEN_CHARMS } from '../data/charms.js';
+import { NATURE_IDS } from '../data/natures.js';
 import { TRIAL, trialDay, trialOf, trialState, trialBlock, enterTrial, trialEncounter, trialGold } from './trial.js';
 import { abilityWorldMul } from '../data/abilities.js';
 import { recordTowerWin, towerRecord } from './tower.js';
@@ -397,6 +398,40 @@ export function applyJourneyBattle(j, state) {
   }
   j.lastReport = report;
   return { journey: j, report };
+}
+
+// ---- the shrine: fusion, and turning over a nature -------------------------------------
+
+/** What the shrine asks to draw a creature a new nature: a flat sum, and it cannot be chosen. */
+export const NATURE_REROLL = 8000;
+
+/** Why the shrine will not reroll this creature's nature, or null when it will. */
+export function natureBlock(m) {
+  if (!m || !m.genome) return 'No creature.';
+  if (NATURE_IDS.length < 2) return 'There is only one nature.';
+  return null;
+}
+
+/**
+ * Draw a new nature at the shrine: random, never the one it already has, and never chosen.
+ * Deterministic per journey and per reroll, so a save cannot be reloaded for a better one.
+ */
+export function rerollNature(j, uid) {
+  const m = [...(j.party || []), ...(j.box || [])].find((x) => x.uid === uid);
+  if (!m) return { ok: false, reason: 'That creature is not with you.' };
+  const block = natureBlock(m);
+  if (block) return { ok: false, reason: block };
+  if ((j.gold || 0) < NATURE_REROLL) return { ok: false, reason: `The shrine asks ${NATURE_REROLL.toLocaleString()} gold.` };
+  j.stats = j.stats || {};
+  j.stats.natures = (j.stats.natures || 0) + 1;
+  const pool = NATURE_IDS.filter((id) => id !== m.genome.nature);
+  const rng = makeRng(`${j.seed}:nature:${uid}:${j.stats.natures}`);
+  const from = m.genome.nature;
+  const to = pool[Math.floor(rng.next() * pool.length)];
+  j.gold -= NATURE_REROLL;
+  m.genome.nature = to;
+  m.hp = Math.max(1, Math.min(m.hp, memberMaxHp(m)));
+  return { ok: true, member: m, from, to, paid: NATURE_REROLL };
 }
 
 // ---- the shrine: fusion at the crossroads ----------------------------------------------

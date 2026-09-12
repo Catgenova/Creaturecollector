@@ -11,7 +11,7 @@ import { STATUS_INFO, levelCaptureMul } from '../battle/engine.js';
 import { stageOf, stageName } from '../data/evolution.js';
 import { loadSave, persistSave, exportSave, importSave, recordCollection, retireJourney } from '../game/save.js';
 import { memberMaxHp, xpProgress, learnMove, moveMember, setLead, canFight, releaseMember, renameMember, setLocked } from '../game/party.js';
-import { JOURNEY, newJourney, chooseJourneyStarter, tryMove, facing, talkTo, acceptChallenge, rematchTeam, challengeWarden, seekElder, enterSpire, trialToday, startTrial, fleeEncounter, buildJourneyBattle, applyJourneyBattle, journeyPlace, badgeList, canFuseJourney, previewShrineFusion, shrineFuse, respawnJourney } from '../game/journey.js';
+import { JOURNEY, newJourney, chooseJourneyStarter, tryMove, facing, talkTo, acceptChallenge, rematchTeam, challengeWarden, seekElder, enterSpire, trialToday, startTrial, fleeEncounter, buildJourneyBattle, applyJourneyBattle, journeyPlace, badgeList, canFuseJourney, previewShrineFusion, shrineFuse, NATURE_REROLL, natureBlock, rerollNature, respawnJourney } from '../game/journey.js';
 import { WORLD, TILE, REGIONS, HUB, BIOME_ORDER, worldFor, tileAt, biomeAt, habitatTypeAt, trainerAt, findPath, isHubTile } from '../game/world.js';
 import { TYPE_INFO, TYPE_LIST } from '../data/types.js';
 import { DAMAGE_TYPES } from '../data/damage.js';
@@ -20,6 +20,7 @@ import { getCharm } from '../data/charms.js';
 import { dexSeen, dexCaught, dexCounts, dexStatus, dexMorphs, dexHabitat, dexRewards, claimDexReward, dexSpeciesOf } from '../game/dex.js';
 import { speciesGenome } from '../creature/genome.js';
 import { MORPHS } from '../creature/palette.js';
+import { natureLabel } from '../data/natures.js';
 import { CLADE_IDS } from '../data/clades.js';
 import { openQuests, questReady, rewardText, claimQuest, abandonQuest } from '../game/quests.js';
 import { openBounties, bountyCandidates, bountyPayout, bountyLevelMul, turnInBounty } from '../game/bounties.js';
@@ -1354,8 +1355,33 @@ function owCollectionSheet() {
 function owShrineSheet(j) {
   const pick = { a: null, b: null };
   const body = h('div');
+  let tab = 'fuse';
   const draw = () => {
     clear(body);
+    body.append(h('div', { class: 'type-filter' },
+      h('button', { class: `btn small${tab === 'fuse' ? ' on' : ''}`, type: 'button', onclick: () => { tab = 'fuse'; render(); } }, 'Fuse'),
+      h('button', { class: `btn small${tab === 'nature' ? ' on' : ''}`, type: 'button', onclick: () => { tab = 'nature'; render(); } }, 'Natures')));
+    if (tab === 'nature') {
+      body.append(h('p', { class: 'hint' }, `The shrine will draw a creature a new nature for ${NATURE_REROLL.toLocaleString()} gold. `
+        + 'It cannot be chosen and it is never the one it already has, so it is a throw of the dice, not a purchase.'));
+      const rows = h('div', { class: 'party-list' });
+      for (const m of [...j.party, ...j.box]) {
+        const block = natureBlock(m);
+        rows.append(owMemberRow(j, m, [
+          h('span', { class: 'hint', style: { margin: 0 } }, natureLabel(m.genome.nature)),
+          h('button', { class: `btn small${!block && j.gold >= NATURE_REROLL ? ' primary' : ''}`, type: 'button', disabled: Boolean(block) || j.gold < NATURE_REROLL, title: block || '', onclick: () => {
+            if (ow.confirmNature !== m.uid) { ow.confirmNature = m.uid; toast('Tap again: the draw cannot be chosen or undone'); setTimeout(() => { if (ow.confirmNature === m.uid) ow.confirmNature = null; }, 4000); return; }
+            ow.confirmNature = null;
+            const r = rerollNature(j, m.uid);
+            if (!r.ok) { toast(r.reason); return; }
+            owSave(); sfx.win(); toast(`${r.member.genome.name}: ${natureLabel(r.from)} → ${natureLabel(r.to)}.`);
+            render(); owRefreshHud();
+          } }, `Draw ◆ ${NATURE_REROLL.toLocaleString()}`),
+        ]));
+      }
+      body.append(rows);
+      return;
+    }
     const all = [...j.party, ...j.box];
     const list = h('div', { class: 'pool' });
     const anchor = pick.a || pick.b;

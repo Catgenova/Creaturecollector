@@ -70,6 +70,10 @@ more Melee Atk and less Ranged Atk, Timid more Speed and less Melee Atk);
 seven are even. HP is never touched. A fusion takes a parent's nature, and
 the creature sheet marks the lean on the stat bars.
 
+Nature draws: the shrine draws a creature a new nature for 8,000 gold, random
+and never the one it has. The draw follows the journey and the number of draws
+so far, so reloading cannot fish for a better one.
+
 Stat coaching: a camp moves one point of a creature's stat spread from one
 stat to another for 2,000 gold plus 50 a level, up to ten times each. The
 spread always sums to the same total, so coaching changes a creature's shape
