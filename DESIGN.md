@@ -1263,11 +1263,27 @@ Elemental-only), scored by affinity with a bonus for what it already carried,
 under a global cap so no passive gathers more than seven homes, and a second
 pass lifts anything under three. The result: every ordinary passive sits on
 five to seven of the 895 species (the pool cannot be flatter than that with
-1,790 slots), 603 species kept at least one of the passives they had before,
+1,790 slots; the balance swaps below nudge one passive to eight), 603 species
+kept at least one of the passives they had before,
 no species carries the same passive twice, and 94% of the typed passives
 (a type's affinity, resist, absorb or immunity) sit on a species of that type.
 Tests hold the floor at three and the ceiling at twelve so later hand edits
 cannot orphan a passive.
+
+Balance. New passives on every species shift the tournament, so the tuner
+ran four passes of `2 40000 100 40000` (each round about 215 seconds). The
+first round after the redistribution read 34–66% with nine species outside
+the band; the passes moved 786, 746, 757 and 723 totals. Between passes,
+four species pinned at a clamp had a passive swapped rather than a total the
+tuner could not move: Wraithwing (360 floor, 62%) lost the snowballing Soul
+Eater for Natural Cure, Voltskull (floor, 60%) traded Storm Drinker, redundant
+beside Capacitor, for Steady Nerves, Glidefin (floor, 60%) traded Glass Cannon
+for Sure-Footed, and Brawlshroom (520 cap, 40%) traded the rarely-live Toxic
+Boost for Heavy Blows. The second round of the last pass read 40–60% with
+nothing outside, and the final 40,000-game verification 39–60% with one
+species at 39% (Brawlimp, not pinned) and a mean of 49.9%; totals span 360 to
+520 with 21 species on the floor and 11 on the cap. Wraithwing and Voltskull
+now read 52%, Glidefin 56% and Brawlshroom 49%.
 
 ## Mobile view (implemented)
 
