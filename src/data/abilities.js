@@ -169,6 +169,47 @@ export function describeFx(f) {
     case 'flinchStat': return `${abStages(f.stats, 'Own')} when it flinches.`;
     case 'magicGuard': return 'Takes no damage from burns, poison, recoil or thorns.';
     case 'recoilImmune': return 'Takes no recoil damage.';
+    case 'stab': return `Moves of its own type earn ${Math.round(f.m * 100)}% instead of 25%.`;
+    case 'foeTypeBoost': return `Hits ${abX(f.m)} harder against ${f.type} types.`;
+    case 'foeCatBoost': return `Hits ${abX(f.m)} harder against ${AB_CAT_NAME[f.cat]} fighters.`;
+    case 'foeStatusBoost': return `Hits ${abX(f.m)} harder against a foe with ${f.s ? `a ${AB_STATUS_NAME[f.s]}` : 'a status'}.`;
+    case 'foeFullBoost': return `Hits ${abX(f.m)} harder against a foe at full HP.`;
+    case 'effBoost': return `Super effective moves hit ${abX(f.m)} harder.`;
+    case 'neutralBoost': return `Moves the foe neither resists nor fears hit ${abX(f.m)} harder.`;
+    case 'lowHpBoost': return `Hits ${abX(f.m)} harder when its own HP is a third or less.`;
+    case 'firstTurnBoost': return `Hits ${abX(f.m)} harder on the turn it comes in.`;
+    case 'lastOneBoost': return `Hits ${abX(f.m)} harder as the last one standing.`;
+    case 'revengeBoost': return `Hits ${abX(f.m)} harder once a teammate has fallen.`;
+    case 'repeatBoost': return `Hits ${abX(f.m)} harder when it uses the same move again.`;
+    case 'slowStart': return `Hits ${abX(f.m)} for its first ${f.turns || 2} turns out.`;
+    case 'defeatist': return `Hits ${abX(f.m)} while its HP is ${abFrac(f.at || 0.5)} or less.`;
+    case 'hpCostBoost': return `Moves hit ${abX(f.m)} harder but cost ${abFrac(f.r)} of max HP.`;
+    case 'multiExtra': return 'Multi-hit moves land one extra hit.';
+    case 'drainMul': return `Draining moves recover ${abX(f.m)} as much.`;
+    case 'recoilMul': return `Recoil costs ${abX(f.m)} as much.`;
+    case 'moveTypeChange': return `${f.from} moves become ${f.to}${f.m && f.m !== 1 ? ` and hit ${abX(f.m)} harder` : ''}.`;
+    case 'protean': return 'Becomes the type of the move it uses.';
+    case 'colorChange': return 'Becomes the type of the move that hits it.';
+    case 'statusChanceMul': return `Its moves’ side effects are ${abX(f.m)} as likely.`;
+    case 'critStatus': return `A critical hit ${abChance(f.p) ? `has a ${f.p}% chance to leave` : 'leaves'} the foe ${AB_STATUS_VERB[f.s]}.`;
+    case 'moldBreaker': return 'Ignores the guards and immunities of the creature it attacks.';
+    case 'unaware': return 'Ignores the stat changes on the creature it faces.';
+    case 'contrary': return 'Stat changes on it are reversed.';
+    case 'simple': return 'Stat changes on it count double.';
+    case 'download': return `On entry, reads the foe and raises its own Melee Atk or Magic Atk${f.n > 1 ? ' sharply' : ''}.`;
+    case 'avengeStat': return `${abStages(f.stats, 'Own')} on entry once a teammate has fallen.`;
+    case 'trace': return 'Copies the passive of the creature it faces on entry.';
+    case 'disguise': return 'The first attack of the battle deals it no damage.';
+    case 'endure': return 'Survives with 1 HP when hit by a knockout blow at full HP.';
+    case 'lowHpHeal': return `The first time HP falls to ${abFrac(f.at || 0.25)} or less, restores ${abFrac(f.r)} of max HP.`;
+    case 'magicBounce': return 'Foes’ status moves are bounced back at them.';
+    case 'critShield': return `Critical hits against it deal ${abX(f.m)} damage.`;
+    case 'firstHitResist': return `The first attack of the battle deals ${abX(f.m)} damage to it.`;
+    case 'fxResist': return `Takes ${abX(f.m)} damage from ${AB_FX_NAME[f.fx].toLowerCase()} moves.`;
+    case 'bandResist': return f.max != null ? `Takes ${abX(f.m)} damage from moves with ${f.max} power or less.` : `Takes ${abX(f.m)} damage from moves with ${f.min} power or more.`;
+    case 'worldXp': return `Earns ${abX(f.m)} experience.`;
+    case 'worldGold': return `Trainers pay ${abX(f.m)} gold while it is in the party.`;
+    case 'worldCatch': return `Wild creatures are ${abX(f.m)} as easy to catch while it leads the fight.`;
     default: return '';
   }
 }
@@ -392,10 +433,61 @@ defA('sparking_fists', 'Sparking Fists', [{ k: 'flagBoost', flag: 'punch', m: 1.
 defA('razor_maw', 'Razor Maw', [{ k: 'flagBoost', flag: 'bite', m: 1.3 }, { k: 'critRate', m: 1.5 }]);
 defA('spore_bearer', 'Spore Bearer', [{ k: 'powderImmune' }, { k: 'contactStatus', s: 'slp', p: 10 }]);
 
+// ---- batch five: reading the matchup, and moves that change on the way out ----------------------------
+// A hunter for every type: it knows where that kind of creature is soft.
+const AB_HUNTER = { Normal: 'Beast Hunter', Fire: 'Flame Douser', Water: 'Tide Breaker', Electric: 'Storm Breaker', Grass: 'Bramble Cutter', Ice: 'Ice Breaker', Fighting: 'Brawl Ender', Poison: 'Vermin Culler', Ground: 'Burrow Hunter', Flying: 'Fowler', Psychic: 'Mind Hunter', Bug: 'Pest Hunter', Rock: 'Stone Splitter', Ghost: 'Ghostbane', Dragon: 'Dragonslayer', Dark: 'Shade Hunter', Steel: 'Rust Bringer', Fairy: 'Fae Hunter' };
+for (const t of AB_TYPES) defA(`${t.toLowerCase()}_hunter`, AB_HUNTER[t], { k: 'foeTypeBoost', type: t, m: 1.3 });
+
+defA('cinder_reaper', 'Cinder Reaper', { k: 'foeStatusBoost', s: 'brn', m: 1.4 });
+defA('blight_reaper', 'Blight Reaper', { k: 'foeStatusBoost', s: 'psn', m: 1.4 });
+defA('spark_reaper', 'Spark Reaper', { k: 'foeStatusBoost', s: 'par', m: 1.4 });
+defA('dream_reaper', 'Dream Reaper', { k: 'foeStatusBoost', s: 'slp', m: 1.4 });
+defA('rime_reaper', 'Rime Reaper', { k: 'foeStatusBoost', s: 'frz', m: 1.4 });
+defA('brawl_reader', 'Brawl Reader', { k: 'foeCatBoost', cat: 'melee', m: 1.25 });
+defA('volley_reader', 'Volley Reader', { k: 'foeCatBoost', cat: 'ranged', m: 1.25 });
+defA('spell_reader', 'Spell Reader', { k: 'foeCatBoost', cat: 'magic', m: 1.25 });
+defA('kindred', 'Kindred', { k: 'stab', m: 0.4 });
+defA('heritage', 'Heritage', [{ k: 'stab', m: 0.35 }, { k: 'accBoost', m: 1.1 }]);
+defA('zealot', 'Zealot', [{ k: 'stab', m: 0.5 }, { k: 'allResist', m: 1.15 }]);
+defA('executioner', 'Executioner', { k: 'effBoost', m: 1.3 });
+defA('steady_aim', 'Steady Aim', { k: 'neutralBoost', m: 1.2 });
+defA('overwhelm', 'Overwhelm', [{ k: 'effBoost', m: 1.5 }, { k: 'accBoost', m: 0.9 }]);
+defA('lens_grinder', 'Lens Grinder', [{ k: 'tintedLens', m: 1.5 }, { k: 'neutralBoost', m: 1.1 }]);
+defA('cornered', 'Cornered', { k: 'lowHpBoost', m: 1.5 });
+defA('opening_blow', 'Opening Blow', { k: 'foeFullBoost', m: 1.3 });
+defA('cavalry_charge', 'Cavalry Charge', { k: 'firstTurnBoost', m: 1.5 });
+defA('last_legion', 'Last Legion', { k: 'lastOneBoost', m: 1.5 });
+defA('vengeance', 'Vengeance', { k: 'revengeBoost', m: 1.3 });
+defA('drumbeat', 'Drumbeat', { k: 'repeatBoost', m: 1.2 });
+defA('repeater', 'Repeater', { k: 'multiExtra' });
+defA('big_gulp', 'Big Gulp', { k: 'drainMul', m: 1.5 });
+defA('emberform', 'Emberform', { k: 'moveTypeChange', from: 'Normal', to: 'Fire', m: 1.2 });
+defA('tideform', 'Tideform', { k: 'moveTypeChange', from: 'Normal', to: 'Water', m: 1.2 });
+defA('sparkform', 'Sparkform', { k: 'moveTypeChange', from: 'Normal', to: 'Electric', m: 1.2 });
+defA('bloomform', 'Bloomform', { k: 'moveTypeChange', from: 'Normal', to: 'Grass', m: 1.2 });
+defA('rimeform', 'Rimeform', { k: 'moveTypeChange', from: 'Normal', to: 'Ice', m: 1.2 });
+defA('galeform', 'Galeform', { k: 'moveTypeChange', from: 'Normal', to: 'Flying', m: 1.2 });
+defA('faeform', 'Faeform', { k: 'moveTypeChange', from: 'Normal', to: 'Fairy', m: 1.2 });
+defA('shadeform', 'Shadeform', { k: 'moveTypeChange', from: 'Normal', to: 'Ghost', m: 1.2 });
+defA('ironform', 'Ironform', { k: 'moveTypeChange', from: 'Normal', to: 'Steel', m: 1.2 });
+defA('heart_burn', 'Heart Burn', { k: 'hpCostBoost', m: 1.3, r: 1 / 8 });
+defA('crash_helmet', 'Crash Helmet', [{ k: 'recoilMul', m: 0.5 }, { k: 'fxBoost', fx: 'recoil', m: 1.2 }]);
+defA('slow_burner', 'Slow Burner', [{ k: 'slowStart', m: 0.5, turns: 2 }, { k: 'statMul', stat: 'melee', m: 1.5 }]);
+defA('faint_heart', 'Faint Heart', [{ k: 'defeatist', m: 0.5, at: 0.5 }, { k: 'fullHpBoost', m: 1.4 }]);
+defA('serene_touch', 'Serene Touch', { k: 'statusChanceMul', m: 2 });
+defA('bleeding_edge', 'Bleeding Edge', { k: 'critStatus', s: 'psn', p: 100 });
+defA('scorch_edge', 'Scorch Edge', { k: 'critStatus', s: 'brn', p: 50 });
+defA('rime_edge', 'Rime Edge', { k: 'critStatus', s: 'frz', p: 50 });
+defA('shifter', 'Shifter', { k: 'protean' });
+defA('chameleon_skin', 'Chameleon Skin', { k: 'colorChange' });
+
 export const ABILITY_IDS = Object.keys(ABILITIES);
 export function getAbility(id) { return ABILITIES[id] || null; }
 export function abilityName(id) { const a = ABILITIES[id]; return a ? a.name : 'None'; }
 /** The fx entries of a kind on a passive (empty for the hand-implemented ones and unknown ids). */
+/** Product of a world-facing passive's multipliers (experience, gold, catch odds); 1 when it has none. */
+export function abilityWorldMul(id, kind) { let m = 1; for (const f of abilityFx(id, kind)) m *= f.m; return m; }
+
 export function abilityFx(id, kind) { const a = ABILITIES[id]; return a && a.fx ? a.fx.filter((f) => f.k === kind) : []; }
 /** Every data-driven passive. */
 export const DATA_ABILITY_IDS = ABILITY_IDS.filter((id) => ABILITIES[id].fx);

@@ -12,6 +12,7 @@ import { PARTY, XP, makeMember, gainXp, healParty, xpProgress, xpReward, memberM
 import { WORLD, TILE, REGIONS, BIOME_ORDER, worldFor, tileAt, biomeAt, trainerAt, isWalkable, inBounds, wildSpawn, levelAt } from './world.js';
 import { goldReward, battleItems, syncBagFromBattle, returnCharms } from './market.js';
 import { getCharm, heldKind, CHARM_RULE, WARDEN_CHARMS } from '../data/charms.js';
+import { abilityWorldMul } from '../data/abilities.js';
 import { recordTowerWin, towerRecord } from './tower.js';
 import { newBoard, ensureBoard, questEvent } from './quests.js';
 import { newBounties, ensureBounties } from './bounties.js';
@@ -245,7 +246,8 @@ export function applyJourneyBattle(j, state) {
     if (bench) report.bench++;
     const before = xpProgress(m);
     const scholar = heldKind(m.held) === 'xp' ? CHARM_RULE.xpMul : 1; // a Scholar's Charm lifts its holder's own share
-    const r = gainXp(m, Math.floor((bench ? benchShare : share) * scholar));
+    const studious = abilityWorldMul(m.genome && m.genome.ability, 'worldXp'); // and so does a studious passive
+    const r = gainXp(m, Math.floor((bench ? benchShare : share) * scholar * studious));
     const after = xpProgress(m);
     report.xpGains.push({ uid: m.uid, index, bench, from: { level: r.from, frac: before.frac }, to: { level: r.to, frac: after.frac }, after });
     if (r.to > r.from) report.levelUps.push({ name: m.genome.name, from: r.from, to: r.to });
@@ -267,6 +269,8 @@ export function applyJourneyBattle(j, state) {
     const rematch = enc.kind === 'boss' ? j.badges.includes(enc.biome) : enc.kind === 'council' ? j.champion : enc.kind === 'tower' ? towerRecord(j, enc.floor, enc.level) > 0 : false;
     report.gold = goldReward(enc.foes, enc.kind, rematch);
     if (j.party.some((m) => heldKind(m.held) === 'gold')) report.gold = Math.round((report.gold * CHARM_RULE.goldMul) / 10) * 10; // a Lucky Coin anywhere in the party
+    const forager = Math.max(...j.party.map((m) => abilityWorldMul(m.genome && m.genome.ability, 'worldGold'))); // the best forager in the party sniffs out the rest
+    if (forager > 1) report.gold = Math.round((report.gold * forager) / 10) * 10;
     j.gold = (j.gold || 0) + report.gold;
   }
   if (enc.kind === 'trainer') { j.beaten[enc.trainerId] = true; j.stats.trainers++; }

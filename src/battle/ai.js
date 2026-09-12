@@ -1,12 +1,13 @@
 // Opponent AI: a scored heuristic. Deterministic given its rng.
 import { STRUGGLE, getMove, isDamaging, moveFx } from '../data/moves.js';
-import { legalActions, activeOf, calcDamage, moveEffectiveness, effectiveStat, affinityBonus } from './engine.js';
+import { legalActions, activeOf, calcDamage, moveEffectiveness, effectiveStat, affinityBonus, activeMove } from './engine.js';
 
 function bestEffVs(attacker, defender) {
   let best = 0;
   for (const m of attacker.moves) {
-    const mv = getMove(m.id);
-    if (!mv || !isDamaging(mv) || m.pp <= 0) continue;
+    const raw = getMove(m.id);
+    if (!raw || !isDamaging(raw) || m.pp <= 0) continue;
+    const mv = activeMove(attacker, raw); // a conversion passive changes what the move actually is
     best = Math.max(best, moveEffectiveness(mv, defender, attacker) * affinityBonus(attacker, mv));
   }
   return best;
@@ -14,7 +15,7 @@ function bestEffVs(attacker, defender) {
 
 function scoreMove(state, side, action, rng) {
   const me = activeOf(state, side), foe = activeOf(state, 1 - side);
-  const mv = action.struggle ? STRUGGLE : getMove(me.moves[action.index].id);
+  const mv = activeMove(me, action.struggle ? STRUGGLE : getMove(me.moves[action.index].id));
   const acc = mv.acc == null ? 1 : mv.acc / 100;
   const faster = effectiveStat(me, 'spe') > effectiveStat(foe, 'spe') || mv.prio > 0;
   if (isDamaging(mv)) {
