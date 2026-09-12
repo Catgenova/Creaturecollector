@@ -882,9 +882,9 @@ defA('perfect_aim', 'Perfect Aim', [{ k: 'sureShot' }, { k: 'statMul', stat: 'sp
 defA('clear_sight', 'Clear Sight', { k: 'ignoreEvasion' });
 defA('hawk_sight', 'Hawk Sight', [{ k: 'ignoreEvasion' }, { k: 'accBoost', m: 1.1 }]);
 
-defA('padded_soul', 'Padded Soul', { k: 'damageCap', r: 1 / 3 });
-defA('iron_cap', 'Iron Cap', [{ k: 'damageCap', r: 1 / 4 }, { k: 'statMul', stat: 'spe', m: 0.9 }]);
-defA('bulk_frame', 'Bulk Frame', [{ k: 'damageCap', r: 1 / 2 }, { k: 'defMul', stat: 'meleeDef', m: 1.1 }]);
+defA('padded_soul', 'Padded Soul', { k: 'damageCap', r: 1 / 2 });
+defA('iron_cap', 'Iron Cap', [{ k: 'damageCap', r: 0.45 }, { k: 'statMul', stat: 'spe', m: 0.9 }]);
+defA('bulk_frame', 'Bulk Frame', [{ k: 'damageCap', r: 0.6 }, { k: 'defMul', stat: 'meleeDef', m: 1.1 }]);
 defA('first_blood', 'First Blood', { k: 'critIf', when: 'firstTurn' });
 defA('desperate_edge', 'Desperate Edge', { k: 'critIf', when: 'lowHp' });
 defA('fresh_edge', 'Fresh Edge', { k: 'critIf', when: 'fullHp' });
@@ -913,13 +913,13 @@ defA('sleepless_watch', 'Sleepless Watch', [{ k: 'statusImmune', s: 'slp' }, { k
 
 defA('pickpocket', 'Pickpocket', [{ k: 'worldGold', m: 1.3 }, { k: 'stageSteal' }]);
 defA('trap_sense', 'Trap Sense', [{ k: 'ignoreEvasion' }, { k: 'evasion', m: 0.9 }]);
-defA('shell_game', 'Shell Game', [{ k: 'damageCap', r: 1 / 3 }, { k: 'evasion', m: 0.9 }]);
+defA('shell_game', 'Shell Game', [{ k: 'damageCap', r: 1 / 2 }, { k: 'evasion', m: 0.9 }]);
 defA('feint', 'Feint', [{ k: 'noContact' }, { k: 'addFlinch', p: 15 }]);
 defA('phantom_step', 'Phantom Step', [{ k: 'noContact' }, { k: 'typeResist', type: 'Fighting', m: 0.7 }]);
 defA('silent_kill', 'Silent Kill', [{ k: 'sureShot' }, { k: 'koStat', stats: { spe: 1 } }]);
 defA('cheap_shot', 'Cheap Shot', [{ k: 'bullyBoost', m: 1.2 }, { k: 'addFlinch', p: 20 }]);
 defA('stolen_valor', 'Stolen Valor', [{ k: 'stageSteal' }, { k: 'koStat', stats: { melee: 1 } }]);
-defA('mercy_rule', 'Mercy Rule', [{ k: 'damageCap', r: 1 / 4 }, { k: 'lowHpHeal', r: 1 / 4, at: 0.25 }]);
+defA('mercy_rule', 'Mercy Rule', [{ k: 'damageCap', r: 0.45 }, { k: 'lowHpHeal', r: 1 / 4, at: 0.25 }]);
 defA('blackout', 'Blackout', { k: 'faintStat', stats: { acc: -2 } });
 defA('sabotage', 'Sabotage', [{ k: 'healBlock' }, { k: 'entryStat', who: 'foe', stats: { magic: -1 } }]);
 defA('hex_seal', 'Hex Seal', [{ k: 'healBlock' }, { k: 'statusMoveImmune' }]);
@@ -964,7 +964,7 @@ defA('chitin_mark', 'Chitin Mark', [{ k: 'flagResist', flag: 'contact', m: 0.8 }
 defA('tentacle_mark', 'Tentacle Mark', [{ k: 'catThorns', cat: 'melee', r: 0.2 }, { k: 'drainImmune' }, { k: 'defMul', stat: 'rangedDef', m: 1.1 }]);
 defA('spawn_mark', 'Spawn Mark', [{ k: 'turnHeal', r: 1 / 16 }, { k: 'statusImmune', s: 'brn' }, { k: 'benchHeal', r: 1 / 16 }]);
 defA('root_mark', 'Root Mark', [{ k: 'turnHeal', r: 1 / 16 }, { k: 'typeResist', type: 'Grass', m: 0.7 }, { k: 'noStatDrop', stat: 'meleeDef' }]);
-defA('ooze_mark', 'Ooze Mark', [{ k: 'allResist', m: 0.9 }, { k: 'contactStatus', s: 'psn', p: 20 }, { k: 'damageCap', r: 1 / 2 }]);
+defA('ooze_mark', 'Ooze Mark', [{ k: 'allResist', m: 0.9 }, { k: 'contactStatus', s: 'psn', p: 20 }, { k: 'damageCap', r: 0.6 }]);
 defA('spore_mark', 'Spore Mark', [{ k: 'powderImmune' }, { k: 'contactStatus', s: 'slp', p: 15 }, { k: 'benchCure', p: 20 }]);
 defA('coil_mark', 'Coil Mark', [{ k: 'flagBoost', flag: 'bite', m: 1.2 }, { k: 'statusStat', stat: 'melee', m: 1.2 }, { k: 'thawFast' }]);
 defA('draconic_mark', 'Draconic Mark', [{ k: 'typeBoost', type: 'Dragon', m: 1.15 }, { k: 'bandResist', min: 100, m: 0.9 }, { k: 'stab', m: 0.3 }]);
@@ -976,7 +976,7 @@ defA('fiend_mark', 'Fiend Mark', [{ k: 'typeBoost', type: 'Dark', m: 1.15 }, { k
 defA('spirit_mark', 'Spirit Mark', [{ k: 'evasion', m: 0.9 }, { k: 'magicGuard' }, { k: 'defMul', stat: 'magicDef', m: 1.05 }]);
 defA('rust_mark', 'Rust Mark', [{ k: 'typeBoost', type: 'Steel', m: 1.15 }, { k: 'contactStat', stats: { meleeDef: -1 }, p: 25 }, { k: 'typeWeak', type: 'Water', m: 1.2 }]);
 defA('blood_mark', 'Blood Mark', [{ k: 'drainMul', m: 1.3 }, { k: 'lowHpBoost', m: 1.2 }, { k: 'hpCostBoost', m: 1.1, r: 1 / 16 }]);
-defA('void_mark', 'Void Mark', [{ k: 'typeBoost', type: 'Ghost', m: 1.15 }, { k: 'statusMoveImmune' }, { k: 'damageCap', r: 1 / 3 }]);
+defA('void_mark', 'Void Mark', [{ k: 'typeBoost', type: 'Ghost', m: 1.15 }, { k: 'statusMoveImmune' }, { k: 'damageCap', r: 1 / 2 }]);
 defA('moon_mark', 'Moon Mark', [{ k: 'statMul', stat: 'magic', m: 1.1 }, { k: 'turnHeal', r: 1 / 16 }, { k: 'prioStatus' }]);
 defA('prism_mark', 'Prism Mark', [{ k: 'tintedLens', m: 1.3 }, { k: 'filter', m: 0.8 }, { k: 'accBoost', m: 1.05 }]);
 defA('mist_mark', 'Mist Mark', [{ k: 'evasion', m: 0.85 }, { k: 'ignoreEvasion' }, { k: 'statMul', stat: 'spe', m: 1.05 }]);
@@ -1038,7 +1038,7 @@ defA('berserk_rush', 'Berserk Rush', [{ k: 'lowHpBoost', m: 1.6 }, { k: 'lowHpRe
 
 defA('worldbreaker', 'Worldbreaker', [{ k: 'moldBreaker' }, { k: 'powerBand', min: 100, m: 1.15 }, { k: 'statMul', stat: 'spe', m: 0.9 }]);
 defA('kingmaker', 'Kingmaker', [{ k: 'entryStat', who: 'foe', stats: { melee: -1, magic: -1 } }, { k: 'statMul', stat: 'spe', m: 0.95 }]);
-defA('eternal_watch', 'Eternal Watch', [{ k: 'turnHeal', r: 1 / 8 }, { k: 'damageCap', r: 1 / 3 }, { k: 'statMul', stat: 'spe', m: 0.85 }]);
+defA('eternal_watch', 'Eternal Watch', [{ k: 'turnHeal', r: 1 / 8 }, { k: 'damageCap', r: 1 / 2 }, { k: 'statMul', stat: 'spe', m: 0.85 }]);
 defA('storm_herald', 'Storm Herald', [{ k: 'typeBoost', type: 'Electric', m: 1.2 }, { k: 'addStatus', s: 'par', p: 20 }, { k: 'statusImmune', s: 'par' }]);
 defA('frost_sovereign', 'Frost Sovereign', [{ k: 'typeBoost', type: 'Ice', m: 1.2 }, { k: 'critStatus', s: 'frz', p: 30 }, { k: 'statusImmune', s: 'frz' }]);
 defA('ash_sovereign', 'Ash Sovereign', [{ k: 'typeBoost', type: 'Fire', m: 1.25 }, { k: 'contactStatus', s: 'brn', p: 25 }, { k: 'typeWeak', type: 'Water', m: 1.3 }]);

@@ -4,6 +4,7 @@ import assert from 'node:assert/strict';
 import { makeRng } from '../src/core/rng.js';
 import { SPECIES_BY_ID } from '../src/data/species.js';
 import { getMove } from '../src/data/moves.js';
+import { ABILITIES } from '../src/data/abilities.js';
 import { speciesGenome } from '../src/creature/genome.js';
 import { createBattle, step, makeBattler, calcDamage, activeOf } from '../src/battle/engine.js';
 
@@ -110,8 +111,9 @@ test('caps, certain crits, sleepwalking and the mark it leaves', () => {
   const heavy = mk('oakfist', 'lucky_streak');
   const capped = mk('pufflet', 'padded_soul');
   const bare = mk('pufflet', 'lucky_streak');
-  assert.ok(dmg(heavy, bare, 'all_out_brawl') > Math.floor(bare.maxHp / 3), 'the blow would take more than a third');
-  assert.ok(dmg(heavy, capped, 'all_out_brawl') <= Math.floor(capped.maxHp / 3) + 1, 'but the cap holds it');
+  const cap = ABILITIES.padded_soul.fx.find((f) => f.k === 'damageCap').r; // read the fraction, so a balance change cannot rot the test
+  assert.ok(dmg(heavy, bare, 'all_out_brawl') > Math.floor(bare.maxHp * cap), 'the blow would take more than the cap');
+  assert.ok(dmg(heavy, capped, 'all_out_brawl') <= Math.floor(capped.maxHp * cap) + 1, 'but the cap holds it');
 
   const r = play(fight(mk('pufflet', 'first_blood', { moves: ['bump'] }), mk('thornwick', 'lucky_streak', { moves: ['brace'] }), 'crit1').state);
   assert.ok(r.events.some((e) => e.t === 'damage' && e.crit), 'the first turn always lands true');
