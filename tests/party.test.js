@@ -5,7 +5,7 @@ import { SPECIES_BY_ID } from '../src/data/species.js';
 import { getMove } from '../src/data/moves.js';
 import { speciesGenome, learnsetOf } from '../src/creature/genome.js';
 import { createBattle, makeBattler, captureChance, legalActions, step } from '../src/battle/engine.js';
-import { PARTY, XP, xpForLevel, xpReward, makeMember, memberMaxHp, xpProgress, gainXp, movesLearnedBetween, learnMove, healParty, moveMember, setLead, canFight, memberById, releaseMember, renameMember, setLocked, NAME_MAX } from '../src/game/party.js';
+import { PARTY, XP, xpForLevel, xpReward, makeMember, memberMaxHp, xpProgress, gainXp, movesLearnedBetween, learnMove, healParty, moveMember, setLead, canFight, memberById, releaseMember, renameMember, setLocked, NAME_MAX, PRESETS, savePreset, applyPreset, presetMembers } from '../src/game/party.js';
 
 const ember = (seed, level = 8) => makeMember(speciesGenome(SPECIES_BY_ID.emberox, makeRng(seed)), level, `u-${seed}`);
 
@@ -135,4 +135,32 @@ test('rename trims and caps a nickname; lock keeps a creature from release', () 
   assert.deepEqual(setLocked(owner, 'u-n2', false), { ok: true, locked: false });
   assert.equal(releaseMember(owner, 'u-n2').ok, true);
   assert.equal(setLocked(owner, 'nobody', true).ok, false);
+});
+
+test('teams: three saved arrangements of the roster, put back on at a tap', () => {
+  const owner = { party: [], box: [] };
+  const mk = (n) => makeMember(speciesGenome(SPECIES_BY_ID.pufflet, makeRng(`team${n}`)), 10 + n, `u${n}`);
+  for (let i = 0; i < 7; i++) (i < 3 ? owner.party : owner.box).push(mk(i));
+
+  const saved = savePreset(owner, 0, 'Sweepers');
+  assert.equal(saved.name, 'Sweepers');
+  assert.deepEqual(saved.uids, ['u0', 'u1', 'u2']);
+  assert.equal(owner.presets.length, PRESETS.slots, 'the other slots are there and empty');
+
+  // shuffle the roster about, then put the team back on
+  moveMember(owner, 'u3', 'party');
+  moveMember(owner, 'u0', 'box');
+  assert.deepEqual(owner.party.map((m) => m.uid), ['u1', 'u2', 'u3']);
+  const r = applyPreset(owner, 0);
+  assert.equal(r.ok, true);
+  assert.deepEqual(owner.party.map((m) => m.uid), ['u0', 'u1', 'u2'], 'and in the order it was saved in');
+  assert.equal(owner.box.length, 4);
+  assert.equal(owner.party.length + owner.box.length, 7, 'nobody was lost or copied');
+
+  // a released member simply drops out of the team
+  releaseMember(owner, 'u1');
+  assert.deepEqual(presetMembers(owner, 0).map((m) => m.uid), ['u0', 'u2']);
+  assert.equal(applyPreset(owner, 0).ok, true);
+  assert.equal(applyPreset(owner, 2).ok, false, 'an empty slot has nothing to put on');
+  assert.equal(savePreset(owner, 99, '').name, `Team ${PRESETS.slots}`, 'a slot outside the three is the last one');
 });

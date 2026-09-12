@@ -18,7 +18,7 @@ import { SPECIES_BY_ID } from '../data/species.js';
 import { statsAtLevel, movesAtLevel } from './stats.js';
 import { ITEM_IDS, getItem, potionHeal, potionUseful } from '../data/items.js';
 import { getCharm, charmPowerMul, heldKind, charmValue, charmUses, CHARM_RULE } from '../data/charms.js';
-import { FIELD, WEATHER, TERRAIN, WEATHER_TYPE, emptyField, weatherPower, terrainPower, weatherChips, weatherGuard } from '../data/field.js';
+import { FIELD, WEATHER, TERRAIN, WEATHER_TYPE, HAZARDS, SIDE_CONDITIONS, SCREEN_OF, VOLATILES, BIND, SUB, CONFUSE, TAUNT_TURNS, ENCORE_TURNS, emptyField, weatherPower, terrainPower, weatherChips, weatherGuard } from '../data/field.js';
 
 export const STATUS_INFO = {
   brn: { name: 'Burn', short: 'BRN', verb: 'was burned' },
@@ -29,6 +29,19 @@ export const STATUS_INFO = {
 };
 export const STAT_LABEL = { ...STAT_NAMES, acc: 'accuracy', eva: 'evasion' };
 const freshStages = () => Object.fromEntries(STAGE_KEYS.map((k) => [k, 0]));
+/** A side's own field: screens and the rest by turns left, hazards by layers. */
+export const freshSide = () => ({ screenMelee: 0, screenRanged: 0, screenMagic: 0, tailwind: 0, safeguard: 0, spikes: 0, barbs: 0, shards: 0 });
+const NO_SIDE = Object.freeze(freshSide());
+/** Everything a creature drops the moment it leaves the field. */
+const clearVolatiles = (b) => { b.confuse = 0; b.bind = null; b.taunt = 0; b.encore = null; b.protect = false; b.protectRun = 0; b.sub = 0; };
+/** Can this creature walk away? Bind holds it, and a passive on the other side can hold it too. */
+export function canLeave(state, i) {
+  const me = activeOf(state, i), foe = activeOf(state, 1 - i);
+  if (!me || me.fainted) return true;
+  if (abHas(me, 'trapImmune')) return true;
+  if (me.bind && me.bind.turns > 0) return false;
+  return !(foe && !foe.fainted && abHas(foe, 'trapFoe'));
+}
 export const MAX_PARTY = 5;
 
 const stageMul = (n) => (n >= 0 ? (2 + n) / 2 : 2 / (2 - n));
@@ -60,6 +73,9 @@ const hasSecondary = (mv) => mv.fx.some((f) => f.k === 'status' || f.k === 'flin
 const CLEAR_FIELD = Object.freeze(emptyField());
 /** Terrain only reaches what stands on it: Flying types and anything that hovers are above all that. */
 export const grounded = (b) => Boolean(b) && !b.types.includes('Flying') && !abIs(b, 'hover') && !abFx(b, 'typeImmune').some((f) => f.type === 'Ground');
+/** The screens and hazards a side has up (an empty set for a state built before they existed). */
+export function sideCond(state, i) { return (state.sides[i] && state.sides[i].cond) || NO_SIDE; }
+
 /** The field as the fight actually feels it: a passive that flattens the sky hides the weather from both sides. */
 export function liveField(state) {
   const f = state.field || CLEAR_FIELD;
@@ -91,7 +107,9 @@ export const PASSIVE_KINDS = ['typeBoost', 'catBoost', 'flagBoost', 'powerBand',
   'statSwap', 'stageSteal', 'stageClear', 'statusSwap', 'healBlock', 'drainImmune', 'noContact', 'sureShot', 'ignoreEvasion', 'damageCap', 'critIf', 'actAsleep', 'thawFast',
   'faintStatus', 'faintStat', 'faintHealParty',
   // the field: the weather overhead and the ground underfoot
-  'entryWeather', 'entryTerrain', 'weatherBoost', 'terrainBoost', 'weatherStat', 'terrainStat', 'weatherDef', 'weatherHeal', 'terrainHeal', 'weatherEvade', 'weatherImmune', 'fieldExtend', 'noWeather'];
+  'entryWeather', 'entryTerrain', 'weatherBoost', 'terrainBoost', 'weatherStat', 'terrainStat', 'weatherDef', 'weatherHeal', 'terrainHeal', 'weatherEvade', 'weatherImmune', 'fieldExtend', 'noWeather',
+  // what a creature carries until it leaves the field, and what its side leaves on the ground
+  'confuseImmune', 'tauntImmune', 'trapImmune', 'trapFoe', 'addConfuse', 'hazardImmune', 'screenBreak', 'entryHazard', 'entryScreen'];
 
 /** Build a battler from a genome at a level. opts.moves / opts.ability override the defaults; opts.held is the charm it carries. */
 export function makeBattler(genome, level, opts = {}) {
@@ -120,6 +138,7 @@ export function makeBattler(genome, level, opts = {}) {
     fainted: false,
     lastMove: null,
     turnsOut: 0, // turns since it came in, for the passives that open or close strong
+    confuse: 0, bind: null, taunt: 0, encore: null, protect: false, protectRun: 0, sub: 0, // what it carries until it leaves
   };
 }
 
@@ -172,6 +191,7 @@ export function createBattle({ sides, seed = 'battle', capturable = false, items
         ai: Boolean(s.ai),
         active: 0,
         needsReplace: false,
+        cond: freshSide(),
         party: s.party.slice(0, MAX_PARTY).map((b, bi) => ({ ...structuredClone(b), uid: `s${si}b${bi}` })),
       };
     }),
@@ -193,7 +213,16 @@ export function legalActions(state, side) {
   const switches = s.party.map((b, i) => ({ type: 'switch', index: i })).filter((a) => a.index !== s.active && !s.party[a.index].fainted);
   if (state.phase === 'over') return [];
   if (state.phase === 'replace') return s.needsReplace ? switches : [];
-  const moves = me.moves.map((mv, i) => ({ type: 'move', index: i })).filter((a) => me.moves[a.index].pp > 0);
+  let moves = me.moves.map((mv, i) => ({ type: 'move', index: i })).filter((a) => me.moves[a.index].pp > 0);
+  if (me.encore && me.encore.turns > 0) { // an encore leaves it one move, while that move has PP
+    const only = moves.filter((a) => me.moves[a.index].id === me.encore.id);
+    if (only.length) moves = only;
+  }
+  if (me.taunt > 0) { // and a taunt takes the quiet ones away
+    const loud = moves.filter((a) => getMove(me.moves[a.index].id).cat !== 'status');
+    if (loud.length) moves = loud;
+  }
+  if (!canLeave(state, side)) switches.length = 0;
   const capture = state.capturable && side === 0 && !activeOf(state, 1).fainted ? [{ type: 'capture' }] : [];
   return [...(moves.length ? moves : [{ type: 'move', index: -1, struggle: true }]), ...capture, ...itemActions(state, side), ...switches];
 }
@@ -216,13 +245,14 @@ function sameAction(a, b) { return a && b && a.type === b.type && a.index === b.
 
 function speedOrder(state, rng) {
   const fld = liveField(state);
-  const s0 = effectiveStat(activeOf(state, 0), 'spe', fld), s1 = effectiveStat(activeOf(state, 1), 'spe', fld);
+  const s0 = effectiveStat(activeOf(state, 0), 'spe', fld, sideCond(state, 0)), s1 = effectiveStat(activeOf(state, 1), 'spe', fld, sideCond(state, 1));
   if (s0 === s1) return rng.chance(0.5) ? [0, 1] : [1, 0];
   return s0 > s1 ? [0, 1] : [1, 0];
 }
 
-export function effectiveStat(b, k, field) {
+export function effectiveStat(b, k, field, cond) {
   const fld = field || CLEAR_FIELD;
+  const side = cond || NO_SIDE;
   let v = b.stats[k] * stageMul(b.stages[k]);
   if (k === 'spe' && b.status === 'par') v *= 0.5;
   if (k === 'spe' && heldKind(b.held) === 'speed') v *= charmValue(b.held, 'speedMul');
@@ -231,6 +261,7 @@ export function effectiveStat(b, k, field) {
     if (b.status) v *= abMul(b, 'statusStat', (f) => f.stat === 'spe');
     v *= abMul(b, 'weatherStat', (f) => f.w === fld.weather && f.stat === 'spe');
     if (grounded(b)) v *= abMul(b, 'terrainStat', (f) => f.t === fld.terrain && f.stat === 'spe');
+    if (side.tailwind > 0) v *= SIDE_CONDITIONS.tailwind.speed;
   }
   return v;
 }
@@ -240,6 +271,7 @@ export function step(input, actions) {
   const state = structuredClone(input);
   const events = [];
   if (!state.field) state.field = emptyField();
+  for (const side of state.sides) if (!side.cond) side.cond = freshSide();
   if (state.phase === 'over') return { state, events };
   const rng = makeRng(`${state.seed}:t${state.turn}:${state.phase}`);
 
@@ -274,7 +306,7 @@ export function step(input, actions) {
   const order = [0, 1].map((i) => {
     const a = actions[i];
     const prio = a.type === 'switch' || a.type === 'capture' || a.type === 'item' ? 100 : (a.struggle ? 0 : movePrio(activeOf(state, i), getMove(activeOf(state, i).moves[a.index].id), rng));
-    return { i, a, prio, spe: effectiveStat(activeOf(state, i), 'spe', liveField(state)), tie: rng.next() };
+    return { i, a, prio, spe: effectiveStat(activeOf(state, i), 'spe', liveField(state), sideCond(state, i)), tie: rng.next() };
   }).sort((x, y) => (y.prio - x.prio) || (y.spe - x.spe) || (y.tie - x.tie));
 
   for (const o of order) {
@@ -372,9 +404,11 @@ function doSwitch(state, i, index, events, forced) {
   out.stages = freshStages();
   out.flinch = false;
   out.recharge = false;
+  clearVolatiles(out);
   side.active = index;
   side.party[index].fought = true;
   const inn = side.party[index];
+  clearVolatiles(inn);
   inn.justEntered = true;
   inn.turnsOut = 0;
   events.push({ t: 'switch', side: i, name: inn.name, uid: inn.uid, from: out.name, forced });
@@ -384,6 +418,10 @@ function entryHooks(state, i, events) {
   const me = activeOf(state, i);
   me.justEntered = false;
   const foe = activeOf(state, 1 - i);
+  hazardsBite(state, i, events);
+  if (me.fainted) return;
+  for (const f of abFx(me, 'entryHazard')) if (HAZARDS[f.kind] && layHazard(state, 1 - i, f.kind, events)) announce(events, i, me);
+  for (const f of abFx(me, 'entryScreen')) { const id = SCREEN_OF[f.cat]; if (id && !sideCond(state, i)[id]) { announce(events, i, me); raiseSide(state, i, id, events); } }
   if (abIs(me, 'menace') && !foe.fainted) {
     events.push({ t: 'ability', side: i, name: me.name, ability: abilityName(me.ability) });
     changeStages(state, 1 - i, { melee: -1, ranged: -1 }, events, true);
@@ -447,10 +485,48 @@ function entryHooks(state, i, events) {
   }
 }
 
-function canHaveStatus(b, status, mv, field) {
+/** Lay one more layer of a hazard on a side. Returns false when that side is already covered. */
+function layHazard(state, i, kind, events) {
+  const h = HAZARDS[kind];
+  const cond = state.sides[i].cond;
+  if (!h || cond[kind] >= h.max) return false;
+  cond[kind]++;
+  events.push({ t: 'side', side: i, kind, layers: cond[kind] });
+  return true;
+}
+
+/** Put up a screen, a tailwind or a safeguard. Returns false when it is already up. */
+function raiseSide(state, i, id, events) {
+  const c = SIDE_CONDITIONS[id];
+  const cond = state.sides[i].cond;
+  if (!c || cond[id] > 0) return false;
+  cond[id] = c.turns;
+  events.push({ t: 'side', side: i, kind: id, turns: c.turns });
+  return true;
+}
+
+/** What the ground does to a creature walking into it. */
+function hazardsBite(state, i, events) {
+  const me = activeOf(state, i);
+  const cond = state.sides[i].cond;
+  if (!me || me.fainted || abHas(me, 'hazardImmune') || abHas(me, 'magicGuard')) return;
+  const down = grounded(me);
+  if (cond.barbs > 0 && down) {
+    if (me.types.includes('Poison')) { cond.barbs = 0; events.push({ t: 'sideOver', side: i, kind: 'barbs', soaked: me.name }); }
+    else if (canHaveStatus(me, HAZARDS.barbs.status, null, liveField(state), cond)) setStatus(state, i, HAZARDS.barbs.status, events, makeRng(`${state.seed}:barbs:${me.uid}`));
+  }
+  if (cond.spikes > 0 && down) hurtBattler(state, i, Math.max(1, me.maxHp * HAZARDS.spikes.hurt[Math.min(cond.spikes, HAZARDS.spikes.max) - 1]), events, 'spikes');
+  if (!me.fainted && cond.shards > 0) {
+    const eff = typeEffectiveness(HAZARDS.shards.typed, me.types);
+    hurtBattler(state, i, Math.max(1, me.maxHp * HAZARDS.shards.hurt[0] * eff), events, 'shards');
+  }
+}
+
+function canHaveStatus(b, status, mv, field, cond) {
   if (b.status || b.fainted) return false;
   if (abHas(b, 'allStatusImmune') || abFx(b, 'statusImmune').some((f) => f.s === status)) return false;
   const fld = field || CLEAR_FIELD;
+  if ((cond || NO_SIDE).safeguard > 0) return false; // the side is warded
   if (fld.weather === 'sun' && status === 'frz') return false; // nothing freezes under that sun
   if (fld.terrain && grounded(b)) {
     const t = TERRAIN[fld.terrain];
@@ -471,7 +547,7 @@ function canHaveStatus(b, status, mv, field) {
 
 function setStatus(state, side, status, events, rng, mv) {
   const b = activeOf(state, side);
-  if (!canHaveStatus(b, status, mv, liveField(state))) return false;
+  if (!canHaveStatus(b, status, mv, liveField(state), sideCond(state, side))) return false;
   b.status = status;
   if (status === 'slp') b.sleepTurns = rng.between(1, 3);
   events.push({ t: 'status', side, name: b.name, status });
@@ -510,7 +586,7 @@ function healBattler(state, side, amount, events, why) {
 function hurtBattler(state, side, amount, events, why) {
   const b = activeOf(state, side);
   if (b.fainted) return 0;
-  if ((why === 'brn' || why === 'psn' || why === 'recoil' || why === 'thorns' || WEATHER[why]) && abHas(b, 'magicGuard')) return 0;
+  if ((why === 'brn' || why === 'psn' || why === 'recoil' || why === 'thorns' || why === 'bind' || why === 'confusion' || why === 'spikes' || why === 'shards' || WEATHER[why]) && abHas(b, 'magicGuard')) return 0;
   const real = Math.max(1, Math.min(b.hp, Math.floor(amount)));
   b.hp -= real;
   events.push({ t: 'hurt', side, name: b.name, amount: real, hp: b.hp, maxHp: b.maxHp, why });
@@ -544,6 +620,34 @@ function faint(state, side, events) {
   }
 }
 
+/** Put a volatile on a creature. Returns false when it will not take (already carrying it, or proof against it). */
+function setVolatile(state, i, kind, events, rng, opts = {}) {
+  const b = activeOf(state, i);
+  if (!b || b.fainted) return false;
+  if (kind === 'confuse') {
+    if (b.confuse > 0 || abHas(b, 'confuseImmune')) return false;
+    const fld = liveField(state);
+    if (fld.terrain === 'misty' && grounded(b)) return false; // the mist keeps a head clear
+    b.confuse = rng.between(CONFUSE.turns[0], CONFUSE.turns[1]);
+  } else if (kind === 'bind') {
+    if (b.bind) return false;
+    b.bind = { turns: rng.between(BIND.turns[0], BIND.turns[1]), r: opts.r || BIND.r };
+  } else if (kind === 'taunt') {
+    if (b.taunt > 0 || abHas(b, 'tauntImmune')) return false;
+    b.taunt = TAUNT_TURNS;
+  } else if (kind === 'encore') {
+    if (b.encore || !b.lastMove || !b.moves.some((m) => m.id === b.lastMove && m.pp > 0)) return false;
+    b.encore = { id: b.lastMove, turns: ENCORE_TURNS };
+  } else return false;
+  events.push({ t: 'volatile', side: i, name: b.name, kind });
+  return true;
+}
+
+/** Is this creature hiding behind a substitute the move cannot get past? */
+function behindSub(user, target, mv) {
+  return target.sub > 0 && !abHas(user, 'screenBreak') && !(mv && mv.flags.includes('sound'));
+}
+
 function moveOfAction(b, a) { return a.struggle ? STRUGGLE : getMove(b.moves[a.index].id); }
 
 /** The move as this user throws it: a conversion passive retypes it and may lift its power. */
@@ -561,8 +665,9 @@ export function activeMove(user, mv, field) {
  * Damage for one hit. `roll` is the random factor in [0.85, 1], `crit` a boolean.
  * Exported so the AI can estimate with roll = 0.925 and no crit.
  */
-export function calcDamage(user, target, mv, eff, roll, crit, field) {
+export function calcDamage(user, target, mv, eff, roll, crit, field, cond) {
   const fld = field || CLEAR_FIELD;
+  const screens = cond || NO_SIDE;
   const fixed = moveFx(mv, 'fixed');
   if (fixed) return user.level;
   const dt = DAMAGE_TYPES[mv.cat] || DAMAGE_TYPES.melee;
@@ -662,6 +767,8 @@ export function calcDamage(user, target, mv, eff, roll, crit, field) {
     * guardMul(user, target, 'bandResist', (f) => mv.power > 0 && (f.max != null ? mv.power <= f.max : mv.power >= f.min))
     * (target.hp === target.maxHp ? guardMul(user, target, 'fullHpResist') : 1) * (target.hp <= target.maxHp / 3 ? guardMul(user, target, 'lowHpResist') : 1);
   if (guard !== 1) dmg = Math.floor(dmg * guard);
+  const screen = SIDE_CONDITIONS[SCREEN_OF[mv.cat]];
+  if (screen && screens[screen.id] > 0 && !abHas(user, 'screenBreak')) dmg = Math.floor(dmg * screen.m);
   for (const f of guardFx(user, target, 'damageCap')) dmg = Math.min(dmg, Math.max(1, Math.floor(target.maxHp * f.r)));
   return Math.max(1, dmg);
 }
@@ -729,10 +836,22 @@ function executeMove(state, i, action, events, rng) {
     else { user.moved = true; events.push({ t: 'status_skip', side: i, name: user.name, status: 'frz' }); return; }
   }
   if (user.status === 'par' && rng.chance(0.25)) { user.moved = true; events.push({ t: 'status_skip', side: i, name: user.name, status: 'par' }); return; }
+  if (user.confuse > 0) { // it may swing at nothing at all
+    user.confuse--;
+    if (user.confuse <= 0) events.push({ t: 'volatileOver', side: i, name: user.name, kind: 'confuse' });
+    else if (rng.chance(CONFUSE.chance)) {
+      user.moved = true;
+      events.push({ t: 'volatileHit', side: i, name: user.name, kind: 'confuse' });
+      const flail = { ...STRUGGLE, id: 'confused', name: 'Confusion', power: CONFUSE.self, cat: 'melee', typeless: true, struggle: false, flags: [], fx: [] };
+      hurtBattler(state, i, calcDamage(user, user, flail, 1, rng.between(85, 100) / 100, false, fld, sideCond(state, i)), events, 'confusion');
+      return;
+    }
+  }
 
   const saver = abFx(user, 'ppSave')[0];
   const spared = saver && rng.chance(saver.p / 100);
   if (!action.struggle && !spared) user.moves[action.index].pp = Math.max(0, user.moves[action.index].pp - (abHas(target, 'pressure') && !target.fainted ? 2 : 1));
+  if (!mv.fx.some((f) => f.k === 'protect')) user.protectRun = 0; // the guard only holds while it is all you do
   user.repeating = user.lastMove === mv.id; // pressing the same attack again feeds the passives that build
   user.lastMove = mv.id;
   user.moved = true;
@@ -742,6 +861,7 @@ function executeMove(state, i, action, events, rng) {
   const targetsFoe = isDamaging(mv) || mv.fx.some((f) => f.k === 'status' || (f.k === 'stat' && f.who === 'foe'));
   if (targetsFoe) {
     if (target.fainted) { events.push({ t: 'no_target', side: i }); return; }
+    if (target.protect) { events.push({ t: 'protect', side: foeSide, name: target.name }); return; }
     if ((mv.flags.includes('sound') && abHas(target, 'soundImmune')) || (mv.flags.includes('powder') && abHas(target, 'powderImmune')) || (mv.prio > 0 && abHas(target, 'prioImmune'))) {
       announce(events, foeSide, target); events.push({ t: 'immune', side: foeSide, name: target.name }); return;
     }
@@ -779,7 +899,8 @@ function executeMove(state, i, action, events, rng) {
   const multi = moveFx(mv, 'multi');
   let hits = multi ? rng.pick([2, 2, 3, 3, 4, 5].filter((n) => n >= multi.min && n <= multi.max)) : 1;
   if (multi && abHas(user, 'multiExtra')) hits = Math.min(6, hits + 1);
-  let total = 0, landed = 0, anyCrit = false;
+  let total = 0, landed = 0, anyCrit = false, hpDamage = 0;
+  const sub = behindSub(user, target, mv);
   for (let h = 0; h < hits; h++) {
     if (target.fainted) break;
     let crit = rng.chance((mv.crit >= 1 ? 1 / 8 : 1 / 24) * (abIs(user, 'keen_edge') ? 2 : 1) * (heldKind(user.held) === 'crit' ? charmValue(user.held, 'critMul') || 2 : 1) * abMul(user, 'critRate'));
@@ -788,16 +909,23 @@ function executeMove(state, i, action, events, rng) {
     else if (abFx(user, 'critIf').some((f) => (f.when === 'firstTurn' ? !user.turnsOut : f.when === 'lowHp' ? user.hp <= user.maxHp / 3 : user.hp === user.maxHp))) crit = true;
     if (crit) anyCrit = true;
     const roll = rng.between(85, 100) / 100;
-    let dmg = calcDamage(user, target, mv, eff, roll, crit, fld);
+    let dmg = calcDamage(user, target, mv, eff, roll, crit, fld, sideCond(state, foeSide));
     const fhr = guardFx(user, target, 'firstHitResist')[0];
     if (fhr && !target.firstHitUsed) { target.firstHitUsed = true; dmg = Math.max(1, Math.floor(dmg * fhr.m)); announce(events, foeSide, target); }
     let held = false, sturdy = false, endured = false;
     if (dmg >= target.hp && target.hp === target.maxHp && abIs(target, 'stonewall')) { dmg = target.hp - 1; held = true; }
     else if (dmg >= target.hp && target.hp === target.maxHp && guardFx(user, target, 'endure').length && !target.endureUsed) { dmg = target.hp - 1; endured = true; target.endureUsed = true; }
     else if (dmg >= target.hp && target.hp === target.maxHp && heldKind(target.held) === 'sturdy' && (target.sturdyUsed || 0) < charmUses(target.held)) { dmg = target.hp - 1; sturdy = true; target.sturdyUsed = (target.sturdyUsed || 0) + 1; }
+    if (sub && target.sub > 0) { // the decoy takes it instead, and what is left over is lost with it
+      const took = Math.min(target.sub, dmg);
+      target.sub -= took;
+      total += took; landed++;
+      events.push({ t: 'sub', side: foeSide, name: target.name, kind: target.sub > 0 ? 'hit' : 'broke', amount: took, eff, crit });
+      continue;
+    }
     dmg = Math.min(dmg, target.hp);
     target.hp -= dmg;
-    total += dmg; landed++;
+    total += dmg; landed++; hpDamage += dmg;
     events.push({ t: 'damage', side: foeSide, name: target.name, amount: dmg, hp: target.hp, maxHp: target.maxHp, eff, crit });
     if (held || endured) events.push({ t: 'ability', side: foeSide, name: target.name, ability: abilityName(target.ability) });
     if (sturdy) events.push({ t: 'held', side: foeSide, name: target.name, item: getCharm(target.held).name });
@@ -805,8 +933,8 @@ function executeMove(state, i, action, events, rng) {
   }
   if (hits > 1) events.push({ t: 'multihit', side: i, hits: landed });
 
-  // the target's reactions to being hit
-  if (total > 0 && !target.fainted) {
+  // the target's reactions to being hit (a decoy takes the blow for it and none of this fires)
+  if (hpDamage > 0 && !target.fainted) {
     for (const f of abFx(target, 'hurtStat')) if (!f.cat || f.cat === mv.cat) { announce(events, foeSide, target); changeStages(state, foeSide, f.stats, events); }
     for (const f of abFx(target, 'hitByTypeStat')) if (f.type === mv.type && !mv.typeless) { announce(events, foeSide, target); changeStages(state, foeSide, f.stats, events); }
     if (anyCrit) for (const f of abFx(target, 'critStat')) { announce(events, foeSide, target); changeStages(state, foeSide, f.stats, events); }
@@ -851,7 +979,8 @@ function executeMove(state, i, action, events, rng) {
   if (mv.struggle) hurtBattler(state, i, Math.max(1, user.maxHp / 4), events, 'struggle');
 
   if (!target.fainted) applySecondaries(state, i, mv, events, rng);
-  if (mv.flags.includes('contact') && !user.fainted) contactEffects(state, i, events, rng);
+  if (mv.flags.includes('contact') && !user.fainted && hpDamage > 0) contactEffects(state, i, events, rng);
+  if (moveFx(mv, 'sweepField') && landed) sweepHazards(state, i, events);
   if (target.fainted && !user.fainted && abIs(user, 'swagger')) {
     events.push({ t: 'ability', side: i, name: user.name, ability: abilityName(user.ability) });
     changeStages(state, i, { melee: 1, ranged: 1 }, events);
@@ -878,17 +1007,21 @@ function chanceOf(user, p) { return Math.min(100, (abIs(user, 'lucky_streak') ? 
 function applySecondaries(state, i, mv, events, rng) {
   const user = activeOf(state, i), foeSide = 1 - i, target = activeOf(state, foeSide);
   const sheer = abHas(user, 'sheerForce'), shield = abHas(target, 'shieldDust');
-  const onFoe = (f) => f.k === 'status' || f.k === 'flinch' || (f.k === 'stat' && f.who === 'foe');
+  const onFoe = (f) => f.k === 'status' || f.k === 'flinch' || f.k === 'confuse' || f.k === 'bind' || (f.k === 'stat' && f.who === 'foe');
+  const walled = behindSub(user, target, mv);
   for (const f of mv.fx) {
     const p = f.p == null ? 100 : f.p;
     if ((sheer || shield) && onFoe(f)) continue; // Sheer Force traded the effect for power; Shield Dust shrugs it off
+    if (walled && onFoe(f)) continue; // the decoy took it
     if (f.k === 'status') { if (rng.chance(chanceOf(user, p)) && setStatus(state, foeSide, f.s, events, rng, mv)) syncBack(state, i, foeSide, f.s, events, rng); }
     else if (f.k === 'stat') { if (rng.chance(chanceOf(user, p))) changeStages(state, f.who === 'self' ? i : foeSide, f.stats, events, f.who !== 'self'); }
     else if (f.k === 'flinch') { if (!target.moved && !abHas(target, 'flinchImmune') && rng.chance(chanceOf(user, p))) target.flinch = true; }
+    else if (f.k === 'confuse' || f.k === 'bind') { if (rng.chance(chanceOf(user, p))) setVolatile(state, foeSide, f.k, events, rng, f); }
   }
   if (sheer || shield) return;
   for (const f of abFx(user, 'addFlinch')) if (!target.moved && !abHas(target, 'flinchImmune') && rng.chance(chanceOf(user, f.p))) { announce(events, i, user); target.flinch = true; }
-  for (const f of abFx(user, 'addStatus')) if ((!f.contact || mv.flags.includes('contact')) && rng.chance(chanceOf(user, f.p)) && canHaveStatus(target, f.s, mv, liveField(state))) {
+  for (const f of abFx(user, 'addConfuse')) if (!walled && rng.chance(chanceOf(user, f.p))) { announce(events, i, user); setVolatile(state, foeSide, 'confuse', events, rng); }
+  for (const f of abFx(user, 'addStatus')) if (!walled && (!f.contact || mv.flags.includes('contact')) && rng.chance(chanceOf(user, f.p)) && canHaveStatus(target, f.s, mv, liveField(state), sideCond(state, foeSide))) {
     announce(events, i, user);
     if (setStatus(state, foeSide, f.s, events, rng, mv)) syncBack(state, i, foeSide, f.s, events, rng);
   }
@@ -924,10 +1057,14 @@ function contactEffects(state, i, events, rng) {
 function applyStatusMove(state, i, mv, events, rng, bounced = false) {
   const foeSide = 1 - i;
   let didSomething = false;
-  const aimsAtFoe = mv.fx.some((f) => f.k === 'status' || (f.k === 'stat' && f.who === 'foe'));
+  const aimsAtFoe = mv.fx.some((f) => f.k === 'status' || f.k === 'confuse' || f.k === 'bind' || f.k === 'taunt' || f.k === 'encore' || (f.k === 'stat' && f.who === 'foe'));
   if (aimsAtFoe && !bounced && abHas(activeOf(state, foeSide), 'magicBounce')) { // the move turns round and looks for its sender
     announce(events, foeSide, activeOf(state, foeSide));
     applyStatusMove(state, foeSide, { ...mv, fx: mv.fx.filter((f) => f.k === 'status' || (f.k === 'stat' && f.who === 'foe')) }, events, rng, true);
+    return;
+  }
+  if (aimsAtFoe && behindSub(activeOf(state, i), activeOf(state, foeSide), mv)) {
+    events.push({ t: 'no_effect', side: foeSide, name: activeOf(state, foeSide).name, reason: 'sub' });
     return;
   }
   if (aimsAtFoe && abHas(activeOf(state, foeSide), 'statusMoveImmune')) {
@@ -949,6 +1086,32 @@ function applyStatusMove(state, i, mv, events, rng, bounced = false) {
       const before = { ...activeOf(state, who).stages };
       changeStages(state, who, f.stats, events, f.who !== 'self');
       if (Object.keys(f.stats).some((k) => activeOf(state, who).stages[k] !== before[k])) didSomething = true;
+    } else if (f.k === 'confuse' || f.k === 'bind' || f.k === 'taunt' || f.k === 'encore') {
+      const them = activeOf(state, foeSide);
+      if (setVolatile(state, foeSide, f.k, events, rng, f)) didSomething = true;
+      else events.push({ t: 'no_effect', side: foeSide, name: them.name, reason: 'failed' });
+    } else if (f.k === 'protect') {
+      const me = activeOf(state, i);
+      // holding the guard up turn after turn is a gamble that halves each time
+      if (rng.chance(1 / Math.pow(2, me.protectRun || 0))) {
+        me.protect = true; me.protectRun = (me.protectRun || 0) + 1; didSomething = true;
+        events.push({ t: 'guard', side: i, name: me.name });
+      } else { me.protectRun = 0; events.push({ t: 'no_effect', side: i, name: me.name, reason: 'failed' }); }
+    } else if (f.k === 'substitute') {
+      const me = activeOf(state, i);
+      const cost = Math.max(1, Math.floor(me.maxHp * (f.r || SUB.r)));
+      if (me.sub > 0 || me.hp <= cost) events.push({ t: 'no_effect', side: i, name: me.name, reason: 'failed' });
+      else { me.hp -= cost; me.sub = cost; didSomething = true; events.push({ t: 'sub', side: i, name: me.name, kind: 'up', amount: cost, hp: me.hp, maxHp: me.maxHp }); }
+    } else if (f.k === 'screen' || f.k === 'tailwind' || f.k === 'safeguard') {
+      const id = f.k === 'screen' ? SCREEN_OF[f.cat] : f.k;
+      if (raiseSide(state, i, id, events)) didSomething = true;
+      else events.push({ t: 'no_effect', side: i, name: activeOf(state, i).name, reason: 'failed' });
+    } else if (f.k === 'hazard') {
+      if (layHazard(state, foeSide, f.kind, events)) didSomething = true;
+      else events.push({ t: 'no_effect', side: foeSide, name: activeOf(state, foeSide).name, reason: 'failed' });
+    } else if (f.k === 'sweepField') {
+      if (sweepHazards(state, i, events)) didSomething = true;
+      else events.push({ t: 'no_effect', side: i, name: activeOf(state, i).name, reason: 'failed' });
     } else if (f.k === 'weather' || f.k === 'terrain') {
       if (setField(state, i, f.k, f.k === 'weather' ? f.w : f.t, events)) didSomething = true;
       else events.push({ t: 'no_effect', side: i, name: activeOf(state, i).name, reason: 'failed' });
@@ -975,6 +1138,8 @@ function endOfTurn(state, events, rng) {
   fieldEffects(state, events);
   for (const i of speedOrder(state, rng)) {
     const b = activeOf(state, i);
+    if (b.fainted) continue;
+    if (b.bind && b.bind.turns > 0) hurtBattler(state, i, Math.max(1, b.maxHp * b.bind.r), events, 'bind');
     if (b.fainted) continue;
     if (b.status === 'brn') hurtBattler(state, i, Math.max(1, b.maxHp / 16), events, 'brn');
     else if (b.status === 'psn') {
@@ -1044,9 +1209,36 @@ function fieldEffects(state, events) {
     for (const f of abFx(b, 'weatherHeal')) if (fld.weather === f.w && b.hp < b.maxHp) { announce(events, i, b); healBattler(state, i, Math.max(1, b.maxHp * f.r), events, 'ability'); }
     for (const f of abFx(b, 'terrainHeal')) if (fld.terrain === f.t && grounded(b) && b.hp < b.maxHp) { announce(events, i, b); healBattler(state, i, Math.max(1, b.maxHp * f.r), events, 'ability'); }
   }
+  turnClocks(state, events);
   const f = state.field;
   if (f.weather && --f.weatherTurns <= 0) { events.push({ t: 'fieldOver', kind: 'weather', id: f.weather }); f.weather = null; f.weatherTurns = 0; }
   if (f.terrain && --f.terrainTurns <= 0) { events.push({ t: 'fieldOver', kind: 'terrain', id: f.terrain }); f.terrain = null; f.terrainTurns = 0; }
+}
+
+/** Sweep a side's own hazards away. Returns false when there was nothing on the ground. */
+function sweepHazards(state, i, events) {
+  const cond = state.sides[i].cond;
+  const swept = Object.keys(HAZARDS).filter((k) => cond[k] > 0);
+  if (!swept.length) return false;
+  for (const k of swept) cond[k] = 0;
+  events.push({ t: 'sweep', side: i, kinds: swept });
+  return true;
+}
+
+/** Every clock that runs down at the end of a turn: what a creature carries, and what its side has up. */
+function turnClocks(state, events) {
+  for (const i of [0, 1]) {
+    const b = activeOf(state, i);
+    if (b && !b.fainted) {
+      if (b.bind && --b.bind.turns <= 0) { b.bind = null; events.push({ t: 'volatileOver', side: i, name: b.name, kind: 'bind' }); }
+      if (b.taunt > 0 && --b.taunt <= 0) events.push({ t: 'volatileOver', side: i, name: b.name, kind: 'taunt' });
+      if (b.encore && --b.encore.turns <= 0) { b.encore = null; events.push({ t: 'volatileOver', side: i, name: b.name, kind: 'encore' }); }
+    }
+    if (b) b.protect = false; // a guard is good for the turn it is raised and no longer
+    const cond = state.sides[i].cond;
+    if (!cond) continue;
+    for (const id of Object.keys(SIDE_CONDITIONS)) if (cond[id] > 0 && --cond[id] <= 0) events.push({ t: 'sideOver', side: i, kind: id });
+  }
 }
 
 function checkEnd(state, events) {
@@ -1079,7 +1271,7 @@ export function describeEvent(e, names = ['You', 'Foe'], opts = {}) {
     case 'miss': return `${who}'s attack missed!`;
     case 'no_target': return 'But there was no target…';
     case 'immune': return `It doesn't affect ${who}…`;
-    case 'no_effect': return e.reason === 'already' ? `${who} is already affected.` : e.reason === 'full' ? `${who}'s HP is already full.` : e.reason === 'immune' ? `It doesn't affect ${who}…` : 'But it failed!';
+    case 'no_effect': return e.reason === 'already' ? `${who} is already affected.` : e.reason === 'full' ? `${who}'s HP is already full.` : e.reason === 'sub' ? `${who}'s decoy took it.` : e.reason === 'immune' ? `It doesn't affect ${who}…` : 'But it failed!';
     case 'status': return `${who} ${STATUS_INFO[e.status].verb}!`;
     case 'status_skip': return e.status === 'slp' ? `${who} is fast asleep.` : e.status === 'frz' ? `${who} is frozen solid!` : `${who} is paralyzed and can't move!`;
     case 'cure': return e.why === 'item' || e.why === 'move' || e.why === 'held' ? `${who} was cured of its ${STATUS_INFO[e.status].name.toLowerCase()}!` : e.status === 'slp' ? `${who} woke up!` : e.status === 'frz' ? `${who} thawed out!` : `${who} recovered.`;
@@ -1087,6 +1279,15 @@ export function describeEvent(e, names = ['You', 'Foe'], opts = {}) {
     case 'flinch': return `${who} flinched!`;
     case 'recharge': return `${who} must recharge!`;
     case 'cleanse': return `${who}'s stat changes were swept away!`;
+    case 'volatile': return `${who} ${VOLATILES[e.kind].line}`;
+    case 'volatileOver': return `${who} ${VOLATILES[e.kind].over}`;
+    case 'volatileHit': return `${who} is too confused to aim!`;
+    case 'guard': return `${who} braced itself!`;
+    case 'protect': return `${who} guarded against it!`;
+    case 'sub': return e.kind === 'up' ? `${who} put up a decoy!` : e.kind === 'broke' ? `${who}'s decoy broke!` : `${who}'s decoy took the hit.`;
+    case 'side': return HAZARDS[e.kind] ? `${e.side === 0 ? 'Your side' : `${names[1]}'s side`}: ${HAZARDS[e.kind].line}` : `${e.side === 0 ? 'You' : names[1]} put up a ${SIDE_CONDITIONS[e.kind].name}!`;
+    case 'sideOver': return HAZARDS[e.kind] ? (e.soaked ? `${e.soaked} soaked up the burrs.` : HAZARDS[e.kind].over) : `${e.side === 0 ? 'Your' : `${names[1]}'s`} ${SIDE_CONDITIONS[e.kind].name} wore off.`;
+    case 'sweep': return `${e.side === 0 ? names[0] : names[1]} swept the ground clear!`;
     case 'field': return (e.kind === 'weather' ? WEATHER[e.id] : TERRAIN[e.id]).line;
     case 'fieldOver': return (e.kind === 'weather' ? WEATHER[e.id] : TERRAIN[e.id]).over;
     case 'fieldClear': return 'The field was swept clear!';
@@ -1097,7 +1298,7 @@ export function describeEvent(e, names = ['You', 'Foe'], opts = {}) {
       return `${who}'s ${label} ${size}${e.stages > 0 ? 'rose' : 'fell'}!`;
     }
     case 'heal': return e.why === 'field' ? `${who} drew strength from the ground.` : e.why === 'drain' ? `${who} drained some HP!` : e.why === 'restore' ? `${who} restored ${e.amount} HP!` : `${who} recovered ${e.amount} HP.`;
-    case 'hurt': return WEATHER[e.why] ? `${who} is buffeted by the ${WEATHER[e.why].name.toLowerCase()}!` : e.why === 'recoil' || e.why === 'struggle' ? `${who} is hit with recoil!` : e.why === 'brn' ? `${who} is hurt by its burn!` : e.why === 'psn' ? `${who} is hurt by poison!` : e.why === 'thorns' ? `${who} is pricked by thorns!` : `${who} took ${e.amount} damage.`;
+    case 'hurt': return e.why === 'bind' ? `${who} is squeezed tight!` : e.why === 'confusion' ? `${who} hurt itself in its confusion!` : e.why === 'spikes' ? `${who} is pricked by the caltrops!` : e.why === 'shards' ? `${who} is cut by the stones!` : WEATHER[e.why] ? `${who} is buffeted by the ${WEATHER[e.why].name.toLowerCase()}!` : e.why === 'recoil' || e.why === 'struggle' ? `${who} is hit with recoil!` : e.why === 'brn' ? `${who} is hurt by its burn!` : e.why === 'psn' ? `${who} is hurt by poison!` : e.why === 'thorns' ? `${who} is pricked by thorns!` : `${who} took ${e.amount} damage.`;
     case 'ability': return `[${who}'s ${e.ability}]`;
     case 'held': return `[${who}'s ${e.item}]`;
     case 'faint': return `${who} fainted!`;

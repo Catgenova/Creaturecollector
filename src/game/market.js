@@ -11,8 +11,8 @@ import { ELEMENTS } from '../data/elements.js';
 
 /** A thousand gold per twenty points of power beyond the first forty; status and weak moves cost the base. */
 export const MARKET = { unit: 1000, powerPerUnit: 20, maxStack: 99, basicPower: 60, tutorShare: 0.7, recallBase: 150, recallPerLevel: 10 };
-/** Gold for beating a trainer: per creature, per level of their team's average; Wardens and the Council pay double, rematches a quarter. */
-export const GOLD = { perLevelPerCreature: 30, bossMultiplier: 2, rematchShare: 0.25 };
+/** Gold for beating a trainer: per creature, per level of their team's average; Wardens and the Council pay double, a Titan four times, rematches a quarter. */
+export const GOLD = { perLevelPerCreature: 30, bossMultiplier: 2, titanMultiplier: 4, rematchShare: 0.25 };
 
 export function moveCost(mv) {
   const m = typeof mv === 'string' ? getMove(mv) : mv;
@@ -89,6 +89,7 @@ export function goldReward(foes, kind = 'trainer', rematch = false) {
   const avg = foes.reduce((s, f) => s + f.level, 0) / foes.length;
   let gold = GOLD.perLevelPerCreature * foes.length * avg;
   if (kind === 'boss' || kind === 'council') gold *= GOLD.bossMultiplier;
+  if (kind === 'titan') gold *= GOLD.titanMultiplier; // it comes once a journey and it is the size of the region
   if (rematch) gold *= GOLD.rematchShare;
   return Math.max(10, Math.round(gold / 10) * 10);
 }

@@ -190,6 +190,11 @@ html[data-contrast="high"] .battle-log .line { opacity: .85; }
 .field-bar { display: flex; flex-wrap: wrap; gap: 6px; margin: 6px 0 0; }
 .field-chip { display: inline-flex; align-items: center; gap: 5px; font-size: 11px; font-weight: 700; letter-spacing: .02em; text-transform: uppercase; padding: 3px 8px; border-radius: 999px; color: var(--chip); border: 1px solid var(--chip); background: color-mix(in srgb, var(--chip) 14%, transparent); }
 .field-icon { font-size: 12px; }
+.side-chip { --chip: var(--fg2); }
+.side-chip.mine { --chip: var(--acc2); }
+.side-chip.hazard { --chip: #d88a5a; }
+.side-chip.hazard.mine { --chip: #ff9f43; }
+.status.st-vol { background: #3a2f52; color: #d9c7ff; }
 .field-turns { font-weight: 800; color: var(--fg2); }
 .battle-log { min-height: 56px; margin: 8px 0; padding: 8px 12px; background: var(--bg2); border: 1px solid var(--line); border-radius: 12px; font-size: 14px; line-height: 1.35; }
 .battle-log .line { opacity: .6; }

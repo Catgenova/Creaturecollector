@@ -95,6 +95,42 @@ export function moveMember(owner, uid, to) {
   return owner;
 }
 
+/** Party presets: three arrangements of the roster you can save at Storage and put back on later. */
+export const PRESETS = { slots: 3, nameMax: 18 };
+
+/** Save the party as it stands into a preset slot. Returns the preset. */
+export function savePreset(owner, index, name) {
+  const i = Math.max(0, Math.min(PRESETS.slots - 1, Math.floor(Number(index) || 0)));
+  owner.presets = Array.isArray(owner.presets) ? owner.presets.slice(0, PRESETS.slots) : [];
+  while (owner.presets.length < PRESETS.slots) owner.presets.push(null);
+  const preset = {
+    name: String(name || `Team ${i + 1}`).trim().slice(0, PRESETS.nameMax) || `Team ${i + 1}`,
+    uids: owner.party.map((m) => m.uid),
+  };
+  owner.presets[i] = preset;
+  return preset;
+}
+
+/** What a preset would put in the party, in order: the ones it names that are still on the roster. */
+export function presetMembers(owner, index) {
+  const preset = (owner.presets || [])[index];
+  if (!preset) return [];
+  const all = [...owner.party, ...(owner.box || [])];
+  const out = [];
+  for (const uid of preset.uids) { const m = all.find((x) => x.uid === uid); if (m && !out.includes(m)) out.push(m); }
+  return out.slice(0, PARTY.max);
+}
+
+/** Put a preset back on: everyone it names into the party, everyone else into the box. { ok, reason?, party } */
+export function applyPreset(owner, index) {
+  const want = presetMembers(owner, index);
+  if (!want.length) return { ok: false, reason: 'That team is empty, or everyone in it is gone.' };
+  const rest = [...owner.party, ...(owner.box || [])].filter((m) => !want.includes(m));
+  owner.party = want;
+  owner.box = rest;
+  return { ok: true, party: want };
+}
+
 export const NAME_MAX = 16;
 /** Nickname a creature: trimmed, single-spaced, 1 to 16 characters. { ok, reason?, name } */
 export function renameMember(owner, uid, name) {

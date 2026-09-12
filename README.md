@@ -18,8 +18,9 @@ Phase 2 — Fusion: fuse any two creatures of a class into one, with an
 inheritance report; stress-tested over five generations. It shipped as a
 Fusion Lab tab and now lives at the overworld's shrine.
 
-Phase 3 — Battle: a deterministic, headless battle engine (549 moves, 1,000
-passives, weather and terrain, status, stages, switching, parties of five, AI
+Phase 3 — Battle: a deterministic, headless battle engine (567 moves, 1,040
+passives, weather and terrain, screens and hazards, confusion, binds, taunts,
+encores, guards and decoys, status, stages, switching, parties of five, AI
 opponent, balance simulator) and a portrait fight view.
 
 Phase 4 — The game loop: starters, in-battle capture, XP and levels, party and
@@ -105,7 +106,7 @@ region you hold a badge for has an Elder waiting at its lair, a rare of that
 class at level 78 that shows itself once and can be caught.
 
 Dex, Index and Team: the Dex searches every class at once by name, filters by
-type and by caught, seen or missing, indexes all 1,000 passives and 549 moves
+type and by caught, seen or missing, indexes all 1,040 passives and 567 moves
 with a search that also reads the wording, and reads your party back to you:
 what it can hit, what hits it for double, and how it splits across the
 Melee, Ranged and Magic triangle.
@@ -118,10 +119,27 @@ Weather lifts and smothers by type and wears down anything not born in it;
 terrain only reaches what is standing on it, so a Flying type is above all of
 it. A chip under the arena names what is up and how long it has left.
 
-Settings and slots: sound, battle speed, text size, motion and contrast are
-kept in their own key, so they follow you across saves; three save slots hold
-three journeys at once, and the picker shows the badges, party and gold in
-each.
+Volatiles and the ground: confusion, binds that also hold a creature in place,
+taunts, encores, a guard that turns a turn aside and a decoy that takes the
+hits — all dropped the moment a creature leaves the field. Each side can also
+raise three screens, a tailwind and a safeguard, and scatter caltrops, toxic
+burrs or stone shards for whatever walks in next; a spinning move sweeps your
+own ground clear.
+
+Titans: eighteen authored bosses, one per class, waiting in the lair once you
+hold that region's badge. A named creature with an escort, twenty levels over
+its Warden, both passive slots filled, a greater charm in hand and its own
+region's weather already up. Once a journey, and it leaves the greater form of
+that region's charm behind.
+
+Settings and slots: sound, a procedural score with a theme per region, battle
+speed, text size, motion and contrast are kept in their own key, so they follow
+you across saves; three save slots hold three journeys at once, and the picker
+shows the badges, party and gold in each.
+
+Storage: the box has a search, six sort orders and a select mode for
+withdrawing or releasing a handful at once, plus three saved teams you can put
+back on at any time.
 
 Trainers: each of the road's trainers has one of eight personalities that
 leans their team towards a damage style and gives them their own rematch

@@ -1,4 +1,4 @@
-// Batch nine, and the shape of the whole pool: a thousand passives, each with a distinct name and a
+// Batch nine, and the shape of the whole pool: a thousand and forty passives, each with a distinct name and a
 // distinct set of entries, every one of them carried by somebody on the roster.
 import { test } from 'node:test';
 import { readFileSync } from 'node:fs';
@@ -18,9 +18,9 @@ const play = (st, ma = 0, mb = 0) => step(st, [{ type: 'move', index: ma }, { ty
 const near = (a, b, m) => Math.abs(a - b * m) <= Math.ceil(b * 0.03) + 1;
 const dmg = (u, t, id, eff = 1) => calcDamage(u, t, getMove(id), eff, 1, false);
 
-test('a thousand passives, every one distinct in name and in what it does', () => {
-  assert.equal(ABILITY_IDS.length, 1000);
-  assert.ok(DATA_ABILITY_IDS.length >= 944, `${DATA_ABILITY_IDS.length} data rows`);
+test('a thousand and forty passives, every one distinct in name and in what it does', () => {
+  assert.equal(ABILITY_IDS.length, 1040);
+  assert.ok(DATA_ABILITY_IDS.length >= 984, `${DATA_ABILITY_IDS.length} data rows`);
   const names = new Map(), signatures = new Map();
   for (const id of ABILITY_IDS) {
     const a = ABILITIES[id];
@@ -54,7 +54,7 @@ test('the pool sits one to four deep on the roster, cores stay Elemental', () =>
   const use = {};
   for (const s of SPECIES) for (const ab of s.abilities) use[ab] = (use[ab] || 0) + 1;
   const ordinary = ABILITY_IDS.filter((id) => !isCoreAbility(id));
-  // 986 ordinary passives over 1,790 slots is under two deep, so the floor is one home each
+  // 1,026 ordinary passives over 1,790 slots is under two deep, so the floor is one home each
   for (const id of ordinary) {
     assert.ok(use[id] >= 1, `${id} is carried by ${use[id] || 0} species`);
     assert.ok(use[id] <= 4, `${id} is carried by ${use[id]} species`);

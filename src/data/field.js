@@ -124,3 +124,30 @@ export const BIOME_TERRAIN = {
 
 /** The type a weather lends a move that takes after the sky. */
 export const WEATHER_TYPE = { sun: 'Fire', rain: 'Water', sand: 'Rock', snow: 'Ice' };
+
+/** What a hazard on the ground does to whatever walks into it. */
+export const HAZARDS = {
+  spikes: { id: 'spikes', name: 'Caltrops', max: 3, hurt: [1 / 8, 1 / 6, 1 / 4], grounded: true, line: 'Caltrops are scattered underfoot!', over: 'The caltrops were swept away.' },
+  barbs: { id: 'barbs', name: 'Toxic Burrs', max: 1, status: 'psn', grounded: true, line: 'Toxic burrs litter the ground!', over: 'The burrs were swept away.' },
+  shards: { id: 'shards', name: 'Stone Shards', max: 1, typed: 'Rock', hurt: [1 / 8], grounded: false, line: 'Sharp stones hang in the air!', over: 'The stones were swept away.' },
+};
+/** Screens and the other things a side can put up. Screens are read by damage type. */
+export const SIDE_CONDITIONS = {
+  screenMelee: { id: 'screenMelee', name: 'Bulwark Screen', turns: 5, cat: 'melee', m: 0.5 },
+  screenRanged: { id: 'screenRanged', name: 'Deflect Screen', turns: 5, cat: 'ranged', m: 0.5 },
+  screenMagic: { id: 'screenMagic', name: 'Ward Screen', turns: 5, cat: 'magic', m: 0.5 },
+  tailwind: { id: 'tailwind', name: 'Tailwind', turns: 4, speed: 2 },
+  safeguard: { id: 'safeguard', name: 'Safeguard', turns: 5 },
+};
+export const SCREEN_OF = { melee: 'screenMelee', ranged: 'screenRanged', magic: 'screenMagic' };
+/** The volatile states a creature carries until it leaves the field. */
+export const VOLATILES = {
+  confuse: { name: 'Confusion', line: 'is confused!', over: 'shook off its confusion.' },
+  bind: { name: 'Bind', line: 'is bound tight!', over: 'broke free.' },
+  taunt: { name: 'Taunt', line: 'is taunted into attacking!', over: 'shook off the taunt.' },
+  encore: { name: 'Encore', line: 'is stuck on its last move!', over: 'is free to choose again.' },
+};
+export const BIND = { turns: [4, 5], r: 1 / 8 };
+export const SUB = { r: 1 / 4 };
+export const CONFUSE = { turns: [2, 5], self: 40, chance: 1 / 3 };
+export const TAUNT_TURNS = 3, ENCORE_TURNS = 3;

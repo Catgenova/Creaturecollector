@@ -10,10 +10,11 @@ import { mountFight, xpRow } from './fight.js';
 import { STATUS_INFO, levelCaptureMul } from '../battle/engine.js';
 import { stageOf, stageName } from '../data/evolution.js';
 import { loadSave, persistSave, exportSave, importSave, recordCollection, retireJourney, SLOTS, activeSlot, useSlot, persistSlot, clearSlot, slotSummaries } from '../game/save.js';
-import { SPEEDS, TEXT_SIZES, MOTIONS, CONTRASTS } from '../game/settings.js';
+import { SPEEDS, TEXT_SIZES, MOTIONS, CONTRASTS, MUSIC_LEVELS } from '../game/settings.js';
 import { getSettings, updateSetting, fightSpeed } from './settings.js';
-import { memberMaxHp, xpProgress, learnMove, moveMember, setLead, canFight, releaseMember, renameMember, setLocked } from '../game/party.js';
-import { JOURNEY, newJourney, chooseJourneyStarter, tryMove, facing, talkTo, acceptChallenge, rematchTeam, challengeWarden, seekElder, enterSpire, trialToday, startTrial, fleeEncounter, buildJourneyBattle, applyJourneyBattle, journeyPlace, badgeList, canFuseJourney, previewShrineFusion, shrineFuse, NATURE_REROLL, natureBlock, rerollNature, respawnJourney } from '../game/journey.js';
+import { playTheme } from '../core/music.js';
+import { memberMaxHp, xpProgress, learnMove, moveMember, setLead, canFight, releaseMember, renameMember, setLocked, PRESETS, savePreset, applyPreset, presetMembers } from '../game/party.js';
+import { JOURNEY, newJourney, chooseJourneyStarter, tryMove, facing, talkTo, acceptChallenge, rematchTeam, challengeWarden, challengeTitan, seekElder, enterSpire, trialToday, startTrial, fleeEncounter, buildJourneyBattle, applyJourneyBattle, journeyPlace, badgeList, canFuseJourney, previewShrineFusion, shrineFuse, NATURE_REROLL, natureBlock, rerollNature, respawnJourney } from '../game/journey.js';
 import { WORLD, TILE, REGIONS, HUB, BIOME_ORDER, worldFor, tileAt, biomeAt, habitatTypeAt, trainerAt, findPath, isHubTile } from '../game/world.js';
 import { TYPE_INFO, TYPE_LIST } from '../data/types.js';
 import { DAMAGE_TYPES } from '../data/damage.js';
@@ -28,6 +29,7 @@ import { CLADE_IDS } from '../data/clades.js';
 import { openQuests, questReady, rewardText, claimQuest, abandonQuest } from '../game/quests.js';
 import { openBounties, bountyCandidates, bountyPayout, bountyLevelMul, turnInBounty } from '../game/bounties.js';
 import { swapChoices, wildPool, swapPrice, drawPrice, secondSlotPrice, rookeryBlock, swapPassive, wildDraw, openSecondSlot } from '../game/rookery.js';
+import { TITAN_BY_BIOME, titanOf, titanLevel } from '../game/titan.js';
 import { SPECIES } from '../data/species.js';
 import { MOVES } from '../data/moves.js';
 import { ABILITY_IDS, ABILITIES } from '../data/abilities.js';
@@ -79,6 +81,7 @@ export function renderWorldScreen(root) {
 function owTile(label, value) { return h('div', { class: 'tile' }, h('b', {}, String(value)), h('span', {}, label)); }
 
 function owIntroView(root) {
+  playTheme('title');
   const rerender = () => renderWorldScreen(root);
   const importInput = h('input', { class: 'seed code-in', type: 'text', placeholder: 'Paste a save code (CCSAVE1....)', autocapitalize: 'off', autocomplete: 'off', spellcheck: 'false', 'aria-label': 'Save code' });
   root.append(
@@ -187,6 +190,7 @@ function owPartyMini(j) {
 }
 
 function owMapView(root, j) {
+  owTheme(j);
   const view = h('div', { class: 'ow-view' });
   const canvas = h('canvas', { class: 'ow-map', 'aria-label': 'Overworld map' });
   const dialogHost = h('div', { class: 'ow-dialog-host' });
@@ -291,6 +295,7 @@ function owStep(dir) {
 
 function owAfterStep(event) {
   const j = ow.j;
+  owTheme(j); // the score follows you across a border
   if (j.stats.steps % 10 === 0) owSave();
   if (!event) { if (ow.queue.length) owNextQueued(); else if (ow.held) owStep(ow.held); return; }
   ow.queue = []; ow.target = null;
@@ -366,17 +371,23 @@ function owTalk(t) {
 
 function owLairDialog(ev) {
   const j = ow.j, wd = ev.warden, region = REGIONS[ev.biome];
+  const titan = ev.titan && TITAN_BY_BIOME[ev.biome] ? titanOf(j, ev.biome) : null;
   owShowDialog(
     h('div', { class: 'who' }, creatureEl(wd.team[0].genome, { size: 64, animate: false, level: wd.team[0].level, facing: 'left' })),
     h('div', { class: 'txt' }, h('b', {}, `${wd.name}, ${wd.title}`), ev.owned ? `You already hold the ${region.badge}. A rematch is always on.` : wd.line,
       h('span', { class: 'hint', style: { margin: 0, display: 'block' } }, `${wd.team.length} creatures · around Lv ${wd.level}`),
-      ev.elder ? h('span', { class: 'hint', style: { margin: '6px 0 0', display: 'block' } }, `Something old stirs deeper in the ${region.name.toLowerCase()}. It will show itself to a champion once.`) : null),
+      ev.elder ? h('span', { class: 'hint', style: { margin: '6px 0 0', display: 'block' } }, `Something old stirs deeper in the ${region.name.toLowerCase()}. It will show itself to a champion once.`) : null,
+      titan ? h('span', { class: 'hint', style: { margin: '6px 0 0', display: 'block' } }, `${titan.entry.name}, ${titan.entry.title}, has not been fought this journey. Around Lv ${titanLevel(ev.biome)}, and it brings the ${region.name.toLowerCase()} with it.`) : null),
     h('div', { class: 'row' },
       h('button', { class: 'btn primary', type: 'button', disabled: !canFight(j), onclick: () => { challengeWarden(j, ev.biome); owSave(); owCloseDialog(); renderWorldScreen(ow.root); } }, canFight(j) ? (ev.owned ? 'Rematch' : 'Challenge') : 'Party down'),
       ev.elder ? h('button', { class: 'btn', type: 'button', disabled: !canFight(j), onclick: () => {
         if (!seekElder(j, ev.biome)) { toast('Not now.'); return; }
         owSave(); owCloseDialog(); renderWorldScreen(ow.root);
       } }, 'Seek the Elder') : null,
+      titan ? h('button', { class: 'btn', type: 'button', disabled: !canFight(j), onclick: () => {
+        if (!challengeTitan(j, ev.biome)) { toast('Not now.'); return; }
+        owSave(); owCloseDialog(); renderWorldScreen(ow.root);
+      } }, `Face ${titan.entry.name}`) : null,
       h('button', { class: 'btn', type: 'button', onclick: owCloseDialog }, 'Leave')));
 }
 
@@ -409,12 +420,22 @@ function owSpireDialog(ev) {
 
 // ---- encounter card and fights ------------------------------------------------------
 
+/** The theme for wherever the player is standing: one per region, and the Crossroads has its own. */
+function owTheme(j) {
+  if (!ow.world || !j || !j.player) return;
+  const biome = biomeAt(ow.world, j.player.x, j.player.y);
+  playTheme(isHubTile(ow.world, j.player.x, j.player.y) ? 'map:crossroads' : `map:${biome ? biome.clade : 'crossroads'}`);
+}
+
+const BOSS_KINDS = new Set(['boss', 'council', 'titan', 'elder', 'trial']);
+
 function owEncounterView(root, j) {
   const enc = j.encounter;
   let fresh = false;
   for (const f of enc.foes) if (dexSeen(ow.save, f.genome)) fresh = true; // every foe you face is a species seen
   if (fresh) owSave();
   const kind = owKindLabel(enc);
+  playTheme(BOSS_KINDS.has(enc.kind) || enc.alpha ? 'boss' : 'battle');
   const elem = enc.kind === 'wild' ? elementalOf(enc.foes[0].genome) : null;
   const foes = h('div', { class: `foes${enc.foes.length <= 2 ? ' few' : ''}` }, enc.foes.map((f) => h('div', { class: 'foe-card' },
     creatureEl(f.genome, { size: enc.foes.length > 4 ? 70 : enc.foes.length > 2 ? 78 : 120, facing: 'left', animate: enc.foes.length <= 2, level: f.level }),
@@ -485,6 +506,38 @@ function owKeepScroll(container, draw) {
   const top = sheet ? sheet.scrollTop : 0;
   draw();
   if (sheet) sheet.scrollTop = top;
+}
+
+/** How the box can be ordered. Recent is the order they were caught in, which is what the list always was. */
+const STORE_SORTS = [
+  { id: 'recent', name: 'Newest first' },
+  { id: 'oldest', name: 'Oldest first' },
+  { id: 'level', name: 'Level' },
+  { id: 'name', name: 'Name' },
+  { id: 'class', name: 'Class' },
+  { id: 'total', name: 'Stat total' },
+];
+
+/** The stored creatures a search and a sort leave you with. */
+function storeFilter(box, store) {
+  const q = (store.q || '').trim().toLowerCase();
+  let out = box.slice();
+  if (q) {
+    out = out.filter((m) => {
+      const g = m.genome;
+      const hay = [g.name, g.species || '', g.clade || '', ...(g.types || []).filter(Boolean), abilityName(g.ability), abilityName(g.ability2)].join(' ').toLowerCase();
+      return hay.includes(q);
+    });
+  }
+  const by = {
+    recent: (a, b) => box.indexOf(b) - box.indexOf(a),
+    oldest: (a, b) => box.indexOf(a) - box.indexOf(b),
+    level: (a, b) => b.level - a.level || a.genome.name.localeCompare(b.genome.name),
+    name: (a, b) => a.genome.name.localeCompare(b.genome.name),
+    class: (a, b) => String(a.genome.clade).localeCompare(String(b.genome.clade)) || a.genome.name.localeCompare(b.genome.name),
+    total: (a, b) => (b.genome.bst || 0) - (a.genome.bst || 0),
+  };
+  return out.sort(by[store.sort] || by.recent);
 }
 
 function owMemberRow(j, m, actions) {
@@ -651,6 +704,7 @@ function owSettingsSheet() {
         h('div', { class: 'toolbar' },
           h('button', { class: `btn small${now.sound ? ' on' : ''}`, type: 'button', onclick: () => { updateSetting('sound', true); render(); } }, 'On'),
           h('button', { class: `btn small${now.sound ? '' : ' on'}`, type: 'button', onclick: () => { updateSetting('sound', false); render(); } }, 'Off'))),
+      choice('Music', 'A score worked out as it plays: a theme for every region, one for a fight and one for something bigger.', 'music', MUSIC_LEVELS),
       choice('Battle speed', 'How long the fight view waits between lines. The Speed button in a fight sets this too.', 'speed', SPEEDS),
       choice('Text size', 'The whole layout is sized off this, so everything grows together.', 'text', TEXT_SIZES),
       choice('Motion', 'Reduced stops the sprites lunging, shaking and sliding.', 'motion', MOTIONS),
@@ -969,6 +1023,8 @@ function owMarketSheet(j) {
 function owStorageSheet(j) {
   const body = h('div');
   let tab = 'store';
+  const store = ow.storeView || (ow.storeView = { q: '', sort: 'recent', selecting: false, picked: new Set(), confirmRelease: false });
+  store.picked = store.picked || new Set();
   const draw = () => {
     clear(body);
     body.append(h('div', { class: 'type-filter' },
@@ -983,16 +1039,57 @@ function owStorageSheet(j) {
       btn('Info', () => openSheet(m.genome, { ...owInfoOpts(j, m, render), nav: owMemberNav(j, [...j.party, ...j.box], m, render, 'Party and storage') })),
       owReleaseBtn(j, m, render),
     ])));
+    // the box outgrew a plain list a long time ago: search it, sort it, and work on a handful at once
+    const shown = storeFilter(j.box, store);
     const boxList = h('div', { class: 'party-list' });
-    for (const m of j.box) boxList.append(owMemberRow(j, m, [
-      btn('Withdraw', () => { moveMember(j, m.uid, 'party'); owSave(); render(); }, j.party.length >= JOURNEY.partyMax),
-      btn('Info', () => openSheet(m.genome, { ...owInfoOpts(j, m, render), nav: owMemberNav(j, [...j.party, ...j.box], m, render, 'Party and storage') })),
-      owReleaseBtn(j, m, render),
-    ]));
+    for (const m of shown) {
+      const picked = store.picked.has(m.uid);
+      boxList.append(owMemberRow(j, m, store.selecting ? [
+        h('button', { class: `btn small${picked ? ' primary' : ''}`, type: 'button', onclick: () => { if (picked) store.picked.delete(m.uid); else store.picked.add(m.uid); render(); } }, picked ? 'Picked ✓' : 'Pick'),
+      ] : [
+        btn('Withdraw', () => { moveMember(j, m.uid, 'party'); owSave(); render(); }, j.party.length >= JOURNEY.partyMax),
+        btn('Info', () => openSheet(m.genome, { ...owInfoOpts(j, m, render), nav: owMemberNav(j, [...j.party, ...j.box], m, render, 'Party and storage') })),
+        owReleaseBtn(j, m, render),
+      ]));
+    }
+    const search = h('input', { class: 'seed code-in', type: 'search', placeholder: 'Search stored creatures', value: store.q, 'aria-label': 'Search storage',
+      oninput: (e) => { store.q = e.target.value; owKeepScroll(body, draw); const el = body.querySelector('input[type=search]'); if (el) { el.focus(); el.setSelectionRange(el.value.length, el.value.length); } } });
+    const sorter = h('select', { class: 'seed', 'aria-label': 'Sort storage', onchange: (e) => { store.sort = e.target.value; render(); } },
+      STORE_SORTS.map((o) => h('option', { value: o.id, selected: store.sort === o.id }, o.name)));
+    const tools = h('div', { class: 'toolbar' }, search, sorter,
+      h('button', { class: `btn small${store.selecting ? ' on' : ''}`, type: 'button', onclick: () => { store.selecting = !store.selecting; store.picked.clear(); render(); } }, store.selecting ? 'Done' : 'Select'));
+    const picked = [...store.picked].map((uid) => j.box.find((m) => m.uid === uid)).filter(Boolean);
+    const bulk = store.selecting ? h('div', { class: 'toolbar' },
+      h('button', { class: 'btn small', type: 'button', onclick: () => { for (const m of shown) store.picked.add(m.uid); render(); } }, `Pick all ${shown.length}`),
+      h('button', { class: 'btn small', type: 'button', disabled: !picked.length, onclick: () => { store.picked.clear(); render(); } }, 'Clear'),
+      h('button', { class: `btn small${picked.length && j.party.length < JOURNEY.partyMax ? ' primary' : ''}`, type: 'button', disabled: !picked.length || j.party.length >= JOURNEY.partyMax,
+        onclick: () => { let took = 0; for (const m of picked) { if (j.party.length >= JOURNEY.partyMax) break; moveMember(j, m.uid, 'party'); store.picked.delete(m.uid); took++; } owSave(); toast(`Withdrew ${took}.`); render(); } }, `Withdraw ${picked.length || ''}`.trim()),
+      h('button', { class: `btn small${store.confirmRelease ? ' danger' : ''}`, type: 'button', disabled: !picked.length,
+        onclick: () => {
+          const free = picked.filter((m) => !m.locked);
+          if (!free.length) { toast('Every one of those is locked.'); return; }
+          if (!store.confirmRelease) { store.confirmRelease = true; toast(`Tap again to release ${free.length}`); render(); setTimeout(() => { store.confirmRelease = false; if (body.isConnected) render(); }, 4000); return; }
+          for (const m of free) { releaseMember(j, m.uid); store.picked.delete(m.uid); }
+          store.confirmRelease = false; owSave(); toast(`Released ${free.length}.`); render();
+        } }, store.confirmRelease ? 'Really release?' : `Release ${picked.length || ''}`.trim())) : null;
+    const presets = h('div', { class: 'toolbar' }, Array.from({ length: PRESETS.slots }, (_, i) => {
+      const preset = (j.presets || [])[i];
+      const ready = preset ? presetMembers(j, i).length : 0;
+      return h('button', { class: `btn small${preset ? '' : ' '}`, type: 'button', title: preset ? `${preset.name}: ${preset.uids.length} saved, ${ready} still on the roster` : 'Empty slot',
+        onclick: () => {
+          if (!preset) { savePreset(j, i, `Team ${i + 1}`); owSave(); toast(`Saved this party as Team ${i + 1}.`); render(); return; }
+          const r = applyPreset(j, i);
+          if (!r.ok) { toast(r.reason); return; }
+          owSave(); sfx.tap(); toast(`${preset.name} is out.`); render();
+        } }, preset ? `${preset.name} · ${ready}` : `Save Team ${i + 1}`);
+    }), h('button', { class: 'btn small', type: 'button', title: 'Overwrite the first team with the party as it stands',
+      onclick: () => { const i = (j.presets || []).findIndex((x) => !x); savePreset(j, i >= 0 ? i : 0, `Team ${(i >= 0 ? i : 0) + 1}`); owSave(); toast('Party saved.'); render(); } }, 'Save party'));
     appendChildren(body, [
       h('p', { class: 'hint' }, `Up to ${JOURNEY.partyMax} travel with you; the rest wait here. Creatures caught with a full party come straight to storage. Release lets a creature go for good; it stays in your Collection.`),
       ...section(`Party · ${j.party.length}/${JOURNEY.partyMax}`, partyList),
-      ...section(`Stored · ${j.box.length}`, j.box.length ? boxList : h('p', { class: 'hint' }, 'Nothing stored yet.')),
+      ...section('Teams', h('p', { class: 'hint' }, 'Three arrangements of the roster. Tap an empty slot to save the party as it stands; tap a saved one to put it back on.'), presets),
+      ...section(`Stored · ${j.box.length}${shown.length !== j.box.length ? ` · ${shown.length} shown` : ''}`, tools, bulk,
+        j.box.length ? (shown.length ? boxList : h('p', { class: 'hint' }, 'Nothing matches that.')) : h('p', { class: 'hint' }, 'Nothing stored yet.')),
     ]);
   };
   const render = () => owKeepScroll(body, draw);
@@ -1266,9 +1363,10 @@ function owRookerySheet(j) {
       const options = swapChoices(m.genome, slot);
       const swapTo = options[0];
       const swapGold = swapPrice(m), drawGold = drawPrice(m), slotGold = secondSlotPrice();
-      const line = swapTo
-        ? h('span', { class: 'hint', style: { margin: 0 } }, `Slot ${slot} would become `, h('b', {}, abilityName(swapTo)))
-        : h('span', { class: 'hint', style: { margin: 0 } }, swapBlock || '');
+      // a blocked creature says why on the row itself: a disabled button's tooltip is no use on a phone
+      const line = swapBlock
+        ? h('span', { class: 'hint', style: { margin: 0 } }, swapBlock)
+        : h('span', { class: 'hint', style: { margin: 0 } }, swapTo ? [`Slot ${slot} would become `, h('b', {}, abilityName(swapTo))] : (secondBlock || ''));
       list.append(owMemberRow(j, m, [
         line,
         m.genome.ability2 ? h('button', { class: `btn small${slot === 2 ? ' on' : ''}`, type: 'button', title: 'Which slot these buttons act on',

@@ -206,8 +206,8 @@ test('the AI picks the sky it can use and never calls for one already up', () =>
   }
 });
 
-test('a thousand passives, and every field passive lives on the roster', () => {
-  assert.equal(ABILITY_IDS.length, 1000);
+test('the pool has grown again, and every field passive lives on the roster', () => {
+  assert.equal(ABILITY_IDS.length, 1040);
   const fieldKinds = new Set(['entryWeather', 'entryTerrain', 'weatherBoost', 'terrainBoost', 'weatherStat', 'terrainStat', 'weatherDef', 'weatherHeal', 'terrainHeal', 'weatherEvade', 'weatherImmune', 'fieldExtend', 'noWeather']);
   for (const k of fieldKinds) assert.ok(PASSIVE_KINDS.includes(k), `the engine does not read ${k}`);
   const use = {};

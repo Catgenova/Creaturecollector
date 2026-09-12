@@ -7,7 +7,13 @@ export function setSfxEnabled(v) { enabled = Boolean(v); if (enabled) audioCtx()
 export function sfxEnabled() { return enabled; }
 
 function audioCtx() {
-  if (!enabled || typeof window === 'undefined') return null;
+  if (!enabled) return null;
+  return sharedAudio();
+}
+
+/** The one audio context the whole app plays through, sound effects and score alike. */
+export function sharedAudio() {
+  if (typeof window === 'undefined') return null;
   try {
     const AC = window.AudioContext || window.webkitAudioContext;
     if (!AC) return null;

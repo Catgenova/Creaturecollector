@@ -95,6 +95,8 @@ export function normalizeJourney(r) {
     champion: Boolean(r.champion), encounter: null, lastReport: r.lastReport || null,
     trial: null, // a Trial run does not survive a reload; the day's record does
     elders: r.elders && typeof r.elders === 'object' ? Object.fromEntries(Object.keys(r.elders).filter((b) => BIOME_ORDER.includes(b) && r.elders[b]).map((b) => [b, true])) : {},
+    titans: r.titans && typeof r.titans === 'object' ? Object.fromEntries(Object.keys(r.titans).filter((b) => BIOME_ORDER.includes(b) && r.titans[b]).map((b) => [b, true])) : {},
+    presets: Array.isArray(r.presets) ? r.presets.slice(0, 3).map((p) => (p && Array.isArray(p.uids) ? { name: String(p.name || 'Team').slice(0, 18), uids: p.uids.filter((u) => typeof u === 'string').slice(0, 5) } : null)) : [],
     trials: r.trials && typeof r.trials === 'object' ? Object.fromEntries(Object.entries(r.trials).slice(-30).filter(([day, v]) => /^\d{4}-\d{2}-\d{2}$/.test(day) && v && typeof v === 'object')
       .map(([day, v]) => [day, { stage: Math.max(0, Math.min(3, Math.floor(Number(v.stage) || 0))), cleared: Boolean(v.cleared), tries: Math.max(0, Math.floor(Number(v.tries) || 0)) }])) : {},
     gold: Math.max(0, Math.floor(Number(r.gold) || 0)), bag: {}, quests: normalizeBoard(r.quests), bounties: normalizeBounties(r.bounties),

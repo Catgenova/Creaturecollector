@@ -1,7 +1,7 @@
 // Settings that belong to the player rather than to a save, and the three slots a save can sit in.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { SETTINGS_KEY, SPEEDS, TEXT_SIZES, MOTIONS, CONTRASTS, defaultSettings, normalizeSettings, loadSettings, saveSettings, speedMul, applySettings } from '../src/game/settings.js';
+import { SETTINGS_KEY, SPEEDS, TEXT_SIZES, MOTIONS, CONTRASTS, MUSIC_LEVELS, defaultSettings, normalizeSettings, loadSettings, saveSettings, speedMul, musicVolume, applySettings } from '../src/game/settings.js';
 import { SAVE_KEY, SLOTS, SLOT_KEY, slotKey, emptySave, loadSave, persistSave, clearSave, activeSlot, useSlot, loadSlot, persistSlot, clearSlot, slotSummary, slotSummaries } from '../src/game/save.js';
 import { newJourney } from '../src/game/journey.js';
 
@@ -12,12 +12,16 @@ const store = (seed = {}) => {
 
 test('settings default sanely and refuse nonsense', () => {
   const d = defaultSettings();
-  assert.deepEqual(d, { sound: true, speed: 'normal', text: 'normal', motion: 'full', contrast: 'normal' });
+  assert.deepEqual(d, { sound: true, music: 'low', speed: 'normal', text: 'normal', motion: 'full', contrast: 'normal' });
   assert.equal(normalizeSettings({ speed: 'warp', text: 'tiny', motion: 'jerky', contrast: 'none' }).speed, 'normal');
   assert.deepEqual(normalizeSettings(null), d);
   assert.equal(normalizeSettings({ sound: false }).sound, false);
   assert.equal(normalizeSettings({ fast: true }).speed, 'fast', 'the old fast switch becomes a speed');
-  for (const table of [SPEEDS, TEXT_SIZES, MOTIONS, CONTRASTS]) {
+  assert.equal(normalizeSettings({ music: 'blaring' }).music, 'low', 'an unknown level falls back');
+  assert.equal(normalizeSettings({ music: false }).music, 'off', 'and the old boolean still reads');
+  assert.equal(musicVolume({ music: 'off' }), 0);
+  assert.ok(musicVolume({ music: 'full' }) > musicVolume({ music: 'low' }));
+  for (const table of [SPEEDS, TEXT_SIZES, MOTIONS, CONTRASTS, MUSIC_LEVELS]) {
     for (const [id, o] of Object.entries(table)) { assert.equal(o.id, id); assert.ok(o.name); }
   }
   assert.ok(SPEEDS.instant.mul < SPEEDS.fast.mul && SPEEDS.fast.mul < SPEEDS.normal.mul);
@@ -28,9 +32,9 @@ test('settings default sanely and refuse nonsense', () => {
 test('settings survive a round trip and carry the old sound switch over', () => {
   const st = store();
   assert.equal(loadSettings(st).sound, true);
-  assert.ok(saveSettings({ sound: false, speed: 'instant', text: 'huge', motion: 'reduced', contrast: 'high' }, st));
+  assert.ok(saveSettings({ sound: false, music: 'off', speed: 'instant', text: 'huge', motion: 'reduced', contrast: 'high' }, st));
   const back = loadSettings(st);
-  assert.deepEqual(back, { sound: false, speed: 'instant', text: 'huge', motion: 'reduced', contrast: 'high' });
+  assert.deepEqual(back, { sound: false, music: 'off', speed: 'instant', text: 'huge', motion: 'reduced', contrast: 'high' });
   assert.ok(st.getItem(SETTINGS_KEY).includes('instant'));
   assert.equal(loadSettings(store({ 'creaturecollector.sfx': 'off' })).sound, false, 'the lone sound key is honoured once');
   assert.deepEqual(loadSettings(store({ [SETTINGS_KEY]: '{broken' })), defaultSettings());

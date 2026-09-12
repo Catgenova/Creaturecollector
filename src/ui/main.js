@@ -7,13 +7,14 @@ import { SPECIES } from '../data/species.js';
 import { sfx, setSfxEnabled, sfxEnabled } from '../core/sfx.js';
 import { setRenderStyle, getRenderStyle, setReducedMotion } from '../creature/render.js';
 import { loadSettings, saveSettings, applySettings } from '../game/settings.js';
-import { getSettings, setSettings } from './settings.js';
+import { getSettings, setSettings, applyMusic } from './settings.js';
 
 function bootApp() {
   const app = document.getElementById('app');
   clear(app);
   try { const s = new URLSearchParams(location.search).get('style'); if (s) setRenderStyle(s); } catch { /* ignore */ }
   const settings = setSettings(applySettings(loadSettings()));
+  applyMusic(settings);
   try {
     const mq = matchMedia('(prefers-reduced-motion: reduce)');
     const motionOff = () => setReducedMotion(mq.matches || getSettings().motion === 'reduced');

@@ -16,6 +16,7 @@ import { NATURE_IDS } from '../data/natures.js';
 import { TRIAL, trialDay, trialOf, trialState, trialBlock, enterTrial, trialEncounter, trialGold } from './trial.js';
 import { abilityWorldMul } from '../data/abilities.js';
 import { BIOME_WEATHER, BIOME_TERRAIN } from '../data/field.js';
+import { titanOf, titanWaiting } from './titan.js';
 import { recordTowerWin, towerRecord } from './tower.js';
 import { newBoard, ensureBoard, questEvent } from './quests.js';
 import { newBounties, ensureBounties } from './bounties.js';
@@ -43,7 +44,7 @@ export function newJourney(seed) {
     player: { x: world.start.x, y: world.start.y, dir: 'down' },
     badges: [], beaten: {}, camps: [], lastCamp: { x: world.hubCamp.x, y: world.hubCamp.y }, cooldown: 0,
     gold: 0, bag: {}, quests: newBoard(), bounties: newBounties(),
-    gauntlet: null, champion: false, encounter: null, lastReport: null, trial: null, trials: {}, elders: {},
+    gauntlet: null, champion: false, encounter: null, lastReport: null, trial: null, trials: {}, elders: {}, titans: {},
   };
 }
 
@@ -98,7 +99,7 @@ export function tryMove(j, dir) {
   }
   if (tile === TILE.door) {
     const b = biomeAt(world, nx, ny);
-    return { moved: true, event: { kind: 'lair', biome: b.id, warden: world.wardens[b.clade], owned: j.badges.includes(b.id), elder: elderWaiting(j, b.id) } };
+    return { moved: true, event: { kind: 'lair', biome: b.id, warden: world.wardens[b.clade], owned: j.badges.includes(b.id), elder: elderWaiting(j, b.id), titan: titanWaiting(j, b.id) } };
   }
   if (tile === TILE.spireDoor) return { moved: true, event: { kind: 'spire', open: j.badges.length >= JOURNEY.badgesForSpire, champion: j.champion } };
   if (tile === TILE.shrine) return { moved: true, event: { kind: 'shrine' } };
@@ -198,6 +199,18 @@ export function seekElder(j, biomeId) {
   return j.encounter;
 }
 
+/** Face a region's Titan: two creatures, the second of them enormous, on the ground it grew out of. */
+export function challengeTitan(j, biomeId) {
+  if (j.encounter || !titanWaiting(j, biomeId) || !canFight(j)) return null;
+  const t = titanOf(j, biomeId);
+  if (!t) return null;
+  j.encounter = {
+    kind: 'titan', biome: biomeId, titanOf: biomeId, name: `${t.entry.name}, ${t.entry.title}`,
+    foes: t.foes, capturable: false, alpha: true, field: t.field, prize: t.prize, line: t.entry.line,
+  };
+  return j.encounter;
+}
+
 export function challengeWarden(j, biomeId) {
   const world = worldFor(j.seed);
   const wd = world.wardens[biomeId];
@@ -277,13 +290,13 @@ export function buildJourneyBattle(j) {
     b.fainted = b.hp <= 0;
     return b;
   });
-  const foes = enc.foes.map((f) => makeBattler(f.genome, f.level));
+  const foes = enc.foes.map((f) => makeBattler(f.genome, f.level, { moves: f.moves, ability: f.ability, ability2: f.ability2, held: f.held }));
   return createBattle({
     sides: [{ name: 'You', party: mine }, { name: enc.name, ai: true, party: foes }],
     seed: `${j.seed}:battle:${j.stats.battles}:${enc.kind}`,
     capturable: enc.capturable,
     items: battleItems(j),
-    field: openingField(j, enc.kind),
+    field: enc.field || openingField(j, enc.kind),
   });
 }
 
@@ -315,7 +328,7 @@ export function applyJourneyBattle(j, state) {
     return { journey: j, report };
   }
   let xp = 0;
-  for (const f of foes) if (f.fainted || (capturedBattler && f.uid === capturedBattler.uid)) xp += xpReward(f.level, f.genome.bst, enc.kind === 'boss' || enc.kind === 'council' || enc.kind === 'tower' || enc.kind === 'trial' || enc.kind === 'elder' || enc.alpha ? 'boss' : 'wild');
+  for (const f of foes) if (f.fainted || (capturedBattler && f.uid === capturedBattler.uid)) xp += xpReward(f.level, f.genome.bst, enc.kind === 'boss' || enc.kind === 'council' || enc.kind === 'tower' || enc.kind === 'trial' || enc.kind === 'elder' || enc.kind === 'titan' || enc.alpha ? 'boss' : 'wild');
   // Red's rule: the experience is shared equally by the party members that fought and are still standing;
   // the rest of the party, if still standing, is granted half of a fighter's share
   let took = j.party.map((m, i) => i).filter((i) => mine[i] && mine[i].fought && j.party[i].hp > 0);
@@ -371,6 +384,13 @@ export function applyJourneyBattle(j, state) {
     j.elders[enc.elderOf] = true;
     j.stats.elders = (j.stats.elders || 0) + 1;
     report.elder = enc.elderOf;
+  }
+  if (enc.kind === 'titan') {
+    j.titans = j.titans || {};
+    j.titans[enc.titanOf] = true;
+    j.stats.titans = (j.stats.titans || 0) + 1;
+    if (enc.prize && getCharm(enc.prize)) { j.bag = j.bag || {}; j.bag[enc.prize] = (j.bag[enc.prize] || 0) + 1; report.charm = enc.prize; }
+    report.titan = enc.titanOf;
   }
   if (enc.kind === 'boss') {
     j.stats.bosses++;

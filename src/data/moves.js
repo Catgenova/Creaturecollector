@@ -14,10 +14,13 @@
 //   { k:'weather', w } / { k:'terrain', t } / { k:'clearField' }        set the sky, set the ground, or sweep both away
 //   { k:'weatherPower', w, m } / { k:'terrainPower', t, m }             power ×m while that weather holds / on that ground
 //   { k:'sureShotIn', w } never misses in that weather                  { k:'weatherType' } the move takes the weather's own type
+//   { k:'confuse', p }  { k:'bind' }  { k:'taunt' }  { k:'encore' }      what the target carries until it leaves the field
+//   { k:'protect' } guards this turn   { k:'substitute', r } a decoy for r of max HP
+//   { k:'screen', cat }  { k:'hazard', kind }  { k:'tailwind' }  { k:'safeguard' }  { k:'sweepField' }   the side's own field
 // flags: contact, punch, bite, powder, sound. `signature: speciesId` marks a rare's own move: learned at 38, never sold.
 
 import { STAT_NAMES } from './damage.js';
-import { WEATHER, TERRAIN } from './field.js';
+import { WEATHER, TERRAIN, HAZARDS, SIDE_CONDITIONS, SCREEN_OF, BIND, TAUNT_TURNS, ENCORE_TURNS } from './field.js';
 
 /**
  * PP rule: the harder a move hits, or the nastier its side effect, the fewer times it can be used.
@@ -30,7 +33,7 @@ import { WEATHER, TERRAIN } from './field.js';
 export const PP_RULE = {
   bands: [[40, 35], [50, 30], [60, 25], [70, 20], [90, 15], [100, 10], [Infinity, 5]],
   multiHits: 3, fixedAsPower: 60, strongStatus: 30, strongFlinch: 30, strongStat: 50,
-  status: { sleepOrFreeze: 10, major: 15, heal: 10, sharpStat: 20, stat: 30, field: 10, other: 30 },
+  status: { sleepOrFreeze: 10, major: 15, heal: 10, sharpStat: 20, stat: 30, field: 10, volatile: 20, other: 30 },
 };
 const sharpStat = (f) => Object.entries(f.stats).some(([k, v]) => Math.abs(v) >= 2 || k === 'acc' || k === 'eva') || Object.keys(f.stats).length >= 3;
 export function ppFor(mv) {
@@ -39,7 +42,8 @@ export function ppFor(mv) {
   const status = find('status'), flinch = find('flinch'), stat = find('stat'), heal = find('heal'), drain = find('drain'), multi = find('multi'), fixed = find('fixed');
   const R = PP_RULE;
   if (mv.cat === 'status') {
-    if (fx.some((f) => f.k === 'weather' || f.k === 'terrain' || f.k === 'clearField')) return R.status.field;
+    if (fx.some((f) => ['weather', 'terrain', 'clearField', 'screen', 'hazard', 'tailwind', 'safeguard', 'protect', 'substitute', 'sweepField'].includes(f.k))) return R.status.field;
+    if (fx.some((f) => ['confuse', 'bind', 'taunt', 'encore'].includes(f.k))) return R.status.volatile;
     if (status) return status.s === 'slp' || status.s === 'frz' ? R.status.sleepOrFreeze : R.status.major;
     if (heal) return R.status.heal;
     if (stat) return sharpStat(stat) ? R.status.sharpStat : R.status.stat;
@@ -50,6 +54,7 @@ export function ppFor(mv) {
   let steps = 0;
   if (status && (status.p == null || status.p >= R.strongStatus)) steps += status.p == null || status.p >= 100 ? 2 : 1;
   if (flinch && (flinch.p == null || flinch.p >= R.strongFlinch)) steps += 1;
+  for (const k of ['confuse', 'bind']) { const f = find(k); if (f && (f.p == null || f.p >= R.strongFlinch)) steps += 1; }
   if (stat && (stat.p == null || stat.p >= R.strongStat)) {
     const vals = Object.values(stat.stats);
     if ((stat.who === 'foe' && vals.some((v) => v < 0)) || (stat.who === 'self' && vals.some((v) => v > 0))) steps += 1;
@@ -104,6 +109,17 @@ export function moveEffects(mv) {
       case 'terrainPower': out.push(`×${f.m} on ${TERRAIN[f.t].name}`); break;
       case 'sureShotIn': out.push(`never misses in ${WEATHER[f.w].name}`); break;
       case 'weatherType': out.push('takes the weather’s type'); break;
+      case 'confuse': out.push(`${odds(f.p)}confuses`); break;
+      case 'bind': out.push(`binds for ${BIND.turns[0]}–${BIND.turns[1]} turns`); break;
+      case 'taunt': out.push(`taunts for ${TAUNT_TURNS} turns`); break;
+      case 'encore': out.push(`locks the foe into its last move for ${ENCORE_TURNS} turns`); break;
+      case 'protect': out.push('guards this turn'); break;
+      case 'substitute': out.push(`decoy for ${Math.round((f.r || 0.25) * 100)}% of max HP`); break;
+      case 'screen': out.push(`raises a ${SIDE_CONDITIONS[SCREEN_OF[f.cat]].name}`); break;
+      case 'hazard': out.push(`scatters ${HAZARDS[f.kind].name}`); break;
+      case 'tailwind': out.push(`a tailwind for ${SIDE_CONDITIONS.tailwind.turns} turns`); break;
+      case 'safeguard': out.push(`wards your side for ${SIDE_CONDITIONS.safeguard.turns} turns`); break;
+      case 'sweepField': out.push('sweeps your side clear'); break;
       default: break;
     }
   }
@@ -710,6 +726,28 @@ export const MOVES = [
   m('rootdraw', 'Rootdraw', 'Grass', 'magic', 85, 100, { fx: [{ k: 'terrainPower', t: 'grassy', m: 1.4 }] }),
   m('static_spike', 'Static Spike', 'Electric', 'melee', 75, 100, { flags: CONTACT, fx: [{ k: 'terrainPower', t: 'charged', m: 1.4 }] }),
   m('mist_lash', 'Mist Lash', 'Fairy', 'ranged', 80, 100, { fx: [{ k: 'terrainPower', t: 'misty', m: 1.4 }] }),
+
+  // ---- what a creature carries until it leaves the field ----
+  m('mind_spin', 'Mind Spin', 'Psychic', 'status', 0, 100, { fx: [{ k: 'confuse' }] }),
+  m('dizzy_wave', 'Dizzy Wave', 'Water', 'ranged', 60, 100, { fx: [{ k: 'confuse', p: 30 }] }),
+  m('wobble_slam', 'Wobble Slam', 'Normal', 'melee', 85, 95, { flags: CONTACT, fx: [{ k: 'confuse', p: 20 }] }),
+  m('coil_grip', 'Coil Grip', 'Normal', 'melee', 35, 95, { flags: CONTACT, fx: [{ k: 'bind' }] }),
+  m('sand_snare', 'Sand Snare', 'Ground', 'ranged', 40, 100, { fx: [{ k: 'bind' }] }),
+  m('jeer', 'Jeer', 'Dark', 'status', 0, null, { flags: ['sound'], fx: [{ k: 'taunt' }] }),
+  m('refrain', 'Refrain', 'Normal', 'status', 0, null, { flags: ['sound'], fx: [{ k: 'encore' }] }),
+  m('guard_up', 'Guard Up', 'Normal', 'status', 0, null, { prio: 4, fx: [{ k: 'protect' }] }),
+  m('decoy', 'Decoy', 'Ghost', 'status', 0, null, { fx: [{ k: 'substitute', r: 0.25 }] }),
+
+  // ---- the side's own field: screens, the ground and the wind behind it ----
+  m('bulwark_screen', 'Bulwark Screen', 'Steel', 'status', 0, null, { fx: [{ k: 'screen', cat: 'melee' }] }),
+  m('deflect_screen', 'Deflect Screen', 'Flying', 'status', 0, null, { fx: [{ k: 'screen', cat: 'ranged' }] }),
+  m('ward_screen', 'Ward Screen', 'Psychic', 'status', 0, null, { fx: [{ k: 'screen', cat: 'magic' }] }),
+  m('caltrops', 'Caltrops', 'Ground', 'status', 0, null, { fx: [{ k: 'hazard', kind: 'spikes' }] }),
+  m('toxic_burrs', 'Toxic Burrs', 'Poison', 'status', 0, null, { fx: [{ k: 'hazard', kind: 'barbs' }] }),
+  m('stone_shards', 'Stone Shards', 'Rock', 'status', 0, null, { fx: [{ k: 'hazard', kind: 'shards' }] }),
+  m('following_wind', 'Following Wind', 'Flying', 'status', 0, null, { fx: [{ k: 'tailwind' }] }),
+  m('ward_song', 'Ward Song', 'Fairy', 'status', 0, null, { flags: ['sound'], fx: [{ k: 'safeguard' }] }),
+  m('spin_out', 'Spin Out', 'Normal', 'melee', 50, 100, { flags: CONTACT, fx: [{ k: 'sweepField' }] }),
 ];
 
 
@@ -720,7 +758,8 @@ export const MOVES_BY_ID = new Map(MOVES.map((mv) => [mv.id, mv]));
 export function getMove(id) { return id === 'struggle' ? STRUGGLE : MOVES_BY_ID.get(id) || null; }
 /** Every fx kind the engine reads off a move; the move table must not invent others. */
 export const MOVE_FX_KINDS = ['status', 'stat', 'flinch', 'drain', 'recoil', 'heal', 'multi', 'fixed', 'boostIfStatus', 'restore', 'cure', 'pierce', 'recharge', 'cleanse', 'boostIfLow', 'boostIfFirst',
-  'weather', 'terrain', 'clearField', 'weatherPower', 'terrainPower', 'sureShotIn', 'weatherType'];
+  'weather', 'terrain', 'clearField', 'weatherPower', 'terrainPower', 'sureShotIn', 'weatherType',
+  'confuse', 'bind', 'taunt', 'encore', 'protect', 'substitute', 'screen', 'hazard', 'tailwind', 'safeguard', 'sweepField'];
 export function moveFx(mv, kind) { return mv.fx.find((f) => f.k === kind) || null; }
 export function isDamaging(mv) { return mv.cat !== 'status'; }
 /** Moves that belong to one rare species: never sold, and tagged on sheets and cards. */

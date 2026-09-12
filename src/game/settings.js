@@ -16,8 +16,10 @@ export const SPEEDS = {
 export const TEXT_SIZES = { normal: { id: 'normal', name: 'Normal', zoom: 1 }, large: { id: 'large', name: 'Large', zoom: 1.12 }, huge: { id: 'huge', name: 'Huge', zoom: 1.25 } };
 export const MOTIONS = { full: { id: 'full', name: 'Full' }, reduced: { id: 'reduced', name: 'Reduced' } };
 export const CONTRASTS = { normal: { id: 'normal', name: 'Normal' }, high: { id: 'high', name: 'High' } };
+/** The score: off, quiet, or as written. */
+export const MUSIC_LEVELS = { off: { id: 'off', name: 'Off', v: 0 }, low: { id: 'low', name: 'Quiet', v: 0.5 }, full: { id: 'full', name: 'Full', v: 1 } };
 
-export function defaultSettings() { return { sound: true, speed: 'normal', text: 'normal', motion: 'full', contrast: 'normal' }; }
+export function defaultSettings() { return { sound: true, music: 'low', speed: 'normal', text: 'normal', motion: 'full', contrast: 'normal' }; }
 
 const pickOption = (table, v, fallback) => (v && table[v] ? v : fallback);
 /** Coerce anything into a settings record, so a hand-edited or older key cannot break the boot. */
@@ -25,6 +27,7 @@ export function normalizeSettings(raw) {
   const s = defaultSettings();
   if (!raw || typeof raw !== 'object') return s;
   s.sound = raw.sound !== false;
+  s.music = pickOption(MUSIC_LEVELS, raw.music, raw.music === false ? 'off' : 'low');
   s.speed = pickOption(SPEEDS, raw.speed, raw.fast ? 'fast' : 'normal'); // `fast` was the old boolean
   s.text = pickOption(TEXT_SIZES, raw.text, 'normal');
   s.motion = pickOption(MOTIONS, raw.motion, 'full');
@@ -57,6 +60,8 @@ export function saveSettings(settings, storage) {
 
 /** The multiplier the fight view puts on every pause it takes. */
 export function speedMul(settings) { return SPEEDS[(settings && settings.speed) || 'normal'].mul; }
+/** How loud the score should be, 0 when it is off. */
+export function musicVolume(settings) { return MUSIC_LEVELS[(settings && settings.music) || 'low'].v; }
 
 /**
  * Stamp the settings onto the document: the stylesheet reads them off the root element, so type size,

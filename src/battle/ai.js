@@ -1,7 +1,7 @@
 // Opponent AI: a scored heuristic. Deterministic given its rng.
 import { STRUGGLE, getMove, isDamaging, moveFx } from '../data/moves.js';
-import { legalActions, activeOf, calcDamage, moveEffectiveness, effectiveStat, affinityBonus, activeMove, liveField, grounded } from './engine.js';
-import { WEATHER, TERRAIN, weatherChips, weatherGuard } from '../data/field.js';
+import { legalActions, activeOf, calcDamage, moveEffectiveness, effectiveStat, affinityBonus, activeMove, liveField, grounded, sideCond, aliveCount } from './engine.js';
+import { WEATHER, TERRAIN, HAZARDS, SCREEN_OF, weatherChips, weatherGuard } from '../data/field.js';
 
 function bestEffVs(attacker, defender) {
   let best = 0;
@@ -55,7 +55,7 @@ function scoreMove(state, side, action, rng) {
   if (isDamaging(mv)) {
     const eff = moveEffectiveness(mv, foe, me);
     if (eff === 0) return -60;
-    const est = calcDamage(me, foe, mv, eff, 0.925, false, field);
+    const est = calcDamage(me, foe, mv, eff, 0.925, false, field, sideCond(state, 1 - side));
     const frac = Math.min(1, est / Math.max(1, foe.hp));
     let s = frac * 100 * acc;
     if (est >= foe.hp) s = 110 * acc + (faster ? 25 : 0);
@@ -72,6 +72,9 @@ function scoreMove(state, side, action, rng) {
       if (f.k === 'recharge' && est < foe.hp) s -= 18;
       if (f.k === 'cleanse') s += 4 * Object.values(foe.stages).reduce((a, n) => a + Math.max(0, n), 0);
       if (f.k === 'pierce') s += 4 * Math.max(0, foe.stages[`${mv.cat}Def`] || 0);
+      if (f.k === 'confuse' && !foe.confuse) s += 18 * p;
+      if (f.k === 'bind' && !foe.bind) s += 12 * p;
+      if (f.k === 'sweepField') s += Object.keys(HAZARDS).some((k) => sideCond(state, side)[k] > 0) ? 20 : 0;
     }
     if (mv.struggle) s -= 30;
     return s;
@@ -105,6 +108,33 @@ function scoreMove(state, side, action, rng) {
       s += field.weather === f.w ? -40 : 8 + 9 * (fieldWorth(me, WEATHER, f.w, 'w') - fieldWorth(foe, WEATHER, f.w, 'w'));
     } else if (f.k === 'terrain') {
       s += field.terrain === f.t ? -40 : 8 + 9 * (fieldWorth(me, TERRAIN, f.t, 't') - fieldWorth(foe, TERRAIN, f.t, 't'));
+    } else if (f.k === 'protect') {
+      // a guard is worth a turn once; leaning on it is how a fight is thrown away
+      s += me.protectRun > 0 ? -35 : me.hp < me.maxHp * 0.4 ? 18 : 12;
+    } else if (f.k === 'substitute') {
+      s += !me.sub && me.hp > me.maxHp * 0.55 ? 30 : -40;
+    } else if (f.k === 'confuse') {
+      s += foe.confuse ? -35 : 26 * acc;
+    } else if (f.k === 'bind') {
+      s += foe.bind ? -35 : 18 * acc;
+    } else if (f.k === 'taunt') {
+      const quiet = foe.moves.some((x) => x.pp > 0 && getMove(x.id) && getMove(x.id).cat === 'status');
+      s += foe.taunt ? -35 : quiet ? 28 : 4;
+    } else if (f.k === 'encore') {
+      const last = foe.lastMove && getMove(foe.lastMove);
+      s += foe.encore || !last ? -35 : last.cat === 'status' ? 26 : 6;
+    } else if (f.k === 'screen') {
+      s += sideCond(state, side)[SCREEN_OF[f.cat]] > 0 ? -35 : foe.style === f.cat ? 30 : 14;
+    } else if (f.k === 'hazard') {
+      const bench = aliveCount(state.sides[1 - side]) - 1;
+      s += sideCond(state, 1 - side)[f.kind] >= HAZARDS[f.kind].max ? -35 : bench > 0 ? 12 + 8 * bench : 2;
+    } else if (f.k === 'tailwind') {
+      const slower = effectiveStat(me, 'spe', field, sideCond(state, side)) < effectiveStat(foe, 'spe', field, sideCond(state, 1 - side));
+      s += sideCond(state, side).tailwind > 0 ? -35 : slower ? 30 : 10;
+    } else if (f.k === 'safeguard') {
+      s += sideCond(state, side).safeguard > 0 ? -35 : 16;
+    } else if (f.k === 'sweepField') {
+      s += Object.keys(HAZARDS).some((k) => sideCond(state, side)[k] > 0) ? 22 : -35;
     } else if (f.k === 'clearField') {
       const theirs = fieldWorth(foe, WEATHER, field.weather, 'w') + fieldWorth(foe, TERRAIN, field.terrain, 't');
       const mine = fieldWorth(me, WEATHER, field.weather, 'w') + fieldWorth(me, TERRAIN, field.terrain, 't');

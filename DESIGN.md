@@ -1749,6 +1749,102 @@ gold for a journey in progress, or the journeys finished and species caught
 for a slot between runs. Switching saves what is in play first. Export and
 import work on the slot in play, so a code can be moved from one to another.
 
+## Volatiles and the side's own field (implemented)
+
+The engine knew five major statuses and nothing else, and a fight was two
+creatures hitting each other on an empty floor with no memory. Two layers went
+in together, because they answer each other: what a creature carries until it
+leaves the field, and what its side leaves on the ground.
+
+**Volatiles.** Confusion (two to five turns, a third of them spent hitting
+itself), Bind (four or five turns of a squeeze that also holds it on the
+field), Taunt (three turns with no status moves), Encore (three turns locked
+into what it just used), a Guard that turns the whole turn aside, and a Decoy
+that takes a quarter of its owner's health and then takes the hits, the
+statuses and the stat drops until it breaks. All of them are dropped the moment
+a creature leaves the field. The Guard halves its own odds every time it is
+used in a row, so it cannot be the plan; a Decoy is deaf to sound moves and to
+the passive that sees through it.
+
+**The side's own field.** Three screens, one per damage type, halving what
+comes in for five turns. Three hazards that bite whatever walks in: Caltrops in
+one to three layers, Toxic Burrs that poison (and that a grounded Poison type
+soaks up and clears), and Stone Shards that scale with the entrant's weakness
+to Rock. A Tailwind that doubles the whole side's Speed for four turns, and a
+Safeguard that turns the foe's statuses away for five. Sweeping is a damaging
+move with a spin on it, which clears your own ground as it lands.
+
+**Eighteen moves** carry it: setters for every one of the above, two binders,
+three ways to confuse, a taunt, an encore, a guard, a decoy and a spin. They
+are woven into 426 learnset slots by type and class, like for like at the same
+level, so the wild and the road use them and not only the shops.
+
+**Forty passives** (the pool is 1,040) read the new state: proof against
+confusion, taunts, traps or hazards; a Shadow Hold that keeps the other side
+on the field; a Pane Breaker that walks through screens and decoys; passives
+that lay their own hazard or raise their own screen as they enter; and three
+that lift binding and confusing moves through the existing fx-boost kind.
+
+**Reading it.** A creature's panel carries a badge for each volatile with its
+clock (CONF, BIND, TAUNT, ENC, DECOY), and the bar under the arena grew a chip
+per side condition, marked ▲ for yours and ▼ for theirs. The party sheet says
+plainly when a creature is held and cannot be swapped out.
+
+**The AI** weighs each of them: it will not raise a screen that is already up,
+will not lean on a guard twice, taunts a foe that actually carries status
+moves, encores one that has just used one, lays hazards while the other side
+still has a bench to send in, and only spins when its own ground is dirty.
+
+## Titans (implemented)
+
+Every region had a Warden — a trainer with a team — and nothing above them
+until the Council. The Titans sit between: eighteen authored creatures, one per
+class, waiting in the lair once you hold that region's badge.
+
+A Titan is a single named creature with an escort at its heel, at the region's
+level plus twenty. Both of its passive slots are filled, it carries the greater
+charm of its own region, and it opens the fight on the weather or ground its
+region is known for: Scarblood brings the sun, Hartfell the grass, Barrowdread
+the grit. Its four moves are its own signature (where it has one), the hardest
+thing of its types it could know, and two authored ones — a tactic and a field
+setter — so each of them plays like something rather than swinging.
+
+It comes once a journey and pays four times a trainer's rate, plus the greater
+form of its Warden's charm: the Warden hands over an Ember Charm, Scarblood
+leaves a Greater Ember Charm. It cannot be caught.
+
+## Storage that scales (implemented)
+
+The box was a flat list of rows with Withdraw, Info and Release on each, which
+is fine at ten creatures and miserable at eighty. It now has a search over
+names, species, classes, types and passives, six sort orders (newest, oldest,
+level, name, class, stat total), and a Select mode that turns the rows into a
+multiple choice: pick all of what the search left, then withdraw or release the
+lot in one go, with the same tap-twice confirmation a single release has.
+Locked creatures are skipped by a mass release rather than blocking it.
+
+**Teams.** Three saved arrangements of the roster, kept on the journey. Tap an
+empty slot to save the party as it stands; tap a saved one to put it back on,
+which pulls its members out of the box and sends everyone else back in. A team
+remembers uids, so a creature that has been released simply drops out of it.
+
+## Procedural music (implemented)
+
+The sound effects were already made on the fly, so the score is too: no audio
+is shipped, and there is nothing to load. A theme is a handful of numbers
+hashed out of its own name — a key, one of five modes, a tempo, a waveform and
+how busy it is — so the eighteen regions sound like eighteen places without
+anyone writing eighteen tunes. A battle drops the key and speeds up; a boss
+gets the phrygian mode and a saw wave.
+
+The player is the usual look-ahead scheduler: a timer wakes every 120 ms and
+queues whatever notes fall in the next half second, so the timing lives on the
+audio clock rather than in `setInterval`'s drift. Bass on the beat, a walk over
+the mode above it, and a noise tick for fights. It plays through the same
+AudioContext as the sound effects, which is what unlocks it after the first tap.
+The Settings screen has it at three levels — Off, Quiet, Full — and Quiet is
+where it starts.
+
 ## Load time (implemented)
 
 The single file had grown to 2.66 MB and nothing was painted until all of it

@@ -80,14 +80,16 @@ export const ABILITIES = {
 // The field: entryWeather {w}  entryTerrain {t}  weatherBoost {w, m, type}  terrainBoost {t, m}  weatherStat {w, stat, m}
 //   terrainStat {t, stat, m}  weatherDef {w, m}  weatherHeal {w, r}  terrainHeal {t, r}  weatherEvade {w, m}
 //   weatherImmune  fieldExtend  noWeather
+// Volatiles and the side's own field: confuseImmune  tauntImmune  trapImmune  trapFoe  addConfuse {p}
+//   hazardImmune  screenBreak  entryHazard {kind}  entryScreen {cat}
 import { STAT_NAMES } from './damage.js';
-import { FIELD, WEATHER, TERRAIN } from './field.js';
+import { FIELD, WEATHER, TERRAIN, HAZARDS, SIDE_CONDITIONS, SCREEN_OF } from './field.js';
 
 const AB_CAT_NAME = { melee: 'Melee', ranged: 'Ranged', magic: 'Magic' };
 const AB_STATUS_NAME = { brn: 'burn', psn: 'poison', par: 'paralysis', slp: 'sleep', frz: 'freeze' };
 const AB_STATUS_VERB = { brn: 'burned', psn: 'poisoned', par: 'paralyzed', slp: 'put to sleep', frz: 'frozen' };
 const AB_FLAG_NAME = { contact: 'Contact', punch: 'Punching', bite: 'Biting', sound: 'Sound', powder: 'Powder' };
-const AB_FX_NAME = { drain: 'Draining', recoil: 'Recoil', multi: 'Multi-hit', status: 'Status-inflicting', flinch: 'Flinching' };
+const AB_FX_NAME = { drain: 'Draining', recoil: 'Recoil', multi: 'Multi-hit', status: 'Status-inflicting', flinch: 'Flinching', bind: 'Binding', confuse: 'Confusing' };
 const abFrac = (r) => (Math.abs(r - 1 / 16) < 1e-9 ? 'a sixteenth' : Math.abs(r - 1 / 8) < 1e-9 ? 'an eighth' : Math.abs(r - 1 / 6) < 1e-9 ? 'a sixth' : Math.abs(r - 1 / 4) < 1e-9 ? 'a quarter' : Math.abs(r - 1 / 3) < 1e-9 ? 'a third' : Math.abs(r - 1 / 2) < 1e-9 ? 'half' : `${Math.round(r * 100)}%`);
 const AB_STAT_NAME = { ...STAT_NAMES, acc: 'accuracy', eva: 'evasion' };
 const abAn = (word) => `${/^[AEIOU]/i.test(word) ? 'an' : 'a'} ${word}`;
@@ -255,6 +257,15 @@ export function describeFx(f) {
     case 'weatherImmune': return 'The weather never wears it down.';
     case 'fieldExtend': return `The weather and ground it calls up last ${FIELD.longTurns} turns instead of ${FIELD.turns}.`;
     case 'noWeather': return 'While it is out, the weather does nothing to either side.';
+    case 'confuseImmune': return 'Cannot be confused.';
+    case 'tauntImmune': return 'Cannot be taunted into attacking.';
+    case 'trapImmune': return 'Can always leave the field.';
+    case 'trapFoe': return 'The creature it faces cannot switch out.';
+    case 'addConfuse': return `Damaging moves have a ${f.p}% chance to confuse the foe.`;
+    case 'hazardImmune': return 'Nothing scattered on the ground touches it.';
+    case 'screenBreak': return 'Ignores the foe’s screens and decoys.';
+    case 'entryHazard': return `Scatters ${HAZARDS[f.kind].name} on the foe’s side on entry.`;
+    case 'entryScreen': return `Raises a ${SIDE_CONDITIONS[SCREEN_OF[f.cat]].name} on entry.`;
     case 'sureShot': return 'Its own moves never miss.';
     case 'ignoreEvasion': return 'Ignores everything the foe does to dodge.';
     case 'damageCap': return `No single hit takes more than ${abFrac(f.r)} of its max HP.`;
@@ -1202,6 +1213,49 @@ defA('stormbringer', 'Stormbringer', [{ k: 'entryWeather', w: 'rain' }, { k: 'en
 defA('bloomsower', 'Bloomsower', [{ k: 'entryWeather', w: 'sun' }, { k: 'entryTerrain', t: 'grassy' }]);
 defA('permafrost', 'Permafrost', [{ k: 'entryWeather', w: 'snow' }, { k: 'entryTerrain', t: 'misty' }]);
 defA('dust_bowl', 'Dust Bowl', [{ k: 'entryWeather', w: 'sand' }, { k: 'weatherEvade', w: 'sand', m: 0.85 }]);
+
+
+// Batch sixteen: what a creature carries until it leaves the field, and what its side leaves on the ground.
+defA('clear_head', 'Clear Head', { k: 'confuseImmune' });
+defA('stubborn_silence', 'Stubborn Silence', { k: 'tauntImmune' });
+defA('slip_free', 'Slip Free', { k: 'trapImmune' });
+defA('unrattled', 'Unrattled', [{ k: 'confuseImmune' }, { k: 'tauntImmune' }]);
+defA('sure_footing', 'Sure Footing', { k: 'hazardImmune' });
+defA('iron_soles', 'Iron Soles', [{ k: 'hazardImmune' }, { k: 'defMul', stat: 'meleeDef', m: 1.15 }]);
+defA('steady_gaze', 'Steady Gaze', [{ k: 'confuseImmune' }, { k: 'accBoost', m: 1.1 }]);
+defA('free_runner', 'Free Runner', [{ k: 'trapImmune' }, { k: 'statMul', stat: 'spe', m: 1.15 }]);
+defA('open_throat', 'Open Throat', [{ k: 'tauntImmune' }, { k: 'flagBoost', flag: 'sound', m: 1.2 }]);
+defA('thick_boots', 'Thick Boots', [{ k: 'hazardImmune' }, { k: 'trapImmune' }]);
+defA('shadow_hold', 'Shadow Hold', { k: 'trapFoe' });
+defA('gravity_well', 'Gravity Well', [{ k: 'trapFoe' }, { k: 'defMul', stat: 'meleeDef', m: 1.1 }]);
+defA('dizzying_glow', 'Dizzying Glow', { k: 'addConfuse', p: 20 });
+defA('spiral_step', 'Spiral Step', [{ k: 'addConfuse', p: 15 }, { k: 'statMul', stat: 'spe', m: 1.1 }]);
+defA('vertigo', 'Vertigo', { k: 'addConfuse', p: 30 });
+defA('maze_mind', 'Maze Mind', [{ k: 'addConfuse', p: 10 }, { k: 'statusBoost', m: 1.2 }]);
+defA('snare_setter', 'Snare Setter', { k: 'entryHazard', kind: 'spikes' });
+defA('burr_coat', 'Burr Coat', { k: 'entryHazard', kind: 'barbs' });
+defA('stone_shed', 'Stone Shed', { k: 'entryHazard', kind: 'shards' });
+defA('net_caster', 'Net Caster', [{ k: 'trapFoe' }, { k: 'entryHazard', kind: 'spikes' }]);
+defA('screen_weaver', 'Screen Weaver', { k: 'entryScreen', cat: 'magic' });
+defA('bulwark_bearer', 'Bulwark Bearer', { k: 'entryScreen', cat: 'melee' });
+defA('deflector', 'Deflector', { k: 'entryScreen', cat: 'ranged' });
+defA('prism_ward', 'Prism Ward', [{ k: 'entryScreen', cat: 'magic' }, { k: 'filter', m: 0.9 }]);
+defA('pane_breaker', 'Pane Breaker', { k: 'screenBreak' });
+defA('ghost_step', 'Ghost Step', [{ k: 'screenBreak' }, { k: 'critRate', m: 1.5 }]);
+defA('siege_mind', 'Siege Mind', [{ k: 'screenBreak' }, { k: 'catBoost', cat: 'magic', m: 1.15 }]);
+defA('wind_at_back', 'Wind at Back', [{ k: 'entryScreen', cat: 'ranged' }, { k: 'statMul', stat: 'spe', m: 1.1 }]);
+defA('warded_hide', 'Warded Hide', [{ k: 'entryScreen', cat: 'melee' }, { k: 'allResist', m: 0.95 }]);
+defA('glass_cutter', 'Glass Cutter', [{ k: 'screenBreak' }, { k: 'effBoost', m: 1.1 }]);
+defA('constrictor', 'Constrictor', { k: 'fxBoost', fx: 'bind', m: 1.3 });
+defA('trickster', 'Trickster', { k: 'fxBoost', fx: 'confuse', m: 1.3 });
+defA('pin_down', 'Pin Down', [{ k: 'fxBoost', fx: 'bind', m: 1.2 }, { k: 'statMul', stat: 'melee', m: 1.1 }]);
+defA('heckler', 'Heckler', [{ k: 'tauntImmune' }, { k: 'prioStatus' }]);
+defA('spike_thrower', 'Spike Thrower', [{ k: 'entryHazard', kind: 'spikes' }, { k: 'typeBoost', type: 'Ground', m: 1.15 }]);
+defA('venom_scatter', 'Venom Scatter', [{ k: 'entryHazard', kind: 'barbs' }, { k: 'typeBoost', type: 'Poison', m: 1.15 }]);
+defA('rockfall_aura', 'Rockfall Aura', [{ k: 'entryHazard', kind: 'shards' }, { k: 'typeBoost', type: 'Rock', m: 1.15 }]);
+defA('mind_fog', 'Mind Fog', [{ k: 'addConfuse', p: 15 }, { k: 'evasion', m: 0.9 }]);
+defA('anchor_chain', 'Anchor Chain', [{ k: 'trapFoe' }, { k: 'noStatDrop', stat: 'spe' }]);
+defA('siege_engine', 'Siege Engine', [{ k: 'screenBreak' }, { k: 'moldBreaker' }]);
 
 export const ABILITY_IDS = Object.keys(ABILITIES);
 export function getAbility(id) { return ABILITIES[id] || null; }

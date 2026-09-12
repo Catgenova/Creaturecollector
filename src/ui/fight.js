@@ -4,8 +4,8 @@
 import { h, clear, toast, appendChildren } from './dom.js';
 import { typeChips, creatureEl, styleChip, stageBadge, dexMark } from './common.js';
 import { makeRng } from '../core/rng.js';
-import { step, legalActions, activeOf, describeEvent, moveEffectiveness, aliveCount, captureChance, levelCaptureMul, partyTopLevel, STATUS_INFO } from '../battle/engine.js';
-import { getWeather, getTerrain } from '../data/field.js';
+import { step, legalActions, activeOf, describeEvent, moveEffectiveness, aliveCount, captureChance, levelCaptureMul, partyTopLevel, canLeave, STATUS_INFO } from '../battle/engine.js';
+import { getWeather, getTerrain, HAZARDS, SIDE_CONDITIONS, VOLATILES } from '../data/field.js';
 import { SPEEDS } from '../game/settings.js';
 import { fightSpeed, updateSetting, getSettings } from './settings.js';
 import { chooseAction } from '../battle/ai.js';
@@ -67,17 +67,45 @@ function buildFight(f) {
   renderFightControls(f);
 }
 
+/** What a creature is carrying this turn: confusion, a bind, a taunt, an encore, a decoy in front of it. */
+function volatileBadges(b) {
+  const out = [];
+  if (b.confuse > 0) out.push(['CONF', VOLATILES.confuse.name]);
+  if (b.bind && b.bind.turns > 0) out.push(['BIND', `${VOLATILES.bind.name} · ${b.bind.turns}`]);
+  if (b.taunt > 0) out.push(['TAUNT', `${VOLATILES.taunt.name} · ${b.taunt}`]);
+  if (b.encore && b.encore.turns > 0) out.push(['ENC', `${VOLATILES.encore.name} · ${b.encore.turns}`]);
+  if (b.sub > 0) out.push(['DECOY', `Decoy · ${b.sub} HP`]);
+  return out.map(([short, title]) => h('span', { class: 'status st-vol', title }, short));
+}
+
 /** The weather and the ground, with what is left on each clock. Hidden while the field is clear. */
 function renderFieldBar(f) {
   const el = f.els.field;
   const fl = f.state.field || {};
-  const rows = [[getWeather(fl.weather), fl.weatherTurns], [getTerrain(fl.terrain), fl.terrainTurns]].filter(([x]) => x);
   clear(el);
-  el.hidden = !rows.length;
+  const rows = [[getWeather(fl.weather), fl.weatherTurns], [getTerrain(fl.terrain), fl.terrainTurns]].filter(([x]) => x);
   for (const [x, turns] of rows) {
     el.append(h('span', { class: 'field-chip', style: { '--chip': x.color }, title: x.desc },
       h('span', { class: 'field-icon' }, x.icon), x.name, h('span', { class: 'field-turns' }, `${turns}`)));
   }
+  let sides = 0;
+  for (const i of [0, 1]) {
+    const cond = (f.state.sides[i] && f.state.sides[i].cond) || {};
+    const mine = i === 0;
+    for (const id of Object.keys(SIDE_CONDITIONS)) {
+      if (!(cond[id] > 0)) continue;
+      sides++;
+      el.append(h('span', { class: `field-chip side-chip${mine ? ' mine' : ''}`, title: `${mine ? 'Your side' : 'Their side'}: ${SIDE_CONDITIONS[id].name}` },
+        `${mine ? '▲' : '▼'} ${SIDE_CONDITIONS[id].name}`, h('span', { class: 'field-turns' }, `${cond[id]}`)));
+    }
+    for (const id of Object.keys(HAZARDS)) {
+      if (!(cond[id] > 0)) continue;
+      sides++;
+      el.append(h('span', { class: `field-chip side-chip hazard${mine ? ' mine' : ''}`, title: `${mine ? 'Your side' : 'Their side'}: ${HAZARDS[id].name}` },
+        `${mine ? '▲' : '▼'} ${HAZARDS[id].name}`, HAZARDS[id].max > 1 ? h('span', { class: 'field-turns' }, `×${cond[id]}`) : null));
+    }
+  }
+  el.hidden = !rows.length && !sides;
 }
 
 /** Sheet options for a battler: your own show their moves, a foe's only its level. */
@@ -101,6 +129,7 @@ function renderPanel(f, i) {
   appendChildren(clear(el), [
     h('div', { class: 'panel-head' }, i === 1 && f.wild && f.dexStatus && f.dexStatus(b.genome) ? dexMark(f.dexStatus(b.genome)) : null, h('b', {}, b.name), h('span', { class: 'lvl' }, `Lv ${b.level}`), stageBadge(b.level), styleChip(null, b.style),
       b.status ? h('span', { class: `status st-${b.status}` }, STATUS_INFO[b.status].short) : null,
+      ...volatileBadges(b),
       h('span', { class: 'panel-info', 'aria-hidden': 'true' }, 'i')),
     typeChips(b.types),
     h('div', { class: 'passive' }, h('b', {}, abilityName(b.ability)), h('span', {}, ` ${(getAbility(b.ability) || { desc: 'No passive skill.' }).desc}`)),
@@ -209,6 +238,11 @@ function applyFightEvent(f, e) {
   switch (e.t) {
     case 'turn': renderFieldBar(f); logLine(f, text); return 250;
     case 'field': case 'fieldOver': case 'fieldClear': renderFieldBar(f); logLine(f, text); return 600;
+    case 'side': case 'sideOver': case 'sweep': renderFieldBar(f); logLine(f, text); return 550;
+    case 'volatile': case 'volatileOver': renderPanel(f, e.side); logLine(f, text); sfx.status(); return 550;
+    case 'volatileHit': logLine(f, text); return 450;
+    case 'guard': case 'protect': logLine(f, text); return 500;
+    case 'sub': renderPanel(f, e.side); if (e.kind !== 'up') animateStage(f, e.side, 'hit', 350); logLine(f, text); return 600;
     case 'switch': renderStage(f, e.side); renderPanel(f, e.side); logLine(f, text); sfx.cry(activeOf(f.state, e.side).genome); return 650;
     case 'move': logLine(f, text); animateStage(f, e.side, e.side === 0 ? 'lunge-r' : 'lunge-l', 450); poseStage(f, e.side, 'attack', 450); return 550;
     case 'damage': animateStage(f, e.side, 'hit', 450); poseStage(f, e.side, 'hurt', 450); setHp(f, e.side, e.hp, e.maxHp); logLine(f, text); sfx.hit(e.eff); return e.eff !== 1 || e.crit ? 750 : 550;
@@ -454,9 +488,11 @@ function openFightParty(f, forced) {
         b.xp ? xpRow(b.xp) : null,
         h('div', { class: 'hint', style: { margin: 0 } }, `${b.hp} / ${b.maxHp} · ${abilityName(b.ability)}`))));
   });
+  const held = !forced && st.phase === 'choose' && !canLeave(st, 0);
   const sheet = h('section', { class: 'sheet', role: 'dialog', 'aria-modal': 'true', 'aria-label': 'Party' },
     h('div', { class: 'grab' }),
     h('div', { class: 'sheet-head' }, h('h2', {}, forced ? 'Choose your next creature' : 'Party'), forced ? null : h('button', { class: 'btn close', onclick: close, 'aria-label': 'Close' }, '✕')),
+    held ? h('p', { class: 'hint' }, `${activeOf(st, 0).name} is held on the field and cannot be swapped out.`) : null,
     list);
   document.body.append(backdrop, sheet);
 }

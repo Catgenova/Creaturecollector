@@ -138,10 +138,29 @@ function transform(code, file) {
   return out;
 }
 
-function topLevelNames(code) {
+export function topLevelNames(code) {
   const names = [];
-  const re = /^(?:async\s+)?(?:function\*?|const|let|var|class)\s+([A-Za-z_$][\w$]*)/gm;
-  for (const m of code.matchAll(re)) names.push(m[1]);
+  const re = /^(?:async\s+)?(function\*?|const|let|var|class)\s+([A-Za-z_$][\w$]*)([^\n]*)/gm;
+  for (const m of code.matchAll(re)) {
+    names.push(m[2]);
+    // `let a = 1, b = 2` declares both: missing the second is how a clash slips through to a syntax error
+    if (m[1] === 'const' || m[1] === 'let' || m[1] === 'var') {
+      const rest = m[3];
+      let depth = 0, quote = null;
+      for (let i = 0; i < rest.length; i++) {
+        const c = rest[i];
+        if (quote) { if (c === '\\') i++; else if (c === quote) quote = null; continue; }
+        if (c === '"' || c === "'" || c === '`') { quote = c; continue; }
+        if (c === '/' && rest[i + 1] === '/') break;
+        if ('([{'.includes(c)) depth++;
+        else if (')]}'.includes(c)) depth--;
+        else if (c === ',' && depth === 0) {
+          const next = /^\s*([A-Za-z_$][\w$]*)/.exec(rest.slice(i + 1));
+          if (next) names.push(next[1]);
+        }
+      }
+    }
+  }
   return names;
 }
 
