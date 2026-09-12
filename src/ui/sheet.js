@@ -10,7 +10,7 @@ import { getCharm } from '../data/charms.js';
 import { STAT_KEYS, STAT_NAMES } from '../data/damage.js';
 import { ELEMENT_IDS, ELEMENTS } from '../data/elements.js';
 import { stageOf, stageName } from '../data/evolution.js';
-import { swatchCss } from '../creature/palette.js';
+import { swatchCss, MORPHS } from '../creature/palette.js';
 import { getPart } from '../data/parts/index.js';
 import { slotsFor, slotName } from '../data/rigs.js';
 import { cladeName } from '../data/clades.js';
@@ -171,6 +171,7 @@ function sheetContent(g, sheetOpts, ctx) {
   const redraw = () => clear(hero).append(creatureEl(shown, { size: 260, facing, fit: true, stage }));
   const stageRow = h('div', { class: 'chips-row stage-row' }, [1, 2, 3].map((st) => h('button', { class: `btn small stage-pick${stage === st ? ' on' : ''}`, type: 'button', title: st === 1 ? 'Below level 33' : st === 2 ? 'Level 33 and up' : 'Level 66 and up', onclick: () => { stage = st; for (const b of stageRow.children) b.classList.toggle('on', Number(b.dataset.stage) === st); redraw(); }, dataset: { stage: String(st) } }, stageName(st))));
   const title = h('h2', {}, g.name, g.shiny ? ' ✦' : '');
+  const morph = g.morph && MORPHS[g.morph] ? h('span', { class: `chip morph-chip morph-${g.morph}`, title: MORPHS[g.morph].desc }, MORPHS[g.morph].name) : null;
   const releaseBtn = sheetOpts.release ? releaseButton(sheetOpts.release, ctx.close) : null;
   const nav = ctx.nav;
   return [
@@ -183,6 +184,7 @@ function sheetContent(g, sheetOpts, ctx) {
       title,
       typeChips(g.types),
       styleChip(g),
+      morph,
       elementalBadge(g),
       sheetOpts.lock || sheetOpts.rename || releaseBtn ? h('span', { class: 'head-actions' },
         sheetOpts.lock ? lockButton(sheetOpts.lock, () => { if (releaseBtn) releaseBtn.refresh(); }) : null,

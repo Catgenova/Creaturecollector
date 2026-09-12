@@ -19,7 +19,7 @@ import { STAT_KEYS } from '../data/damage.js';
 import { ELEMENTS, isCoreAbility } from '../data/elements.js';
 import { CLADES, cladeName } from '../data/clades.js';
 import { getMove, UNIVERSAL_LEARNSET } from '../data/moves.js';
-import { blendColor, harmonizePalette } from './palette.js';
+import { blendColor, harmonizePalette, morphPalette } from './palette.js';
 import { joinNameParts, splitName } from './naming.js';
 
 export const FUSE = {
@@ -173,6 +173,7 @@ export function fuse(a, b, rng) {
   }
   palette.c3 = nudgeColor(P1.palette.c3, rPal); palFrom.c3 = identity;
   palette.eye = P1.palette.eye.slice(); palFrom.eye = identity;
+  if (P1.morph) palette = morphPalette(palette, P1.morph); // a morph travels with the face and pins the blended coat to its look
   palette = harmonizePalette(palette);
 
   const traits = {};
@@ -225,6 +226,7 @@ export function fuse(a, b, rng) {
     nameParts,
     gen,
     shiny: Boolean(P1.shiny),
+    ...(P1.morph ? { morph: P1.morph } : {}),
     types: [primary, secondary],
     parts, paint, palette, traits, stats, vigor, bst, lineage,
     parents: [a.name, b.name],

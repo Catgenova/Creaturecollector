@@ -379,3 +379,15 @@ button, .btn { touch-action: manipulation; }
 .held-card small { grid-column: 1 / -1; }
 .held-card .btn { grid-column: 3; grid-row: 2; }
 .panel .passive.held::before { content: '◈ '; color: var(--fg2); }
+
+/* Fusiondex and colour morphs */
+.dex-card.seen svg { filter: brightness(0) opacity(.55); }
+.dex-card.unseen { opacity: .6; cursor: default; }
+.dex-blank { width: 100%; aspect-ratio: 1; display: grid; place-items: center; font-size: 36px; font-weight: 800; color: var(--fg2); }
+.dex-hab { font-size: 10px; color: var(--fg2); text-align: center; line-height: 1.2; }
+.pcard .morphs { display: flex; gap: 3px; }
+.morph-dot { width: 10px; height: 10px; border-radius: 50%; border: 1px solid var(--fg2); display: inline-block; opacity: .55; }
+.morph-dot.got { opacity: 1; box-shadow: 0 0 6px currentColor; }
+.morph-dot.morph-albino { background: #f4f0ea; color: #f4f0ea; } .morph-dot.morph-melanistic { background: #2a262e; color: #8a8090; } .morph-dot.morph-pastel { background: #f2c4d8; color: #f2c4d8; }
+.morph-chip { background: var(--bg3); color: var(--fg); border: 1px solid var(--line); }
+.morph-chip.morph-albino { background: #f4f0ea; color: #3a2a30; } .morph-chip.morph-melanistic { background: #2a262e; color: #f0d9a0; } .morph-chip.morph-pastel { background: #f2c4d8; color: #4a2a40; }

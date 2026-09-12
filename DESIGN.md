@@ -1075,6 +1075,35 @@ Info sheet returns it; release and fusion return charms to the Bag. Foes never
 hold charms, and the tournament simulator does not use them, so they sit
 outside the balance loop as a player-side edge.
 
+## Fusiondex and colour morphs (implemented)
+
+`src/game/dex.js` keeps a compact record in the save, keyed by species id so
+it never grows with the collection: `seen`, `caught`, `morphs` (species to
+morph to 1 seen or 2 caught) and `claimed` reward tiers. Every foe you face
+(wild, trainer, Warden, Council or Tower) is marked seen when the encounter
+card draws; starters, captures and fusions go through `recordCollection`,
+which now marks the species caught; and `normalizeSave` seeds the dex from
+the collection and the journey so older saves fill in on load.
+
+- **The sheet.** Dex from the HUD or the Menu. The Species tab shows one class
+  at a time (a chip per class with its caught count): caught species drawn in
+  full from a fixed dex seed, seen ones as silhouettes, unseen ones as
+  numbered blanks that give away only the tier. Cards carry a habitat hint
+  (the class's region and the species' types) and morph dots. Tapping a known
+  card opens the ordinary creature sheet, cycling through the class's known
+  species. The Fusions tab is the collection's fused creatures; the Rewards
+  tab lists eight milestones (10, 25, 50, 100, 200, 400, 700 and all 895
+  species caught) paying gold or a charm into the current journey, once per
+  save.
+- **Morphs.** One wild roll in 256 is a colour morph: albino (bone white,
+  pink eyes), melanistic (coal dark, amber eyes) or pastel (chalk tints).
+  `morphPalette` pins hue-preserving saturation and lightness rather than
+  shifting them, so applying it twice changes nothing; the accent
+  harmonizer runs afterwards as usual. The genome carries `morph`, validation
+  drops unknown values, a morph travels with the face in fusion and re-pins
+  the blended coat, the wild encounter is announced as an Albino Fernhare,
+  and the creature sheet shows a morph chip beside the types.
+
 ## Mobile view (implemented)
 
 The game was drawn for a phone from the start (portrait layout, 44px targets,

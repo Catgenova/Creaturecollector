@@ -8,6 +8,7 @@ import { movesAtLevel } from '../battle/stats.js';
 import { WORLD, BIOME_ORDER } from './world.js';
 import { getItem } from '../data/items.js';
 import { getCharm } from '../data/charms.js';
+import { emptyDex, normalizeDex, dexSeed } from './dex.js';
 
 export const SAVE_KEY = 'creaturecollector.save';
 export const SAVE_VERSION = 1;
@@ -21,6 +22,7 @@ export function emptySave() {
     collection: [],
     journey: null,
     settings: { fast: false },
+    dex: emptyDex(),
   };
 }
 
@@ -54,6 +56,8 @@ export function normalizeSave(raw) {
     if (r.stats) for (const k of ['battles', 'captures', 'fusions']) s.totals[k] += Math.max(0, Number(r.stats[k]) || 0);
   }
   s.journey = normalizeJourney(raw.journey);
+  s.dex = normalizeDex(raw.dex);
+  dexSeed(s); // whatever travelled with you counts as caught, so older saves fill their dex on load
   return s;
 }
 
@@ -139,8 +143,11 @@ export function importSave(code) {
   return normalizeSave(raw);
 }
 
-/** Remember a creature in the collection. Wild species dedupe by species; fusions by name and seed. */
+function dexCaughtSafe(save, genome) { try { dexSeed({ collection: [{ genome }], journey: null, dex: (save.dex = save.dex || emptyDex()) }); } catch { /* the dex never blocks a save */ } }
+
+/** Remember a creature in the collection (and mark its species caught in the dex). Wild species dedupe by species; fusions by name and seed. */
 export function recordCollection(save, genome) {
+  dexCaughtSafe(save, genome);
   const key = genome.gen ? `${genome.name}#${genome.seed}` : genome.species;
   const exists = save.collection.some((e) => (e.genome.gen ? `${e.genome.name}#${e.genome.seed}` : e.genome.species) === key);
   if (exists) return false;

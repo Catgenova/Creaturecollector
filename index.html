@@ -395,6 +395,18 @@ button, .btn { touch-action: manipulation; }
 .held-card small { grid-column: 1 / -1; }
 .held-card .btn { grid-column: 3; grid-row: 2; }
 .panel .passive.held::before { content: '◈ '; color: var(--fg2); }
+
+/* Fusiondex and colour morphs */
+.dex-card.seen svg { filter: brightness(0) opacity(.55); }
+.dex-card.unseen { opacity: .6; cursor: default; }
+.dex-blank { width: 100%; aspect-ratio: 1; display: grid; place-items: center; font-size: 36px; font-weight: 800; color: var(--fg2); }
+.dex-hab { font-size: 10px; color: var(--fg2); text-align: center; line-height: 1.2; }
+.pcard .morphs { display: flex; gap: 3px; }
+.morph-dot { width: 10px; height: 10px; border-radius: 50%; border: 1px solid var(--fg2); display: inline-block; opacity: .55; }
+.morph-dot.got { opacity: 1; box-shadow: 0 0 6px currentColor; }
+.morph-dot.morph-albino { background: #f4f0ea; color: #f4f0ea; } .morph-dot.morph-melanistic { background: #2a262e; color: #8a8090; } .morph-dot.morph-pastel { background: #f2c4d8; color: #f2c4d8; }
+.morph-chip { background: var(--bg3); color: var(--fg); border: 1px solid var(--line); }
+.morph-chip.morph-albino { background: #f4f0ea; color: #3a2a30; } .morph-chip.morph-melanistic { background: #2a262e; color: #f0d9a0; } .morph-chip.morph-pastel { background: #f2c4d8; color: #4a2a40; }
 </style>
 </head>
 <body>
@@ -20398,6 +20410,21 @@ function jitterPalette(base, vary, rng) {
   };
 }
 
+/** Colour morphs, rarer than shinies: each pins the palette to a look rather than shifting it, so applying one twice changes nothing. */
+const MORPHS = {
+  albino: { id: 'albino', name: 'Albino', desc: 'Bleached to bone white with pink eyes.' },
+  melanistic: { id: 'melanistic', name: 'Melanistic', desc: 'Coal dark from nose to tail, with amber eyes.' },
+  pastel: { id: 'pastel', name: 'Pastel', desc: 'Washed to soft chalk tints.' },
+};
+const MORPH_IDS = Object.keys(MORPHS);
+function morphPalette(pal, morph) {
+  const pin = (c, s, l) => [c[0], s, l];
+  if (morph === 'albino') return { c1: pin(pal.c1, 8, 90), c2: pin(pal.c2, 10, 82), c3: pin(pal.c3, 14, 74), eye: [340, 72, 62] };
+  if (morph === 'melanistic') return { c1: pin(pal.c1, 18, 16), c2: pin(pal.c2, 22, 22), c3: pin(pal.c3, 30, 30), eye: [42, 92, 56] };
+  if (morph === 'pastel') return { c1: pin(pal.c1, 34, 78), c2: pin(pal.c2, 38, 70), c3: pin(pal.c3, 42, 64), eye: [pal.eye[0], 40, 50] };
+  return pal;
+}
+
 /** Rare recolour: rotate the whole palette to a new harmony. */
 function shinyPalette(pal, rng) {
   const rot = rng.range(140, 220);
@@ -20527,6 +20554,7 @@ const ROLL = {
   bodyCarriedMutation: 0.05,
   paintSwap: 0.12,        // a slot's colour roles get permuted
   shiny: 1 / 64,
+  morph: 1 / 256,         // albino, melanistic or pastel colour morphs
   elemental: ELEMENTAL_CHANCE, // wild creatures born of an element
 };
 
@@ -20588,6 +20616,8 @@ function speciesGenome(species, rng) {
   let palette = jitterPalette(species.palette, species.vary, rPal);
   const shiny = rPal.chance(ROLL.shiny);
   if (shiny) palette = shinyPalette(palette, rPal);
+  const morph = rPal.chance(ROLL.morph) ? rPal.pick(MORPH_IDS) : null;
+  if (morph) palette = morphPalette(palette, morph);
   palette = harmonizePalette(palette);
 
   const traits = {};
@@ -20609,6 +20639,7 @@ function speciesGenome(species, rng) {
     nameParts: species.nameParts ? species.nameParts.slice() : splitName(species.name),
     gen: 0,
     shiny,
+    ...(morph ? { morph } : {}),
     types: [species.types[0], species.types[1] || null],
     parts,
     paint,
@@ -20777,6 +20808,7 @@ function validateGenome(g) {
   if (g.parents === undefined) delete g.parents;
   g.lineage = Array.isArray(g.lineage) ? g.lineage.filter((x) => typeof x === 'string').slice(0, 16) : [];
   g.shiny = Boolean(g.shiny);
+  if (!MORPH_IDS.includes(g.morph)) delete g.morph;
   const sp = g.species ? SPECIES_BY_ID[g.species] : null;
   g.learnset = Array.isArray(g.learnset) ? g.learnset.filter((e) => Array.isArray(e) && Number.isFinite(e[0]) && getMove(e[1])).map((e) => [e[0], e[1]]) : [];
   if (!g.learnset.length) g.learnset = ((sp && sp.learnset) || UNIVERSAL_LEARNSET).map((e) => e.slice());
@@ -22209,6 +22241,7 @@ function sheetContent(g, sheetOpts, ctx) {
   const redraw = () => clear(hero).append(creatureEl(shown, { size: 260, facing, fit: true, stage }));
   const stageRow = h('div', { class: 'chips-row stage-row' }, [1, 2, 3].map((st) => h('button', { class: `btn small stage-pick${stage === st ? ' on' : ''}`, type: 'button', title: st === 1 ? 'Below level 33' : st === 2 ? 'Level 33 and up' : 'Level 66 and up', onclick: () => { stage = st; for (const b of stageRow.children) b.classList.toggle('on', Number(b.dataset.stage) === st); redraw(); }, dataset: { stage: String(st) } }, stageName(st))));
   const title = h('h2', {}, g.name, g.shiny ? ' ✦' : '');
+  const morph = g.morph && MORPHS[g.morph] ? h('span', { class: `chip morph-chip morph-${g.morph}`, title: MORPHS[g.morph].desc }, MORPHS[g.morph].name) : null;
   const releaseBtn = sheetOpts.release ? releaseButton(sheetOpts.release, ctx.close) : null;
   const nav = ctx.nav;
   return [
@@ -22221,6 +22254,7 @@ function sheetContent(g, sheetOpts, ctx) {
       title,
       typeChips(g.types),
       styleChip(g),
+      morph,
       elementalBadge(g),
       sheetOpts.lock || sheetOpts.rename || releaseBtn ? h('span', { class: 'head-actions' },
         sheetOpts.lock ? lockButton(sheetOpts.lock, () => { if (releaseBtn) releaseBtn.refresh(); }) : null,
@@ -23814,6 +23848,7 @@ function fuse(a, b, rng) {
   }
   palette.c3 = nudgeColor(P1.palette.c3, rPal); palFrom.c3 = identity;
   palette.eye = P1.palette.eye.slice(); palFrom.eye = identity;
+  if (P1.morph) palette = morphPalette(palette, P1.morph); // a morph travels with the face and pins the blended coat to its look
   palette = harmonizePalette(palette);
 
   const traits = {};
@@ -23866,6 +23901,7 @@ function fuse(a, b, rng) {
     nameParts,
     gen,
     shiny: Boolean(P1.shiny),
+    ...(P1.morph ? { morph: P1.morph } : {}),
     types: [primary, secondary],
     parts, paint, palette, traits, stats, vigor, bst, lineage,
     parents: [a.name, b.name],
@@ -24628,9 +24664,132 @@ function worldStats(world) {
   return { kinds, perBiome };
 }
 
+// ---- src/game/dex.js ----
+// The Fusiondex: which species have been seen and caught across every journey, which colour morphs
+// have turned up, and the rewards that milestones unlock. It lives in the save beside the collection,
+// keyed by species id so it stays small however many creatures pass through. Pure functions.
+
+
+
+
+
+
+function emptyDex() { return { seen: {}, caught: {}, morphs: {}, claimed: [] }; }
+
+/** Milestones by species caught, each claimed once per save: gold into the purse, charms into the Bag. */
+const DEX_REWARDS = [
+  { caught: 10, gold: 2000 },
+  { caught: 25, charm: 'lure_charm' },
+  { caught: 50, gold: 8000 },
+  { caught: 100, charm: 'scholar_charm' },
+  { caught: 200, gold: 25000 },
+  { caught: 400, charm: 'lucky_coin' },
+  { caught: 700, gold: 60000 },
+  { caught: WILD_SPECIES.length, charm: 'prism_charm' },
+];
+
+function dexOf(save) { if (!save.dex || typeof save.dex !== 'object') save.dex = emptyDex(); for (const k of ['seen', 'caught', 'morphs']) if (!save.dex[k] || typeof save.dex[k] !== 'object') save.dex[k] = {}; if (!Array.isArray(save.dex.claimed)) save.dex.claimed = []; return save.dex; }
+
+/** A species has been seen (an encounter, a trainer's team). Returns true when it is new to the dex. */
+function dexSeen(save, genome) {
+  if (!genome || !genome.species || !SPECIES_BY_ID[genome.species]) return false;
+  const d = dexOf(save);
+  const fresh = !d.seen[genome.species];
+  d.seen[genome.species] = 1;
+  if (genome.morph && MORPH_IDS.includes(genome.morph)) { d.morphs[genome.species] = d.morphs[genome.species] || {}; d.morphs[genome.species][genome.morph] = Math.max(1, d.morphs[genome.species][genome.morph] || 0); }
+  return fresh;
+}
+
+/** A species has been caught, chosen as a starter, or is riding along in a party. Returns true when newly caught. */
+function dexCaught(save, genome) {
+  if (!genome || !genome.species || !SPECIES_BY_ID[genome.species]) return false;
+  dexSeen(save, genome);
+  const d = dexOf(save);
+  const fresh = !d.caught[genome.species];
+  d.caught[genome.species] = 1;
+  if (genome.morph && MORPH_IDS.includes(genome.morph)) { d.morphs[genome.species][genome.morph] = 2; }
+  return fresh;
+}
+
+/** Fold the collection and the journey's creatures into the dex (older saves, and a safety net on load). */
+function dexSeed(save) {
+  for (const e of save.collection || []) dexCaught(save, e.genome);
+  const j = save.journey;
+  if (j) for (const m of [...(j.party || []), ...(j.box || [])]) dexCaught(save, m.genome);
+  return save;
+}
+
+/** Coerce a parsed dex: only real species and morphs survive, counts are 1 (seen) or 2 (caught). */
+function normalizeDex(raw) {
+  const d = emptyDex();
+  if (!raw || typeof raw !== 'object') return d;
+  for (const k of ['seen', 'caught']) if (raw[k] && typeof raw[k] === 'object') for (const id of Object.keys(raw[k])) if (SPECIES_BY_ID[id] && raw[k][id]) d[k][id] = 1;
+  for (const id of Object.keys(d.caught)) d.seen[id] = 1;
+  if (raw.morphs && typeof raw.morphs === 'object') for (const [id, ms] of Object.entries(raw.morphs)) {
+    if (!SPECIES_BY_ID[id] || !ms || typeof ms !== 'object') continue;
+    for (const m of MORPH_IDS) if (ms[m]) { d.morphs[id] = d.morphs[id] || {}; d.morphs[id][m] = ms[m] >= 2 ? 2 : 1; }
+  }
+  if (Array.isArray(raw.claimed)) d.claimed = raw.claimed.filter((i) => Number.isInteger(i) && i >= 0 && i < DEX_REWARDS.length).filter((i, k, arr) => arr.indexOf(i) === k);
+  return d;
+}
+
+function dexStatus(save, speciesId) { const d = dexOf(save); return d.caught[speciesId] ? 'caught' : d.seen[speciesId] ? 'seen' : 'unseen'; }
+/** Morphs recorded for a species: { albino: 1|2, ... } (1 seen, 2 caught). */
+function dexMorphs(save, speciesId) { return dexOf(save).morphs[speciesId] || {}; }
+
+/** Totals for the dex header and per class. */
+function dexCounts(save) {
+  const d = dexOf(save);
+  const out = { total: WILD_SPECIES.length, seen: 0, caught: 0, morphs: 0, byClass: {} };
+  for (const c of CLADE_IDS) out.byClass[c] = { total: 0, seen: 0, caught: 0 };
+  for (const s of WILD_SPECIES) {
+    const b = out.byClass[s.clade];
+    b.total++;
+    if (d.seen[s.id]) { out.seen++; b.seen++; }
+    if (d.caught[s.id]) { out.caught++; b.caught++; }
+  }
+  for (const ms of Object.values(d.morphs)) for (const v of Object.values(ms)) if (v >= 2) out.morphs++;
+  return out;
+}
+
+/** Where a species lives: its class's region and its types, for the dex hint. */
+function dexHabitat(speciesId) {
+  const s = SPECIES_BY_ID[speciesId];
+  if (!s) return null;
+  const r = REGIONS[s.clade];
+  return { region: r ? r.name : '', types: s.types.filter(Boolean) };
+}
+
+/** Every reward tier with its state: 'locked' (not enough caught), 'ready' (claimable) or 'claimed'. */
+function dexRewards(save) {
+  const d = dexOf(save), caught = dexCounts(save).caught;
+  return DEX_REWARDS.map((r, i) => ({ ...r, index: i, state: d.claimed.includes(i) ? 'claimed' : caught >= r.caught ? 'ready' : 'locked', label: r.gold ? `${r.gold.toLocaleString()} gold` : getCharm(r.charm).name }));
+}
+
+/** Claim a ready tier into the current journey: gold to the purse, a charm to the Bag. { ok, reason?, reward } */
+function claimDexReward(save, index) {
+  const tiers = dexRewards(save), t = tiers[index];
+  if (!t) return { ok: false, reason: 'No such reward.' };
+  if (t.state === 'claimed') return { ok: false, reason: 'Already claimed.' };
+  if (t.state === 'locked') return { ok: false, reason: `Catch ${t.caught} species first.` };
+  const j = save.journey;
+  if (!j || j.phase === 'starter') return { ok: false, reason: 'Set out on a journey to claim it.' };
+  if (t.gold) j.gold = (j.gold || 0) + t.gold;
+  if (t.charm) { j.bag = j.bag || {}; j.bag[t.charm] = (j.bag[t.charm] || 0) + 1; }
+  dexOf(save).claimed.push(index);
+  return { ok: true, reward: t };
+}
+
+/** Species of a class in dex order: by tier then name. */
+function dexSpeciesOf(clade) {
+  const rank = { common: 0, uncommon: 1, rare: 2 };
+  return SPECIES.filter((s) => s.clade === clade && !s.hidden).sort((a, b) => rank[a.tier] - rank[b.tier] || (a.name < b.name ? -1 : 1));
+}
+
 // ---- src/game/save.js ----
 // Persistent save: totals, the creature collection, the journey in progress and settings.
 // One localStorage key, versioned, normalised on load so junk cannot brick it.
+
 
 
 
@@ -24652,6 +24811,7 @@ function emptySave() {
     collection: [],
     journey: null,
     settings: { fast: false },
+    dex: emptyDex(),
   };
 }
 
@@ -24685,6 +24845,8 @@ function normalizeSave(raw) {
     if (r.stats) for (const k of ['battles', 'captures', 'fusions']) s.totals[k] += Math.max(0, Number(r.stats[k]) || 0);
   }
   s.journey = normalizeJourney(raw.journey);
+  s.dex = normalizeDex(raw.dex);
+  dexSeed(s); // whatever travelled with you counts as caught, so older saves fill their dex on load
   return s;
 }
 
@@ -24770,8 +24932,11 @@ function importSave(code) {
   return normalizeSave(raw);
 }
 
-/** Remember a creature in the collection. Wild species dedupe by species; fusions by name and seed. */
+function dexCaughtSafe(save, genome) { try { dexSeed({ collection: [{ genome }], journey: null, dex: (save.dex = save.dex || emptyDex()) }); } catch { /* the dex never blocks a save */ } }
+
+/** Remember a creature in the collection (and mark its species caught in the dex). Wild species dedupe by species; fusions by name and seed. */
 function recordCollection(save, genome) {
+  dexCaughtSafe(save, genome);
   const key = genome.gen ? `${genome.name}#${genome.seed}` : genome.species;
   const exists = save.collection.some((e) => (e.genome.gen ? `${e.genome.name}#${e.genome.seed}` : e.genome.species) === key);
   if (exists) return false;
@@ -25034,6 +25199,7 @@ function teachMove(j, uid, moveId, replaceIndex) {
 
 
 
+
 const JOURNEY = { starterLevel: PARTY.starterLevel, maxLevel: PARTY.maxLevel, partyMax: PARTY.max, gauntletHeal: 0.35, badgesForSpire: BIOME_ORDER.length, councilFights: 4 };
 const DIRS = { up: [0, -1], down: [0, 1], left: [-1, 0], right: [1, 0] };
 
@@ -25121,7 +25287,7 @@ function tryMove(j, dir) {
     const leadHeld = heldKind(j.party[0] && j.party[0].held); // the lead's charm shapes the road: a Lure draws creatures out, a Prism draws out Elementals
     if (rng.chance(Math.min(1, WORLD.encounterChance * (leadHeld === 'lure' ? CHARM_RULE.lureMul : 1)))) {
       const spawn = wildSpawn(world, nx, ny, rng.fork('spawn'), { elementalMul: leadHeld === 'prism' ? CHARM_RULE.prismMul : 1 });
-      const name = `${spawn.alpha ? 'Alpha ' : 'Wild '}${spawn.genome.name}`;
+      const name = `${spawn.alpha ? 'Alpha ' : 'Wild '}${spawn.genome.morph ? `${MORPHS[spawn.genome.morph].name} ` : ''}${spawn.genome.name}`;
       j.encounter = { kind: 'wild', name, foes: [{ genome: spawn.genome, level: spawn.level }], capturable: true, biome: spawn.biome, alpha: spawn.alpha, elemental: spawn.elemental, type: spawn.type };
       return { moved: true, event: { kind: 'encounter', encounter: j.encounter } };
     }
@@ -25382,6 +25548,10 @@ function partyHealth(j) {
 
 
 
+
+
+
+
 const MOVE_MS = 150;
 const ow = {
   save: null, root: null, j: null, world: null, canvas: null, ctx: null, raf: 0, last: 0, tween: null, queue: [], held: null, keys: new Set(),
@@ -25425,7 +25595,7 @@ function owIntroView(root) {
     h('div', { class: 'hero-card' },
       h('h2', {}, 'The Overworld'),
       h('p', { class: 'hint' }, `${BIOME_ORDER.length} biomes ring the Crossroads, one for each class of creature, each harder than the last: ${listWords(BIOME_ORDER.map((c) => REGIONS[c].name.toLowerCase()))}. Catch what lives there, ask trainers for a fight, take a badge from every Warden, and when you hold them all the Council Spire opens: four fights, back to back.`),
-      h('div', { class: 'tiles' }, owTile('biomes', BIOME_ORDER.length), owTile('wardens', BIOME_ORDER.length), owTile('journeys', ow.save.totals.journeys), owTile('collection', ow.save.collection.length)),
+      h('div', { class: 'tiles' }, owTile('biomes', BIOME_ORDER.length), owTile('wardens', BIOME_ORDER.length), owTile('journeys', ow.save.totals.journeys), owTile('dex', `${dexCounts(ow.save).caught}/${dexCounts(ow.save).total}`)),
       h('button', { class: 'btn primary fuse-btn', type: 'button', onclick: () => {
         let seed = null;
         try { seed = new URLSearchParams(location.search).get('seed'); } catch { /* ignore */ }
@@ -25460,7 +25630,7 @@ function owStarterView(root, j) {
 // ---- map view -------------------------------------------------------------------
 
 function owKindLabel(enc) {
-  if (enc.kind === 'wild') { const el = elementalOf(enc.foes[0].genome); return el && el.pure ? `${el.name} Elemental!` : enc.alpha ? 'Alpha encounter' : 'Wild encounter'; }
+  if (enc.kind === 'wild') { const el = elementalOf(enc.foes[0].genome), g = enc.foes[0].genome; return el && el.pure ? `${el.name} Elemental!` : g.morph && MORPHS[g.morph] ? `${MORPHS[g.morph].name} morph!` : enc.alpha ? 'Alpha encounter' : 'Wild encounter'; }
   return { trainer: 'Trainer battle', boss: 'Warden', council: 'The Council', tower: 'Battle Tower' }[enc.kind] || enc.kind;
 }
 
@@ -25508,6 +25678,7 @@ function owHud(j) {
       h('button', { class: 'btn small', type: 'button', onclick: () => owPartySheet(j) }, 'Party'),
       h('button', { class: 'btn small', type: 'button', onclick: () => owBagSheet(j) }, 'Bag'),
       h('button', { class: 'btn small', type: 'button', onclick: () => owMapSheet(j) }, 'Map'),
+      h('button', { class: 'btn small', type: 'button', onclick: () => owDexSheet() }, 'Dex'),
       h('button', { class: 'btn small', type: 'button', onclick: () => owMenuSheet(j) }, 'Menu')));
 }
 
@@ -25716,6 +25887,9 @@ function owSpireDialog(ev) {
 
 function owEncounterView(root, j) {
   const enc = j.encounter;
+  let fresh = false;
+  for (const f of enc.foes) if (dexSeen(ow.save, f.genome)) fresh = true; // every foe you face is a species seen
+  if (fresh) owSave();
   const kind = owKindLabel(enc);
   const elem = enc.kind === 'wild' ? elementalOf(enc.foes[0].genome) : null;
   const foes = h('div', { class: `foes${enc.foes.length <= 2 ? ' few' : ''}` }, enc.foes.map((f) => h('div', { class: 'foe-card' },
@@ -25941,7 +26115,8 @@ function owMenuSheet(j) {
       h('div', { class: 'toolbar' },
         h('button', { class: `btn small${ow.save.settings.fast ? ' on' : ''}`, type: 'button', onclick: () => { ow.save.settings.fast = !ow.save.settings.fast; owSave(); render(); } }, ow.save.settings.fast ? 'Fast battles ✓' : 'Fast battles'),
         h('button', { class: 'btn small', type: 'button', onclick: () => { respawnJourney(j); owSave(); toast('Back at the last camp, rested.'); sheetRef.close(); renderWorldScreen(ow.root); } }, 'Return to camp'),
-        h('button', { class: 'btn small', type: 'button', onclick: () => { sheetRef.close(); owCollectionSheet(); } }, `Collection · ${ow.save.collection.length}`)),
+        h('button', { class: 'btn small', type: 'button', onclick: () => { sheetRef.close(); owCollectionSheet(); } }, `Collection · ${ow.save.collection.length}`),
+        h('button', { class: 'btn small', type: 'button', onclick: () => { sheetRef.close(); owDexSheet(); } }, `Dex · ${dexCounts(ow.save).caught}/${dexCounts(ow.save).total}`)),
       h('div', { class: 'toolbar' },
         h('button', { class: 'btn', type: 'button', onclick: async () => toast((await copyText(exportSave(ow.save))) ? 'Save code copied' : 'Copy failed') }, 'Export'),
         h('button', { class: `btn${ow.confirmReset ? ' danger' : ''}`, type: 'button', onclick: () => {
@@ -26210,10 +26385,75 @@ function owTowerSheet(j) {
   const { close } = owSheet('Battle Tower', body, () => owRefreshHud());
 }
 
+// ---- the Fusiondex ----------------------------------------------------------------
+
+const DEX_SEED = 'dex';
+function owDexGenome(sp) { ow.dexCache = ow.dexCache || new Map(); if (!ow.dexCache.has(sp.id)) ow.dexCache.set(sp.id, speciesGenome(sp, makeRngDex(sp.id))); return ow.dexCache.get(sp.id); }
+function makeRngDex(id) { return makeRng(`${DEX_SEED}:${id}`); }
+
+/** One card per species of a class: caught species drawn in full, seen ones as silhouettes, the rest as numbered blanks. */
+function owDexGrid(clade) {
+  const grid = h('div', { class: 'pool dex-grid' });
+  const list = dexSpeciesOf(clade);
+  const items = list.map((sp) => ({ sp, status: dexStatus(ow.save, sp.id) }));
+  const known = items.filter((it) => it.status !== 'unseen');
+  items.forEach((it, i) => {
+    const { sp, status } = it;
+    const morphs = dexMorphs(ow.save, sp.id);
+    const morphTags = Object.entries(morphs).map(([m, v]) => h('span', { class: `morph-dot morph-${m}${v >= 2 ? ' got' : ''}`, title: `${MORPHS[m].name}${v >= 2 ? ' caught' : ' seen'}` }));
+    if (status === 'unseen') {
+      grid.append(h('div', { class: 'pcard dex-card unseen' }, h('span', { class: 'gen' }, `#${i + 1}`), h('div', { class: 'dex-blank' }, '?'), h('span', {}, sp.tier === 'rare' ? 'rare · not yet seen' : 'not yet seen')));
+      return;
+    }
+    const g = owDexGenome(sp), hab = dexHabitat(sp.id);
+    grid.append(h('button', { class: `pcard dex-card ${status}`, type: 'button', onclick: () => openSheet(g, { nav: { label: `${cladeName(clade)} dex`, index: known.indexOf(it), items: known.map((k) => ({ genome: owDexGenome(k.sp) })) } }) },
+      h('span', { class: 'gen' }, `#${i + 1}${status === 'seen' ? ' · seen' : ''}`),
+      morphTags.length ? h('span', { class: 'sel morphs' }, morphTags) : null,
+      creatureEl(g, { size: 104, animate: false }), h('span', {}, sp.name),
+      h('span', { class: 'dex-hab' }, `${hab.region} · ${hab.types.join(' / ')}`)));
+  });
+  return grid;
+}
+
+function owDexSheet() {
+  const body = h('div');
+  let clade = ow.dexClade || (ow.j && journeyPlace(ow.j).clade) || CLADE_IDS[0];
+  let tab = ow.dexTab || 'species';
+  const draw = () => {
+    clear(body);
+    const c = dexCounts(ow.save);
+    const tabs = h('div', { class: 'type-filter' }, [['species', 'Species'], ['fusions', 'Fusions'], ['rewards', 'Rewards']].map(([id, label]) => h('button', { class: `btn small${tab === id ? ' on' : ''}`, type: 'button', onclick: () => { tab = id; ow.dexTab = id; render(); } }, label)));
+    body.append(h('p', { class: 'hint' }, `Caught ${c.caught} and seen ${c.seen} of ${c.total} species${c.morphs ? ` · ${c.morphs} colour morph${c.morphs > 1 ? 's' : ''} caught` : ''} · ${ow.save.totals.fusions + (ow.j ? ow.j.stats.fusions : 0)} fusions made. Every creature you face counts as seen; every one you choose, catch or fuse counts as caught.`), tabs);
+    if (tab === 'species') {
+      const chips = h('div', { class: 'type-filter' }, CLADE_IDS.map((id) => { const b = c.byClass[id]; return h('button', { class: `btn small${clade === id ? ' on' : ''}`, type: 'button', style: { '--chip': REGIONS[id].accent }, onclick: () => { clade = id; ow.dexClade = id; render(); } }, `${cladeName(id)} ${b.caught}/${b.total}`); }));
+      const b = c.byClass[clade];
+      appendChildren(body, [chips, h('p', { class: 'hint' }, `${cladeName(clade)}s of the ${REGIONS[clade].name}: ${b.caught} caught, ${b.seen} seen of ${b.total}. Tap a card for its sheet.`), owDexGrid(clade)]);
+    } else if (tab === 'fusions') {
+      const fusions = ow.save.collection.filter((e) => e.genome.gen > 0).slice().reverse();
+      appendChildren(body, [h('p', { class: 'hint' }, fusions.length ? `${fusions.length} fusion${fusions.length > 1 ? 's' : ''} remembered in the collection, newest first.` : 'No fusions yet. The shrine at the Crossroads fuses two creatures of one class.'), owCollectionGrid(fusions)]);
+    } else {
+      const list = h('div', { class: 'shop-list' });
+      for (const t of dexRewards(ow.save)) {
+        list.append(h('div', { class: `shop-row${t.state === 'claimed' ? ' known' : t.state === 'ready' ? ' next' : ''}` },
+          h('div', { class: 'shop-info' }, h('b', {}, `${t.caught} species caught`), h('div', { class: 'shop-meta' }, h('span', {}, t.label), h('span', { class: 'shop-tag' }, t.state === 'claimed' ? 'claimed' : t.state === 'ready' ? 'ready' : `${Math.max(0, t.caught - c.caught)} to go`))),
+          h('button', { class: `btn small${t.state === 'ready' ? ' primary' : ''}`, type: 'button', disabled: t.state !== 'ready', onclick: () => {
+            const r = claimDexReward(ow.save, t.index);
+            if (!r.ok) { toast(r.reason); return; }
+            owSave(); sfx.levelUp(); toast(`Claimed: ${t.label}${t.charm ? ' is in your Bag' : ''}.`); render(); owRefreshHud();
+          } }, t.state === 'claimed' ? 'Done' : 'Claim')));
+      }
+      appendChildren(body, [h('p', { class: 'hint' }, 'Milestones pay out once per save, into the journey you are on.'), list]);
+    }
+  };
+  const render = () => owKeepScroll(body, draw);
+  render();
+  owSheet('Fusiondex', body, () => owRefreshHud());
+}
+
 /** Grid of everything caught, chosen or fused, newest first. */
-function owCollectionGrid() {
+function owCollectionGrid(entries) {
   const grid = h('div', { class: 'pool' });
-  const entries = ow.save.collection.slice().reverse();
+  entries = entries || ow.save.collection.slice().reverse();
   entries.forEach((e, i) => {
     grid.append(h('button', { class: 'pcard', type: 'button', onclick: () => openSheet(e.genome, { nav: { label: 'Collection', index: i, items: entries.map((x) => ({ genome: x.genome })) } }) },
       e.genome.gen ? h('span', { class: 'gen' }, `gen ${e.genome.gen}`) : null,

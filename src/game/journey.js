@@ -5,6 +5,7 @@
 import { makeRng } from '../core/rng.js';
 import { WILD_SPECIES, TIER_WEIGHT } from '../data/species.js';
 import { speciesGenome } from '../creature/genome.js';
+import { MORPHS } from '../creature/palette.js';
 import { fuse, canFuse } from '../creature/fusion.js';
 import { createBattle, makeBattler } from '../battle/engine.js';
 import { PARTY, XP, makeMember, gainXp, healParty, xpProgress, xpReward, memberMaxHp, canFight } from './party.js';
@@ -100,7 +101,7 @@ export function tryMove(j, dir) {
     const leadHeld = heldKind(j.party[0] && j.party[0].held); // the lead's charm shapes the road: a Lure draws creatures out, a Prism draws out Elementals
     if (rng.chance(Math.min(1, WORLD.encounterChance * (leadHeld === 'lure' ? CHARM_RULE.lureMul : 1)))) {
       const spawn = wildSpawn(world, nx, ny, rng.fork('spawn'), { elementalMul: leadHeld === 'prism' ? CHARM_RULE.prismMul : 1 });
-      const name = `${spawn.alpha ? 'Alpha ' : 'Wild '}${spawn.genome.name}`;
+      const name = `${spawn.alpha ? 'Alpha ' : 'Wild '}${spawn.genome.morph ? `${MORPHS[spawn.genome.morph].name} ` : ''}${spawn.genome.name}`;
       j.encounter = { kind: 'wild', name, foes: [{ genome: spawn.genome, level: spawn.level }], capturable: true, biome: spawn.biome, alpha: spawn.alpha, elemental: spawn.elemental, type: spawn.type };
       return { moved: true, event: { kind: 'encounter', encounter: j.encounter } };
     }

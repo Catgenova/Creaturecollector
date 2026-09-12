@@ -51,6 +51,21 @@ export function jitterPalette(base, vary, rng) {
   };
 }
 
+/** Colour morphs, rarer than shinies: each pins the palette to a look rather than shifting it, so applying one twice changes nothing. */
+export const MORPHS = {
+  albino: { id: 'albino', name: 'Albino', desc: 'Bleached to bone white with pink eyes.' },
+  melanistic: { id: 'melanistic', name: 'Melanistic', desc: 'Coal dark from nose to tail, with amber eyes.' },
+  pastel: { id: 'pastel', name: 'Pastel', desc: 'Washed to soft chalk tints.' },
+};
+export const MORPH_IDS = Object.keys(MORPHS);
+export function morphPalette(pal, morph) {
+  const pin = (c, s, l) => [c[0], s, l];
+  if (morph === 'albino') return { c1: pin(pal.c1, 8, 90), c2: pin(pal.c2, 10, 82), c3: pin(pal.c3, 14, 74), eye: [340, 72, 62] };
+  if (morph === 'melanistic') return { c1: pin(pal.c1, 18, 16), c2: pin(pal.c2, 22, 22), c3: pin(pal.c3, 30, 30), eye: [42, 92, 56] };
+  if (morph === 'pastel') return { c1: pin(pal.c1, 34, 78), c2: pin(pal.c2, 38, 70), c3: pin(pal.c3, 42, 64), eye: [pal.eye[0], 40, 50] };
+  return pal;
+}
+
 /** Rare recolour: rotate the whole palette to a new harmony. */
 export function shinyPalette(pal, rng) {
   const rot = rng.range(140, 220);

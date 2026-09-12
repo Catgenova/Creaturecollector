@@ -14,7 +14,7 @@ import { splitName } from './naming.js';
 import { getMove, UNIVERSAL_LEARNSET } from '../data/moves.js';
 import { ABILITIES } from '../data/abilities.js';
 import { CLADES } from '../data/clades.js';
-import { jitterPalette, shinyPalette, harmonizePalette } from './palette.js';
+import { jitterPalette, shinyPalette, harmonizePalette, morphPalette, MORPH_IDS } from './palette.js';
 
 export const GENOME_VERSION = 1;
 export const CODE_PREFIX = 'CC1.';
@@ -30,6 +30,7 @@ export const ROLL = {
   bodyCarriedMutation: 0.05,
   paintSwap: 0.12,        // a slot's colour roles get permuted
   shiny: 1 / 64,
+  morph: 1 / 256,         // albino, melanistic or pastel colour morphs
   elemental: ELEMENTAL_CHANCE, // wild creatures born of an element
 };
 
@@ -91,6 +92,8 @@ export function speciesGenome(species, rng) {
   let palette = jitterPalette(species.palette, species.vary, rPal);
   const shiny = rPal.chance(ROLL.shiny);
   if (shiny) palette = shinyPalette(palette, rPal);
+  const morph = rPal.chance(ROLL.morph) ? rPal.pick(MORPH_IDS) : null;
+  if (morph) palette = morphPalette(palette, morph);
   palette = harmonizePalette(palette);
 
   const traits = {};
@@ -112,6 +115,7 @@ export function speciesGenome(species, rng) {
     nameParts: species.nameParts ? species.nameParts.slice() : splitName(species.name),
     gen: 0,
     shiny,
+    ...(morph ? { morph } : {}),
     types: [species.types[0], species.types[1] || null],
     parts,
     paint,
@@ -280,6 +284,7 @@ export function validateGenome(g) {
   if (g.parents === undefined) delete g.parents;
   g.lineage = Array.isArray(g.lineage) ? g.lineage.filter((x) => typeof x === 'string').slice(0, 16) : [];
   g.shiny = Boolean(g.shiny);
+  if (!MORPH_IDS.includes(g.morph)) delete g.morph;
   const sp = g.species ? SPECIES_BY_ID[g.species] : null;
   g.learnset = Array.isArray(g.learnset) ? g.learnset.filter((e) => Array.isArray(e) && Number.isFinite(e[0]) && getMove(e[1])).map((e) => [e[0], e[1]]) : [];
   if (!g.learnset.length) g.learnset = ((sp && sp.learnset) || UNIVERSAL_LEARNSET).map((e) => e.slice());

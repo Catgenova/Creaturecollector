@@ -64,6 +64,14 @@ the same anatomy. All eighteen classes are on rigs and the old shared skeleton i
 pushed every slot away from field-guide realism: forehead sigils, tufted and
 leaf ears, orb and flame tails, glowing tips and bold markings. See `DESIGN.md`.
 
+Fusiondex: a dex of all 895 species, per class, with everything you have
+faced marked seen and everything you have chosen, caught or fused marked
+caught, silhouettes for the seen, numbered blanks for the rest, a habitat hint
+on every card, a gallery of your fusions, and milestone rewards (gold and
+charms) that pay out once per save. Colour morphs join the hunt: one wild
+creature in 256 is albino, melanistic or pastel, announced by name, kept
+through fusion and tracked on the dex card.
+
 Held charms: a creature holds one charm and carries it into every fight.
 Eighteen type charms lift one type's moves by a fifth, three bands lift one
 damage type by a tenth, and ten utility charms add a small passive (Moss
