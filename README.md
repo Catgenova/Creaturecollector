@@ -97,7 +97,9 @@ the once-a-battle ones fire twice.
 A second passive slot: 40,000 gold at the Rookery opens a second slot on one
 creature for good, and from then on it fights with both passives. Swaps and
 wild draws can turn over either slot. Only the player can buy one, so wild
-creatures and trainers still field a single passive.
+creatures and trainers still field a single passive. An Elemental can buy one
+too: its core holds the first slot and cannot be turned over, but the second is
+its own.
 
 The postgame: once you beat the Council, the Spire opens the Trial of the Day,
 one gauntlet a day seeded by the date so everyone meets the same one, with a
@@ -159,7 +161,8 @@ turned over. A swap moves it to another passive its own bloodline carries (the
 other of its species' pair, or any parent's for a fusion) for 900 gold plus 20
 a level, and can be swapped back. A wild draw costs 3,500 plus 40 a level,
 cannot be chosen, and takes one at random from the passives that suit the
-creature's types or its fighting style. An Elemental keeps its core.
+creature's types or its fighting style. An Elemental keeps its core in the
+first slot — no swap, no draw — but may still buy and fill a second.
 
 Bounty Office: a small house on the square with five standing bounties, each
 wanting a fusion of a given type. Hand over any shrine-born creature carrying

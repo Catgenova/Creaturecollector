@@ -1463,7 +1463,12 @@ either can be turned over afterwards, and the creature sheet lists both.
 It is a player-only purchase. Wild creatures, trainers, Wardens and the
 tournament simulator all field one passive as before, so the 40-60% band the
 tuner maintains is untouched; what the player buys is a build, not a stat.
-An Elemental still keeps its core and cannot buy a slot.
+**Changed since:** an Elemental may buy the second slot after all. Its core
+is what makes it an Elemental, so the first slot is still not for turning
+over — no swap, no wild draw — but the second is bought empty and filled
+like anyone else's, and a core is never what goes into it: neither the
+bloodline list nor the wild pool has one in them. The Rookery also says the
+rule on the row now rather than in a tooltip, which is invisible on a phone.
 
 ## The Trophy Hall (implemented)
 

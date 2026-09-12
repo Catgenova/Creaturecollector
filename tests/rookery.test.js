@@ -100,13 +100,14 @@ test('a wild draw takes a passive suited to its types or style, and never a core
   assert.equal(j.gold, before - price - drawPrice(m));
 });
 
-test('an Elemental keeps its core, and gold is required', () => {
+test('an Elemental keeps its core in the first slot, and gold is required', () => {
   const g = makeElemental(gen('emberox'), 'fire', makeRng('e'));
   assert.ok(isCoreAbility(g.ability));
   const j = journeyWith([g]);
   assert.match(rookeryBlock(j.party[0], 'swap'), /Elemental/);
   assert.equal(swapPassive(j, j.party[0].uid).ok, false);
   assert.equal(wildDraw(j, j.party[0].uid).ok, false);
+  assert.equal(j.party[0].genome.ability, g.ability, 'and neither one moved it');
 
   const poor = journeyWith([gen('pufflet')], 10);
   const r = swapPassive(poor, poor.party[0].uid);
@@ -139,9 +140,34 @@ test('a second slot is bought once, and the engine fights with both passives', (
   assert.ok(calcDamage(one, armoured, getMove('fire_stream'), 1, 1, false) < calcDamage(one, soft, getMove('fire_stream'), 1, 1, false));
 });
 
-test('an Elemental cannot buy a slot, and the second slot survives a save round trip', () => {
+test('an Elemental can buy a second slot beside its core, and turn that one over', () => {
   const elem = journeyWith([makeElemental(gen('emberox'), 'fire', makeRng('e2'))]);
-  assert.match(openSecondSlot(elem, elem.party[0].uid).reason, /Elemental/);
+  const m = elem.party[0];
+  const core = m.genome.ability;
+  assert.ok(isCoreAbility(core));
+  assert.equal(rookeryBlock(m, 'second'), null, 'the second slot is open to it');
+  const bought = openSecondSlot(elem, m.uid);
+  assert.ok(bought.ok, bought.reason);
+  assert.equal(m.genome.ability, core, 'the core did not move');
+  assert.ok(m.genome.ability2 && !isCoreAbility(m.genome.ability2), 'and what it bought is no core');
+
+  // the bought slot behaves like anyone else's: it can be swapped and drawn over, the core cannot
+  const swapped = swapPassive(elem, m.uid, null, 2);
+  assert.ok(swapped.ok, swapped.reason);
+  assert.equal(m.genome.ability, core);
+  const drawn = wildDraw(elem, m.uid, 2);
+  assert.ok(drawn.ok, drawn.reason);
+  assert.ok(!isCoreAbility(m.genome.ability2));
+  assert.equal(m.genome.ability, core, 'still itself');
+  assert.match(rookeryBlock(m, 'draw', 1), /Elemental/, 'the first slot is still its own');
+
+  // and both reach the battle
+  const both = makeBattler(m.genome, 50);
+  assert.equal(both.ability, core);
+  assert.equal(both.ability2, m.genome.ability2);
+});
+
+test('the second slot survives a save round trip', () => {
 
   const j = journeyWith([gen('glacub')]);
   assert.ok(openSecondSlot(j, j.party[0].uid).ok);

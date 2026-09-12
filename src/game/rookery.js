@@ -1,7 +1,11 @@
 // The Rookery: a hut on the Crossroads where a creature's passive can be turned over.
 // A swap moves it to another passive its own bloodline carries; a wild draw takes one from the
-// pool that suits its types or its fighting style, for a good deal more gold. An Elemental's core
-// passive is what makes it an Elemental, so the Rookery will not touch it.
+// pool that suits its types or its fighting style, for a good deal more gold.
+//
+// An Elemental's core is what makes it an Elemental, so nothing turns over the first slot of one:
+// no swap, no draw. The second slot is a different matter — it is bought, it is empty, and an
+// Elemental may buy and fill it like anything else. A core is never handed out for it: neither the
+// bloodline list nor the wild pool has one in it.
 import { SPECIES_BY_ID } from '../data/species.js';
 import { ABILITIES, ABILITY_IDS, abilityName } from '../data/abilities.js';
 import { isCoreAbility } from '../data/elements.js';
@@ -47,7 +51,10 @@ export function drawPrice(member) { return ROOKERY.drawBase + ROOKERY.drawPerLev
 /** Why the Rookery would turn this creature away, or null when it can help. */
 export function rookeryBlock(member, kind = 'swap', slot = 1) {
   if (!member || !member.genome) return 'No creature.';
-  if (isCoreAbility(member.genome.ability)) return `An Elemental keeps its core: ${abilityName(member.genome.ability)} is what it is.`;
+  // the core sits in the first slot and stays there; everything else about an Elemental is ordinary
+  if (isCoreAbility(member.genome.ability) && slot === 1 && (kind === 'swap' || kind === 'draw')) {
+    return `An Elemental keeps its core: ${abilityName(member.genome.ability)} cannot be turned over. Its second slot can.`;
+  }
   if (slot === 2 && !member.genome.ability2) return 'This creature has only one slot. Open the second one first.';
   if (kind === 'swap' && !swapChoices(member.genome, slot).length) return 'Its bloodline knows no other passive. A wild draw still can.';
   if (kind === 'draw' && !wildPool(member.genome).length) return 'Nothing in the wild suits it.';
