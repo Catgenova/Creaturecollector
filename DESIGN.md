@@ -1051,8 +1051,17 @@ types, which is the only way a second species ever knows one.
   it), `cleanse` (reset the target's stat stages), `boostIfLow` (half again
   at a third HP or less) and `boostIfFirst` (half again while the target has
   not moved this turn). The AI weighs each of them.
-- **Balance.** Rares gained a strong move at 50, so the tuner ran again after
-  this patch; see the balance note at the end of the content patches.
+- **Balance.** Rares gained a strong move at 50: the first tuner round after
+  this patch read 34–79% with twenty species outside the band, the void rares
+  and Thunderbull highest. Three passes of `2 40000 100 40000` followed
+  (each round now takes about 200 seconds with the new effects), moving 740,
+  731 and 741 totals; between the second and third, Wraithwing, sitting on
+  the 360 floor at 63%, had its priority signature Gone Before Seen softened
+  from 70 to 60 power. The final 40,000-game verification read 40–61% with
+  one species at 61% (Thunderbull, still drifting down) and a mean of 49.9%;
+  totals span 360 to 520 with 70 species on the floor and two on the cap.
+  Natures, added afterwards, lean stats at random and add noise but no bias,
+  so the loop stands.
 
 ## Held charms (implemented)
 
