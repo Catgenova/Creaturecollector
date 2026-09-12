@@ -50,6 +50,11 @@ function transform(code, file) {
   out = out.replace(/^[ \t]*export\s*\{[^}]*\}\s*;?[ \t]*$/gm, '');
   out = out.replace(/^([ \t]*)export\s+(?=(?:async\s+)?function\b|const\b|let\b|var\b|class\b)/gm, '$1');
   if (/^\s*import\b/m.test(out)) throw new Error(`${rel(file)}: unsupported import form left after transform`);
+  // the bundle shares one scope, so an aliased import would leave the new name undefined at runtime
+  for (const m of code.matchAll(/^\s*import\s*\{([^}]*)\}/gm)) {
+    const alias = m[1].split(',').find((part) => /\bas\b/.test(part));
+    if (alias) throw new Error(`${rel(file)}: aliased import (${alias.trim()}) cannot be bundled; import the name as it is`);
+  }
   if (/^\s*export\b/m.test(out)) throw new Error(`${rel(file)}: unsupported export form left after transform`);
   return out;
 }

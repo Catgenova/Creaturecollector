@@ -12,6 +12,7 @@ import { PARTY, XP, makeMember, gainXp, healParty, xpProgress, xpReward, memberM
 import { WORLD, TILE, REGIONS, BIOME_ORDER, worldFor, tileAt, biomeAt, trainerAt, isWalkable, inBounds, wildSpawn, levelAt } from './world.js';
 import { goldReward, battleItems, syncBagFromBattle, returnCharms } from './market.js';
 import { getCharm, heldKind, CHARM_RULE, WARDEN_CHARMS } from '../data/charms.js';
+import { TRIAL, trialDay, trialOf, trialState, trialBlock, enterTrial, trialEncounter, trialGold } from './trial.js';
 import { abilityWorldMul } from '../data/abilities.js';
 import { recordTowerWin, towerRecord } from './tower.js';
 import { newBoard, ensureBoard, questEvent } from './quests.js';
@@ -40,7 +41,7 @@ export function newJourney(seed) {
     player: { x: world.start.x, y: world.start.y, dir: 'down' },
     badges: [], beaten: {}, camps: [], lastCamp: { x: world.hubCamp.x, y: world.hubCamp.y }, cooldown: 0,
     gold: 0, bag: {}, quests: newBoard(), bounties: newBounties(),
-    gauntlet: null, champion: false, encounter: null, lastReport: null,
+    gauntlet: null, champion: false, encounter: null, lastReport: null, trial: null, trials: {}, elders: {},
   };
 }
 
@@ -95,7 +96,7 @@ export function tryMove(j, dir) {
   }
   if (tile === TILE.door) {
     const b = biomeAt(world, nx, ny);
-    return { moved: true, event: { kind: 'lair', biome: b.id, warden: world.wardens[b.clade], owned: j.badges.includes(b.id) } };
+    return { moved: true, event: { kind: 'lair', biome: b.id, warden: world.wardens[b.clade], owned: j.badges.includes(b.id), elder: elderWaiting(j, b.id) } };
   }
   if (tile === TILE.spireDoor) return { moved: true, event: { kind: 'spire', open: j.badges.length >= JOURNEY.badgesForSpire, champion: j.champion } };
   if (tile === TILE.shrine) return { moved: true, event: { kind: 'shrine' } };
@@ -160,6 +161,40 @@ export function acceptChallenge(j, trainerId) {
   return j.encounter;
 }
 
+/** The Elders: one ancient creature per region, awake only for a champion, and only once each. */
+export const ELDER = { level: 78 };
+
+/** The Elder of a region: the rarest thing that lives there, grown old. Deterministic per journey. */
+export function elderOf(j, biomeId) {
+  const world = worldFor(j.seed);
+  const biome = world.biomes.find((b) => b.id === biomeId);
+  if (!biome) return null;
+  const pool = WILD_SPECIES.filter((sp) => sp.clade === biome.clade);
+  const rares = pool.filter((sp) => sp.tier === 'rare');
+  const rng = makeRng(`${j.seed}:elder:${biomeId}`);
+  const sp = rng.pick(rares.length ? rares : pool);
+  const genome = speciesGenome(sp, rng.fork('g'));
+  return { biomeId, clade: biome.clade, genome, level: ELDER.level };
+}
+
+/** Whether this region's Elder is still out there for this journey. */
+export function elderWaiting(j, biomeId) {
+  return Boolean(j.champion && (j.badges || []).includes(biomeId) && !(j.elders || {})[biomeId]);
+}
+
+/** Seek the Elder of a region: one creature, high level, and catchable. */
+export function seekElder(j, biomeId) {
+  if (j.encounter || !elderWaiting(j, biomeId)) return null;
+  if (!canFight(j)) return null;
+  const elder = elderOf(j, biomeId);
+  if (!elder) return null;
+  j.encounter = {
+    kind: 'elder', biome: biomeId, name: `Elder ${elder.genome.name}`, elderOf: biomeId,
+    foes: [{ genome: elder.genome, level: elder.level }], capturable: true, alpha: true,
+  };
+  return j.encounter;
+}
+
 export function challengeWarden(j, biomeId) {
   const world = worldFor(j.seed);
   const wd = world.wardens[biomeId];
@@ -174,6 +209,17 @@ function councilEncounter(j, stage) {
 }
 
 /** Enter the Council Spire: every badge opens four fights in a row. */
+/** Today's Trial, what it asks, and whether this party may walk into it. */
+export function trialToday(j, now = new Date()) {
+  const day = trialDay(now);
+  const trial = trialOf(day);
+  const state = trialState(j, day);
+  const block = j.champion ? trialBlock(j, trial) : 'The Trial opens to champions.';
+  return { trial, state, block, canEnter: !block && !state.cleared && !j.encounter };
+}
+
+export function startTrial(j, now = new Date()) { return enterTrial(j, trialDay(now)); }
+
 export function enterSpire(j) {
   if (j.badges.length < JOURNEY.badgesForSpire) return { ok: false, reason: `The doors need ${JOURNEY.badgesForSpire} badges. You hold ${j.badges.length}.` };
   if (j.encounter) return { ok: false, reason: 'Finish the fight in front of you first.' };
@@ -248,7 +294,7 @@ export function applyJourneyBattle(j, state) {
     return { journey: j, report };
   }
   let xp = 0;
-  for (const f of foes) if (f.fainted || (capturedBattler && f.uid === capturedBattler.uid)) xp += xpReward(f.level, f.genome.bst, enc.kind === 'boss' || enc.kind === 'council' || enc.kind === 'tower' || enc.alpha ? 'boss' : 'wild');
+  for (const f of foes) if (f.fainted || (capturedBattler && f.uid === capturedBattler.uid)) xp += xpReward(f.level, f.genome.bst, enc.kind === 'boss' || enc.kind === 'council' || enc.kind === 'tower' || enc.kind === 'trial' || enc.kind === 'elder' || enc.alpha ? 'boss' : 'wild');
   // Red's rule: the experience is shared equally by the party members that fought and are still standing;
   // the rest of the party, if still standing, is granted half of a fighter's share
   let took = j.party.map((m, i) => i).filter((i) => mine[i] && mine[i].fought && j.party[i].hp > 0);
@@ -297,6 +343,13 @@ export function applyJourneyBattle(j, state) {
     j.beaten[enc.trainerId] = true;
   }
   if (enc.kind === 'tower') { j.stats.tower = (j.stats.tower || 0) + 1; report.tower = { floor: enc.floor, level: enc.level, wins: recordTowerWin(j, enc.towerId, enc.level) }; }
+  if (enc.kind === 'trial' && won) { report.gold = trialGold(enc.stage); j.gold += report.gold; }
+  if (enc.kind === 'elder' && (won || capturedBattler)) {
+    j.elders = j.elders || {};
+    j.elders[enc.elderOf] = true;
+    j.stats.elders = (j.stats.elders || 0) + 1;
+    report.elder = enc.elderOf;
+  }
   if (enc.kind === 'boss') {
     j.stats.bosses++;
     if (!j.badges.includes(enc.biome)) {
@@ -315,6 +368,26 @@ export function applyJourneyBattle(j, state) {
   report.quests = done.map((q) => q.text);
   j.encounter = null;
   j.cooldown = WORLD.encounterCooldown;
+  if (enc.kind === 'trial') {
+    j.trials = j.trials || {};
+    const day = enc.day, rec = j.trials[day] || { stage: 0, cleared: false, tries: 1 };
+    if (!won) { j.trial = null; j.trials[day] = { ...rec, stage: 0 }; }
+    else {
+      const stage = enc.stage + 1;
+      rec.stage = stage;
+      if (stage >= TRIAL.fights) {
+        rec.cleared = true; j.trial = null;
+        j.stats.trials = (j.stats.trials || 0) + 1;
+        report.trialCleared = day;
+      } else {
+        j.trial = { day, stage };
+        healParty(j, JOURNEY.gauntletHeal, false);
+        j.encounter = trialEncounter(trialOf(day), stage);
+        report.nextStage = stage;
+      }
+      j.trials[day] = rec;
+    }
+  }
   if (enc.kind === 'council') {
     const stage = (j.gauntlet ? j.gauntlet.stage : enc.stage) + 1;
     if (stage >= JOURNEY.councilFights) { j.gauntlet = null; j.champion = true; j.phase = 'champion'; report.champion = true; }

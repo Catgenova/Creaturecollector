@@ -11,7 +11,7 @@ import { STATUS_INFO, levelCaptureMul } from '../battle/engine.js';
 import { stageOf, stageName } from '../data/evolution.js';
 import { loadSave, persistSave, exportSave, importSave, recordCollection, retireJourney } from '../game/save.js';
 import { memberMaxHp, xpProgress, learnMove, moveMember, setLead, canFight, releaseMember, renameMember, setLocked } from '../game/party.js';
-import { JOURNEY, newJourney, chooseJourneyStarter, tryMove, facing, talkTo, acceptChallenge, rematchTeam, challengeWarden, enterSpire, fleeEncounter, buildJourneyBattle, applyJourneyBattle, journeyPlace, badgeList, canFuseJourney, previewShrineFusion, shrineFuse, respawnJourney } from '../game/journey.js';
+import { JOURNEY, newJourney, chooseJourneyStarter, tryMove, facing, talkTo, acceptChallenge, rematchTeam, challengeWarden, seekElder, enterSpire, trialToday, startTrial, fleeEncounter, buildJourneyBattle, applyJourneyBattle, journeyPlace, badgeList, canFuseJourney, previewShrineFusion, shrineFuse, respawnJourney } from '../game/journey.js';
 import { WORLD, TILE, REGIONS, HUB, BIOME_ORDER, worldFor, tileAt, biomeAt, habitatTypeAt, trainerAt, findPath, isHubTile } from '../game/world.js';
 import { TYPE_INFO, TYPE_LIST } from '../data/types.js';
 import { DAMAGE_TYPES } from '../data/damage.js';
@@ -25,7 +25,7 @@ import { openQuests, questReady, rewardText, claimQuest, abandonQuest } from '..
 import { openBounties, bountyCandidates, bountyPayout, bountyLevelMul, turnInBounty } from '../game/bounties.js';
 import { swapChoices, wildPool, swapPrice, drawPrice, rookeryBlock, swapPassive, wildDraw } from '../game/rookery.js';
 import { SPECIES } from '../data/species.js';
-import { MOVES, getMove as lookUpMove } from '../data/moves.js';
+import { MOVES } from '../data/moves.js';
 import { ABILITY_IDS, ABILITIES } from '../data/abilities.js';
 import { isCoreAbility } from '../data/elements.js';
 import { teamReport } from '../game/planner.js';
@@ -360,9 +360,15 @@ function owLairDialog(ev) {
   const j = ow.j, wd = ev.warden, region = REGIONS[ev.biome];
   owShowDialog(
     h('div', { class: 'who' }, creatureEl(wd.team[0].genome, { size: 64, animate: false, level: wd.team[0].level, facing: 'left' })),
-    h('div', { class: 'txt' }, h('b', {}, `${wd.name}, ${wd.title}`), ev.owned ? `You already hold the ${region.badge}. A rematch is always on.` : wd.line, h('span', { class: 'hint', style: { margin: 0, display: 'block' } }, `${wd.team.length} creatures · around Lv ${wd.level}`)),
+    h('div', { class: 'txt' }, h('b', {}, `${wd.name}, ${wd.title}`), ev.owned ? `You already hold the ${region.badge}. A rematch is always on.` : wd.line,
+      h('span', { class: 'hint', style: { margin: 0, display: 'block' } }, `${wd.team.length} creatures · around Lv ${wd.level}`),
+      ev.elder ? h('span', { class: 'hint', style: { margin: '6px 0 0', display: 'block' } }, `Something old stirs deeper in the ${region.name.toLowerCase()}. It will show itself to a champion once.`) : null),
     h('div', { class: 'row' },
       h('button', { class: 'btn primary', type: 'button', disabled: !canFight(j), onclick: () => { challengeWarden(j, ev.biome); owSave(); owCloseDialog(); renderWorldScreen(ow.root); } }, canFight(j) ? (ev.owned ? 'Rematch' : 'Challenge') : 'Party down'),
+      ev.elder ? h('button', { class: 'btn', type: 'button', disabled: !canFight(j), onclick: () => {
+        if (!seekElder(j, ev.biome)) { toast('Not now.'); return; }
+        owSave(); owCloseDialog(); renderWorldScreen(ow.root);
+      } }, 'Seek the Elder') : null,
       h('button', { class: 'btn', type: 'button', onclick: owCloseDialog }, 'Leave')));
 }
 
@@ -374,12 +380,22 @@ function owSpireDialog(ev) {
     owShowDialog(h('div', { class: 'txt' }, h('b', {}, 'The Council Spire'), `The doors need ${JOURNEY.badgesForSpire} badges. You hold ${j.badges.length}.`), h('div', { class: 'row' }, h('button', { class: 'btn', type: 'button', onclick: owCloseDialog }, 'OK')));
     return;
   }
+  const today = ev.champion ? trialToday(j) : null;
   owShowDialog(
     h('div', { class: 'txt' }, h('b', {}, ev.champion ? 'The Council Spire · Champion' : 'The Council Spire'),
       ev.champion ? 'You have beaten them once. The Council will fight you again, all four in a row.' : `Four fights, back to back, with only a short rest between: ${names}. Lose one and you start over.`,
-      h('span', { class: 'hint', style: { margin: 0, display: 'block' } }, `Levels ${council[0].level} to ${council[council.length - 1].level}`)),
+      h('span', { class: 'hint', style: { margin: 0, display: 'block' } }, `Levels ${council[0].level} to ${council[council.length - 1].level}`),
+      today ? h('span', { class: 'hint', style: { margin: '6px 0 0', display: 'block' } },
+        h('b', {}, `Trial of the Day · ${today.trial.name}. `), today.trial.text,
+        ` Three fights at Lv ${today.trial.level}. `,
+        today.state.cleared ? 'Cleared today. Another comes tomorrow.' : today.block ? today.block : 'Your party may enter.') : null),
     h('div', { class: 'row' },
       h('button', { class: 'btn primary', type: 'button', onclick: () => { const r = enterSpire(j); if (!r.ok) { toast(r.reason); return; } owSave(); owCloseDialog(); renderWorldScreen(ow.root); } }, ev.champion ? 'Rematch' : 'Enter'),
+      today ? h('button', { class: `btn${today.canEnter ? ' primary' : ''}`, type: 'button', disabled: !today.canEnter, title: today.block || '', onclick: () => {
+        const r = startTrial(j);
+        if (!r.ok) { toast(r.reason); return; }
+        owSave(); owCloseDialog(); renderWorldScreen(ow.root);
+      } }, today.state.cleared ? 'Trial cleared' : 'Trial of the Day') : null,
       h('button', { class: 'btn', type: 'button', onclick: owCloseDialog }, 'Not yet')));
 }
 
@@ -437,7 +453,7 @@ function owStartFight() {
       owSave();
       return { xp: report.xpGains || [] };
     },
-    resultButtons: [{ label: j.encounter && j.encounter.kind === 'council' && j.gauntlet ? 'Next fight' : 'Continue', primary: true, onclick: () => renderWorldScreen(ow.root) }],
+    resultButtons: [{ label: j.encounter && ((j.encounter.kind === 'council' && j.gauntlet) || (j.encounter.kind === 'trial' && j.trial)) ? 'Next fight' : 'Continue', primary: true, onclick: () => renderWorldScreen(ow.root) }],
   });
 }
 

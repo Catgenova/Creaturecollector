@@ -70,6 +70,12 @@ more Melee Atk and less Ranged Atk, Timid more Speed and less Melee Atk);
 seven are even. HP is never touched. A fusion takes a parent's nature, and
 the creature sheet marks the lean on the stat bars.
 
+The postgame: once you beat the Council, the Spire opens the Trial of the Day,
+one gauntlet a day seeded by the date so everyone meets the same one, with a
+rule that narrows what you may bring and three fights at level 70; and each
+region you hold a badge for has an Elder waiting at its lair, a rare of that
+class at level 78 that shows itself once and can be caught.
+
 Dex, Index and Team: the Dex searches every class at once by name, filters by
 type and by caught, seen or missing, indexes all 900 passives and 531 moves
 with a search that also reads the wording, and reads your party back to you:

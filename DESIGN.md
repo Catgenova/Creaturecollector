@@ -1446,6 +1446,30 @@ on 498, the median move is learned by six species rather than eleven, and 525
 of the 531 moves appear in some learnset. A test now also refuses a learnset
 that repeats a move, which caught one that already did.
 
+## The postgame (implemented)
+
+Beating the Council left the Battle Tower as the only thing to do. Two more
+now open at that point.
+
+- **The Trial of the Day.** One gauntlet a day, entered from the Spire as
+  champion. The date seeds it, so everyone playing on the same day meets the
+  same trial: one rule from six (a banned type, one discipline, one class,
+  no more than three, no charms, no fusions), one class the opposition leans
+  on, and three fights of four creatures at level 70, with a short rest
+  between and a fusion leading the last. The rule is checked against the
+  party at the door and refused in words. It pays 900 gold a fight and 2,500
+  more for finishing, and the journey records the day so it cannot be farmed.
+- **The Elders.** Once you are champion, each region you hold a badge for has
+  one ancient creature waiting at its lair, drawn from the rares of that
+  class at level 78. It is catchable and it shows itself once per journey.
+  The lair dialog hints at it before you go in.
+
+**A bundler footgun, closed.** The single-file build concatenates modules into
+one scope and strips import lines, so `import { x as y }` left `y` undefined at
+runtime, and nothing caught it: the tests import the modules directly, where
+aliases work fine, and only a headless walk through the built page found it.
+The build now refuses an aliased import by name.
+
 ## Searching and planning (implemented)
 
 The game held 895 species, 900 passives and 531 moves, and nothing in it

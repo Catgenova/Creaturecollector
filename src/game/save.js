@@ -86,6 +86,10 @@ export function normalizeJourney(r) {
     lastCamp: cleanPoint(sameWorld ? r.lastCamp : null, { x: hub.x - 3, y: hub.y }), cooldown: Math.max(0, Number(r.cooldown) || 0),
     gauntlet: r.gauntlet && Number.isFinite(r.gauntlet.stage) && r.gauntlet.stage >= 0 && r.gauntlet.stage < 4 ? { stage: Math.round(r.gauntlet.stage) } : null,
     champion: Boolean(r.champion), encounter: null, lastReport: r.lastReport || null,
+    trial: null, // a Trial run does not survive a reload; the day's record does
+    elders: r.elders && typeof r.elders === 'object' ? Object.fromEntries(Object.keys(r.elders).filter((b) => BIOME_ORDER.includes(b) && r.elders[b]).map((b) => [b, true])) : {},
+    trials: r.trials && typeof r.trials === 'object' ? Object.fromEntries(Object.entries(r.trials).slice(-30).filter(([day, v]) => /^\d{4}-\d{2}-\d{2}$/.test(day) && v && typeof v === 'object')
+      .map(([day, v]) => [day, { stage: Math.max(0, Math.min(3, Math.floor(Number(v.stage) || 0))), cleared: Boolean(v.cleared), tries: Math.max(0, Math.floor(Number(v.tries) || 0)) }])) : {},
     gold: Math.max(0, Math.floor(Number(r.gold) || 0)), bag: {}, quests: normalizeBoard(r.quests), bounties: normalizeBounties(r.bounties),
   };
   if (r.bag && typeof r.bag === 'object') for (const [id, q] of Object.entries(r.bag)) { const n = Math.min(99, Math.floor(Number(q) || 0)); if (n > 0 && (getItem(id) || getCharm(id) || getMove(id)) && id !== 'struggle') j.bag[id] = n; }
