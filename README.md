@@ -143,6 +143,14 @@ speed, text size, motion and contrast are kept in their own key, so they follow
 you across saves; three save slots hold three journeys at once, and the picker
 shows the badges, party and gold in each.
 
+Ironman: a mode chosen before you set out. A creature that falls in battle is
+gone for good — no camp brings it back — and the run ends when nothing is left
+in your party or your storage. A wipe with creatures still in storage is not
+the end: the next one steps up. The HUD carries a count of the fallen and a
+memorial you can open at any time, the run's ending screen shows where it
+stopped and everything it lost, and every creature that travelled with you
+stays in your Collection. It cannot be turned off once a run has begun.
+
 The look: a naturalist's plate book on a dark ground. A book serif for names,
 rules drawn as inked SVG rather than CSS borders, the eighteen type colours on
 swatches instead of filled pills, and lists as hanging indents on hairlines

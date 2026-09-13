@@ -694,6 +694,14 @@ html:not([data-theme="slate"]) .sw { border-radius: 0; border-color: var(--line)
 html:not([data-theme="slate"]) .toast { border-radius: 0; }
 html:not([data-theme="slate"]) .set-row { border-bottom-color: var(--line); }
 
+/* Ironman: the mode marks itself in the ember, since what it changes is the cost of losing */
+.iron-chip { min-height: 30px; padding: 0 9px; border-color: var(--action); color: var(--action); font-variant-numeric: tabular-nums; }
+.iron-note { color: var(--action); }
+.iron-note b { color: var(--action); }
+.ironman-row { border-bottom: 0; padding-top: 4px; }
+.over-card { border-color: var(--action); }
+html:not([data-theme="slate"]) .over-card { background: var(--plate); box-shadow: inset 3px 0 0 var(--action); }
+
 /* the ornament scales with the box it turns: a stage squeezed into a short screen gets a slimmer frame */
 @media (max-height: 720px) { html:not([data-theme="slate"]) .stage { border-width: 7px; } }
 @media (orientation: landscape) and (max-height: 520px) { html:not([data-theme="slate"]) .stage { border-width: 5px; } }
@@ -25082,6 +25090,13 @@ let moves = Array.isArray(m.moves) ? m.moves.filter((id) => typeof id === 'strin
 if (!moves.length) moves = movesAtLevel(learnsetOf(m.genome), level);
 return { uid: String(m.uid || ''), genome: m.genome, level, xp: Number.isFinite(m.xp) ? m.xp : 0, hp: Number.isFinite(m.hp) ? Math.max(0, m.hp) : 1, status: m.status || null, moves, locked: Boolean(m.locked), held: getCharm(m.held) ? m.held : null, bond: Number.isFinite(m.bond) ? Math.max(0, Math.min(BOND.max, Math.round(m.bond))) : 0 };
 }
+function cleanFallen(f) {
+if (!f || typeof f !== 'object' || !validGenome(f.genome)) return null;
+return { uid: String(f.uid || ''), name: String(f.name || f.genome.name || '?').slice(0, 24), genome: f.genome,
+level: Math.max(1, Math.min(100, Math.round(Number(f.level) || 1))),
+foe: f.foe ? String(f.foe).slice(0, 40) : null, at: f.at ? String(f.at).slice(0, 32) : null,
+step: Math.max(0, Math.floor(Number(f.step) || 0)) };
+}
 function normalizeSave(raw) {
 const s = emptySave();
 if (!raw || typeof raw !== 'object' || raw.v !== SAVE_VERSION) return s;
@@ -25112,7 +25127,7 @@ return s;
 const cleanFoes = (list) => (Array.isArray(list) ? list.filter((f) => f && validGenome(f.genome) && Number.isFinite(f.level)).map((f) => ({ genome: f.genome, level: Math.max(1, Math.min(100, Math.round(f.level))) })) : []);
 const cleanPoint = (p, fallback) => (p && Number.isFinite(p.x) && Number.isFinite(p.y) ? { x: Math.max(0, Math.min(WORLD.w - 1, Math.round(p.x))), y: Math.max(0, Math.min(WORLD.h - 1, Math.round(p.y))) } : { ...fallback });
 function normalizeJourney(r) {
-if (!r || typeof r !== 'object' || !['starter', 'roam', 'champion'].includes(r.phase)) return null;
+if (!r || typeof r !== 'object' || !['starter', 'roam', 'champion', 'over'].includes(r.phase)) return null;
 const hub = { x: Math.floor(WORLD.w / 2), y: Math.floor(WORLD.h / 2) };
 const sameWorld = Number(r.world) === WORLD.version;
 const j = {
@@ -25120,6 +25135,9 @@ seed: String(r.seed || 'journey'), world: WORLD.version, phase: r.phase, starter
 party: (Array.isArray(r.party) ? r.party : []).map(cleanMember).filter(Boolean),
 box: (Array.isArray(r.box) ? r.box : []).map(cleanMember).filter(Boolean),
 nextId: Number(r.nextId) || 1,
+ironman: Boolean(r.ironman),
+fallen: (Array.isArray(r.fallen) ? r.fallen : []).map(cleanFallen).filter(Boolean).slice(0, 60),
+over: null,
 pendingLearns: (Array.isArray(r.pendingLearns) ? r.pendingLearns : []).filter((q) => q && typeof q.uid === 'string' && getMove(q.moveId)),
 stats: { steps: 0, battles: 0, captures: 0, fusions: 0, trainers: 0, bosses: 0, wipes: 0, tower: 0, quests: 0, bounties: 0 },
 tower: { challenges: 0, wins: {} },
@@ -25157,6 +25175,14 @@ if (j.gauntlet && (!j.encounter || j.encounter.kind !== 'council')) j.gauntlet =
 if (j.phase === 'starter') {
 j.starters = Array.isArray(r.starters) ? r.starters.filter(validGenome) : [];
 return j.starters.length === 3 ? j : null;
+}
+if (j.phase === 'over') {
+const o = r.over && typeof r.over === 'object' ? r.over : {};
+j.over = { at: o.at ? String(o.at).slice(0, 32) : 'the road', steps: Math.max(0, Math.floor(Number(o.steps) || 0)),
+badges: Math.max(0, Math.floor(Number(o.badges) || 0)), fallen: j.fallen.length,
+champion: Boolean(o.champion), foe: o.foe ? String(o.foe).slice(0, 40) : null };
+j.ironman = true;
+return j;
 }
 if (!j.party.length) { if (!j.box.length) return null; j.party.push(j.box.shift()); }
 ensureBoard(j); 
@@ -25402,7 +25428,40 @@ function titansLeft(j) { return BIOME_ORDER.filter((b) => titanWaiting(j, b)); }
 const JOURNEY = { starterLevel: PARTY.starterLevel, maxLevel: PARTY.maxLevel, partyMax: PARTY.max, gauntletHeal: 0.35, badgesForSpire: BIOME_ORDER.length, councilFights: 4 };
 const DIRS = { up: [0, -1], down: [0, 1], left: [-1, 0], right: [1, 0] };
 function nextJourneyUid(j) { return `j${j.nextId++}`; }
-function newJourney(seed) {
+const IRONMAN = { fallenShown: 24 };
+function fallenList(j) { return Array.isArray(j && j.fallen) ? j.fallen : []; }
+function journeyOver(j) { return Boolean(j && j.over); }
+function reapFallen(j, report) {
+if (!j.ironman) return [];
+const dead = j.party.filter((m) => m.hp <= 0);
+if (dead.length) {
+for (const m of dead) {
+j.fallen = j.fallen || [];
+j.fallen.unshift({ uid: m.uid, name: m.genome.name, level: m.level, genome: m.genome,
+foe: report ? report.foe : null, step: j.stats.steps, at: journeyPlace(j).name });
+}
+j.party = j.party.filter((m) => m.hp > 0);
+if (report) report.fallen = dead.map((m) => ({ name: m.genome.name, level: m.level }));
+}
+if (!j.party.length && j.box.length) {
+j.party.push(j.box.shift()); 
+if (report) report.steppedUp = j.party[0].genome.name;
+}
+if (!j.party.length && !j.box.length) endJourney(j, report);
+return dead;
+}
+function endJourney(j, report) {
+if (j.over) return j.over;
+j.over = { at: journeyPlace(j).name, steps: j.stats.steps, badges: j.badges.length,
+fallen: fallenList(j).length, champion: Boolean(j.champion), foe: report ? report.foe : null };
+j.phase = 'over';
+j.encounter = null;
+j.gauntlet = null;
+j.trial = null;
+if (report) report.over = j.over;
+return j.over;
+}
+function newJourney(seed, opts = {}) {
 const rng = makeRng(`${seed}:starters`);
 const starters = [], used = new Set();
 let guard = 0;
@@ -25415,6 +25474,7 @@ starters.push(speciesGenome(sp, rng.fork(`s${starters.length}`)));
 const world = worldFor(seed);
 return {
 seed: String(seed), world: WORLD.version, phase: 'starter', starters, party: [], box: [], nextId: 1, pendingLearns: [],
+ironman: Boolean(opts.ironman), fallen: [], over: null,
 stats: { steps: 0, battles: 0, captures: 0, fusions: 0, trainers: 0, bosses: 0, wipes: 0, tower: 0, quests: 0, bounties: 0 },
 tower: { challenges: 0, wins: {} },
 player: { x: world.start.x, y: world.start.y, dir: 'down' },
@@ -25444,7 +25504,7 @@ return { id: b.id, name: b.name, level: levelAt(world, x, y), areaLevel: b.level
 function tryMove(j, dir) {
 const world = worldFor(j.seed);
 const d = DIRS[dir];
-if (!d || j.phase === 'starter') return { moved: false, blocked: 'wall' };
+if (!d || j.phase === 'starter' || j.over) return { moved: false, blocked: 'wall' };
 j.player.dir = dir;
 if (j.encounter) return { moved: false, blocked: 'encounter' };
 const nx = j.player.x + d[0], ny = j.player.y + d[1];
@@ -25647,6 +25707,8 @@ const won = state.winner === 0 || Boolean(capturedBattler);
 j.stats.battles++;
 const report = { won, kind: enc.kind, foe: enc.name, xp: 0, gold: 0, xpGains: [], levelUps: [], learned: [], captured: null, toBox: false, badge: null, charm: null, quests: [], champion: false, nextStage: null, wiped: false, alpha: Boolean(enc.alpha), bond: [] };
 if (!won) {
+reapFallen(j, report); 
+if (j.over) { j.lastReport = report; return { journey: j, report }; }
 if (!canFight(j)) { report.wiped = true; j.stats.wipes++; respawnJourney(j); }
 else { j.encounter = null; j.gauntlet = null; j.cooldown = WORLD.encounterCooldown; }
 j.lastReport = report;
@@ -25763,6 +25825,7 @@ const stage = (j.gauntlet ? j.gauntlet.stage : enc.stage) + 1;
 if (stage >= JOURNEY.councilFights) { j.gauntlet = null; j.champion = true; j.phase = 'champion'; report.champion = true; }
 else { j.gauntlet = { stage }; healParty(j, JOURNEY.gauntletHeal, false); j.encounter = councilEncounter(j, stage); report.nextStage = stage; }
 }
+reapFallen(j, report);
 j.lastReport = report;
 return { journey: j, report };
 }
@@ -26067,6 +26130,7 @@ const j = ow.save.journey;
 ow.j = j;
 if (!j) return owIntroView(root);
 ow.world = worldFor(j.seed);
+if (journeyOver(j)) return owOverView(root, j);
 if (j.phase === 'starter') return owStarterView(root, j);
 if (j.encounter) return owEncounterView(root, j);
 return owMapView(root, j);
@@ -26081,11 +26145,17 @@ h('div', { class: 'hero-card' },
 h('h2', {}, 'The Overworld'),
 h('p', { class: 'hint' }, `${BIOME_ORDER.length} biomes ring the Crossroads, one for each class of creature, each harder than the last: ${listWords(BIOME_ORDER.map((c) => REGIONS[c].name.toLowerCase()))}. Catch what lives there, ask trainers for a fight, take a badge from every Warden, and when you hold them all the Council Spire opens: four fights, back to back.`),
 h('div', { class: 'tiles' }, owTile('biomes', BIOME_ORDER.length), owTile('wardens', BIOME_ORDER.length), owTile('journeys', ow.save.totals.journeys), owTile('dex', `${dexCounts(ow.save).caught}/${dexCounts(ow.save).total}`)),
+h('div', { class: 'set-row ironman-row' },
+h('div', { class: 'set-label' }, h('b', {}, 'Ironman'),
+h('span', { class: 'hint' }, 'A creature that falls in battle is gone for good — no camp brings it back. The run ends when nothing is left in your party or your storage. Chosen now, and it cannot be turned off afterwards.')),
+h('div', { class: 'toolbar' },
+h('button', { class: `btn small${ow.ironman ? '' : ' on'}`, type: 'button', 'aria-pressed': ow.ironman ? 'false' : 'true', onclick: () => { ow.ironman = false; rerender(); } }, 'Off'),
+h('button', { class: `btn small${ow.ironman ? ' on' : ''}`, type: 'button', 'aria-pressed': ow.ironman ? 'true' : 'false', onclick: () => { ow.ironman = true; rerender(); } }, 'On'))),
 h('button', { class: 'btn primary fuse-btn', type: 'button', onclick: () => {
 let seed = null;
 try { seed = new URLSearchParams(location.search).get('seed'); } catch {  }
-ow.save.journey = newJourney(seed || freshSeed()); ow.starterPick = -1; owSave(); rerender();
-} }, 'Set out')),
+ow.save.journey = newJourney(seed || freshSeed(), { ironman: Boolean(ow.ironman) }); ow.starterPick = -1; owSave(); rerender();
+} }, ow.ironman ? 'Set out — Ironman' : 'Set out')),
 ...(ow.save.collection.length ? section(`Collection · ${ow.save.collection.length}`, h('p', { class: 'hint' }, 'Every species and fusion that has travelled with you. Tap one for its sheet and code.'), owCollectionGrid()) : []),
 ...section('Save',
 h('div', { class: 'toolbar' },
@@ -26094,6 +26164,54 @@ h('button', { class: 'btn', type: 'button', onclick: () => owSettingsSheet() }, 
 h('div', { class: 'toolbar' }, importInput,
 h('button', { class: 'btn', type: 'button', onclick: () => { try { ow.save = importSave(importInput.value); owSave(); toast('Save loaded'); rerender(); } catch (e) { toast(e.message); } } }, 'Import')),
 h('p', { class: 'hint' }, `Progress autosaves in this browser, in whichever of the ${SLOTS} slots is in play. Export gives you a code to move it elsewhere.`)),
+);
+}
+function owFallenSheet(j) {
+const lost = fallenList(j);
+const body = h('div');
+if (!lost.length) {
+body.append(h('p', { class: 'hint' }, 'Nobody yet. In Ironman a creature that falls in battle is gone for good, and the run ends when nothing is left in your party or your storage.'));
+} else {
+body.append(h('p', { class: 'hint' }, `${lost.length} lost so far. They stay in your Collection, but they do not travel with you again.`));
+const grid = h('div', { class: 'pool' });
+for (const f of lost.slice(0, IRONMAN.fallenShown)) {
+grid.append(h('button', { class: 'pcard is-off', type: 'button', onclick: () => openSheet(f.genome, { level: f.level }) },
+h('span', { class: 'gen' }, `Lv ${f.level}`),
+creatureEl(f.genome, { size: 104, animate: false, level: f.level }),
+h('span', {}, f.name),
+h('span', { class: 'hint', style: { margin: 0 } }, f.foe ? `fell to ${f.foe}` : 'fell in battle'),
+h('span', { class: 'hint', style: { margin: 0 } }, f.at || '')));
+}
+body.append(grid);
+if (lost.length > IRONMAN.fallenShown) body.append(h('p', { class: 'hint' }, `and ${lost.length - IRONMAN.fallenShown} more.`));
+}
+owSheet('The fallen', body);
+}
+function owOverView(root, j) {
+playTheme('title');
+const o = j.over || {};
+const lost = fallenList(j);
+root.append(
+h('div', { class: 'hero-card over-card' },
+h('h2', {}, 'The run is over'),
+h('p', { class: 'hint' }, `Nothing left in your party and nothing in storage. ${o.foe ? `${o.foe} took the last of them` : 'The last of them fell'} at ${o.at || 'the road'}.`),
+h('div', { class: 'tiles' },
+owTile('badges', `${o.badges || 0}/${BIOME_ORDER.length}`),
+owTile('fallen', lost.length),
+owTile('steps', (o.steps || 0).toLocaleString()),
+owTile('battles', j.stats.battles || 0)),
+h('p', { class: 'hint' }, o.champion ? 'You took the Council before it ended. That much stands.' : 'Every creature that travelled with you is still in your Collection.'),
+h('div', { class: 'row wrap' },
+h('button', { class: 'btn primary fuse-btn', type: 'button', onclick: () => {
+retireJourney(ow.save); ow.save.journey = null; ow.starterPick = -1; owSave(); renderWorldScreen(root);
+} }, 'Start a new journey'))),
+...(lost.length ? section(`The fallen · ${lost.length}`,
+h('p', { class: 'hint' }, 'In the order they were lost.'),
+h('div', { class: 'pool' }, lost.slice(0, IRONMAN.fallenShown).map((f) => h('button', { class: 'pcard is-off', type: 'button', onclick: () => openSheet(f.genome, { level: f.level }) },
+h('span', { class: 'gen' }, `Lv ${f.level}`),
+creatureEl(f.genome, { size: 104, animate: false, level: f.level }),
+h('span', {}, f.name),
+h('span', { class: 'hint', style: { margin: 0 } }, f.foe ? `fell to ${f.foe}` : 'fell in battle'))))) : []),
 );
 }
 function owStarterView(root, j) {
@@ -26106,6 +26224,7 @@ const pick = j.starters[ow.starterPick];
 root.append(
 h('h2', { class: 'screen-title' }, 'Choose your companion'),
 h('p', { class: 'hint' }, 'Three wild creatures wait at the Crossroads. Pick one to walk out with; the Heather Downs south of town are the gentlest start.'),
+j.ironman ? h('p', { class: 'hint iron-note' }, h('b', {}, '⚑ Ironman. '), 'Whichever you take, if it falls it is gone. With nothing in your party and nothing in storage the run is over.') : null,
 cards,
 h('div', { class: 'row wrap' },
 h('button', { class: 'btn primary fuse-btn', type: 'button', disabled: !pick, onclick: () => { chooseJourneyStarter(j, ow.starterPick); recordCollection(ow.save, j.party[0].genome); owSave(); rerender(); } }, pick ? `Set out with ${pick.name}` : 'Pick a companion'),
@@ -26121,6 +26240,8 @@ function owReportCard(j) {
 const r = j.lastReport;
 if (!r || !ow.showReport) return null;
 const lines = [];
+for (const f of r.fallen || []) lines.push(`${f.name} fell at Lv ${f.level}. It is gone for good.`);
+if (r.steppedUp) lines.push(`${r.steppedUp} came out of storage to take its place.`);
 if (r.wiped) lines.push(`Your party was overwhelmed by ${r.foe}. You come to at the last camp, rested.`);
 else if (!r.won) lines.push(`${r.foe} got away.`);
 else {
@@ -26157,6 +26278,8 @@ return h('div', { class: 'ow-hud' },
 h('div', { class: 'ow-place' }, h('b', {}, place.name), h('span', {}, place.level ? `wild Lv ${place.level}` : j.champion ? 'Champion' : `${j.badges.length}/${BIOME_ORDER.length} badges`)),
 badges,
 h('span', { class: 'ow-gold', title: 'Gold' }, `◆ ${(j.gold || 0).toLocaleString()}`),
+j.ironman ? h('button', { class: 'btn small iron-chip', type: 'button', title: 'Ironman: the fallen do not come back. Tap for those this run has lost.',
+onclick: () => owFallenSheet(j) }, `⚑ ${fallenList(j).length}`) : null,
 h('div', { class: 'ow-tools' },
 h('button', { class: 'btn small', type: 'button', onclick: () => owPartySheet(j) }, 'Party'),
 h('button', { class: 'btn small', type: 'button', onclick: () => owBagSheet(j) }, 'Bag'),

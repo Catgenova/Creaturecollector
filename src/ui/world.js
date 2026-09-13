@@ -15,7 +15,7 @@ import { SPEEDS, TEXT_SIZES, MOTIONS, CONTRASTS, MUSIC_LEVELS, THEMES } from '..
 import { getSettings, updateSetting, fightSpeed } from './settings.js';
 import { playTheme } from '../core/music.js';
 import { memberMaxHp, xpProgress, learnMove, moveMember, setLead, canFight, releaseMember, renameMember, setLocked, PRESETS, savePreset, applyPreset, presetMembers } from '../game/party.js';
-import { JOURNEY, newJourney, chooseJourneyStarter, tryMove, facing, talkTo, acceptChallenge, rematchTeam, challengeWarden, challengeTitan, seekElder, enterSpire, trialToday, startTrial, fleeEncounter, buildJourneyBattle, applyJourneyBattle, journeyPlace, badgeList, canFuseJourney, previewShrineFusion, shrineFuse, NATURE_REROLL, natureBlock, rerollNature, respawnJourney } from '../game/journey.js';
+import { JOURNEY, newJourney, chooseJourneyStarter, tryMove, facing, talkTo, acceptChallenge, rematchTeam, challengeWarden, challengeTitan, seekElder, enterSpire, trialToday, startTrial, fleeEncounter, buildJourneyBattle, applyJourneyBattle, journeyPlace, badgeList, canFuseJourney, previewShrineFusion, shrineFuse, NATURE_REROLL, natureBlock, rerollNature, respawnJourney, IRONMAN, fallenList, journeyOver } from '../game/journey.js';
 import { WORLD, TILE, REGIONS, HUB, BIOME_ORDER, worldFor, tileAt, biomeAt, habitatTypeAt, trainerAt, findPath, isHubTile } from '../game/world.js';
 import { TYPE_INFO, TYPE_LIST } from '../data/types.js';
 import { DAMAGE_TYPES } from '../data/damage.js';
@@ -74,6 +74,7 @@ export function renderWorldScreen(root) {
   ow.j = j;
   if (!j) return owIntroView(root);
   ow.world = worldFor(j.seed);
+  if (journeyOver(j)) return owOverView(root, j);
   if (j.phase === 'starter') return owStarterView(root, j);
   if (j.encounter) return owEncounterView(root, j);
   return owMapView(root, j);
@@ -92,11 +93,17 @@ function owIntroView(root) {
       h('h2', {}, 'The Overworld'),
       h('p', { class: 'hint' }, `${BIOME_ORDER.length} biomes ring the Crossroads, one for each class of creature, each harder than the last: ${listWords(BIOME_ORDER.map((c) => REGIONS[c].name.toLowerCase()))}. Catch what lives there, ask trainers for a fight, take a badge from every Warden, and when you hold them all the Council Spire opens: four fights, back to back.`),
       h('div', { class: 'tiles' }, owTile('biomes', BIOME_ORDER.length), owTile('wardens', BIOME_ORDER.length), owTile('journeys', ow.save.totals.journeys), owTile('dex', `${dexCounts(ow.save).caught}/${dexCounts(ow.save).total}`)),
+      h('div', { class: 'set-row ironman-row' },
+        h('div', { class: 'set-label' }, h('b', {}, 'Ironman'),
+          h('span', { class: 'hint' }, 'A creature that falls in battle is gone for good — no camp brings it back. The run ends when nothing is left in your party or your storage. Chosen now, and it cannot be turned off afterwards.')),
+        h('div', { class: 'toolbar' },
+          h('button', { class: `btn small${ow.ironman ? '' : ' on'}`, type: 'button', 'aria-pressed': ow.ironman ? 'false' : 'true', onclick: () => { ow.ironman = false; rerender(); } }, 'Off'),
+          h('button', { class: `btn small${ow.ironman ? ' on' : ''}`, type: 'button', 'aria-pressed': ow.ironman ? 'true' : 'false', onclick: () => { ow.ironman = true; rerender(); } }, 'On'))),
       h('button', { class: 'btn primary fuse-btn', type: 'button', onclick: () => {
         let seed = null;
         try { seed = new URLSearchParams(location.search).get('seed'); } catch { /* ignore */ }
-        ow.save.journey = newJourney(seed || freshSeed()); ow.starterPick = -1; owSave(); rerender();
-      } }, 'Set out')),
+        ow.save.journey = newJourney(seed || freshSeed(), { ironman: Boolean(ow.ironman) }); ow.starterPick = -1; owSave(); rerender();
+      } }, ow.ironman ? 'Set out — Ironman' : 'Set out')),
     ...(ow.save.collection.length ? section(`Collection · ${ow.save.collection.length}`, h('p', { class: 'hint' }, 'Every species and fusion that has travelled with you. Tap one for its sheet and code.'), owCollectionGrid()) : []),
     ...section('Save',
       h('div', { class: 'toolbar' },
@@ -105,6 +112,58 @@ function owIntroView(root) {
       h('div', { class: 'toolbar' }, importInput,
         h('button', { class: 'btn', type: 'button', onclick: () => { try { ow.save = importSave(importInput.value); owSave(); toast('Save loaded'); rerender(); } catch (e) { toast(e.message); } } }, 'Import')),
       h('p', { class: 'hint' }, `Progress autosaves in this browser, in whichever of the ${SLOTS} slots is in play. Export gives you a code to move it elsewhere.`)),
+  );
+}
+
+/** Everything an Ironman run has lost, newest first. Reachable from the HUD while the run is alive. */
+function owFallenSheet(j) {
+  const lost = fallenList(j);
+  const body = h('div');
+  if (!lost.length) {
+    body.append(h('p', { class: 'hint' }, 'Nobody yet. In Ironman a creature that falls in battle is gone for good, and the run ends when nothing is left in your party or your storage.'));
+  } else {
+    body.append(h('p', { class: 'hint' }, `${lost.length} lost so far. They stay in your Collection, but they do not travel with you again.`));
+    const grid = h('div', { class: 'pool' });
+    for (const f of lost.slice(0, IRONMAN.fallenShown)) {
+      grid.append(h('button', { class: 'pcard is-off', type: 'button', onclick: () => openSheet(f.genome, { level: f.level }) },
+        h('span', { class: 'gen' }, `Lv ${f.level}`),
+        creatureEl(f.genome, { size: 104, animate: false, level: f.level }),
+        h('span', {}, f.name),
+        h('span', { class: 'hint', style: { margin: 0 } }, f.foe ? `fell to ${f.foe}` : 'fell in battle'),
+        h('span', { class: 'hint', style: { margin: 0 } }, f.at || '')));
+    }
+    body.append(grid);
+    if (lost.length > IRONMAN.fallenShown) body.append(h('p', { class: 'hint' }, `and ${lost.length - IRONMAN.fallenShown} more.`));
+  }
+  owSheet('The fallen', body);
+}
+
+/** Where an Ironman run stopped. There is no way on from here but a new journey. */
+function owOverView(root, j) {
+  playTheme('title');
+  const o = j.over || {};
+  const lost = fallenList(j);
+  root.append(
+    h('div', { class: 'hero-card over-card' },
+      h('h2', {}, 'The run is over'),
+      h('p', { class: 'hint' }, `Nothing left in your party and nothing in storage. ${o.foe ? `${o.foe} took the last of them` : 'The last of them fell'} at ${o.at || 'the road'}.`),
+      h('div', { class: 'tiles' },
+        owTile('badges', `${o.badges || 0}/${BIOME_ORDER.length}`),
+        owTile('fallen', lost.length),
+        owTile('steps', (o.steps || 0).toLocaleString()),
+        owTile('battles', j.stats.battles || 0)),
+      h('p', { class: 'hint' }, o.champion ? 'You took the Council before it ended. That much stands.' : 'Every creature that travelled with you is still in your Collection.'),
+      h('div', { class: 'row wrap' },
+        h('button', { class: 'btn primary fuse-btn', type: 'button', onclick: () => {
+          retireJourney(ow.save); ow.save.journey = null; ow.starterPick = -1; owSave(); renderWorldScreen(root);
+        } }, 'Start a new journey'))),
+    ...(lost.length ? section(`The fallen · ${lost.length}`,
+      h('p', { class: 'hint' }, 'In the order they were lost.'),
+      h('div', { class: 'pool' }, lost.slice(0, IRONMAN.fallenShown).map((f) => h('button', { class: 'pcard is-off', type: 'button', onclick: () => openSheet(f.genome, { level: f.level }) },
+        h('span', { class: 'gen' }, `Lv ${f.level}`),
+        creatureEl(f.genome, { size: 104, animate: false, level: f.level }),
+        h('span', {}, f.name),
+        h('span', { class: 'hint', style: { margin: 0 } }, f.foe ? `fell to ${f.foe}` : 'fell in battle'))))) : []),
   );
 }
 
@@ -118,6 +177,7 @@ function owStarterView(root, j) {
   root.append(
     h('h2', { class: 'screen-title' }, 'Choose your companion'),
     h('p', { class: 'hint' }, 'Three wild creatures wait at the Crossroads. Pick one to walk out with; the Heather Downs south of town are the gentlest start.'),
+    j.ironman ? h('p', { class: 'hint iron-note' }, h('b', {}, '⚑ Ironman. '), 'Whichever you take, if it falls it is gone. With nothing in your party and nothing in storage the run is over.') : null,
     cards,
     h('div', { class: 'row wrap' },
       h('button', { class: 'btn primary fuse-btn', type: 'button', disabled: !pick, onclick: () => { chooseJourneyStarter(j, ow.starterPick); recordCollection(ow.save, j.party[0].genome); owSave(); rerender(); } }, pick ? `Set out with ${pick.name}` : 'Pick a companion'),
@@ -137,6 +197,8 @@ function owReportCard(j) {
   const r = j.lastReport;
   if (!r || !ow.showReport) return null;
   const lines = [];
+  for (const f of r.fallen || []) lines.push(`${f.name} fell at Lv ${f.level}. It is gone for good.`);
+  if (r.steppedUp) lines.push(`${r.steppedUp} came out of storage to take its place.`);
   if (r.wiped) lines.push(`Your party was overwhelmed by ${r.foe}. You come to at the last camp, rested.`);
   else if (!r.won) lines.push(`${r.foe} got away.`);
   else {
@@ -175,6 +237,8 @@ function owHud(j) {
     h('div', { class: 'ow-place' }, h('b', {}, place.name), h('span', {}, place.level ? `wild Lv ${place.level}` : j.champion ? 'Champion' : `${j.badges.length}/${BIOME_ORDER.length} badges`)),
     badges,
     h('span', { class: 'ow-gold', title: 'Gold' }, `◆ ${(j.gold || 0).toLocaleString()}`),
+    j.ironman ? h('button', { class: 'btn small iron-chip', type: 'button', title: 'Ironman: the fallen do not come back. Tap for those this run has lost.',
+      onclick: () => owFallenSheet(j) }, `⚑ ${fallenList(j).length}`) : null,
     h('div', { class: 'ow-tools' },
       h('button', { class: 'btn small', type: 'button', onclick: () => owPartySheet(j) }, 'Party'),
       h('button', { class: 'btn small', type: 'button', onclick: () => owBagSheet(j) }, 'Bag'),

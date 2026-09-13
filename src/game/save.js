@@ -41,6 +41,15 @@ function cleanMember(m) {
   return { uid: String(m.uid || ''), genome: m.genome, level, xp: Number.isFinite(m.xp) ? m.xp : 0, hp: Number.isFinite(m.hp) ? Math.max(0, m.hp) : 1, status: m.status || null, moves, locked: Boolean(m.locked), held: getCharm(m.held) ? m.held : null, bond: Number.isFinite(m.bond) ? Math.max(0, Math.min(BOND.max, Math.round(m.bond))) : 0 };
 }
 
+/** One of an Ironman run's dead. Enough to name it, place it and draw it, and nothing else. */
+function cleanFallen(f) {
+  if (!f || typeof f !== 'object' || !validGenome(f.genome)) return null;
+  return { uid: String(f.uid || ''), name: String(f.name || f.genome.name || '?').slice(0, 24), genome: f.genome,
+    level: Math.max(1, Math.min(100, Math.round(Number(f.level) || 1))),
+    foe: f.foe ? String(f.foe).slice(0, 40) : null, at: f.at ? String(f.at).slice(0, 32) : null,
+    step: Math.max(0, Math.floor(Number(f.step) || 0)) };
+}
+
 /** Coerce any parsed object into a valid save, dropping anything broken. */
 export function normalizeSave(raw) {
   const s = emptySave();
@@ -76,7 +85,7 @@ const cleanPoint = (p, fallback) => (p && Number.isFinite(p.x) && Number.isFinit
 
 /** Coerce a parsed journey into a valid one, or null when it cannot be trusted. */
 export function normalizeJourney(r) {
-  if (!r || typeof r !== 'object' || !['starter', 'roam', 'champion'].includes(r.phase)) return null;
+  if (!r || typeof r !== 'object' || !['starter', 'roam', 'champion', 'over'].includes(r.phase)) return null;
   const hub = { x: Math.floor(WORLD.w / 2), y: Math.floor(WORLD.h / 2) };
   // a journey saved on an older map keeps its creatures, badges and bag but starts again from the Crossroads
   const sameWorld = Number(r.world) === WORLD.version;
@@ -85,6 +94,10 @@ export function normalizeJourney(r) {
     party: (Array.isArray(r.party) ? r.party : []).map(cleanMember).filter(Boolean),
     box: (Array.isArray(r.box) ? r.box : []).map(cleanMember).filter(Boolean),
     nextId: Number(r.nextId) || 1,
+    // Ironman rides along with the run and can never be turned off mid-journey, so it is read once and kept
+    ironman: Boolean(r.ironman),
+    fallen: (Array.isArray(r.fallen) ? r.fallen : []).map(cleanFallen).filter(Boolean).slice(0, 60),
+    over: null,
     pendingLearns: (Array.isArray(r.pendingLearns) ? r.pendingLearns : []).filter((q) => q && typeof q.uid === 'string' && getMove(q.moveId)),
     stats: { steps: 0, battles: 0, captures: 0, fusions: 0, trainers: 0, bosses: 0, wipes: 0, tower: 0, quests: 0, bounties: 0 },
     tower: { challenges: 0, wins: {} },
@@ -122,6 +135,16 @@ export function normalizeJourney(r) {
   if (j.phase === 'starter') {
     j.starters = Array.isArray(r.starters) ? r.starters.filter(validGenome) : [];
     return j.starters.length === 3 ? j : null;
+  }
+  if (j.phase === 'over') {
+    // an Ironman run that ended keeps its ending: it is not restocked from the box and not thrown away for
+    // being empty, because the whole point of it is that the player gets to see where it stopped
+    const o = r.over && typeof r.over === 'object' ? r.over : {};
+    j.over = { at: o.at ? String(o.at).slice(0, 32) : 'the road', steps: Math.max(0, Math.floor(Number(o.steps) || 0)),
+      badges: Math.max(0, Math.floor(Number(o.badges) || 0)), fallen: j.fallen.length,
+      champion: Boolean(o.champion), foe: o.foe ? String(o.foe).slice(0, 40) : null };
+    j.ironman = true;
+    return j;
   }
   if (!j.party.length) { if (!j.box.length) return null; j.party.push(j.box.shift()); }
   ensureBoard(j); // top the board back up to three notices

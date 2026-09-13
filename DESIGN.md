@@ -1989,6 +1989,45 @@ crept in. This pass made the keyboard a first-class way to play.
   animation in the stylesheet is a 1.3 s wingbeat, well under three a second,
   and both the system setting and the game's own Motion setting stop all of it.
 
+## Ironman (implemented)
+
+A mode chosen on the intro screen, before a journey exists to change it on, and
+never switchable afterwards — a run you can turn off is not the thing. Two rules:
+a creature that falls in battle is gone for good, and the run ends when nothing
+is left in the party or in storage. Nothing else changes: the same world, the
+same fights, the same odds.
+
+**Where the reaping happens.** Once, at the end of `applyJourneyBattle`, on both
+roads out of it — a fight can be won and still cost you somebody. It has to be
+last rather than first, because sharing experience walks the party alongside the
+battle's own side and the two must stay index for index until that is done. On
+the losing road it runs *before* the respawn, so the dead are gone before
+anything heals them.
+
+**Storage is the difference between a wipe and the end.** A party wiped with
+creatures still in the box is not over: the next one steps up automatically.
+That is not a special case invented for the mode — `normalizeJourney` has always
+pulled one out of the box rather than hand back a journey with nothing to fight
+with, and doing it at the moment of the wipe rather than only on the next reload
+makes the two agree. Without it a player would be left walking an empty party
+across the map to reach the Storage, meeting encounters they cannot fight.
+
+**The save layer had to be taught the ending.** `normalizeJourney` discarded any
+journey whose party and box were both empty, which is exactly the state a
+finished Ironman run is in — the run would have vanished on reload instead of
+showing where it stopped. A finished run is now `phase: 'over'`, which is kept
+whole: not restocked from the box, not thrown away for being empty. The fallen
+are sanitised like members but pared to a headstone — name, level, where, what
+took it down, and the genome, so the memorial can still draw them.
+
+**What it looks like.** The mode is a toggle above Set out, which renames itself.
+The starter screen says what you have let yourself in for. The HUD carries an
+ember flag and the count of the fallen, tapping through to the memorial. The
+battle report names the dead before it says anything else, and says who came out
+of storage. The ending screen replaces the map: where it stopped, what took the
+last of them, badges, fallen, steps and battles, and the run's dead greyed out in
+the order they were lost. Every one of them is still in the Collection.
+
 ## The look: a field guide on a dark ground (implemented)
 
 The interface the game grew up with was a blue-grey slate: every list a rounded card, every surface the same

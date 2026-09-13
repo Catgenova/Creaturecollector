@@ -27,7 +27,62 @@ export const DIRS = { up: [0, -1], down: [0, 1], left: [-1, 0], right: [1, 0] };
 
 function nextJourneyUid(j) { return `j${j.nextId++}`; }
 
-export function newJourney(seed) {
+/**
+ * Ironman. A creature that falls in battle is gone for good rather than carried back to a camp, and the run
+ * itself ends when nothing is left in the party or in storage. Nothing else about the game changes: the same
+ * world, the same fights, the same odds. The mode is chosen before setting out and cannot be turned off
+ * afterwards, because a run you can switch out of is not the thing being asked for.
+ */
+export const IRONMAN = { fallenShown: 24 };
+
+/** The creatures a run has lost, newest first. Kept on the journey so the record dies with the run. */
+export function fallenList(j) { return Array.isArray(j && j.fallen) ? j.fallen : []; }
+
+/** Whether a journey has ended for good. */
+export function journeyOver(j) { return Boolean(j && j.over); }
+
+/**
+ * Take the dead out of the party for good and decide whether the run goes on. Called once at the end of a
+ * battle, after experience has been shared, because the sharing walks the party alongside the battle's own
+ * side and the two have to stay index for index until it is done.
+ *
+ * A party wiped with creatures still in storage is not the end: the next one steps up, the same way a
+ * reloaded save has always pulled one out of the box rather than leaving you with nothing to fight with.
+ */
+export function reapFallen(j, report) {
+  if (!j.ironman) return [];
+  const dead = j.party.filter((m) => m.hp <= 0);
+  if (dead.length) {
+    for (const m of dead) {
+      j.fallen = j.fallen || [];
+      j.fallen.unshift({ uid: m.uid, name: m.genome.name, level: m.level, genome: m.genome,
+        foe: report ? report.foe : null, step: j.stats.steps, at: journeyPlace(j).name });
+    }
+    j.party = j.party.filter((m) => m.hp > 0);
+    if (report) report.fallen = dead.map((m) => ({ name: m.genome.name, level: m.level }));
+  }
+  if (!j.party.length && j.box.length) {
+    j.party.push(j.box.shift()); // the next one out of storage steps up rather than leaving you unable to fight
+    if (report) report.steppedUp = j.party[0].genome.name;
+  }
+  if (!j.party.length && !j.box.length) endJourney(j, report);
+  return dead;
+}
+
+/** The end of an Ironman run: nothing in the party, nothing in storage. */
+export function endJourney(j, report) {
+  if (j.over) return j.over;
+  j.over = { at: journeyPlace(j).name, steps: j.stats.steps, badges: j.badges.length,
+    fallen: fallenList(j).length, champion: Boolean(j.champion), foe: report ? report.foe : null };
+  j.phase = 'over';
+  j.encounter = null;
+  j.gauntlet = null;
+  j.trial = null;
+  if (report) report.over = j.over;
+  return j.over;
+}
+
+export function newJourney(seed, opts = {}) {
   const rng = makeRng(`${seed}:starters`);
   const starters = [], used = new Set();
   let guard = 0;
@@ -40,6 +95,7 @@ export function newJourney(seed) {
   const world = worldFor(seed);
   return {
     seed: String(seed), world: WORLD.version, phase: 'starter', starters, party: [], box: [], nextId: 1, pendingLearns: [],
+    ironman: Boolean(opts.ironman), fallen: [], over: null,
     stats: { steps: 0, battles: 0, captures: 0, fusions: 0, trainers: 0, bosses: 0, wipes: 0, tower: 0, quests: 0, bounties: 0 },
     tower: { challenges: 0, wins: {} },
     player: { x: world.start.x, y: world.start.y, dir: 'down' },
@@ -79,7 +135,7 @@ export function journeyPlace(j) {
 export function tryMove(j, dir) {
   const world = worldFor(j.seed);
   const d = DIRS[dir];
-  if (!d || j.phase === 'starter') return { moved: false, blocked: 'wall' };
+  if (!d || j.phase === 'starter' || j.over) return { moved: false, blocked: 'wall' };
   j.player.dir = dir;
   if (j.encounter) return { moved: false, blocked: 'encounter' };
   const nx = j.player.x + d[0], ny = j.player.y + d[1];
@@ -323,6 +379,8 @@ export function applyJourneyBattle(j, state) {
   j.stats.battles++;
   const report = { won, kind: enc.kind, foe: enc.name, xp: 0, gold: 0, xpGains: [], levelUps: [], learned: [], captured: null, toBox: false, badge: null, charm: null, quests: [], champion: false, nextStage: null, wiped: false, alpha: Boolean(enc.alpha), bond: [] };
   if (!won) {
+    reapFallen(j, report); // before the respawn heals anybody: in Ironman the fallen never reach a camp
+    if (j.over) { j.lastReport = report; return { journey: j, report }; }
     if (!canFight(j)) { report.wiped = true; j.stats.wipes++; respawnJourney(j); }
     else { j.encounter = null; j.gauntlet = null; j.cooldown = WORLD.encounterCooldown; }
     j.lastReport = report;
@@ -446,6 +504,8 @@ export function applyJourneyBattle(j, state) {
     if (stage >= JOURNEY.councilFights) { j.gauntlet = null; j.champion = true; j.phase = 'champion'; report.champion = true; }
     else { j.gauntlet = { stage }; healParty(j, JOURNEY.gauntletHeal, false); j.encounter = councilEncounter(j, stage); report.nextStage = stage; }
   }
+  // a fight can be won and still cost you somebody, so the reaping happens on both roads out of here
+  reapFallen(j, report);
   j.lastReport = report;
   return { journey: j, report };
 }

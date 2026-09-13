@@ -678,6 +678,14 @@ html:not([data-theme="slate"]) .sw { border-radius: 0; border-color: var(--line)
 html:not([data-theme="slate"]) .toast { border-radius: 0; }
 html:not([data-theme="slate"]) .set-row { border-bottom-color: var(--line); }
 
+/* Ironman: the mode marks itself in the ember, since what it changes is the cost of losing */
+.iron-chip { min-height: 30px; padding: 0 9px; border-color: var(--action); color: var(--action); font-variant-numeric: tabular-nums; }
+.iron-note { color: var(--action); }
+.iron-note b { color: var(--action); }
+.ironman-row { border-bottom: 0; padding-top: 4px; }
+.over-card { border-color: var(--action); }
+html:not([data-theme="slate"]) .over-card { background: var(--plate); box-shadow: inset 3px 0 0 var(--action); }
+
 /* the ornament scales with the box it turns: a stage squeezed into a short screen gets a slimmer frame */
 @media (max-height: 720px) { html:not([data-theme="slate"]) .stage { border-width: 7px; } }
 @media (orientation: landscape) and (max-height: 520px) { html:not([data-theme="slate"]) .stage { border-width: 5px; } }
