@@ -125,25 +125,9 @@ export function dexHabitat(speciesId) {
   return { region: r ? r.name : '', types: s.types.filter(Boolean) };
 }
 
-/** Every reward tier with its state: 'locked' (not enough caught), 'ready' (claimable) or 'claimed'. */
-export function dexRewards(save) {
-  const d = dexOf(save), caught = dexCounts(save).caught;
-  return DEX_REWARDS.map((r, i) => ({ ...r, index: i, state: d.claimed.includes(i) ? 'claimed' : caught >= r.caught ? 'ready' : 'locked', label: r.gold ? `${r.gold.toLocaleString()} gold` : getCharm(r.charm).name }));
-}
-
-/** Claim a ready tier into the current journey: gold to the purse, a charm to the Bag. { ok, reason?, reward } */
-export function claimDexReward(save, index) {
-  const tiers = dexRewards(save), t = tiers[index];
-  if (!t) return { ok: false, reason: 'No such reward.' };
-  if (t.state === 'claimed') return { ok: false, reason: 'Already claimed.' };
-  if (t.state === 'locked') return { ok: false, reason: `Catch ${t.caught} species first.` };
-  const j = save.journey;
-  if (!j || j.phase === 'starter') return { ok: false, reason: 'Set out on a journey to claim it.' };
-  if (t.gold) j.gold = (j.gold || 0) + t.gold;
-  if (t.charm) { j.bag = j.bag || {}; j.bag[t.charm] = (j.bag[t.charm] || 0) + 1; }
-  dexOf(save).claimed.push(index);
-  return { ok: true, reward: t };
-}
+// The eight tiers below used to be claimed here. Achievements took the door over (see achievements.js,
+// LEGACY_DEX_TIERS); DEX_REWARDS stays because `claimed` still records which of them a save already paid,
+// and that list is exactly what the migration reads so nobody is paid for the same milestone twice.
 
 /** Species of a class in dex order: by tier then name. */
 export function dexSpeciesOf(clade) {

@@ -21,7 +21,8 @@ import { TYPE_INFO, TYPE_LIST } from '../data/types.js';
 import { DAMAGE_TYPES } from '../data/damage.js';
 import { marketCatalogue, buyMove, bagList, bagCount, canTeach, teachMove, itemCatalogue, itemList, buyItem, useItem, scrollTypes, scrollLearners, listWords, charmCatalogue, charmList, buyCharm, giveCharm, takeCharm, charmHolders, forgeList, forgeCost, forgeCharm, tutorTypes, tutorCatalogue, buyTutorMove, recallOptions, recallCost, recallMove } from '../game/market.js';
 import { getCharm } from '../data/charms.js';
-import { dexSeen, dexCaught, dexCounts, dexStatus, dexMorphs, dexHabitat, dexRewards, claimDexReward, dexSpeciesOf, BROKER, brokerOffers, buyHint } from '../game/dex.js';
+import { dexSeen, dexCaught, dexCounts, dexStatus, dexMorphs, dexHabitat, dexSpeciesOf, BROKER, brokerOffers, buyHint } from '../game/dex.js';
+import { ACH_CATS, ACH_TOTAL, achievementSummary, claimAchievement, claimAllAchievements, syncAchievements } from '../game/achievements.js';
 import { speciesGenome } from '../creature/genome.js';
 import { MORPHS } from '../creature/palette.js';
 import { natureLabel } from '../data/natures.js';
@@ -52,7 +53,18 @@ const ow = {
   dialog: null, fight: null, starterPick: -1, confirmReset: false, tilePx: 32, cssW: 0, cssH: 0, showReport: true, listeners: [], target: null, bob: 0,
 };
 
-function owSave() { if (!persistSave(ow.save)) toast('Could not save (storage blocked?)'); }
+/**
+ * Every save is also the moment to notice what has just been proved. Stamping is one-way and cheap, and
+ * doing it here means an achievement cannot be missed because the screen it belongs to was never opened.
+ */
+function owSave() {
+  const fresh = syncAchievements(ow.save, ow.j);
+  if (!persistSave(ow.save)) { toast('Could not save (storage blocked?)'); return; }
+  if (fresh.length) {
+    sfx.levelUp();
+    toast(fresh.length === 1 ? `Award earned: ${fresh[0].name}. Claim it in the Dex.` : `${fresh.length} awards earned. Claim them in the Dex.`);
+  }
+}
 
 function owTeardown() {
   if (ow.fight) { ow.fight.destroy(); ow.fight = null; }
@@ -243,7 +255,7 @@ function owHud(j) {
       h('button', { class: 'btn small', type: 'button', onclick: () => owPartySheet(j) }, 'Party'),
       h('button', { class: 'btn small', type: 'button', onclick: () => owBagSheet(j) }, 'Bag'),
       h('button', { class: 'btn small', type: 'button', onclick: () => owMapSheet(j) }, 'Map'),
-      h('button', { class: 'btn small', type: 'button', onclick: () => owDexSheet() }, 'Dex'),
+      h('button', { class: 'btn small', type: 'button', onclick: () => owDexSheet() }, awardsReady() ? 'Dex ●' : 'Dex'),
       h('button', { class: 'btn small', type: 'button', onclick: () => owMenuSheet(j) }, 'Menu')));
 }
 
@@ -1642,6 +1654,56 @@ function owTeamPanel(j) {
   return wrap;
 }
 
+/**
+ * The awards panel: two hundred of them, filtered by category, newest-earned first within each. Claiming
+ * pays into the journey you are on, which is why an unclaimed one keeps its badge until you are on a road.
+ */
+/** Whether anything is sitting unclaimed, for the dot on the Dex button. */
+function awardsReady() { try { return achievementSummary(ow.save, ow.j).ready > 0; } catch { return false; } }
+
+function owAwardsPanel(render) {
+  const sum = achievementSummary(ow.save, ow.j);
+  const cat = ow.achCat || 'all';
+  const show = ow.achShow || 'all';
+  const rows = sum.rows
+    .filter((r) => cat === 'all' || r.cat === cat)
+    .filter((r) => (show === 'ready' ? r.earned && !r.claimed : show === 'done' ? r.claimed : show === 'todo' ? !r.earned : true))
+    .sort((a, b) => (a.earned === b.earned ? (b.frac - a.frac) || (a.need - b.need) : a.earned ? -1 : 1));
+  const cats = h('div', { class: 'type-filter' }, [{ id: 'all', name: 'All' }, ...ACH_CATS].map((cc) => {
+    const b = cc.id === 'all' ? { earned: sum.earned, total: sum.total, ready: sum.ready } : sum.byCat[cc.id];
+    return h('button', { class: `btn small${cat === cc.id ? ' on' : ''}`, type: 'button', onclick: () => { ow.achCat = cc.id; render(); } },
+      `${cc.name} ${b.earned}/${b.total}${b.ready ? ' ●' : ''}`);
+  }));
+  const states = h('div', { class: 'type-filter' }, [['all', 'All'], ['ready', `To claim${sum.ready ? ` · ${sum.ready}` : ''}`], ['done', 'Claimed'], ['todo', 'Not yet']]
+    .map(([id, label]) => h('button', { class: `btn small${show === id ? ' on' : ''}`, type: 'button', onclick: () => { ow.achShow = id; render(); } }, label)));
+  const list = h('div', { class: 'shop-list' });
+  for (const r of rows) {
+    list.append(h('div', { class: `shop-row ach-row${r.claimed ? ' known' : r.earned ? ' next' : ''}` },
+      h('div', { class: 'shop-info' },
+        h('b', {}, r.earned ? '✦ ' : '', r.name),
+        h('div', { class: 'shop-meta' }, h('span', {}, r.desc), h('span', { class: 'shop-tag' }, r.label)),
+        r.earned ? null : h('div', { class: 'ach-bar' }, h('i', { style: { width: `${Math.round(r.frac * 100)}%` } })),
+        r.earned ? null : h('div', { class: 'shop-who' }, `${Math.min(r.have, r.need).toLocaleString()} of ${r.need.toLocaleString()}`)),
+      h('button', { class: `btn small${r.earned && !r.claimed ? ' primary' : ''}`, type: 'button', disabled: !r.earned || r.claimed, onclick: () => {
+        const got = claimAchievement(ow.save, ow.j, r.id);
+        if (!got.ok) { toast(got.reason); return; }
+        owSave(); sfx.levelUp(); toast(`${r.name}: ${got.label}${r.charm ? ' is in your Bag' : ''}.`); render(); owRefreshHud();
+      } }, r.claimed ? 'Done' : r.earned ? 'Claim' : '—')));
+  }
+  return [
+    h('p', { class: 'hint' }, `${sum.earned} of ${ACH_TOTAL} earned. Rewards pay once per save, into the journey you are on — the Fusiondex milestones are in here now, and anything you already claimed there still counts as claimed.`),
+    cats, states,
+    sum.ready ? h('div', { class: 'row wrap' }, h('button', { class: 'btn primary', type: 'button', onclick: () => {
+      const got = claimAllAchievements(ow.save, ow.j);
+      if (!got.ok) { toast(got.reason); return; }
+      owSave(); sfx.win();
+      toast(`Claimed ${got.count}: ${got.gold.toLocaleString()} gold${got.charms.length ? ` and ${listWords(got.charms)}` : ''}.`);
+      render(); owRefreshHud();
+    } }, `Claim all ${sum.ready}`)) : null,
+    rows.length ? list : h('p', { class: 'hint' }, 'Nothing here under that filter.'),
+  ].filter(Boolean);
+}
+
 function owDexSheet() {
   const body = h('div');
   let clade = ow.dexClade || (ow.j && journeyPlace(ow.j).clade) || CLADE_IDS[0];
@@ -1649,7 +1711,7 @@ function owDexSheet() {
   const draw = () => {
     clear(body);
     const c = dexCounts(ow.save);
-    const tabs = h('div', { class: 'type-filter' }, [['species', 'Species'], ['fusions', 'Fusions'], ['index', 'Index'], ['team', 'Team'], ['rewards', 'Rewards']].map(([id, label]) => h('button', { class: `btn small${tab === id ? ' on' : ''}`, type: 'button', onclick: () => { tab = id; ow.dexTab = id; render(); } }, label)));
+    const tabs = h('div', { class: 'type-filter' }, [['species', 'Species'], ['fusions', 'Fusions'], ['index', 'Index'], ['team', 'Team'], ['awards', 'Awards']].map(([id, label]) => h('button', { class: `btn small${tab === id ? ' on' : ''}`, type: 'button', onclick: () => { tab = id; ow.dexTab = id; render(); } }, label)));
     body.append(h('p', { class: 'hint' }, `Caught ${c.caught} and seen ${c.seen} of ${c.total} species${c.morphs ? ` · ${c.morphs} colour morph${c.morphs > 1 ? 's' : ''} caught` : ''} · ${ow.save.totals.fusions + (ow.j ? ow.j.stats.fusions : 0)} fusions made. Every creature you face counts as seen; every one you choose, catch or fuse counts as caught.`), tabs);
     if (tab === 'species') {
       const chips = h('div', { class: 'type-filter' }, CLADE_IDS.map((id) => { const b = c.byClass[id]; return h('button', { class: `btn small${clade === id ? ' on' : ''}`, type: 'button', style: { '--chip': REGIONS[id].accent }, onclick: () => { clade = id; ow.dexClade = id; render(); } }, `${cladeName(id)} ${b.caught}/${b.total}`); }));
@@ -1673,17 +1735,7 @@ function owDexSheet() {
       const fusions = ow.save.collection.filter((e) => e.genome.gen > 0).slice().reverse();
       appendChildren(body, [h('p', { class: 'hint' }, fusions.length ? `${fusions.length} fusion${fusions.length > 1 ? 's' : ''} remembered in the collection, newest first.` : 'No fusions yet. The shrine at the Crossroads fuses two creatures of one class.'), owCollectionGrid(fusions)]);
     } else {
-      const list = h('div', { class: 'shop-list' });
-      for (const t of dexRewards(ow.save)) {
-        list.append(h('div', { class: `shop-row${t.state === 'claimed' ? ' known' : t.state === 'ready' ? ' next' : ''}` },
-          h('div', { class: 'shop-info' }, h('b', {}, `${t.caught} species caught`), h('div', { class: 'shop-meta' }, h('span', {}, t.label), h('span', { class: 'shop-tag' }, t.state === 'claimed' ? 'claimed' : t.state === 'ready' ? 'ready' : `${Math.max(0, t.caught - c.caught)} to go`))),
-          h('button', { class: `btn small${t.state === 'ready' ? ' primary' : ''}`, type: 'button', disabled: t.state !== 'ready', onclick: () => {
-            const r = claimDexReward(ow.save, t.index);
-            if (!r.ok) { toast(r.reason); return; }
-            owSave(); sfx.levelUp(); toast(`Claimed: ${t.label}${t.charm ? ' is in your Bag' : ''}.`); render(); owRefreshHud();
-          } }, t.state === 'claimed' ? 'Done' : 'Claim')));
-      }
-      appendChildren(body, [h('p', { class: 'hint' }, 'Milestones pay out once per save, into the journey you are on.'), list]);
+      appendChildren(body, owAwardsPanel(render));
     }
   };
   const render = () => owKeepScroll(body, draw);

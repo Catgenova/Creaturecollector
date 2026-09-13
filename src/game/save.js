@@ -8,6 +8,7 @@ import { movesAtLevel } from '../battle/stats.js';
 import { WORLD, BIOME_ORDER } from './world.js';
 import { getItem } from '../data/items.js';
 import { getCharm } from '../data/charms.js';
+import { ACH_BY_ID } from './achievements.js';
 import { BOND } from './bond.js';
 import { emptyDex, normalizeDex, dexSeed } from './dex.js';
 import { normalizeBoard, ensureBoard } from './quests.js';
@@ -24,6 +25,7 @@ export function emptySave() {
     totals: { battles: 0, captures: 0, fusions: 0, journeys: 0, champions: 0 },
     collection: [],
     hall: { tier: 0, slots: [] }, // the Trophy Hall: shelf room bought with gold, and who stands on it
+    ach: { earned: {}, claimed: {} }, // achievements: what has been proved, and what has been paid for it
     journey: null,
     settings: { fast: false },
     dex: emptyDex(),
@@ -61,6 +63,14 @@ export function normalizeSave(raw) {
       tier: Math.max(0, Math.min(5, Math.floor(Number(raw.hall.tier) || 0))),
       slots: Array.isArray(raw.hall.slots) ? raw.hall.slots.filter((k) => typeof k === 'string').slice(0, 15) : [],
     };
+  }
+  // achievements: only ids the table still knows survive, and claimed implies earned so the two cannot drift
+  if (raw.ach && typeof raw.ach === 'object') {
+    for (const k of ['earned', 'claimed']) {
+      const from = raw.ach[k] && typeof raw.ach[k] === 'object' ? raw.ach[k] : {};
+      for (const id of Object.keys(from)) if (from[id] && ACH_BY_ID[id]) s.ach[k][id] = 1;
+    }
+    for (const id of Object.keys(s.ach.claimed)) s.ach.earned[id] = 1;
   }
   if (Array.isArray(raw.collection)) {
     for (const e of raw.collection) {

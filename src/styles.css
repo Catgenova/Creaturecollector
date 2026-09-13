@@ -678,6 +678,12 @@ html:not([data-theme="slate"]) .sw { border-radius: 0; border-color: var(--line)
 html:not([data-theme="slate"]) .toast { border-radius: 0; }
 html:not([data-theme="slate"]) .set-row { border-bottom-color: var(--line); }
 
+/* awards: a hairline measure under the ones still to come */
+.ach-bar { height: 6px; margin-top: 5px; border-bottom: 1px solid var(--line);
+  background: repeating-linear-gradient(90deg, var(--line) 0 1px, transparent 1px 25%) bottom left / 100% 3px no-repeat; position: relative; }
+.ach-bar i { position: absolute; bottom: 0; left: 0; height: 4px; background: var(--fg); opacity: .45; }
+.ach-row.next .shop-info b { color: var(--fg); }
+
 /* Ironman: the mode marks itself in the ember, since what it changes is the cost of losing */
 .iron-chip { min-height: 30px; padding: 0 9px; border-color: var(--action); color: var(--action); font-variant-numeric: tabular-nums; }
 .iron-note { color: var(--action); }

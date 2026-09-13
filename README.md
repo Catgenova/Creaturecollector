@@ -220,6 +220,16 @@ creatures of a type) and scaled to the badges held. Finish one anywhere,
 claim it at the board for gold and a potion, a scroll or a charm, and a fresh
 notice goes up.
 
+Achievements: two hundred of them, in the Fusiondex under Awards — the dex
+itself (species caught and seen, one for every class and every type), rare
+finds (colour morphs, Elementals, deep fusion generations), the road (badges,
+notices, elders, miles), fighting (trainers, Wardens, Titans, the Tower,
+Trials, levels, bond), the shrine, the purse and Ironman. Each pays gold or a
+charm, once per save, into the journey you are on, and there is a Claim all.
+The eight Fusiondex milestones moved in here; anything you had already claimed
+there still counts as claimed. Earning is one-way, so what a journey proved
+outlives the journey.
+
 Fusiondex: a dex of all 895 species, per class, with everything you have
 faced marked seen and everything you have chosen, caught or fused marked
 caught, silhouettes for the seen, numbered blanks for the rest, a habitat hint

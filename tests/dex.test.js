@@ -7,7 +7,7 @@ import { fuse } from '../src/creature/fusion.js';
 import { MORPHS, MORPH_IDS, morphPalette, harmonizePalette } from '../src/creature/palette.js';
 import { renderCreatureSvg } from '../src/creature/render.js';
 import { emptySave, normalizeSave, recordCollection, exportSave, importSave } from '../src/game/save.js';
-import { dexSeen, dexCaught, dexCounts, dexStatus, dexMorphs, dexHabitat, dexRewards, claimDexReward, dexSpeciesOf, DEX_REWARDS, normalizeDex } from '../src/game/dex.js';
+import { dexSeen, dexCaught, dexCounts, dexStatus, dexMorphs, dexHabitat, dexSpeciesOf, DEX_REWARDS, normalizeDex } from '../src/game/dex.js';
 import { newJourney, chooseJourneyStarter, tryMove } from '../src/game/journey.js';
 import { worldFor } from '../src/game/world.js';
 import { bagCount } from '../src/game/market.js';
@@ -75,46 +75,21 @@ test('the dex records seen and caught species and morphs, counts per class, and 
   assert.ok(list.findIndex((s) => s.tier === 'rare') > list.findIndex((s) => s.tier === 'common'), 'commons first, rares last');
 });
 
-test('rewards unlock by species caught, pay into the journey once per save, and the dex survives the save', () => {
+test('the dex survives the save, junk and all, and keeps which old milestones were already paid', () => {
   const save = emptySave();
   save.journey = newJourney('dexj'); chooseJourneyStarter(save.journey, 0);
-  const tiers = dexRewards(save);
-  assert.equal(tiers.length, DEX_REWARDS.length);
-  assert.ok(tiers.every((t) => t.state === 'locked'));
-  assert.equal(claimDexReward(save, 0).ok, false);
   const species = WILD_SPECIES.slice(0, 30);
   for (const s of species) dexCaught(save, speciesGenome(s, makeRng(`r${s.id}`)));
-  const now = dexRewards(save);
-  assert.equal(now[0].state, 'ready'); assert.equal(now[1].state, 'ready'); assert.equal(now[2].state, 'locked');
-  const gold = save.journey.gold || 0;
-  const r0 = claimDexReward(save, 0);
-  assert.ok(r0.ok && save.journey.gold === gold + DEX_REWARDS[0].gold);
-  assert.equal(claimDexReward(save, 0).ok, false, 'once');
-  const r1 = claimDexReward(save, 1);
-  assert.ok(r1.ok && bagCount(save.journey, DEX_REWARDS[1].charm) === 1);
-  assert.equal(dexRewards(save)[0].state, 'claimed');
-  // round trip, with junk mixed in
+  assert.equal(dexCounts(save).caught, 30);
+  // the eight milestone tiers are claimed through achievements now; what the dex still keeps is the record
+  // of which of them an older save already paid out, so achievements.js can honour it
+  save.dex.claimed.push(0, 1);
   const raw = JSON.parse(exportSave(save).length ? JSON.stringify(save) : '{}');
   raw.dex.seen.nope = 1; raw.dex.caught.nope = 1; raw.dex.morphs.emberox = { plaid: 1 }; raw.dex.claimed.push(99, 0);
-  const back = normalizeSave(raw);
-  assert.equal(back.dex.seen.nope, undefined);
-  assert.equal(back.dex.morphs.emberox, undefined);
-  assert.deepEqual(back.dex.claimed, [0, 1]);
-  // the journey's starter is folded in on load, unless it was already among the thirty
-  const starter = save.journey.party[0].genome.species;
-  const expected = 30 + (species.some((s) => s.id === starter) ? 0 : 1);
-  assert.equal(dexCounts(back).caught, expected);
-  const again = importSave(exportSave(save));
-  assert.equal(dexCounts(again).caught, expected);
-  // an older save without a dex fills it from the collection and the party
-  const old = emptySave();
-  recordCollection(old, speciesGenome(SPECIES_BY_ID.pufflet, makeRng('old')));
-  old.journey = newJourney('olds'); chooseJourneyStarter(old.journey, 1);
-  const rawOld = JSON.parse(JSON.stringify(old)); delete rawOld.dex;
-  const seeded = normalizeSave(rawOld);
-  assert.equal(dexStatus(seeded, 'pufflet'), 'caught');
-  assert.equal(dexStatus(seeded, seeded.journey.party[0].genome.species), 'caught');
-  assert.equal(normalizeDex(null).claimed.length, 0);
+  const back = normalizeDex(raw.dex);
+  assert.ok(!back.seen.nope && !back.caught.nope, 'a species the game does not have is dropped');
+  assert.deepEqual(back.claimed.slice().sort((a, b) => a - b), [0, 1], 'out-of-range and repeated tiers are dropped');
+  assert.ok(back.claimed.every((i) => i >= 0 && i < DEX_REWARDS.length));
 });
 
 test('a wild morph is announced by name', () => {

@@ -1989,6 +1989,47 @@ crept in. This pass made the keyboard a first-class way to play.
   animation in the stylesheet is a 1.3 s wingbeat, well under three a second,
   and both the system setting and the game's own Motion setting stop all of it.
 
+## Achievements (implemented)
+
+Two hundred of them, and the only door a milestone reward comes through. They
+replaced the Fusiondex's Rewards tab, which paid eight tiers off one number.
+
+**They are data, not code.** Every achievement is a row: a category, a stat to
+read, a number to reach and what it pays. The reading is done once, by
+`achievementStats`, which flattens the save and the journey you are on into a
+flat bag of numbers; no achievement ever touches either object. That is what
+makes two hundred of them maintainable — a test walks the whole table and
+checks that every row names a stat the context actually has, pays something
+real, describes itself in a sentence, and that no two rungs on the same ladder
+sit at the same height or fail to climb.
+
+**The families come from the data where they can.** One per class and one per
+type are generated from `CLADE_IDS` and `TYPE_LIST`, named for the region the
+class comes out of, so adding a nineteenth class adds its achievement rather
+than leaving a hole.
+
+**Earned and claimed are different things.** Earned is stamped into the save
+the first time a condition is seen true and never comes off, because most of
+what is worth celebrating happens inside one journey and would otherwise
+vanish with it — hold twelve badges, then start a new run, and it stays held.
+Claimed is the reward, and it pays into the journey you are on, which is why
+claiming is refused on the starter screen and after an Ironman run has ended.
+Stamping happens on every save rather than when the screen is opened, so an
+achievement cannot be missed because you never looked.
+
+**The migration was the part that had to be right.** The Fusiondex recorded
+its claimed tiers as indices into `DEX_REWARDS`. Those eight are now
+achievements with matching ids (`LEGACY_DEX_TIERS`), and the record reads the
+old list once so a save that already took those rewards cannot take them
+again. `dexRewards` and `claimDexReward` are gone; `DEX_REWARDS` stays,
+because that index list is exactly what the migration reads.
+
+**One thing that surprised the tests.** Claim all pays gold, and gold is
+itself something achievements measure — so a sweep can leave one newly ready
+behind. That is emergent rather than broken: the payout earned it. The test
+asserts that anything still waiting was earned by the payout rather than
+skipped, and that a second sweep settles it.
+
 ## Ironman (implemented)
 
 A mode chosen on the intro screen, before a journey exists to change it on, and
