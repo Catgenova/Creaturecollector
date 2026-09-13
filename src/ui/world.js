@@ -43,7 +43,7 @@ import { abilityName } from '../data/abilities.js';
 import { getMove } from '../data/moves.js';
 import { getItem } from '../data/items.js';
 import { cladeName } from '../data/clades.js';
-import { cladeOf, elementalOf } from '../creature/genome.js';
+import { cladeOf, elementalOf, speciesOf } from '../creature/genome.js';
 import { sfx } from '../core/sfx.js';
 
 const MOVE_MS = 150;
@@ -1646,10 +1646,15 @@ function owCollectionSheet() {
   owSheet(`Collection · ${n}`, h('div', {}, h('p', { class: 'hint' }, n ? 'Every species and fusion that has travelled with you. Tap one for its sheet and code.' : 'Nothing yet. Creatures you choose, catch or fuse are remembered here, even after a journey ends.'), owCollectionGrid()));
 }
 
+/** Born as a species rather than made at the shrine: a starter or something caught in the wild. A fusion
+ *  carries no species and a generation above zero, so this is the whole test. */
+function neverFused(m) { return Boolean(m && m.genome && speciesOf(m.genome)); }
+
 function owShrineSheet(j) {
   const pick = { a: null, b: null };
   const body = h('div');
   let tab = 'fuse';
+  let wildOnly = false;
   const draw = () => {
     clear(body);
     body.append(h('div', { class: 'type-filter' },
@@ -1677,9 +1682,13 @@ function owShrineSheet(j) {
       return;
     }
     const all = [...j.party, ...j.box];
+    // a creature you have already chosen stays on the board whatever the filter says: hiding half of a pair
+    // you picked, and leaving it picked, would be a nasty little trap
+    const shown = all.filter((m) => !wildOnly || neverFused(m) || pick.a === m.uid || pick.b === m.uid);
+    const hidden = all.length - shown.length;
     const list = h('div', { class: 'pool' });
     const anchor = pick.a || pick.b;
-    for (const m of all) {
+    for (const m of shown) {
       const tag = pick.a === m.uid ? 'A' : pick.b === m.uid ? 'B' : null;
       const off = Boolean(m.locked) || (anchor && !tag && !canFuseJourney(j, anchor, m.uid).ok);
       list.append(h('button', { class: `pcard${tag === 'A' ? ' is-a' : tag === 'B' ? ' is-b' : off ? ' is-off' : ''}`, type: 'button', onclick: () => {
@@ -1689,9 +1698,16 @@ function owShrineSheet(j) {
       } }, tag ? h('span', { class: `sel badge ${tag.toLowerCase()}` }, tag) : null, h('span', { class: 'gen' }, cladeName(cladeOf(m.genome))), creatureEl(m.genome, { size: 104, animate: false, level: m.level }), h('span', {}, `${m.genome.name} · Lv ${m.level}`)));
     }
     const child = pick.a && pick.b ? previewShrineFusion(j, pick.a, pick.b) : null;
+    const wildCount = all.filter(neverFused).length;
     appendChildren(body, [
       h('p', { class: 'hint' }, 'The shrine fuses two creatures of the same class into one. Both are consumed; the child keeps the higher level at full health.'),
-      list,
+      h('div', { class: 'type-filter' },
+        h('button', { class: `btn small${wildOnly ? ' on' : ''}`, type: 'button', 'aria-pressed': wildOnly ? 'true' : 'false',
+          title: 'Show only creatures born as a species — a starter, or something caught. Anything the shrine has already made is hidden.',
+          onclick: () => { wildOnly = !wildOnly; render(); } }, `Wild only${wildOnly ? ' ✓' : ''}`),
+        h('span', { class: 'hint', style: { margin: 0, alignSelf: 'center' } },
+          wildOnly ? `${wildCount} of ${all.length} never fused${hidden ? `, ${hidden} hidden` : ''}` : `${all.length} to choose from`)),
+      shown.length ? list : h('p', { class: 'hint' }, wildCount ? 'Nothing here but fusions.' : 'Nothing you own was born as a species.'),
       child ? h('div', { class: 'result' },
         h('div', { class: 'sheet-head' }, h('h2', {}, child.name), typeChips(child.types)),
         h('p', { class: 'meta' }, `gen ${child.gen} · ${child.parents.join(' × ')}`),
