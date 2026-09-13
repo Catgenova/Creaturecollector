@@ -59,6 +59,34 @@ function coveredBy(nodes) {
 }
 
 /**
+ * Sheets stack — the creature sheet opens over the party sheet — so which parts of the page are covered is a
+ * property of every open dialog at once, not of any one of them. Each trap remembering what it found and
+ * putting it back on the way out gets this wrong the moment two are closed out of order: the second trap
+ * recorded the page as already inert, so restoring it last leaves the whole page inert and nothing on it
+ * answers a tap. So the marks live here instead. Elements remember their pre-dialog state once, the covered
+ * set is worked out afresh from whichever trap is on top, and everything is put back only when the last
+ * trap goes.
+ */
+const openTraps = [];
+const marked = new Map(); // element -> what it was before any dialog covered it
+
+function applyCover() {
+  const top = openTraps[openTraps.length - 1];
+  const cover = new Set(top ? coveredBy(top) : []);
+  for (const el of cover) {
+    if (!marked.has(el)) marked.set(el, { inert: el.inert, aria: el.getAttribute('aria-hidden') });
+    el.inert = true;
+    el.setAttribute('aria-hidden', 'true');
+  }
+  for (const [el, was] of [...marked]) {
+    if (cover.has(el)) continue;
+    el.inert = was.inert;
+    if (was.aria == null) el.removeAttribute('aria-hidden'); else el.setAttribute('aria-hidden', was.aria);
+    marked.delete(el);
+  }
+}
+
+/**
  * Give a sheet its keyboard behaviour. `nodes` are the elements that make it up (panel first, backdrop
  * and any others after); `opts.onEscape` is called when Escape is pressed, and when it is left out
  * Escape does nothing — a sheet that must be answered stays put. Returns a function that undoes all of
@@ -70,8 +98,8 @@ export function trapFocus(nodes, opts = {}) {
   if (!panel) return () => {};
   const wasFocused = document.activeElement;
   const wasTag = wasFocused && wasFocused.tagName, wasName = nameOf(wasFocused);
-  const hidden = coveredBy(list).map((el) => ({ el, inert: el.inert, aria: el.getAttribute('aria-hidden') }));
-  for (const { el } of hidden) { el.inert = true; el.setAttribute('aria-hidden', 'true'); }
+  openTraps.push(list);
+  applyCover();
   const onKey = (e) => {
     if (e.key === 'Escape' && opts.onEscape) { e.preventDefault(); e.stopPropagation(); opts.onEscape(); return; }
     if (e.key !== 'Tab') return;
@@ -87,12 +115,14 @@ export function trapFocus(nodes, opts = {}) {
   if (!panel.hasAttribute('tabindex')) panel.setAttribute('tabindex', '-1');
   const target = opts.focus === false ? null : firstFocus(panel) || panel;
   if (target) requestAnimationFrame(() => { if (target.isConnected) target.focus({ preventScroll: true }); });
+  let released = false;
   return () => {
+    if (released) return; // a sheet whose close runs twice must not pop somebody else's trap
+    released = true;
     document.removeEventListener('keydown', onKey, true);
-    for (const { el, inert, aria } of hidden) {
-      el.inert = inert;
-      if (aria == null) el.removeAttribute('aria-hidden'); else el.setAttribute('aria-hidden', aria);
-    }
+    const at = openTraps.indexOf(list);
+    if (at >= 0) openTraps.splice(at, 1);
+    applyCover();
     // a frame late on purpose: closing a sheet usually redraws the screen behind it, and the button to go back
     // to only exists once that redraw has run
     if (opts.restore !== false && wasFocused && wasFocused !== document.body) requestAnimationFrame(() => restoreFocus(wasFocused, wasTag, wasName));

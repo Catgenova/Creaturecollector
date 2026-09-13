@@ -1,7 +1,28 @@
+/*
+ * Two themes, one set of tokens. `guide` is the default: a naturalist's plate book worked on a dark ground,
+ * where light is the emphasis rather than an accent colour — which is what lets the three signals stay
+ * separate (brass is money, ember is the action in hand, brightness is importance). `slate` is the interface
+ * the game shipped with, kept whole; every rule below the token block is written so slate reads exactly as
+ * it always did.
+ *
+ * Every ink in the guide clears WCAG AA against the lit panel, which is the tighter of its two grounds:
+ * fg 13.4:1, fg2 5.8:1, fg3 4.9:1, ember 5.0:1, brass 7.7:1.
+ */
 :root {
-  --bg: #12131a; --bg2: #1b1d27; --bg3: #262939; --fg: #e9eaf1; --fg2: #a8acbe; --line: #303449;
-  --acc: #f5c518; --acc2: #4f8ef7; --radius: 14px; --tap: 44px;
+  --bg: #16130e; --bg2: #1e1a13; --bg3: #2a251c; --fg: #ece5d5; --fg2: #a1977f; --fg3: #948a76;
+  --line: #57503f; --plate: #211d16;
+  --acc: #d8a83c; --acc2: #7fa6e8; --gold: #d8a83c; --action: #e2683c;
+  --radius: 3px; --tap: 44px;
+  --serif: 'Iowan Old Style', Charter, 'Bitstream Charter', 'Palatino Linotype', Palatino, 'Book Antiqua', Georgia, serif;
+  --sans: system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
   color-scheme: dark;
+}
+html[data-theme="slate"] {
+  --bg: #12131a; --bg2: #1b1d27; --bg3: #262939; --fg: #e9eaf1; --fg2: #a8acbe; --fg3: #a8acbe;
+  --line: #303449; --plate: #1b1d27;
+  --acc: #f5c518; --acc2: #4f8ef7; --gold: #f5c518; --action: #f5c518;
+  --radius: 14px;
+  --serif: var(--sans);
 }
 * { box-sizing: border-box; }
 html, body { margin: 0; min-height: 100%; }
@@ -505,3 +526,164 @@ button, .btn { touch-action: manipulation; }
 .dex-mark.caught { color: var(--acc); text-shadow: 0 0 6px rgba(245, 197, 24, .6); }
 .dex-mark.new { color: var(--fg2); opacity: .8; }
 .foe-card .dex-mark { margin-right: 3px; }
+
+
+/* ============================================================================================
+ * The field guide (the default theme). Everything here is written under html:not([data-theme="slate"])
+ * so the slate interface above stays exactly as it was.
+ *
+ * The frame is drawn, not bordered: one SVG carrying four corners and four repeating edges, applied with
+ * border-image so the corners hold their shape while the edges tile. The line wanders about a third of a
+ * pixel, which is what makes it read as ink. On a dark ground a light hairline blooms — the eye takes a
+ * light shape on dark as heavier than the same shape reversed — so the weights barely move from the paper
+ * version and the opacity does the work instead.
+ * ========================================================================================== */
+html:not([data-theme="slate"]) {
+  --frame: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='96' height='96' viewBox='0 0 96 96'%3E %3Cg fill='none' stroke='%23e8e0cf' stroke-linecap='butt' stroke-linejoin='round'%3E %3Cg opacity='.5' stroke-width='.85'%3E %3Cpath d='M22 1.5 H3.1 Q1.5 1.5 1.5 3.1 V22'/%3E%3Cpath d='M74 1.5 H92.9 Q94.5 1.5 94.5 3.1 V22'/%3E %3Cpath d='M22 94.5 H3.1 Q1.5 94.5 1.5 92.9 V74'/%3E%3Cpath d='M74 94.5 H92.9 Q94.5 94.5 94.5 92.9 V74'/%3E %3Cpath d='M22 1.5 C 28 1.2 32 1.78 38 1.44 S 50 1.2 55 1.56 S 66 1.8 71 1.4 S 74 1.5 74 1.5'/%3E %3Cpath d='M22 94.5 C 28 94.2 32 94.78 38 94.44 S 50 94.2 55 94.56 S 66 94.8 71 94.4 S 74 94.5 74 94.5'/%3E %3Cpath d='M1.5 22 C 1.2 28 1.78 32 1.44 38 S 1.2 50 1.56 55 S 1.8 66 1.4 71 S 1.5 74 1.5 74'/%3E %3Cpath d='M94.5 22 C 94.2 28 94.78 32 94.44 38 S 94.2 50 94.56 55 S 94.8 66 94.4 71 S 94.5 74 94.5 74'/%3E %3C/g%3E %3Cg opacity='.34' stroke-width='.45'%3E %3Cpath d='M22 6.5 H12.1 L6.5 12.1 V22'/%3E%3Cpath d='M74 6.5 H83.9 L89.5 12.1 V22'/%3E %3Cpath d='M22 89.5 H12.1 L6.5 83.9 V74'/%3E%3Cpath d='M74 89.5 H83.9 L89.5 83.9 V74'/%3E %3Cpath d='M22 6.5 H74'/%3E%3Cpath d='M22 89.5 H74'/%3E%3Cpath d='M6.5 22 V74'/%3E%3Cpath d='M89.5 22 V74'/%3E %3C/g%3E%3C/g%3E %3Cg fill='%23e8e0cf' opacity='.45'%3E %3Cpath d='M4.6 3.05 L6.15 4.6 L4.6 6.15 L3.05 4.6 Z'/%3E%3Cpath d='M91.4 3.05 L92.95 4.6 L91.4 6.15 L89.85 4.6 Z'/%3E %3Cpath d='M4.6 89.85 L6.15 91.4 L4.6 92.95 L3.05 91.4 Z'/%3E%3Cpath d='M91.4 89.85 L92.95 91.4 L91.4 92.95 L89.85 91.4 Z'/%3E %3C/g%3E%3C/svg%3E");
+  --minor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='7' viewBox='0 0 300 7' preserveAspectRatio='none'%3E %3Cpath d='M8 3.5 H300' stroke='%23e8e0cf' stroke-width='.45' opacity='.3' fill='none'/%3E %3Cpath d='M3 1.6 L4.9 3.5 L3 5.4 L1.1 3.5 Z' fill='%23e8e0cf' opacity='.4'/%3E%3C/svg%3E");
+  --swell: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='7' viewBox='0 0 300 7' preserveAspectRatio='none'%3E %3Cpath d='M0 3.5 Q 78 2.35 150 2.3 Q 222 2.35 300 3.5 Q 222 4.65 150 4.7 Q 78 4.65 0 3.5 Z' fill='%23e8e0cf' opacity='.45'/%3E%3C/svg%3E");
+}
+html:not([data-theme="slate"]) body { font-family: var(--serif); }
+/* the furniture stays in the sans: labels, counts and anything read at a glance rather than read through */
+html:not([data-theme="slate"]) :is(.btn, .chip, .status, .kind-badge, .badge, .tag, .lvl, .hpnum, .xprow,
+  .xpline .xpnum, .tile span, h3.sec, .ver, .field-chip, .mv-tags, .mv-meta, .mv-fx, .shop-meta, .shop-tag,
+  .shop-who, .shop-fx, .ow-gold, .ow-place span, .foe-card, .dex-hab, .dex-blank, .boot span, .pslot .tag,
+  .pslot .clade, .teach-row .learns, .stats b, .inherit, .toolbar input, .toolbar select, .coach-pick,
+  .dex-search, .balls, .panel-foot, .ability-card small, .cap-mod, .stage-badge, .elem-badge, .item-icon,
+  .act, .dpad .pad, .toast, .mv-name .pp, .set-row .set-label span, .stats, .kv, .learns, .price) {
+  font-family: var(--sans);
+}
+html:not([data-theme="slate"]) :is(.screen-title, .sheet h2, .hero-card h2, .result-card h2, .panel-head b,
+  .enc-head b, .ow-place b, .shop-info b, .party-info b, .mv-name, .boot b, .topbar h1) { font-family: var(--serif); font-weight: 600; }
+html:not([data-theme="slate"]) .topbar h1 { letter-spacing: 0; }
+html:not([data-theme="slate"]) .desc, html:not([data-theme="slate"]) .battle-log .line { font-family: var(--serif); }
+
+/* a section head is a tracked label sitting on a hairline with a lozenge at its head */
+html:not([data-theme="slate"]) h3.sec { font-size: 10px; letter-spacing: .2em; color: var(--fg3); margin: 20px 0 8px;
+  padding-bottom: 8px; background: var(--minor) bottom left / 100% 7px no-repeat; }
+
+/* the type colours move off filled pills and onto swatches: the ink carries the word, the colour the meaning */
+html:not([data-theme="slate"]) .chip { background: none; color: var(--fg); border: 0; border-radius: 0; padding: 0;
+  font-size: 10px; font-weight: 600; letter-spacing: .13em; text-transform: uppercase; gap: 6px; }
+html:not([data-theme="slate"]) .chip::before { content: ''; width: 8px; height: 8px; flex: 0 0 auto; background: var(--chip, var(--fg2)); }
+html:not([data-theme="slate"]) .chip b { display: none; }
+html:not([data-theme="slate"]) :is(.move-btn .chip.dt-chip, .chip.style-chip, .shop-meta .dt-chip) { background: none; color: var(--fg); }
+html:not([data-theme="slate"]) .chips, html:not([data-theme="slate"]) .chips-row { gap: 4px 14px; }
+html:not([data-theme="slate"]) .move-chips { gap: 4px 12px; }
+html:not([data-theme="slate"]) :is(.morph-chip, .held-chip) { background: none; color: var(--fg); border: 0; }
+html:not([data-theme="slate"]) .elem-badge { background: none; color: var(--elem); border-radius: 0; padding: 0 0 0 12px;
+  position: relative; font-size: 10px; letter-spacing: .13em; text-transform: uppercase; }
+html:not([data-theme="slate"]) .elem-badge::before { content: ''; position: absolute; left: 0; top: 50%; margin-top: -4px;
+  width: 8px; height: 8px; background: var(--elem); }
+html:not([data-theme="slate"]) .kind-badge { background: none; color: var(--fg2); border-radius: 0; padding: 0;
+  font-size: 9px; letter-spacing: .2em; font-weight: 600; }
+html:not([data-theme="slate"]) .kind-badge.boss { color: var(--action); }
+html:not([data-theme="slate"]) .kind-badge.trainer { color: var(--acc2); }
+html:not([data-theme="slate"]) .kind-badge.tower { color: var(--gold); }
+html:not([data-theme="slate"]) .kind-badge.elemental { background: none; color: var(--elem); }
+/* an evolution stage is neither money nor an action, so it takes the one thing left: brightness */
+html:not([data-theme="slate"]) .stage-badge { background: none; color: var(--fg); border: 1px solid var(--line);
+  border-radius: 0; padding: 0 5px; font-weight: 600; }
+html:not([data-theme="slate"]) .stage-badge.stage-3 { background: none; box-shadow: none; border-color: var(--fg2); }
+
+/* bars become instrument scales: a hairline track, a solid measure, no rounded ends */
+html:not([data-theme="slate"]) :is(.bar, .hpbar, .xpbar) { border-radius: 0; background: none; border: 0;
+  border-bottom: 1px solid var(--line); overflow: visible; }
+html:not([data-theme="slate"]) .hpbar { height: 9px; }
+html:not([data-theme="slate"]) :is(.bar i, .xpbar i) { border-radius: 0; background: var(--fg); opacity: .55; }
+html:not([data-theme="slate"]) .hpbar i { border-radius: 0; }
+html:not([data-theme="slate"]) .xpbar i { background: var(--fg2); }
+html:not([data-theme="slate"]) .bar i.up { background: var(--fg); opacity: .95; }
+html:not([data-theme="slate"]) .bar i.down { background: var(--fg); opacity: .3; }
+
+/* cards become rows: the contrast of a dark ground separates them, so the boxes go and the list gets shorter */
+html:not([data-theme="slate"]) :is(.shop-row, .teach-row, .party-row) { border: 0; border-bottom: 1px solid var(--line);
+  border-radius: 0; background: none; padding: 8px 0; }
+html:not([data-theme="slate"]) :is(.shop-list, .party-list) { gap: 0; }
+html:not([data-theme="slate"]) .party-row { grid-template-columns: 56px 1fr; }
+html:not([data-theme="slate"]) .party-row svg { width: 56px; }
+html:not([data-theme="slate"]) :is(.shop-row.on, .shop-row.known, .shop-row.next, .party-row.active) { border-bottom-color: var(--fg2); }
+html:not([data-theme="slate"]) .shop-row.signature { background: none; border-bottom-color: var(--gold); }
+html:not([data-theme="slate"]) .shop-tag { color: var(--gold); font-weight: 600; letter-spacing: .1em; text-transform: uppercase; font-size: 10px; }
+/* the potion ball loses its gloss: a flat dot in a hairline ring, so the item colour stays and the toy goes */
+html:not([data-theme="slate"]) .item-icon { background: var(--chip, var(--fg2)); box-shadow: 0 0 0 1px var(--bg), 0 0 0 2px var(--line);
+  width: 12px; height: 12px; font-size: 0; color: transparent; }
+html:not([data-theme="slate"]) .item-icon.small { width: 10px; height: 10px; }
+html:not([data-theme="slate"]) .item-info { grid-template-columns: 16px 1fr; }
+
+/* a lit surface rather than a bordered one — the same device as the specimen plate, and it needs no border */
+html:not([data-theme="slate"]) :is(.panel, .battle-log, .ability-card, .result-card, .hero-card, .encounter,
+  .ow-dialog, .tile, .sheet, .pslot, .pcard, .result, .coach-pick, .dex-search, .toolbar input, .toolbar select, .btn) {
+  background: var(--plate); border-color: var(--line); border-radius: var(--radius); }
+html:not([data-theme="slate"]) :is(.panel, .battle-log, .ability-card, .hero-card, .encounter, .tile) { border-color: transparent; }
+html:not([data-theme="slate"]) .hero-card { background: var(--plate); }
+html:not([data-theme="slate"]) .sheet { border-radius: 4px 4px 0 0; }
+html:not([data-theme="slate"]) .ability-card { border-color: var(--line); }
+html:not([data-theme="slate"]) .ability-card b { color: var(--fg); }
+html:not([data-theme="slate"]) .panel .passive::before { color: var(--fg3); }
+html:not([data-theme="slate"]) .battle-log .line { font-style: italic; color: var(--fg3); opacity: 1; }
+html:not([data-theme="slate"]) .battle-log .line:last-child { font-style: normal; color: var(--fg); font-weight: 400; }
+
+/* the plates: the drawn frame goes on the two surfaces that really are plates */
+html:not([data-theme="slate"]) :is(.stage, .hero) { background: var(--plate);
+  border: 11px solid transparent; border-image: var(--frame) 22 repeat; }
+html:not([data-theme="slate"]) .arena { background: none; border: 0; padding: 0; gap: 8px; }
+html:not([data-theme="slate"]) .hero { min-height: 210px; }
+
+/* a measure carries quarter ticks, as an instrument scale does; the fill covers the ones it has passed */
+html:not([data-theme="slate"]) :is(.bar, .hpbar, .xpbar) {
+  background: repeating-linear-gradient(90deg, var(--line) 0 1px, transparent 1px 25%) bottom left / 100% 3px no-repeat; }
+/* health keeps its traffic light — that reading is worth more than tidiness — but in the theme's own inks */
+html:not([data-theme="slate"]) .hpbar i { background: #7f9c4a; }
+html:not([data-theme="slate"]) .hpbar i.warn { background: var(--gold); }
+html:not([data-theme="slate"]) .hpbar i.low { background: #c9553a; }
+
+/* the three signals: brass is money, ember is the action in hand, brightness is importance */
+html:not([data-theme="slate"]) .btn.primary { background: none; color: var(--action); border: 1px solid var(--action); font-weight: 600; }
+html:not([data-theme="slate"]) .btn.capture { border-color: var(--action); color: var(--action); }
+html:not([data-theme="slate"]) :is(.shop-row, .teach-row, .party-row) .btn.primary { border-color: var(--gold); color: var(--gold); }
+html:not([data-theme="slate"]) .btn.on { background: var(--bg3); border-color: var(--fg2); }
+html:not([data-theme="slate"]) .act { border-color: var(--action); color: var(--action); background: var(--plate); }
+html:not([data-theme="slate"]) .boot-mark { color: var(--action); }
+html:not([data-theme="slate"]) .ow-gold { color: var(--gold); font-weight: 600; }
+html:not([data-theme="slate"]) .balls i { background: var(--fg); opacity: .85; border-radius: 0; }
+html:not([data-theme="slate"]) .balls i.out { background: none; box-shadow: inset 0 0 0 1px var(--fg3); opacity: .6; }
+html:not([data-theme="slate"]) .dex-mark.caught { color: var(--gold); text-shadow: none; }
+html:not([data-theme="slate"]) .badge.m { background: var(--gold); color: #1a1400; }
+html:not([data-theme="slate"]) .pcard.is-on { outline-color: var(--fg2); }
+
+/* the field and the sides read like the type marks: a swatch and tracked caps, not a lit pill */
+html:not([data-theme="slate"]) .field-chip { background: none; border: 0; border-radius: 0; padding: 0;
+  color: var(--fg2); font-size: 9.5px; font-weight: 600; letter-spacing: .16em; gap: 6px; }
+html:not([data-theme="slate"]) .field-chip::before { content: ''; width: 8px; height: 8px; flex: 0 0 auto; background: var(--chip); }
+html:not([data-theme="slate"]) .field-icon { display: none; }
+html:not([data-theme="slate"]) .field-turns { color: var(--fg); font-weight: 600; }
+html:not([data-theme="slate"]) .field-bar { gap: 6px 16px; margin-top: 8px; }
+html:not([data-theme="slate"]) .status { border-radius: 0; font-weight: 600; letter-spacing: .1em; }
+/* the sticky controls sit over the log, and the log is a lit panel now: they need a floor, not a fade */
+html:not([data-theme="slate"]) .controls { background: var(--bg); border-top: 1px solid var(--line); padding-top: 8px; }
+
+/* the move cells: a hairline cell with its type on the leading edge, not a tinted gradient */
+html:not([data-theme="slate"]) .move-btn { background: none; border: 1px solid var(--line);
+  border-left: 4px solid var(--chip, var(--line)); border-radius: var(--radius); }
+html:not([data-theme="slate"]) .mv-tags .bonus { color: var(--gold); }
+html:not([data-theme="slate"]) .btn.danger { border-color: var(--action); color: var(--action); }
+
+/* the map keeps its own colours — that is the world, not the chrome — but its shell joins the theme */
+html:not([data-theme="slate"]) .ow-view { border-color: var(--line); border-radius: var(--radius); }
+html:not([data-theme="slate"]) .dpad .pad { background: var(--plate); border-radius: var(--radius); }
+html:not([data-theme="slate"]) .ow-minimap { border-radius: 0; border-color: var(--line); }
+html:not([data-theme="slate"]) .sheet .grab { border-radius: 0; height: 3px; width: 34px; }
+html:not([data-theme="slate"]) .sw { border-radius: 0; border-color: var(--line); }
+html:not([data-theme="slate"]) .toast { border-radius: 0; }
+html:not([data-theme="slate"]) .set-row { border-bottom-color: var(--line); }
+
+/* the ornament scales with the box it turns: a stage squeezed into a short screen gets a slimmer frame */
+@media (max-height: 720px) { html:not([data-theme="slate"]) .stage { border-width: 7px; } }
+@media (orientation: landscape) and (max-height: 520px) { html:not([data-theme="slate"]) .stage { border-width: 5px; } }
+
+/* high contrast lifts the guide's ground and inks the same way it lifts slate's */
+html[data-contrast="high"]:not([data-theme="slate"]) {
+  --bg: #0d0b07; --bg2: #17140e; --bg3: #262117; --plate: #201c14;
+  --fg: #fffaf0; --fg2: #cdc4ae; --fg3: #c0b7a1; --line: #8a806a;
+}

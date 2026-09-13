@@ -11,7 +11,7 @@ import { mountFight, xpRow } from './fight.js';
 import { STATUS_INFO, levelCaptureMul } from '../battle/engine.js';
 import { stageOf, stageName } from '../data/evolution.js';
 import { loadSave, persistSave, exportSave, importSave, recordCollection, retireJourney, SLOTS, activeSlot, useSlot, persistSlot, clearSlot, slotSummaries } from '../game/save.js';
-import { SPEEDS, TEXT_SIZES, MOTIONS, CONTRASTS, MUSIC_LEVELS } from '../game/settings.js';
+import { SPEEDS, TEXT_SIZES, MOTIONS, CONTRASTS, MUSIC_LEVELS, THEMES } from '../game/settings.js';
 import { getSettings, updateSetting, fightSpeed } from './settings.js';
 import { playTheme } from '../core/music.js';
 import { memberMaxHp, xpProgress, learnMove, moveMember, setLead, canFight, releaseMember, renameMember, setLocked, PRESETS, savePreset, applyPreset, presetMembers } from '../game/party.js';
@@ -737,6 +737,7 @@ function owSettingsSheet() {
       choice('Text size', 'The whole layout is sized off this, so everything grows together.', 'text', TEXT_SIZES),
       choice('Motion', 'Reduced stops the sprites lunging, shaking and sliding.', 'motion', MOTIONS),
       choice('Contrast', 'High firms up every border and drops the see-through panels.', 'contrast', CONTRASTS),
+      choice('Look', 'Field guide is a naturalist\u2019s plate book on a dark ground: a book serif, drawn rules, and type colour on swatches. Slate is the interface the game shipped with.', 'theme', THEMES),
       h('p', { class: 'hint' }, 'Settings belong to this browser rather than to a save, so all three slots play the same way.'),
     ]);
   };

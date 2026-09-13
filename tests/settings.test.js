@@ -12,8 +12,10 @@ const store = (seed = {}) => {
 
 test('settings default sanely and refuse nonsense', () => {
   const d = defaultSettings();
-  assert.deepEqual(d, { sound: true, music: 'low', speed: 'normal', text: 'normal', motion: 'full', contrast: 'normal' });
+  assert.deepEqual(d, { sound: true, music: 'low', speed: 'normal', text: 'normal', motion: 'full', contrast: 'normal', theme: 'guide' });
   assert.equal(normalizeSettings({ speed: 'warp', text: 'tiny', motion: 'jerky', contrast: 'none' }).speed, 'normal');
+  assert.equal(normalizeSettings({ theme: 'chartreuse' }).theme, 'guide', 'a look nobody wrote falls back to the default');
+  assert.equal(normalizeSettings({ theme: 'slate' }).theme, 'slate');
   assert.deepEqual(normalizeSettings(null), d);
   assert.equal(normalizeSettings({ sound: false }).sound, false);
   assert.equal(normalizeSettings({ fast: true }).speed, 'fast', 'the old fast switch becomes a speed');
@@ -32,9 +34,9 @@ test('settings default sanely and refuse nonsense', () => {
 test('settings survive a round trip and carry the old sound switch over', () => {
   const st = store();
   assert.equal(loadSettings(st).sound, true);
-  assert.ok(saveSettings({ sound: false, music: 'off', speed: 'instant', text: 'huge', motion: 'reduced', contrast: 'high' }, st));
+  assert.ok(saveSettings({ sound: false, music: 'off', speed: 'instant', text: 'huge', motion: 'reduced', contrast: 'high', theme: 'slate' }, st));
   const back = loadSettings(st);
-  assert.deepEqual(back, { sound: false, music: 'off', speed: 'instant', text: 'huge', motion: 'reduced', contrast: 'high' });
+  assert.deepEqual(back, { sound: false, music: 'off', speed: 'instant', text: 'huge', motion: 'reduced', contrast: 'high', theme: 'slate' });
   assert.ok(st.getItem(SETTINGS_KEY).includes('instant'));
   assert.equal(loadSettings(store({ 'creaturecollector.sfx': 'off' })).sound, false, 'the lone sound key is honoured once');
   assert.deepEqual(loadSettings(store({ [SETTINGS_KEY]: '{broken' })), defaultSettings());
@@ -43,10 +45,11 @@ test('settings survive a round trip and carry the old sound switch over', () => 
 
 test('settings stamp themselves onto the document', () => {
   const root = { dataset: {}, style: {} };
-  applySettings({ text: 'large', motion: 'reduced', contrast: 'high' }, { documentElement: root });
+  applySettings({ text: 'large', motion: 'reduced', contrast: 'high', theme: 'slate' }, { documentElement: root });
   assert.equal(root.dataset.text, 'large');
   assert.equal(root.dataset.motion, 'reduced');
   assert.equal(root.dataset.contrast, 'high');
+  assert.equal(root.dataset.theme, 'slate', 'the stylesheet reads the look off the root like everything else');
   assert.equal(root.style.zoom, String(TEXT_SIZES.large.zoom));
   applySettings(defaultSettings(), { documentElement: root });
   assert.equal(root.style.zoom, '', 'normal type leaves the page alone');

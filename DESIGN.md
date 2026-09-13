@@ -1989,6 +1989,58 @@ crept in. This pass made the keyboard a first-class way to play.
   animation in the stylesheet is a 1.3 s wingbeat, well under three a second,
   and both the system setting and the game's own Motion setting stop all of it.
 
+## The look: a field guide on a dark ground (implemented)
+
+The interface the game grew up with was a blue-grey slate: every list a rounded card, every surface the same
+two greys, and one yellow marking prices, locks, evolution stages and primary buttons all at once, so the eye
+could not tell money from importance. Three directions were drawn up as boards and this one was built.
+
+**The idea.** A naturalist's plate book, worked on a dark ground. A mezzotint is engraved the other way round
+from a line plate — the ground starts black and the engraver works up into the light — and that is the whole
+logic of the theme: **light is the emphasis**, not an accent colour. Which frees the accent, so the three
+signals stay separate and nothing carries two jobs at once:
+
+- **brass** is money, and only money;
+- **ember** is the action in hand, and only that — a shop's buy buttons are transactions rather than the
+  action a screen is asking for, so they take the brass instead;
+- **brightness** is importance: a creature's best stat is simply its brightest measure.
+
+**The frame is drawn, not bordered.** One SVG carries four corners and four repeating edges, applied with
+`border-image` so the corners hold their shape while the edges tile. The outer rule turns square with a hair
+of a radius, the inner rule chamfers off at 45 degrees the way an engraved plate does, and a lozenge sits in
+the triangle the chamfer leaves. The line wanders about a third of a pixel, which is what makes it read as
+ink rather than as a 1px border, and the caps are butt rather than round because a round cap stacking where
+the corner meets its edge tile blots the seam at any magnification. It goes on the two surfaces that really
+are plates: the fight stages and the creature sheet's hero. The ornament scales with the box, so a stage
+squeezed into a short screen gets a slimmer frame.
+
+**What dark changed, beyond the palette.** A light hairline on dark blooms — the eye takes a light shape on
+dark as heavier than the same shape reversed — so the rules keep their geometry and lose value instead: the
+weights barely move from the paper study and the opacity does the work. The rules between list rows go
+entirely, because on a dark ground the contrast already separates them; rows come in shorter than the cards
+they replace, so the market's 266 rows got denser rather than looser. Bars became instrument scales: a
+hairline track with quarter ticks and a solid measure that covers the ticks it has passed. Health keeps its
+traffic light, because that reading is worth more than tidiness, but in the theme's own inks.
+
+**Type colour.** The eighteen type colours move off filled pills and onto an 8px swatch beside tracked caps:
+the ink carries the word, the colour carries the meaning, and no type colour has to pass a text-contrast bar.
+They needed no migration at all — they were already tuned for a dark ground. The paper study, by contrast,
+had to darken every one of them.
+
+**Two themes, one set of tokens.** `guide` is the default and `slate` is the interface the game shipped with,
+kept whole under Settings → Look. Every structural rule is written under `html:not([data-theme="slate"])`, so
+slate reads exactly as it always did; the theme is one attribute on the root, the same mechanism type size,
+motion and contrast already used. Every ink in the guide clears WCAG AA against the lit panel, which is the
+tighter of its two grounds: fg 13.4:1, fg2 5.8:1, fg3 4.9:1, ember 5.0:1, brass 7.7:1. The dim ink went up
+two steps from where it first looked right — it carries item descriptions and battle-log history, which are
+body text however quiet they are meant to be.
+
+The world keeps its own colours. The map is drawn on a canvas from the eighteen region palettes, and those
+are the world rather than the chrome; only the shell around it joins the theme.
+
+`node scripts/theme-fieldguide.mjs` still draws the study board the theme came from, and `light` draws the
+paper variant it was compared against.
+
 ## A deeper AI for the fights that matter (cut)
 
 Wardens, Titans and the Council pick their move with the same one-ply heuristic

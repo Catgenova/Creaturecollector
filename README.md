@@ -139,6 +139,14 @@ speed, text size, motion and contrast are kept in their own key, so they follow
 you across saves; three save slots hold three journeys at once, and the picker
 shows the badges, party and gold in each.
 
+The look: a naturalist's plate book on a dark ground. A book serif for names,
+rules drawn as inked SVG rather than CSS borders, the eighteen type colours on
+swatches instead of filled pills, and lists as hanging indents on hairlines
+rather than a page of rounded cards. Light does the emphasising — a creature's
+best stat is simply its brightest measure — which leaves one signal each for
+the other two jobs: brass is money, ember is the action in hand. Settings →
+Look keeps the original slate interface a tap away.
+
 Bond: a creature that travels with you earns points for the battles it fights,
 the levels it takes and the big fights it survives, and loses some when it
 falls. Five tiers — Willing, Trusted, Sworn, Inseparable — each buy something
