@@ -1230,7 +1230,7 @@ function owBountySheet(j) {
       if (!bounty) { picking = null; render(); return; }
       const cands = bountyCandidates(j, bounty);
       body.append(h('div', { class: 'row', style: { justifyContent: 'flex-start' } }, h('button', { class: 'btn small', type: 'button', onclick: () => { picking = null; render(); } }, '‹ Bounties'),
-        h('span', { class: 'hint', style: { margin: 0 } }, `Hand over a ${bounty.type} fusion for ${bounty.gold.toLocaleString()} gold × its level bonus.`)));
+        h('span', { class: 'hint', style: { margin: 0 } }, `Hand over a ${bounty.type} fusion for ${bounty.gold.toLocaleString()} gold × its level bonus. One tap hands it over for good.`)));
       if (!cands.length) body.append(h('p', { class: 'hint' }, `No ${bounty.type} fusion travels with you or waits in storage. The shrine fuses two creatures of one class; the child keeps its parents' types.`));
       const list = h('div', { class: 'party-list' });
       for (const c of cands) {
@@ -1238,8 +1238,6 @@ function owBountySheet(j) {
         list.append(owMemberRow(j, m, [
           h('span', { class: 'hint', style: { margin: 0 } }, `× ${bountyLevelMul(m.level).toFixed(2)} at Lv ${m.level} = `, h('b', { class: 'ow-gold' }, `◆ ${c.payout.toLocaleString()}`)),
           h('button', { class: `btn small${block ? '' : ' primary'}`, type: 'button', disabled: Boolean(block), title: block, onclick: () => {
-            if (ow.confirmBounty !== m.uid) { ow.confirmBounty = m.uid; toast(`Tap again to hand ${m.genome.name} over for good`); setTimeout(() => { if (ow.confirmBounty === m.uid) ow.confirmBounty = null; }, 4000); return; }
-            ow.confirmBounty = null;
             const r = turnInBounty(j, bounty.id, m.uid);
             if (!r.ok) { toast(r.reason); return; }
             owSave(); sfx.win(); toast(`${r.member.genome.name} handed over: +${r.paid.toLocaleString()} gold (× ${r.mult.toFixed(2)}). It stays in your Collection.`);
