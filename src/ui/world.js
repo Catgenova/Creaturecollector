@@ -1682,32 +1682,45 @@ function owShrineSheet(j) {
       return;
     }
     const all = [...j.party, ...j.box];
-    // a creature you have already chosen stays on the board whatever the filter says: hiding half of a pair
-    // you picked, and leaving it picked, would be a nasty little trap
-    const shown = all.filter((m) => !wildOnly || neverFused(m) || pick.a === m.uid || pick.b === m.uid);
+    const anchor = pick.a || pick.b;
+    const isPicked = (m) => pick.a === m.uid || pick.b === m.uid;
+    // Once one is chosen the pool narrows to what can actually pair with it — a fusion needs two of the same
+    // class, and canFuseJourney also rules out anything locked. Unchoose it and the whole pool comes back.
+    const canPair = (m) => !anchor || canFuseJourney(j, anchor, m.uid).ok;
+    // Whatever either filter says, a creature you have already chosen stays on the board: hiding half of a
+    // pair you picked, and leaving it picked, would be a nasty little trap.
+    const shown = all.filter((m) => isPicked(m) || (canPair(m) && (!wildOnly || neverFused(m))));
     const hidden = all.length - shown.length;
     const list = h('div', { class: 'pool' });
-    const anchor = pick.a || pick.b;
     for (const m of shown) {
       const tag = pick.a === m.uid ? 'A' : pick.b === m.uid ? 'B' : null;
-      const off = Boolean(m.locked) || (anchor && !tag && !canFuseJourney(j, anchor, m.uid).ok);
+      const off = Boolean(m.locked) && !tag; // only reachable before a pick: after one, a locked creature is filtered out
       list.append(h('button', { class: `pcard${tag === 'A' ? ' is-a' : tag === 'B' ? ' is-b' : off ? ' is-off' : ''}`, type: 'button', onclick: () => {
-        if (off) { toast(m.locked ? `${m.genome.name} is locked. Unlock it in Info first.` : canFuseJourney(j, anchor, m.uid).reason); return; }
+        if (off) { toast(`${m.genome.name} is locked. Unlock it in Info first.`); return; }
         if (pick.a === m.uid) pick.a = null; else if (pick.b === m.uid) pick.b = null; else if (!pick.a) pick.a = m.uid; else pick.b = m.uid;
         render();
       } }, tag ? h('span', { class: `sel badge ${tag.toLowerCase()}` }, tag) : null, h('span', { class: 'gen' }, cladeName(cladeOf(m.genome))), creatureEl(m.genome, { size: 104, animate: false, level: m.level }), h('span', {}, `${m.genome.name} · Lv ${m.level}`)));
     }
     const child = pick.a && pick.b ? previewShrineFusion(j, pick.a, pick.b) : null;
     const wildCount = all.filter(neverFused).length;
+    const anchorName = anchor ? (all.find((m) => m.uid === anchor) || { genome: {} }).genome.name : null;
+    const partners = shown.filter((m) => !isPicked(m)).length;
+    const count = anchor
+      ? `${partners} can pair with ${anchorName}${hidden ? `, ${hidden} hidden` : ''}`
+      : wildOnly ? `${wildCount} of ${all.length} never fused${hidden ? `, ${hidden} hidden` : ''}` : `${all.length} to choose from`;
+    const empty = anchor
+      ? `Nothing ${wildOnly ? 'born as a species ' : ''}can pair with ${anchorName}. A fusion needs two of the same class.`
+      : wildCount ? 'Nothing here but fusions.' : 'Nothing you own was born as a species.';
     appendChildren(body, [
       h('p', { class: 'hint' }, 'The shrine fuses two creatures of the same class into one. Both are consumed; the child keeps the higher level at full health.'),
       h('div', { class: 'type-filter' },
         h('button', { class: `btn small${wildOnly ? ' on' : ''}`, type: 'button', 'aria-pressed': wildOnly ? 'true' : 'false',
           title: 'Show only creatures born as a species — a starter, or something caught. Anything the shrine has already made is hidden.',
           onclick: () => { wildOnly = !wildOnly; render(); } }, `Wild only${wildOnly ? ' ✓' : ''}`),
-        h('span', { class: 'hint', style: { margin: 0, alignSelf: 'center' } },
-          wildOnly ? `${wildCount} of ${all.length} never fused${hidden ? `, ${hidden} hidden` : ''}` : `${all.length} to choose from`)),
-      shown.length ? list : h('p', { class: 'hint' }, wildCount ? 'Nothing here but fusions.' : 'Nothing you own was born as a species.'),
+        anchor ? h('button', { class: 'btn small', type: 'button', onclick: () => { pick.a = null; pick.b = null; render(); } }, 'Clear') : null,
+        h('span', { class: 'hint', style: { margin: 0, alignSelf: 'center' } }, count)),
+      partners || !anchor ? null : h('p', { class: 'hint' }, empty),
+      shown.length ? list : h('p', { class: 'hint' }, empty),
       child ? h('div', { class: 'result' },
         h('div', { class: 'sheet-head' }, h('h2', {}, child.name), typeChips(child.types)),
         h('p', { class: 'meta' }, `gen ${child.gen} · ${child.parents.join(' × ')}`),

@@ -16,9 +16,11 @@ anywhere in the overworld, and creature codes now live only in saves and tests.
 
 Phase 2 — Fusion: fuse any two creatures of a class into one, with an
 inheritance report; stress-tested over five generations. It shipped as a
-Fusion Lab tab and now lives at the overworld's shrine, where a Wild-only
-toggle narrows the pool to creatures born as a species — a starter, or
-something you caught — and hides everything the shrine has already made.
+Fusion Lab tab and now lives at the overworld's shrine. Choosing the first
+creature narrows the pool to what can actually pair with it — a fusion needs
+two of the same class — and Clear puts the whole pool back; a Wild-only
+toggle narrows it further to creatures born as a species, hiding everything
+the shrine has already made.
 
 Phase 3 — Battle: a deterministic, headless battle engine (567 moves, 1,040
 passives, weather and terrain, screens and hazards, confusion, binds, taunts,
