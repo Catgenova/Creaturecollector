@@ -339,7 +339,10 @@ function renderSetup(g, id, styleName, low = false) {
   const drawn = Object.keys(P).filter((slot) => P[slot]);
   const elems = new Set(Object.values(aura));
   const wholeAura = elems.size === 1 && drawn.every((slot) => aura[slot]) ? [...elems][0] : null;
-  const fxWrap = (slot, inner) => (aura[slot] && !wholeAura ? `<g filter="url(#${id}-fx-${aura[slot]})">${inner}</g>` : inner);
+  // Each aura'd part gets its own filter, not one shared per element: the filter region is sized
+  // in user units around that part's box (see elementFilterSvg), so a horn and a body both get
+  // the room their glow needs instead of a percentage that only suits one of them.
+  const fxWrap = (slot, inner) => (aura[slot] && !wholeAura ? `<g filter="url(#${id}-fx-${slot})">${inner}</g>` : inner);
   return { st, styled, shared, ol, ctxFor, wrap, farWrap, aura, elems, wholeAura, fxWrap };
 }
 
@@ -439,13 +442,27 @@ function buildRigged(g, id, styleName, rig, stage = 1, low = false, pose = 'stan
     return [drawNode(rig.tree, null, [])];
   };
 
+  // The bounds each per-part aura filter is applied to, in that part's own user space. Parts
+  // fitted to the body (markings and the like) are drawn scaled onto the body box, so that is
+  // their extent; everything else is drawn in its own authoring space. Bounds are geometry, so
+  // they are grown by the outline stroke, which is painted outside them.
+  const inked = (b) => [b[0] - st.lineOut, b[1] - st.lineOut, b[2] + st.lineOut, b[3] + st.lineOut];
+  const auraBox = {};
+  const clippedSlots = new Set(rig.clipped || []);
+  for (const slot of Object.keys(R.aura)) {
+    const part = P[slot];
+    if (!part) continue;
+    auraBox[slot] = inked(clippedSlots.has(slot) ? bodyBox : part.box || partBounds(part));
+  }
+
   const outline = st.outlinePass ? assemble('outline') : [];
   const layers = assemble('normal');
   if (!Number.isFinite(feet)) feet = bodyBox[3];
   if (typeof body.bottom === 'number') feet = Math.max(feet, body.bottom);
   return {
     layers: [...outline, ...layers], defs: shared.defs.join(''), box: box || [-40, -40, 40, 40], feet, hover, K, body, bodyBox,
-    contacts: mergeContacts(contacts.filter((c) => c.y >= feet - 5)), clip: body.clip || [], elems: R.elems, wholeAura: R.wholeAura,
+    contacts: mergeContacts(contacts.filter((c) => c.y >= feet - 5)), clip: body.clip || [], elems: R.elems,
+    aura: R.aura, auraBox, wholeAura: R.wholeAura, inked,
   };
 }
 
@@ -529,7 +546,10 @@ export function renderCreatureSvg(g, opts = {}) {
   const delay = live ? ` style="animation-delay:-${num(((g.seed || '').length * 0.37 + (g.traits ? g.traits.size * 3 : 0)) % 3)}s"` : '';
   const clip = built.clip.map((d) => `<path d="${d}"/>`).join('');
   const shadowFill = styleName === 'classic' ? 'var(--k)' : hsl(g.palette.c1[0], 30, 10);
-  const fxDefs = [...(built.elems || [])].map((e) => elementFilterSvg(e, `${id}-fx-${e}`, live && !reducedMotion)).join('');
+  const fx = live && !reducedMotion;
+  const fxDefs = built.wholeAura
+    ? elementFilterSvg(built.wholeAura, `${id}-fx-${built.wholeAura}`, fx, built.inked(built.box))
+    : Object.entries(built.auraBox || {}).map(([slot, b]) => elementFilterSvg(built.aura[slot], `${id}-fx-${slot}`, fx, b)).join('');
   const layers = built.wholeAura ? `<g filter="url(#${id}-fx-${built.wholeAura})">${built.layers.join('')}</g>` : built.layers.join('');
   // Contact shadows: a small dark pool under each standing foot, on the ground line so the idle bob lifts the body off it.
   const contact = !low && !built.hover && built.contacts.length

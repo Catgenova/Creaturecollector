@@ -2,13 +2,13 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { makeRng } from '../src/core/rng.js';
 import { SPECIES_BY_ID } from '../src/data/species.js';
-import { ELEMENTS, ELEMENT_IDS, isCoreAbility, coreTypes, elementFilterSvg } from '../src/data/elements.js';
+import { ELEMENTS, ELEMENT_IDS, isCoreAbility, coreTypes, elementFilterSvg, elementFilterPad } from '../src/data/elements.js';
 import { ABILITIES } from '../src/data/abilities.js';
 import { slotsFor } from '../src/data/rigs.js';
 import { getMove } from '../src/data/moves.js';
 import { speciesGenome, makeElemental, rollElemental, elementalOf, validateGenome, encodeGenome, decodeGenome, resolveParts } from '../src/creature/genome.js';
 import { fuse, FUSE } from '../src/creature/fusion.js';
-import { renderCreatureSvg } from '../src/creature/render.js';
+import { renderCreatureSvg, partBounds } from '../src/creature/render.js';
 import { makeBattler, calcDamage, createBattle, step, activeOf } from '../src/battle/engine.js';
 import { WILD_ELEMENTAL, worldFor, wildSpawn, tileAt, TILE } from '../src/game/world.js';
 
@@ -95,16 +95,57 @@ test('elemental parts render with one filter per element', () => {
   assert.equal((svg.match(/filter="url\(#t-fx-water\)"/g) || []).length, 1, 'a pure Elemental gets one filter on the whole creature');
   assert.ok(svg.includes('<animate'));
   assert.ok(!renderCreatureSvg(pure, { id: 't', animate: false }).includes('<animate'), 'static renders are frozen');
+  // A mixed aura filters each part on its own, so the filter is keyed by slot, not by element:
+  // its region is sized to that part (see the region test below).
   const one = emberox('r2'); one.aura = { head: 'storm' };
   const mixed = renderCreatureSvg(one, { id: 't' });
-  assert.equal((mixed.match(/<filter id="t-fx-storm"/g) || []).length, 1);
-  assert.equal((mixed.match(/filter="url\(#t-fx-storm\)"/g) || []).length, 1, 'only the head is filtered');
+  assert.equal((mixed.match(/<filter id="t-fx-head"/g) || []).length, 1);
+  assert.equal((mixed.match(/filter="url\(#t-fx-head\)"/g) || []).length, 1, 'only the head is filtered');
   const two = emberox('r3'); two.aura = { head: 'storm', tail: 'shadow', markings: 'shadow' };
   const svg2 = renderCreatureSvg(two, { id: 't' });
-  assert.ok(svg2.includes('id="t-fx-storm"') && svg2.includes('id="t-fx-shadow"'));
   const drawn = resolveParts(two);
-  const expected = ['head', 'tail', 'markings'].filter((s) => drawn[s]).length;
-  assert.equal((svg2.match(/filter="url\(#t-fx-/g) || []).length, expected);
+  const slots = ['head', 'tail', 'markings'].filter((s) => drawn[s]);
+  for (const slot of slots) assert.ok(svg2.includes(`id="t-fx-${slot}"`), `${slot} filter`);
+  assert.equal((svg2.match(/filter="url\(#t-fx-/g) || []).length, slots.length);
+});
+
+test('an aura filter is given room in user units, so a small part is not squared off', () => {
+  // Regression: the region used to be a percentage of the bounding box, which gave a whole
+  // creature plenty of room and a single horn almost none. The glow then hit the edge of the
+  // region and was clipped into a hard rectangle around the part.
+  for (const id of ELEMENT_IDS) {
+    const pad = elementFilterPad(id);
+    assert.ok(pad >= 8 && pad <= 80, `${id} pad ${pad} looks wrong`);
+    const box = [-11, -8, 11, 4];
+    const f = elementFilterSvg(id, 'x', true, box);
+    assert.ok(f.includes('filterUnits="userSpaceOnUse"'), `${id} uses user units`);
+    const at = (a) => Number(f.match(new RegExp(`\\b${a}="(-?[\\d.]+)"`))[1]);
+    assert.ok(at('x') <= box[0] - pad && at('y') <= box[1] - pad, `${id} origin`);
+    assert.ok(at('x') + at('width') >= box[2] + pad && at('y') + at('height') >= box[3] + pad, `${id} extent`);
+  }
+  // no box given, no user-space region: callers that cannot measure still get the old behaviour
+  assert.ok(elementFilterSvg('mist', 'x', true).includes('width="160%"'));
+
+  const g = emberox('rg');
+  g.aura = { head: 'mist', horns: 'bloom' };
+  const svg = renderCreatureSvg(g, { id: 'q', animate: false });
+  const regions = [...svg.matchAll(/<filter id="q-fx-(\w+)"([^>]*)>/g)];
+  assert.ok(regions.length >= 1);
+  const P = resolveParts(g);
+  for (const [, slot, attrs] of regions) {
+    assert.ok(!attrs.includes('%'), `${slot} region must not be bounding-box relative`);
+    const b = partBounds(P[slot]);
+    const w = Number(attrs.match(/\bwidth="([\d.]+)"/)[1]), h = Number(attrs.match(/\bheight="(-?[\d.]+)"/)[1]);
+    const pad = elementFilterPad(g.aura[slot]);
+    assert.ok(w >= b[2] - b[0] + pad * 2 - 0.2, `${slot} width ${w} vs part ${b[2] - b[0]} + 2x${pad}`);
+    assert.ok(h >= b[3] - b[1] + pad * 2 - 0.2, `${slot} height ${h} vs part ${b[3] - b[1]} + 2x${pad}`);
+  }
+
+  // a pure Elemental still gets one filter, sized to the whole creature
+  const pure2 = emberox('rp'); rollElemental(pure2, makeRng('r'), 1);
+  const one = renderCreatureSvg(pure2, { id: 'w', animate: false });
+  assert.equal((one.match(/<filter /g) || []).length, 1);
+  assert.ok(one.includes('filterUnits="userSpaceOnUse"'));
 });
 
 test('core abilities work in battle', () => {

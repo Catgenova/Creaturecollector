@@ -565,10 +565,20 @@ announce it.
   the six later elements add rust mottling with falling flakes, a heartbeat
   swell, a slow inverting swirl, an orbiting crescent, posterised facets with
   travelling glints, and edges that erode and re-form).
-  Parts with an aura are wrapped in `filter="url(#…-fx-<element>)"`; when
-  every drawn slot shares one element the whole creature gets a single filter
-  instead, which is what a wild Elemental costs to draw. Static renders and
-  `prefers-reduced-motion` (`setReducedMotion`) get the same look frozen.
+  Parts with an aura are wrapped in `filter="url(#…-fx-<slot>)"`, one filter per
+  aura'd part; when every drawn slot shares one element the whole creature gets
+  a single filter instead, which is what a wild Elemental costs to draw. Static
+  renders and `prefers-reduced-motion` (`setReducedMotion`) get the same look
+  frozen.
+
+  A filter's region is given in user units, as the part's own box grown by
+  `elementFilterPad` — the room that element's glow needs, read off its filter
+  body so retuning an effect cannot leave a stale number behind. A region
+  expressed as a percentage of the bounding box cannot serve both: 160% of a
+  whole creature is generous, 160% of one horn is a few units, and the glow is
+  then clipped into a hard rectangle around the part. That is why the per-part
+  filters are keyed by slot rather than shared per element — each needs its own
+  region.
 - **Fusion.** The aura travels with the part that was expressed, so a child
   keeps the element on exactly the slots it inherited from the Elemental
   parent; a mutated part is born plain. Core abilities pass with

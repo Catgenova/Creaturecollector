@@ -30,9 +30,13 @@ export function coreTypes(ability) { const e = CORE_ABILITIES[ability]; return e
 export function elementName(id) { return ELEMENTS[id] ? ELEMENTS[id].name : 'Unknown'; }
 
 // ---- filters -------------------------------------------------------------------------------
-// Each element is one SVG filter. The filter region is generous so glows and displacement are
-// not clipped at the part's bounding box. `live` adds the SMIL animation; static renders (card
-// lists, screenshots, reduced motion) get the same look frozen.
+// Each element is one SVG filter. `live` adds the SMIL animation; static renders (card lists,
+// screenshots, reduced motion) get the same look frozen.
+//
+// A filter's region has to be given in user units, not as a percentage of the bounding box: the
+// glow spreads a fixed number of units whatever it is drawn around, so a percentage that leaves
+// a whole creature room starves a single horn and squares its glow off into a box. Callers pass
+// the box the filter is applied to and elementFilterPad says how much room to leave around it.
 
 const anim = (live, attr, values, dur, extra = '') => (live ? `<animate attributeName="${attr}" values="${values}" dur="${dur}" repeatCount="indefinite"${extra}/>` : '');
 const discrete = ' calcMode="discrete"';
@@ -171,9 +175,51 @@ const FILTERS = {
     `<feMerge><feMergeNode in="glow"/><feMergeNode in="drift"/><feMergeNode in="soft"/></feMerge>`,
 };
 
-/** The <filter> element for an element, with the given id attribute. */
-export function elementFilterSvg(elem, fid, live = true) {
+const padCache = new Map();
+
+/**
+ * How far an element's filter can paint beyond the graphic it is applied to, in user units.
+ * Read off the filter body rather than tabulated, so retuning an effect cannot leave a stale
+ * number behind: dilation, four sigma of blur (three leaves a visible tail), half the
+ * displacement scale and any offset are summed as though they all chained, with a few units
+ * spare. Always measured against the animated body, so a frozen render frames identically to
+ * a live one.
+ */
+export function elementFilterPad(elem) {
+  if (padCache.has(elem)) return padCache.get(elem);
+  const body = FILTERS[elem];
+  if (!body) return 0;
+  const src = body(true);
+  const maxOf = (re) => {
+    let m = 0;
+    for (const hit of src.matchAll(re)) {
+      for (const v of hit[1].split(/[;,\s]+/)) { const n = Math.abs(parseFloat(v)); if (Number.isFinite(n) && n > m) m = n; }
+    }
+    return m;
+  };
+  const animated = (attr) => maxOf(new RegExp(`attributeName="${attr}" values="([^"]+)"`, 'g'));
+  const radius = Math.max(maxOf(/<feMorphology[^>]*\bradius="([^"]+)"/g), animated('radius'));
+  const blur = Math.max(maxOf(/<feGaussianBlur[^>]*\bstdDeviation="([^"]+)"/g), animated('stdDeviation'));
+  const disp = maxOf(/<feDisplacementMap[^>]*\bscale="([^"]+)"/g);
+  const offset = Math.max(maxOf(/<feOffset[^>]*\bd[xy]="([^"]+)"/g), animated('dx'), animated('dy'));
+  const pad = Math.ceil(radius + blur * 4 + disp / 2 + offset + 4);
+  padCache.set(elem, pad);
+  return pad;
+}
+
+/**
+ * The <filter> element for an element, with the given id attribute. `box` is the [x0,y0,x1,y1]
+ * bounds of the graphic the filter is applied to, in that graphic's own user space; the region
+ * is that box grown by elementFilterPad so nothing is clipped.
+ */
+export function elementFilterSvg(elem, fid, live = true, box = null) {
   const body = FILTERS[elem];
   if (!body) return '';
-  return `<filter id="${fid}" x="-30%" y="-30%" width="160%" height="160%" color-interpolation-filters="sRGB">${body(live)}</filter>`;
+  let region = 'x="-30%" y="-30%" width="160%" height="160%"';
+  if (box && box.length === 4 && box.every(Number.isFinite)) {
+    const p = elementFilterPad(elem);
+    const r = (n) => Math.round(n * 10) / 10;
+    region = `filterUnits="userSpaceOnUse" x="${r(box[0] - p)}" y="${r(box[1] - p)}" width="${r(box[2] - box[0] + p * 2)}" height="${r(box[3] - box[1] + p * 2)}"`;
+  }
+  return `<filter id="${fid}" ${region} color-interpolation-filters="sRGB">${body(live)}</filter>`;
 }
